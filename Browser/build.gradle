@@ -1,0 +1,11 @@
+plugins {
+    id 'application'
+    id 'java'
+}
+
+dependencies {
+}
+
+application {
+    mainClass = 'net.buildabrowser.babbrowser.browser.Main'
+}
