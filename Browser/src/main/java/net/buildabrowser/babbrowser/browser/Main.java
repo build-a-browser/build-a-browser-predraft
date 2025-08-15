@@ -36,7 +36,6 @@ public class Main {
     JFrame frame = new JFrame("BuildABrowser Test Program");
     frame.setSize(new Dimension(800, 500));
     frame.setMaximumSize(new Dimension(800, 500));
-    frame.setUndecorated(true);
     frame.add(textArea);
     frame.setVisible(true);
   }
