@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.browser;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -13,13 +14,19 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import net.buildabrowser.babbrowser.browser.dom.Document;
 import net.buildabrowser.babbrowser.browser.net.ProtocolRegistry;
+import net.buildabrowser.babbrowser.browser.parser.HTMLParser;
 
 public class Main {
+  
   public static void main(String[] args) throws IOException, URISyntaxException {
     ProtocolRegistry protocolRegistry = ProtocolRegistry.create();
     URL url = new URI(args[0]).toURL();
-    showWindow(loadURLText(protocolRegistry, url));
+    try (InputStream inputStream = protocolRegistry.request(url)) {
+      Document document = HTMLParser.create().parse(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+      showWindow(document.toString());
+    }
   }
 
   private static void showWindow(String text) {
@@ -38,12 +45,6 @@ public class Main {
     frame.setMaximumSize(new Dimension(800, 500));
     frame.add(textArea);
     frame.setVisible(true);
-  }
-
-  private static String loadURLText(ProtocolRegistry protocolRegistry, URL url) throws IOException {
-    try (InputStream inputStream = protocolRegistry.request(url)) {
-      return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-    }
   }
 
 }
