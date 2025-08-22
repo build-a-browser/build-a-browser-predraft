@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.imp.box;
 
+import java.awt.Component;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -26,7 +27,9 @@ public class ElementBox implements Box {
     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
     for (Box child: children) {
-      panel.add(child.render());
+      JComponent childComponent = child.render();
+      childComponent.setAlignmentX(Component.LEFT_ALIGNMENT);
+      panel.add(childComponent);
     }
 
     return panel;

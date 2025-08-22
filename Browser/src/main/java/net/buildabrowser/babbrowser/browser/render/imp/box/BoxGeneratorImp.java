@@ -16,12 +16,19 @@ public class BoxGeneratorImp implements BoxGenerator {
   public List<Box> box(Node node) {
     Box box = switch (node) {
       case Text text -> new TextBox(text);
-      case Element element -> new ElementBox(element, createChildBoxes(element.children()));
+      case Element element -> createElementBox(element);
       case Document document -> new DocumentBox(document, createChildBoxes(document.children()));
       default -> throw new UnsupportedOperationException("Unsupported Box Type");
     };
 
     return List.of(box);
+  }
+
+  private Box createElementBox(Element element) {
+    return switch (element.name()) {
+      case "img" -> new ImageBox(element);
+      default -> new ElementBox(element, createChildBoxes(element.children()));
+    };
   }
 
   private List<Box> createChildBoxes(List<Node> children) {
