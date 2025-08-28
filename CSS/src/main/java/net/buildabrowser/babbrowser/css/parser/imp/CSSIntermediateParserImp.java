@@ -5,12 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.css.cssom.CSSRule;
+import net.buildabrowser.babbrowser.css.cssom.Declaration;
 import net.buildabrowser.babbrowser.css.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.css.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.css.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.css.tokens.ColonToken;
 import net.buildabrowser.babbrowser.css.tokens.EOFToken;
+import net.buildabrowser.babbrowser.css.tokens.IdentToken;
 import net.buildabrowser.babbrowser.css.tokens.LCBracketToken;
 import net.buildabrowser.babbrowser.css.tokens.RCBracketToken;
+import net.buildabrowser.babbrowser.css.tokens.SemicolonToken;
 import net.buildabrowser.babbrowser.css.tokens.Token;
 import net.buildabrowser.babbrowser.css.tokens.WhitespaceToken;
 
@@ -55,6 +59,63 @@ public class CSSIntermediateParserImp {
           break;
       }
     }
+  }
+
+  public List<Declaration> consumeAStyleBlocksContents(CSSTokenStream stream) throws IOException {
+    List<Declaration> declarations = new ArrayList<>(4);
+
+    // TODO: Other cases
+    while (true) {
+      Token token = stream.read();
+      switch (token) {
+        case WhitespaceToken _, SemicolonToken _:
+          continue;
+        case EOFToken _:
+          // TODO: Extend decl with rules
+          return declarations;
+        case IdentToken _:
+          handleStyleBlockIdent(stream, declarations, token);
+          break;
+        default:
+          throw new UnsupportedOperationException("Not yet implemented!");
+      }
+    }
+  }
+
+  private void handleStyleBlockIdent(CSSTokenStream stream, List<Declaration> declarations, Token firstToken) throws IOException {
+    List<Token> tempTokens = new ArrayList<>(3);
+    tempTokens.add(firstToken);
+    while (!(((firstToken = stream.read()) instanceof EOFToken) || firstToken instanceof SemicolonToken)) {
+      stream.unread(firstToken);
+      tempTokens.add(consumeAComponentValue(stream));
+    }
+
+
+    Declaration declaration = consumeADeclaration(ListCSSTokenStream.create(tempTokens));
+    if (declaration != null) {
+      declarations.add(declaration);
+    }
+  }
+
+  private Declaration consumeADeclaration(CSSTokenStream stream) throws IOException {
+    List<Token> declValue = new ArrayList<>(1);
+    IdentToken nameToken = (IdentToken) stream.read();
+    Token token;
+    while ((token = stream.read()) instanceof WhitespaceToken);
+    if (!(token instanceof ColonToken)) return null; // Parse Error
+    while ((token = stream.read()) instanceof WhitespaceToken);
+    stream.unread(token);
+    while (!((token = stream.read()) instanceof EOFToken)) {
+      stream.unread(token);
+      declValue.add(consumeAComponentValue(stream));
+    }
+
+    // TODO: !important
+    while (declValue.getLast() instanceof WhitespaceToken) {
+      declValue.removeLast();
+    }
+
+    return new Declaration(nameToken.value(), declValue, false);
   }
 
   private Token consumeAComponentValue(CSSTokenStream stream) throws IOException {

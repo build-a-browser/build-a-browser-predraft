@@ -1,17 +1,19 @@
-package net.buildabrowser.babbrowser.css.parser.helper;
+package net.buildabrowser.babbrowser.css.parser.imp;
+
+import java.util.List;
 
 import net.buildabrowser.babbrowser.css.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.css.tokens.EOFToken;
 import net.buildabrowser.babbrowser.css.tokens.Token;
 
-public class TestCSSTokenStream implements CSSTokenStream {
+public class ListCSSTokenStream implements CSSTokenStream {
 
-  private final Token[] tokens;
+  private final List<Token> tokens;
 
   private Token unread;
   private int pos = 0;
 
-  private TestCSSTokenStream(Token[] tokens) {
+  private ListCSSTokenStream(List<Token> tokens) {
     this.tokens = tokens;
   }
 
@@ -22,10 +24,10 @@ public class TestCSSTokenStream implements CSSTokenStream {
       unread = null;
       return nextToken;
     }
-    if (pos >= tokens.length) {
+    if (pos >= tokens.size()) {
       return EOFToken.create();
     }
-    return tokens[pos++];
+    return tokens.get(pos++);
   }
 
   @Override
@@ -37,8 +39,8 @@ public class TestCSSTokenStream implements CSSTokenStream {
     unread = token;
   }
 
-  public static TestCSSTokenStream create(Token... tokens) {
-    return new TestCSSTokenStream(tokens);
+  public static ListCSSTokenStream create(List<Token> tokens) {
+    return new ListCSSTokenStream(tokens);
   }
   
 }
