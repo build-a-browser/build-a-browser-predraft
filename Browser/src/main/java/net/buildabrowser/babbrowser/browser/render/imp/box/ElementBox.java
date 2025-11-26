@@ -8,11 +8,13 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import net.buildabrowser.babbrowser.browser.render.core.box.Box;
+import net.buildabrowser.babbrowser.browser.render.core.context.ElementContext;
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
 
 public class ElementBox implements Box {
 
-  @SuppressWarnings("unused")
   private final Element element;
   private final List<Box> children;
 
@@ -22,12 +24,14 @@ public class ElementBox implements Box {
   }
 
   @Override
-  public JComponent render() {
+  public JComponent render(ActiveStyles parentStyles) {
     JPanel panel = new JPanel();
     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
+    // TODO: Should getContext() be moved to Node?
+    ActiveStyles activeStyles = ((ElementContext) ((MutableElement) element).getContext()).activeStyles();
     for (Box child: children) {
-      JComponent childComponent = child.render();
+      JComponent childComponent = child.render(activeStyles);
       childComponent.setAlignmentX(Component.LEFT_ALIGNMENT);
       panel.add(childComponent);
     }

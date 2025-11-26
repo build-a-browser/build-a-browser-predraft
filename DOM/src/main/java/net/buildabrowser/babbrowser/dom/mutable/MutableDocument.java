@@ -7,14 +7,18 @@ import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.mutable.imp.MutableDocumentImp;
 
-public interface MutableDocument extends Document, MutableDocumentOrShadowRoot {
+public interface MutableDocument extends Document, MutableDocumentOrShadowRoot, MutableNode {
 
   List<Node> children();
-  
-  static MutableDocument create() {
-    return new MutableDocumentImp();
-  }
+
+  void onNodeAdded(Node node);
+
+  void onNodeRemoved(Node node);
 
   Document immutable();
+
+  static MutableDocument create(DocumentChangeListener changeListener) {
+    return new MutableDocumentImp(changeListener);
+  }
 
 }

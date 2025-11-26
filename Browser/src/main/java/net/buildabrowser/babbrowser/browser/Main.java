@@ -17,7 +17,12 @@ import javax.swing.UnsupportedLookAndFeelException;
 import net.buildabrowser.babbrowser.browser.net.ProtocolRegistry;
 import net.buildabrowser.babbrowser.browser.render.core.box.Box;
 import net.buildabrowser.babbrowser.browser.render.core.box.BoxGenerator;
+import net.buildabrowser.babbrowser.browser.render.imp.RenderCSSMatcherContext;
+import net.buildabrowser.babbrowser.browser.render.imp.RenderDocumentChangeListener;
+import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.dom.Document;
+import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
 import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
 
 public class Main {
@@ -25,9 +30,13 @@ public class Main {
   public static void main(String[] args) throws IOException, URISyntaxException {
     ProtocolRegistry protocolRegistry = ProtocolRegistry.create();
     URL url = new URI(args[0]).toURL();
+
+    CSSMatcher cssMatcher = CSSMatcher.create(new RenderCSSMatcherContext());
+    DocumentChangeListener changeListener = new RenderDocumentChangeListener(cssMatcher.documentChangeListener());
     try (InputStream inputStream = protocolRegistry.request(url)) {
-      Document document = HTMLParser.create().parse(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+      Document document = HTMLParser.create().parse(new InputStreamReader(inputStream, StandardCharsets.UTF_8), changeListener);
       System.out.println(document);
+      cssMatcher.applyStylesheets(document);
       showWindow(document);
     }
   }
@@ -41,7 +50,7 @@ public class Main {
 
     BoxGenerator boxGenerator = BoxGenerator.create();
     Box documentBox = boxGenerator.box(document).get(0);
-    Component content = documentBox.render();
+    Component content = documentBox.render(ActiveStyles.create());
 
     JFrame.setDefaultLookAndFeelDecorated(true);
     JFrame frame = new JFrame("BuildABrowser Test Program");

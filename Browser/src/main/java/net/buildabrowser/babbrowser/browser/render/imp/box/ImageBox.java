@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import net.buildabrowser.babbrowser.browser.net.exception.BadURLException;
 import net.buildabrowser.babbrowser.browser.net.util.URLUtil;
 import net.buildabrowser.babbrowser.browser.render.core.box.Box;
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.dom.Element;
 
 public class ImageBox implements Box {
@@ -29,7 +30,7 @@ public class ImageBox implements Box {
   }
 
   @Override
-  public synchronized JComponent render() {
+  public synchronized JComponent render(ActiveStyles parentStyles) {
     URL imageSource = getImageSource();
     if (loadingImageURL == null || !loadingImageURL.equals(imageSource)) {
       image = null;

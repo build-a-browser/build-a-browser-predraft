@@ -8,6 +8,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import net.buildabrowser.babbrowser.browser.render.core.box.Box;
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.dom.Document;
 
 public class DocumentBox implements Box {
@@ -22,12 +23,12 @@ public class DocumentBox implements Box {
   }
 
   @Override
-  public JComponent render() {
+  public JComponent render(ActiveStyles parentStyles) {
     JPanel panel = new JPanel();
     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
     for (Box child: children) {
-      JComponent childComponent = child.render();
+      JComponent childComponent = child.render(parentStyles);
       childComponent.setAlignmentX(Component.LEFT_ALIGNMENT);
       panel.add(childComponent);
     }

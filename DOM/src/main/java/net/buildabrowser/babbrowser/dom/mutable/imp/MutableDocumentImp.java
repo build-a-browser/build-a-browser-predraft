@@ -6,12 +6,50 @@ import java.util.List;
 import net.buildabrowser.babbrowser.cssbase.cssom.mutable.MutableStyleSheetList;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
+import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
 
-public record MutableDocumentImp(List<Node> children, MutableStyleSheetList styleSheets) implements MutableDocument {
+public class MutableDocumentImp implements MutableDocument {
 
-  public MutableDocumentImp() {
-    this(new LinkedList<>(), MutableStyleSheetList.create());
+  private final List<Node> children = new LinkedList<>();
+  private final MutableStyleSheetList styleSheets = MutableStyleSheetList.create();
+  private final DocumentChangeListener changeListener;
+
+  private Object context;
+
+  public MutableDocumentImp(DocumentChangeListener changeListener) {
+    this.changeListener = changeListener;
+  }
+
+  @Override
+  public void onNodeAdded(Node node) {
+    changeListener.onNodeAdded(node);
+  }
+
+  @Override
+  public void onNodeRemoved(Node node) {
+    changeListener.onNodeRemoved(node);
+  }
+
+  @Override
+  public void setContext(Object context) {
+    this.context = context;
+  }
+
+  @Override
+  public Object getContext() {
+    return this.context;
+  }
+
+  @Override
+  public MutableStyleSheetList styleSheets() {
+    return this.styleSheets;
+  }
+
+  @Override
+  public List<Node> children() {
+    return this.children;
   }
   
   @Override
@@ -26,7 +64,9 @@ public record MutableDocumentImp(List<Node> children, MutableStyleSheetList styl
 
   @Override
   public Document immutable() {
-    return Document.create(children, styleSheets.immutable());
+    return Document.create(
+      children.stream().map(e -> e instanceof MutableNode n ? n.immutable() : e).toList(),
+      styleSheets.immutable());
   }
 
 }

@@ -1,7 +1,6 @@
 package net.buildabrowser.babbrowser.htmlparser.shared.imp;
 
 import java.util.ArrayDeque;
-import java.util.LinkedList;
 import java.util.Map;
 
 import net.buildabrowser.babbrowser.dom.Document;
@@ -10,6 +9,7 @@ import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.dom.algo.StyleAlgos;
 import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
+import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
@@ -62,13 +62,14 @@ public class ParseContextImp implements ParseContext {
   }
 
   private void pushElement(String name, Map<String, String> attributes) {
-    Element element = Element.create(name, new LinkedList<>(), attributes);
+    Element element = MutableElement.create(name, attributes);
     switch (nodes.peek()) {
       case Document document -> document.children().add(element);
       case Element e -> e.children().add(element);
       default -> throw new UnsupportedOperationException("Don't know how to push to this element!");
     }
     nodes.push(element);
+    document.onNodeAdded(element);
   }
 
   private void closeActive() {
@@ -81,6 +82,7 @@ public class ParseContextImp implements ParseContext {
         case Element element -> element.children().add(text);
         default -> throw new UnsupportedOperationException("Don't know how to push to this element!");
       }
+      document.onNodeAdded(text);
     }
     nodes.pop();
   }
