@@ -27,14 +27,14 @@ public class HTMLParserTest {
   @Test
   @DisplayName("Can parse empty document")
   public void canParseEmptyDocument() throws IOException {
-    Document document = htmlParser.parse(new StringReader(""));
+    Document document = htmlParser.parse(new StringReader("")).immutable();
     Assertions.assertEquals(Document.create(List.of()), document);
   }
   
   @Test
   @DisplayName("Can parse document with text")
   public void canParseDocumentWithText() throws IOException {
-    Document document = htmlParser.parse(new StringReader("Hello, World!"));
+    Document document = htmlParser.parse(new StringReader("Hello, World!")).immutable();
     Assertions.assertEquals(
       Document.create(List.of(Text.create("Hello, World!"))),
       document);
@@ -43,7 +43,7 @@ public class HTMLParserTest {
   @Test
   @DisplayName("Can parse document with div")
   public void canParseDocumentWithDiv() throws IOException {
-    Document document = htmlParser.parse(new StringReader("<div>Hello, World!</div>"));
+    Document document = htmlParser.parse(new StringReader("<div>Hello, World!</div>")).immutable();
     Assertions.assertEquals(
       Document.create(List.of(
         Element.create("div", List.of(
@@ -54,7 +54,7 @@ public class HTMLParserTest {
   @Test
   @DisplayName("Can parse document with self closing tag")
   public void canParseDocumentWithSelfClosingTag() throws IOException {
-    Document document = htmlParser.parse(new StringReader("<img/><div>Hello, World!</div>"));
+    Document document = htmlParser.parse(new StringReader("<img/><div>Hello, World!</div>")).immutable();
     Assertions.assertEquals(
       Document.create(List.of(
         Element.create("img", List.of()),
@@ -66,7 +66,7 @@ public class HTMLParserTest {
   @Test
   @DisplayName("Can parse document with element with one attribute")
   public void canParseDocumentWithElementWithOneAttribute() throws IOException {
-    Document document = htmlParser.parse(new StringReader("<img href=\"file.png\"/>"));
+    Document document = htmlParser.parse(new StringReader("<img href=\"file.png\"/>")).immutable();
     Assertions.assertEquals(
       Document.create(List.of(
         Element.create("img", List.of(), Map.of(
@@ -78,7 +78,7 @@ public class HTMLParserTest {
   @Test
   @DisplayName("Can parse document with element with two attributes")
   public void canParseDocumentWithElementWithTwoAttributes() throws IOException {
-    Document document = htmlParser.parse(new StringReader("<img href=\"file.png\" alt=\"Image\"/>"));
+    Document document = htmlParser.parse(new StringReader("<img href=\"file.png\" alt=\"Image\"/>")).immutable();
     Assertions.assertEquals(
       Document.create(List.of(
         Element.create("img", List.of(), Map.of(
@@ -91,13 +91,14 @@ public class HTMLParserTest {
   @Test
   @DisplayName("Can parse document with rawtext element")
   public void canParseDocumentWithRawtextElement() throws IOException {
-    Document document = htmlParser.parse(new StringReader("<style>Hello <world>!</style>"));
+    Document document = htmlParser.parse(new StringReader("<style>p{}</style>")).immutable();
     Assertions.assertEquals(
       Document.create(List.of(
-        Element.create("style", List.of(
-          Text.create("Hello <world>!")
-        )))),
+        Element.create("style", List.of(Text.create("p{}")))),
+        document.styleSheets()),
       document);
+    
+    Assertions.assertEquals(1, document.styleSheets().length());
   }
 
 }

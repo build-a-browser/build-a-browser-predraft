@@ -3,5 +3,6 @@ plugins {
 }
 
 dependencies {
+    api project(":CSS")
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 }

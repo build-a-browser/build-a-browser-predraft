@@ -2,12 +2,13 @@ package net.buildabrowser.babbrowser.dom.imp;
 
 import java.util.List;
 
+import net.buildabrowser.babbrowser.css.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Node;
 
-public record DocumentImp(List<Node> children) implements Document {
+public record DocumentImp(List<Node> children, StyleSheetList styleSheets) implements Document {
   
-  @Override
+  /*@Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
     for (Node child: children) {
@@ -15,6 +16,6 @@ public record DocumentImp(List<Node> children) implements Document {
     }
     
     return builder.toString();
-  }
+  }*/
 
 }

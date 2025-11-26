@@ -8,6 +8,8 @@ import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.Text;
+import net.buildabrowser.babbrowser.dom.algo.StyleAlgos;
+import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
@@ -17,9 +19,12 @@ public class ParseContextImp implements ParseContext {
 
   private final ArrayDeque<Node> nodes = new ArrayDeque<>();
   private final StringBuilder textBuffer = new StringBuilder();
+
+  private final MutableDocument document; // TODO: Remove?
   private final TokenizeContext tokenizeContext;
 
-  public ParseContextImp(Document document, TokenizeContext tokenizeContext) {
+  public ParseContextImp(MutableDocument document, TokenizeContext tokenizeContext) {
+    this.document = document;
     this.tokenizeContext = tokenizeContext;
     nodes.push(document);
   }
@@ -49,6 +54,10 @@ public class ParseContextImp implements ParseContext {
       Element e = (Element) nodes.peek();
       assert e.name().equals(tagToken.name()): "Existing tag was " + e.name() + " but new tag is " + tagToken.name();
       closeActive();
+
+      if (tagToken.name().equals("style")) {
+        StyleAlgos.updateAStyleBlock(e, document);
+      }
     }
   }
 
