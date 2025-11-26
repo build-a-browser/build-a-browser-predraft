@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
 public class TagOpenState implements TokenizeState {
 
@@ -12,12 +13,12 @@ public class TagOpenState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
     switch (ch) {
       case '/':
-        tokenizeContext.setTokenizeState(new EndTagOpenState());
+        tokenizeContext.setTokenizeState(TokenizeStates.endTagOpenState);
         break;
       default:
         // TODO: Proper Alpha check, other cases
         tokenizeContext.beginTagToken(true);
-        tokenizeContext.reconsumeInTokenizeState(ch, new TagNameState());
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.tagNameState);
         break;
     }
   }

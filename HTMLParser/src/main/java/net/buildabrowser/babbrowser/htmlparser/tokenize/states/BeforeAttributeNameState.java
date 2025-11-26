@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
 public class BeforeAttributeNameState implements TokenizeState {
 
@@ -13,7 +14,7 @@ public class BeforeAttributeNameState implements TokenizeState {
     // TODO: Other cases
     switch (ch) {
       case '=':
-        tokenizeContext.setTokenizeState(new BeforeAttributeValueState());
+        tokenizeContext.setTokenizeState(TokenizeStates.beforeAttributeValueState);
         break;
       default:
         tokenizeContext.currentTagToken().startNewAttribute();

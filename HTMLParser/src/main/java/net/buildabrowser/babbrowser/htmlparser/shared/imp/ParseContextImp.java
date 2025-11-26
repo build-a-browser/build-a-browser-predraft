@@ -13,7 +13,7 @@ import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
-import net.buildabrowser.babbrowser.htmlparser.tokenize.states.RawTextState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
 public class ParseContextImp implements ParseContext {
 
@@ -44,7 +44,7 @@ public class ParseContextImp implements ParseContext {
     if (tagToken.isStartTag()) {
       pushElement(tagToken.name(), tagToken.attributes());
       if (tagToken.name().equals("style")) {
-        tokenizeContext.setTokenizeState(new RawTextState());
+        tokenizeContext.setTokenizeState(TokenizeStates.rawTextState);
       }
       if (tagToken.isSelfClosing()) {
         closeActive();

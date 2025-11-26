@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
 public class EndTagOpenState implements TokenizeState {
 
@@ -14,7 +15,7 @@ public class EndTagOpenState implements TokenizeState {
       default:
         // TODO: Proper Alpha check, other cases
         tokenizeContext.beginTagToken(false);
-        tokenizeContext.reconsumeInTokenizeState(ch, new TagNameState());
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.tagNameState);
     }
   }
 

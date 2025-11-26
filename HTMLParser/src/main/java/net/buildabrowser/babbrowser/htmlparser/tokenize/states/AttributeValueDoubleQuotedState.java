@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
 public class AttributeValueDoubleQuotedState implements TokenizeState {
 
@@ -13,7 +14,7 @@ public class AttributeValueDoubleQuotedState implements TokenizeState {
     switch (ch) {
       // TODO: Other cases
       case '"':
-        tokenizeContext.setTokenizeState(new AfterAttributeValueQuotedState());
+        tokenizeContext.setTokenizeState(TokenizeStates.afterAttributeValueQuotedState);
         break;
       default:
         tokenizeContext.currentTagToken().appendToAttributeValue(ch);

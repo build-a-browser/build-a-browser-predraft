@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.htmlparser.tokenize.states;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
 public class DataState implements TokenizeState {
 
@@ -14,7 +15,7 @@ public class DataState implements TokenizeState {
         parseContext.emitEOFToken();
         break;
       case '<':
-        context.setTokenizeState(new TagOpenState());
+        context.setTokenizeState(TokenizeStates.tagOpenState);
         break;
       default:
         parseContext.emitCharacterToken(ch);

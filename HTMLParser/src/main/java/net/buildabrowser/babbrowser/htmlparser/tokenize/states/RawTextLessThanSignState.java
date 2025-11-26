@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
 public class RawTextLessThanSignState implements TokenizeState {
 
@@ -13,11 +14,11 @@ public class RawTextLessThanSignState implements TokenizeState {
     switch (ch) {
       case '/':
         tokenizeContext.temporaryBuffer().clear();
-        tokenizeContext.setTokenizeState(new RawTextEndTagOpenState());
+        tokenizeContext.setTokenizeState(TokenizeStates.rawTextEndTagOpenState);
         break;
       default:
         parseContext.emitCharacterToken('<');
-        tokenizeContext.reconsumeInTokenizeState(ch, new RawTextState());
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.rawTextState);
     }
   }
 

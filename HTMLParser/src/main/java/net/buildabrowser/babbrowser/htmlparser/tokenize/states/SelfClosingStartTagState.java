@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
 public class SelfClosingStartTagState implements TokenizeState {
 
@@ -14,7 +15,7 @@ public class SelfClosingStartTagState implements TokenizeState {
       // TODO: Other cases
       case '>':
         tokenizeContext.currentTagToken().setSelfClosing(true);
-        tokenizeContext.setTokenizeState(new DataState());
+        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
         parseContext.emitTagToken(tokenizeContext.currentTagToken());
         break;
       default:
@@ -23,3 +24,4 @@ public class SelfClosingStartTagState implements TokenizeState {
   }
 
 }
+ 

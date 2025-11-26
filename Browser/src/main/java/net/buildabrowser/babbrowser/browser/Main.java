@@ -34,8 +34,11 @@ public class Main {
     CSSMatcher cssMatcher = CSSMatcher.create(new RenderCSSMatcherContext());
     DocumentChangeListener changeListener = new RenderDocumentChangeListener(cssMatcher.documentChangeListener());
     try (InputStream inputStream = protocolRegistry.request(url)) {
+      long time = System.currentTimeMillis();
       Document document = HTMLParser.create().parse(new InputStreamReader(inputStream, StandardCharsets.UTF_8), changeListener);
-      System.out.println(document);
+      long elapsed = System.currentTimeMillis() - time;
+      System.out.println("Num millis elapsed: " + elapsed);
+      // System.out.println(document);
       cssMatcher.applyStylesheets(document);
       showWindow(document);
     }

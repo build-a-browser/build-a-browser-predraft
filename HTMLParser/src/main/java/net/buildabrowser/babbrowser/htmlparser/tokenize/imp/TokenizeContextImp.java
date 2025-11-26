@@ -7,7 +7,6 @@ import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
 import net.buildabrowser.babbrowser.htmlparser.token.imp.TagTokenImp;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
-import net.buildabrowser.babbrowser.htmlparser.tokenize.states.DataState;
 
 public class TokenizeContextImp implements TokenizeContext {
 
@@ -15,7 +14,7 @@ public class TokenizeContextImp implements TokenizeContext {
   private final TemporaryBuffer temporaryBuffer = new TemporaryBufferImp();
   private final TagTokenImp tagToken = new TagTokenImp();
 
-  private TokenizeState tokenizeState = new DataState();
+  private TokenizeState tokenizeState = TokenizeStates.dataState;
 
   public TokenizeContextImp(PushbackReader pushbackReader) {
     this.pushbackReader = pushbackReader;

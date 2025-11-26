@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.htmlparser.tokenize.states;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
 public class TagNameState implements TokenizeState {
 
@@ -11,13 +12,13 @@ public class TagNameState implements TokenizeState {
     switch (ch) {
       // TODO: Other cases
       case '\t', '\n', '\f', ' ':
-        tokenizeContext.setTokenizeState(new BeforeAttributeNameState());
+        tokenizeContext.setTokenizeState(TokenizeStates.beforeAttributeNameState);
         break;
       case '/':
-        tokenizeContext.setTokenizeState(new SelfClosingStartTagState());
+        tokenizeContext.setTokenizeState(TokenizeStates.selfClosingStartTagState);
         break;
       case '>':
-        tokenizeContext.setTokenizeState(new DataState());
+        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
         parseContext.emitTagToken(tokenizeContext.currentTagToken());
         break;
       default:
