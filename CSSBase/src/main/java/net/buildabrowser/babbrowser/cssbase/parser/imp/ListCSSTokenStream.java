@@ -2,16 +2,16 @@ package net.buildabrowser.babbrowser.cssbase.parser.imp;
 
 import java.util.List;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
-public class ListCSSTokenStream implements CSSTokenStream {
+public class ListCSSTokenStream implements SeekableCSSTokenStream {
 
   private final List<Token> tokens;
 
   private Token unread;
-  private int pos = 0;
+  private int position = 0;
 
   private ListCSSTokenStream(List<Token> tokens) {
     this.tokens = tokens;
@@ -24,10 +24,10 @@ public class ListCSSTokenStream implements CSSTokenStream {
       unread = null;
       return nextToken;
     }
-    if (pos >= tokens.size()) {
+    if (position >= tokens.size()) {
       return EOFToken.create();
     }
-    return tokens.get(pos++);
+    return tokens.get(position++);
   }
 
   @Override
@@ -39,8 +39,22 @@ public class ListCSSTokenStream implements CSSTokenStream {
     unread = token;
   }
 
-  public static ListCSSTokenStream create(List<Token> tokens) {
+  @Override
+  public int position() {
+    return this.position();
+  }
+
+  @Override
+  public void seek(int position) {
+    this.position = position;
+  }
+
+  public static SeekableCSSTokenStream create(List<Token> tokens) {
     return new ListCSSTokenStream(tokens);
+  }
+
+  public static SeekableCSSTokenStream create(Token... tokens) {
+    return new ListCSSTokenStream(List.of(tokens));
   }
   
 }

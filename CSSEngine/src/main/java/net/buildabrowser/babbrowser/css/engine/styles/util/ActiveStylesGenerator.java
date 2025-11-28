@@ -1,21 +1,21 @@
 package net.buildabrowser.babbrowser.css.engine.styles.util;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
+import net.buildabrowser.babbrowser.css.engine.property.color.ColorParser;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
-import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
-import net.buildabrowser.babbrowser.cssbase.tokens.Token;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 
 public final class ActiveStylesGenerator {
 
-  private static final Map<String, Integer> COLOR_MAP = Map.of(
-    "red", 0xFFFF0000,
-    "green", 0xFF00FF00,
-    "blue", 0xFF0000FF
+  private final static Map<String, PropertyValueParser> PROPERTY_PARSERS = Map.of(
+    "color", new ColorParser()
   );
   
   private ActiveStylesGenerator() {}
@@ -30,21 +30,20 @@ public final class ActiveStylesGenerator {
   }
 
   private static void addToActiveStyles(ActiveStyles activeStyles, StyleRule styleRule) {
-    // TODO: Other types
     for (Declaration declaration: styleRule.declarations()) {
-      switch (declaration.name()) {
-        case "color" -> addColorToActiveStyles(activeStyles, declaration.value());
-        default -> {}
-      }
+      parseDeclaration(declaration, activeStyles);
     }
   }
 
-  private static void addColorToActiveStyles(ActiveStyles activeStyles, List<Token> value) {
-    // TODO: More robust parsing
-    IdentToken identToken = (IdentToken) value.get(0);
-    Integer color = COLOR_MAP.get(identToken.value());
-    if (color != null) {
-      activeStyles.setTextColor(color);
+  private static void parseDeclaration(Declaration declaration, ActiveStyles activeStyles) {
+    PropertyValueParser parser = PROPERTY_PARSERS.get(declaration.name());
+    if (parser == null) return;
+
+    SeekableCSSTokenStream tokenStream = CSSTokenStream.create(declaration.value());
+    try {
+      parser.parse(tokenStream, activeStyles);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 

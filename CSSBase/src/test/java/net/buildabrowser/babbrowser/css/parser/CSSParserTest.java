@@ -8,12 +8,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.css.parser.helper.TestCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleList;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
@@ -58,7 +58,7 @@ public class CSSParserTest {
   }
   
   private CSSStyleSheet parseTokens(Token... tokens) throws IOException {
-    return parser.parseAStyleSheet(TestCSSTokenStream.create(tokens));
+    return parser.parseAStyleSheet(CSSTokenStream.create(tokens));
   }
 
 }

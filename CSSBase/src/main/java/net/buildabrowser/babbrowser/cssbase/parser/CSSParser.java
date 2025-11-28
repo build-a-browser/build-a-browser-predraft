@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ActiveCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.CSSParserImp;
+import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
@@ -29,6 +30,22 @@ public interface CSSParser {
       return new ActiveCSSTokenStream(input);
     }
 
+    static SeekableCSSTokenStream create(List<Token> input) {
+      return ListCSSTokenStream.create(input);
+    }
+
+    static SeekableCSSTokenStream create(Token... input) {
+      return ListCSSTokenStream.create(input);
+    }
+
+  }
+
+  static interface SeekableCSSTokenStream extends CSSTokenStream {
+  
+    int position();
+
+    void seek(int position);
+    
   }
 
   static CSSParser create() {

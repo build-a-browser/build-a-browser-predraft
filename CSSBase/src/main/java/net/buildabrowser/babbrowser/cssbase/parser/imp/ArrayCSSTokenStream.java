@@ -1,17 +1,17 @@
-package net.buildabrowser.babbrowser.css.parser.helper;
+package net.buildabrowser.babbrowser.cssbase.parser.imp;
 
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
-public class TestCSSTokenStream implements CSSTokenStream {
+public class ArrayCSSTokenStream implements CSSTokenStream {
 
   private final Token[] tokens;
 
   private Token unread;
   private int pos = 0;
 
-  private TestCSSTokenStream(Token[] tokens) {
+  private ArrayCSSTokenStream(Token[] tokens) {
     this.tokens = tokens;
   }
 
@@ -35,10 +35,6 @@ public class TestCSSTokenStream implements CSSTokenStream {
     }
 
     unread = token;
-  }
-
-  public static TestCSSTokenStream create(Token... tokens) {
-    return new TestCSSTokenStream(tokens);
   }
   
 }
