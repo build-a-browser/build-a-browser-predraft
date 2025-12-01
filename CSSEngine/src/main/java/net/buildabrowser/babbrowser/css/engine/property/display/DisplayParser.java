@@ -50,12 +50,12 @@ public class DisplayParser implements PropertyValueParser {
       (stream1, _) -> PropertyValueParserUtil.parseIdentMap(stream, BOX_VALUES),
       (stream1, _) -> PropertyValueParserUtil.parseIdentMap(stream, LEGACY_VALUES));
     
-      if (result instanceof DisplayUnionValue unionValue) {
-        activeStyles.setOuterDisplayValue(unionValue.outerDisplayValue());
-        activeStyles.setInnerDisplayValue(unionValue.innerDisplayValue());
-      }
+    if (result instanceof DisplayUnionValue unionValue) {
+      activeStyles.setOuterDisplayValue(unionValue.outerDisplayValue());
+      activeStyles.setInnerDisplayValue(unionValue.innerDisplayValue());
+    }
 
-      return result;
+    return result;
   }
 
   private CSSValue parseTuple(SeekableCSSTokenStream stream) throws IOException {

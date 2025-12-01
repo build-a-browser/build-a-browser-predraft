@@ -15,10 +15,10 @@ public class ColorParser implements PropertyValueParser {
   public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
     CSSValue value = colorBaseParser.parse(stream, null);
 
-    System.out.println(value);
     if (value instanceof ColorValue colorValue) {
       activeStyles.setTextColor(colorValue.asSARGB());
     }
+    
     return value;
   }
   
