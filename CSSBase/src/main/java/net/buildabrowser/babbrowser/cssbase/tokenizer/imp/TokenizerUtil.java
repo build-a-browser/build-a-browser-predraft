@@ -8,7 +8,8 @@ public final class TokenizerUtil {
   
   private TokenizerUtil() {}
 
-  private static boolean isDigit(int ch) {
+  // TODO: Move to ASCII util
+  public static boolean isDigit(int ch) {
     return ch >= '0' && ch <= '9';
   }
 

@@ -17,13 +17,17 @@ import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
 public class CSSTokenizerImp implements CSSTokenizer {
 
   private final IdentTokenizer identTokenizer = new IdentTokenizer();
+  private final NumberTokenizer numberTokenizer = new NumberTokenizer(identTokenizer);
 
   @Override
   public Token consumeAToken(CSSTokenizerInput stream) throws IOException {
     int ch = stream.read();
+    // TODO: More cases
     return switch (ch) {
       case '\n', ' ', '\t' -> consumeWhitespace(stream);
       case '#' -> consumeNumberSign(stream);
+      case '+' -> consumePlusSign(stream);
+      case '-' -> consumeHyphenMinusSign(stream);
       case ':' -> ColonToken.create();
       case ';' -> SemicolonToken.create();
       case '{' -> LCBracketToken.create();
@@ -34,7 +38,10 @@ public class CSSTokenizerImp implements CSSTokenizer {
   }
 
   private Token handleOtherValue(CSSTokenizerInput stream, int ch) throws IOException {
-    if (TokenizerUtil.isIdentStartCodePoint(ch)) {
+    if (TokenizerUtil.isDigit(ch)) {
+      stream.unread(ch);
+      return numberTokenizer.consumeANumericToken(stream);
+    } else if (TokenizerUtil.isIdentStartCodePoint(ch)) {
       stream.unread(ch);
       return identTokenizer.consumeAnIdentLikeToken(stream);
     }
@@ -59,6 +66,29 @@ public class CSSTokenizerImp implements CSSTokenizer {
     }
 
     return DelimToken.create(stream.read());
+  }
+
+  private Token consumePlusSign(CSSTokenizerInput stream) throws IOException {
+    if (numberTokenizer.startsWithANumber('+', stream)) {
+      stream.unread('+');
+      return numberTokenizer.consumeANumericToken(stream);
+    }
+
+    return DelimToken.create('+');
+  }
+
+  private Token consumeHyphenMinusSign(CSSTokenizerInput stream) throws IOException {
+    if (numberTokenizer.startsWithANumber('-', stream)) {
+      stream.unread('-');
+      return numberTokenizer.consumeANumericToken(stream);
+    }
+    // TODO: Handle CDC
+    else if (TokenizerUtil.wouldStartAnIdentSequence(stream)) {
+      stream.unread('-');
+      return identTokenizer.consumeAnIdentLikeToken(stream);
+    } else {
+      return DelimToken.create('-');
+    }
   }
   
 }
