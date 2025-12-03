@@ -3,8 +3,6 @@ package net.buildabrowser.babbrowser.css.engine.styles;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
-import net.buildabrowser.babbrowser.css.engine.property.floats.ClearValue.ClearSide;
-import net.buildabrowser.babbrowser.css.engine.property.floats.FloatValue.FloatSide;
 import net.buildabrowser.babbrowser.css.engine.styles.imp.ActiveStylesImp;
 
 public interface ActiveStyles {
@@ -21,16 +19,29 @@ public interface ActiveStyles {
 
   void setInnerDisplayValue(InnerDisplayValue innerDisplayValue);
 
-  ClearSide clearSide();
+  CSSValue clearSide();
 
-  FloatSide floatSide();
+  CSSValue floatSide();
 
   void setClear(CSSValue result);
 
   void setFloat(CSSValue result);
 
+  void setSizingProperty(SizingUnit unit, CSSValue value);
+
+  CSSValue getSizingProperty(SizingUnit unit);
+
   static ActiveStyles create() {
     return new ActiveStylesImp();
+  }
+
+  static enum SizingUnit {
+    MARGIN_TOP, MARGIN_RIGHT, MARGIN_BOTTOM, MARGIN_LEFT,
+    PADDING_TOP, PADDING_RIGHT, PADDING_BOTTOM, PADDING_LEFT,
+    // TODO: Border
+    TOP, RIGHT, BOTTOM, LEFT,
+    WIDTH, MIN_WIDTH, MAX_WIDTH,
+    HEIGHT, MIN_HEIGHT, MAX_HEIGHT
   }
 
 }

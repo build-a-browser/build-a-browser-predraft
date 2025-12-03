@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
-import net.buildabrowser.babbrowser.css.engine.property.floats.FloatValue.FloatSide;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -18,13 +17,11 @@ public class FloatParserTest {
   
   @Test
   @DisplayName("Can parse float value")
-  public void canParseLegacyFloatValue() throws IOException {
+  public void canParseFloatValue() throws IOException {
     CSSValue value = floatsParser.parse(
       CSSTokenStream.create(IdentToken.create("left")),
       ActiveStyles.create());
-    Assertions.assertEquals(
-      new FloatValue(FloatSide.LEFT),
-      value);
+    Assertions.assertEquals(FloatValue.LEFT, value);
   }
 
 }

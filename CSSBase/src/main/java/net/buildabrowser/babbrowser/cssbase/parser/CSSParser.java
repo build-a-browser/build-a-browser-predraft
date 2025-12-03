@@ -24,7 +24,13 @@ public interface CSSParser {
     
     Token read() throws IOException;
 
-    void unread(Token token);
+    void unread(Token token) throws IOException;
+
+    default Token peek() throws IOException {
+      Token result = read();
+      unread(result);
+      return result;
+    }
 
     static CSSTokenStream create(CSSTokenizerInput input) {
       return new ActiveCSSTokenStream(input);

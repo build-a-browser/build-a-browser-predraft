@@ -5,17 +5,26 @@ import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.Inn
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.css.engine.property.floats.ClearValue;
 import net.buildabrowser.babbrowser.css.engine.property.floats.FloatValue;
-import net.buildabrowser.babbrowser.css.engine.property.floats.ClearValue.ClearSide;
-import net.buildabrowser.babbrowser.css.engine.property.floats.FloatValue.FloatSide;
+import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 
 public class ActiveStylesImp implements ActiveStyles {
 
+  private static final CSSValue zeroValue = LengthValue.create(0, true, null);
+
+  private final CSSValue[] cssValues = new CSSValue[] {
+    zeroValue, zeroValue, zeroValue, zeroValue,
+    zeroValue, zeroValue, zeroValue, zeroValue,
+    CSSValue.AUTO, CSSValue.AUTO, CSSValue.AUTO, CSSValue.AUTO,
+    CSSValue.AUTO, zeroValue, CSSValue.NONE,
+    CSSValue.AUTO, zeroValue, CSSValue.NONE
+  };
+
   private int textColor = 0xFF000000;
   private OuterDisplayValue outerDisplayValue = OuterDisplayValue.BLOCK;
   private InnerDisplayValue innerDisplayValue = InnerDisplayValue.FLOW;
-  private FloatSide floatSide = FloatSide.NONE;
-  private ClearSide clearSide = ClearSide.NONE;
+  private CSSValue floatSide = CSSValue.NONE;
+  private CSSValue clearSide = CSSValue.NONE;
 
   @Override
   public int textColor() {
@@ -48,12 +57,12 @@ public class ActiveStylesImp implements ActiveStyles {
   }
 
   @Override
-  public FloatSide floatSide() {
+  public CSSValue floatSide() {
     return this.floatSide;
   }
 
   @Override
-  public ClearSide clearSide() {
+  public CSSValue clearSide() {
     return this.clearSide;
   }
 
@@ -61,7 +70,7 @@ public class ActiveStylesImp implements ActiveStyles {
   public void setFloat(CSSValue result) {
     // TODO: Handle inherit
     if (result instanceof FloatValue floatValue) {
-      this.floatSide = floatValue.side();
+      this.floatSide = floatValue;
     }
   }
 
@@ -69,8 +78,18 @@ public class ActiveStylesImp implements ActiveStyles {
   public void setClear(CSSValue result) {
     // TODO: Handle inherit
     if (result instanceof ClearValue clearValue) {
-      this.clearSide = clearValue.side();
+      this.clearSide = clearValue;
     }
+  }
+
+  @Override
+  public void setSizingProperty(SizingUnit unit, CSSValue value) {
+    cssValues[unit.ordinal()] = value;
+  }
+
+  @Override
+  public CSSValue getSizingProperty(SizingUnit unit) {
+    return cssValues[unit.ordinal()];
   }
   
 }

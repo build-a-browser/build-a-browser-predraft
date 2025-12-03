@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
-import net.buildabrowser.babbrowser.css.engine.property.floats.ClearValue.ClearSide;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -18,13 +17,11 @@ public class ClearParserTest {
   
   @Test
   @DisplayName("Can parse clear value")
-  public void canParseLegacyFloatValue() throws IOException {
+  public void canParseClearValue() throws IOException {
     CSSValue value = floatsParser.parse(
       CSSTokenStream.create(IdentToken.create("both")),
       ActiveStyles.create());
-    Assertions.assertEquals(
-      new ClearValue(ClearSide.BOTH),
-      value);
+    Assertions.assertEquals(ClearValue.BOTH, value);
   }
 
 }

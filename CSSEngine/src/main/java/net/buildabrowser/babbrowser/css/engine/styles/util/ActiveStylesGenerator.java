@@ -1,12 +1,17 @@
 package net.buildabrowser.babbrowser.css.engine.styles.util;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.css.engine.property.color.ColorParser;
+import net.buildabrowser.babbrowser.css.engine.property.floats.ClearParser;
+import net.buildabrowser.babbrowser.css.engine.property.floats.FloatParser;
+import net.buildabrowser.babbrowser.css.engine.property.size.SizeParser;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles.SizingUnit;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
@@ -14,8 +19,33 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStr
 
 public final class ActiveStylesGenerator {
 
-  private final static Map<String, PropertyValueParser> PROPERTY_PARSERS = Map.of(
-    "color", new ColorParser()
+  private final static Map<String, PropertyValueParser> PROPERTY_PARSERS = mapOf(
+    "color", new ColorParser(),
+    "clear", new ClearParser(),
+    "float", new FloatParser(),
+
+    "margin-top", SizeParser.forMargin(SizingUnit.MARGIN_TOP),
+    "margin-right", SizeParser.forMargin(SizingUnit.MARGIN_RIGHT),
+    "margin-bottom", SizeParser.forMargin(SizingUnit.MARGIN_BOTTOM),
+    "margin-left", SizeParser.forMargin(SizingUnit.MARGIN_LEFT),
+
+    "padding-top", SizeParser.forPadding(SizingUnit.PADDING_TOP),
+    "padding-right", SizeParser.forPadding(SizingUnit.PADDING_RIGHT),
+    "padding-bottom", SizeParser.forPadding(SizingUnit.PADDING_BOTTOM),
+    "padding-left", SizeParser.forPadding(SizingUnit.PADDING_LEFT),
+
+    "top", SizeParser.forPosition(SizingUnit.TOP),
+    "right", SizeParser.forPosition(SizingUnit.RIGHT),
+    "bottom", SizeParser.forPosition(SizingUnit.BOTTOM),
+    "left", SizeParser.forPosition(SizingUnit.LEFT),
+
+    "width", SizeParser.forNormal(SizingUnit.WIDTH),
+    "min-width", SizeParser.forMin(SizingUnit.MIN_WIDTH),
+    "max-width", SizeParser.forMax(SizingUnit.MAX_WIDTH),
+
+    "height", SizeParser.forNormal(SizingUnit.HEIGHT),
+    "min-height", SizeParser.forMin(SizingUnit.MIN_HEIGHT),
+    "max-height", SizeParser.forMax(SizingUnit.MAX_HEIGHT)
   );
   
   private ActiveStylesGenerator() {}
@@ -45,6 +75,16 @@ public final class ActiveStylesGenerator {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T, U> Map<T, U> mapOf(Object... values) {
+    Map<T, U> map = new HashMap<>();
+    for (int i = 0; i < values.length; i += 2) {
+      map.put((T) values[i], (U) values[i + 1]);
+    }
+
+    return Map.copyOf(map);
   }
 
 }

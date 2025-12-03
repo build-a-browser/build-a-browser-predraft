@@ -1,0 +1,112 @@
+package net.buildabrowser.babbrowser.css.engine.property.size;
+
+import java.io.IOException;
+import java.util.Map;
+
+import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
+import net.buildabrowser.babbrowser.css.engine.property.CSSValue.CSSFailure;
+import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
+import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue.LengthType;
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles.SizingUnit;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
+
+public class SizeParser implements PropertyValueParser {
+
+  private static final CSSFailure NO_VALID_RESULT = new CSSFailure("No valid result...");
+  private static final CSSFailure INVALID_LENGTH_TYPE = new CSSFailure("Unknown length type!");
+
+  private static final Map<String, LengthType> LENGTH_TYPES = Map.of(
+    "em", LengthType.EM,
+    "ex", LengthType.EX,
+    "in", LengthType.IN,
+    "cm", LengthType.CM,
+    "mm", LengthType.MM,
+    "pt", LengthType.PT,
+    "pc", LengthType.PC,
+    "px", LengthType.PX
+  );
+
+  private final boolean allowNone;
+  private final boolean allowAuto;
+  private final SizingUnit sizingUnit;
+
+  public SizeParser(boolean allowNone, boolean allowAuto, SizingUnit sizingUnit) {
+    this.allowNone = allowNone;
+    this.allowAuto = allowAuto;
+    this.sizingUnit = sizingUnit;
+  }
+
+  @Override
+  public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
+    CSSValue result = parseInternal(stream, activeStyles);
+    if (result.isFailure()) return result;
+
+    activeStyles.setSizingProperty(sizingUnit, result);
+    return result;
+  }
+
+  private CSSValue parseInternal(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
+    if (
+      allowNone
+      && stream.peek() instanceof IdentToken identToken
+      && identToken.value().equals("none")
+    ) {
+      return CSSValue.NONE;
+    } else if (
+      allowAuto
+      && stream.peek() instanceof IdentToken identToken
+      && identToken.value().equals("auto")
+    ) {
+      return CSSValue.AUTO;
+    } else if (
+      stream.peek() instanceof IdentToken identToken
+      && identToken.value().equals("inherit")
+    ) {
+      return CSSValue.INHERIT;
+    } else if (stream.peek() instanceof PercentageToken percentageToken) {
+      return PercentageValue.create(percentageToken.value());
+    } else if (stream.peek() instanceof DimensionToken dimensionToken) {
+      LengthType lengthType = dimensionToken.dimension() == null ? null :
+        LENGTH_TYPES.get(dimensionToken.dimension());
+      if (lengthType == null && !dimensionToken.value().equals((Number) 0)) {
+        return INVALID_LENGTH_TYPE;
+      }
+
+      return LengthValue.create(
+        dimensionToken.value(),
+        dimensionToken.isInteger(),
+        lengthType);
+    } else {
+      return NO_VALID_RESULT;
+    }
+  }
+
+  public static SizeParser forMargin(SizingUnit unit) {
+    return new SizeParser(false, true, unit);
+  }
+
+  public static SizeParser forPadding(SizingUnit unit) {
+    return new SizeParser(false, false, unit);
+  }
+
+  public static SizeParser forPosition(SizingUnit unit) {
+    return new SizeParser(false, true, unit);
+  }
+
+  public static SizeParser forNormal(SizingUnit unit) {
+    return new SizeParser(false, true, unit);
+  }
+
+  public static SizeParser forMin(SizingUnit unit) {
+    return new SizeParser(false, false, unit);
+  }
+
+  public static SizeParser forMax(SizingUnit unit) {
+    return new SizeParser(true, false, unit);
+  }
+  
+}
