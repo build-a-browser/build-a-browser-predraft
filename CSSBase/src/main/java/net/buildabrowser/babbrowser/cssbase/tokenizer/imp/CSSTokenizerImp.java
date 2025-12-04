@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizer;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.HashToken;
@@ -27,7 +28,9 @@ public class CSSTokenizerImp implements CSSTokenizer {
       case '\n', ' ', '\t' -> consumeWhitespace(stream);
       case '#' -> consumeNumberSign(stream);
       case '+' -> consumePlusSign(stream);
+      case ',' -> CommaToken.create();
       case '-' -> consumeHyphenMinusSign(stream);
+      case '.' -> consumeFullStop(stream);
       case ':' -> ColonToken.create();
       case ';' -> SemicolonToken.create();
       case '{' -> LCBracketToken.create();
@@ -89,6 +92,15 @@ public class CSSTokenizerImp implements CSSTokenizer {
     } else {
       return DelimToken.create('-');
     }
+  }
+  
+  private Token consumeFullStop(CSSTokenizerInput stream) throws IOException {
+    if (numberTokenizer.startsWithANumber('.', stream)) {
+      stream.unread('.');
+      return numberTokenizer.consumeANumericToken(stream);
+    }
+
+    return new DelimToken('.');
   }
   
 }

@@ -11,10 +11,19 @@ import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
+import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
+import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.HashToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
+import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
 
 public class CSSParserImp implements CSSParser {
 
@@ -66,16 +75,58 @@ public class CSSParserImp implements CSSParser {
     return StyleRule.create(selectors, declarations);
   }
 
-  private List<ComplexSelector> parseComplexSelectors(List<Token> prelude) {
-    return List.of(parseComplexSelector(prelude));
-  }
-
-  private ComplexSelector parseComplexSelector(List<Token> selectorTokens) {
-    if (selectorTokens.size()  == 1 && selectorTokens.get(0) instanceof IdentToken identToken) {
-      return ComplexSelector.create(List.of(TypeSelector.create(identToken.value())));
+  private List<ComplexSelector> parseComplexSelectors(List<Token> prelude) throws IOException {
+    List<ComplexSelector> selectors = new ArrayList<>(1);
+    CSSTokenStream tokenStream = CSSTokenStream.create(prelude);
+    while (!(tokenStream.peek() instanceof EOFToken)) {
+      ComplexSelector selector = parseComplexSelector(tokenStream);
+      if (selector != null) {
+        selectors.add(selector);
+      }
+      if (tokenStream.peek() instanceof CommaToken) {
+        tokenStream.read();
+      }
     }
 
-    throw new UnsupportedOperationException("Currently only support one type selector!");
+    return selectors;
+  }
+
+  private ComplexSelector parseComplexSelector(CSSTokenStream tokenStream) throws IOException {
+    @SuppressWarnings("unused")
+    boolean didEncounterWhitespace = false;
+    boolean isInvalid = false;
+    List<SelectorPart> parts = new ArrayList<>(1);
+    while (!(
+      tokenStream.peek() instanceof EOFToken
+      || tokenStream.peek() instanceof CommaToken
+    )) {
+      Token currentToken = tokenStream.read();
+      // TODO: Support whitespace
+      switch (currentToken) {
+        case IdentToken identToken -> parts.add(TypeSelector.create(identToken.value()));
+        case DelimToken delimToken -> {
+          if (delimToken.ch() == '.' && tokenStream.peek() instanceof IdentToken identToken) {
+            tokenStream.read();
+            parts.add(AttributeSelector.create("class", identToken.value(), AttributeType.ONE_OF));
+          } else {
+            isInvalid = true;
+          }
+        }
+        case HashToken hashToken -> {
+          if (hashToken.type().equals(HashToken.Type.ID)) {
+            parts.add(IdSelector.create(hashToken.value()));
+          } else {
+            isInvalid = true;
+          }
+        }
+        case WhitespaceToken _ -> didEncounterWhitespace = true;
+        default -> isInvalid = true;
+      }
+    }
+
+    if (isInvalid) return null;
+
+    return new ComplexSelector(parts);
   }
   
 }
