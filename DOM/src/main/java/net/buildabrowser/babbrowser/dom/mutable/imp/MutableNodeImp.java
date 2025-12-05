@@ -23,7 +23,7 @@ public abstract class MutableNodeImp implements MutableNode {
   public Node appendChild(Node node) {
     // TODO: Use the spec method. Also, the cast is not so great
     childNodes.add((MutableNode) node);
-    ownerDocument().onNodeAdded(node); // Custom addition
+    ownerDocument().changeListener().onNodeAdded(node); // Custom addition
     return node;
   }
 

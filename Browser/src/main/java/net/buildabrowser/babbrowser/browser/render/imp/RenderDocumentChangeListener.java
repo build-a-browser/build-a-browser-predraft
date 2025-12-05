@@ -1,6 +1,8 @@
 package net.buildabrowser.babbrowser.browser.render.imp;
 
 import net.buildabrowser.babbrowser.browser.render.core.context.ElementContext;
+import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
+import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
@@ -25,5 +27,15 @@ public class RenderDocumentChangeListener implements DocumentChangeListener {
   public void onNodeRemoved(Node node) {
     styleDocumentChangeListener.onNodeRemoved(node);
   }
+
+  @Override
+  public void onAttributeChanged(Element element, String attrName, String prevValue, String newValue) {
+    styleDocumentChangeListener.onAttributeChanged(element, attrName, prevValue, newValue);
+  }
+
+  @Override
+  public void onStylesheetAdded(CSSStyleSheet styleSheet) {
+    styleDocumentChangeListener.onStylesheetAdded(styleSheet);
+  };
 
 }

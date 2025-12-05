@@ -7,11 +7,13 @@ import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
 
 public class MutableDocumentImp extends MutableNodeImp implements MutableDocument {
 
-  private final MutableStyleSheetList styleSheets = MutableStyleSheetList.create();
+  private final MutableStyleSheetList styleSheets;
   private final DocumentChangeListener changeListener;
 
   public MutableDocumentImp(DocumentChangeListener changeListener) {
     this.changeListener = changeListener;
+    this.styleSheets = MutableStyleSheetList.create(
+      styleSheet -> changeListener.onStylesheetAdded(styleSheet));
   }
 
   @Override
@@ -25,13 +27,8 @@ public class MutableDocumentImp extends MutableNodeImp implements MutableDocumen
   }
 
   @Override
-  public void onNodeAdded(Node node) {
-    changeListener.onNodeAdded(node);
-  }
-
-  @Override
-  public void onNodeRemoved(Node node) {
-    changeListener.onNodeRemoved(node);
+  public DocumentChangeListener changeListener() {
+    return this.changeListener;
   }
   
   @Override

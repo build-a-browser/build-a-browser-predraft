@@ -1,17 +1,18 @@
 package net.buildabrowser.babbrowser.css.engine.matcher.imp;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
+import net.buildabrowser.babbrowser.css.engine.matcher.simple.SimpleSelectorMatchers;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleList;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
-import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
@@ -19,7 +20,7 @@ import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
 
 public class CSSMatcherImp implements CSSMatcher {
 
-  private final Map<String, Set<Element>> elementsByType = new HashMap<>();
+  private final SimpleSelectorMatchers matchers = new SimpleSelectorMatchers();
   
   private final CSSMatcherContext context;
 
@@ -45,45 +46,56 @@ public class CSSMatcherImp implements CSSMatcher {
 
       @Override
       public void onNodeAdded(Node node) {
-        switch (node) {
-          case Element element -> onElementAdded(element);
-          default -> {}
-        }
+        matchers.onNodeAdded(node);
       }
 
       @Override
       public void onNodeRemoved(Node node) {
-        switch (node) {
-          case Element element -> onElementRemoved(element);
-          default -> {}
+        matchers.onNodeRemoved(node);
+      }
+
+      @Override
+      public void onAttributeChanged(Element element, String attrName, String prevValue, String newValue) {
+        matchers.onAttributeChanged(element, attrName, prevValue, newValue);
+      }
+
+      @Override
+      public void onStylesheetAdded(CSSStyleSheet styleSheet) {
+        CSSRuleList ruleList = styleSheet.cssRules();
+        for (int j = 0; j < ruleList.length(); j++) {
+          registerRule(ruleList.item(j));
         }
       }
       
     };    
   }
 
-  private void applyRule(CSSRule cssRule) {
-    // TODO Other selector types
+  private void registerRule(CSSRule cssRule) {
     if (!(cssRule instanceof StyleRule styleRule)) return;
-    TypeSelector typeSelector = (TypeSelector) styleRule.complexSelectors().get(0).parts().get(0);
-    for (Element element: elementsByType.getOrDefault(typeSelector.tagName(), Set.of())) {
-      context.onMatched(element, styleRule);
+
+    for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
+      for (SelectorPart selectorPart: complexSelector.parts()) {
+        matchers.addSelectorReference(selectorPart);
+      }
     }
   }
-  
-  private void onElementAdded(Element element) {
-    elementsByType
-      .computeIfAbsent(element.name(), _ -> new HashSet<>())
-      .add(element);
-  }
 
-  private void onElementRemoved(Element element) {
-    Set<Element> elSet = elementsByType.get(element.name());
-    if (elSet == null) return;
+  private void applyRule(CSSRule cssRule) {
+    if (!(cssRule instanceof StyleRule styleRule)) return;
+    
+    List<ElementSet> toUnion = new ArrayList<>();
+    for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
+      List<ElementSet> toIntersect = new ArrayList<>();
+      for (SelectorPart selectorPart: complexSelector.parts()) {
+        toIntersect.add(matchers.match(selectorPart));
+      }
 
-    elSet.remove(element);
-    if (elSet.isEmpty()) {
-      elementsByType.remove(element.name());
+      toUnion.add(ElementSet.intersectMany(toIntersect));
+    }
+
+    ElementSet allElements = ElementSet.unionMany(toUnion);
+    for (Element element: allElements) {
+      context.onMatched(element, styleRule);
     }
   }
 
