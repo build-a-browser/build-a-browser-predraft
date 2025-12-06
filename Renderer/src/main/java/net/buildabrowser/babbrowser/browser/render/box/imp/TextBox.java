@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.browser.render.imp.box;
+package net.buildabrowser.babbrowser.browser.render.box.imp;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -6,7 +6,7 @@ import java.awt.Dimension;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
-import net.buildabrowser.babbrowser.browser.render.core.box.Box;
+import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.dom.Text;
 

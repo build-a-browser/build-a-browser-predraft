@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.imp;
 
-import net.buildabrowser.babbrowser.browser.render.core.context.ElementContext;
+import net.buildabrowser.babbrowser.browser.render.context.ElementContext;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;

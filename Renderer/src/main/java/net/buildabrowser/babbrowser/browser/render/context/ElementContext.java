@@ -1,6 +1,6 @@
-package net.buildabrowser.babbrowser.browser.render.core.context;
+package net.buildabrowser.babbrowser.browser.render.context;
 
-import net.buildabrowser.babbrowser.browser.render.imp.context.ElementContextImp;
+import net.buildabrowser.babbrowser.browser.render.context.imp.ElementContextImp;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 

@@ -1,9 +1,9 @@
-package net.buildabrowser.babbrowser.browser.render.imp.context;
+package net.buildabrowser.babbrowser.browser.render.context.imp;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import net.buildabrowser.babbrowser.browser.render.core.context.ElementContext;
+import net.buildabrowser.babbrowser.browser.render.context.ElementContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesGenerator;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;

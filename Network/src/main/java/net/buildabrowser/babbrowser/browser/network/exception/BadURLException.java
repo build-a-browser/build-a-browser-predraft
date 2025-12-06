@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.browser.net.exception;
+package net.buildabrowser.babbrowser.browser.network.exception;
 
 public class BadURLException extends Exception {
   

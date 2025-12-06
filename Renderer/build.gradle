@@ -1,0 +1,9 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    api project(':Network')
+    implementation project(':HTMLParser')
+    implementation project(':CSSEngine')
+}

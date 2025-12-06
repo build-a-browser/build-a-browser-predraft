@@ -7,7 +7,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.buildabrowser.babbrowser.browser.net.ProtocolRegistry;
+import net.buildabrowser.babbrowser.browser.network.ProtocolRegistry;
 
 public class ProtocolRegistryImp implements ProtocolRegistry {
 

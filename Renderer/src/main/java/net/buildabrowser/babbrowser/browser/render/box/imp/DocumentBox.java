@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.browser.render.imp.box;
+package net.buildabrowser.babbrowser.browser.render.box.imp;
 
 import java.awt.Component;
 import java.util.List;
@@ -7,7 +7,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import net.buildabrowser.babbrowser.browser.render.core.box.Box;
+import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.dom.Document;
 

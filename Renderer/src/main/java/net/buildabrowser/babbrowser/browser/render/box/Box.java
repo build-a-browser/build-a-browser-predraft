@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.browser.render.core.box;
+package net.buildabrowser.babbrowser.browser.render.box;
 
 import javax.swing.JComponent;
 

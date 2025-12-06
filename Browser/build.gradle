@@ -3,8 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation project(':HTMLParser')
-    implementation project(':CSSEngine')
+    implementation project(':Renderer')
 }
 
 application {

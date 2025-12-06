@@ -1,11 +1,11 @@
-package net.buildabrowser.babbrowser.browser.net.util;
+package net.buildabrowser.babbrowser.browser.network;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import net.buildabrowser.babbrowser.browser.net.exception.BadURLException;
+import net.buildabrowser.babbrowser.browser.network.exception.BadURLException;
 
 public final class URLUtil {
   
