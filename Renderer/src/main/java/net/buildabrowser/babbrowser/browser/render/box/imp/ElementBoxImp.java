@@ -7,8 +7,8 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.browser.render.box.content.ElementContent;
 import net.buildabrowser.babbrowser.browser.render.box.content.ImageContent;
+import net.buildabrowser.babbrowser.browser.render.box.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.browser.render.context.ElementContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.dom.Element;
@@ -22,14 +22,16 @@ public class ElementBoxImp implements ElementBox {
   private final BoxContent content;
   private final ElementBoxDimensions dimensions;
   private final Box parentBox;
+  private final BoxLevel boxLevel;
 
-  public ElementBoxImp(MutableElement element, Box parentBox) {
+  public ElementBoxImp(MutableElement element, Box parentBox, BoxLevel boxLevel) {
     this.element = element;
     this.content = element.name().equals("img") ?
       new ImageContent(this) :
-      new ElementContent(this);
+      new FlowRootContent(this);
     this.dimensions = ElementBoxDimensions.create();
     this.parentBox = parentBox;
+    this.boxLevel = boxLevel;
   }
 
   @Override
@@ -65,6 +67,16 @@ public class ElementBoxImp implements ElementBox {
   @Override
   public void addChild(Box box) {
     this.childBoxes.add(box);
+  }
+
+  @Override
+  public BoxLevel boxLevel() {
+    return this.boxLevel;
+  }
+
+  @Override
+  public boolean isReplaced() {
+    return element.name().equals("img");
   }
   
 }

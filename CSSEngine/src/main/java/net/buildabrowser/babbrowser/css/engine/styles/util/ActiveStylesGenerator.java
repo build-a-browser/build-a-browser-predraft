@@ -7,6 +7,7 @@ import java.util.Set;
 
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.css.engine.property.color.ColorParser;
+import net.buildabrowser.babbrowser.css.engine.property.display.DisplayParser;
 import net.buildabrowser.babbrowser.css.engine.property.floats.ClearParser;
 import net.buildabrowser.babbrowser.css.engine.property.floats.FloatParser;
 import net.buildabrowser.babbrowser.css.engine.property.size.SizeParser;
@@ -23,6 +24,8 @@ public final class ActiveStylesGenerator {
     "color", new ColorParser(),
     "clear", new ClearParser(),
     "float", new FloatParser(),
+
+    "display", new DisplayParser(),
 
     "margin-top", SizeParser.forMargin(SizingUnit.MARGIN_TOP),
     "margin-right", SizeParser.forMargin(SizingUnit.MARGIN_RIGHT),

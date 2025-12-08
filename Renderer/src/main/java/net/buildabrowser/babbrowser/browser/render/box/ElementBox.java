@@ -20,9 +20,17 @@ public interface ElementBox extends Box {
   List<Box> childBoxes();
 
   void addChild(Box box);
+
+  BoxLevel boxLevel();
+
+  boolean isReplaced();
  
-  public static ElementBox create(MutableElement element, Box parentBox) {
-    return new ElementBoxImp(element, parentBox);
+  public static ElementBox create(MutableElement element, Box parentBox, BoxLevel boxLevel) {
+    return new ElementBoxImp(element, parentBox, boxLevel);
+  }
+
+  enum BoxLevel {
+    BLOCK_LEVEL, INLINE_LEVEL
   }
 
 }
