@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundColorParser;
 import net.buildabrowser.babbrowser.css.engine.property.color.ColorParser;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayParser;
 import net.buildabrowser.babbrowser.css.engine.property.floats.ClearParser;
@@ -22,6 +23,8 @@ public final class ActiveStylesGenerator {
 
   private final static Map<String, PropertyValueParser> PROPERTY_PARSERS = mapOf(
     "color", new ColorParser(),
+    "background", new BackgroundColorParser(),
+    "background-color", new BackgroundColorParser(),
     "clear", new ClearParser(),
     "float", new FloatParser(),
 

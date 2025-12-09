@@ -44,21 +44,7 @@ public class FlowRootContent implements BoxContent {
 
   @Override
   public void paint(PaintCanvas canvas) {
-    canvas.pushPaint();
-    
-    canvas.alterPaint(paint -> paint.setColor(0xFFFFFFFF));
-    canvas.drawBox(
-      box.dimensions().getLayoutX(),
-      box.dimensions().getLayoutY(),
-      box.dimensions().getComputedWidth(),
-      box.dimensions().getComputedHeight()
-    );
-
-    canvas.alterPaint(paint -> paint.setColor(box.activeStyles().textColor()));
-
     paintFragment(rootFragment, canvas);
-
-    canvas.popPaint();
   }
 
   private void addToBlock(LayoutContext layoutContext, Box childBox) {
@@ -129,7 +115,7 @@ public class FlowRootContent implements BoxContent {
   }
 
   private void paintManagedBoxFragement(ManagedBoxFragment fragment, PaintCanvas canvas) {
-    canvas.alterPaint(paint -> paint.setColor(0xFFFFFFFF));
+    canvas.alterPaint(paint -> paint.setColor(box.activeStyles().backgroundColor()));
     canvas.drawBox(fragment.x(), fragment.y(), fragment.width(), fragment.height());
     canvas.alterPaint(paint -> paint.setColor(box.activeStyles().textColor()));
     for (FlowFragment childFragment: fragment.fragments()) {

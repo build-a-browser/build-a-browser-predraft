@@ -11,6 +11,10 @@ public interface ActiveStyles {
 
   void setTextColor(int textColor);
 
+  int backgroundColor();
+
+  void setBackgroundColor(int backgroundColor);
+
   OuterDisplayValue outerDisplayValue();
 
   InnerDisplayValue innerDisplayValue();

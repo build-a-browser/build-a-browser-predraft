@@ -49,7 +49,7 @@ public class ImageContent implements BoxContent {
     int x = box.dimensions().getLayoutX();
     int y = box.dimensions().getLayoutY();
 
-    canvas.alterPaint(paint -> paint.setColor(0xFFFFFFFF));
+    canvas.alterPaint(paint -> paint.setColor(box.activeStyles().backgroundColor()));
     int width = box.dimensions().getComputedWidth();
     int height = box.dimensions().getComputedHeight();
     canvas.drawBox(x, y, width, height);

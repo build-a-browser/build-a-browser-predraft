@@ -21,6 +21,7 @@ public class ActiveStylesImp implements ActiveStyles {
   };
 
   private int textColor = 0xFF000000;
+  private int backgroundColor = 0xFFFFFFFF;
   private OuterDisplayValue outerDisplayValue = OuterDisplayValue.BLOCK;
   private InnerDisplayValue innerDisplayValue = InnerDisplayValue.FLOW;
   private CSSValue floatSide = CSSValue.NONE;
@@ -34,6 +35,16 @@ public class ActiveStylesImp implements ActiveStyles {
   @Override
   public void setTextColor(int textColor) {
     this.textColor = textColor;
+  }
+
+  @Override
+  public int backgroundColor() {
+    return this.backgroundColor;
+  }
+
+  @Override
+  public void setBackgroundColor(int backgroundColor) {
+    this.backgroundColor = backgroundColor;
   }
 
   @Override
