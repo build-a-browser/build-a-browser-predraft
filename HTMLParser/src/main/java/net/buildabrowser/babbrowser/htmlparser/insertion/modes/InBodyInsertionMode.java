@@ -65,7 +65,13 @@ public class InBodyInsertionMode implements InsertionMode {
   }
 
   private boolean emitEndTagToken(ParseContext parseContext, TagToken tagToken) {
-    return handleOtherEndTagToken(parseContext, tagToken);
+    switch (tagToken.name()) {
+      case "body":
+        // TODO: Other stuff
+        parseContext.setInsertionMode(InsertionModes.afterBodyInsertionMode);
+      default:
+        return handleOtherEndTagToken(parseContext, tagToken);
+    }
   }
 
   private boolean handleOtherEndTagToken(ParseContext parseContext, TagToken tagToken) {
