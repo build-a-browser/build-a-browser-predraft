@@ -1,9 +1,9 @@
-package net.buildabrowser.babbrowser.browser.render.box.content.flow;
+package net.buildabrowser.babbrowser.browser.render.content.flow;
 
 import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.box.content.flow.fragment.FlowFragment;
+import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
 
 public record LineSegment(
   ElementBox box,

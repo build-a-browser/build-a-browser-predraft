@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.browser.render.box.content.flow.fragment;
+package net.buildabrowser.babbrowser.browser.render.content.flow.fragment;
 
 import java.util.List;
 

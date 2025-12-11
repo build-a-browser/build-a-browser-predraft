@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.browser.render.box.content;
+package net.buildabrowser.babbrowser.browser.render.content;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;

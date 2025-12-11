@@ -1,12 +1,12 @@
-package net.buildabrowser.babbrowser.browser.render.box.content.flow;
+package net.buildabrowser.babbrowser.browser.render.content.flow;
 
 import java.util.LinkedList;
 import java.util.Stack;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.box.content.flow.fragment.FlowFragment;
-import net.buildabrowser.babbrowser.browser.render.box.content.flow.fragment.LineBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.box.content.flow.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
+import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
 
 public class LineBox {
 
