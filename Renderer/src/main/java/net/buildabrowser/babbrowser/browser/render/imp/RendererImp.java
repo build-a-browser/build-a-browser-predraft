@@ -15,10 +15,12 @@ import net.buildabrowser.babbrowser.browser.network.ProtocolRegistry;
 import net.buildabrowser.babbrowser.browser.render.Renderer;
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.Box.InvalidationLevel;
+import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.BoxGenerator;
 import net.buildabrowser.babbrowser.browser.render.box.DocumentBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.imp.DocumentBoxImp;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.browser.render.paint.java2d.J2DFontMetrics;
@@ -56,8 +58,12 @@ public class RendererImp implements Renderer {
         protected void paintComponent(Graphics g) {
           if (documentBox == null) return;
           FontMetrics fontMetrics = new J2DFontMetrics(g.getFontMetrics());
-          documentBox.htmlBox().content().layout(new LayoutContext(fontMetrics));
-          documentBox.htmlBox().content().paint(new J2DPaintCanvas((Graphics2D) g));
+          LayoutContext layoutContext = new LayoutContext(fontMetrics);
+          BoxContent content = documentBox.htmlBox().content();
+          int width = this.getWidth();
+          content.prelayout(layoutContext);
+          content.layout(layoutContext, LayoutConstraint.of(width));
+          content.paint(new J2DPaintCanvas((Graphics2D) g));
         }
       };
 

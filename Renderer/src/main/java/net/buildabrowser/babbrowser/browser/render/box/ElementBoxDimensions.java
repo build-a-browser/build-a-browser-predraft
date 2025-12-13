@@ -10,6 +10,14 @@ public interface ElementBoxDimensions {
 
   int getComputedHeight();
 
+  void setPreferredMinWidthConstraint(int w);
+
+  void setPreferredWidthConstraint(int w);
+
+  int preferredMinWidthConstraint();
+
+  int preferredWidthConstraint();
+
   static ElementBoxDimensions create() {
     return new ElementBoxDimensionsImp();
   }

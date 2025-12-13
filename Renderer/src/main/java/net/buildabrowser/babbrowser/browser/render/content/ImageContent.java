@@ -11,6 +11,8 @@ import net.buildabrowser.babbrowser.browser.network.exception.BadURLException;
 import net.buildabrowser.babbrowser.browser.render.box.Box.InvalidationLevel;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
@@ -27,7 +29,27 @@ public class ImageContent implements BoxContent {
   }
 
   @Override
-  public void layout(LayoutContext layoutContext) {
+  public void prelayout(LayoutContext layoutContext) {
+    loadImage();
+
+    ElementBoxDimensions dimensions = box.dimensions();
+    if (image != null) {
+      dimensions.setPreferredMinWidthConstraint(image.getWidth());
+      dimensions.setPreferredWidthConstraint(image.getWidth());
+      return;
+    }
+
+    String alt = getImageAlt();
+    FontMetrics fm = layoutContext.fontMetrics();
+    
+    int width = fm.stringWidth(alt);
+    
+    dimensions.setPreferredMinWidthConstraint(width);
+    dimensions.setPreferredWidthConstraint(width);
+  }
+
+  @Override
+  public void layout(LayoutContext layoutContext, LayoutConstraint layoutConstraint) {
     loadImage();
 
     if (image != null) {

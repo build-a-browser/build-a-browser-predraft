@@ -7,12 +7,14 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
+import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.TextFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.box.TextBox;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
@@ -33,12 +35,36 @@ public class FlowRootContent implements BoxContent {
   }
 
   @Override
-  public void layout(LayoutContext layoutContext) {
+  public void prelayout(LayoutContext layoutContext) {
+    for (Box child: rootBox.childBoxes()) {
+      if (child instanceof ElementBox elementBox) {
+        elementBox.content().prelayout(layoutContext);
+      }
+    }
+
+    ElementBoxDimensions dimensions = rootBox.dimensions();
+
     BlockFormattingContext rootContext = new BlockFormattingContext(rootBox);
     blockStack.clear();
     blockStack.add(rootContext);
     
-    addChildrenToBlock(layoutContext, rootBox);
+    addChildrenToBlock(layoutContext, rootBox, LayoutConstraint.MIN_CONTENT);
+    dimensions.setPreferredMinWidthConstraint(rootContext.close().width());
+
+    blockStack.clear();
+    blockStack.add(rootContext);
+
+    addChildrenToBlock(layoutContext, rootBox, LayoutConstraint.MAX_CONTENT);
+    dimensions.setPreferredWidthConstraint(rootContext.close().width());
+  }
+
+  @Override
+  public void layout(LayoutContext layoutContext, LayoutConstraint layoutConstraint) {
+    BlockFormattingContext rootContext = new BlockFormattingContext(rootBox);
+    blockStack.clear();
+    blockStack.add(rootContext);
+    
+    addChildrenToBlock(layoutContext, rootBox, layoutConstraint);
 
     this.rootFragment = rootContext.close();
 
@@ -50,7 +76,7 @@ public class FlowRootContent implements BoxContent {
     FlowRootContentPainter.paintFragment(canvas, rootFragment);
   }
 
-  private void addChildrenToBlock(LayoutContext layoutContext, ElementBox box) {
+  private void addChildrenToBlock(LayoutContext layoutContext, ElementBox box, LayoutConstraint layoutConstraint) {
     boolean isInInline = false;
     for (Box childBox: box.childBoxes()) {
       if (isBlockLevel(childBox)) {
@@ -58,13 +84,13 @@ public class FlowRootContent implements BoxContent {
           stopInline();
           isInInline = false;
         }
-        addToBlock(layoutContext, (ElementBox) childBox);
+        addToBlock(layoutContext, (ElementBox) childBox, layoutConstraint);
       } else {
         if (!isInInline) {
           startInline();
           isInInline = true;
         }
-        addToInline(layoutContext, childBox);
+        addToInline(layoutContext, childBox, layoutConstraint);
       }
     }
 
@@ -96,18 +122,18 @@ public class FlowRootContent implements BoxContent {
     };
   }
 
-  private void addToBlock(LayoutContext layoutContext, ElementBox elementBox) {
+  private void addToBlock(LayoutContext layoutContext, ElementBox elementBox, LayoutConstraint layoutConstraint) {
     if (isInFlow(elementBox)) {
-      addManagedBlockToBlock(layoutContext, elementBox);
+      addManagedBlockToBlock(layoutContext, elementBox, layoutConstraint);
     } else {
-      addUnmanagedBlockToBlock(layoutContext, elementBox);
+      addUnmanagedBlockToBlock(layoutContext, elementBox, layoutConstraint);
     }
   }
 
-  private void addManagedBlockToBlock(LayoutContext layoutContext, ElementBox childBox) {
+  private void addManagedBlockToBlock(LayoutContext layoutContext, ElementBox childBox, LayoutConstraint layoutConstraint) {
     BlockFormattingContext childContext = new BlockFormattingContext(childBox);
     blockStack.push(childContext);
-    addChildrenToBlock(layoutContext, childBox);
+    addChildrenToBlock(layoutContext, childBox, layoutConstraint);
     ManagedBoxFragment newFragment = childContext.close();
     blockStack.pop();
 
@@ -119,9 +145,11 @@ public class FlowRootContent implements BoxContent {
     parentContext.addFragment(newFragment);
   }
 
-  private void addUnmanagedBlockToBlock(LayoutContext layoutContext, ElementBox elementBox) {
-    elementBox.content().layout(layoutContext);
-    int width = elementBox.dimensions().getComputedWidth();
+  private void addUnmanagedBlockToBlock(LayoutContext layoutContext, ElementBox elementBox, LayoutConstraint layoutConstraint) {
+    if (!layoutConstraint.isPreLayoutConstraint()) {
+      elementBox.content().layout(layoutContext, layoutConstraint);
+    }
+    int width = constraintWidth(elementBox.dimensions(), layoutConstraint);
     int height = elementBox.dimensions().getComputedHeight();
 
     UnmanagedBoxFragment newFragment = new UnmanagedBoxFragment(width, height, elementBox);
@@ -134,44 +162,40 @@ public class FlowRootContent implements BoxContent {
     parentContext.addFragment(newFragment);
   }
 
-  private boolean isInFlow(ElementBox elementBox) {
-    return
-      elementBox.activeStyles().innerDisplayValue().equals(InnerDisplayValue.FLOW)
-      && !elementBox.isReplaced();
-  }
 
-
-  private void addToInline(LayoutContext layoutContext, Box childBox) {
+  private void addToInline(LayoutContext layoutContext, Box childBox, LayoutConstraint layoutConstraint) {
     switch (childBox) {
-      case ElementBox elementBox -> addToInline(layoutContext, elementBox);
+      case ElementBox elementBox -> addToInline(layoutContext, elementBox, layoutConstraint);
       case TextBox textBox -> addTextToInline(layoutContext, textBox);
       default -> throw new UnsupportedOperationException("Unknown box type!");
     }
   }
 
-  private void addToInline(LayoutContext layoutContext, ElementBox elementBox) {
+  private void addToInline(LayoutContext layoutContext, ElementBox elementBox, LayoutConstraint layoutConstraint) {
     if (elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)) {
       InlineFormattingContext nextContext = inlineStack.peek().split();
       stopInline();
-      addToBlock(layoutContext, elementBox);
+      addToBlock(layoutContext, elementBox, layoutConstraint);
       inlineStack.push(nextContext);
     } else if (isInFlow(elementBox)) {
-      addManagedBlockToInline(layoutContext, elementBox);
+      addManagedBlockToInline(layoutContext, elementBox, layoutConstraint);
     } else {
-      addUnmanagedBlockToInline(layoutContext, elementBox);
+      addUnmanagedBlockToInline(layoutContext, elementBox, layoutConstraint);
     }
   }
 
-  private void addManagedBlockToInline(LayoutContext layoutContext, ElementBox elementBox) {
+  private void addManagedBlockToInline(LayoutContext layoutContext, ElementBox elementBox, LayoutConstraint layoutConstraint) {
     inlineStack.peek().pushElement(elementBox);
     for (Box childBox: elementBox.childBoxes()) {
-      addToInline(layoutContext, childBox);
+      addToInline(layoutContext, childBox, layoutConstraint);
     }
     inlineStack.peek().popElement();
   }
 
-  private void addUnmanagedBlockToInline(LayoutContext layoutContext, ElementBox elementBox) {
-    elementBox.content().layout(layoutContext);
+  private void addUnmanagedBlockToInline(LayoutContext layoutContext, ElementBox elementBox, LayoutConstraint layoutConstraint) {
+    if (!layoutConstraint.isPreLayoutConstraint()) {
+      elementBox.content().layout(layoutContext, layoutConstraint);
+    }
     int width = elementBox.dimensions().getComputedWidth();
     int height = elementBox.dimensions().getComputedHeight();
 
@@ -208,6 +232,22 @@ public class FlowRootContent implements BoxContent {
         positionFragmentElements(managedBoxFragment.fragments());
       }
     }
+  }
+
+  private int constraintWidth(ElementBoxDimensions dimensions, LayoutConstraint layoutConstraint) {
+    return switch (layoutConstraint.type()) {
+      case BOUNDED -> layoutConstraint.value();
+      case AUTO -> dimensions.getComputedWidth();
+      case MIN_CONTENT -> dimensions.preferredMinWidthConstraint();
+      case MAX_CONTENT -> dimensions.preferredWidthConstraint();
+      default -> throw new UnsupportedOperationException("Unsupported constraint type!");
+    };
+  }
+
+  private boolean isInFlow(ElementBox elementBox) {
+    return
+      elementBox.activeStyles().innerDisplayValue().equals(InnerDisplayValue.FLOW)
+      && !elementBox.isReplaced();
   }
 
 }
