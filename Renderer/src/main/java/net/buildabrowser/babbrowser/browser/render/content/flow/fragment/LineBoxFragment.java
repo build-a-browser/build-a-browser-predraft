@@ -13,6 +13,13 @@ public class LineBoxFragment extends FlowFragment {
     this.fragments = fragments;
   }
 
+  public LineBoxFragment(
+    int x, int y, int width, int height, List<FlowFragment> fragments
+  ) {
+    this(width, height, fragments);
+    setPos(x, y);
+  }
+
   public List<FlowFragment> fragments() {
     return this.fragments;
   }

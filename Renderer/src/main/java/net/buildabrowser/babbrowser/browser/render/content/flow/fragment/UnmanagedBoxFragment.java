@@ -11,6 +11,12 @@ public class UnmanagedBoxFragment extends FlowFragment {
     this.box = box;
   }
 
+  public UnmanagedBoxFragment(int x, int y, int width, int height, ElementBox box) {
+    super(width, height);
+    setPos(x, y);
+    this.box = box;
+  }
+
   public ElementBox box() {
     return this.box;
   }

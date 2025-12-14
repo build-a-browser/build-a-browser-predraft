@@ -76,6 +76,11 @@ public class FlowRootContent implements BoxContent {
     FlowRootContentPainter.paintFragment(canvas, rootFragment);
   }
 
+  // For testing
+  ManagedBoxFragment rootFragment() {
+    return this.rootFragment;
+  }
+
   private void addChildrenToBlock(LayoutContext layoutContext, ElementBox box, LayoutConstraint layoutConstraint) {
     boolean isInInline = false;
     for (Box childBox: box.childBoxes()) {
@@ -207,7 +212,7 @@ public class FlowRootContent implements BoxContent {
 
   private void addTextToInline(LayoutContext layoutContext, TextBox textBox) {
     FontMetrics fontMetrics = layoutContext.fontMetrics();
-    String text = textBox.text().data().trim();
+    String text = textBox.text().trim();
     if (text.isBlank()) return;
 
     int width = fontMetrics.stringWidth(text);

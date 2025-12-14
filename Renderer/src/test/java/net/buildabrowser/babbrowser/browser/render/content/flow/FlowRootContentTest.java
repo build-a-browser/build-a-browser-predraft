@@ -1,0 +1,219 @@
+package net.buildabrowser.babbrowser.browser.render.content.flow;
+
+import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowTestUtil.assertFragmentEquals;
+
+import java.util.List;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import net.buildabrowser.babbrowser.browser.render.box.Box;
+import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
+import net.buildabrowser.babbrowser.browser.render.box.test.TestElementBox;
+import net.buildabrowser.babbrowser.browser.render.box.test.TestFixedSizeReplacedContent;
+import net.buildabrowser.babbrowser.browser.render.box.test.TestTextBox;
+import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
+import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.TextFragment;
+import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.browser.render.paint.test.TestFontMetrics;
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+
+public class FlowRootContentTest {
+  
+  @Test
+  @DisplayName("Can layout empty block box")
+  public void canLayoutEmptyBlockBoxWithChild() {
+    ElementBox parentBox = flowBlockBox(List.of());
+    
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, parentBox, List.of());
+    FlowFragment actualFragment = doLayout(parentBox);
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
+  @Test
+  @DisplayName("Can layout block box with replaced child")
+  public void canLayoutBlockBoxWithReplacedChild() {
+    ElementBox childBox = sizedReplacedBlockBox(50, 50);
+    ElementBox parentBox = flowBlockBox(List.of(childBox));
+
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 50, parentBox, List.of(
+      new UnmanagedBoxFragment(0, 0, 50, 50, childBox)));
+    FlowFragment actualFragment = doLayout(parentBox);
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
+  @Test
+  @DisplayName("Can layout block box with two replaced children")
+  public void canLayoutBlockBoxWithTwoReplacedChildren() {
+    ElementBox childBox1 = sizedReplacedBlockBox(50, 50);
+    ElementBox childBox2 = sizedReplacedBlockBox(50, 50);
+    ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
+
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 100, parentBox, List.of(
+      new UnmanagedBoxFragment(0, 0, 50, 50, childBox1),
+      new UnmanagedBoxFragment(0, 50, 50, 50, childBox2)));
+    FlowFragment actualFragment = doLayout(parentBox);
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
+  @Test
+  @DisplayName("Can layout block box with one text child")
+  public void canLayoutBlockBoxWithOneTextChild() {
+    TestTextBox childBox = new TestTextBox("Hello");
+    ElementBox parentBox = flowBlockBox(List.of(childBox));
+
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 25, 10, parentBox, List.of(
+      new LineBoxFragment(0, 0, 25, 10, List.of(
+        new TextFragment(0, 0, 25, 10, "Hello")))));
+    FlowFragment actualFragment = doLayout(parentBox);
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
+  @Test
+  @DisplayName("Can layout block box with two text children")
+  public void canLayoutBlockBoxWithTwoTextChildren() {
+    TestTextBox childBox1 = new TestTextBox("Hello");
+    TestTextBox childBox2 = new TestTextBox("World");
+    ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
+
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 10, parentBox, List.of(
+      new LineBoxFragment(0, 0, 50, 10, List.of(
+        new TextFragment(0, 0, 25, 10, "Hello"),
+        new TextFragment(25, 0, 25, 10, "World")))));
+    FlowFragment actualFragment = doLayout(parentBox);
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
+  @Test
+  @DisplayName("Can layout block box with text child then block child")
+  public void canLayoutBlockBoxWithTextChildThenBlockChild() {
+    TestTextBox childBox1 = new TestTextBox("Hello");
+    ElementBox childBox2 = sizedReplacedBlockBox(50, 50);
+    ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
+
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 60, parentBox, List.of(
+      new LineBoxFragment(0, 0, 25, 10, List.of(
+        new TextFragment(0, 0, 25, 10, "Hello"))),
+      new UnmanagedBoxFragment(0, 10, 50, 50, childBox2)));
+    FlowFragment actualFragment = doLayout(parentBox);
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
+  @Test
+  @DisplayName("Can layout block box with block child then text child")
+  public void canLayoutBlockBoxWithBlockChildThenTextChild() {
+    ElementBox childBox1 = sizedReplacedBlockBox(50, 50);
+    TestTextBox childBox2 = new TestTextBox("Hello");
+    ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
+
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 60, parentBox, List.of(
+      new UnmanagedBoxFragment(0, 0, 50, 50, childBox1),
+      new LineBoxFragment(0, 50, 25, 10, List.of(
+        new TextFragment(0, 0, 25, 10, "Hello")))));
+    FlowFragment actualFragment = doLayout(parentBox);
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
+  @Test
+  @DisplayName("Can layout block box with two block children then two text children")
+  public void canLayoutBlockBoxWithTwoBlockChildrenThenTwoTextChildren() {
+    ElementBox childBox1 = sizedReplacedBlockBox(50, 50);
+    ElementBox childBox2 = sizedReplacedBlockBox(50, 50);
+    TestTextBox childBox3 = new TestTextBox("Hello");
+    TestTextBox childBox4 = new TestTextBox("World");
+    ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2, childBox3, childBox4));
+
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 110, parentBox, List.of(
+      new UnmanagedBoxFragment(0, 0, 50, 50, childBox1),
+      new UnmanagedBoxFragment(0, 50, 50, 50, childBox2),
+      new LineBoxFragment(0, 100, 50, 10, List.of(
+        new TextFragment(0, 0, 25, 10, "Hello"),
+        new TextFragment(25, 0, 25, 10, "World")))));
+    FlowFragment actualFragment = doLayout(parentBox);
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
+  @Test
+  @DisplayName("Can layout block box with nested inline box with two text children")
+  public void canLayoutBlockBoxWithNestedInlineBoxWithTwoTextChildren() {
+    TestTextBox nestedChildBox1 = new TestTextBox("Hello");
+    TestTextBox nestedChildBox2 = new TestTextBox("World");
+    ElementBox nestingBox = flowInlineBox(List.of(nestedChildBox1, nestedChildBox2));
+    ElementBox parentBox = flowBlockBox(List.of(nestingBox));
+
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 10, parentBox, List.of(
+        new LineBoxFragment(0, 0, 50, 10, List.of(
+          new ManagedBoxFragment(0, 0, 50, 10, nestingBox, List.of(
+            new TextFragment(0, 0, 25, 10, "Hello"),
+            new TextFragment(25, 0, 25, 10, "World")))))));
+    FlowFragment actualFragment = doLayout(parentBox);
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
+  @Test
+  @DisplayName("Can layout block box with complex nesting structure")
+  public void canLayoutBlockBoxWithComplexNestingStructure() {
+    TestTextBox nestedChildBox1 = new TestTextBox("Hello");
+    TestTextBox nestedChildBox2 = new TestTextBox("World");
+    ElementBox intermediateBox1 = flowInlineBox(List.of(nestedChildBox1, nestedChildBox2));
+    ElementBox intermediateBox2 = flowBlockBox(List.of(nestedChildBox1));
+    TestTextBox intermediateBox3 = new TestTextBox("!!!");
+    ElementBox outerBox = flowInlineBox(List.of(intermediateBox1, intermediateBox2, intermediateBox3));
+    ElementBox parentBox = flowBlockBox(List.of(outerBox));
+
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 30, parentBox, List.of(
+      new LineBoxFragment(0, 0, 50, 10, List.of(
+        new ManagedBoxFragment(0, 0, 50, 10, outerBox, List.of(
+          new ManagedBoxFragment(0, 0, 50, 10, intermediateBox1, List.of(
+            new TextFragment(0, 0, 25, 10, "Hello"),
+            new TextFragment(25, 0, 25, 10, "World"))))))),
+      // Importantly, this is reparented to parentBox
+      new ManagedBoxFragment(0, 10, 25, 10, intermediateBox2, List.of(
+        new LineBoxFragment(0, 0, 25, 10, List.of(
+          new TextFragment(0, 0, 25, 10, "Hello"))))),
+      new LineBoxFragment(0, 20, 15, 10, List.of(
+      new ManagedBoxFragment(0, 0, 15, 10, outerBox, List.of(
+        new TextFragment(0, 0, 15, 10, "!!!")))))));
+    FlowFragment actualFragment = doLayout(parentBox);
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
+  private ElementBox sizedReplacedBlockBox(int x, int y) {
+    ActiveStyles childrenStyles = ActiveStyles.create();
+    return new TestElementBox(
+      box -> new TestFixedSizeReplacedContent(box, x, y), BoxLevel.BLOCK_LEVEL, childrenStyles, List.of());
+  }
+
+  private ElementBox flowBlockBox(List<Box> children) {
+    ActiveStyles parentStyles = ActiveStyles.create();
+    ElementBox parentBox = new TestElementBox(
+      box -> new FlowRootContent(box),
+      BoxLevel.BLOCK_LEVEL, parentStyles, children);
+
+    return parentBox;
+  }
+
+  private ElementBox flowInlineBox(List<Box> children) {
+    ActiveStyles parentStyles = ActiveStyles.create();
+    ElementBox parentBox = new TestElementBox(
+      box -> new FlowRootContent(box),
+      BoxLevel.INLINE_LEVEL, parentStyles, children);
+
+    return parentBox;
+  }
+
+  private FlowFragment doLayout(ElementBox parentBox) {
+    LayoutContext layoutContext = new LayoutContext(TestFontMetrics.create(10, 5));
+    FlowRootContent content = (FlowRootContent) parentBox.content();
+    content.prelayout(layoutContext);
+    content.layout(layoutContext, LayoutConstraint.AUTO);
+
+    return content.rootFragment();
+  }
+
+}

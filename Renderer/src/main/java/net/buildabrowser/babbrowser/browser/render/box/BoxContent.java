@@ -12,4 +12,8 @@ public interface BoxContent {
 
   void paint(PaintCanvas canvas);
 
+  default boolean isReplaced() {
+    return false;
+  };
+
 }

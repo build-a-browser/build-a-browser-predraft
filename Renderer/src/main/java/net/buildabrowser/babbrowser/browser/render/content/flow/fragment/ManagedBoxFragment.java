@@ -18,6 +18,14 @@ public class ManagedBoxFragment extends FlowFragment {
     this.fragments = fragments;
   }
 
+  public ManagedBoxFragment(
+    int x, int y, int width, int height,
+    ElementBox box, List<FlowFragment> fragments
+  ) {
+    this(width, height, box, fragments);
+    setPos(x, y);
+  }
+
   public ElementBox box() {
     return this.box;
   }

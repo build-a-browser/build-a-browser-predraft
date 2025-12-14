@@ -1,42 +1,34 @@
-package net.buildabrowser.babbrowser.browser.render.box.imp;
+package net.buildabrowser.babbrowser.browser.render.box.test;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
 
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.browser.render.content.ImageContent;
-import net.buildabrowser.babbrowser.browser.render.content.flow.FlowRootContent;
-import net.buildabrowser.babbrowser.browser.render.context.ElementContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.dom.Element;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
 
-public class ElementBoxImp implements ElementBox {
+public class TestElementBox implements ElementBox {
 
-  private final List<Box> childBoxes = new LinkedList<>();
-
-  private final MutableElement element;
+  private final List<Box> childBoxes;
+  private final ActiveStyles activeStyles;
   private final BoxContent content;
   private final ElementBoxDimensions dimensions;
-  private final Box parentBox;
   private final BoxLevel boxLevel;
 
-  public ElementBoxImp(MutableElement element, Box parentBox, BoxLevel boxLevel) {
-    this.element = element;
-    this.content = element.name().equals("img") ?
-      new ImageContent(this) :
-      new FlowRootContent(this);
-    this.dimensions = ElementBoxDimensions.create();
-    this.parentBox = parentBox;
+  public TestElementBox(Function<ElementBox, BoxContent> contentFunc, BoxLevel boxLevel, ActiveStyles activeStyles, List<Box> childBoxes) {
+    this.content = contentFunc.apply(this);
+    this.activeStyles = activeStyles;
+    this.childBoxes = childBoxes;
     this.boxLevel = boxLevel;
+    this.dimensions = ElementBoxDimensions.create();
   }
 
   @Override
   public ActiveStyles activeStyles() {
-    return ((ElementContext) element.getContext()).activeStyles();
+    return this.activeStyles;
   }
 
   @Override
@@ -46,12 +38,12 @@ public class ElementBoxImp implements ElementBox {
 
   @Override
   public Element element() {
-    return this.element;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void invalidate(InvalidationLevel invalidationLevel) {
-    parentBox.invalidate(invalidationLevel);
+    // No-op
   }
 
   @Override
@@ -66,7 +58,7 @@ public class ElementBoxImp implements ElementBox {
 
   @Override
   public void addChild(Box box) {
-    this.childBoxes.add(box);
+    throw new UnsupportedOperationException();
   }
 
   @Override

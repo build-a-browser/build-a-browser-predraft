@@ -23,7 +23,9 @@ public interface ElementBox extends Box {
 
   BoxLevel boxLevel();
 
-  boolean isReplaced();
+  default boolean isReplaced() {
+    return content().isReplaced();
+  };
  
   public static ElementBox create(MutableElement element, Box parentBox, BoxLevel boxLevel) {
     return new ElementBoxImp(element, parentBox, boxLevel);

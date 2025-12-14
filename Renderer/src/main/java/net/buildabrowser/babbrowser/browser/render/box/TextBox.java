@@ -5,7 +5,9 @@ import net.buildabrowser.babbrowser.dom.Text;
 
 public interface TextBox extends Box {
   
-  Text text();
+  Text textNode();
+
+  String text();
 
   static TextBox create(Text text) {
     return new TextBoxImp(text);
