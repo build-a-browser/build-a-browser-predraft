@@ -6,6 +6,8 @@ import java.util.List;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 
 public class BlockFormattingContext {
 
@@ -38,7 +40,10 @@ public class BlockFormattingContext {
     this.fragments.add(newFragment);
   }
 
-  public ManagedBoxFragment close() {
+  public ManagedBoxFragment close(LayoutConstraint layoutConstraint) {
+    if (layoutConstraint.type().equals(LayoutConstraintType.BOUNDED)) {
+      return new ManagedBoxFragment(layoutConstraint.value(), y, elementBox, fragments);  
+    }
     return new ManagedBoxFragment(width, y, elementBox, fragments);
   }
 

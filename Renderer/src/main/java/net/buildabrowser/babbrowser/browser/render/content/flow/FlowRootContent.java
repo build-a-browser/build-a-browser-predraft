@@ -36,11 +36,11 @@ public class FlowRootContent implements BoxContent {
 
     blockLayout.reset(rootBox);
     blockLayout.addChildrenToBlock(layoutContext, rootBox, LayoutConstraint.MIN_CONTENT);
-    dimensions.setPreferredMinWidthConstraint(blockLayout.close().width());
+    dimensions.setPreferredMinWidthConstraint(blockLayout.close(LayoutConstraint.MIN_CONTENT).width());
 
     blockLayout.reset(rootBox);
     blockLayout.addChildrenToBlock(layoutContext, rootBox, LayoutConstraint.MAX_CONTENT);
-    dimensions.setPreferredWidthConstraint(blockLayout.close().width());
+    dimensions.setPreferredWidthConstraint(blockLayout.close(LayoutConstraint.MAX_CONTENT).width());
   }
 
   @Override
@@ -48,7 +48,7 @@ public class FlowRootContent implements BoxContent {
     blockLayout.reset(rootBox);
     blockLayout.addChildrenToBlock(layoutContext, rootBox, layoutConstraint);
 
-    this.rootFragment = blockLayout.close();
+    this.rootFragment = blockLayout.close(layoutConstraint);
     rootBox.dimensions().setComputedSize(rootFragment.width(), rootFragment.height());
   }
 

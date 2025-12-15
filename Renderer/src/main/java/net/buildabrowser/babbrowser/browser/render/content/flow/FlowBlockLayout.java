@@ -8,6 +8,8 @@ import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.Managed
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles.SizingUnit;
 
 public class FlowBlockLayout {
 
@@ -26,8 +28,8 @@ public class FlowBlockLayout {
     blockStack.add(rootContext);
   }
 
-  public ManagedBoxFragment close() {
-    return rootContext.close();
+  public ManagedBoxFragment close(LayoutConstraint layoutConstraint) {
+    return rootContext.close(layoutConstraint);
   }
 
   public BlockFormattingContext activeContext() {
@@ -67,11 +69,16 @@ public class FlowBlockLayout {
     }
   }
 
-  private void addManagedBlockToBlock(LayoutContext layoutContext, ElementBox childBox, LayoutConstraint layoutConstraint) {
+  private void addManagedBlockToBlock(LayoutContext layoutContext, ElementBox childBox, LayoutConstraint parentLayoutConstraint) {
+    ActiveStyles childStyles = childBox.activeStyles();
+    LayoutConstraint childConstraint = FlowWidthUtil.evaluateBaseSize(
+      layoutContext, parentLayoutConstraint, childStyles.getSizingProperty(SizingUnit.WIDTH), childStyles);
+    // TODO: Factor in margins and stuff
+
     BlockFormattingContext childContext = new BlockFormattingContext(childBox);
     blockStack.push(childContext);
-    addChildrenToBlock(layoutContext, childBox, layoutConstraint);
-    ManagedBoxFragment newFragment = childContext.close();
+    addChildrenToBlock(layoutContext, childBox, childConstraint);
+    ManagedBoxFragment newFragment = childContext.close(childConstraint);
     blockStack.pop();
 
     BlockFormattingContext parentContext = blockStack.peek();
@@ -82,11 +89,11 @@ public class FlowBlockLayout {
     parentContext.addFragment(newFragment);
   }
 
-  private void addUnmanagedBlockToBlock(LayoutContext layoutContext, ElementBox elementBox, LayoutConstraint layoutConstraint) {
-    if (!layoutConstraint.isPreLayoutConstraint()) {
-      elementBox.content().layout(layoutContext, layoutConstraint);
+  private void addUnmanagedBlockToBlock(LayoutContext layoutContext, ElementBox elementBox, LayoutConstraint parentLayoutConstraint) {
+    if (!parentLayoutConstraint.isPreLayoutConstraint()) {
+      elementBox.content().layout(layoutContext, parentLayoutConstraint);
     }
-    int width = FlowUtil.constraintWidth(elementBox.dimensions(), layoutConstraint);
+    int width = FlowUtil.constraintWidth(elementBox.dimensions(), parentLayoutConstraint);
     int height = elementBox.dimensions().getComputedHeight();
 
     UnmanagedBoxFragment newFragment = new UnmanagedBoxFragment(width, height, elementBox);
