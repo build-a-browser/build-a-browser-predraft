@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.parser;
 
+import static net.buildabrowser.babbrowser.browser.parser.util.tree.TestComment.testComment;
 import static net.buildabrowser.babbrowser.browser.parser.util.tree.TestElement.testElement;
 import static net.buildabrowser.babbrowser.browser.parser.util.tree.TestText.testText;
 import static net.buildabrowser.babbrowser.browser.parser.util.tree.TestUtil.assertTreeMatches;
@@ -110,6 +111,18 @@ public class HTMLParserTest {
     // TODO: DocumentType node
     Document document = htmlParser.parse(new StringReader("<!doctype html>"));
     assertTreeMatches(testDocumentToBody(), document);
+  }
+  
+  @Test
+  @DisplayName("Can parse document with comment")
+  public void canParseDocumentWithComment() throws IOException {
+    Document document = htmlParser.parse(new StringReader("Hello,<!--Cruel--> World!"));
+    assertTreeMatches(
+      testDocumentToBody(
+        testText("Hello,"),
+        testComment("Cruel"),
+        testText(" World!")),
+      document);
   }
 
 }

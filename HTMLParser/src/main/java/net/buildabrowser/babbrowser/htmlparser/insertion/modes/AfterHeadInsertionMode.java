@@ -2,9 +2,11 @@ package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
+import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseCommentUtil;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseElementUtil;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseTextUtil;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
+import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
 import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
 
@@ -19,6 +21,12 @@ public class AfterHeadInsertionMode implements InsertionMode {
       default:
         return handleAnythingElse(parseContext);
     }
+  }
+
+  @Override
+  public boolean emitCommentToken(ParseContext parseContext, CommentToken commentToken) {
+    ParseCommentUtil.insertAComment(parseContext, commentToken);
+    return false;
   }
 
   @Override

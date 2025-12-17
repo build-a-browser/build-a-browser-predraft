@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 
+import net.buildabrowser.babbrowser.dom.Comment;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
@@ -36,6 +37,7 @@ public final class TestUtil {
       case TestDocument document -> assertDocumentMatches(document, node);
       case TestElement element -> assertElementMatches(element, node);
       case TestText text -> assertTextMatches(text, node);
+      case TestComment comment -> assertCommentMatches(comment, node);
       default -> throw new AssertionError("Unrecognize reference node type");
     }
   }
@@ -75,6 +77,15 @@ public final class TestUtil {
     Assertions.assertEquals(refText.text(), text.data());
   }
 
+  private static void assertCommentMatches(TestComment refComment, Node node) {
+    if (!(node instanceof Comment comment)) {
+      throwDivergentTypes(refComment, node);
+      return;
+    }
+
+    Assertions.assertEquals(refComment.data(), comment.data());
+  }
+
   private static void assertNodeListMatches(List<TestNode> children, NodeList childNodes) {
     if (children.size() != childNodes.length()) {
       throw new AssertionError(String.format(
@@ -103,6 +114,8 @@ public final class TestUtil {
       case TestElement _ -> "Element";
       case Text _ -> "Text";
       case TestText _ -> "Text";
+      case Comment _ -> "Comment";
+      case TestComment _ -> "Comment";
       default -> "Unknown";
     };
   }

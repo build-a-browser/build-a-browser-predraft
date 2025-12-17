@@ -10,6 +10,7 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.context.ElementContext;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.dom.Comment;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.NodeList;
 import net.buildabrowser.babbrowser.dom.Text;
@@ -22,6 +23,7 @@ public class BoxGeneratorImp implements BoxGenerator {
     return switch (node) {
       case Text text -> List.of(TextBox.create(text));
       case MutableElement element -> createElementBoxes(parentBox, element);
+      case Comment _ -> List.of();
       default -> throw new UnsupportedOperationException("Unsupported Box Type");
     };
   }
