@@ -90,11 +90,8 @@ public class FlowBlockLayout {
     // TODO: Factor in margins and stuff
     LayoutConstraint childWidthConstraint = evaluateNonReplacedBlockWidth(
       layoutContext, parentWidthConstraint, childStyles);
-    LayoutConstraint childHeightConstraint = childBox.isReplaced() ?
-      FlowHeightUtil.evaluateReplacedBlockHeight(
-        layoutContext, parentHeightConstraint, childWidthConstraint,
-        childStyles, childBox.dimensions()) :
-      evaluateNonReplacedBlockHeight(layoutContext, parentHeightConstraint, childStyles);
+    LayoutConstraint childHeightConstraint = evaluateNonReplacedBlockHeight(
+      layoutContext, parentHeightConstraint, childStyles);
 
     BlockFormattingContext childContext = new BlockFormattingContext(childBox);
     blockStack.push(childContext);
@@ -112,18 +109,31 @@ public class FlowBlockLayout {
 
   private void addUnmanagedBlockToBlock(
     LayoutContext layoutContext,
-    ElementBox elementBox,
-    LayoutConstraint widthConstraint,
-    LayoutConstraint heightConstraint
+    ElementBox childBox,
+    LayoutConstraint parentWidthConstraint,
+    LayoutConstraint parentHeightConstraint
   ) {
-    if (!widthConstraint.isPreLayoutConstraint()) {
-      elementBox.content().layout(layoutContext, widthConstraint, heightConstraint);
-    }
+    ActiveStyles childStyles = childBox.activeStyles();
     // TODO: Account for stuff likes margins
-    int width = FlowUtil.constraintWidth(elementBox.dimensions(), widthConstraint);
-    int height = FlowUtil.constraintHeight(elementBox.dimensions(), heightConstraint);
+    LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
+      FlowWidthUtil.determineBlockReplacedWidth(
+        layoutContext, parentWidthConstraint, childStyles, childBox.dimensions()) :
+      evaluateNonReplacedBlockWidth(layoutContext, parentWidthConstraint, childStyles);
+    
+    LayoutConstraint childHeightConstraint = childBox.isReplaced() ?
+      FlowHeightUtil.evaluateReplacedBlockHeight(
+        layoutContext, parentHeightConstraint, childWidthConstraint,
+        childStyles, childBox.dimensions()) :
+      evaluateNonReplacedBlockHeight(layoutContext, parentHeightConstraint, childStyles);
 
-    UnmanagedBoxFragment newFragment = new UnmanagedBoxFragment(width, height, elementBox);
+    if (!parentWidthConstraint.isPreLayoutConstraint()) {
+      childBox.content().layout(layoutContext, childWidthConstraint, childHeightConstraint);
+    }
+
+    int width = FlowUtil.constraintWidth(childBox.dimensions(), childWidthConstraint);
+    int height = FlowUtil.constraintHeight(childBox.dimensions(), childHeightConstraint);
+
+    UnmanagedBoxFragment newFragment = new UnmanagedBoxFragment(width, height, childBox);
 
     BlockFormattingContext parentContext = blockStack.peek();
     newFragment.setPos(0, parentContext.currentY());

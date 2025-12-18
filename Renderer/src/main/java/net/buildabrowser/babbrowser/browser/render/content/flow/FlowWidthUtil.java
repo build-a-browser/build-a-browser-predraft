@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
+import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
@@ -7,6 +8,7 @@ import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.PercentageValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles.SizingUnit;
 
 public final class FlowWidthUtil {
   
@@ -51,6 +53,46 @@ public final class FlowWidthUtil {
     };
 
     return LayoutConstraint.of((int) sizeResult);
+  }
+
+  public static LayoutConstraint determineBlockReplacedWidth(
+    LayoutContext layoutContext,
+    LayoutConstraint parentConstraint,
+    ActiveStyles childStyles,
+    ElementBoxDimensions boxDimensions
+  ) {
+    LayoutConstraint baseWidth = FlowWidthUtil.evaluateBaseSize(
+      layoutContext, parentConstraint, childStyles.getSizingProperty(SizingUnit.WIDTH), childStyles);
+    
+    if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
+      return baseWidth;
+    }
+
+    if (parentConstraint.isPreLayoutConstraint()) {
+      return parentConstraint;
+    }
+
+    if (
+      boxDimensions.intrinsicWidth() != -1
+      && boxDimensions.getComputedHeight() != -1
+    ) {
+      return LayoutConstraint.of(boxDimensions.intrinsicWidth());
+    } else if (
+      boxDimensions.intrinsicRatio() != -1
+      && boxDimensions.intrinsicHeight() != -1
+    ) { // TODO: Also consider specified height
+      int usedHeight = boxDimensions.intrinsicHeight();
+      int usedWidth = (int) (usedHeight * boxDimensions.intrinsicRatio());
+      return LayoutConstraint.of(usedWidth);
+    } else if (boxDimensions.intrinsicRatio() != -1) {
+      // TODO: Compute as for block non-replaced
+      return LayoutConstraint.of(boxDimensions.preferredWidthConstraint());
+    } else if (boxDimensions.intrinsicWidth() != -1) {
+      return LayoutConstraint.of(boxDimensions.intrinsicWidth());
+    } else {
+      // TODO: Check if window smaller than 300px
+      return LayoutConstraint.of(300);
+    }
   }
 
 }

@@ -99,7 +99,7 @@ public class FlowInlineLayout {
   ) {
     ActiveStyles childStyles = childBox.activeStyles();
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
-      determineInlineBlockReplacedWidth(
+      FlowWidthUtil.determineBlockReplacedWidth(
         layoutContext, parentWidthConstraint, childStyles, childBox.dimensions()) :
       determineInlineBlockNonReplacedWidth(
         layoutContext, parentWidthConstraint, childStyles, childBox.dimensions());
@@ -176,46 +176,6 @@ public class FlowInlineLayout {
     }
 
     return LayoutConstraint.of(Math.min(Math.max(preferredMinWidth, availableWidth), preferredWidth));
-  }
-
-  private LayoutConstraint determineInlineBlockReplacedWidth(
-    LayoutContext layoutContext,
-    LayoutConstraint parentConstraint,
-    ActiveStyles childStyles,
-    ElementBoxDimensions boxDimensions
-  ) {
-    LayoutConstraint baseWidth = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentConstraint, childStyles.getSizingProperty(SizingUnit.WIDTH), childStyles);
-    
-    if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
-      return baseWidth;
-    }
-
-    if (parentConstraint.isPreLayoutConstraint()) {
-      return parentConstraint;
-    }
-
-    if (
-      boxDimensions.intrinsicWidth() != -1
-      && boxDimensions.getComputedHeight() != -1
-    ) {
-      return LayoutConstraint.of(boxDimensions.intrinsicWidth());
-    } else if (
-      boxDimensions.intrinsicRatio() != -1
-      && boxDimensions.intrinsicHeight() != -1
-    ) { // TODO: Also consider specified height
-      int usedHeight = boxDimensions.intrinsicHeight();
-      int usedWidth = (int) (usedHeight * boxDimensions.intrinsicRatio());
-      return LayoutConstraint.of(usedWidth);
-    } else if (boxDimensions.intrinsicRatio() != -1) {
-      // TODO: Compute as for block non-replaced
-      return LayoutConstraint.of(boxDimensions.preferredWidthConstraint());
-    } else if (boxDimensions.intrinsicWidth() != -1) {
-      return LayoutConstraint.of(boxDimensions.intrinsicWidth());
-    } else {
-      // TODO: Check if window smaller than 300px
-      return LayoutConstraint.of(300);
-    }
   }
 
 }
