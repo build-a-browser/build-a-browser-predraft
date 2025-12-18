@@ -56,7 +56,7 @@ public class RendererImp implements Renderer {
         protected void paintComponent(Graphics g) {
           if (documentBox == null) return;
           FontMetrics fontMetrics = new J2DFontMetrics(g.getFontMetrics());
-          documentBox.htmlBox().content().layout(new LayoutContext(fontMetrics));
+          documentBox.htmlBox().content().layout(new LayoutContext(url, fontMetrics));
           documentBox.htmlBox().content().paint(new J2DPaintCanvas((Graphics2D) g));
         }
       };

@@ -28,7 +28,7 @@ public class ImageContent implements BoxContent {
 
   @Override
   public void layout(LayoutContext layoutContext) {
-    loadImage();
+    loadImage(layoutContext.refURL());
 
     if (image != null) {
       box.dimensions().setComputedSize(image.getWidth(), image.getHeight());
@@ -61,8 +61,8 @@ public class ImageContent implements BoxContent {
     canvas.drawText(0, 0, alt);
   }
 
-  private void loadImage() {
-    URL imageSource = getImageSource();
+  private void loadImage(URL refURL) {
+    URL imageSource = getImageSource(refURL);
     if (loadingImageURL == null || !loadingImageURL.equals(imageSource)) {
       image = null;
       loadingImageURL = imageSource;
@@ -80,14 +80,14 @@ public class ImageContent implements BoxContent {
     }
   }
 
-  private URL getImageSource() {
+  private URL getImageSource(URL refUrl) {
     String src = box.element().attributes().get("src");
     if (src == null || src.isEmpty()) {
       return null;
     }
 
     try {
-      return URLUtil.createURL(src);
+      return URLUtil.createURL(refUrl, src);
     } catch (BadURLException e) {
       return null;
     }

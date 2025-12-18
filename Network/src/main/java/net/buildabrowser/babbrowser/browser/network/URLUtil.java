@@ -19,4 +19,12 @@ public final class URLUtil {
     }
   }
 
+  public static URL createURL(URL base, String url) throws BadURLException {
+    try {
+      return base.toURI().resolve(url).toURL();
+    } catch (MalformedURLException | URISyntaxException e) {
+      throw new BadURLException(e);
+    }
+  }
+
 }
