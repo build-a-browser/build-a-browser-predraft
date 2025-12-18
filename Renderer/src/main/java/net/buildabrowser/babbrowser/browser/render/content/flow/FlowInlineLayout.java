@@ -95,7 +95,7 @@ public class FlowInlineLayout {
     LayoutContext layoutContext,
     ElementBox childBox,
     LayoutConstraint parentWidthConstraint,
-    LayoutConstraint heightConstraint
+    LayoutConstraint parentHeightConstraint
   ) {
     ActiveStyles childStyles = childBox.activeStyles();
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
@@ -103,9 +103,14 @@ public class FlowInlineLayout {
         layoutContext, parentWidthConstraint, childStyles, childBox.dimensions()) :
       determineInlineBlockNonReplacedWidth(
         layoutContext, parentWidthConstraint, childStyles, childBox.dimensions());
-    
+    LayoutConstraint childHeightContraint = childBox.isReplaced() ?
+      FlowHeightUtil.evaluateReplacedBlockHeight(
+        layoutContext, parentHeightConstraint, childWidthConstraint,
+        childStyles, childBox.dimensions()) :
+      parentHeightConstraint;
+
     if (!parentWidthConstraint.isPreLayoutConstraint()) {
-      childBox.content().layout(layoutContext, childWidthConstraint, heightConstraint);
+      childBox.content().layout(layoutContext, childWidthConstraint, childHeightContraint);
     }
 
     int width = LayoutUtil.constraintOrDim(childWidthConstraint, childBox.dimensions().getComputedWidth());

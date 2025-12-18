@@ -7,9 +7,8 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
-import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles.SizingUnit;
 
@@ -90,9 +89,12 @@ public class FlowBlockLayout {
     ActiveStyles childStyles = childBox.activeStyles();
     // TODO: Factor in margins and stuff
     LayoutConstraint childWidthConstraint = evaluateNonReplacedBlockWidth(
-      layoutContext, parentWidthConstraint, childStyles.getSizingProperty(SizingUnit.WIDTH), childStyles);
-    LayoutConstraint childHeightConstraint = evaluateNonReplacedBlockHeight(
-      layoutContext, parentHeightConstraint, childStyles.getSizingProperty(SizingUnit.HEIGHT), childStyles);
+      layoutContext, parentWidthConstraint, childStyles);
+    LayoutConstraint childHeightConstraint = childBox.isReplaced() ?
+      FlowHeightUtil.evaluateReplacedBlockHeight(
+        layoutContext, parentHeightConstraint, childWidthConstraint,
+        childStyles, childBox.dimensions()) :
+      evaluateNonReplacedBlockHeight(layoutContext, parentHeightConstraint, childStyles);
 
     BlockFormattingContext childContext = new BlockFormattingContext(childBox);
     blockStack.push(childContext);
@@ -134,11 +136,11 @@ public class FlowBlockLayout {
   private LayoutConstraint evaluateNonReplacedBlockWidth(
     LayoutContext layoutContext,
     LayoutConstraint parentConstraint,
-    CSSValue sizeValue,
     ActiveStyles childStyles
   ) {
     LayoutConstraint determinedConstraint = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentConstraint, sizeValue, childStyles);
+      layoutContext, parentConstraint,
+      childStyles.getSizingProperty(SizingUnit.WIDTH), childStyles);
     if (!determinedConstraint.type().equals(LayoutConstraintType.AUTO)) {
       return determinedConstraint;
     }
@@ -149,12 +151,12 @@ public class FlowBlockLayout {
   private LayoutConstraint evaluateNonReplacedBlockHeight(
     LayoutContext layoutContext,
     LayoutConstraint parentConstraint,
-    CSSValue sizeValue,
     ActiveStyles childStyles
   ) {
     // TODO: An actual proper implementation
     LayoutConstraint determinedConstraint = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentConstraint, sizeValue, childStyles);
+      layoutContext, parentConstraint,
+      childStyles.getSizingProperty(SizingUnit.HEIGHT), childStyles);
 
     return determinedConstraint;
   }

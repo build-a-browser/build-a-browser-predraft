@@ -58,11 +58,9 @@ public class ImageContent implements BoxContent {
   public void layout(
     LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
-    loadImage();
-
     ElementBoxDimensions dimensions = box.dimensions();
-    int realWidth = LayoutUtil.constraintOrDim(widthConstraint, dimensions.getComputedWidth());
-    int realHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.getComputedHeight());
+    int realWidth = LayoutUtil.constraintOrDim(widthConstraint, dimensions.intrinsicWidth());
+    int realHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.intrinsicHeight());
     box.dimensions().setComputedSize(realWidth, realHeight);
   }
 
@@ -82,6 +80,11 @@ public class ImageContent implements BoxContent {
     String alt = getImageAlt();
     canvas.drawText(0, 0, alt);
   }
+
+  @Override
+  public boolean isReplaced() {
+    return true;
+  };
 
   private void loadImage() {
     URL imageSource = getImageSource();
