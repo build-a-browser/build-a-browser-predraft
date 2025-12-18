@@ -35,20 +35,26 @@ public class FlowRootContent implements BoxContent {
     ElementBoxDimensions dimensions = rootBox.dimensions();
 
     blockLayout.reset(rootBox);
-    blockLayout.addChildrenToBlock(layoutContext, rootBox, LayoutConstraint.MIN_CONTENT);
-    dimensions.setPreferredMinWidthConstraint(blockLayout.close(LayoutConstraint.MIN_CONTENT).width());
+    blockLayout.addChildrenToBlock(
+      layoutContext, rootBox, LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO);
+    dimensions.setPreferredMinWidthConstraint(
+      blockLayout.close(LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).width());
 
     blockLayout.reset(rootBox);
-    blockLayout.addChildrenToBlock(layoutContext, rootBox, LayoutConstraint.MAX_CONTENT);
-    dimensions.setPreferredWidthConstraint(blockLayout.close(LayoutConstraint.MAX_CONTENT).width());
+    blockLayout.addChildrenToBlock(
+      layoutContext, rootBox, LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO);
+    dimensions.setPreferredWidthConstraint(
+      blockLayout.close(LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).width());
   }
 
   @Override
-  public void layout(LayoutContext layoutContext, LayoutConstraint layoutConstraint) {
+  public void layout(
+    LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+  ) {
     blockLayout.reset(rootBox);
-    blockLayout.addChildrenToBlock(layoutContext, rootBox, layoutConstraint);
+    blockLayout.addChildrenToBlock(layoutContext, rootBox, widthConstraint, heightConstraint);
 
-    this.rootFragment = blockLayout.close(layoutConstraint);
+    this.rootFragment = blockLayout.close(widthConstraint, heightConstraint);
     rootBox.dimensions().setComputedSize(rootFragment.width(), rootFragment.height());
   }
 

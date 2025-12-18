@@ -55,18 +55,14 @@ public class ImageContent implements BoxContent {
   }
 
   @Override
-  public void layout(LayoutContext layoutContext, LayoutConstraint layoutConstraint) {
+  public void layout(
+    LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+  ) {
     loadImage();
 
     ElementBoxDimensions dimensions = box.dimensions();
-    int realWidth = LayoutUtil.constraintOrDim(layoutConstraint, dimensions.getComputedWidth());
-    if (image != null) {
-      int realHeight = (int) (realWidth * dimensions.intrinsicRatio());
-      box.dimensions().setComputedSize(realWidth, realHeight);
-      return;
-    }
-
-    int realHeight = box.dimensions().getComputedHeight();
+    int realWidth = LayoutUtil.constraintOrDim(widthConstraint, dimensions.getComputedWidth());
+    int realHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.getComputedHeight());
     box.dimensions().setComputedSize(realWidth, realHeight);
   }
 

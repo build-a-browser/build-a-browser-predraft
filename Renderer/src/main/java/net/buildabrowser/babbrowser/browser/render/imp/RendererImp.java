@@ -60,9 +60,10 @@ public class RendererImp implements Renderer {
           FontMetrics fontMetrics = new J2DFontMetrics(g.getFontMetrics());
           LayoutContext layoutContext = new LayoutContext(fontMetrics);
           BoxContent content = documentBox.htmlBox().content();
-          int width = this.getWidth();
           content.prelayout(layoutContext);
-          content.layout(layoutContext, LayoutConstraint.of(width));
+          content.layout(layoutContext,
+            LayoutConstraint.of(this.getWidth()),
+            LayoutConstraint.of(this.getHeight()));
           content.paint(new J2DPaintCanvas((Graphics2D) g));
         }
       };

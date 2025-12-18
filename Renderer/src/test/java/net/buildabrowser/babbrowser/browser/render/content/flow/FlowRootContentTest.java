@@ -289,6 +289,20 @@ public class FlowRootContentTest {
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
+  @Test
+  @DisplayName("Can layout block box with percent-height non-replaced block child")
+  public void canLayoutBlockBoxWithPercentHeightNonReplacedBlockChild() {
+    ActiveStyles childStyles = ActiveStyles.create();
+    childStyles.setSizingProperty(SizingUnit.HEIGHT, PercentageValue.create(25));
+    ElementBox childBox = flowBlockBox(childStyles, List.of());
+    ElementBox parentBox = flowBlockBox(List.of(childBox));
+
+    FlowFragment expectedFragment = new ManagedBoxFragment(80, 160, parentBox, List.of(
+      new ManagedBoxFragment(0, 0, 80, 40, childBox, List.of())));
+    FlowFragment actualFragment = doLayoutSized(parentBox, 80, 160);
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
   private ElementBox sizedReplacedBlockBox(int width, int height) {
     ActiveStyles childrenStyles = ActiveStyles.create();
     ElementBox myBox = new TestElementBox(
@@ -350,7 +364,7 @@ public class FlowRootContentTest {
     LayoutContext layoutContext = new LayoutContext(TestFontMetrics.create(10, 5));
     FlowRootContent content = (FlowRootContent) parentBox.content();
     content.prelayout(layoutContext);
-    content.layout(layoutContext, LayoutConstraint.AUTO);
+    content.layout(layoutContext, LayoutConstraint.AUTO, LayoutConstraint.AUTO);
 
     return content.rootFragment();
   }
@@ -359,7 +373,16 @@ public class FlowRootContentTest {
     LayoutContext layoutContext = new LayoutContext(TestFontMetrics.create(10, 5));
     FlowRootContent content = (FlowRootContent) parentBox.content();
     content.prelayout(layoutContext);
-    content.layout(layoutContext, LayoutConstraint.of(width));
+    content.layout(layoutContext, LayoutConstraint.of(width), LayoutConstraint.AUTO);
+
+    return content.rootFragment();
+  }
+
+  private FlowFragment doLayoutSized(ElementBox parentBox, int width, int height) {
+    LayoutContext layoutContext = new LayoutContext(TestFontMetrics.create(10, 5));
+    FlowRootContent content = (FlowRootContent) parentBox.content();
+    content.prelayout(layoutContext);
+    content.layout(layoutContext, LayoutConstraint.of(width), LayoutConstraint.of(height));
 
     return content.rootFragment();
   }

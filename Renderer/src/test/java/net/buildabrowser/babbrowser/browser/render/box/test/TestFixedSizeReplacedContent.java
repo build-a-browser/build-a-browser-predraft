@@ -4,8 +4,8 @@ import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
 
 public class TestFixedSizeReplacedContent implements BoxContent {
@@ -28,16 +28,13 @@ public class TestFixedSizeReplacedContent implements BoxContent {
   }
 
   @Override
-  public void layout(LayoutContext layoutContext, LayoutConstraint widthConstraint) {
+  public void layout(
+    LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+  ) {
     ElementBoxDimensions dimensions = box.dimensions();
-    if (widthConstraint.type().equals(LayoutConstraintType.BOUNDED)) {
-      int usedHeight = box.dimensions().intrinsicRatio() != -1 ?
-        (int) (widthConstraint.value() * box.dimensions().intrinsicRatio()) :
-        height;
-      dimensions.setComputedSize(widthConstraint.value(), usedHeight);
-    } else {
-      dimensions.setComputedSize(width, height);
-    }
+    int usedWidth = LayoutUtil.constraintOrDim(widthConstraint, width);
+    int usedHeight = LayoutUtil.constraintOrDim(heightConstraint, height);
+    dimensions.setComputedSize(usedWidth, usedHeight);
   }
 
   @Override

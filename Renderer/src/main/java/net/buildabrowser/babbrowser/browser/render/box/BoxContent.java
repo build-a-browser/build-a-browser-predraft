@@ -8,7 +8,7 @@ public interface BoxContent {
 
   void prelayout(LayoutContext layoutContext);
   
-  void layout(LayoutContext layoutContext, LayoutConstraint widthConstraint);
+  void layout(LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
 
   void paint(PaintCanvas canvas);
 

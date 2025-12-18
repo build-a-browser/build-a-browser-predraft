@@ -22,6 +22,16 @@ public final class FlowUtil {
     };
   }
 
+  public static int constraintHeight(ElementBoxDimensions dimensions, LayoutConstraint layoutConstraint) {
+    return switch (layoutConstraint.type()) {
+      case BOUNDED -> layoutConstraint.value();
+      case AUTO -> dimensions.getComputedHeight();
+      case MIN_CONTENT -> throw new UnsupportedOperationException("Not yet implemented!");
+      case MAX_CONTENT -> throw new UnsupportedOperationException("Not yet implemented!");
+      default -> throw new UnsupportedOperationException("Unsupported constraint type!");
+    };
+  }
+
   public static boolean isBlockLevel(Box childBox) {
     return switch(childBox) {
       case ElementBox elementBox -> elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL);

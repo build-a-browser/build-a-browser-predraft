@@ -45,48 +45,70 @@ public class FlowInlineLayout {
     inlineStack.push(new InlineFormattingContext());
   }
 
-  public void addToInline(LayoutContext layoutContext, Box childBox, LayoutConstraint layoutConstraint) {
+  public void addToInline(
+    LayoutContext layoutContext,
+    Box childBox,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
+  ) {
     switch (childBox) {
-      case ElementBox elementBox -> addToInline(layoutContext, elementBox, layoutConstraint);
+      case ElementBox elementBox -> addToInline(
+        layoutContext, elementBox, widthConstraint, heightConstraint);
       case TextBox textBox -> addTextToInline(layoutContext, textBox);
       default -> throw new UnsupportedOperationException("Unknown box type!");
     }
   }
 
-  private void addToInline(LayoutContext layoutContext, ElementBox elementBox, LayoutConstraint layoutConstraint) {
+  private void addToInline(
+    LayoutContext layoutContext,
+    ElementBox elementBox,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
+  ) {
     if (elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)) {
       InlineFormattingContext nextContext = inlineStack.peek().split();
       stopInline();
-      rootContent.blockLayout().addToBlock(layoutContext, elementBox, layoutConstraint);
+      rootContent.blockLayout().addToBlock(
+        layoutContext, elementBox, widthConstraint, heightConstraint);
       inlineStack.push(nextContext);
     } else if (FlowUtil.isInFlow(elementBox)) {
-      addManagedBlockToInline(layoutContext, elementBox, layoutConstraint);
+      addManagedBlockToInline(layoutContext, elementBox, widthConstraint, heightConstraint);
     } else {
-      addUnmanagedBlockToInline(layoutContext, elementBox, layoutConstraint);
+      addUnmanagedBlockToInline(layoutContext, elementBox, widthConstraint, heightConstraint);
     }
   }
 
-  private void addManagedBlockToInline(LayoutContext layoutContext, ElementBox elementBox, LayoutConstraint layoutConstraint) {
+  private void addManagedBlockToInline(
+    LayoutContext layoutContext,
+    ElementBox elementBox,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
+  ) {
     inlineStack.peek().pushElement(elementBox);
     for (Box childBox: elementBox.childBoxes()) {
-      addToInline(layoutContext, childBox, layoutConstraint);
+      addToInline(layoutContext, childBox, widthConstraint, heightConstraint);
     }
     inlineStack.peek().popElement();
   }
 
-  private void addUnmanagedBlockToInline(LayoutContext layoutContext, ElementBox childBox, LayoutConstraint parentConstraint) {
+  private void addUnmanagedBlockToInline(
+    LayoutContext layoutContext,
+    ElementBox childBox,
+    LayoutConstraint parentWidthConstraint,
+    LayoutConstraint heightConstraint
+  ) {
     ActiveStyles childStyles = childBox.activeStyles();
-    LayoutConstraint childConstraint = childBox.isReplaced() ?
+    LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
       determineInlineBlockReplacedWidth(
-        layoutContext, parentConstraint, childStyles, childBox.dimensions()) :
+        layoutContext, parentWidthConstraint, childStyles, childBox.dimensions()) :
       determineInlineBlockNonReplacedWidth(
-        layoutContext, parentConstraint, childStyles, childBox.dimensions());
+        layoutContext, parentWidthConstraint, childStyles, childBox.dimensions());
     
-    if (!parentConstraint.isPreLayoutConstraint()) {
-      childBox.content().layout(layoutContext, childConstraint);
+    if (!parentWidthConstraint.isPreLayoutConstraint()) {
+      childBox.content().layout(layoutContext, childWidthConstraint, heightConstraint);
     }
 
-    int width = LayoutUtil.constraintOrDim(childConstraint, childBox.dimensions().getComputedWidth());
+    int width = LayoutUtil.constraintOrDim(childWidthConstraint, childBox.dimensions().getComputedWidth());
     int height = childBox.dimensions().getComputedHeight();
 
     UnmanagedBoxFragment newFragment = new UnmanagedBoxFragment(width, height, childBox);
