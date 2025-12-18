@@ -5,6 +5,8 @@ import net.buildabrowser.babbrowser.htmlparser.tokenize.states.AfterAttributeVal
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.AfterDoctypeNameState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.AttributeNameState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.AttributeValueDoubleQuotedState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.states.AttributeValueSingleQuotedState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.states.AttributeValueUnquotedState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.BeforeAttributeNameState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.BeforeAttributeValueState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.BeforeDoctypeNameState;
@@ -38,6 +40,8 @@ public final class TokenizeStates {
   public static final TokenizeState afterAttributeNameState = new AttributeNameState();
   public static final TokenizeState afterDoctypeNameState = new AfterDoctypeNameState();
   public static final TokenizeState attributeValueDoubleQuotedState = new AttributeValueDoubleQuotedState();
+  public static final TokenizeState attributeValueSingleQuotedState = new AttributeValueSingleQuotedState();
+  public static final TokenizeState attributeValueUnquotedState = new AttributeValueUnquotedState();
   public static final TokenizeState beforeAttributeNameState = new BeforeAttributeNameState();
   public static final TokenizeState beforeAttributeValueState = new BeforeAttributeValueState();
   public static final TokenizeState beforeDoctypeNameState = new BeforeDoctypeNameState();

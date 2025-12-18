@@ -16,6 +16,15 @@ public class AttributeValueDoubleQuotedState implements TokenizeState {
       case '"':
         tokenizeContext.setTokenizeState(TokenizeStates.afterAttributeValueQuotedState);
         break;
+      // TODO: Character reference state
+      case 0:
+        // TODO: Parse Error
+        tokenizeContext.currentTagToken().appendToAttributeValue(0xFFFD);
+        break;
+      case TokenizeContext.EOF:
+        // TODO: Parse Error
+        parseContext.emitEOFToken();
+        break;
       default:
         tokenizeContext.currentTagToken().appendToAttributeValue(ch);
         break;

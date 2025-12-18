@@ -93,6 +93,18 @@ public class HTMLParserTest {
   }
 
   @Test
+  @DisplayName("Can parse document with element with unquoted attribute")
+  public void canParseDocumentWithElementWithUnquotedAttribute() throws IOException {
+    Document document = htmlParser.parse(new StringReader("<span class=gold></span>"));
+    assertTreeMatches(
+      testDocumentToBody(
+        testElement("span", Map.of(
+          "class", "gold"
+        ))),
+      document);
+  }
+
+  @Test
   @DisplayName("Can parse document with rawtext element")
   public void canParseDocumentWithRawtextElement() throws IOException {
     Document document = htmlParser.parse(new StringReader("<style>p{}</style>"));
