@@ -107,7 +107,8 @@ public class FlowInlineLayout {
       FlowHeightUtil.evaluateReplacedBlockHeight(
         layoutContext, parentHeightConstraint, childWidthConstraint,
         childStyles, childBox.dimensions()) :
-      parentHeightConstraint;
+      FlowHeightUtil.evaluateNonReplacedBlockLevelHeight(
+        layoutContext, parentHeightConstraint, childStyles);;
 
     if (!parentWidthConstraint.isPreLayoutConstraint()) {
       childBox.content().layout(layoutContext, childWidthConstraint, childHeightContraint);

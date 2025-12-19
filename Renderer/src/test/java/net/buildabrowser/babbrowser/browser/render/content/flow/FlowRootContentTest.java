@@ -255,8 +255,8 @@ public class FlowRootContentTest {
   }
 
   @Test
-  @DisplayName("Can layout block box with text and sized non-replaced inline-block child")
-  public void canLayoutBlockBoxWithTextAndSizedNonReplacedInlineBlockChild() {
+  @DisplayName("Can layout block box with text and width-sized non-replaced inline-block child")
+  public void canLayoutBlockBoxWithTextAndWidthSizedNonReplacedInlineBlockChild() {
     ActiveStyles childStyles = ActiveStyles.create();
     childStyles.setSizingProperty(SizingUnit.WIDTH, PercentageValue.create(25));
     TestTextBox childBox1 = new TestTextBox("Hello");
@@ -300,6 +300,24 @@ public class FlowRootContentTest {
     FlowFragment expectedFragment = new ManagedBoxFragment(80, 160, parentBox, List.of(
       new ManagedBoxFragment(0, 0, 80, 40, childBox, List.of())));
     FlowFragment actualFragment = doLayoutSized(parentBox, 80, 160);
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
+  @Test
+  @DisplayName("Can layout block box with text and sized non-replaced inline-block child")
+  public void canLayoutBlockBoxWithTextAndSizedNonReplacedInlineBlockChild() {
+    ActiveStyles childStyles = ActiveStyles.create();
+    childStyles.setSizingProperty(SizingUnit.WIDTH, LengthValue.create(5, true, LengthType.PX));
+    childStyles.setSizingProperty(SizingUnit.HEIGHT, LengthValue.create(15, true, LengthType.PX));
+    TestTextBox childBox1 = new TestTextBox("Hello");
+    ElementBox childBox2 = flowInlineBlockBox(childStyles, List.of());
+    ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
+
+    FlowFragment expectedFragment = new ManagedBoxFragment(80, 15, parentBox, List.of(
+      new LineBoxFragment(0, 0, 30, 15, List.of(
+        new TextFragment(0, 0, 25, 10, "Hello"),
+        new UnmanagedBoxFragment(25, 0, 5, 15, childBox2)))));
+    FlowFragment actualFragment = doLayoutSized(parentBox, 80);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 

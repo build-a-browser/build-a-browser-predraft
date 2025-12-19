@@ -90,7 +90,7 @@ public class FlowBlockLayout {
     // TODO: Factor in margins and stuff
     LayoutConstraint childWidthConstraint = evaluateNonReplacedBlockWidth(
       layoutContext, parentWidthConstraint, childStyles);
-    LayoutConstraint childHeightConstraint = evaluateNonReplacedBlockHeight(
+    LayoutConstraint childHeightConstraint = FlowHeightUtil.evaluateNonReplacedBlockLevelHeight(
       layoutContext, parentHeightConstraint, childStyles);
 
     BlockFormattingContext childContext = new BlockFormattingContext(childBox);
@@ -124,7 +124,7 @@ public class FlowBlockLayout {
       FlowHeightUtil.evaluateReplacedBlockHeight(
         layoutContext, parentHeightConstraint, childWidthConstraint,
         childStyles, childBox.dimensions()) :
-      evaluateNonReplacedBlockHeight(layoutContext, parentHeightConstraint, childStyles);
+      FlowHeightUtil.evaluateNonReplacedBlockLevelHeight(layoutContext, parentHeightConstraint, childStyles);
 
     if (!parentWidthConstraint.isPreLayoutConstraint()) {
       childBox.content().layout(layoutContext, childWidthConstraint, childHeightConstraint);
@@ -156,19 +156,6 @@ public class FlowBlockLayout {
     }
 
     return parentConstraint;
-  }
-
-  private LayoutConstraint evaluateNonReplacedBlockHeight(
-    LayoutContext layoutContext,
-    LayoutConstraint parentConstraint,
-    ActiveStyles childStyles
-  ) {
-    // TODO: An actual proper implementation
-    LayoutConstraint determinedConstraint = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentConstraint,
-      childStyles.getSizingProperty(SizingUnit.HEIGHT), childStyles);
-
-    return determinedConstraint;
   }
 
 }

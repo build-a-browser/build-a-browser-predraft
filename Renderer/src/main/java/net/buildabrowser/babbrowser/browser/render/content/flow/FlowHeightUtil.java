@@ -48,4 +48,17 @@ public final class FlowHeightUtil {
     }
   }
 
+  public static LayoutConstraint evaluateNonReplacedBlockLevelHeight(
+    LayoutContext layoutContext,
+    LayoutConstraint parentConstraint,
+    ActiveStyles childStyles
+  ) {
+    // TODO: An actual proper implementation
+    LayoutConstraint determinedConstraint = FlowWidthUtil.evaluateBaseSize(
+      layoutContext, parentConstraint,
+      childStyles.getSizingProperty(SizingUnit.HEIGHT), childStyles);
+
+    return determinedConstraint;
+  }
+
 }
