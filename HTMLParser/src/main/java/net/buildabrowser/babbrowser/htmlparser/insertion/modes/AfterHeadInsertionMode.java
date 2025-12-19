@@ -2,9 +2,12 @@ package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
+import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseCommentUtil;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseElementUtil;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseTextUtil;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
+import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
+import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
 
 public class AfterHeadInsertionMode implements InsertionMode {
@@ -18,6 +21,18 @@ public class AfterHeadInsertionMode implements InsertionMode {
       default:
         return handleAnythingElse(parseContext);
     }
+  }
+
+  @Override
+  public boolean emitCommentToken(ParseContext parseContext, CommentToken commentToken) {
+    ParseCommentUtil.insertAComment(parseContext, commentToken);
+    return false;
+  }
+
+  @Override
+  public boolean emitDoctypeToken(ParseContext parseContext, DoctypeToken doctypeToken) {
+    parseContext.parseError();
+    return false;
   }
 
   @Override
@@ -36,6 +51,8 @@ public class AfterHeadInsertionMode implements InsertionMode {
 
   private boolean emitStartTagToken(ParseContext parseContext, TagToken tagToken) {
     switch (tagToken.name()) {
+      case "title", "base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template":
+        return false; // TODO: Real implementation
       case "html":
         return InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
       case "body":

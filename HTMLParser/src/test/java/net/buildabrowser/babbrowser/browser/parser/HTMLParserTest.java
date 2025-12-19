@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.parser;
 
+import static net.buildabrowser.babbrowser.browser.parser.util.tree.TestComment.testComment;
 import static net.buildabrowser.babbrowser.browser.parser.util.tree.TestElement.testElement;
 import static net.buildabrowser.babbrowser.browser.parser.util.tree.TestText.testText;
 import static net.buildabrowser.babbrowser.browser.parser.util.tree.TestUtil.assertTreeMatches;
@@ -92,6 +93,18 @@ public class HTMLParserTest {
   }
 
   @Test
+  @DisplayName("Can parse document with element with unquoted attribute")
+  public void canParseDocumentWithElementWithUnquotedAttribute() throws IOException {
+    Document document = htmlParser.parse(new StringReader("<span class=gold></span>"));
+    assertTreeMatches(
+      testDocumentToBody(
+        testElement("span", Map.of(
+          "class", "gold"
+        ))),
+      document);
+  }
+
+  @Test
   @DisplayName("Can parse document with rawtext element")
   public void canParseDocumentWithRawtextElement() throws IOException {
     Document document = htmlParser.parse(new StringReader("<style>p{}</style>"));
@@ -102,6 +115,26 @@ public class HTMLParserTest {
       document);
     
     Assertions.assertEquals(1, document.styleSheets().length());
+  }
+
+  @Test
+  @DisplayName("Can parse document with simple doctype")
+  public void canParseDocumentWithSimpleDoctype() throws IOException {
+    // TODO: DocumentType node
+    Document document = htmlParser.parse(new StringReader("<!doctype html>"));
+    assertTreeMatches(testDocumentToBody(), document);
+  }
+  
+  @Test
+  @DisplayName("Can parse document with comment")
+  public void canParseDocumentWithComment() throws IOException {
+    Document document = htmlParser.parse(new StringReader("Hello,<!--Cruel--> World!"));
+    assertTreeMatches(
+      testDocumentToBody(
+        testText("Hello,"),
+        testComment("Cruel"),
+        testText(" World!")),
+      document);
   }
 
 }

@@ -3,29 +3,30 @@ package net.buildabrowser.babbrowser.htmlparser.tokenize.states;
 import java.io.IOException;
 
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
+import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
-public class BeforeAttributeValueState implements TokenizeState {
+public class AfterDoctypeNameState implements TokenizeState {
 
   @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
     switch (ch) {
-      case '"':
-        tokenizeContext.setTokenizeState(TokenizeStates.attributeValueDoubleQuotedState);
-        break;
-      case '\'':
-        tokenizeContext.setTokenizeState(TokenizeStates.attributeValueSingleQuotedState);
+      case '\t', '\n', '\f', ' ':
         break;
       case '>':
-        // TODO: Parse error
         tokenizeContext.setTokenizeState(TokenizeStates.dataState);
-        parseContext.emitTagToken(tokenizeContext.currentTagToken());
+        parseContext.emitDoctypeToken(tokenizeContext.currentDoctypeToken());
+      case TokenizeContext.EOF:
+        // TODO: Parse error
+        DoctypeToken doctypeToken = tokenizeContext.currentDoctypeToken();
+        doctypeToken.setForceQuirks(true);
+        parseContext.emitDoctypeToken(doctypeToken);
+        parseContext.emitEOFToken();
         break;
       default:
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.attributeValueUnquotedState);
-        break;
+        throw new UnsupportedOperationException("Not yet implemented!");
     }
   }
 

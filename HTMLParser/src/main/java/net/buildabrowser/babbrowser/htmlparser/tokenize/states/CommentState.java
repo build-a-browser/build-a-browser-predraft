@@ -7,28 +7,31 @@ import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
-public class AttributeValueDoubleQuotedState implements TokenizeState {
+public class CommentState implements TokenizeState {
 
   @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
     switch (ch) {
-      // TODO: Other cases
-      case '"':
-        tokenizeContext.setTokenizeState(TokenizeStates.afterAttributeValueQuotedState);
+      case '<':
+        tokenizeContext.currentCommentToken().appendCodePointToData(ch);
+        tokenizeContext.setTokenizeState(TokenizeStates.commentLessThanSignState);
         break;
-      // TODO: Character reference state
+      case '-':
+        tokenizeContext.setTokenizeState(TokenizeStates.commentEndDashState);
+        break;
       case 0:
-        // TODO: Parse Error
-        tokenizeContext.currentTagToken().appendToAttributeValue(0xFFFD);
+        // TODO: Parse error
+        tokenizeContext.currentCommentToken().appendCodePointToData(0xFFFFD);
         break;
       case TokenizeContext.EOF:
-        // TODO: Parse Error
+        // TODO: Parse error
+        parseContext.emitCommentToken(tokenizeContext.currentCommentToken());
         parseContext.emitEOFToken();
         break;
       default:
-        tokenizeContext.currentTagToken().appendToAttributeValue(ch);
+        tokenizeContext.currentCommentToken().appendCodePointToData(ch);
         break;
     }
   }
-
+  
 }

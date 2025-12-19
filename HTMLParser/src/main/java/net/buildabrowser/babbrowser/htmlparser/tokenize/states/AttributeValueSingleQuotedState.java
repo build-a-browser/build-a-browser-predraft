@@ -7,21 +7,26 @@ import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
-public class TagOpenState implements TokenizeState {
+public class AttributeValueSingleQuotedState implements TokenizeState {
 
   @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
     switch (ch) {
-      case '!':
-        tokenizeContext.setTokenizeState(TokenizeStates.markupDeclarationOpenState);
+      // TODO: Other cases
+      case '\'':
+        tokenizeContext.setTokenizeState(TokenizeStates.afterAttributeValueQuotedState);
         break;
-      case '/':
-        tokenizeContext.setTokenizeState(TokenizeStates.endTagOpenState);
+      // TODO: Character reference state
+      case 0:
+        // TODO: Parse Error
+        tokenizeContext.currentTagToken().appendToAttributeValue(0xFFFD);
+        break;
+      case TokenizeContext.EOF:
+        // TODO: Parse Error
+        parseContext.emitEOFToken();
         break;
       default:
-        // TODO: Proper Alpha check, other cases
-        tokenizeContext.beginTagToken(true);
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.tagNameState);
+        tokenizeContext.currentTagToken().appendToAttributeValue(ch);
         break;
     }
   }

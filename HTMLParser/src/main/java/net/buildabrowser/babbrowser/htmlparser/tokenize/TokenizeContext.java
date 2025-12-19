@@ -3,6 +3,8 @@ package net.buildabrowser.babbrowser.htmlparser.tokenize;
 import java.io.IOException;
 import java.io.PushbackReader;
 
+import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
+import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeContextImp;
 
@@ -21,6 +23,14 @@ public interface TokenizeContext {
   TagToken beginTagToken(boolean isStartTag);
 
   TagToken currentTagToken();
+
+  DoctypeToken beginDoctypeToken();
+
+  DoctypeToken currentDoctypeToken();
+
+  CommentToken beginCommentToken();
+
+  CommentToken currentCommentToken();
 
   interface TemporaryBuffer {
 

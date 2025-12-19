@@ -5,6 +5,8 @@ import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.OpenElementStack;
 import net.buildabrowser.babbrowser.htmlparser.shared.imp.ParseContextImp;
+import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
+import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 
@@ -15,6 +17,10 @@ public interface ParseContext {
   void emitEOFToken();
 
   void emitTagToken(TagToken tagToken);
+
+  void emitDoctypeToken(DoctypeToken doctypeToken);
+
+  void emitCommentToken(CommentToken commentToken);
 
   void setInsertionMode(InsertionMode beforeHTMLInsertionMode);
 

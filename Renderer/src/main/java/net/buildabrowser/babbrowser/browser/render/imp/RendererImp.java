@@ -58,7 +58,7 @@ public class RendererImp implements Renderer {
         protected void paintComponent(Graphics g) {
           if (documentBox == null) return;
           FontMetrics fontMetrics = new J2DFontMetrics(g.getFontMetrics());
-          LayoutContext layoutContext = new LayoutContext(fontMetrics);
+          LayoutContext layoutContext = new LayoutContext(url, fontMetrics);
           BoxContent content = documentBox.htmlBox().content();
           content.prelayout(layoutContext);
           content.layout(layoutContext,

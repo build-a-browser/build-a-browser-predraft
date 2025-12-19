@@ -7,26 +7,29 @@ import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
-public class BeforeAttributeValueState implements TokenizeState {
+public class CommentStartDashState implements TokenizeState {
 
   @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
     switch (ch) {
-      case '"':
-        tokenizeContext.setTokenizeState(TokenizeStates.attributeValueDoubleQuotedState);
-        break;
-      case '\'':
-        tokenizeContext.setTokenizeState(TokenizeStates.attributeValueSingleQuotedState);
+      case '-':
+        tokenizeContext.setTokenizeState(TokenizeStates.commentEndState);
         break;
       case '>':
         // TODO: Parse error
         tokenizeContext.setTokenizeState(TokenizeStates.dataState);
-        parseContext.emitTagToken(tokenizeContext.currentTagToken());
+        parseContext.emitCommentToken(tokenizeContext.currentCommentToken());
+        break;
+      case TokenizeContext.EOF:
+        // TODO: Parse error
+        parseContext.emitCommentToken(tokenizeContext.currentCommentToken());
+        parseContext.emitEOFToken();
         break;
       default:
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.attributeValueUnquotedState);
+        tokenizeContext.currentCommentToken().appendCodePointToData('-');
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.commentState);
         break;
     }
   }
-
+  
 }

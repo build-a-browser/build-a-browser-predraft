@@ -7,23 +7,22 @@ import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
-public class TagOpenState implements TokenizeState {
+public class CommentStartState implements TokenizeState {
 
   @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
     switch (ch) {
-      case '!':
-        tokenizeContext.setTokenizeState(TokenizeStates.markupDeclarationOpenState);
+      case '-':
+        tokenizeContext.setTokenizeState(TokenizeStates.commentStartDashState);
         break;
-      case '/':
-        tokenizeContext.setTokenizeState(TokenizeStates.endTagOpenState);
+      case '>':
+        // TODO: Parse-error
+        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
         break;
       default:
-        // TODO: Proper Alpha check, other cases
-        tokenizeContext.beginTagToken(true);
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.tagNameState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.commentState);
         break;
     }
   }
-
+  
 }

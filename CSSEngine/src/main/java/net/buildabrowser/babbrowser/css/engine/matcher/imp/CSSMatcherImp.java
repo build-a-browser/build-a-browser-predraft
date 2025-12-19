@@ -90,9 +90,11 @@ public class CSSMatcherImp implements CSSMatcher {
         toIntersect.add(matchers.match(selectorPart));
       }
 
+      if (toIntersect.size() == 0) continue;
       toUnion.add(ElementSet.intersectMany(toIntersect));
     }
 
+    if (toUnion.size() == 0) return;
     ElementSet allElements = ElementSet.unionMany(toUnion);
     for (Element element: allElements) {
       context.onMatched(element, styleRule);
