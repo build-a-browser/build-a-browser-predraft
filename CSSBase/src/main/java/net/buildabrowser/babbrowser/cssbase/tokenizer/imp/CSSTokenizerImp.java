@@ -22,6 +22,7 @@ public class CSSTokenizerImp implements CSSTokenizer {
 
   @Override
   public Token consumeAToken(CSSTokenizerInput stream) throws IOException {
+    consumeComments(stream);
     int ch = stream.read();
     // TODO: More cases
     return switch (ch) {
@@ -49,6 +50,30 @@ public class CSSTokenizerImp implements CSSTokenizer {
       return identTokenizer.consumeAnIdentLikeToken(stream);
     }
     throw new UnsupportedOperationException("Not yet implemented!");
+  }
+
+
+  private void consumeComments(CSSTokenizerInput stream) throws IOException {
+    int ch1 = stream.read();
+    int ch2 = stream.peek();
+    if (ch1 == '/' && ch2 == '*') {
+      stream.read();
+      ch1 = stream.read();
+      // TODO: Will this error if ch1 was -1?
+      ch2 = stream.peek();
+      while (ch1 != '*' && ch2 != '/') {
+        if (ch2 == -1) {
+          // TODO: Parse error
+          return;
+        }
+
+        ch1 = stream.read();
+        ch2 = stream.peek();
+      }
+      stream.read();
+      return;
+    }
+    stream.unread(ch1);
   }
 
   private WhitespaceToken consumeWhitespace(CSSTokenizerInput stream) throws IOException {

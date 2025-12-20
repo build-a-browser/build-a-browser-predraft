@@ -122,6 +122,13 @@ public class CSSTokenizerTest {
     Token token = cssTokenizer.consumeAToken(stringInput("5%"));
     Assertions.assertEquals(PercentageToken.create(5), token);
   }
+
+  @Test
+  @DisplayName("Can ignore comments")
+  public void canIgnoreComments() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("/*Gorillas*/;"));
+    Assertions.assertEquals(SemicolonToken.create(), token);
+  }
   
   private static CSSTokenizerInput stringInput(String input) {
     return CSSTokenizerInput.fromReader(new StringReader(input));
