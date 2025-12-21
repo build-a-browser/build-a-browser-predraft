@@ -1,21 +1,15 @@
 package net.buildabrowser.babbrowser.dom.mutable.imp;
 
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
+import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
 import net.buildabrowser.babbrowser.dom.mutable.MutableText;
 
 public class MutableTextImp extends MutableNodeImp implements MutableText {
 
   private final StringBuilder data;
-  private final MutableDocument ownerDocument;
 
-  public MutableTextImp(String text, MutableDocument ownerDocument) {
+  public MutableTextImp(String text, MutableNode parentNode) {
+    super(parentNode);
     this.data = new StringBuilder(text);
-    this.ownerDocument = ownerDocument;
-  }
-
-  @Override
-  public MutableDocument ownerDocument() {
-    return this.ownerDocument;
   }
 
   @Override

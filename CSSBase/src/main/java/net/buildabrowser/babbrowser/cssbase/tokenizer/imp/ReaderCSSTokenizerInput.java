@@ -11,7 +11,7 @@ public class ReaderCSSTokenizerInput implements CSSTokenizerInput {
   private final PushbackReader reader;
 
   public ReaderCSSTokenizerInput(Reader reader) {
-    this.reader = new PushbackReader(reader, 3);
+    this.reader = new PushbackReader(reader, 16);
   }
 
   @Override

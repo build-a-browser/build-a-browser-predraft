@@ -1,6 +1,5 @@
 package net.buildabrowser.babbrowser.css.engine.matcher.imp;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
@@ -14,10 +13,15 @@ import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule.RuleSource;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.ChildCombinator;
+import net.buildabrowser.babbrowser.cssbase.selector.Combinator;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.NextSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
+import net.buildabrowser.babbrowser.cssbase.selector.SubsequentSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
@@ -95,13 +99,8 @@ public class CSSMatcherImp implements CSSMatcher {
     if (!(cssRule instanceof StyleRule styleRule)) return;
     
     for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
-      List<ElementSet> toIntersect = new ArrayList<>();
-      for (SelectorPart selectorPart: complexSelector.parts()) {
-        toIntersect.add(matchers.match(selectorPart));
-      }
-
-      if (toIntersect.size() == 0) continue;
-      ElementSet matchedElements = ElementSet.intersectMany(toIntersect);
+      ElementSet matchedElements = matchElements(complexSelector);
+      if (matchedElements == null) continue;
       SelectorSpecificity specificity = computeSpecificity(complexSelector);
       WeightedStyleRule weightedRule = new WeightedStyleRule(
         styleRule, specificity, ruleSource, sheetOrdering, ruleOrdering);
@@ -126,6 +125,33 @@ public class CSSMatcherImp implements CSSMatcher {
     }
 
     return new SelectorSpecificity(numIdSelectors, numClassSelectors, numTypeSelectors);
+  }
+
+  private ElementSet matchElements(ComplexSelector complexSelector) {
+    List<SelectorPart> parts = complexSelector.parts();
+    if (parts.size() == 0) return null;
+    ElementSet currentMatched = matchers.match(parts.get(0)).copy();
+    for (int i = 1; i < parts.size(); i++) {
+      SelectorPart part = parts.get(i);
+      if (part instanceof Combinator combinator) {
+        ElementSet nextMatched = matchers.match(parts.get(++i));
+        currentMatched = matchCombinator(combinator, currentMatched, nextMatched);
+      } else {
+        currentMatched.intersect(matchers.match(part));
+      }
+    }
+
+    return currentMatched;
+  }
+
+  private ElementSet matchCombinator(Combinator combinator, ElementSet currentMatched, ElementSet nextMatched) {
+    return switch (combinator) {
+      case DescendantCombinator _ -> CombinatorMatchers.matchDescendants(currentMatched, nextMatched);
+      case ChildCombinator _ -> CombinatorMatchers.matchChild(currentMatched, nextMatched);
+      case NextSiblingCombinator _ -> CombinatorMatchers.matchNextSibling(currentMatched, nextMatched);
+      case SubsequentSiblingCombinator _ -> CombinatorMatchers.matchSubsequentSibling(currentMatched, nextMatched);
+      default -> throw new IllegalArgumentException();
+    };
   }
 
 }

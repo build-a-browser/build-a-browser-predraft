@@ -1,7 +1,6 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.util;
 
 import net.buildabrowser.babbrowser.dom.Namespace;
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
 import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
 import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
@@ -15,11 +14,10 @@ public final class ParseElementUtil {
 
   public static MutableElement createAnElementForAToken(TagToken token, String namespace, MutableNode intendedParent) {
     // TODO: Half the spec
-    MutableDocument document = intendedParent.ownerDocument();
     String localName = token.name();
 
     // TODO: Proper DOM create an element
-    MutableElement element = MutableElement.create(localName, document);
+    MutableElement element = MutableElement.create(localName, intendedParent);
 
     token.attributes().forEach((k, v) -> element.addAttribute(k, v));
 

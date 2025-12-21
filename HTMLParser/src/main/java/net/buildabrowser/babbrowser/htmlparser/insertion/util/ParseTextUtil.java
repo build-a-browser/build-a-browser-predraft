@@ -18,7 +18,7 @@ public final class ParseTextUtil {
     if (parentNodeList.length() != 0 && parentNodeList.item(parentNodeList.length() - 1) instanceof MutableText text) {
       text.appendCharacter(ch);
     } else {
-      MutableText text = MutableText.create("", adjustedInsertionLocation.ownerDocument());
+      MutableText text = MutableText.create("", adjustedInsertionLocation);
       adjustedInsertionLocation.appendChild(text);
       text.appendCharacter(ch);
     }

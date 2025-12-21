@@ -12,6 +12,8 @@ public interface ElementSet extends Iterable<Element> {
 
   void remove(Element element);
 
+  boolean contains(Element element);
+
   ElementSet copy();
 
   void intersect(ElementSet other);

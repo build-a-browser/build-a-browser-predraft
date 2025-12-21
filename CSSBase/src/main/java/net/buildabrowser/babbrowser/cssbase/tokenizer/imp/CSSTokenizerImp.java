@@ -49,7 +49,8 @@ public class CSSTokenizerImp implements CSSTokenizer {
       stream.unread(ch);
       return identTokenizer.consumeAnIdentLikeToken(stream);
     }
-    throw new UnsupportedOperationException("Not yet implemented!");
+    // TODO: Handle actual other values
+    return DelimToken.create(ch);
   }
 
 

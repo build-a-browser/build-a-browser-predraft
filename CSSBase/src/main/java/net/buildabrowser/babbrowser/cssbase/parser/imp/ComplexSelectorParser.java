@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
 import net.buildabrowser.babbrowser.cssbase.selector.ChildCombinator;
+import net.buildabrowser.babbrowser.cssbase.selector.Combinator;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
@@ -69,8 +70,8 @@ public final class ComplexSelectorParser {
       isInvalid |= parseSelectorPart(currentToken, tokenStream, parts);
     }
 
-    isInvalid |= isCombinator(parts.getFirst());
-    isInvalid |= isCombinator(parts.getLast());
+    isInvalid |= parts.getFirst() instanceof Combinator;
+    isInvalid |= parts.getLast() instanceof Combinator;
     if (isInvalid) return null;
 
     return new ComplexSelector(parts);
@@ -125,16 +126,6 @@ public final class ComplexSelectorParser {
       delimToken.ch() == '>'
       || delimToken.ch() == '+'
       || delimToken.ch() == '~');
-  }
-
-  private static boolean isCombinator(SelectorPart selector) {
-    return switch (selector) {
-      case DescendantCombinator _ -> true;
-      case ChildCombinator _ -> true;
-      case NextSiblingCombinator _ -> true;
-      case SubsequentSiblingCombinator _ -> true;
-      default -> false;
-    };
   }
 
 }

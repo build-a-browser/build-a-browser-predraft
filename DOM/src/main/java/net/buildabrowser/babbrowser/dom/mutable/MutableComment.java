@@ -5,8 +5,8 @@ import net.buildabrowser.babbrowser.dom.mutable.imp.MutableCommentImp;
 
 public interface MutableComment extends MutableNode, Comment {
 
-  static MutableComment create(String data, MutableDocument ownerDocument) {
-    return new MutableCommentImp(data, ownerDocument);
+  static MutableComment create(String data, MutableNode parentNode) {
+    return new MutableCommentImp(data, parentNode);
   }
   
 }

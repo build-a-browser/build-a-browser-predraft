@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.cssbase.selector;
 
-public record SubsequentSiblingCombinator() implements SelectorPart {
+public record SubsequentSiblingCombinator() implements Combinator {
   
   private static SubsequentSiblingCombinator INSTANCE = new SubsequentSiblingCombinator();
 

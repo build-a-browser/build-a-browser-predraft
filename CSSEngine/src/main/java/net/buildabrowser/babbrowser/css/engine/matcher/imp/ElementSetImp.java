@@ -35,6 +35,11 @@ public class ElementSetImp implements ElementSet {
   }
 
   @Override
+  public boolean contains(Element element) {
+    return rawSet.contains(element);
+  };
+
+  @Override
   @SuppressWarnings("deprecation")
   public void intersect(ElementSet other) {
     rawSet.retainAll(other.raw());

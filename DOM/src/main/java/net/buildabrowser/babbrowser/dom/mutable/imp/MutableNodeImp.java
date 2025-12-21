@@ -4,15 +4,32 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
 import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
 import net.buildabrowser.babbrowser.dom.mutable.MutableNodeList;
 
 public abstract class MutableNodeImp implements MutableNode {
 
-  private List<MutableNode> childNodes = new LinkedList<>();
+  private final List<MutableNode> childNodes = new LinkedList<>();
   private final MutableNodeList nodeList = MutableNodeList.create(childNodes);
 
+  private final MutableNode parentNode;
+
   private Object context;
+
+  public MutableNodeImp(MutableNode parentNode) {
+    this.parentNode = parentNode;
+  }
+
+  @Override
+  public MutableDocument ownerDocument() {
+    return parentNode.ownerDocument();
+  }
+
+  @Override
+  public MutableNode parentNode() {
+    return this.parentNode;
+  }
 
   @Override
   public MutableNodeList childNodes() {

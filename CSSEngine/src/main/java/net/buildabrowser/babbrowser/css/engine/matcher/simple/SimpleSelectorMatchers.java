@@ -5,9 +5,11 @@ import java.util.List;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
+import net.buildabrowser.babbrowser.cssbase.selector.Combinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
@@ -58,6 +60,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
       case AttributeSelector attributeSelector -> switch (attributeSelector.type()) {
         case AttributeType.ONE_OF -> attributeOneOfSelectorMatcher.match(attributeSelector);
       };
+      case UniversalSelector _ -> allElements;
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
     };
   }
@@ -69,6 +72,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
       case AttributeSelector attributeSelector -> { switch (attributeSelector.type()) {
         case AttributeType.ONE_OF -> attributeOneOfSelectorMatcher.addSelectorReference(attributeSelector);
       } }
+      case Combinator _, UniversalSelector _ -> {}
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
     };
   }
@@ -80,6 +84,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
       case AttributeSelector attributeSelector -> { switch (attributeSelector.type()) {
         case AttributeType.ONE_OF -> attributeOneOfSelectorMatcher.removeSelectorReference(attributeSelector);
       } }
+      case Combinator _, UniversalSelector _ -> {}
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
     };
   }

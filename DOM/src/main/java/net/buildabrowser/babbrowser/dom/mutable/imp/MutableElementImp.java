@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
 import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
+import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
 
 public class MutableElementImp extends MutableNodeImp implements MutableElement {
 
@@ -13,12 +13,11 @@ public class MutableElementImp extends MutableNodeImp implements MutableElement 
 
   private final String name;
   private final String namespace;
-  private final MutableDocument nodeDocument;
 
-  public MutableElementImp(String name, String namespace, MutableDocument nodeDocument) {
+  public MutableElementImp(String name, String namespace, MutableNode parentNode) {
+    super(parentNode);
     this.name = name;
     this.namespace = namespace;
-    this.nodeDocument = nodeDocument;
   }
 
   @Override
@@ -34,11 +33,6 @@ public class MutableElementImp extends MutableNodeImp implements MutableElement 
   @Override
   public Map<String, String> attributes() {
     return this.attributes;
-  }
-
-  @Override
-  public MutableDocument ownerDocument() {
-    return this.nodeDocument;
   }
 
   @Override
