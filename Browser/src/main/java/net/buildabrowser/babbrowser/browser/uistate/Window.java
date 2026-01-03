@@ -20,11 +20,7 @@ public interface Window {
 	
 	void removeWindowMutationEventListener(WindowMutationEventListener mutationListener);
 	
-	static interface WindowOptions {
-		
-		boolean isPrivate();
-		
-	}
+	static record WindowOptions(boolean isPrivate) {}
 
   static Window create(BrowserInstance browserInstance, WindowOptions options) {
     return new WindowImp(browserInstance, options);

@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.browser.render.content;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
@@ -97,9 +98,9 @@ public class ImageContent implements BoxContent {
 
   private synchronized void loadBufferedImage(URL loadingImageURL) {
     try {
-      this.image = ImageIO.read(loadingImageURL);
+      this.image = ImageIO.read(loadingImageURL.toURI().toURL());
       box.invalidate(InvalidationLevel.LAYOUT);
-    } catch (IOException e) {
+    } catch (IOException | URISyntaxException e) {
       e.printStackTrace();
       this.image = null;
     }

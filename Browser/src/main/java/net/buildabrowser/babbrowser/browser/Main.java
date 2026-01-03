@@ -1,19 +1,20 @@
 package net.buildabrowser.babbrowser.browser;
 
-import java.awt.Component;
-import java.awt.Dimension;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import net.buildabrowser.babbrowser.browser.chrome.WindowSetGUI;
 import net.buildabrowser.babbrowser.browser.net.imp.ProtocolRegistryImp;
 import net.buildabrowser.babbrowser.browser.network.ProtocolRegistry;
-import net.buildabrowser.babbrowser.browser.render.Renderer;
+import net.buildabrowser.babbrowser.browser.render.RenderingEngine;
+import net.buildabrowser.babbrowser.browser.uistate.Window;
+import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
+import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
 
 public class Main {
   
@@ -21,9 +22,17 @@ public class Main {
     setLookAndFeel();
 
     ProtocolRegistry protocolRegistry = new ProtocolRegistryImp();
-    URL url = new URI(args[0]).toURL();
-    Renderer renderer = Renderer.create(protocolRegistry, url);
-    showWindow(renderer.render());
+    RenderingEngine renderingEngine = RenderingEngine.create(protocolRegistry);
+    BrowserInstance browserInstance = BrowserInstance.create(renderingEngine);
+  
+    WindowSet windowSet = WindowSet.create(browserInstance);
+    Window window = windowSet.openWindow(new WindowOptions(false));
+    for (String urlStr: args) {
+      URL url = new URI(urlStr).toURL();
+      window.openTab().navigate(url);
+    }
+
+    WindowSetGUI.create(windowSet);
   }
 
   private static void setLookAndFeel() {
@@ -32,15 +41,6 @@ public class Main {
     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  private static void showWindow(Component content) {
-    JFrame.setDefaultLookAndFeelDecorated(true);
-    JFrame frame = new JFrame("BuildABrowser Test Program");
-    frame.setSize(new Dimension(800, 500));
-    frame.setMaximumSize(new Dimension(800, 500));
-    frame.add(content);
-    frame.setVisible(true);
   }
 
 }

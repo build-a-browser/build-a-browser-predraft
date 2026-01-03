@@ -76,8 +76,8 @@ public class RendererImp implements Renderer {
             LayoutConstraint.of(this.getWidth()),
             LayoutConstraint.of(this.getHeight()));
 
-          g.setColor(new Color(0xFFFFFF, true));
-          g.fillRect( 0, 0, 500, 500);
+          g.setColor(new Color(0xFFFFFF, false));
+          g.fillRect(0, 0, getWidth(), getHeight());
           content.paint(new J2DPaintCanvas((Graphics2D) g));
         }
       };
