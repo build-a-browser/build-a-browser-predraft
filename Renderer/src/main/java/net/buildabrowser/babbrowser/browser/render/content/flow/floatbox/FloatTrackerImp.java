@@ -13,16 +13,16 @@ import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 public class FloatTrackerImp implements FloatTracker {
 
   private static final Comparator<FlowFragment> fragmentComparator = (r1, r2) -> {
-		int result = Float.compare(r1.posY(), r2.posY());
+    int result = Float.compare(r1.posY(), r2.posY());
     if (result == 0) {
-			result = Float.compare(r1.posX(), r2.posX());
-		}
+      result = Float.compare(r1.posX(), r2.posX());
+    }
 
-		return result;
-	};
+    return result;
+  };
 
   private final Set<FlowFragment> leftFloats = new TreeSet<FlowFragment>(fragmentComparator);
-	private final Set<FlowFragment> rightFloats = new TreeSet<FlowFragment>(fragmentComparator);
+  private final Set<FlowFragment> rightFloats = new TreeSet<FlowFragment>(fragmentComparator);
   private final List<FlowFragment> allFloats = new LinkedList<>();
 
   private int lineStartOffset = 0;
@@ -81,13 +81,13 @@ public class FloatTrackerImp implements FloatTracker {
   @Override
   public int lineStartPos() {
     int highestOffset = 0;
-		for (FlowFragment box : leftFloats) {
-			if (blockStartOffset >= box.posY() && blockStartOffset < box.posY() + box.height()) {
-				highestOffset = Math.max(highestOffset, box.posX() + box.width());
-			}
-		}
+    for (FlowFragment box : leftFloats) {
+      if (blockStartOffset >= box.posY() && blockStartOffset < box.posY() + box.height()) {
+        highestOffset = Math.max(highestOffset, box.posX() + box.width());
+      }
+    }
 
-		return highestOffset - lineStartOffset;
+    return highestOffset - lineStartOffset;
   }
 
   @Override
@@ -97,13 +97,13 @@ public class FloatTrackerImp implements FloatTracker {
     }
 
     int highestOffset = Integer.MAX_VALUE;
-		for (FlowFragment box : rightFloats) {
-			if (blockStartOffset >= box.posY() && blockStartOffset < box.posY() + box.height()) {
-				highestOffset = Math.min(highestOffset, box.posX());
-			}
-		}
+    for (FlowFragment box : rightFloats) {
+      if (blockStartOffset >= box.posY() && blockStartOffset < box.posY() + box.height()) {
+        highestOffset = Math.min(highestOffset, box.posX());
+      }
+    }
 
-		return Math.max(0, Math.min(lineStartOffset + lineConstraint.value(), highestOffset - lineStartOffset));
+    return Math.max(0, Math.min(lineStartOffset + lineConstraint.value(), highestOffset - lineStartOffset));
   }
 
   @Override
@@ -205,16 +205,16 @@ public class FloatTrackerImp implements FloatTracker {
   }
 
   private int getFreePosition(int blockStart, Set<FlowFragment> floats) {
-		int nextUncheckedY = -1;
-		for (FlowFragment box : floats) {
+    int nextUncheckedY = -1;
+    for (FlowFragment box : floats) {
       if (nextUncheckedY >= blockStart && box.posY() > nextUncheckedY) {
-				return nextUncheckedY;
+        return nextUncheckedY;
       } else {
-				nextUncheckedY = Math.max(nextUncheckedY, box.posY() + box.height());
-			}
-		}
+        nextUncheckedY = Math.max(nextUncheckedY, box.posY() + box.height());
+      }
+    }
 
-		return Math.max(nextUncheckedY, blockStart);
-	}
+    return Math.max(nextUncheckedY, blockStart);
+  }
 
 }

@@ -8,26 +8,26 @@ import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListen
 import net.buildabrowser.babbrowser.browser.uistate.imp.TabImp;
 
 public interface Tab {
-	
-	void close();
-	
-	String getName();
-	
-	Frame getFrame();
-	
-	URL getURL();
-	
-	void navigate(URL url);
-	
-	void reload();
-	
-	void back();
-	
-	void forward();
-	
-	void addTabMutationEventListener(TabMutationEventListener mutationListener, boolean sync);
-	
-	void removeTabMutationEventListener(TabMutationEventListener mutationListener);
+  
+  void close();
+  
+  String getName();
+  
+  Frame getFrame();
+  
+  URL getURL();
+  
+  void navigate(URL url);
+  
+  void reload();
+  
+  void back();
+  
+  void forward();
+  
+  void addTabMutationEventListener(TabMutationEventListener mutationListener, boolean sync);
+  
+  void removeTabMutationEventListener(TabMutationEventListener mutationListener);
 
   static Tab create(BrowserInstance browserInstance) {
     return new TabImp(browserInstance);

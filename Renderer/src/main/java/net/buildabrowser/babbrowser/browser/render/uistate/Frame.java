@@ -9,28 +9,28 @@ import net.buildabrowser.babbrowser.browser.render.uistate.imp.FrameImp;
 
 public interface Frame {
 
-	Renderer getCurrentRenderer();
+  Renderer getCurrentRenderer();
 
-	String getName();
+  String getName();
 
-	URL getURL();
+  URL getURL();
 
-	void navigate(URL url);
-	
-	boolean redirect(URL url);
+  void navigate(URL url);
+  
+  boolean redirect(URL url);
 
-	void reload();
+  void reload();
 
-	void back();
+  void back();
 
-	void forward();
+  void forward();
 
   void close();
 
-	void addEventListener(FrameEventListener listener, boolean sync);
+  void addEventListener(FrameEventListener listener, boolean sync);
 
-	static Frame create(RenderingEngine renderingEngine) {
-		return new FrameImp(renderingEngine);
-	}
-	
+  static Frame create(RenderingEngine renderingEngine) {
+    return new FrameImp(renderingEngine);
+  }
+  
 }

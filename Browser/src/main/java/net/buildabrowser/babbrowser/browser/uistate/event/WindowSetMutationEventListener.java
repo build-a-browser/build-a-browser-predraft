@@ -6,8 +6,8 @@ import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
 
 public interface WindowSetMutationEventListener extends BrowserEventListener {
 
-	default void onWindowAdded(WindowSet windowSet, Window window) {}
-	
-	default void onClose(WindowSet windowSet) {}
-	
+  default void onWindowAdded(WindowSet windowSet, Window window) {}
+  
+  default void onClose(WindowSet windowSet) {}
+  
 }

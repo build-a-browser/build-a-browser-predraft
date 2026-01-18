@@ -9,20 +9,20 @@ import net.buildabrowser.babbrowser.browser.uistate.imp.WindowSetImp;
 
 public interface WindowSet {
 
-	void close();
-	
-	void open(URL url);
-	
-	Window[] getWindows();
-	
-	Window openWindow(WindowOptions options);
-	
-	void addWindowSetMutationEventListener(WindowSetMutationEventListener mutationListener, boolean sync);
-	
-	void removeWindowSetMutationEventListener(WindowSetMutationEventListener mutationListener);
+  void close();
+  
+  void open(URL url);
+  
+  Window[] getWindows();
+  
+  Window openWindow(WindowOptions options);
+  
+  void addWindowSetMutationEventListener(WindowSetMutationEventListener mutationListener, boolean sync);
+  
+  void removeWindowSetMutationEventListener(WindowSetMutationEventListener mutationListener);
 
   static WindowSet create(BrowserInstance browserInstance) {
     return new WindowSetImp(browserInstance);
   }
-	
+  
 }

@@ -25,8 +25,8 @@ public class OpenElementStackImp implements OpenElementStack {
 
   @Override
   public MutableNode peek(int pos) {
-		return stack.get(pos);
-	}
+    return stack.get(pos);
+  }
 
   @Override
   public MutableNode popNode() {

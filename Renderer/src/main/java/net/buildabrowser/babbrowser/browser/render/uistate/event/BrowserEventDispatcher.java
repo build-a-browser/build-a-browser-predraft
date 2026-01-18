@@ -6,14 +6,14 @@ import net.buildabrowser.babbrowser.browser.render.uistate.event.imp.BrowserEven
 
 public interface BrowserEventDispatcher<T extends BrowserEventListener> {
 
-	void addListener(T listener);
-	
-	void removeListener(T listener);
-	
-	void fire(Consumer<T> eventFunc);
+  void addListener(T listener);
+  
+  void removeListener(T listener);
+  
+  void fire(Consumer<T> eventFunc);
 
   static <T extends BrowserEventListener> BrowserEventDispatcher<T> create() {
     return new BrowserEventDispatcherImp<>();
   }
-	
+  
 }

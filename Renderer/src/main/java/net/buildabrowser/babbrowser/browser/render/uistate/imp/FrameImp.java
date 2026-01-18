@@ -12,85 +12,85 @@ import net.buildabrowser.babbrowser.browser.render.uistate.event.FrameEventListe
 
 public class FrameImp implements Frame {
 
-	private final RenderingEngine renderingEngine;
-	private final BrowserEventDispatcher<FrameEventListener> eventDispatcher = BrowserEventDispatcher.create();
-	
-	private URL url;
-	private Renderer currentRenderer;
+  private final RenderingEngine renderingEngine;
+  private final BrowserEventDispatcher<FrameEventListener> eventDispatcher = BrowserEventDispatcher.create();
+  
+  private URL url;
+  private Renderer currentRenderer;
 
-	public FrameImp(RenderingEngine renderingEngine) {
-		this.renderingEngine = renderingEngine;
-		this.currentRenderer = renderingEngine.createBlankRenderer();
+  public FrameImp(RenderingEngine renderingEngine) {
+    this.renderingEngine = renderingEngine;
+    this.currentRenderer = renderingEngine.createBlankRenderer();
     try {
-		  navigate(URLUtil.createURL("about:blank"));
+      navigate(URLUtil.createURL("about:blank"));
     } catch (BadURLException e) {
       // TODO: Handle this better
       e.printStackTrace();
     }
-	}
+  }
 
-	@Override
-	public Renderer getCurrentRenderer() {
-		return this.currentRenderer;
-	}
+  @Override
+  public Renderer getCurrentRenderer() {
+    return this.currentRenderer;
+  }
 
-	@Override
-	public String getName() {
-		return currentRenderer
-			.getTitle()
-			.orElse("Untitled Document");
-	}
+  @Override
+  public String getName() {
+    return currentRenderer
+      .getTitle()
+      .orElse("Untitled Document");
+  }
 
-	@Override
-	public URL getURL() {
-		return this.url;
-	}
+  @Override
+  public URL getURL() {
+    return this.url;
+  }
 
-	@Override
-	public void navigate(URL url) {
-		this.url = url;
-		eventDispatcher.fire(listener -> listener.onURLChange(url));
-		renderingEngine.openRenderer(url, this, renderer -> {
-			this.currentRenderer = renderer;
-			eventDispatcher.fire(listener -> listener.onRendererChange(renderer));
-		});
-	}
-	
-	@Override
-	public boolean redirect(URL url) {
-		this.url = url;
-		eventDispatcher.fire(listener -> listener.onURLChange(url));
-		
-		return true;
-	}
+  @Override
+  public void navigate(URL url) {
+    this.url = url;
+    eventDispatcher.fire(listener -> listener.onURLChange(url));
+    renderingEngine.openRenderer(url, this, renderer -> {
+      this.currentRenderer = renderer;
+      eventDispatcher.fire(listener -> listener.onRendererChange(renderer));
+    });
+  }
+  
+  @Override
+  public boolean redirect(URL url) {
+    this.url = url;
+    eventDispatcher.fire(listener -> listener.onURLChange(url));
+    
+    return true;
+  }
 
   @Override
   public void close() {
     // TODO: Implement
   }
 
-	@Override
-	public void reload() {
-		// TODO: Implement
-	}
+  @Override
+  public void reload() {
+    // TODO: Implement
+  }
 
-	@Override
-	public void back() {
-		// TODO: Implement
-	}
+  @Override
+  public void back() {
+    // TODO: Implement
+  }
 
-	@Override
-	public void forward() {
-		// TODO: Implement
-	}
+  @Override
+  public void forward() {
+    // TODO: Implement
+  }
 
-	@Override
-	public void addEventListener(FrameEventListener listener, boolean sync) {
-		eventDispatcher.addListener(listener);
-		if (sync) {
-			listener.onURLChange(url);
-			listener.onRendererChange(currentRenderer);
-		}
-	}
+  @Override
+  public void addEventListener(FrameEventListener listener, boolean sync) {
+    eventDispatcher.addListener(listener);
+    if (sync) {
+      listener.onURLChange(url);
+      listener.onRendererChange(currentRenderer);
+    }
+  }
 
 }

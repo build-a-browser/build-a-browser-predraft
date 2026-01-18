@@ -6,8 +6,8 @@ import net.buildabrowser.babbrowser.browser.uistate.Window;
 
 public interface WindowMutationEventListener extends BrowserEventListener {
 
-	default void onTabAdded(Window window, Tab tab) {}
-	
-	default void onClose(Window window) {}
-	
+  default void onTabAdded(Window window, Tab tab) {}
+  
+  default void onClose(Window window) {}
+  
 }

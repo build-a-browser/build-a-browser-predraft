@@ -7,10 +7,10 @@ import net.buildabrowser.babbrowser.browser.uistate.Tab;
 
 public interface TabMutationEventListener extends BrowserEventListener {
 
-	default void onNavigate(Tab tab, URL url) {}
-	
-	default void onTitleChange(Tab tab, String name) {}
-	
-	default void onClose(Tab tab) {};
-	
+  default void onNavigate(Tab tab, URL url) {}
+  
+  default void onTitleChange(Tab tab, String name) {}
+  
+  default void onClose(Tab tab) {};
+  
 }
