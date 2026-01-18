@@ -49,6 +49,9 @@ public class CSSIntermediateParserImp {
     while (true) {
       Token token = stream.read();
       switch (token) {
+        case EOFToken _:
+          // TODO: Report parse error
+          return null;
         case LCBracketToken _:
           SimpleBlock simpleBlock = consumeASimpleBlock(stream, token);
           return new QualifiedRule(prelude, simpleBlock);

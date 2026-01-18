@@ -12,6 +12,8 @@ public class BeforeAttributeValueState implements TokenizeState {
   @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
     switch (ch) {
+      case '\t', '\n', '\f', ' ':
+        break;
       case '"':
         tokenizeContext.setTokenizeState(TokenizeStates.attributeValueDoubleQuotedState);
         break;

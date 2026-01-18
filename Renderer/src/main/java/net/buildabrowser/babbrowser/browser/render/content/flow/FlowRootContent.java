@@ -62,7 +62,6 @@ public class FlowRootContent implements BoxContent {
     blockLayout.reset(rootBox);
     blockLayout.addChildrenToBlock(layoutContext, rootBox, widthConstraint, heightConstraint);
 
-    System.out.println(floatTracker().contentHeight());
     this.rootFragment = blockLayout.close(widthConstraint, heightConstraint);
     rootFragment.setPos(0, 0);
 

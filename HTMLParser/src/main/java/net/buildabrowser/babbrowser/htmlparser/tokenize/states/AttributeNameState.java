@@ -13,6 +13,9 @@ public class AttributeNameState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
     switch (ch) {
       // TODO: Other cases
+      case '\t', '\n', '\f', ' ':
+        // TODO: Properly handle these cases
+        break;
       case '=':
         tokenizeContext.setTokenizeState(TokenizeStates.beforeAttributeValueState);
         break;

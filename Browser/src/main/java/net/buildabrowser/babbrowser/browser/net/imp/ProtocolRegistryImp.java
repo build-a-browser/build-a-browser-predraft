@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,8 +16,15 @@ public class ProtocolRegistryImp implements ProtocolRegistry {
   
   public ProtocolRegistryImp() {
     registeredProtocols.put("file", url -> new FileInputStream(url.getPath()));
-    registeredProtocols.put("http", url -> url.openConnection().getInputStream());
-    registeredProtocols.put("https", url -> url.openConnection().getInputStream());
+    registeredProtocols.put("http", url -> openHTTPConnection(url));
+    registeredProtocols.put("https", url -> openHTTPConnection(url));
+  }
+
+  private InputStream openHTTPConnection(URL url) throws IOException {
+    URLConnection connection = url.openConnection();
+    connection.setRequestProperty("User-Agent", "BABBrowser/0.1.0 Firefox/147.0 (Not actually Firefox)");
+    
+    return connection.getInputStream();
   }
 
   @Override
