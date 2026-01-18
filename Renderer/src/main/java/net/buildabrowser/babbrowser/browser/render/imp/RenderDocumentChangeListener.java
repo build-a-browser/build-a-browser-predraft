@@ -31,6 +31,12 @@ public class RenderDocumentChangeListener implements DocumentChangeListener {
   @Override
   public void onAttributeChanged(Element element, String attrName, String prevValue, String newValue) {
     styleDocumentChangeListener.onAttributeChanged(element, attrName, prevValue, newValue);
+    if (
+      element instanceof MutableElement mutableElement
+      && mutableElement.getContext() instanceof ElementContext elementContext
+    ) {
+      elementContext.onAttributeValueChanged(attrName, prevValue, newValue);
+    }
   }
 
   @Override

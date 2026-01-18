@@ -54,8 +54,10 @@ public interface CSSParser {
     
   }
 
+  // Unfortunately, INSTANCE cannot be private due to interface rules
+  static final CSSParser INSTANCE = new CSSParserImp();
   static CSSParser create() {
-    return new CSSParserImp();
+    return INSTANCE;
   }
 
 }

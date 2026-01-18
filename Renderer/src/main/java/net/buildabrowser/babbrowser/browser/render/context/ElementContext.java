@@ -11,6 +11,8 @@ public interface ElementContext {
 
   void onCSSRuleUnmatched(WeightedStyleRule matchedRule);
 
+  void onAttributeValueChanged(String attrName, String oldValue, String newValue);
+
   ActiveStyles activeStyles();
 
   static ElementContext create(MutableElement element) {

@@ -28,10 +28,12 @@ public class WeightedStyleRuleTest {
     WeightedStyleRule firstRule = specificityRule(4, 2, 3);
     WeightedStyleRule secondRule = specificityRule(1, 4, 3);
     WeightedStyleRule thirdRule = specificityRule(1, 2, 4);
+    WeightedStyleRule attrRule = specificityRule(true, 0, 0, 0);
     
     assertFirstHigher(firstRule, secondRule);
     assertFirstHigher(secondRule, thirdRule);
     assertFirstHigher(firstRule, thirdRule);
+    assertFirstHigher(attrRule, firstRule);
   }
 
   @Test
@@ -75,10 +77,14 @@ public class WeightedStyleRuleTest {
     Assertions.assertEquals(0, WeightedStyleRule.compare(secondRule, secondRule));
   }
 
-  private WeightedStyleRule specificityRule(int a, int b, int c) {
+  private WeightedStyleRule specificityRule(boolean isAttr, int a, int b, int c) {
     return new WeightedStyleRule(
-      null, new SelectorSpecificity(a, b, c),
+      null, new SelectorSpecificity(isAttr, a, b, c),
       RuleSource.AUTHOR, 0, 0);
+  }
+
+  private WeightedStyleRule specificityRule(int a, int b, int c) {
+    return specificityRule(false, a, b, c);
   }
 
 }
