@@ -13,12 +13,15 @@ import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.FunctionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.HashToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LCBracketToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.LParenToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RCBracketToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.RParenToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.SemicolonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
@@ -82,10 +85,31 @@ public class CSSTokenizerTest {
   }
 
   @Test
+  @DisplayName("Can tokenize a left parentheses token")
+  public void canTokenizeALeftParenthesesToken() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("("));
+    Assertions.assertEquals(LParenToken.create(), token);
+  }
+
+  @Test
+  @DisplayName("Can tokenize a right parentheses token")
+  public void canTokenizeARightParenthesesToken() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput(")"));
+    Assertions.assertEquals(RParenToken.create(), token);
+  }
+
+  @Test
   @DisplayName("Can tokenize an ident token")
   public void canTokenizeAnIdentToken() throws IOException {
     Token token = cssTokenizer.consumeAToken(stringInput("color"));
     Assertions.assertEquals(IdentToken.create("color"), token);
+  }
+
+  @Test
+  @DisplayName("Can tokenize a function token")
+  public void canTokenizeAFunctionToken() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("rgb("));
+    Assertions.assertEquals(FunctionToken.create("rgb"), token);
   }
 
   @Test

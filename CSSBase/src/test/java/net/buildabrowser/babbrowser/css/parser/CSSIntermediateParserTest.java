@@ -10,15 +10,20 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
+import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.CSSIntermediateParserImp;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.FunctionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LCBracketToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RCBracketToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.RParenToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.SemicolonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
@@ -112,6 +117,26 @@ public class CSSIntermediateParserTest {
     ));
     Assertions.assertEquals(List.of(
       Declaration.create("color", List.of(IdentToken.create("red")), false)
+    ), contents);
+  }
+
+  @Test
+  @DisplayName("Can parse a CSS stylesheet referencing a function")
+  public void canParseAFunction() throws IOException {
+    List<Declaration> contents = parser.consumeAStyleBlocksContents(ListCSSTokenStream.create(
+      IdentToken.create("color"), ColonToken.create(),
+      FunctionToken.create("rgb"),
+      NumberToken.create(0), CommaToken.create(),
+      NumberToken.create(0), CommaToken.create(),
+      NumberToken.create(0), CommaToken.create(),
+      RParenToken.create()
+    ));
+    Assertions.assertEquals(List.of(
+      Declaration.create("color", List.of(new FunctionValue("rgb", List.of(
+        NumberToken.create(0), CommaToken.create(),
+        NumberToken.create(0), CommaToken.create(),
+        NumberToken.create(0), CommaToken.create()
+      ))), false)
     ), contents);
   }
 

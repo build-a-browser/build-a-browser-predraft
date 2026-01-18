@@ -14,7 +14,8 @@ import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 public class ColorBaseParser implements PropertyValueParser {
 
   private final PropertyValueParser hexColorParser = new HexColorParser();
-  private final PropertyValueParser namedColorValueParser = new NamedColorParser();
+  private final PropertyValueParser namedColorParser = new NamedColorParser();
+  private final PropertyValueParser rgbColorParser = new RGBColorParser();
 
   @Override
   public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
@@ -29,7 +30,8 @@ public class ColorBaseParser implements PropertyValueParser {
 
     return PropertyValueParserUtil.parseLongest(stream,
       hexColorParser,
-      namedColorValueParser
+      namedColorParser,
+      rgbColorParser
     );
   }
   

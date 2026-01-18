@@ -6,14 +6,17 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
+import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.FunctionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LCBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RCBracketToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.RParenToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.SemicolonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
@@ -124,6 +127,10 @@ public class CSSIntermediateParserImp {
   private Token consumeAComponentValue(CSSTokenStream stream) throws IOException {
     // TODO: Other cases
     Token token = stream.read();
+    if (token instanceof FunctionToken functionToken) {
+      return consumeAFunction(stream, functionToken);
+    }
+
     return token;
   }
 
@@ -139,6 +146,22 @@ public class CSSIntermediateParserImp {
           stream.unread(token);
           Token componentValue = consumeAComponentValue(stream);
           value.add(componentValue);
+      }
+    }
+  }
+
+  private Token consumeAFunction(CSSTokenStream stream, FunctionToken functionToken) throws IOException {
+    FunctionValue function = new FunctionValue(functionToken.value(), new ArrayList<>());
+    while (true) {
+      Token token = stream.read();
+      if (token instanceof RParenToken) {
+        return function;
+      } else if (token instanceof EOFToken) {
+        // TODO: Report parse error
+        return function;
+      } else {
+        stream.unread(token);
+        function.value().add(consumeAComponentValue(stream));
       }
     }
   }

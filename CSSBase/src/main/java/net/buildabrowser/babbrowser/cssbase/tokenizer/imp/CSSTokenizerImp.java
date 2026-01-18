@@ -10,7 +10,9 @@ import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.HashToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LCBracketToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.LParenToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RCBracketToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.RParenToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.SemicolonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
@@ -28,6 +30,8 @@ public class CSSTokenizerImp implements CSSTokenizer {
     return switch (ch) {
       case '\n', ' ', '\t' -> consumeWhitespace(stream);
       case '#' -> consumeNumberSign(stream);
+      case '(' -> LParenToken.create();
+      case ')' -> RParenToken.create();
       case '+' -> consumePlusSign(stream);
       case ',' -> CommaToken.create();
       case '-' -> consumeHyphenMinusSign(stream);
