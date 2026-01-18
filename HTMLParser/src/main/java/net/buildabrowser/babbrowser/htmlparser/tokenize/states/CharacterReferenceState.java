@@ -23,7 +23,7 @@ public class CharacterReferenceState implements TokenizeState {
       tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.namedCharacterReferenceState);
     } else {
       tokenizeContext.flushCodePointsConsumedAsACharacterReference(parseContext);
-      tokenizeContext.reconsumeInTokenizeState(ch, tokenizeContext.getTokenizeState());
+      tokenizeContext.reconsumeInTokenizeState(ch, tokenizeContext.getReturnState());
     }
   }
   

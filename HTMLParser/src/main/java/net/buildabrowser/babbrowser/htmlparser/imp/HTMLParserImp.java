@@ -26,7 +26,7 @@ public class HTMLParserImp implements HTMLParser {
     // TODO: Handle lookahead buffer
 
     int ch = 0;
-    while ((ch = pushbackReader.read()) != EOF) {
+    while ((ch = pushbackReader.read()) != EOF || !tokenizeBuffer.dump().isEmpty()) {
       tokenizeNext(tokenizeContext, parseContext, tokenizeBuffer, pushbackReader, ch);
     }
     tokenizeNext(tokenizeContext, parseContext, tokenizeBuffer, pushbackReader,  EOF);
@@ -41,27 +41,35 @@ public class HTMLParserImp implements HTMLParser {
     TokenizeState tokenizeState = tokenizeContext.getTokenizeState();
     List<String> lookaheadOptions = tokenizeState.lookaheadOptions();
 
-    if (lookaheadOptions == null || ch == -1) {
+    if (ch == -1 && !tokenizeBuffer.dump().isEmpty()) {
+      endBuffer(tokenizeContext, parseContext, reader, tokenizeBuffer);
+    } else if (lookaheadOptions == null || ch == -1) {
       tokenizeState.consume(ch, tokenizeContext, parseContext);
     } else {
       tokenizeBuffer.appendCodePoint(ch);
-      String matched = tokenizeBuffer.matches(lookaheadOptions);
-      if (matched != null) {
-        tokenizeState.lookaheadMatched(matched, tokenizeContext, parseContext);
-        tokenizeBuffer.reset();
-        return;
-      }
-
       if (!tokenizeBuffer.continues(lookaheadOptions)) {
-        dumpBuffer(tokenizeContext, parseContext, reader, tokenizeBuffer);
+        endBuffer(tokenizeContext, parseContext, reader, tokenizeBuffer);
       }
     }
   }
 
-  private void dumpBuffer(TokenizeContext tokenizeContext, ParseContext parseContext, PushbackReader reader, TokenizeBuffer tokenizeBuffer) throws IOException {
+  private void endBuffer(TokenizeContext tokenizeContext, ParseContext parseContext, PushbackReader reader, TokenizeBuffer tokenizeBuffer) throws IOException {
+    TokenizeState tokenizeState = tokenizeContext.getTokenizeState();
+
+    String matched = tokenizeBuffer.lastMatch();
     String tmpbuf = tokenizeBuffer.dump();
     tokenizeBuffer.reset();
     if (tmpbuf.isEmpty()) return;
+
+    if (
+      matched != null
+      && tokenizeState.lookaheadMatched(matched, tokenizeContext, parseContext)
+    ) {
+      for (int i = tmpbuf.length() - 1; i >= matched.length(); i--) {
+        reader.unread(tmpbuf.codePointAt(i));
+      }
+      return;
+    }
 
     for (int i = tmpbuf.length() - 1; i >= 1; i--) {
       reader.unread(tmpbuf.codePointAt(i));

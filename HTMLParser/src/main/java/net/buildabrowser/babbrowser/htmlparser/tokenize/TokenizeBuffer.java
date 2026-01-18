@@ -8,7 +8,7 @@ public interface TokenizeBuffer {
   
   boolean continues(List<String> options);
 
-  String matches(List<String> options);
+  String lastMatch();
 
   String dump();
 
