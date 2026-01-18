@@ -1,5 +1,12 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
+import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowBoxTestUtil.flowBlockBox;
+import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowBoxTestUtil.flowInlineBlockBox;
+import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowBoxTestUtil.flowInlineBox;
+import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowBoxTestUtil.sizedReplacedBlockBox;
+import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowBoxTestUtil.sizedReplacedInlineBlockBox;
+import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowLayoutUtil.doLayout;
+import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowLayoutUtil.doLayoutSized;
 import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowTestUtil.assertFragmentEquals;
 
 import java.util.List;
@@ -7,24 +14,14 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
-import net.buildabrowser.babbrowser.browser.render.box.test.TestElementBox;
-import net.buildabrowser.babbrowser.browser.render.box.test.TestFixedSizeReplacedContent;
 import net.buildabrowser.babbrowser.browser.render.box.test.TestTextBox;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.TextFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
-import net.buildabrowser.babbrowser.browser.render.paint.test.TestFontMetrics;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.InnerDisplayValue;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.css.engine.property.size.PercentageValue;
@@ -37,7 +34,7 @@ public class FlowRootContentTest {
   public void canLayoutEmptyBlockBoxWithChild() {
     ElementBox parentBox = flowBlockBox(List.of());
     
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, parentBox, List.of());
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 0, 0, parentBox, List.of());
     FlowFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
@@ -236,7 +233,7 @@ public class FlowRootContentTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(80, 0, parentBox, List.of(
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 0, parentBox, List.of(
       new ManagedBoxFragment(0, 0, 4, 0, childBox, List.of())));
     FlowFragment actualFragment = doLayoutSized(parentBox, 80);
     assertFragmentEquals(expectedFragment, actualFragment);
@@ -250,7 +247,7 @@ public class FlowRootContentTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(80, 0, parentBox, List.of(
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 0, parentBox, List.of(
       new ManagedBoxFragment(0, 0, 20, 0, childBox, List.of())));
     FlowFragment actualFragment = doLayoutSized(parentBox, 80);
     assertFragmentEquals(expectedFragment, actualFragment);
@@ -265,7 +262,7 @@ public class FlowRootContentTest {
     ElementBox childBox2 = flowInlineBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(80, 10, parentBox, List.of(
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
       new LineBoxFragment(0, 0, 45, 10, List.of(
         new TextFragment(0, 0, 25, 10, "Hello"),
         new UnmanagedBoxFragment(25, 0, 20, 0, childBox2)))));
@@ -283,7 +280,7 @@ public class FlowRootContentTest {
     childBox2.dimensions().setIntrinsicRatio(.5f);
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(80, 40, parentBox, List.of(
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 40, parentBox, List.of(
       new LineBoxFragment(0, 0, 45, 40, List.of(
         new TextFragment(0, 0, 25, 10, "Hello"),
         new UnmanagedBoxFragment(25, 0, 20, 40, childBox2)))));
@@ -299,7 +296,7 @@ public class FlowRootContentTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(80, 160, parentBox, List.of(
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 160, parentBox, List.of(
       new ManagedBoxFragment(0, 0, 80, 40, childBox, List.of())));
     FlowFragment actualFragment = doLayoutSized(parentBox, 80, 160);
     assertFragmentEquals(expectedFragment, actualFragment);
@@ -315,96 +312,12 @@ public class FlowRootContentTest {
     ElementBox childBox2 = flowInlineBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(80, 15, parentBox, List.of(
+    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 15, parentBox, List.of(
       new LineBoxFragment(0, 0, 30, 15, List.of(
         new TextFragment(0, 0, 25, 10, "Hello"),
         new UnmanagedBoxFragment(25, 0, 5, 15, childBox2)))));
     FlowFragment actualFragment = doLayoutSized(parentBox, 80);
     assertFragmentEquals(expectedFragment, actualFragment);
-  }
-
-  private ElementBox sizedReplacedBlockBox(int width, int height) {
-    ActiveStyles childrenStyles = ActiveStyles.create();
-    ElementBox myBox = new TestElementBox(
-      box -> new TestFixedSizeReplacedContent(box, width, height), BoxLevel.BLOCK_LEVEL, childrenStyles, List.of());
-    myBox.dimensions().setIntrinsicWidth(width);
-    myBox.dimensions().setInstrinsicHeight(height);
-    return myBox;
-  }
-
-  private ElementBox sizedReplacedInlineBlockBox(int width, int height) {
-    return sizedReplacedInlineBlockBox(ActiveStyles.create(), width, height);
-  }
-
-  private ElementBox sizedReplacedInlineBlockBox(ActiveStyles styles, int width, int height) {
-    styles.setProperty(CSSProperty.DISPLAY, DisplayValue.create(OuterDisplayValue.BLOCK, InnerDisplayValue.FLOW_ROOT));
-    TestElementBox myBox = new TestElementBox(
-      box -> new TestFixedSizeReplacedContent(box, width, height), BoxLevel.INLINE_LEVEL, styles, List.of());
-    myBox.dimensions().setIntrinsicWidth(width);
-    myBox.dimensions().setInstrinsicHeight(height);
-    return myBox;
-  }
-
-
-  private ElementBox flowBlockBox(List<Box> children) {
-    return flowBlockBox(ActiveStyles.create(), children);
-  }
-
-  private ElementBox flowBlockBox(ActiveStyles styles, List<Box> children) {
-    ElementBox parentBox = new TestElementBox(
-      box -> new FlowRootContent(box),
-      BoxLevel.BLOCK_LEVEL, styles, children);
-
-    return parentBox;
-  }
-
-  private ElementBox flowInlineBox(List<Box> children) {
-    ActiveStyles styles = ActiveStyles.create();
-    ElementBox parentBox = new TestElementBox(
-      box -> new FlowRootContent(box),
-      BoxLevel.INLINE_LEVEL, styles, children);
-
-    return parentBox;
-  }
-
-  private ElementBox flowInlineBlockBox(List<Box> children) {
-    return flowInlineBlockBox(ActiveStyles.create(), children);
-  }
-
-  private ElementBox flowInlineBlockBox(ActiveStyles styles, List<Box> children) {
-    styles.setProperty(CSSProperty.DISPLAY, DisplayValue.create(OuterDisplayValue.BLOCK, InnerDisplayValue.FLOW_ROOT));
-    ElementBox parentBox = new TestElementBox(
-      box -> new FlowRootContent(box),
-      BoxLevel.INLINE_LEVEL, styles, children);
-
-    return parentBox;
-  }
-
-  private FlowFragment doLayout(ElementBox parentBox) {
-    LayoutContext layoutContext = new LayoutContext(TestFontMetrics.create(10, 5));
-    FlowRootContent content = (FlowRootContent) parentBox.content();
-    content.prelayout(layoutContext);
-    content.layout(layoutContext, LayoutConstraint.AUTO, LayoutConstraint.AUTO);
-
-    return content.rootFragment();
-  }
-
-  private FlowFragment doLayoutSized(ElementBox parentBox, int width) {
-    LayoutContext layoutContext = new LayoutContext(TestFontMetrics.create(10, 5));
-    FlowRootContent content = (FlowRootContent) parentBox.content();
-    content.prelayout(layoutContext);
-    content.layout(layoutContext, LayoutConstraint.of(width), LayoutConstraint.AUTO);
-
-    return content.rootFragment();
-  }
-
-  private FlowFragment doLayoutSized(ElementBox parentBox, int width, int height) {
-    LayoutContext layoutContext = new LayoutContext(TestFontMetrics.create(10, 5));
-    FlowRootContent content = (FlowRootContent) parentBox.content();
-    content.prelayout(layoutContext);
-    content.layout(layoutContext, LayoutConstraint.of(width), LayoutConstraint.of(height));
-
-    return content.rootFragment();
   }
 
 }

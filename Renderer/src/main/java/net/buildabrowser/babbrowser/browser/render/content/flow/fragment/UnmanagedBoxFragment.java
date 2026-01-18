@@ -21,4 +21,9 @@ public class UnmanagedBoxFragment extends FlowFragment {
     return this.box;
   }
 
+  @Override
+  public String toString() {
+    return "[UnmanagedBoxFragment pos=[" + posX() + ", " + posY() + "] size=[" + width() + "x" + height() + "]]";
+  }
+
 }

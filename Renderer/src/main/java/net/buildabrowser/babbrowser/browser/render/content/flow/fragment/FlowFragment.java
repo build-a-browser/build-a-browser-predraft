@@ -5,8 +5,8 @@ public abstract class FlowFragment {
   private final int width;
   private final int height;
 
-  private int posX;
-  private int posY;
+  private int posX = -1;
+  private int posY = -1;
 
   public FlowFragment(int width, int height) {
     this.width = width;
@@ -19,10 +19,12 @@ public abstract class FlowFragment {
   }
 
   public int posX() {
+    assert this.posX != -1 : "Attempt to get unset X position!";
     return this.posX;
   }
 
   public int posY() {
+    assert this.posX != -1 : "Attempt to get unset Y position!";
     return this.posY;
   }
 

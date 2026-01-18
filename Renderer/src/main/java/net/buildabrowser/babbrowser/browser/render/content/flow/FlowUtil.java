@@ -6,6 +6,8 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
+import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.InnerDisplayValue;
 
 public final class FlowUtil {
@@ -44,6 +46,10 @@ public final class FlowUtil {
     return
       elementBox.activeStyles().innerDisplayValue().equals(InnerDisplayValue.FLOW)
       && !elementBox.isReplaced();
+  }
+
+  public static boolean isFloat(ElementBox elementBox) {
+    return !elementBox.activeStyles().getProperty(CSSProperty.FLOAT).equals(CSSValue.NONE);
   }
 
 }

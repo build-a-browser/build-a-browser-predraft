@@ -2,32 +2,41 @@ package net.buildabrowser.babbrowser.browser.render.content.flow;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 
 public class InlineFormattingContext {
  
+  private final FlowRootContent rootContent;
+  private final LayoutConstraint inlineConstraint;
   private final InlineStagingArea stagingArea;
-  private final List<LineBox> lineBoxes;
   private final Deque<ActiveStyles> stylesStack;
   private LineBox activeLineBox;
 
-  public InlineFormattingContext(ActiveStyles initialStyles) {
-    this(new LineBox(), new ArrayDeque<>());
+  public InlineFormattingContext(
+    FlowRootContent rootContent,
+    LayoutConstraint inlineConstraint,
+    ActiveStyles initialStyles
+  ) {
+    this(rootContent, inlineConstraint, new LineBox(), new ArrayDeque<>());
     stylesStack.push(initialStyles);
   }
 
-  private InlineFormattingContext(LineBox firstLineBox, Deque<ActiveStyles> stylesStack) {
+  private InlineFormattingContext(
+    FlowRootContent rootContent,
+    LayoutConstraint inlineConstraint,
+    LineBox firstLineBox,
+    Deque<ActiveStyles> stylesStack
+  ) {
+    this.rootContent = rootContent;
+    this.inlineConstraint = inlineConstraint;
     this.stagingArea = new InlineStagingArea();
-    this.lineBoxes = new LinkedList<>();
     this.stylesStack = stylesStack;
     this.activeLineBox = firstLineBox;
-    lineBoxes.add(activeLineBox);
   }
 
   public InlineStagingArea stagingArea() {
@@ -49,25 +58,35 @@ public class InlineFormattingContext {
   }
 
   public LineBox lineBox() {
-    return lineBoxes.getLast();
+    return this.activeLineBox;
+  }
+
+  public void closeLine() {
+    rootContent.inlineLayout().positionLine(activeLineBox.toFragment());
   }
 
   public void nextLine() {
-    lineBoxes.add(lineBoxes.getLast().split());
-    this.activeLineBox = lineBoxes.getLast();
+    LineBox oldLineBox = this.activeLineBox;
+    this.activeLineBox = activeLineBox.split();
+    rootContent.inlineLayout().positionLine(oldLineBox.toFragment());
+  }
+
+  public boolean fits(int itemSize, boolean forceFirst) {
+    if (forceFirst && this.activeLineBox.totalWidth() == 0) {
+      return true;
+    }
+    
+    FloatTracker floatTracker = rootContent.floatTracker();
+    return switch (inlineConstraint.type()) {
+      case MIN_CONTENT -> false;
+      case MAX_CONTENT, AUTO -> true;
+      case BOUNDED -> floatTracker.lineStartPos() + this.activeLineBox.totalWidth() + itemSize
+        < floatTracker.lineEndPos(inlineConstraint);
+    };
   }
 
   public ActiveStyles activeStyles() {
     return stylesStack.peek();
-  }
-
-  public InlineFormattingContext split() {
-    // TODO: Copy stack before passing?
-    return new InlineFormattingContext(lineBoxes.getLast().split(), stylesStack);
-  };
-
-  public List<LineBoxFragment> fragments() {
-    return lineBoxes.stream().map(box -> box.toFragment()).toList();
   }
 
 }

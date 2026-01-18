@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow.test;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
@@ -23,6 +25,13 @@ public final class FlowTestUtil {
       case TextFragment fragment -> assertFragmentEquals(fragment, actual);
       case LineBoxFragment fragment -> assertFragmentEquals(fragment, actual);
       default -> throw new IllegalArgumentException("Unexpected fragment type!");
+    }
+  }
+
+  public static void assertFragmentListEquals(List<FlowFragment> expected, List<FlowFragment> actual) {
+    Assertions.assertEquals(expected.size(), actual.size());
+    for (int i = 0; i < expected.size(); i++) {
+      assertFragmentEquals(expected.get(i), actual.get(i));
     }
   }
 

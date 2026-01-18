@@ -4,9 +4,11 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
 
 public class FlowRootContent implements BoxContent {
@@ -15,6 +17,7 @@ public class FlowRootContent implements BoxContent {
 
   private final FlowBlockLayout blockLayout;
   private final FlowInlineLayout inlineLayout;
+  private final FloatTracker floatTracker;
 
   private ManagedBoxFragment rootFragment;
 
@@ -22,6 +25,7 @@ public class FlowRootContent implements BoxContent {
     this.rootBox = box;
     this.blockLayout = new FlowBlockLayout(this);
     this.inlineLayout = new FlowInlineLayout(this);
+    this.floatTracker = FloatTracker.create();
   }
 
   @Override
@@ -34,12 +38,14 @@ public class FlowRootContent implements BoxContent {
 
     ElementBoxDimensions dimensions = rootBox.dimensions();
 
+    floatTracker.reset();
     blockLayout.reset(rootBox);
     blockLayout.addChildrenToBlock(
       layoutContext, rootBox, LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO);
     dimensions.setPreferredMinWidthConstraint(
       blockLayout.close(LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).width());
 
+    floatTracker.reset();
     blockLayout.reset(rootBox);
     blockLayout.addChildrenToBlock(
       layoutContext, rootBox, LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO);
@@ -51,16 +57,23 @@ public class FlowRootContent implements BoxContent {
   public void layout(
     LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
+    floatTracker.reset();
+
     blockLayout.reset(rootBox);
     blockLayout.addChildrenToBlock(layoutContext, rootBox, widthConstraint, heightConstraint);
 
+    System.out.println(floatTracker().contentHeight());
     this.rootFragment = blockLayout.close(widthConstraint, heightConstraint);
-    rootBox.dimensions().setComputedSize(rootFragment.width(), rootFragment.height());
+    rootFragment.setPos(0, 0);
+
+    int desiredHeight = Math.max(rootFragment.height(), floatTracker.contentHeight());
+    int usedHeight = LayoutUtil.constraintOrDim(heightConstraint, desiredHeight);
+    rootBox.dimensions().setComputedSize(rootFragment.width(), usedHeight);
   }
 
   @Override
   public void paint(PaintCanvas canvas) {
-    FlowRootContentPainter.paintFragment(canvas, rootFragment);
+    FlowRootContentPainter.paint(canvas, this, rootBox);
   }
 
   FlowBlockLayout blockLayout() {
@@ -71,8 +84,12 @@ public class FlowRootContent implements BoxContent {
     return this.inlineLayout;
   }
 
+  FloatTracker floatTracker() {
+    return this.floatTracker;
+  }
+
   // For testing
-  ManagedBoxFragment rootFragment() {
+  public ManagedBoxFragment rootFragment() {
     return this.rootFragment;
   }
 

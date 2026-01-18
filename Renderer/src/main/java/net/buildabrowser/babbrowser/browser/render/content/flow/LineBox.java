@@ -54,6 +54,16 @@ public class LineBox {
     return this.totalWidth;
   }
 
+  // TODO: This is surely wrong...
+  public int totalHeight() {
+    int totalHeight = 0;
+    for (LineSegment segment: this.lineSegments) {
+      totalHeight = Math.max(totalHeight, segment.height());
+    }
+
+    return totalHeight;
+  }
+
   public LineBoxFragment toFragment() {
     LineSegment activeSegment = lineSegments.peek();
     return new LineBoxFragment(totalWidth, activeSegment.height(), activeSegment.fragments());

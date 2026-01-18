@@ -19,4 +19,9 @@ public class TextFragment extends FlowFragment {
     return this.text;
   };
 
+  @Override
+  public String toString() {
+    return "[TextFragment pos=[" + posX() + ", " + posY() + "] size=[" + width() + "x" + height() + "] text=[" + text() + "]]";
+  }
+
 }

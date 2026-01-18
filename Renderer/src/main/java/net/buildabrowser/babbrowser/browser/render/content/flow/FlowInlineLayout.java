@@ -12,8 +12,10 @@ import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.ManagedBoxEntryMarker;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.ManagedBoxExitMarker;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.StagedBlockLevelBox;
+import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.StagedFloatBox;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.StagedText;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.StagedUnmanagedBox;
+import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
@@ -46,19 +48,23 @@ public class FlowInlineLayout {
       inlineStack.peek().stagingArea(),
       (WhitespaceCollapseValue) parentStyles.getProperty(CSSProperty.WHITE_SPACE_COLLAPSE));
     addStagedElements(layoutContext, widthConstraint, heightConstraint);
-    stopInlineUnstaged(layoutContext, widthConstraint, heightConstraint);
+    inlineStack.pop().closeLine();
   }
 
-  public void startInline(ActiveStyles parentStyles) {
-    inlineStack.push(new InlineFormattingContext(parentStyles));
+  public void startInline(ActiveStyles parentStyles, LayoutConstraint widthConstraint) {
+    inlineStack.push(new InlineFormattingContext(rootContent, widthConstraint, parentStyles));
   }
+
+  // #region Staging
 
   public void stageInline(Box box) {
     InlineStagingArea stagingArea = inlineStack.peek().stagingArea();
     if (box instanceof TextBox textBox) {
       stagingArea.pushStagedElement(new StagedText(textBox, textBox.text()));
     } else if (box instanceof ElementBox elementBox) {
-      if (elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)) {
+      if (FlowUtil.isFloat(elementBox)) {
+        stagingArea.pushStagedElement(new StagedFloatBox(elementBox));
+      } else if (elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)) {
         stagingArea.pushStagedElement(new StagedBlockLevelBox(elementBox));
       } else if (!FlowUtil.isInFlow(elementBox)) {
         stagingArea.pushStagedElement(new StagedUnmanagedBox(elementBox));
@@ -80,7 +86,10 @@ public class FlowInlineLayout {
     ActiveStyles parentStyles = inlineStack.peek().activeStyles();
     while (!stagingArea.done()) {
       switch (stagingArea.next()) {
-        case StagedText stagedText -> addTextToInline(layoutContext, widthConstraint, parentStyles, stagedText);
+        case StagedText stagedText -> addTextToInline(layoutContext, parentStyles, stagedText);
+        // TODO: But what if it does not fit the line?
+        case StagedFloatBox stagedFloat -> addFloatAroundInline(
+          layoutContext, stagedFloat.elementBox(), widthConstraint, heightConstraint);
         case StagedUnmanagedBox stagedUnmanagedBox -> addUnmanagedBlockToInline(
           layoutContext, stagedUnmanagedBox.elementBox(), widthConstraint, heightConstraint);
         case StagedBlockLevelBox stagedBlockLevelBox -> addBlockLevelToInline(
@@ -92,19 +101,22 @@ public class FlowInlineLayout {
     }
   }
 
-  private void stopInlineUnstaged(
+  // #region Sizing
+
+  private void addFloatAroundInline(
     LayoutContext layoutContext,
+    ElementBox elementBox,
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    InlineFormattingContext formattingContext = inlineStack.pop();
-    BlockFormattingContext blockContext = rootContent.blockLayout().activeContext();
-    for (LineBoxFragment fragment: formattingContext.fragments()) {
-      positionFragment(fragment, blockContext.currentY());
-      blockContext.addFragment(fragment);
-      blockContext.minWidth(fragment.width());
-      blockContext.increaseY(fragment.height());
-    }
+    InlineFormattingContext inlineContext = inlineStack.peek();
+    UnmanagedBoxFragment floatFragment = FloatLayout.renderFloat(layoutContext, elementBox, widthConstraint, heightConstraint);
+    boolean fitsInLine = FloatLayout.addFloat(
+      rootContent, floatFragment, widthConstraint, heightConstraint, inlineContext.lineBox().totalWidth());
+    if (fitsInLine) return;
+
+    inlineContext.nextLine();
+    FloatLayout.addFloat(rootContent, floatFragment, widthConstraint, heightConstraint, 0);
   }
 
   private void addBlockLevelToInline(
@@ -113,11 +125,9 @@ public class FlowInlineLayout {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    InlineFormattingContext nextContext = inlineStack.peek().split();
-    stopInlineUnstaged(layoutContext, widthConstraint, heightConstraint);
+    inlineStack.peek().nextLine();
     rootContent.blockLayout().addToBlock(
       layoutContext, elementBox, widthConstraint, heightConstraint);
-    inlineStack.push(nextContext);
   }
 
   private void addUnmanagedBlockToInline(
@@ -150,24 +160,32 @@ public class FlowInlineLayout {
 
     InlineFormattingContext parentContext = inlineStack.peek();
     parentContext.addFragment(newFragment);
+
+    // TODO: Handle overflow
   }
 
   private void addTextToInline(
-    LayoutContext layoutContext, LayoutConstraint parentWidthConstraint,
-    ActiveStyles parentStyles, StagedText stagedText
-) {
+    LayoutContext layoutContext, ActiveStyles parentStyles, StagedText stagedText
+  ) {
     String text = stagedText.currentText();
     if (text.isEmpty()) return;
 
     boolean autoWrap = parentStyles.getProperty(CSSProperty.TEXT_WRAP_MODE).equals(TextWrapModeValue.WRAP);
-    FlowTextLayout.layoutText(
-      layoutContext, parentWidthConstraint, stagedText,
-      inlineStack.peek(), autoWrap);
+    FlowTextLayout.layoutText(layoutContext, stagedText, inlineStack.peek(), autoWrap);
   }
+
+  // #region Positioning
   
-  private void positionFragment(LineBoxFragment fragment, int y) {
-    fragment.setPos(0, y);
+  public void positionLine(LineBoxFragment fragment) {
+    BlockFormattingContext blockContext = rootContent.blockLayout().activeContext();
+    FloatTracker floatTracker = rootContent.floatTracker();
+    int offsetX = floatTracker.lineStartPos();
+    fragment.setPos(offsetX, blockContext.currentY());
     positionFragmentElements(fragment.fragments());
+    blockContext.addFragment(fragment);
+    blockContext.minWidth(fragment.width());
+    blockContext.increaseY(fragment.height());
+    floatTracker.adjustPos(0, fragment.height());
   }
 
   private void positionFragmentElements(List<FlowFragment> fragments) {

@@ -24,4 +24,15 @@ public class LineBoxFragment extends FlowFragment {
     return this.fragments;
   }
 
+  @Override
+  public String toString() {
+    StringBuilder textBuilder = new StringBuilder();
+    textBuilder.append("[LineBoxFragment pos=[" + posX() + ", " + posY() + "] size=[" + width() + "x" + height() + "]]");
+    for (FlowFragment fragment : fragments()) {
+      textBuilder.append("\n\t" + fragment.toString().replace("\n", "\n\t"));
+    }
+
+    return textBuilder.toString();
+  }
+
 }
