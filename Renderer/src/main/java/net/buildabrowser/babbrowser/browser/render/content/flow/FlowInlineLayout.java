@@ -87,7 +87,6 @@ public class FlowInlineLayout {
     while (!stagingArea.done()) {
       switch (stagingArea.next()) {
         case StagedText stagedText -> addTextToInline(layoutContext, parentStyles, stagedText);
-        // TODO: But what if it does not fit the line?
         case StagedFloatBox stagedFloat -> addFloatAroundInline(
           layoutContext, stagedFloat.elementBox(), widthConstraint, heightConstraint);
         case StagedUnmanagedBox stagedUnmanagedBox -> addUnmanagedBlockToInline(

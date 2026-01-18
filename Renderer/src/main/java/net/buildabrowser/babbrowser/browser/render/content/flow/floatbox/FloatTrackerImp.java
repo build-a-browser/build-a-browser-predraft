@@ -70,12 +70,12 @@ public class FloatTrackerImp implements FloatTracker {
 
   @Override
   public int clearedLineStartPosition() {
-    return Math.max(getFreePosition(blockStartOffset, leftFloats) - lineStartOffset, 0);
+    return Math.max(getFreePosition(blockStartOffset, leftFloats) - blockStartOffset, 0);
   }
 
   @Override
   public int clearedLineEndPosition() {
-    return getFreePosition(blockStartOffset, rightFloats);
+    return Math.max(getFreePosition(blockStartOffset, rightFloats) - blockStartOffset, 0);
   }
 
   @Override

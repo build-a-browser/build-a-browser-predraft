@@ -13,6 +13,8 @@ import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
+import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
+import net.buildabrowser.babbrowser.css.engine.property.floats.ClearValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 
 public class FlowBlockLayout {
@@ -52,6 +54,7 @@ public class FlowBlockLayout {
     boolean isInInline = false;
     for (Box childBox: box.childBoxes()) {
       if (childBox instanceof ElementBox elementBox && FlowUtil.isFloat(elementBox) && !isInInline) {
+        ackFloatClear(elementBox);
         UnmanagedBoxFragment floatFragment = FloatLayout.renderFloat(layoutContext, elementBox, widthConstraint, heightConstraint);
         FloatLayout.addFloat(rootContent, floatFragment, widthConstraint, heightConstraint, 0);
       } else if (FlowUtil.isBlockLevel(childBox)) {
@@ -82,6 +85,7 @@ public class FlowBlockLayout {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
+    ackFloatClear(elementBox);
     if (FlowUtil.isInFlow(elementBox)) {
       addManagedBlockToBlock(layoutContext, elementBox, widthConstraint, heightConstraint);
     } else {
@@ -122,6 +126,7 @@ public class FlowBlockLayout {
     floatTracker.adjustPos(0, newFragment.height());
   }
 
+  // TODO: Handle the edge case where an unmanaged block interacts with a float
   private void addUnmanagedBlockToBlock(
     LayoutContext layoutContext,
     ElementBox childBox,
@@ -173,6 +178,16 @@ public class FlowBlockLayout {
     }
 
     return parentConstraint;
+  }
+
+  private void ackFloatClear(ElementBox elementBox) {
+    CSSValue clearValue = elementBox.activeStyles().getProperty(CSSProperty.CLEAR);
+    if (clearValue.equals(CSSValue.NONE)) return;
+    int leftClear = clearValue.equals(ClearValue.RIGHT) ? 0 : rootContent.floatTracker().clearedLineStartPosition();
+    int rightClear = clearValue.equals(ClearValue.LEFT) ? 0 : rootContent.floatTracker().clearedLineEndPosition();
+    int totalClear = Math.max(leftClear, rightClear);
+    blockStack.peek().increaseY(totalClear);
+    rootContent.floatTracker().adjustPos(0, totalClear);
   }
 
 }

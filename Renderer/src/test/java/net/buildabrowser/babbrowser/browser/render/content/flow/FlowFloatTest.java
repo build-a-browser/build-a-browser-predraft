@@ -20,6 +20,7 @@ import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.Managed
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.TextFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
+import net.buildabrowser.babbrowser.css.engine.property.floats.ClearValue;
 import net.buildabrowser.babbrowser.css.engine.property.floats.FloatValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue.LengthType;
@@ -296,6 +297,40 @@ public class FlowFloatTest {
 
     List<FlowFragment> expectedFloatFragments = List.of(
       new UnmanagedBoxFragment(0, 0, 15, 15, childBox1)
+    );
+    List<FlowFragment> actualFloatFragments = rootContent.floatTracker().allFloats();
+    assertFragmentListEquals(expectedFloatFragments, actualFloatFragments);
+  }
+
+  @Test
+  @DisplayName("Can clear a float")
+  public void canClearAFloat() {
+    ActiveStyles child1Styles = ActiveStyles.create();
+    child1Styles.setProperty(CSSProperty.FLOAT, FloatValue.RIGHT);
+    child1Styles.setProperty(CSSProperty.WIDTH, LengthValue.create(15, true, LengthType.PX));
+    child1Styles.setProperty(CSSProperty.HEIGHT, LengthValue.create(15, true, LengthType.PX));
+
+    ActiveStyles child2Styles = ActiveStyles.create();
+    child2Styles.setProperty(CSSProperty.CLEAR, ClearValue.BOTH);
+    child2Styles.setProperty(CSSProperty.HEIGHT, LengthValue.create(15, true, LengthType.PX));
+
+    ElementBox childBox1 = flowBlockBox(child1Styles, List.of());
+    ElementBox childBox2 = flowBlockBox(child2Styles, List.of());
+    child1Styles.setProperty(CSSProperty.HEIGHT, LengthValue.create(15, true, LengthType.PX));
+    ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
+
+    FlowRootContent rootContent = doLayoutContentSized(parentBox, 80);
+
+    FlowFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 30, parentBox, List.of(
+      new ManagedBoxFragment(0, 15, 80, 15, childBox2, List.of())));
+    FlowFragment actualMainFragment = rootContent.rootFragment();
+    assertFragmentEquals(expectedMainFragment, actualMainFragment);
+
+    Assertions.assertEquals(80, parentBox.dimensions().getComputedWidth());
+    Assertions.assertEquals(30, parentBox.dimensions().getComputedHeight());
+
+    List<FlowFragment> expectedFloatFragments = List.of(
+      new UnmanagedBoxFragment(65, 0, 15, 15, childBox1)
     );
     List<FlowFragment> actualFloatFragments = rootContent.floatTracker().allFloats();
     assertFragmentListEquals(expectedFloatFragments, actualFloatFragments);
