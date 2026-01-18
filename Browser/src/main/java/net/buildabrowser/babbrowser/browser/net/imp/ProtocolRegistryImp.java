@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.browser.net.imp;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
@@ -20,8 +21,8 @@ public class ProtocolRegistryImp implements ProtocolRegistry {
     registeredProtocols.put("https", url -> openHTTPConnection(url));
   }
 
-  private InputStream openHTTPConnection(URL url) throws IOException {
-    URLConnection connection = url.openConnection();
+  private InputStream openHTTPConnection(URL url) throws IOException, URISyntaxException {
+    URLConnection connection = url.toURI().toURL().openConnection();
     connection.setRequestProperty("User-Agent", "BABBrowser/0.1.0 Firefox/147.0 (Not actually Firefox)");
     
     return connection.getInputStream();
@@ -29,12 +30,16 @@ public class ProtocolRegistryImp implements ProtocolRegistry {
 
   @Override
   public InputStream request(URL url) throws IOException {
-    return registeredProtocols.get(url.getProtocol()).request(url);
+    try {
+      return registeredProtocols.get(url.getProtocol()).request(url);
+    } catch (URISyntaxException e) {
+      throw new IOException(e);
+    }
   }
 
   private static interface ProtocolRegistration {
   
-    InputStream request(URL url) throws IOException;
+    InputStream request(URL url) throws IOException, URISyntaxException;
     
   }
   
