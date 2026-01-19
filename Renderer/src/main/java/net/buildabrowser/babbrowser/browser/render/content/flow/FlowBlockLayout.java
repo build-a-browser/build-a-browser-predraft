@@ -54,10 +54,13 @@ public class FlowBlockLayout {
 
     boolean isInInline = false;
     for (Box childBox: box.childBoxes()) {
+      if (childBox instanceof ElementBox elementBox) {
+        FlowPaddingUtil.computePadding(layoutContext, elementBox, activeContext());
+      }
       if (childBox instanceof ElementBox elementBox && FlowUtil.isFloat(elementBox) && !isInInline) {
         ackFloatClear(elementBox);
         UnmanagedBoxFragment floatFragment = FloatLayout.renderFloat(
-          layoutContext, elementBox, widthConstraint, heightConstraint, activeContext());
+          layoutContext, elementBox, widthConstraint, heightConstraint);
         FloatLayout.addFloat(rootContent, floatFragment, widthConstraint, heightConstraint, 0);
       } else if (FlowUtil.isBlockLevel(childBox)) {
         if (isInInline) {
@@ -72,7 +75,7 @@ public class FlowBlockLayout {
           inlineLayout.startInline(boxStyles, widthConstraint);
           isInInline = true;
         }
-        inlineLayout.stageInline(childBox);
+        inlineLayout.stageInline(layoutContext, childBox);
       }
     }
 
@@ -87,7 +90,6 @@ public class FlowBlockLayout {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    FlowPaddingUtil.computePadding(layoutContext, elementBox, activeContext());
     ackFloatClear(elementBox);
     if (FlowUtil.isInFlow(elementBox)) {
       addManagedBlockToBlock(layoutContext, elementBox, widthConstraint, heightConstraint);
@@ -122,7 +124,7 @@ public class FlowBlockLayout {
     floatTracker.adjustPos(-padding[2], 0); // TODO: Include in the mark?
     floatTracker.restoreMark(floatMark);
 
-    addFinishedFragment(childBox, newFragment);
+    addFinishedFragment(newFragment, 0);
   }
 
   // TODO: Handle the edge case where an unmanaged block interacts with a float
@@ -154,12 +156,12 @@ public class FlowBlockLayout {
     int height = FlowUtil.constraintHeight(childBox.dimensions(), childHeightConstraint);
 
     UnmanagedBoxFragment newFragment = new UnmanagedBoxFragment(width, height, childBox);
-    addFinishedFragment(childBox, newFragment);
+    addFinishedFragment(newFragment, 0);
   }
 
-  private void addFinishedFragment(ElementBox childBox, FlowFragment newFragment) {
+  public void addFinishedFragment(FlowFragment newFragment, int posX) {
     BlockFormattingContext parentContext = activeContext();
-    newFragment.setPos(0, parentContext.currentY());
+    newFragment.setPos(posX, parentContext.currentY());
 
     parentContext.increaseY(newFragment.borderHeight());
     parentContext.minWidth(newFragment.borderWidth());

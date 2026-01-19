@@ -20,11 +20,8 @@ public final class FloatLayout {
     LayoutContext layoutContext,
     ElementBox childBox,
     LayoutConstraint parentWidthConstraint,
-    LayoutConstraint parentHeightConstraint,
-    BlockFormattingContext referenceContext
+    LayoutConstraint parentHeightConstraint
   ) {
-    FlowPaddingUtil.computePadding(layoutContext, childBox, referenceContext);
-
     // TODO: Check height calculation
     ActiveStyles childStyles = childBox.activeStyles();
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?

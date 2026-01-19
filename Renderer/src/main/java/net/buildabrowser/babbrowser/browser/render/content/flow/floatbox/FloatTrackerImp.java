@@ -36,14 +36,14 @@ public class FloatTrackerImp implements FloatTracker {
     if (lineConstraint.isPreLayoutConstraint()) return true;
 
     int[] freeInfo = new int[2];
-    int freePos = findFreePos(lineConstraint, box.contentWidth() + reservedWidth, freeInfo);
+    int freePos = findFreePos(lineConstraint, box.borderWidth() + reservedWidth, freeInfo);
     if (reservedWidth != 0 && freePos != blockStartOffset) return false;
 
     box.setPos(Math.max(freeInfo[0], lineStartOffset), freePos);
     leftFloats.add(box);
     allFloats.add(box);
 
-    this.blockEnd = Math.max(this.blockEnd, freePos + box.contentHeight());
+    this.blockEnd = Math.max(this.blockEnd, freePos + box.borderHeight());
 
     return true;
   }
@@ -53,18 +53,18 @@ public class FloatTrackerImp implements FloatTracker {
     if (lineConstraint.isPreLayoutConstraint()) return true;
 
     int[] freeInfo = new int[2];
-    int freePos = findFreePos(lineConstraint, box.contentWidth() + reservedWidth, freeInfo);
+    int freePos = findFreePos(lineConstraint, box.borderWidth() + reservedWidth, freeInfo);
     if (reservedWidth != 0 && freePos != blockStartOffset) return false;
 
     int maxEdgePos = lineStartOffset + lineConstraint.value();
     int maxTouchingPos = freeInfo[1];
-    int boxStartPos = Math.min(maxEdgePos, maxTouchingPos) - box.contentWidth();
+    int boxStartPos = Math.min(maxEdgePos, maxTouchingPos) - box.borderWidth();
     box.setPos(boxStartPos, freePos);
 
     rightFloats.add(box);
     allFloats.add(box);
 
-    this.blockEnd = Math.max(this.blockEnd, freePos + box.contentHeight());
+    this.blockEnd = Math.max(this.blockEnd, freePos + box.borderHeight());
 
     return true;
   }
@@ -83,8 +83,8 @@ public class FloatTrackerImp implements FloatTracker {
   public int lineStartPos() {
     int highestOffset = 0;
     for (FlowFragment box : leftFloats) {
-      if (blockStartOffset >= box.borderY() && blockStartOffset < box.borderY() + box.contentHeight()) {
-        highestOffset = Math.max(highestOffset, box.borderX() + box.contentWidth());
+      if (blockStartOffset >= box.borderY() && blockStartOffset < box.borderY() + box.borderHeight()) {
+        highestOffset = Math.max(highestOffset, box.borderX() + box.borderWidth());
       }
     }
 
@@ -99,7 +99,7 @@ public class FloatTrackerImp implements FloatTracker {
 
     int highestOffset = Integer.MAX_VALUE;
     for (FlowFragment box : rightFloats) {
-      if (blockStartOffset >= box.borderY() && blockStartOffset < box.borderY() + box.contentHeight()) {
+      if (blockStartOffset >= box.borderY() && blockStartOffset < box.borderY() + box.borderHeight()) {
         highestOffset = Math.min(highestOffset, box.borderX());
       }
     }
@@ -187,7 +187,7 @@ public class FloatTrackerImp implements FloatTracker {
     FlowFragment currentFragment = fragIt.hasNext() ? fragIt.next() : null;
     int inlinePos = initInlinePos;
     while (currentFragment != null && currentFragment.borderY() <= blockPos) {
-      int fragmentEnd = currentFragment.borderY() + currentFragment.contentHeight();
+      int fragmentEnd = currentFragment.borderY() + currentFragment.borderHeight();
       if (fragmentEnd <= blockPos) {
         currentFragment = fragIt.hasNext() ? fragIt.next() : null;
         continue;
@@ -196,7 +196,7 @@ public class FloatTrackerImp implements FloatTracker {
       outNextBlockPos[0] = Math.min(outNextBlockPos[0], Math.max(fragmentEnd, blockPos + 1));
 
       inlinePos = isLeftSide ?
-        currentFragment.borderX() + currentFragment.contentWidth() :
+        currentFragment.borderX() + currentFragment.borderWidth() :
         Math.min(inlinePos, currentFragment.borderX());
       
       currentFragment = fragIt.hasNext() ? fragIt.next() : null;
@@ -211,7 +211,7 @@ public class FloatTrackerImp implements FloatTracker {
       if (nextUncheckedY >= blockStart && box.borderY() > nextUncheckedY) {
         return nextUncheckedY;
       } else {
-        nextUncheckedY = Math.max(nextUncheckedY, box.borderY() + box.contentHeight());
+        nextUncheckedY = Math.max(nextUncheckedY, box.borderY() + box.borderHeight());
       }
     }
 

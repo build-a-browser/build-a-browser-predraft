@@ -81,7 +81,7 @@ public class InlineFormattingContext {
       case MIN_CONTENT -> false;
       case MAX_CONTENT, AUTO -> true;
       case BOUNDED -> floatTracker.lineStartPos() + this.activeLineBox.totalWidth() + itemSize
-        < floatTracker.lineEndPos(inlineConstraint);
+        <= floatTracker.lineEndPos(inlineConstraint);
     };
   }
 
