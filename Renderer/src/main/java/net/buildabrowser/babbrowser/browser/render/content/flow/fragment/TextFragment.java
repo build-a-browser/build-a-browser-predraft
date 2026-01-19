@@ -21,7 +21,7 @@ public class TextFragment extends FlowFragment {
 
   @Override
   public String toString() {
-    return "[TextFragment pos=[" + posX() + ", " + posY() + "] size=[" + width() + "x" + height() + "] text=[" + text() + "]]";
+    return "[TextFragment pos=[" + borderX() + ", " + borderY() + "] size=[" + contentWidth() + "x" + contentHeight() + "] text=[" + text() + "]]";
   }
 
 }

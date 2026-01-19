@@ -94,7 +94,7 @@ public class FlowInlineLayout {
         case StagedBlockLevelBox stagedBlockLevelBox -> addBlockLevelToInline(
           layoutContext, stagedBlockLevelBox.elementBox(), widthConstraint, heightConstraint);
         case ManagedBoxEntryMarker marker -> inlineStack.peek().pushElement(marker.elementBox());
-        case ManagedBoxExitMarker _ -> inlineStack.peek().popElement();
+        case ManagedBoxExitMarker _ -> inlineStack.peek().popElement(); // TODO: Account for the padding
         default -> throw new UnsupportedOperationException("Unknown staging element type");
       }
     }
@@ -109,7 +109,8 @@ public class FlowInlineLayout {
     LayoutConstraint heightConstraint
   ) {
     InlineFormattingContext inlineContext = inlineStack.peek();
-    UnmanagedBoxFragment floatFragment = FloatLayout.renderFloat(layoutContext, elementBox, widthConstraint, heightConstraint);
+    UnmanagedBoxFragment floatFragment = FloatLayout.renderFloat(
+      layoutContext, elementBox, widthConstraint, heightConstraint, rootContent.blockLayout().activeContext());
     boolean fitsInLine = FloatLayout.addFloat(
       rootContent, floatFragment, widthConstraint, heightConstraint, inlineContext.lineBox().totalWidth());
     if (fitsInLine) return;
@@ -135,6 +136,7 @@ public class FlowInlineLayout {
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint
   ) {
+    FlowPaddingUtil.computePadding(layoutContext, childBox, rootContent.blockLayout().activeContext());
     ActiveStyles childStyles = childBox.activeStyles();
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
       FlowWidthUtil.determineBlockReplacedWidth(
@@ -182,16 +184,16 @@ public class FlowInlineLayout {
     fragment.setPos(offsetX, blockContext.currentY());
     positionFragmentElements(fragment.fragments());
     blockContext.addFragment(fragment);
-    blockContext.minWidth(fragment.width());
-    blockContext.increaseY(fragment.height());
-    floatTracker.adjustPos(0, fragment.height());
+    blockContext.minWidth(fragment.contentWidth());
+    blockContext.increaseY(fragment.contentHeight());
+    floatTracker.adjustPos(0, fragment.contentHeight());
   }
 
   private void positionFragmentElements(List<FlowFragment> fragments) {
     int x = 0;
     for (FlowFragment child: fragments) {
       child.setPos(x, 0);
-      x += child.width();
+      x += child.contentWidth();
       if (child instanceof ManagedBoxFragment managedBoxFragment) {
         positionFragmentElements(managedBoxFragment.fragments());
       }
@@ -205,7 +207,7 @@ public class FlowInlineLayout {
     ElementBoxDimensions boxDimensions
   ) {
     LayoutConstraint baseWidth = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentConstraint, childStyles.getProperty(CSSProperty.WIDTH), childStyles);
+      layoutContext, parentConstraint, childStyles.getProperty(CSSProperty.WIDTH));
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
       return baseWidth;

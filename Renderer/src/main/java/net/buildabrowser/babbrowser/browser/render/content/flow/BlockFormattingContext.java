@@ -12,14 +12,16 @@ import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 public class BlockFormattingContext {
 
   private final ElementBox elementBox;
+  private final LayoutConstraint innerWidthConstraint;
 
   private final List<FlowFragment> fragments;
 
   private int width;
   private int y;
 
-  public BlockFormattingContext(ElementBox elementBox) {
+  public BlockFormattingContext(ElementBox elementBox, LayoutConstraint innerWidthConstraint) {
     this.elementBox = elementBox;
+    this.innerWidthConstraint = innerWidthConstraint;
 
     this.fragments = new ArrayList<>();
   }
@@ -38,6 +40,10 @@ public class BlockFormattingContext {
 
   public void addFragment(FlowFragment newFragment) {
     this.fragments.add(newFragment);
+  }
+
+  public LayoutConstraint innerWidthConstraint() {
+    return this.innerWidthConstraint;
   }
 
   public ManagedBoxFragment close(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {

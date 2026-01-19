@@ -13,7 +13,7 @@ public record LineSegment(
   public int width() {
     int width = 0;
     for (FlowFragment fragment: fragments) {
-      width += fragment.width();
+      width += fragment.contentWidth();
     }
 
     return width;
@@ -22,7 +22,7 @@ public record LineSegment(
   public int height() {
     int height = 0;
     for (FlowFragment fragment: fragments) {
-      height = Math.max(height, fragment.height());
+      height = Math.max(height, fragment.contentHeight());
     }
 
     return height;

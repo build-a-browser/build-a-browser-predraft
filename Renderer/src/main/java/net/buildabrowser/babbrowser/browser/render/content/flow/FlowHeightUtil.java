@@ -23,11 +23,9 @@ public final class FlowHeightUtil {
     }
 
     LayoutConstraint determinedWidthConstraint = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentConstraint,
-      childStyles.getProperty(CSSProperty.WIDTH), childStyles);
+      layoutContext, parentConstraint, childStyles.getProperty(CSSProperty.WIDTH));
     LayoutConstraint determinedHeightConstraint = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentConstraint,
-      childStyles.getProperty(CSSProperty.HEIGHT), childStyles);
+      layoutContext, parentConstraint, childStyles.getProperty(CSSProperty.HEIGHT));
     
     boolean isHeightAuto = determinedHeightConstraint.type().equals(LayoutConstraintType.AUTO);
     if (
@@ -55,8 +53,7 @@ public final class FlowHeightUtil {
   ) {
     // TODO: An actual proper implementation
     LayoutConstraint determinedConstraint = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentConstraint,
-      childStyles.getProperty(CSSProperty.HEIGHT), childStyles);
+      layoutContext, parentConstraint, childStyles.getProperty(CSSProperty.HEIGHT));
 
     return determinedConstraint;
   }

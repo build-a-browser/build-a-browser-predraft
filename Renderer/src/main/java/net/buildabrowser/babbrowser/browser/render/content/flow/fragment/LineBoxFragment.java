@@ -27,7 +27,7 @@ public class LineBoxFragment extends FlowFragment {
   @Override
   public String toString() {
     StringBuilder textBuilder = new StringBuilder();
-    textBuilder.append("[LineBoxFragment pos=[" + posX() + ", " + posY() + "] size=[" + width() + "x" + height() + "]]");
+    textBuilder.append("[LineBoxFragment pos=[" + borderX() + ", " + borderY() + "] size=[" + contentWidth() + "x" + contentHeight() + "]]");
     for (FlowFragment fragment : fragments()) {
       textBuilder.append("\n\t" + fragment.toString().replace("\n", "\n\t"));
     }

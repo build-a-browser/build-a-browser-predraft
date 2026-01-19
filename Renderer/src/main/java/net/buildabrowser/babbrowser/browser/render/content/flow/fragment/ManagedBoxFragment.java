@@ -4,17 +4,15 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 
-public class ManagedBoxFragment extends FlowFragment {
+public class ManagedBoxFragment extends FlowBoxFragment {
 
-  private final ElementBox box;
   private final List<FlowFragment> fragments;
 
   public ManagedBoxFragment(
     int width, int height,
     ElementBox box, List<FlowFragment> fragments
   ) {
-    super(width, height);
-    this.box = box;
+    super(width, height, box);
     this.fragments = fragments;
   }
 
@@ -26,10 +24,6 @@ public class ManagedBoxFragment extends FlowFragment {
     setPos(x, y);
   }
 
-  public ElementBox box() {
-    return this.box;
-  }
-
   public List<FlowFragment> fragments() {
     return this.fragments;
   }
@@ -37,7 +31,7 @@ public class ManagedBoxFragment extends FlowFragment {
   @Override
   public String toString() {
     StringBuilder textBuilder = new StringBuilder();
-    textBuilder.append("[ManagedBoxFragment pos=[" + posX() + ", " + posY() + "] size=[" + width() + "x" + height() + "]]");
+    textBuilder.append("[ManagedBoxFragment pos=[" + borderX() + ", " + borderY() + "] size=[" + contentWidth() + "x" + contentHeight() + "]]");
     for (FlowFragment fragment : fragments()) {
       textBuilder.append("\n\t" + fragment.toString().replace("\n", "\n\t"));
     }

@@ -20,8 +20,11 @@ public final class FloatLayout {
     LayoutContext layoutContext,
     ElementBox childBox,
     LayoutConstraint parentWidthConstraint,
-    LayoutConstraint parentHeightConstraint
+    LayoutConstraint parentHeightConstraint,
+    BlockFormattingContext referenceContext
   ) {
+    FlowPaddingUtil.computePadding(layoutContext, childBox, referenceContext);
+
     // TODO: Check height calculation
     ActiveStyles childStyles = childBox.activeStyles();
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
@@ -74,7 +77,7 @@ public final class FloatLayout {
     }
 
     LayoutConstraint baseWidth = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentWidthConstraint, childStyles.getProperty(CSSProperty.WIDTH), childStyles);
+      layoutContext, parentWidthConstraint, childStyles.getProperty(CSSProperty.WIDTH));
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
       return baseWidth;

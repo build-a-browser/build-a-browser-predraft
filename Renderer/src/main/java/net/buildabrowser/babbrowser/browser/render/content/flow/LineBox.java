@@ -27,7 +27,8 @@ public class LineBox {
   private int totalWidth = 0;
   
   public void addFragment(FlowFragment flowFragment) {
-    this.totalWidth += flowFragment.width();
+    // TODO: Account for padding
+    this.totalWidth += flowFragment.contentWidth();
     lineSegments.peek().fragments().add(flowFragment);
   }
 

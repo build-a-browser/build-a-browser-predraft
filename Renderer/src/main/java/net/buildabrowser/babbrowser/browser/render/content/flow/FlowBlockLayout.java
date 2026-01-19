@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
+import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
@@ -28,8 +29,8 @@ public class FlowBlockLayout {
     this.rootContent = rootContent;
   }
 
-  public void reset(ElementBox rootBox) {
-    this.rootContext = new BlockFormattingContext(rootBox);
+  public void reset(ElementBox rootBox, LayoutConstraint widthConstraint) {
+    this.rootContext = new BlockFormattingContext(rootBox, widthConstraint);
     blockStack.clear();
     blockStack.add(rootContext);
   }
@@ -55,7 +56,8 @@ public class FlowBlockLayout {
     for (Box childBox: box.childBoxes()) {
       if (childBox instanceof ElementBox elementBox && FlowUtil.isFloat(elementBox) && !isInInline) {
         ackFloatClear(elementBox);
-        UnmanagedBoxFragment floatFragment = FloatLayout.renderFloat(layoutContext, elementBox, widthConstraint, heightConstraint);
+        UnmanagedBoxFragment floatFragment = FloatLayout.renderFloat(
+          layoutContext, elementBox, widthConstraint, heightConstraint, activeContext());
         FloatLayout.addFloat(rootContent, floatFragment, widthConstraint, heightConstraint, 0);
       } else if (FlowUtil.isBlockLevel(childBox)) {
         if (isInInline) {
@@ -85,6 +87,7 @@ public class FlowBlockLayout {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
+    FlowPaddingUtil.computePadding(layoutContext, elementBox, activeContext());
     ackFloatClear(elementBox);
     if (FlowUtil.isInFlow(elementBox)) {
       addManagedBlockToBlock(layoutContext, elementBox, widthConstraint, heightConstraint);
@@ -99,34 +102,31 @@ public class FlowBlockLayout {
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint
   ) {
+    int[] padding = childBox.dimensions().getComputedPadding();
     FloatTracker floatTracker = rootContent.floatTracker();
     int floatMark = floatTracker.mark();
+    floatTracker.adjustPos(padding[2], padding[0]);
 
     ActiveStyles childStyles = childBox.activeStyles();
     // TODO: Factor in margins and stuff
     LayoutConstraint childWidthConstraint = evaluateNonReplacedBlockWidth(
-      layoutContext, parentWidthConstraint, childStyles);
+      layoutContext, parentWidthConstraint, childBox);
     LayoutConstraint childHeightConstraint = FlowHeightUtil.evaluateNonReplacedBlockLevelHeight(
       layoutContext, parentHeightConstraint, childStyles);
 
-    BlockFormattingContext childContext = new BlockFormattingContext(childBox);
+    BlockFormattingContext childContext = new BlockFormattingContext(childBox, childWidthConstraint);
     blockStack.push(childContext);
     addChildrenToBlock(layoutContext, childBox, childWidthConstraint, childHeightConstraint);
     ManagedBoxFragment newFragment = childContext.close(childWidthConstraint, childHeightConstraint);
     blockStack.pop();
-
-    BlockFormattingContext parentContext = blockStack.peek();
-    newFragment.setPos(0, parentContext.currentY());
-
-    parentContext.increaseY(newFragment.height());
-    parentContext.minWidth(newFragment.width());
-    parentContext.addFragment(newFragment);
-
+    floatTracker.adjustPos(-padding[2], 0); // TODO: Include in the mark?
     floatTracker.restoreMark(floatMark);
-    floatTracker.adjustPos(0, newFragment.height());
+
+    addFinishedFragment(childBox, newFragment);
   }
 
   // TODO: Handle the edge case where an unmanaged block interacts with a float
+  // TODO: This method is growing very unwieldy...
   private void addUnmanagedBlockToBlock(
     LayoutContext layoutContext,
     ElementBox childBox,
@@ -138,7 +138,7 @@ public class FlowBlockLayout {
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
       FlowWidthUtil.determineBlockReplacedWidth(
         layoutContext, parentWidthConstraint, childStyles, childBox.dimensions()) :
-      evaluateNonReplacedBlockWidth(layoutContext, parentWidthConstraint, childStyles);
+      evaluateNonReplacedBlockWidth(layoutContext, parentWidthConstraint, childBox);
     
     LayoutConstraint childHeightConstraint = childBox.isReplaced() ?
       FlowHeightUtil.evaluateReplacedBlockHeight(
@@ -154,27 +154,35 @@ public class FlowBlockLayout {
     int height = FlowUtil.constraintHeight(childBox.dimensions(), childHeightConstraint);
 
     UnmanagedBoxFragment newFragment = new UnmanagedBoxFragment(width, height, childBox);
+    addFinishedFragment(childBox, newFragment);
+  }
 
-    BlockFormattingContext parentContext = blockStack.peek();
+  private void addFinishedFragment(ElementBox childBox, FlowFragment newFragment) {
+    BlockFormattingContext parentContext = activeContext();
     newFragment.setPos(0, parentContext.currentY());
 
-    parentContext.increaseY(height);
-    parentContext.minWidth(width);
+    parentContext.increaseY(newFragment.borderHeight());
+    parentContext.minWidth(newFragment.borderWidth());
     parentContext.addFragment(newFragment);
 
-    rootContent.floatTracker().adjustPos(0, height);
+    rootContent.floatTracker().adjustPos(0, newFragment.borderHeight());
   }
 
   private LayoutConstraint evaluateNonReplacedBlockWidth(
     LayoutContext layoutContext,
     LayoutConstraint parentConstraint,
-    ActiveStyles childStyles
+    ElementBox childBox
   ) {
     LayoutConstraint determinedConstraint = FlowWidthUtil.evaluateBaseSize(
       layoutContext, parentConstraint,
-      childStyles.getProperty(CSSProperty.WIDTH), childStyles);
+      childBox.activeStyles().getProperty(CSSProperty.WIDTH));
     if (!determinedConstraint.type().equals(LayoutConstraintType.AUTO)) {
       return determinedConstraint;
+    }
+    if (parentConstraint.type().equals(LayoutConstraintType.BOUNDED)) {
+      int[] padding = childBox.dimensions().getComputedPadding();
+      int adjustedWidth = parentConstraint.value() - padding[2] - padding[3];
+      return LayoutConstraint.of(adjustedWidth);
     }
 
     return parentConstraint;

@@ -15,10 +15,10 @@ public final class FlowTestUtil {
   private FlowTestUtil() {}
 
   public static void assertFragmentEquals(FlowFragment expected, FlowFragment actual) {
-    Assertions.assertEquals(expected.posX(), actual.posX());
-    Assertions.assertEquals(expected.posY(), actual.posY());
-    Assertions.assertEquals(expected.width(), actual.width());
-    Assertions.assertEquals(expected.height(), actual.height());
+    Assertions.assertEquals(expected.borderX(), actual.borderX());
+    Assertions.assertEquals(expected.borderY(), actual.borderY());
+    Assertions.assertEquals(expected.contentWidth(), actual.contentWidth());
+    Assertions.assertEquals(expected.contentHeight(), actual.contentHeight());
     switch (expected) {
       case ManagedBoxFragment fragment -> assertFragmentEquals(fragment, actual);
       case UnmanagedBoxFragment fragment -> assertFragmentEquals(fragment, actual);
@@ -48,8 +48,8 @@ public final class FlowTestUtil {
   private static void assertFragmentEquals(UnmanagedBoxFragment expected, FlowFragment actual) {
     Assertions.assertInstanceOf(UnmanagedBoxFragment.class, actual);
     UnmanagedBoxFragment actualFragment = (UnmanagedBoxFragment) actual;
-    Assertions.assertEquals(expected.width(), actualFragment.box().dimensions().getComputedWidth());
-    Assertions.assertEquals(expected.height(), actualFragment.box().dimensions().getComputedHeight());
+    Assertions.assertEquals(expected.contentWidth(), actualFragment.box().dimensions().getComputedWidth());
+    Assertions.assertEquals(expected.contentHeight(), actualFragment.box().dimensions().getComputedHeight());
     Assertions.assertEquals(expected.box(), actualFragment.box());
   }
 

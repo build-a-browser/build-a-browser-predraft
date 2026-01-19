@@ -37,6 +37,11 @@ public final class ActiveStylesGenerator {
     "width", SizeParser.forNormal(CSSProperty.WIDTH),
     "height", SizeParser.forNormal(CSSProperty.HEIGHT),
 
+    "padding-top", SizeParser.forPadding(CSSProperty.PADDING_TOP),
+    "padding-bottom", SizeParser.forPadding(CSSProperty.PADDING_BOTTOM),
+    "padding-left", SizeParser.forPadding(CSSProperty.PADDING_LEFT),
+    "padding-right", SizeParser.forPadding(CSSProperty.PADDING_RIGHT),
+
     "white-space-collapse", new WhitespaceCollapseValueParser(),
     "text-wrap-mode", new TextWrapModeParser()
   );

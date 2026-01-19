@@ -17,11 +17,10 @@ public final class FlowWidthUtil {
   public static LayoutConstraint evaluateBaseSize(
     LayoutContext layoutContext,
     LayoutConstraint parentConstraint,
-    CSSValue sizeValue,
-    ActiveStyles childStyles
+    CSSValue sizeValue
   ) {
     if (sizeValue instanceof LengthValue lengthValue) {
-      return evaluateLengthBaseSize(layoutContext, lengthValue, childStyles);
+      return evaluateLengthBaseSize(layoutContext, lengthValue);
     } else if (
       sizeValue instanceof PercentageValue percentageValue
       && parentConstraint.type().equals(LayoutConstraintType.BOUNDED)
@@ -35,11 +34,10 @@ public final class FlowWidthUtil {
 
   private static LayoutConstraint evaluateLengthBaseSize(
     LayoutContext layoutContext,
-    LengthValue lengthValue,
-    ActiveStyles childStyles
+    LengthValue lengthValue
   ) {
     double baseValue = lengthValue.value().doubleValue();
-    double sizeResult = switch (lengthValue.dimension()) {
+    double sizeResult = baseValue == 0 ? 0 : switch (lengthValue.dimension()) {
       // TODO: Use real values for EM, EX
       case EM -> baseValue * layoutContext.fontMetrics().fontHeight();
       case EX -> baseValue * layoutContext.fontMetrics().fontHeight() / 2;
@@ -62,7 +60,7 @@ public final class FlowWidthUtil {
     ElementBoxDimensions boxDimensions
   ) {
     LayoutConstraint baseWidth = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentConstraint, childStyles.getProperty(CSSProperty.WIDTH), childStyles);
+      layoutContext, parentConstraint, childStyles.getProperty(CSSProperty.WIDTH));
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
       return baseWidth;

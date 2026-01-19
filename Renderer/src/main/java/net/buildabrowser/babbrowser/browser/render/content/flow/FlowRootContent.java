@@ -39,18 +39,18 @@ public class FlowRootContent implements BoxContent {
     ElementBoxDimensions dimensions = rootBox.dimensions();
 
     floatTracker.reset();
-    blockLayout.reset(rootBox);
+    blockLayout.reset(rootBox, LayoutConstraint.MIN_CONTENT);
     blockLayout.addChildrenToBlock(
       layoutContext, rootBox, LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO);
     dimensions.setPreferredMinWidthConstraint(
-      blockLayout.close(LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).width());
+      blockLayout.close(LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).contentWidth());
 
     floatTracker.reset();
-    blockLayout.reset(rootBox);
+    blockLayout.reset(rootBox, LayoutConstraint.MAX_CONTENT);
     blockLayout.addChildrenToBlock(
       layoutContext, rootBox, LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO);
     dimensions.setPreferredWidthConstraint(
-      blockLayout.close(LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).width());
+      blockLayout.close(LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).contentWidth());
   }
 
   @Override
@@ -59,15 +59,15 @@ public class FlowRootContent implements BoxContent {
   ) {
     floatTracker.reset();
 
-    blockLayout.reset(rootBox);
+    blockLayout.reset(rootBox, widthConstraint);
     blockLayout.addChildrenToBlock(layoutContext, rootBox, widthConstraint, heightConstraint);
 
     this.rootFragment = blockLayout.close(widthConstraint, heightConstraint);
     rootFragment.setPos(0, 0);
 
-    int desiredHeight = Math.max(rootFragment.height(), floatTracker.contentHeight());
+    int desiredHeight = Math.max(rootFragment.contentHeight(), floatTracker.contentHeight());
     int usedHeight = LayoutUtil.constraintOrDim(heightConstraint, desiredHeight);
-    rootBox.dimensions().setComputedSize(rootFragment.width(), usedHeight);
+    rootBox.dimensions().setComputedSize(rootFragment.contentWidth(), usedHeight);
   }
 
   @Override

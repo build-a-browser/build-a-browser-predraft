@@ -10,6 +10,10 @@ public interface ElementBoxDimensions {
 
   int getComputedHeight();
 
+  void setComputedPadding(int t, int b, int l, int r);
+
+  int[] getComputedPadding();
+
   void setPreferredMinWidthConstraint(int w);
 
   void setPreferredWidthConstraint(int w);
