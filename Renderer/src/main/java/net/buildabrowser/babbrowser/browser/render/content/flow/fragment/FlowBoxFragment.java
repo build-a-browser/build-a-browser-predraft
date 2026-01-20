@@ -17,26 +17,30 @@ public class FlowBoxFragment extends FlowFragment {
 
   @Override
   public int contentX() {
+    int[] border = box.dimensions().getComputedBorder();
     int[] padding = box.dimensions().getComputedPadding();
-    return borderX() + padding[2];
+    return borderX() + border[2] + padding[2];
   }
 
   @Override
   public int contentY() {
+    int[] border = box.dimensions().getComputedBorder();
     int[] padding = box.dimensions().getComputedPadding();
-    return borderY() + padding[0];
+    return borderY() + border[0] + padding[0];
   }
 
   @Override
   public int borderWidth() {
+    int[] border = box.dimensions().getComputedBorder();
     int[] padding = box.dimensions().getComputedPadding();
-    return contentWidth() + padding[2] + padding[3];
+    return contentWidth() + border[2] + border[3] + padding[2] + padding[3];
   }
 
   @Override
   public int borderHeight() {
+    int[] border = box.dimensions().getComputedBorder();
     int[] padding = box.dimensions().getComputedPadding();
-    return contentHeight() + padding[0] + padding[1];
+    return contentHeight() + border[0] + border[1] + padding[0] + padding[1];
   }
 
 }

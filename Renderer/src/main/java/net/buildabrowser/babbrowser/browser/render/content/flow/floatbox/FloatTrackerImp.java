@@ -10,7 +10,7 @@ import java.util.TreeSet;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 
-// TODO: Needs to account for padding, borders, margins, etc
+// TODO: Needs to account for margins
 public class FloatTrackerImp implements FloatTracker {
 
   private static final Comparator<FlowFragment> fragmentComparator = (r1, r2) -> {

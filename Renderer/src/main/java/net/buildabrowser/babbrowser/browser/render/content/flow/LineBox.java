@@ -37,7 +37,9 @@ public class LineBox {
   }
 
   public void pushElement(ElementBox elementBox) {
-    this.totalWidth += elementBox.dimensions().getComputedPadding()[2];
+    this.totalWidth +=
+      elementBox.dimensions().getComputedBorder()[2] +
+      elementBox.dimensions().getComputedPadding()[2];
     lineSegments.push(new LineSegment(elementBox, new LinkedList<>()));
   }
 
@@ -48,7 +50,9 @@ public class LineBox {
       lineSegment.box(), lineSegment.fragments());
     lineSegments.peek().fragments().add(managedBoxFragment);
     
-    this.totalWidth += lineSegment.box().dimensions().getComputedPadding()[3];
+    this.totalWidth +=
+      lineSegment.box().dimensions().getComputedBorder()[3] +
+      lineSegment.box().dimensions().getComputedPadding()[3];
     return managedBoxFragment.box();
   }
 

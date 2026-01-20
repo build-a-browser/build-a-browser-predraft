@@ -7,6 +7,7 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   private int computedWidth = 0;
   private int computedHeight = 0;
 
+  private int[] computedBorder = new int[] { 0, 0, 0, 0 };
   private int[] computedPadding = new int[] { 0, 0, 0, 0 };
 
   private int preferredMinWidthConstraint = 0;
@@ -30,6 +31,19 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   @Override
   public int getComputedHeight() {
     return this.computedHeight;
+  }
+
+  @Override
+  public void setComputedBorder(int t, int b, int l, int r) {
+    computedBorder[0] = t;
+    computedBorder[1] = b;
+    computedBorder[2] = l;
+    computedBorder[3] = r;
+  }
+
+  @Override
+  public int[] getComputedBorder() {
+    return computedBorder;
   }
 
   @Override

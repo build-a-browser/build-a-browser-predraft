@@ -10,6 +10,10 @@ public interface ElementBoxDimensions {
 
   int getComputedHeight();
 
+  void setComputedBorder(int t, int b, int l, int r);
+
+  int[] getComputedBorder();
+
   void setComputedPadding(int t, int b, int l, int r);
 
   int[] getComputedPadding();

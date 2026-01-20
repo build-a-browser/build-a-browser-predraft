@@ -62,6 +62,7 @@ public class FlowInlineLayout {
       stagingArea.pushStagedElement(new StagedText(textBox, textBox.text()));
     } else if (box instanceof ElementBox elementBox) {
       // Might get computed twice for outer box, doesn't really matter
+      FlowBorderUtil.computeBorder(layoutContext, elementBox, rootContent.blockLayout().activeContext());
       FlowPaddingUtil.computePadding(layoutContext, elementBox, rootContent.blockLayout().activeContext());
       if (FlowUtil.isFloat(elementBox)) {
         stagingArea.pushStagedElement(new StagedFloatBox(elementBox));

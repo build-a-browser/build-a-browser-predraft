@@ -55,6 +55,7 @@ public class FlowBlockLayout {
     boolean isInInline = false;
     for (Box childBox: box.childBoxes()) {
       if (childBox instanceof ElementBox elementBox) {
+        FlowBorderUtil.computeBorder(layoutContext, elementBox, activeContext());
         FlowPaddingUtil.computePadding(layoutContext, elementBox, activeContext());
       }
       if (childBox instanceof ElementBox elementBox && FlowUtil.isFloat(elementBox) && !isInInline) {
@@ -104,10 +105,11 @@ public class FlowBlockLayout {
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint
   ) {
+    int[] border = childBox.dimensions().getComputedBorder();
     int[] padding = childBox.dimensions().getComputedPadding();
     FloatTracker floatTracker = rootContent.floatTracker();
     int floatMark = floatTracker.mark();
-    floatTracker.adjustPos(padding[2], padding[0]);
+    floatTracker.adjustPos(border[2] + padding[2], border[0] + padding[0]);
 
     ActiveStyles childStyles = childBox.activeStyles();
     // TODO: Factor in margins and stuff
@@ -121,7 +123,7 @@ public class FlowBlockLayout {
     addChildrenToBlock(layoutContext, childBox, childWidthConstraint, childHeightConstraint);
     ManagedBoxFragment newFragment = childContext.close(childWidthConstraint, childHeightConstraint);
     blockStack.pop();
-    floatTracker.adjustPos(-padding[2], 0); // TODO: Include in the mark?
+    floatTracker.adjustPos(-border[2] - padding[2], 0); // TODO: Include in the mark?
     floatTracker.restoreMark(floatMark);
 
     addFinishedFragment(newFragment, 0);
@@ -182,8 +184,9 @@ public class FlowBlockLayout {
       return determinedConstraint;
     }
     if (parentConstraint.type().equals(LayoutConstraintType.BOUNDED)) {
+      int[] border = childBox.dimensions().getComputedBorder();
       int[] padding = childBox.dimensions().getComputedPadding();
-      int adjustedWidth = parentConstraint.value() - padding[2] - padding[3];
+      int adjustedWidth = parentConstraint.value() - border[2] - border[3] - padding[2] - padding[3];
       return LayoutConstraint.of(adjustedWidth);
     }
 
