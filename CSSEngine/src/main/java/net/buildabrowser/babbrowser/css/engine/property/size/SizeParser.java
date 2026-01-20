@@ -11,6 +11,7 @@ import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue.LengthT
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
 
@@ -18,6 +19,7 @@ public class SizeParser implements PropertyValueParser {
 
   private static final CSSFailure NO_VALID_RESULT = new CSSFailure("No valid result...");
   private static final CSSFailure INVALID_LENGTH_TYPE = new CSSFailure("Unknown length type!");
+  private static final CSSFailure EXPECTED_EOF = new CSSFailure("Expected an EOF token");
 
   private static final Map<String, LengthType> LENGTH_TYPES = Map.of(
     "em", LengthType.EM,
@@ -44,6 +46,9 @@ public class SizeParser implements PropertyValueParser {
   public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
     CSSValue result = parseInternal(stream, activeStyles);
     if (result.isFailure()) return result;
+    if (!(stream.peek() instanceof EOFToken)) {
+      return EXPECTED_EOF;
+    }
 
     activeStyles.setProperty(property, result);
     return result;
@@ -54,12 +59,13 @@ public class SizeParser implements PropertyValueParser {
     return property;
   }
 
-  private CSSValue parseInternal(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
+  public CSSValue parseInternal(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
     if (
       allowNone
       && stream.peek() instanceof IdentToken identToken
       && identToken.value().equals("none")
     ) {
+      stream.read();
       return CSSValue.NONE;
     } else if (
       allowAuto
@@ -68,8 +74,10 @@ public class SizeParser implements PropertyValueParser {
     ) {
       return CSSValue.AUTO;
     } else if (stream.peek() instanceof PercentageToken percentageToken) {
+      stream.read();
       return PercentageValue.create(percentageToken.value());
     } else if (stream.peek() instanceof DimensionToken dimensionToken) {
+      stream.read();
       LengthType lengthType = dimensionToken.dimension() == null ? null :
         LENGTH_TYPES.get(dimensionToken.dimension());
       if (lengthType == null && !dimensionToken.value().equals((Number) 0)) {

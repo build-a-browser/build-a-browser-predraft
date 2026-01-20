@@ -20,10 +20,12 @@ public enum CSSProperty {
   CLEAR(nextId(), false, CSSValue.NONE),
   WHITE_SPACE_COLLAPSE(nextId(), true, WhitespaceCollapseValue.COLLAPSE),
   TEXT_WRAP_MODE(nextId(), true, TextWrapModeValue.WRAP),
+
   PADDING_TOP(nextId(), false, LengthValue.ZERO),
   PADDING_BOTTOM(nextId(), false, LengthValue.ZERO),
   PADDING_LEFT(nextId(), false, LengthValue.ZERO),
-  PADDING_RIGHT(nextId(), false, LengthValue.ZERO);
+  PADDING_RIGHT(nextId(), false, LengthValue.ZERO),
+  PADDING(new CSSProperty[] { PADDING_TOP, PADDING_BOTTOM, PADDING_LEFT, PADDING_RIGHT });
 
   private static int propertyId = 0;
 

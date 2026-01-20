@@ -13,14 +13,15 @@ import net.buildabrowser.babbrowser.css.engine.property.display.DisplayParser;
 import net.buildabrowser.babbrowser.css.engine.property.floats.ClearParser;
 import net.buildabrowser.babbrowser.css.engine.property.floats.FloatParser;
 import net.buildabrowser.babbrowser.css.engine.property.size.SizeParser;
+import net.buildabrowser.babbrowser.css.engine.property.size.SizeShorthandParser;
 import net.buildabrowser.babbrowser.css.engine.property.text.TextWrapModeParser;
 import net.buildabrowser.babbrowser.css.engine.property.whitespace.WhitespaceCollapseValueParser;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 
 public final class ActiveStylesGenerator {
@@ -41,6 +42,9 @@ public final class ActiveStylesGenerator {
     "padding-bottom", SizeParser.forPadding(CSSProperty.PADDING_BOTTOM),
     "padding-left", SizeParser.forPadding(CSSProperty.PADDING_LEFT),
     "padding-right", SizeParser.forPadding(CSSProperty.PADDING_RIGHT),
+    "padding", new SizeShorthandParser(new SizeParser(false, false, null)::parseInternal,
+      new CSSProperty[] { CSSProperty.PADDING_TOP, CSSProperty.PADDING_RIGHT, CSSProperty.PADDING_BOTTOM, CSSProperty.PADDING_LEFT },
+      CSSProperty.PADDING),
 
     "white-space-collapse", new WhitespaceCollapseValueParser(),
     "text-wrap-mode", new TextWrapModeParser()
@@ -88,7 +92,8 @@ public final class ActiveStylesGenerator {
       // TODO: Support revert keyword
     }
 
-    SeekableCSSTokenStream tokenStream = CSSTokenStream.create(declaration.value());
+    // TODO: Do any cases preserve whitespace?
+    SeekableCSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(declaration.value());
     try {
       parser.parse(tokenStream, activeStyles);
     } catch (IOException e) {
