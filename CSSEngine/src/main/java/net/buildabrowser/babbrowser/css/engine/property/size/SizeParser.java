@@ -34,12 +34,18 @@ public class SizeParser implements PropertyValueParser {
 
   private final boolean allowNone;
   private final boolean allowAuto;
+  private final boolean allowPercent;
   private final CSSProperty property;
 
-  public SizeParser(boolean allowNone, boolean allowAuto, CSSProperty property) {
+  public SizeParser(boolean allowNone, boolean allowAuto, boolean allowPercent, CSSProperty property) {
     this.allowNone = allowNone;
     this.allowAuto = allowAuto;
+    this.allowPercent = allowPercent;
     this.property = property;
+  }
+
+  public SizeParser(boolean allowNone, boolean allowAuto, CSSProperty property) {
+    this(allowNone, allowAuto, true, property);
   }
 
   @Override
@@ -73,7 +79,7 @@ public class SizeParser implements PropertyValueParser {
       && identToken.value().equals("auto")
     ) {
       return CSSValue.AUTO;
-    } else if (stream.peek() instanceof PercentageToken percentageToken) {
+    } else if (stream.peek() instanceof PercentageToken percentageToken && allowPercent) {
       stream.read();
       return PercentageValue.create(percentageToken.value());
     } else if (stream.peek() instanceof DimensionToken dimensionToken) {

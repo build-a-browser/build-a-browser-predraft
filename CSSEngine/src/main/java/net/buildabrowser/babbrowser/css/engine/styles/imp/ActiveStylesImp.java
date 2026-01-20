@@ -10,6 +10,7 @@ import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.Inn
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 
+// TODO: Storage really needs optimized...
 public class ActiveStylesImp implements ActiveStyles {
 
   private final CSSValue[] propertyValues;

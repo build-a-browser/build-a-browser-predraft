@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.css.engine.property.size;
+package net.buildabrowser.babbrowser.css.engine.property.shared;
 
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 
-public class SizeShorthandParser implements PropertyValueParser {
+public class ManySideShorthandParser implements PropertyValueParser {
 
   private static final CSSFailure EXPECTED_EOF = new CSSFailure("Expected an EOF token");
   private static final CSSFailure EXPECTED_SIZE = new CSSFailure("Expected at least one size");
@@ -19,7 +19,7 @@ public class SizeShorthandParser implements PropertyValueParser {
   private final CSSProperty[] relatedProperties;
   private final CSSProperty primaryProperty;
 
-  public SizeShorthandParser(PropertyValueParser innerParser, CSSProperty[] relatedProperties, CSSProperty primaryProperty) {
+  public ManySideShorthandParser(PropertyValueParser innerParser, CSSProperty[] relatedProperties, CSSProperty primaryProperty) {
     assert relatedProperties.length == 4;
     this.innerParser = innerParser;
     this.relatedProperties = relatedProperties;
@@ -64,7 +64,7 @@ public class SizeShorthandParser implements PropertyValueParser {
       activeStyles.setProperty(relatedProperties[j], consumedValues[j]);
     }
 
-    return new ManySizeValue(
+    return new ManySideValue(
       consumedValues[0], consumedValues[1],
       consumedValues[2], consumedValues[3]);
   }

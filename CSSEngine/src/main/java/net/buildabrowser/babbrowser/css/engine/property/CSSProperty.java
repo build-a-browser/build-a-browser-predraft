@@ -25,7 +25,33 @@ public enum CSSProperty {
   PADDING_BOTTOM(nextId(), false, LengthValue.ZERO),
   PADDING_LEFT(nextId(), false, LengthValue.ZERO),
   PADDING_RIGHT(nextId(), false, LengthValue.ZERO),
-  PADDING(new CSSProperty[] { PADDING_TOP, PADDING_BOTTOM, PADDING_LEFT, PADDING_RIGHT });
+  PADDING(new CSSProperty[] { PADDING_TOP, PADDING_BOTTOM, PADDING_LEFT, PADDING_RIGHT }),
+
+  BORDER_TOP_WIDTH(nextId(), false, LengthValue.ZERO),
+  BORDER_BOTTOM_WIDTH(nextId(), false, LengthValue.ZERO),
+  BORDER_LEFT_WIDTH(nextId(), false, LengthValue.ZERO),
+  BORDER_RIGHT_WIDTH(nextId(), false, LengthValue.ZERO),
+  BORDER_WIDTH(new CSSProperty[] { BORDER_TOP_WIDTH, BORDER_BOTTOM_WIDTH, BORDER_LEFT_WIDTH, BORDER_RIGHT_WIDTH }),
+
+  // Use NONE, but then resolve the real value in code, for the default case
+  BORDER_TOP_COLOR(nextId(), false, CSSValue.NONE),
+  BORDER_BOTTOM_COLOR(nextId(), false, CSSValue.NONE),
+  BORDER_LEFT_COLOR(nextId(), false, CSSValue.NONE),
+  BORDER_RIGHT_COLOR(nextId(), false, CSSValue.NONE),
+  BORDER_COLOR(new CSSProperty[] { BORDER_TOP_COLOR, BORDER_BOTTOM_COLOR, BORDER_LEFT_COLOR, BORDER_RIGHT_COLOR }),
+
+  BORDER_TOP_STYLE(nextId(), false, CSSValue.NONE),
+  BORDER_BOTTOM_STYLE(nextId(), false, CSSValue.NONE),
+  BORDER_LEFT_STYLE(nextId(), false, CSSValue.NONE),
+  BORDER_RIGHT_STYLE(nextId(), false, CSSValue.NONE),
+  BORDER_STYLE(new CSSProperty[] { BORDER_TOP_STYLE, BORDER_BOTTOM_STYLE, BORDER_LEFT_STYLE, BORDER_RIGHT_STYLE }),
+
+  BORDER_TOP(new CSSProperty[] { BORDER_TOP_WIDTH, BORDER_TOP_COLOR, BORDER_TOP_STYLE }),
+  BORDER_BOTTOM(new CSSProperty[] { BORDER_BOTTOM_WIDTH, BORDER_BOTTOM_COLOR, BORDER_BOTTOM_STYLE }),
+  BORDER_LEFT(new CSSProperty[] { BORDER_LEFT_WIDTH, BORDER_LEFT_COLOR, BORDER_LEFT_STYLE }),
+  BORDER_RIGHT(new CSSProperty[] { BORDER_RIGHT_WIDTH, BORDER_RIGHT_COLOR, BORDER_RIGHT_STYLE }),
+
+  BORDER(new CSSProperty[] { BORDER_TOP, BORDER_BOTTOM, BORDER_LEFT, BORDER_RIGHT });
 
   private static int propertyId = 0;
 
@@ -72,7 +98,7 @@ public enum CSSProperty {
     // TODO: Why does propertyId seem to reset to 0?
     //   (I even tried it with volatile)
     // Manually update this for now
-    return 13;
+    return 26;
   }
 
   private static int nextId() {

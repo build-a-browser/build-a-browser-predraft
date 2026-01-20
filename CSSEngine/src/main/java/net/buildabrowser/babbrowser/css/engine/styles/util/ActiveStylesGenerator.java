@@ -8,12 +8,18 @@ import java.util.Set;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundColorParser;
+import net.buildabrowser.babbrowser.css.engine.property.border.BorderColorParser;
+import net.buildabrowser.babbrowser.css.engine.property.border.BorderShorthandParser;
+import net.buildabrowser.babbrowser.css.engine.property.border.BorderSideShorthandParser;
+import net.buildabrowser.babbrowser.css.engine.property.border.BorderSizeParser;
+import net.buildabrowser.babbrowser.css.engine.property.border.BorderStyleParser;
+import net.buildabrowser.babbrowser.css.engine.property.color.ColorBaseParser;
 import net.buildabrowser.babbrowser.css.engine.property.color.ColorParser;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayParser;
 import net.buildabrowser.babbrowser.css.engine.property.floats.ClearParser;
 import net.buildabrowser.babbrowser.css.engine.property.floats.FloatParser;
+import net.buildabrowser.babbrowser.css.engine.property.shared.ManySideShorthandParser;
 import net.buildabrowser.babbrowser.css.engine.property.size.SizeParser;
-import net.buildabrowser.babbrowser.css.engine.property.size.SizeShorthandParser;
 import net.buildabrowser.babbrowser.css.engine.property.text.TextWrapModeParser;
 import net.buildabrowser.babbrowser.css.engine.property.whitespace.WhitespaceCollapseValueParser;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
@@ -42,9 +48,39 @@ public final class ActiveStylesGenerator {
     "padding-bottom", SizeParser.forPadding(CSSProperty.PADDING_BOTTOM),
     "padding-left", SizeParser.forPadding(CSSProperty.PADDING_LEFT),
     "padding-right", SizeParser.forPadding(CSSProperty.PADDING_RIGHT),
-    "padding", new SizeShorthandParser(new SizeParser(false, false, null)::parseInternal,
+    "padding", new ManySideShorthandParser(new SizeParser(false, false, null)::parseInternal,
       new CSSProperty[] { CSSProperty.PADDING_TOP, CSSProperty.PADDING_RIGHT, CSSProperty.PADDING_BOTTOM, CSSProperty.PADDING_LEFT },
       CSSProperty.PADDING),
+    
+    "border-top-width", new BorderSizeParser(CSSProperty.BORDER_TOP_WIDTH),
+    "border-bottom-width", new BorderSizeParser(CSSProperty.BORDER_BOTTOM_WIDTH),
+    "border-left-width", new BorderSizeParser(CSSProperty.BORDER_LEFT_WIDTH),
+    "border-right-width", new BorderSizeParser(CSSProperty.BORDER_RIGHT_WIDTH),
+    "border-width", new ManySideShorthandParser(new BorderSizeParser(null)::parseInternal,
+      new CSSProperty[] { CSSProperty.BORDER_TOP_WIDTH, CSSProperty.BORDER_RIGHT_WIDTH, CSSProperty.BORDER_BOTTOM_WIDTH, CSSProperty.BORDER_LEFT_WIDTH },
+      CSSProperty.BORDER_WIDTH),
+
+    "border-top-color", new BorderColorParser(CSSProperty.BORDER_TOP_COLOR),
+    "border-bottom-color", new BorderColorParser(CSSProperty.BORDER_BOTTOM_COLOR),
+    "border-left-color", new BorderColorParser(CSSProperty.BORDER_LEFT_COLOR),
+    "border-right-color", new BorderColorParser(CSSProperty.BORDER_RIGHT_COLOR),
+    "border-color", new ManySideShorthandParser(new ColorBaseParser(),
+      new CSSProperty[] { CSSProperty.BORDER_TOP_COLOR, CSSProperty.BORDER_RIGHT_COLOR, CSSProperty.BORDER_BOTTOM_COLOR, CSSProperty.BORDER_LEFT_COLOR },
+      CSSProperty.BORDER_COLOR),
+
+    "border-top-style", new BorderStyleParser(CSSProperty.BORDER_TOP_STYLE),
+    "border-bottom-style", new BorderStyleParser(CSSProperty.BORDER_BOTTOM_STYLE),
+    "border-left-style", new BorderStyleParser(CSSProperty.BORDER_LEFT_STYLE),
+    "border-right-style", new BorderStyleParser(CSSProperty.BORDER_RIGHT_STYLE),
+    "border-style", new ManySideShorthandParser(new BorderStyleParser(null)::parseInternal,
+      new CSSProperty[] { CSSProperty.BORDER_TOP_STYLE, CSSProperty.BORDER_RIGHT_STYLE, CSSProperty.BORDER_BOTTOM_STYLE, CSSProperty.BORDER_LEFT_STYLE },
+      CSSProperty.BORDER_STYLE),
+
+    "border-top", new BorderSideShorthandParser(CSSProperty.BORDER_TOP, CSSProperty.BORDER_TOP_WIDTH, CSSProperty.BORDER_TOP_COLOR, CSSProperty.BORDER_TOP_STYLE),
+    "border-bottom", new BorderSideShorthandParser(CSSProperty.BORDER_BOTTOM, CSSProperty.BORDER_BOTTOM_WIDTH, CSSProperty.BORDER_BOTTOM_COLOR, CSSProperty.BORDER_BOTTOM_STYLE),
+    "border-left", new BorderSideShorthandParser(CSSProperty.BORDER_LEFT, CSSProperty.BORDER_LEFT_WIDTH, CSSProperty.BORDER_LEFT_COLOR, CSSProperty.BORDER_LEFT_STYLE),
+    "border-right", new BorderSideShorthandParser(CSSProperty.BORDER_RIGHT, CSSProperty.BORDER_RIGHT_WIDTH, CSSProperty.BORDER_RIGHT_COLOR, CSSProperty.BORDER_RIGHT_STYLE),
+    "border", new BorderShorthandParser(),
 
     "white-space-collapse", new WhitespaceCollapseValueParser(),
     "text-wrap-mode", new TextWrapModeParser()
