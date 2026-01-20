@@ -22,6 +22,14 @@ public interface ActiveStyles {
 
   int backgroundColor();
 
+  int borderTopColor();
+  
+  int borderBottomColor();
+
+  int borderLeftColor();
+
+  int borderRightColor();
+
   OuterDisplayValue outerDisplayValue();
 
   InnerDisplayValue innerDisplayValue();

@@ -88,6 +88,34 @@ public class ActiveStylesImp implements ActiveStyles {
   }
 
   @Override
+  public int borderTopColor() {
+    CSSValue property = getProperty(CSSProperty.BORDER_TOP_COLOR);
+    if (property.equals(CSSValue.NONE)) return textColor();
+    return ((ColorValue) property).asSARGB();
+  }
+
+  @Override
+  public int borderBottomColor() {
+    CSSValue property = getProperty(CSSProperty.BORDER_BOTTOM_COLOR);
+    if (property.equals(CSSValue.NONE)) return textColor();
+    return ((ColorValue) property).asSARGB();
+  }
+
+  @Override
+  public int borderLeftColor() {
+    CSSValue property = getProperty(CSSProperty.BORDER_LEFT_COLOR);
+    if (property.equals(CSSValue.NONE)) return textColor();
+    return ((ColorValue) property).asSARGB();
+  }
+
+  @Override
+  public int borderRightColor() {
+    CSSValue property = getProperty(CSSProperty.BORDER_RIGHT_COLOR);
+    if (property.equals(CSSValue.NONE)) return textColor();
+    return ((ColorValue) property).asSARGB();
+  }
+
+  @Override
   public OuterDisplayValue outerDisplayValue() {
     return ((DisplayValue) getProperty(CSSProperty.DISPLAY)).outerDisplayValue();
   }
