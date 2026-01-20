@@ -45,6 +45,10 @@ import net.buildabrowser.babbrowser.htmlparser.tokenize.states.MarkupDeclaration
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.NamedCharacterReferenceState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.NumericCharacterReferenceEndState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.NumericCharacterReferenceState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.states.RCDataEndTagNameState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.states.RCDataEndTagOpenState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.states.RCDataLessThanSignState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.states.RCDataState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.RawTextEndTagNameState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.RawTextEndTagOpenState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.RawTextLessThanSignState;
@@ -106,6 +110,10 @@ public final class TokenizeStates {
   public static final TokenizeState rawTextEndTagOpenState = new RawTextEndTagOpenState();
   public static final TokenizeState rawTextLessThanSignState = new RawTextLessThanSignState();
   public static final TokenizeState rawTextState = new RawTextState();
+  public static final TokenizeState rcdataEngTagNameState = new RCDataEndTagNameState();
+  public static final TokenizeState rcdataEndTagOpenState = new RCDataEndTagOpenState();
+  public static final TokenizeState rcdataLessThanSignState = new RCDataLessThanSignState();
+  public static final TokenizeState rcdataState = new RCDataState();
   public static final TokenizeState selfClosingStartTagState = new SelfClosingStartTagState();
   public static final TokenizeState tagNameState = new TagNameState();
   public static final TokenizeState tagOpenState = new TagOpenState();

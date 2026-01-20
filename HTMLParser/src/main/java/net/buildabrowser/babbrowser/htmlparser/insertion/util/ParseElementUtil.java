@@ -64,4 +64,12 @@ public final class ParseElementUtil {
     parseContext.setInsertionMode(InsertionModes.textInsertionMode);
   }
 
+  public static void startGenericRCDataElementParsingAlgorithm(ParseContext parseContext, TagToken tagToken) {
+    assert tagToken.isStartTag();
+    insertAnHTMLElement(parseContext, tagToken);
+    parseContext.tokenizeContext().setTokenizeState(TokenizeStates.rcdataState);
+    parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());
+    parseContext.setInsertionMode(InsertionModes.textInsertionMode);
+  }
+
 }

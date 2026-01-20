@@ -57,6 +57,9 @@ public class InHeadInsertionMode implements InsertionMode {
       // Include "title" in this step?
       case "html":
         return InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
+      case "title":
+        ParseElementUtil.startGenericRCDataElementParsingAlgorithm(parseContext, tagToken);
+        return false;
       case "noframes", "style":
         ParseElementUtil.startGenericRawTextElementParsingAlgorithm(parseContext, tagToken);
         return false;

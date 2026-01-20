@@ -9,9 +9,9 @@ import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.util.ASCIIUtil;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.util.TokenizeUtil;
 
-public class RawTextEndTagNameState implements TokenizeState {
+public class RCDataEndTagNameState implements TokenizeState {
 
-  @Override
+    @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
     if (parseContext.isAppropriateEndTagToken(tokenizeContext.currentTagToken())) {
       switch (ch) {
@@ -39,7 +39,7 @@ public class RawTextEndTagNameState implements TokenizeState {
     parseContext.emitCharacterToken('<');
     parseContext.emitCharacterToken('/');
     TokenizeUtil.emitTemporaryBuffer(tokenizeContext, parseContext);
-    tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.rawTextState);
+    tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.rcdataState);
   }
 
 }

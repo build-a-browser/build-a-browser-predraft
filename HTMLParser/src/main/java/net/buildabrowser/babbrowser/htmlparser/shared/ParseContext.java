@@ -22,6 +22,8 @@ public interface ParseContext {
 
   void emitCommentToken(CommentToken commentToken);
 
+  boolean isAppropriateEndTagToken(TagToken tagToken);
+
   void setInsertionMode(InsertionMode beforeHTMLInsertionMode);
 
   InsertionMode currentInsertionMode();

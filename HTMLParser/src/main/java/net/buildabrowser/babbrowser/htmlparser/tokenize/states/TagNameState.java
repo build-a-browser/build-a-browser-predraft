@@ -4,6 +4,7 @@ import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.util.ASCIIUtil;
 
 public class TagNameState implements TokenizeState {
 
@@ -21,8 +22,15 @@ public class TagNameState implements TokenizeState {
         tokenizeContext.setTokenizeState(TokenizeStates.dataState);
         parseContext.emitTagToken(tokenizeContext.currentTagToken());
         break;
+      case 0:
+        tokenizeContext.currentTagToken().appendToName(0xFFD);
+        break;
+      case TokenizeContext.EOF:
+        parseContext.parseError();
+        parseContext.emitEOFToken();
+        break;
       default:
-        tokenizeContext.currentTagToken().appendToName(ch);
+        tokenizeContext.currentTagToken().appendToName(ASCIIUtil.toLower(ch));
         break;
     }
   }
