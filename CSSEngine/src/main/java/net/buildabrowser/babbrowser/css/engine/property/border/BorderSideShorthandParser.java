@@ -18,26 +18,26 @@ public class BorderSideShorthandParser implements PropertyValueParser {
   private static final CSSFailure EXPECTED_EOF = new CSSFailure("Expected an EOF token");
 
   private static final PropertyValueParser widthParser = new BorderSizeParser(null)::parseInternal;
-  private static final PropertyValueParser styleParser = new BorderStyleParser(null)::parseInternal;
   private static final PropertyValueParser colorParser = new ColorBaseParser();
+  private static final PropertyValueParser styleParser = new BorderStyleParser(null)::parseInternal;
 
   private final CSSProperty relatedProperty;
   private final CSSProperty widthProperty;
-  private final CSSProperty styleProperty;
   private final CSSProperty colorProperty;
+  private final CSSProperty styleProperty;
 
   public BorderSideShorthandParser(
-    CSSProperty relatedProperty, CSSProperty widthProperty, CSSProperty styleProperty, CSSProperty colorProperty
+    CSSProperty relatedProperty, CSSProperty widthProperty, CSSProperty colorProperty, CSSProperty styleProperty
   ) {
     this.relatedProperty = relatedProperty;
     this.widthProperty = widthProperty;
-    this.styleProperty = styleProperty;
     this.colorProperty = colorProperty;
+    this.styleProperty = styleProperty;
   }
 
   @Override
   public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
-    CSSValue result = PropertyValueParserUtil.parseAnyOrder(stream, widthParser, styleParser, colorParser);
+    CSSValue result = PropertyValueParserUtil.parseAnyOrder(stream, widthParser, colorParser, styleParser);
     if (result.isFailure()) return result;
 
     if (!(stream.peek() instanceof EOFToken)) {
@@ -46,8 +46,8 @@ public class BorderSideShorthandParser implements PropertyValueParser {
 
     CSSValue[] components = ((AnyOrderResult) result).values();
     if (components[0] != null) activeStyles.setProperty(widthProperty, components[0]);
-    if (components[1] != null) activeStyles.setProperty(styleProperty, components[1]);
-    if (components[2] != null) activeStyles.setProperty(colorProperty, components[2]);
+    if (components[1] != null) activeStyles.setProperty(colorProperty, components[1]);
+    if (components[2] != null) activeStyles.setProperty(styleProperty, components[2]);
     
     return new BorderCompositeValue(components[0], components[1], components[2]);
   }

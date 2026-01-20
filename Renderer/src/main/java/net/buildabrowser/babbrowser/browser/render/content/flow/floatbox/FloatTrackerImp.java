@@ -165,7 +165,7 @@ public class FloatTrackerImp implements FloatTracker {
       int leftOffset = lastValidInlinePos(leftFragIt, currentSearchBlockPos, 0, nextSearchBlockPos);
       int rightOffset = lastValidInlinePos(rightFragIt, currentSearchBlockPos, lineConstraint.value(), nextSearchBlockPos);
       if (
-        rightOffset - leftOffset > minWidth
+        rightOffset - leftOffset >= minWidth
         || (leftOffset == 0 && rightOffset == lineConstraint.value())
       ) {
         outParams[0] = leftOffset;
