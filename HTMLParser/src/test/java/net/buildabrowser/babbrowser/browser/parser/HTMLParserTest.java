@@ -161,6 +161,16 @@ public class HTMLParserTest {
       document);
   }
 
+  @Test
+  @DisplayName("Can parse document with self-closing meta tag")
+  public void canParseDocumentWithSelfClosingMetaTag() throws IOException {
+    Document document = htmlParser.parse(new StringReader("<meta/>"));
+    assertTreeMatches(
+      testDocumentToHead(
+        testElement("meta")),
+      document);
+  }
+
   // TODO: Eventually, add a proper doctype node
   @Test
   @DisplayName("Can parse document with simple doctype")

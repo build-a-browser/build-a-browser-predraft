@@ -58,6 +58,16 @@ public class InHeadInsertionMode implements InsertionMode {
     switch (tagToken.name()) {
       case "html":
         return InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
+      case "base", "basefont", "bgsound", "link":
+        ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
+        parseContext.openElementStack().popNode();
+        // TODO: Acknowledge self-closing flag
+        return false;
+      case "meta":
+        ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
+        parseContext.openElementStack().popNode();
+        // TODO: Change the encoding for a charset
+        return false;
       case "title":
         ParseElementUtil.startGenericRCDataElementParsingAlgorithm(parseContext, tagToken);
         return false;
