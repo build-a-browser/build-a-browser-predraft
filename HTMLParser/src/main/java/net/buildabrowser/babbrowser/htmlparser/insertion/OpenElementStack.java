@@ -13,6 +13,8 @@ public interface OpenElementStack {
 
   MutableNode popNode();
 
+  void removeSpecificNode(MutableNode node);
+
   int size();
 
   static OpenElementStack create() {

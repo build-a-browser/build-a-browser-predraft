@@ -103,7 +103,7 @@ public class TokenizeContextImp implements TokenizeContext {
   @Override
   public void flushCodePointsConsumedAsACharacterReference(ParseContext parseContext) {
     String valueToFlush = temporaryBuffer.get();
-    if (returnState.equals(TokenizeStates.dataState)) {
+    if (returnState.equals(TokenizeStates.dataState) || returnState.equals(TokenizeStates.rcdataState)) {
       for (int i = 0; i < valueToFlush.length(); i++) {
         parseContext.emitCharacterToken(valueToFlush.codePointAt(i));
       }

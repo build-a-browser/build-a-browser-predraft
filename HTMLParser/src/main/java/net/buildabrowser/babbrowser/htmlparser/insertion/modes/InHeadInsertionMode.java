@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
+import net.buildabrowser.babbrowser.dom.Namespace;
 import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
 import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
@@ -11,6 +12,7 @@ import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
 import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
 public class InHeadInsertionMode implements InsertionMode {
 
@@ -54,7 +56,6 @@ public class InHeadInsertionMode implements InsertionMode {
   private boolean emitStartTagToken(ParseContext parseContext, TagToken tagToken) {
     // TODO: More start tag cases
     switch (tagToken.name()) {
-      // Include "title" in this step?
       case "html":
         return InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
       case "title":
@@ -62,6 +63,16 @@ public class InHeadInsertionMode implements InsertionMode {
         return false;
       case "noframes", "style":
         ParseElementUtil.startGenericRawTextElementParsingAlgorithm(parseContext, tagToken);
+        return false;
+      case "script":
+        MutableNode adjustedInsertionLocation = ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, null);
+        MutableNode newEl = ParseElementUtil.createAnElementForAToken(tagToken, Namespace.HTML_NAMESPACE, adjustedInsertionLocation);
+        // TODO: JS stuff...
+        adjustedInsertionLocation.appendChild(newEl);
+        parseContext.openElementStack().pushNode(newEl);
+        parseContext.tokenizeContext().setTokenizeState(TokenizeStates.scriptDataState);
+        parseContext.setOriginalInsertionMode(this);
+        parseContext.setInsertionMode(InsertionModes.textInsertionMode);
         return false;
       case "head":
         parseContext.parseError();

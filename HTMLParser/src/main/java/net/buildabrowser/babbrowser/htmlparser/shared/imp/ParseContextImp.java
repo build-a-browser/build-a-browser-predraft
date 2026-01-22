@@ -20,7 +20,6 @@ public class ParseContextImp implements ParseContext {
 
   private InsertionMode currentInsertionMode;
   private InsertionMode originalInsertionMode;
-  @SuppressWarnings("unused")
   private MutableElement headElementPointer;
 
   private TagToken lastTagToken;
@@ -115,6 +114,11 @@ public class ParseContextImp implements ParseContext {
   @Override
   public void setTheHeadElementPointer(MutableElement element) {
     this.headElementPointer = element;
+  }
+
+  @Override
+  public MutableElement headElementPointer() {
+    return this.headElementPointer;
   }
 
   @Override

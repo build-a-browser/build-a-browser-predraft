@@ -41,6 +41,8 @@ public interface ParseContext {
 
   void setTheHeadElementPointer(MutableElement element);
 
+  MutableElement headElementPointer();
+
   void setFramesetOk(boolean b);
 
   void stopParsing();

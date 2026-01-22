@@ -52,7 +52,11 @@ public class AfterHeadInsertionMode implements InsertionMode {
   private boolean emitStartTagToken(ParseContext parseContext, TagToken tagToken) {
     switch (tagToken.name()) {
       case "title", "base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template":
-        return false; // TODO: Real implementation
+        parseContext.parseError();
+        parseContext.openElementStack().pushNode(parseContext.headElementPointer());
+        InsertionModes.inHeadInsertionMode.emitTagToken(parseContext, tagToken);
+        parseContext.openElementStack().removeSpecificNode(parseContext.headElementPointer());
+        return false;
       case "html":
         return InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
       case "body":

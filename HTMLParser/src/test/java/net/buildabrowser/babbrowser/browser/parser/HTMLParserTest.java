@@ -117,6 +117,50 @@ public class HTMLParserTest {
     Assertions.assertEquals(1, document.styleSheets().length());
   }
 
+  @Test
+  @DisplayName("Can parse document with rcdata element")
+  public void canParseDocumentWithRcdataElement() throws IOException {
+    Document document = htmlParser.parse(new StringReader("<title>Less &lt; Test</title>"));
+    assertTreeMatches(
+      testDocumentToHead(
+        testElement("title",
+          testText("Less < Test"))),
+      document);
+  }
+
+  @Test
+  @DisplayName("Can parse document with script element")
+  public void canParseDocumentWithScriptElement() throws IOException {
+    Document document = htmlParser.parse(new StringReader("<script>let x = a < b</script>"));
+    assertTreeMatches(
+      testDocumentToHead(
+        testElement("script",
+          testText("let x = a < b"))),
+      document);
+  }
+
+  @Test
+  @DisplayName("Can parse document with script escaped element")
+  public void canParseDocumentWithScriptEscapedElement() throws IOException {
+    Document document = htmlParser.parse(new StringReader("<script><!--let x = a < b--></script>"));
+    assertTreeMatches(
+      testDocumentToHead(
+        testElement("script",
+          testText("<!--let x = a < b-->"))),
+      document);
+  }
+
+  @Test
+  @DisplayName("Can parse document with script escaped element")
+  public void canParseDocumentWithScriptDoubleEscapedElement() throws IOException {
+    Document document = htmlParser.parse(new StringReader("<script><!--<script>let x = a < b</script>--></script>"));
+    assertTreeMatches(
+      testDocumentToHead(
+        testElement("script",
+          testText("<!--<script>let x = a < b</script>-->"))),
+      document);
+  }
+
   // TODO: Eventually, add a proper doctype node
   @Test
   @DisplayName("Can parse document with simple doctype")

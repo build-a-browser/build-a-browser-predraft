@@ -38,6 +38,11 @@ public class OpenElementStackImp implements OpenElementStack {
   }
 
   @Override
+  public void removeSpecificNode(MutableNode node) {
+    stack.remove(node);
+  }
+
+  @Override
   public int size() {
     return stack.size();
   }
