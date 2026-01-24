@@ -82,6 +82,14 @@ public final class ActiveStylesGenerator {
     "border-right", new BorderSideShorthandParser(CSSProperty.BORDER_RIGHT, CSSProperty.BORDER_RIGHT_WIDTH, CSSProperty.BORDER_RIGHT_COLOR, CSSProperty.BORDER_RIGHT_STYLE),
     "border", new BorderShorthandParser(),
 
+    "margin-top", SizeParser.forMargin(CSSProperty.MARGIN_TOP),
+    "margin-bottom", SizeParser.forMargin(CSSProperty.MARGIN_BOTTOM),
+    "margin-left", SizeParser.forMargin(CSSProperty.MARGIN_LEFT),
+    "margin-right", SizeParser.forMargin(CSSProperty.MARGIN_RIGHT),
+    "margin", new ManySideShorthandParser(new SizeParser(false, true, null)::parseInternal,
+      new CSSProperty[] { CSSProperty.MARGIN_TOP, CSSProperty.MARGIN_RIGHT, CSSProperty.MARGIN_BOTTOM, CSSProperty.MARGIN_LEFT },
+      CSSProperty.MARGIN),
+
     "white-space-collapse", new WhitespaceCollapseValueParser(),
     "text-wrap-mode", new TextWrapModeParser()
   );

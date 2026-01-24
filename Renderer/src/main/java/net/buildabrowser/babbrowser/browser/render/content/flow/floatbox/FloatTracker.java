@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.browser.render.content.flow.floatbox;
 
 import java.util.List;
 
+import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 
@@ -9,10 +10,10 @@ public interface FloatTracker {
   
   // Boolean return - if we have a non-0 reservedWidth, it could be hard to determine where the next line is
   // so just let the caller handle it for now
-  boolean addLineStartFloat(FlowFragment box, LayoutConstraint lineConstraint, int reservedWidth);
+  boolean addLineStartFloat(FlowBoxFragment box, LayoutConstraint lineConstraint, int reservedWidth);
 
   // Line constraint is a hacky way to determine where the box will start
-  boolean addLineEndFloat(FlowFragment box, LayoutConstraint lineConstraint, int reservedWidth);
+  boolean addLineEndFloat(FlowBoxFragment box, LayoutConstraint lineConstraint, int reservedWidth);
 
   int clearedLineStartPosition();
 

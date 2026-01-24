@@ -1,11 +1,9 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
@@ -23,18 +21,17 @@ public final class FloatLayout {
     LayoutConstraint parentHeightConstraint
   ) {
     // TODO: Check height calculation
-    ActiveStyles childStyles = childBox.activeStyles();
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
-      FlowWidthUtil.determineBlockReplacedWidth(
-        layoutContext, parentWidthConstraint, childStyles, childBox.dimensions()) :
-      determineNonReplacedWidth(
-        layoutContext, parentWidthConstraint, childStyles, childBox.dimensions());
+      FlowWidthUtil.determineBlockReplacedWidthAndMargins(
+        layoutContext, parentWidthConstraint, childBox) :
+      FlowWidthUtil.determineFloatNonReplacedWidthAndMargins(
+        layoutContext, parentWidthConstraint, childBox);
     LayoutConstraint childHeightContraint = childBox.isReplaced() ?
-      FlowHeightUtil.evaluateReplacedBlockHeight(
-        layoutContext, parentHeightConstraint, childWidthConstraint,
-        childStyles, childBox.dimensions()) :
-      FlowHeightUtil.evaluateNonReplacedBlockLevelHeight(
-        layoutContext, parentHeightConstraint, childStyles);
+      FlowHeightUtil.evaluateReplacedBlockHeightAndMargins(
+        layoutContext, parentHeightConstraint, parentWidthConstraint,
+        childWidthConstraint, childBox) :
+      FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
+        layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
 
     if (!parentWidthConstraint.isPreLayoutConstraint()) {
       childBox.content().layout(layoutContext, childWidthConstraint, childHeightContraint);
@@ -61,29 +58,6 @@ public final class FloatLayout {
       case FloatValue.RIGHT -> floatTracker.addLineEndFloat(floatFragment, parentWidthConstraint, reservedWidth);
       default -> throw new UnsupportedOperationException("Unrecognized float type!");
     };
-  }
-
-  private static LayoutConstraint determineNonReplacedWidth(
-    LayoutContext layoutContext,
-    LayoutConstraint parentWidthConstraint,
-    ActiveStyles childStyles,
-    ElementBoxDimensions dimensions
-  ) {
-    if (parentWidthConstraint.isPreLayoutConstraint()) {
-      return parentWidthConstraint;
-    }
-
-    LayoutConstraint baseWidth = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentWidthConstraint, childStyles.getProperty(CSSProperty.WIDTH));
-    
-    if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
-      return baseWidth;
-    }
-
-    return LayoutConstraint.of(Math.min(
-      // TODO: Account for margins
-      Math.max(dimensions.preferredMinWidthConstraint(), parentWidthConstraint.value()),
-      dimensions.preferredWidthConstraint()));
   }
 
 }

@@ -39,7 +39,7 @@ public final class FlowBorderUtil {
       return 0;
     }
     LayoutConstraint constraint = FlowWidthUtil.evaluateBaseSize(layoutContext, referenceConstraint, property);
-    return constraint.isPreLayoutConstraint() ? 0 : constraint.value();
+    return constraint.isPreLayoutConstraint() ? 0 : Math.max(0, constraint.value());
   }
 
 }

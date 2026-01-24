@@ -13,15 +13,27 @@ public class BlockFormattingContext {
 
   private final ElementBox elementBox;
   private final LayoutConstraint innerWidthConstraint;
+  private final FlowRootContent rootContent;
 
   private final List<FlowFragment> fragments;
 
   private int width;
   private int y;
 
-  public BlockFormattingContext(ElementBox elementBox, LayoutConstraint innerWidthConstraint) {
+  private BlockFormattingContext collapseContext;
+  private int maxMargin = 0;
+  private int minMargin = 0;
+
+  public BlockFormattingContext(
+    ElementBox elementBox,
+    LayoutConstraint innerWidthConstraint,
+    FlowRootContent rootContent,
+    BlockFormattingContext collapseContext
+  ) {
     this.elementBox = elementBox;
     this.innerWidthConstraint = innerWidthConstraint;
+    this.rootContent = rootContent;
+    this.collapseContext = collapseContext;
 
     this.fragments = new ArrayList<>();
   }
@@ -36,6 +48,41 @@ public class BlockFormattingContext {
 
   public void minWidth(int minWidth) {
     this.width = Math.max(width, minWidth);
+  }
+
+  public void recordMargin(int margin) {
+    if (this.collapseContext != null) {
+      collapseContext.recordMargin(margin);
+      return;
+    }
+
+    if (margin > 0) {
+      maxMargin = Math.max(maxMargin, margin);
+    } else {
+      minMargin = Math.min(minMargin, margin);
+    }
+  }
+
+  public void collapse() {
+    if (collapseContext != null) {
+      collapseContext.collapse();
+      this.collapseContext = null;
+      return;
+    }
+
+    int amount = maxMargin + minMargin;
+    rootContent.floatTracker().adjustPos(0, amount);
+    increaseY(amount);
+    this.maxMargin = 0;
+    this.minMargin = 0;
+  }
+
+  public int currentMaxMargin() {
+    return this.maxMargin;
+  }
+
+  public int currentMinMargin() {
+    return this.minMargin;
   }
 
   public void addFragment(FlowFragment newFragment) {

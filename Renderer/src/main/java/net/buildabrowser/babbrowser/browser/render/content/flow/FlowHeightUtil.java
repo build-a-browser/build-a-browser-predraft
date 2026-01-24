@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
+import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
@@ -11,51 +12,75 @@ public final class FlowHeightUtil {
   
   private FlowHeightUtil() {}
 
-  public static LayoutConstraint evaluateReplacedBlockHeight(
+  public static LayoutConstraint evaluateReplacedBlockHeightAndMargins(
     LayoutContext layoutContext,
-    LayoutConstraint parentConstraint,
-    LayoutConstraint widthConstraint,
-    ActiveStyles childStyles,
-    ElementBoxDimensions dimensions
+    LayoutConstraint parentHeightConstraint,
+    LayoutConstraint parentWidthConstraint,
+    LayoutConstraint childWidthConstraint,
+    ElementBox childBox
   ) {
-    if (parentConstraint.isPreLayoutConstraint() || widthConstraint.isPreLayoutConstraint()) {
-      return parentConstraint;
+    computeVerticalMarginsOrZero(layoutContext, childBox, parentWidthConstraint);
+
+    if (parentHeightConstraint.isPreLayoutConstraint() || childWidthConstraint.isPreLayoutConstraint()) {
+      return parentHeightConstraint;
     }
 
-    LayoutConstraint determinedWidthConstraint = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentConstraint, childStyles.getProperty(CSSProperty.WIDTH));
     LayoutConstraint determinedHeightConstraint = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentConstraint, childStyles.getProperty(CSSProperty.HEIGHT));
+      layoutContext, parentHeightConstraint, childBox.activeStyles().getProperty(CSSProperty.HEIGHT));
     
     boolean isHeightAuto = determinedHeightConstraint.type().equals(LayoutConstraintType.AUTO);
+    ElementBoxDimensions boxDimensions = childBox.dimensions();
     if (
-      determinedWidthConstraint.type().equals(LayoutConstraintType.AUTO)
+      childWidthConstraint.type().equals(LayoutConstraintType.AUTO)
       && isHeightAuto
-      && dimensions.intrinsicHeight() != -1
+      && boxDimensions.intrinsicHeight() != -1
     ) {
-      return LayoutConstraint.of(dimensions.intrinsicHeight());
-    } else if (isHeightAuto && dimensions.intrinsicRatio() != -1) {
-      return LayoutConstraint.of((int) (widthConstraint.value() / dimensions.intrinsicRatio())); 
-    } else if (isHeightAuto && dimensions.intrinsicHeight() != -1) {
-      return LayoutConstraint.of(dimensions.intrinsicHeight());
+      return LayoutConstraint.of(boxDimensions.intrinsicHeight());
+    } else if (isHeightAuto && boxDimensions.intrinsicRatio() != -1) {
+      return LayoutConstraint.of((int) (childWidthConstraint.value() / boxDimensions.intrinsicRatio())); 
+    } else if (isHeightAuto && boxDimensions.intrinsicHeight() != -1) {
+      return LayoutConstraint.of(boxDimensions.intrinsicHeight());
     } else if (isHeightAuto) {
       // TODO: Viewport width
-      return LayoutConstraint.of(Math.min(determinedWidthConstraint.value() / 2, 150));
+      return LayoutConstraint.of(Math.min(childWidthConstraint.value() / 2, 150));
     } else {
       return determinedHeightConstraint;
     }
   }
 
-  public static LayoutConstraint evaluateNonReplacedBlockLevelHeight(
+  public static LayoutConstraint evaluateNonReplacedBlockHeightAndMargins(
     LayoutContext layoutContext,
-    LayoutConstraint parentConstraint,
-    ActiveStyles childStyles
+    LayoutConstraint parentHeightConstraint,
+    LayoutConstraint parentWidthConstraint,
+    ElementBox childBox
   ) {
+    computeVerticalMarginsOrZero(layoutContext, childBox, parentWidthConstraint);
+
     // TODO: An actual proper implementation
+    ActiveStyles childStyles = childBox.activeStyles();
     LayoutConstraint determinedConstraint = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentConstraint, childStyles.getProperty(CSSProperty.HEIGHT));
+      layoutContext, parentHeightConstraint, childStyles.getProperty(CSSProperty.HEIGHT));
 
     return determinedConstraint;
+  }
+
+  public static void computeVerticalMarginsOrZero(
+    LayoutContext layoutContext,
+    ElementBox childBox,
+    LayoutConstraint parentWidthConstraint
+  ) {
+    ActiveStyles childStyles = childBox.activeStyles();
+    LayoutConstraint marginTopConstraint = FlowWidthUtil.evaluateBaseSize(
+      layoutContext, parentWidthConstraint, childStyles.getProperty(CSSProperty.MARGIN_TOP));
+    LayoutConstraint marginBottomConstraint = FlowWidthUtil.evaluateBaseSize(
+      layoutContext, parentWidthConstraint, childStyles.getProperty(CSSProperty.MARGIN_BOTTOM));
+
+    boolean isTopMarginSet = marginTopConstraint.type().equals(LayoutConstraintType.BOUNDED);
+    boolean isBottomMarginSet = marginBottomConstraint.type().equals(LayoutConstraintType.BOUNDED);
+    int usedTopMargin = isTopMarginSet ? marginTopConstraint.value() : 0;
+    int usedBottomMargin = isBottomMarginSet ? marginBottomConstraint.value() : 0;
+
+    childBox.dimensions().setComputedVerticalMargin(usedTopMargin, usedBottomMargin);
   }
 
 }

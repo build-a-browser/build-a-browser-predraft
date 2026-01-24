@@ -18,6 +18,16 @@ public abstract class FlowFragment {
     this.posY = y;
   }
 
+  public int marginX() {
+    assert this.posX != -1 : "Attempt to get unset X position!";
+    return this.posX;
+  }
+
+  public int marginY() {
+    assert this.posX != -1 : "Attempt to get unset Y position!";
+    return this.posY;
+  }
+
   public int borderX() {
     assert this.posX != -1 : "Attempt to get unset X position!";
     return this.posX;
@@ -34,6 +44,14 @@ public abstract class FlowFragment {
 
   public int contentY() {
     return borderY();
+  }
+
+  public int marginWidth() {
+    return this.width;
+  }
+
+  public int marginHeight() {
+    return this.height;
   }
 
   public int borderWidth() {

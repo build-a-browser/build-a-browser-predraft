@@ -37,7 +37,6 @@ public class TabGUI extends JPanel implements TabMutationEventListener {
   @Override
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
-    System.out.println(getWidth() + " " + getHeight());
   }
 
   public static TabGUI create(Tab tab) {

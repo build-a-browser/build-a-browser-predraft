@@ -13,7 +13,9 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStr
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
 public class SizeParser implements PropertyValueParser {
 
@@ -66,24 +68,22 @@ public class SizeParser implements PropertyValueParser {
   }
 
   public CSSValue parseInternal(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
+    Token token = stream.read();
     if (
       allowNone
-      && stream.peek() instanceof IdentToken identToken
+      && token instanceof IdentToken identToken
       && identToken.value().equals("none")
     ) {
-      stream.read();
       return CSSValue.NONE;
     } else if (
       allowAuto
-      && stream.peek() instanceof IdentToken identToken
+      && token instanceof IdentToken identToken
       && identToken.value().equals("auto")
     ) {
       return CSSValue.AUTO;
-    } else if (stream.peek() instanceof PercentageToken percentageToken && allowPercent) {
-      stream.read();
+    } else if (token instanceof PercentageToken percentageToken && allowPercent) {
       return PercentageValue.create(percentageToken.value());
-    } else if (stream.peek() instanceof DimensionToken dimensionToken) {
-      stream.read();
+    } else if (token instanceof DimensionToken dimensionToken) {
       LengthType lengthType = dimensionToken.dimension() == null ? null :
         LENGTH_TYPES.get(dimensionToken.dimension());
       if (lengthType == null && !dimensionToken.value().equals((Number) 0)) {
@@ -94,6 +94,12 @@ public class SizeParser implements PropertyValueParser {
         dimensionToken.value(),
         dimensionToken.isInteger(),
         lengthType);
+    } else if (
+      token instanceof NumberToken numberToken
+      && numberToken.isInteger()
+      && numberToken.value().intValue() == 0
+    ) {
+      return LengthValue.create(0, true, null);
     } else {
       return NO_VALID_RESULT;
     }

@@ -9,6 +9,7 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
 
   private int[] computedBorder = new int[] { 0, 0, 0, 0 };
   private int[] computedPadding = new int[] { 0, 0, 0, 0 };
+  private int[] computedMargin = new int[] { 0, 0, 0, 0 };
 
   private int preferredMinWidthConstraint = 0;
   private int preferredWidthConstraint = 0;
@@ -57,6 +58,23 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   @Override
   public int[] getComputedPadding() {
     return computedPadding;
+  }
+
+  @Override
+  public void setComputedVerticalMargin(int t, int b) {
+    computedMargin[0] = t;
+    computedMargin[1] = b;
+  }
+
+  @Override
+  public void setComputedHorizontalMargin(int l , int r) {
+    computedMargin[2] = l;
+    computedMargin[3] = r;
+  }
+
+  @Override
+  public int[] getComputedMargin() {
+    return this.computedMargin;
   }
 
   @Override

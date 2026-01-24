@@ -51,7 +51,13 @@ public enum CSSProperty {
   BORDER_LEFT(new CSSProperty[] { BORDER_LEFT_WIDTH, BORDER_LEFT_COLOR, BORDER_LEFT_STYLE }),
   BORDER_RIGHT(new CSSProperty[] { BORDER_RIGHT_WIDTH, BORDER_RIGHT_COLOR, BORDER_RIGHT_STYLE }),
 
-  BORDER(new CSSProperty[] { BORDER_TOP, BORDER_BOTTOM, BORDER_LEFT, BORDER_RIGHT });
+  BORDER(new CSSProperty[] { BORDER_TOP, BORDER_BOTTOM, BORDER_LEFT, BORDER_RIGHT }),
+  
+  MARGIN_TOP(nextId(), false, LengthValue.ZERO),
+  MARGIN_BOTTOM(nextId(), false, LengthValue.ZERO),
+  MARGIN_LEFT(nextId(), false, LengthValue.ZERO),
+  MARGIN_RIGHT(nextId(), false, LengthValue.ZERO),
+  MARGIN(new CSSProperty[] { MARGIN_TOP, MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT });
 
   private static int propertyId = 0;
 
@@ -98,7 +104,7 @@ public enum CSSProperty {
     // TODO: Why does propertyId seem to reset to 0?
     //   (I even tried it with volatile)
     // Manually update this for now
-    return 26;
+    return 30;
   }
 
   private static int nextId() {

@@ -43,4 +43,31 @@ public class FlowBoxFragment extends FlowFragment {
     return contentHeight() + border[0] + border[1] + padding[0] + padding[1];
   }
 
+  // Margin utilities, particularly helpful for out-of-flow elements
+  // WARNING: Does not account for margin collapsing
+
+  @Override
+  public int marginX() {
+    int[] margin = box.dimensions().getComputedMargin();
+    return borderX() - margin[2];
+  }
+
+  @Override
+  public int marginY() {
+    int[] margin = box.dimensions().getComputedMargin();
+    return borderY() - margin[0];
+  }
+
+  @Override
+  public int marginWidth() {
+    int[] margin = box.dimensions().getComputedMargin();
+    return borderWidth() + margin[2] + margin[3];
+  }
+
+  @Override
+  public int marginHeight() {
+    int[] margin = box.dimensions().getComputedMargin();
+    return borderHeight() + margin[0] + margin[1];
+  }
+
 }

@@ -7,7 +7,6 @@ import java.util.List;
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
-import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.ManagedBoxEntryMarker;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.ManagedBoxExitMarker;
@@ -20,7 +19,6 @@ import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.LineBox
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
@@ -62,8 +60,9 @@ public class FlowInlineLayout {
       stagingArea.pushStagedElement(new StagedText(textBox, textBox.text()));
     } else if (box instanceof ElementBox elementBox) {
       // Might get computed twice for outer box, doesn't really matter
-      FlowBorderUtil.computeBorder(layoutContext, elementBox, rootContent.blockLayout().activeContext());
-      FlowPaddingUtil.computePadding(layoutContext, elementBox, rootContent.blockLayout().activeContext());
+      BlockFormattingContext activeBlockContext = rootContent.blockLayout().activeContext();
+      FlowBorderUtil.computeBorder(layoutContext, elementBox, activeBlockContext);
+      FlowPaddingUtil.computePadding(layoutContext, elementBox, activeBlockContext);
       if (FlowUtil.isFloat(elementBox)) {
         stagingArea.pushStagedElement(new StagedFloatBox(elementBox));
       } else if (elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)) {
@@ -71,6 +70,7 @@ public class FlowInlineLayout {
       } else if (!FlowUtil.isInFlow(elementBox)) {
         stagingArea.pushStagedElement(new StagedUnmanagedBox(elementBox));
       } else {
+        FlowWidthUtil.computeHorizontalMarginsOrZero(layoutContext, activeBlockContext.innerWidthConstraint(), elementBox);
         stagingArea.pushStagedElement(new ManagedBoxEntryMarker(elementBox));
         for (Box childBox: elementBox.childBoxes()) {
           stageInline(layoutContext, childBox);
@@ -130,6 +130,7 @@ public class FlowInlineLayout {
     inlineStack.peek().nextLine();
     rootContent.blockLayout().addToBlock(
       layoutContext, elementBox, widthConstraint, heightConstraint);
+    rootContent.blockLayout().activeContext().collapse();
   }
 
   private void addUnmanagedBlockToInline(
@@ -138,18 +139,17 @@ public class FlowInlineLayout {
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint
   ) {
-    ActiveStyles childStyles = childBox.activeStyles();
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
-      FlowWidthUtil.determineBlockReplacedWidth(
-        layoutContext, parentWidthConstraint, childStyles, childBox.dimensions()) :
-      determineInlineBlockNonReplacedWidth(
-        layoutContext, parentWidthConstraint, childStyles, childBox.dimensions());
+      FlowWidthUtil.determineBlockReplacedWidthAndMargins(
+        layoutContext, parentWidthConstraint, childBox) :
+      FlowWidthUtil.determineInlineBlockNonReplacedWidthAndMargins(
+        layoutContext, parentWidthConstraint, childBox);
     LayoutConstraint childHeightContraint = childBox.isReplaced() ?
-      FlowHeightUtil.evaluateReplacedBlockHeight(
-        layoutContext, parentHeightConstraint, childWidthConstraint,
-        childStyles, childBox.dimensions()) :
-      FlowHeightUtil.evaluateNonReplacedBlockLevelHeight(
-        layoutContext, parentHeightConstraint, childStyles);
+      FlowHeightUtil.evaluateReplacedBlockHeightAndMargins(
+        layoutContext, parentHeightConstraint, parentWidthConstraint,
+        childWidthConstraint, childBox) :
+      FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
+        layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
 
     if (!parentWidthConstraint.isPreLayoutConstraint()) {
       childBox.content().layout(layoutContext, childWidthConstraint, childHeightContraint);
@@ -187,39 +187,16 @@ public class FlowInlineLayout {
   private void positionFragmentElements(List<FlowFragment> fragments) {
     int x = 0;
     for (FlowFragment child: fragments) {
-      child.setPos(x, 0);
-      x += child.borderWidth();
+      child.setPos(0, 0); // Cheat to disable unset X assertions for next line
+      int marginX = child.borderX() - child.marginX();
+      // TODO: Is this the correct way to compute vertical positioning?
+      int marginY = child.borderY() - child.marginY();
+      child.setPos(x + marginX, marginY);
+      x += child.marginWidth();
       if (child instanceof ManagedBoxFragment managedBoxFragment) {
         positionFragmentElements(managedBoxFragment.fragments());
       }
     }
-  }
-
-  private LayoutConstraint determineInlineBlockNonReplacedWidth(
-    LayoutContext layoutContext,
-    LayoutConstraint parentConstraint,
-    ActiveStyles childStyles,
-    ElementBoxDimensions boxDimensions
-  ) {
-    LayoutConstraint baseWidth = FlowWidthUtil.evaluateBaseSize(
-      layoutContext, parentConstraint, childStyles.getProperty(CSSProperty.WIDTH));
-    
-    if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
-      return baseWidth;
-    }
-
-    if (parentConstraint.isPreLayoutConstraint()) {
-      return parentConstraint;
-    }
-
-    int preferredMinWidth = boxDimensions.preferredMinWidthConstraint();
-    int preferredWidth = boxDimensions.preferredWidthConstraint();
-    int availableWidth = parentConstraint.value();
-    if (!parentConstraint.type().equals(LayoutConstraintType.BOUNDED)) {
-      return LayoutConstraint.of(preferredWidth);
-    }
-
-    return LayoutConstraint.of(Math.min(Math.max(preferredMinWidth, availableWidth), preferredWidth));
   }
 
 }

@@ -18,6 +18,12 @@ public interface ElementBoxDimensions {
 
   int[] getComputedPadding();
 
+  void setComputedVerticalMargin(int t, int b);
+
+  void setComputedHorizontalMargin(int l , int r);
+
+  int[] getComputedMargin();
+
   void setPreferredMinWidthConstraint(int w);
 
   void setPreferredWidthConstraint(int w);

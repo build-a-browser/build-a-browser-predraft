@@ -27,7 +27,7 @@ public class LineBox {
   private int totalWidth = 0;
   
   public void addFragment(FlowFragment flowFragment) {
-    this.totalWidth += flowFragment.borderWidth();
+    this.totalWidth += flowFragment.marginWidth();
     lineSegments.peek().fragments().add(flowFragment);
   }
 
@@ -38,6 +38,7 @@ public class LineBox {
 
   public void pushElement(ElementBox elementBox) {
     this.totalWidth +=
+      elementBox.dimensions().getComputedMargin()[2] +
       elementBox.dimensions().getComputedBorder()[2] +
       elementBox.dimensions().getComputedPadding()[2];
     lineSegments.push(new LineSegment(elementBox, new LinkedList<>()));
@@ -51,6 +52,7 @@ public class LineBox {
     lineSegments.peek().fragments().add(managedBoxFragment);
     
     this.totalWidth +=
+      lineSegment.box().dimensions().getComputedMargin()[3] +
       lineSegment.box().dimensions().getComputedBorder()[3] +
       lineSegment.box().dimensions().getComputedPadding()[3];
     return managedBoxFragment.box();
