@@ -13,6 +13,7 @@ public class BlockFormattingContext {
 
   private final ElementBox elementBox;
   private final LayoutConstraint innerWidthConstraint;
+  private final LayoutConstraint innerHeightConstraint;
   private final FlowRootContent rootContent;
 
   private final List<FlowFragment> fragments;
@@ -27,11 +28,13 @@ public class BlockFormattingContext {
   public BlockFormattingContext(
     ElementBox elementBox,
     LayoutConstraint innerWidthConstraint,
+    LayoutConstraint innerHeightConstraint,
     FlowRootContent rootContent,
     BlockFormattingContext collapseContext
   ) {
     this.elementBox = elementBox;
     this.innerWidthConstraint = innerWidthConstraint;
+    this.innerHeightConstraint = innerHeightConstraint;
     this.rootContent = rootContent;
     this.collapseContext = collapseContext;
 
@@ -91,6 +94,10 @@ public class BlockFormattingContext {
 
   public LayoutConstraint innerWidthConstraint() {
     return this.innerWidthConstraint;
+  }
+
+  public LayoutConstraint innerHeightConstraint() {
+    return this.innerHeightConstraint;
   }
 
   public ManagedBoxFragment close(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {

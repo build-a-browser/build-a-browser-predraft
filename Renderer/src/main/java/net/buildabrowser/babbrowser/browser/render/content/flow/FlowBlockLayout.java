@@ -29,8 +29,9 @@ public class FlowBlockLayout {
     this.rootContent = rootContent;
   }
 
-  public void reset(ElementBox rootBox, LayoutConstraint widthConstraint) {
-    this.rootContext = new BlockFormattingContext(rootBox, widthConstraint, rootContent, null);
+  public void reset(ElementBox rootBox, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
+    this.rootContext = new BlockFormattingContext(rootBox,
+      widthConstraint, heightConstraint, rootContent, null);
     blockStack.clear();
     blockStack.add(rootContext);
   }
@@ -58,6 +59,7 @@ public class FlowBlockLayout {
       if (childBox instanceof ElementBox elementBox) {
         FlowBorderUtil.computeBorder(layoutContext, elementBox, activeContext());
         FlowPaddingUtil.computePadding(layoutContext, elementBox, activeContext());
+        FlowPositionUtil.computeInsets(layoutContext, elementBox, widthConstraint, heightConstraint);
       }
       if (childBox instanceof ElementBox elementBox && FlowUtil.isFloat(elementBox) && !isInInline) {
         ackFloatClear(elementBox);
@@ -127,7 +129,8 @@ public class FlowBlockLayout {
       parentContext.collapse();
     }
     BlockFormattingContext collapseContext = collapseFirst ? null : parentContext;
-    BlockFormattingContext childContext = new BlockFormattingContext(childBox, childWidthConstraint, rootContent, collapseContext);
+    BlockFormattingContext childContext = new BlockFormattingContext(childBox,
+      childWidthConstraint, childHeightConstraint, rootContent, collapseContext);
     blockStack.push(childContext);
 
     addChildrenToBlock(layoutContext, childBox, childWidthConstraint, childHeightConstraint);

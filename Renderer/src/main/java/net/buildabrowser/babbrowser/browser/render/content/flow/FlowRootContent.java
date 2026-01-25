@@ -39,14 +39,14 @@ public class FlowRootContent implements BoxContent {
     ElementBoxDimensions dimensions = rootBox.dimensions();
 
     floatTracker.reset();
-    blockLayout.reset(rootBox, LayoutConstraint.MIN_CONTENT);
+    blockLayout.reset(rootBox, LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO);
     blockLayout.addChildrenToBlock(
       layoutContext, rootBox, LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO);
     dimensions.setPreferredMinWidthConstraint(
       blockLayout.close(LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).contentWidth());
 
     floatTracker.reset();
-    blockLayout.reset(rootBox, LayoutConstraint.MAX_CONTENT);
+    blockLayout.reset(rootBox, LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO);
     blockLayout.addChildrenToBlock(
       layoutContext, rootBox, LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO);
     dimensions.setPreferredWidthConstraint(
@@ -59,7 +59,7 @@ public class FlowRootContent implements BoxContent {
   ) {
     floatTracker.reset();
 
-    blockLayout.reset(rootBox, widthConstraint);
+    blockLayout.reset(rootBox, widthConstraint, heightConstraint);
     blockLayout.addChildrenToBlock(layoutContext, rootBox, widthConstraint, heightConstraint);
 
     this.rootFragment = blockLayout.close(widthConstraint, heightConstraint);

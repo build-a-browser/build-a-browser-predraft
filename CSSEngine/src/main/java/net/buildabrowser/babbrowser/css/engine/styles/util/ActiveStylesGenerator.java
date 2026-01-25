@@ -18,6 +18,7 @@ import net.buildabrowser.babbrowser.css.engine.property.color.ColorParser;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayParser;
 import net.buildabrowser.babbrowser.css.engine.property.floats.ClearParser;
 import net.buildabrowser.babbrowser.css.engine.property.floats.FloatParser;
+import net.buildabrowser.babbrowser.css.engine.property.position.PositionParser;
 import net.buildabrowser.babbrowser.css.engine.property.shared.ManySideShorthandParser;
 import net.buildabrowser.babbrowser.css.engine.property.size.SizeParser;
 import net.buildabrowser.babbrowser.css.engine.property.text.TextWrapModeParser;
@@ -89,6 +90,13 @@ public final class ActiveStylesGenerator {
     "margin", new ManySideShorthandParser(new SizeParser(false, true, null)::parseInternal,
       new CSSProperty[] { CSSProperty.MARGIN_TOP, CSSProperty.MARGIN_RIGHT, CSSProperty.MARGIN_BOTTOM, CSSProperty.MARGIN_LEFT },
       CSSProperty.MARGIN),
+    
+    "top", SizeParser.forInset(CSSProperty.TOP),
+    "bottom", SizeParser.forInset(CSSProperty.BOTTOM),
+    "left", SizeParser.forInset(CSSProperty.LEFT),
+    "right", SizeParser.forInset(CSSProperty.RIGHT),
+
+    "position", new PositionParser(),
 
     "white-space-collapse", new WhitespaceCollapseValueParser(),
     "text-wrap-mode", new TextWrapModeParser()

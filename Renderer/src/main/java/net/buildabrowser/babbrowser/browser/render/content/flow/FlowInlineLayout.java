@@ -63,6 +63,10 @@ public class FlowInlineLayout {
       BlockFormattingContext activeBlockContext = rootContent.blockLayout().activeContext();
       FlowBorderUtil.computeBorder(layoutContext, elementBox, activeBlockContext);
       FlowPaddingUtil.computePadding(layoutContext, elementBox, activeBlockContext);
+      FlowPositionUtil.computeInsets(
+        layoutContext, elementBox,
+        activeBlockContext.innerWidthConstraint(),
+        activeBlockContext.innerHeightConstraint());
       if (FlowUtil.isFloat(elementBox)) {
         stagingArea.pushStagedElement(new StagedFloatBox(elementBox));
       } else if (elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)) {

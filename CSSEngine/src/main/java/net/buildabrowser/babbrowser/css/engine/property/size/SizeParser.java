@@ -121,6 +121,10 @@ public class SizeParser implements PropertyValueParser {
     return new SizeParser(false, true, unit);
   }
 
+  public static SizeParser forInset(CSSProperty unit) {
+    return new SizeParser(false, true, unit);
+  }
+
   public static SizeParser forMin(CSSProperty unit) {
     return new SizeParser(false, false, unit);
   }

@@ -31,7 +31,9 @@ public final class FlowRootContentPainter {
   private static void paintBlockLevelBackgrounds(PaintCanvas canvas, ManagedBoxFragment fragment) {
     for (FlowFragment childFragment: fragment.fragments()) {
       canvas.pushPaint();
-      canvas.alterPaint(paint -> paint.incOffset(childFragment.borderX(), childFragment.borderY()));
+      canvas.alterPaint(paint -> paint.incOffset(
+        childFragment.borderX() + childFragment.paintOffsetX(),
+        childFragment.borderY() + childFragment.paintOffsetY()));
       switch (childFragment) {
         case ManagedBoxFragment managedFragment:
           paintBackgroundAndAdvance(canvas, managedFragment);
@@ -50,7 +52,9 @@ public final class FlowRootContentPainter {
   public static void paintFloats(PaintCanvas canvas, FloatTracker floatTracker) {
     for (FlowFragment childFragment: floatTracker.allFloats()) {
       canvas.pushPaint();
-      canvas.alterPaint(paint -> paint.incOffset(childFragment.borderX(), childFragment.borderY()));
+      canvas.alterPaint(paint -> paint.incOffset(
+        childFragment.borderX() + childFragment.paintOffsetX(),
+        childFragment.borderY() + childFragment.paintOffsetY()));
       paintBackgroundAndAdvance(canvas, (FlowBoxFragment) childFragment);
       paintFragment(canvas, childFragment);
       canvas.popPaint();
@@ -70,7 +74,9 @@ public final class FlowRootContentPainter {
     ElementBox parentBox = fragment.box();
     for (FlowFragment childFragment: fragment.fragments()) {
       canvas.pushPaint();
-      canvas.alterPaint(paint -> paint.incOffset(childFragment.contentX(), childFragment.contentY()));
+      canvas.alterPaint(paint -> paint.incOffset(
+        childFragment.contentX() + childFragment.paintOffsetX(),
+        childFragment.contentY() + childFragment.paintOffsetY()));
       canvas.alterPaint(paint -> paint.setColor(parentBox.activeStyles().textColor()));
       paintFragment(canvas, childFragment);
       canvas.popPaint();
@@ -93,7 +99,9 @@ public final class FlowRootContentPainter {
     ElementBox parentBox = fragment.box();
     for (FlowFragment childFragment: fragment.fragments()) {
       canvas.pushPaint();
-      canvas.alterPaint(paint -> paint.incOffset(childFragment.contentX(), childFragment.contentY()));
+      canvas.alterPaint(paint -> paint.incOffset(
+        childFragment.contentX() + childFragment.paintOffsetX(),
+        childFragment.contentY() + childFragment.paintOffsetY()));
       canvas.alterPaint(paint -> paint.setColor(parentBox.activeStyles().textColor()));
       paintInlineFragment(canvas, childFragment);
       canvas.popPaint();
@@ -112,7 +120,9 @@ public final class FlowRootContentPainter {
   private static void paintLineBoxFragment(PaintCanvas canvas, LineBoxFragment lineboxFragment) {
     for (FlowFragment fragment: lineboxFragment.fragments()) {
       canvas.pushPaint();
-      canvas.alterPaint(paint -> paint.incOffset(fragment.borderX(), fragment.borderY()));
+      canvas.alterPaint(paint -> paint.incOffset(
+        fragment.borderX() + fragment.paintOffsetX(),
+        fragment.borderY() + fragment.paintOffsetY()));
       paintInlineFragment(canvas, fragment);
       canvas.popPaint();
     }

@@ -4,6 +4,7 @@ import net.buildabrowser.babbrowser.css.engine.property.color.ColorValue.SRGBACo
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
 import net.buildabrowser.babbrowser.css.engine.property.text.TextWrapModeValue;
 import net.buildabrowser.babbrowser.css.engine.property.whitespace.WhitespaceCollapseValue;
@@ -57,7 +58,14 @@ public enum CSSProperty {
   MARGIN_BOTTOM(nextId(), false, LengthValue.ZERO),
   MARGIN_LEFT(nextId(), false, LengthValue.ZERO),
   MARGIN_RIGHT(nextId(), false, LengthValue.ZERO),
-  MARGIN(new CSSProperty[] { MARGIN_TOP, MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT });
+  MARGIN(new CSSProperty[] { MARGIN_TOP, MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT }),
+  
+  TOP(nextId(), false, CSSValue.AUTO),
+  BOTTOM(nextId(), false, CSSValue.AUTO),
+  LEFT(nextId(), false, CSSValue.AUTO),
+  RIGHT(nextId(), false, CSSValue.AUTO),
+  
+  POSITION(nextId(), false, PositionValue.STATIC);
 
   private static int propertyId = 0;
 
@@ -104,7 +112,7 @@ public enum CSSProperty {
     // TODO: Why does propertyId seem to reset to 0?
     //   (I even tried it with volatile)
     // Manually update this for now
-    return 30;
+    return 35;
   }
 
   private static int nextId() {
