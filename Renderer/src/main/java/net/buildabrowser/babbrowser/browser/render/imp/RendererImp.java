@@ -24,9 +24,11 @@ import net.buildabrowser.babbrowser.browser.render.box.BoxGenerator;
 import net.buildabrowser.babbrowser.browser.render.box.DocumentBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.imp.DocumentBoxImp;
+import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
+import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
 import net.buildabrowser.babbrowser.browser.render.paint.java2d.J2DFontMetrics;
 import net.buildabrowser.babbrowser.browser.render.paint.java2d.J2DPaintCanvas;
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
@@ -75,10 +77,14 @@ public class RendererImp implements Renderer {
           content.layout(layoutContext,
             LayoutConstraint.of(this.getWidth()),
             LayoutConstraint.of(this.getHeight()));
+          
+          CompositeLayer rootLayer = CompositeLayer.createRoot();
+          content.layer(rootLayer);
 
           g.setColor(new Color(0xFFFFFF, false));
           g.fillRect(0, 0, getWidth(), getHeight());
-          content.paint(new J2DPaintCanvas((Graphics2D) g));
+          PaintCanvas canvas = new J2DPaintCanvas((Graphics2D) g);
+          rootLayer.paint(canvas);
         }
       };
 

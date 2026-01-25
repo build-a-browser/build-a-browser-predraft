@@ -177,18 +177,20 @@ public class FlowBlockLayout {
       FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
         layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
 
-    activeContext().recordMargin(childBox.dimensions().getComputedMargin()[0]);
+    int[] margin = childBox.dimensions().getComputedMargin();
+
+    activeContext().recordMargin(margin[0]);
     activeContext().collapse();
     if (!parentWidthConstraint.isPreLayoutConstraint()) {
       childBox.content().layout(layoutContext, childWidthConstraint, childHeightConstraint);
     }
-    activeContext().recordMargin(childBox.dimensions().getComputedMargin()[1]);
+    activeContext().recordMargin(margin[1]);
 
     int width = FlowUtil.constraintWidth(childBox.dimensions(), childWidthConstraint);
     int height = FlowUtil.constraintHeight(childBox.dimensions(), childHeightConstraint);
 
     UnmanagedBoxFragment newFragment = new UnmanagedBoxFragment(width, height, childBox);
-    addFinishedFragment(newFragment, 0);
+    addFinishedFragment(newFragment, margin[2]);
   }
 
   public void addFinishedFragment(LayoutFragment newFragment, int posX) {

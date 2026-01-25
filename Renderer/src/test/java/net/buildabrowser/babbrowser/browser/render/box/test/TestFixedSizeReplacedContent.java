@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.browser.render.box.test;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
@@ -38,7 +39,17 @@ public class TestFixedSizeReplacedContent implements BoxContent {
   }
 
   @Override
+  public void layer(CompositeLayer layer) {
+    
+  }
+
+  @Override
   public void paint(PaintCanvas canvas) {
+    
+  }
+
+  @Override
+  public void paintBackground(PaintCanvas canvas) {
     
   }
 

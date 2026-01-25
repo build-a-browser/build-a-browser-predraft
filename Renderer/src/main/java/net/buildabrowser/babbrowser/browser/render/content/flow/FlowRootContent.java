@@ -4,6 +4,10 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
+import net.buildabrowser.babbrowser.browser.render.composite.LayerScannerUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
@@ -71,8 +75,22 @@ public class FlowRootContent implements BoxContent {
   }
 
   @Override
+  public void layer(CompositeLayer layer) {
+    for (LayoutFragment floatFragment: floatTracker.allFloats()) {
+      if (!LayerScannerUtil.startsLayer(floatFragment)) continue;
+      LayerScannerUtil.createLayerForBox(layer, new int[2], (BoxFragment) floatFragment);
+    }
+    LayerScannerUtil.scanLayers(layer, rootFragment);
+  }
+
+  @Override
   public void paint(PaintCanvas canvas) {
-    FlowRootContentPainter.paint(canvas, this, rootBox);
+    FlowRootContentPainter.paint(canvas, this, this.rootFragment);
+  }
+
+  @Override
+  public void paintBackground(PaintCanvas canvas) {
+    FlowRootContentPainter.paintBackground(canvas, this, rootFragment);
   }
 
   FlowBlockLayout blockLayout() {

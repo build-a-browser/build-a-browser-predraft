@@ -13,6 +13,7 @@ import net.buildabrowser.babbrowser.browser.render.box.Box.InvalidationLevel;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
@@ -66,6 +67,11 @@ public class ImageContent implements BoxContent {
   }
 
   @Override
+  public void layer(CompositeLayer layer) {
+    // No-op
+  }
+
+  @Override
   public void paint(PaintCanvas canvas) {
     canvas.alterPaint(paint -> paint.setColor(box.activeStyles().backgroundColor()));
     int width = box.dimensions().getComputedWidth();
@@ -80,6 +86,11 @@ public class ImageContent implements BoxContent {
 
     String alt = getImageAlt();
     canvas.drawText(0, 0, alt);
+  }
+
+  @Override
+  public void paintBackground(PaintCanvas canvas) {
+    // TODO: Implement
   }
 
   @Override
