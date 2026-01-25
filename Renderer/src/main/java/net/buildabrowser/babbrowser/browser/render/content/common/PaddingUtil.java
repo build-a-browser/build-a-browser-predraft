@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.browser.render.content.flow;
+package net.buildabrowser.babbrowser.browser.render.content.common;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
@@ -7,15 +7,14 @@ import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 
-public final class FlowPaddingUtil {
+public final class PaddingUtil {
   
-  private FlowPaddingUtil() {}
+  private PaddingUtil() {}
 
   public static void computePadding(
-    LayoutContext layoutContext, ElementBox childBox, BlockFormattingContext referenceContext
+    LayoutContext layoutContext, ElementBox childBox, LayoutConstraint referenceConstraint
   ) {
     ActiveStyles styles = childBox.activeStyles();
-    LayoutConstraint referenceConstraint = referenceContext.innerWidthConstraint(); // TODO: Adjust in some contexts
     int topPadding = computePadding(styles.getProperty(CSSProperty.PADDING_TOP), layoutContext, childBox, referenceConstraint);
     int bottomPadding = computePadding(styles.getProperty(CSSProperty.PADDING_BOTTOM), layoutContext, childBox, referenceConstraint);
     int leftPadding = computePadding(styles.getProperty(CSSProperty.PADDING_LEFT), layoutContext, childBox, referenceConstraint);
@@ -26,7 +25,7 @@ public final class FlowPaddingUtil {
   private static int computePadding(
     CSSValue property, LayoutContext layoutContext, ElementBox childBox, LayoutConstraint referenceConstraint
   ) {
-    LayoutConstraint constraint = FlowWidthUtil.evaluateBaseSize(layoutContext, referenceConstraint, property);
+    LayoutConstraint constraint = SizingUtil.evaluateBaseSize(layoutContext, referenceConstraint, property);
     return constraint.isPreLayoutConstraint() ? 0 : constraint.value();
   }
 

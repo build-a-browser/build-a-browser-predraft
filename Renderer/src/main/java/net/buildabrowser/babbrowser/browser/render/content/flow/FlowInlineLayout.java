@@ -8,16 +8,19 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
+import net.buildabrowser.babbrowser.browser.render.content.common.BorderUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.PaddingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.PositionUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.ManagedBoxEntryMarker;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.ManagedBoxExitMarker;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.StagedBlockLevelBox;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.StagedFloatBox;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.StagedText;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.StagedUnmanagedBox;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.LineBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
@@ -61,11 +64,12 @@ public class FlowInlineLayout {
     } else if (box instanceof ElementBox elementBox) {
       // Might get computed twice for outer box, doesn't really matter
       BlockFormattingContext activeBlockContext = rootContent.blockLayout().activeContext();
-      FlowBorderUtil.computeBorder(layoutContext, elementBox, activeBlockContext);
-      FlowPaddingUtil.computePadding(layoutContext, elementBox, activeBlockContext);
-      FlowPositionUtil.computeInsets(
+      LayoutConstraint widthConstraint = rootContent.blockLayout().activeContext().innerWidthConstraint();
+      BorderUtil.computeBorder(layoutContext, elementBox, widthConstraint);
+      PaddingUtil.computePadding(layoutContext, elementBox, widthConstraint);
+      PositionUtil.computeInsets(
         layoutContext, elementBox,
-        activeBlockContext.innerWidthConstraint(),
+        widthConstraint,
         activeBlockContext.innerHeightConstraint());
       if (FlowUtil.isFloat(elementBox)) {
         stagingArea.pushStagedElement(new StagedFloatBox(elementBox));
@@ -74,7 +78,7 @@ public class FlowInlineLayout {
       } else if (!FlowUtil.isInFlow(elementBox)) {
         stagingArea.pushStagedElement(new StagedUnmanagedBox(elementBox));
       } else {
-        FlowWidthUtil.computeHorizontalMarginsOrZero(layoutContext, activeBlockContext.innerWidthConstraint(), elementBox);
+        FlowWidthUtil.computeHorizontalMarginsOrZero(layoutContext, widthConstraint, elementBox);
         stagingArea.pushStagedElement(new ManagedBoxEntryMarker(elementBox));
         for (Box childBox: elementBox.childBoxes()) {
           stageInline(layoutContext, childBox);
@@ -188,9 +192,9 @@ public class FlowInlineLayout {
     rootContent.blockLayout().addFinishedFragment(fragment, offsetX);
   }
 
-  private void positionFragmentElements(List<FlowFragment> fragments) {
+  private void positionFragmentElements(List<LayoutFragment> fragments) {
     int x = 0;
-    for (FlowFragment child: fragments) {
+    for (LayoutFragment child: fragments) {
       child.setPos(0, 0); // Cheat to disable unset X assertions for next line
       int marginX = child.borderX() - child.marginX();
       // TODO: Is this the correct way to compute vertical positioning?

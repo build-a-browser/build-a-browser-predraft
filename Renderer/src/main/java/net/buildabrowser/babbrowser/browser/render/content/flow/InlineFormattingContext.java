@@ -4,8 +4,8 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 
@@ -43,7 +43,7 @@ public class InlineFormattingContext {
     return this.stagingArea;
   }
 
-  public void addFragment(FlowFragment flowFragment) {
+  public void addFragment(LayoutFragment flowFragment) {
     activeLineBox.addFragment(flowFragment);
   }
 

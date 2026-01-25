@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.browser.render.content.flow;
+package net.buildabrowser.babbrowser.browser.render.content.common;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
@@ -8,7 +8,7 @@ import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 
-public final class FlowPositionUtil {
+public final class PositionUtil {
   
   public static void computeInsets(
     LayoutContext layoutContext,
@@ -45,8 +45,8 @@ public final class FlowPositionUtil {
     ElementBox childBox,
     LayoutConstraint referenceConstraint
   ) {
-    LayoutConstraint startConstraint = FlowWidthUtil.evaluateBaseSize(layoutContext, referenceConstraint, startProperty);
-    LayoutConstraint endConstraint = FlowWidthUtil.evaluateBaseSize(layoutContext, referenceConstraint, endProperty);
+    LayoutConstraint startConstraint = SizingUtil.evaluateBaseSize(layoutContext, referenceConstraint, startProperty);
+    LayoutConstraint endConstraint = SizingUtil.evaluateBaseSize(layoutContext, referenceConstraint, endProperty);
     
     boolean startConstraintIsAuto = startConstraint.equals(LayoutConstraint.AUTO);
     boolean endConstraintIsAuto = endConstraint.equals(LayoutConstraint.AUTO);

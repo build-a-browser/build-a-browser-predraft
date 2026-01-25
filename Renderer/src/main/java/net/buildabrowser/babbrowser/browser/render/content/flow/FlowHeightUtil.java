@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.browser.render.content.flow;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
@@ -25,7 +26,7 @@ public final class FlowHeightUtil {
       return parentHeightConstraint;
     }
 
-    LayoutConstraint determinedHeightConstraint = FlowWidthUtil.evaluateBaseSize(
+    LayoutConstraint determinedHeightConstraint = SizingUtil.evaluateBaseSize(
       layoutContext, parentHeightConstraint, childBox.activeStyles().getProperty(CSSProperty.HEIGHT));
     
     boolean isHeightAuto = determinedHeightConstraint.type().equals(LayoutConstraintType.AUTO);
@@ -58,7 +59,7 @@ public final class FlowHeightUtil {
 
     // TODO: An actual proper implementation
     ActiveStyles childStyles = childBox.activeStyles();
-    LayoutConstraint determinedConstraint = FlowWidthUtil.evaluateBaseSize(
+    LayoutConstraint determinedConstraint = SizingUtil.evaluateBaseSize(
       layoutContext, parentHeightConstraint, childStyles.getProperty(CSSProperty.HEIGHT));
 
     return determinedConstraint;
@@ -70,9 +71,9 @@ public final class FlowHeightUtil {
     LayoutConstraint parentWidthConstraint
   ) {
     ActiveStyles childStyles = childBox.activeStyles();
-    LayoutConstraint marginTopConstraint = FlowWidthUtil.evaluateBaseSize(
+    LayoutConstraint marginTopConstraint = SizingUtil.evaluateBaseSize(
       layoutContext, parentWidthConstraint, childStyles.getProperty(CSSProperty.MARGIN_TOP));
-    LayoutConstraint marginBottomConstraint = FlowWidthUtil.evaluateBaseSize(
+    LayoutConstraint marginBottomConstraint = SizingUtil.evaluateBaseSize(
       layoutContext, parentWidthConstraint, childStyles.getProperty(CSSProperty.MARGIN_BOTTOM));
 
     boolean isTopMarginSet = marginTopConstraint.type().equals(LayoutConstraintType.BOUNDED);

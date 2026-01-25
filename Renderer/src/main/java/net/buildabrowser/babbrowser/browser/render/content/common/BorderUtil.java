@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.browser.render.content.flow;
+package net.buildabrowser.babbrowser.browser.render.content.common;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
@@ -8,15 +8,14 @@ import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.border.BorderStyleValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 
-public final class FlowBorderUtil {
+public final class BorderUtil {
   
-  private FlowBorderUtil() {}
+  private BorderUtil() {}
 
   public static void computeBorder(
-    LayoutContext layoutContext, ElementBox childBox, BlockFormattingContext referenceContext
+    LayoutContext layoutContext, ElementBox childBox, LayoutConstraint referenceConstraint
   ) {
     ActiveStyles styles = childBox.activeStyles();
-    LayoutConstraint referenceConstraint = referenceContext.innerWidthConstraint(); // TODO: Adjust in some contexts
     int topBorder = computeBorder(
       styles.getProperty(CSSProperty.BORDER_TOP_WIDTH), styles.getProperty(CSSProperty.BORDER_TOP_STYLE),
       layoutContext, childBox, referenceConstraint);
@@ -33,12 +32,16 @@ public final class FlowBorderUtil {
   }
 
   private static int computeBorder(
-    CSSValue property, CSSValue styleProperty, LayoutContext layoutContext, ElementBox childBox, LayoutConstraint referenceConstraint
+    CSSValue property,
+    CSSValue styleProperty,
+    LayoutContext layoutContext,
+    ElementBox childBox,
+    LayoutConstraint referenceConstraint
   ) {
     if (styleProperty.equals(CSSValue.NONE) || styleProperty.equals(BorderStyleValue.HIDDEN)) {
       return 0;
     }
-    LayoutConstraint constraint = FlowWidthUtil.evaluateBaseSize(layoutContext, referenceConstraint, property);
+    LayoutConstraint constraint = SizingUtil.evaluateBaseSize(layoutContext, referenceConstraint, property);
     return constraint.isPreLayoutConstraint() ? 0 : Math.max(0, constraint.value());
   }
 

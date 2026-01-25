@@ -1,6 +1,6 @@
-package net.buildabrowser.babbrowser.browser.render.content.flow.fragment;
+package net.buildabrowser.babbrowser.browser.render.content.common.fragment;
 
-public abstract class FlowFragment {
+public abstract class LayoutFragment {
   
   private final int width;
   private final int height;
@@ -8,7 +8,7 @@ public abstract class FlowFragment {
   private int posX = -1;
   private int posY = -1;
 
-  public FlowFragment(int width, int height) {
+  public LayoutFragment(int width, int height) {
     this.width = width;
     this.height = height;
   }

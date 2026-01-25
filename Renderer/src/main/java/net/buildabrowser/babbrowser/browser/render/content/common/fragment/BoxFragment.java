@@ -1,14 +1,14 @@
-package net.buildabrowser.babbrowser.browser.render.content.flow.fragment;
+package net.buildabrowser.babbrowser.browser.render.content.common.fragment;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
 
-public class FlowBoxFragment extends FlowFragment {
+public class BoxFragment extends LayoutFragment {
   
   private final ElementBox box;
 
-  public FlowBoxFragment(int width, int height, ElementBox box) {
+  public BoxFragment(int width, int height, ElementBox box) {
     super(width, height);
     this.box = box;
   }

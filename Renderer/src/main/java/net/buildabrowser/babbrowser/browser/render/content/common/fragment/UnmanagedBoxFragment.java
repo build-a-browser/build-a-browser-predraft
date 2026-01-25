@@ -1,8 +1,8 @@
-package net.buildabrowser.babbrowser.browser.render.content.flow.fragment;
+package net.buildabrowser.babbrowser.browser.render.content.common.fragment;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 
-public class UnmanagedBoxFragment extends FlowBoxFragment {
+public class UnmanagedBoxFragment extends BoxFragment {
 
   public UnmanagedBoxFragment(int width, int height, ElementBox box) {
     super(width, height, box);

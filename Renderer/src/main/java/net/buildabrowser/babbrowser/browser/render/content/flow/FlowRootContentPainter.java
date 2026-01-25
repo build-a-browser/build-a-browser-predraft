@@ -1,13 +1,13 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.LineBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.TextFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
 
 public final class FlowRootContentPainter {
@@ -29,7 +29,7 @@ public final class FlowRootContentPainter {
   }
 
   private static void paintBlockLevelBackgrounds(PaintCanvas canvas, ManagedBoxFragment fragment) {
-    for (FlowFragment childFragment: fragment.fragments()) {
+    for (LayoutFragment childFragment: fragment.fragments()) {
       canvas.pushPaint();
       canvas.alterPaint(paint -> paint.incOffset(
         childFragment.borderX() + childFragment.paintOffsetX(),
@@ -50,18 +50,18 @@ public final class FlowRootContentPainter {
   }
 
   public static void paintFloats(PaintCanvas canvas, FloatTracker floatTracker) {
-    for (FlowFragment childFragment: floatTracker.allFloats()) {
+    for (LayoutFragment childFragment: floatTracker.allFloats()) {
       canvas.pushPaint();
       canvas.alterPaint(paint -> paint.incOffset(
         childFragment.borderX() + childFragment.paintOffsetX(),
         childFragment.borderY() + childFragment.paintOffsetY()));
-      paintBackgroundAndAdvance(canvas, (FlowBoxFragment) childFragment);
+      paintBackgroundAndAdvance(canvas, (BoxFragment) childFragment);
       paintFragment(canvas, childFragment);
       canvas.popPaint();
     }
   }
 
-  public static void paintFragment(PaintCanvas canvas, FlowFragment fragment) {
+  public static void paintFragment(PaintCanvas canvas, LayoutFragment fragment) {
     switch (fragment) {
       case ManagedBoxFragment boxFragment -> paintManagedBoxFragment(canvas, boxFragment);
       case UnmanagedBoxFragment boxFragment -> boxFragment.box().content().paint(canvas);
@@ -72,7 +72,7 @@ public final class FlowRootContentPainter {
 
   private static void paintManagedBoxFragment(PaintCanvas canvas, ManagedBoxFragment fragment) {
     ElementBox parentBox = fragment.box();
-    for (FlowFragment childFragment: fragment.fragments()) {
+    for (LayoutFragment childFragment: fragment.fragments()) {
       canvas.pushPaint();
       canvas.alterPaint(paint -> paint.incOffset(
         childFragment.contentX() + childFragment.paintOffsetX(),
@@ -84,7 +84,7 @@ public final class FlowRootContentPainter {
   }
 
   // TODO: Unify this with above? Inline is offseting by border (then child adjusts), block-level by content
-  private static void paintInlineFragment(PaintCanvas canvas, FlowFragment fragment) {
+  private static void paintInlineFragment(PaintCanvas canvas, LayoutFragment fragment) {
     switch (fragment) {
       case ManagedBoxFragment boxFragment -> paintInlineManagedBoxFragment(canvas, boxFragment);
       case UnmanagedBoxFragment boxFragment -> paintInlineUnmanagedBoxFragment(canvas, boxFragment);
@@ -97,7 +97,7 @@ public final class FlowRootContentPainter {
     paintBackgroundAndAdvance(canvas, fragment);
 
     ElementBox parentBox = fragment.box();
-    for (FlowFragment childFragment: fragment.fragments()) {
+    for (LayoutFragment childFragment: fragment.fragments()) {
       canvas.pushPaint();
       canvas.alterPaint(paint -> paint.incOffset(
         childFragment.contentX() + childFragment.paintOffsetX(),
@@ -118,7 +118,7 @@ public final class FlowRootContentPainter {
   }
 
   private static void paintLineBoxFragment(PaintCanvas canvas, LineBoxFragment lineboxFragment) {
-    for (FlowFragment fragment: lineboxFragment.fragments()) {
+    for (LayoutFragment fragment: lineboxFragment.fragments()) {
       canvas.pushPaint();
       canvas.alterPaint(paint -> paint.incOffset(
         fragment.borderX() + fragment.paintOffsetX(),
@@ -128,7 +128,7 @@ public final class FlowRootContentPainter {
     }
   }
 
-  private static void paintBackgroundAndAdvance(PaintCanvas canvas, FlowBoxFragment fragment) {
+  private static void paintBackgroundAndAdvance(PaintCanvas canvas, BoxFragment fragment) {
     canvas.alterPaint(paint -> paint.setColor(fragment.box().activeStyles().backgroundColor()));
     canvas.drawBox(0, 0, fragment.borderWidth(), fragment.borderHeight());
 
@@ -141,7 +141,7 @@ public final class FlowRootContentPainter {
       fragment.contentY() - fragment.borderY()));
   }
 
-  private static void paintBorders(PaintCanvas canvas, FlowBoxFragment fragment) {
+  private static void paintBorders(PaintCanvas canvas, BoxFragment fragment) {
     // Quick and dirty implementation, ignore styles for now
     int[] borders = fragment.box().dimensions().getComputedBorder();
     

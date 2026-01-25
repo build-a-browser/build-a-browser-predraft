@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 
@@ -16,7 +16,7 @@ public class BlockFormattingContext {
   private final LayoutConstraint innerHeightConstraint;
   private final FlowRootContent rootContent;
 
-  private final List<FlowFragment> fragments;
+  private final List<LayoutFragment> fragments;
 
   private int width;
   private int y;
@@ -88,7 +88,7 @@ public class BlockFormattingContext {
     return this.minMargin;
   }
 
-  public void addFragment(FlowFragment newFragment) {
+  public void addFragment(LayoutFragment newFragment) {
     this.fragments.add(newFragment);
   }
 

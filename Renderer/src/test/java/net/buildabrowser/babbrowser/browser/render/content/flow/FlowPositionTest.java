@@ -10,8 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
@@ -33,9 +33,9 @@ public class FlowPositionTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    FlowFragment actualFragment = doLayout(parentBox);
+    LayoutFragment actualFragment = doLayout(parentBox);
 
-    FlowFragment innerFragment = ((ManagedBoxFragment) actualFragment).fragments().get(0);
+    LayoutFragment innerFragment = ((ManagedBoxFragment) actualFragment).fragments().get(0);
     Assertions.assertEquals(25, innerFragment.contentWidth());
     Assertions.assertEquals(25, innerFragment.contentHeight());
     Assertions.assertEquals(0, innerFragment.contentX());

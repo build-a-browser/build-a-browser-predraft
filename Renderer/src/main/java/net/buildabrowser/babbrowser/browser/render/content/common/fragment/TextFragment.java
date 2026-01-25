@@ -1,6 +1,6 @@
-package net.buildabrowser.babbrowser.browser.render.content.flow.fragment;
+package net.buildabrowser.babbrowser.browser.render.content.common.fragment;
 
-public class TextFragment extends FlowFragment {
+public class TextFragment extends LayoutFragment {
 
   private final String text;
 

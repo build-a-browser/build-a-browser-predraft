@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow.test;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.FlowRootContent;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.paint.test.TestFontMetrics;
@@ -11,7 +11,7 @@ public final class FlowLayoutUtil {
   
   private FlowLayoutUtil() {}
 
-  public static FlowFragment doLayout(ElementBox parentBox) {
+  public static LayoutFragment doLayout(ElementBox parentBox) {
     LayoutContext layoutContext = new LayoutContext(TestFontMetrics.create(10, 5));
     FlowRootContent content = (FlowRootContent) parentBox.content();
     content.prelayout(layoutContext);
@@ -20,7 +20,7 @@ public final class FlowLayoutUtil {
     return content.rootFragment();
   }
 
-  public static FlowFragment doLayoutSized(ElementBox parentBox, int width) {
+  public static LayoutFragment doLayoutSized(ElementBox parentBox, int width) {
     return doLayoutContentSized(parentBox, width).rootFragment();
   }
 
@@ -33,7 +33,7 @@ public final class FlowLayoutUtil {
     return content;
   }
 
-  public static FlowFragment doLayoutSized(ElementBox parentBox, int width, int height) {
+  public static LayoutFragment doLayoutSized(ElementBox parentBox, int width, int height) {
     LayoutContext layoutContext = new LayoutContext(TestFontMetrics.create(10, 5));
     FlowRootContent content = (FlowRootContent) parentBox.content();
     content.prelayout(layoutContext);

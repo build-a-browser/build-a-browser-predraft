@@ -7,10 +7,13 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
+import net.buildabrowser.babbrowser.browser.render.content.common.BorderUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.PaddingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.PositionUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
@@ -57,9 +60,9 @@ public class FlowBlockLayout {
     boolean isInInline = false;
     for (Box childBox: box.childBoxes()) {
       if (childBox instanceof ElementBox elementBox) {
-        FlowBorderUtil.computeBorder(layoutContext, elementBox, activeContext());
-        FlowPaddingUtil.computePadding(layoutContext, elementBox, activeContext());
-        FlowPositionUtil.computeInsets(layoutContext, elementBox, widthConstraint, heightConstraint);
+        BorderUtil.computeBorder(layoutContext, elementBox, widthConstraint);
+        PaddingUtil.computePadding(layoutContext, elementBox, widthConstraint);
+        PositionUtil.computeInsets(layoutContext, elementBox, widthConstraint, heightConstraint);
       }
       if (childBox instanceof ElementBox elementBox && FlowUtil.isFloat(elementBox) && !isInInline) {
         ackFloatClear(elementBox);
@@ -188,7 +191,7 @@ public class FlowBlockLayout {
     addFinishedFragment(newFragment, 0);
   }
 
-  public void addFinishedFragment(FlowFragment newFragment, int posX) {
+  public void addFinishedFragment(LayoutFragment newFragment, int posX) {
     BlockFormattingContext parentContext = activeContext();
     newFragment.setPos(posX, parentContext.currentY());
 

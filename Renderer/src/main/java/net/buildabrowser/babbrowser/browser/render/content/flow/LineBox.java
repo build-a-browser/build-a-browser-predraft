@@ -6,10 +6,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.LineBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.TextFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextFragment;
 
 public class LineBox {
 
@@ -26,7 +26,7 @@ public class LineBox {
 
   private int totalWidth = 0;
   
-  public void addFragment(FlowFragment flowFragment) {
+  public void addFragment(LayoutFragment flowFragment) {
     this.totalWidth += flowFragment.marginWidth();
     lineSegments.peek().fragments().add(flowFragment);
   }

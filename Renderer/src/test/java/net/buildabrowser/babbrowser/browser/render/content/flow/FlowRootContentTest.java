@@ -16,11 +16,11 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.test.TestTextBox;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.FlowFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.LineBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.TextFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue.LengthType;
@@ -34,8 +34,8 @@ public class FlowRootContentTest {
   public void canLayoutEmptyBlockBoxWithChild() {
     ElementBox parentBox = flowBlockBox(List.of());
     
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 0, 0, parentBox, List.of());
-    FlowFragment actualFragment = doLayout(parentBox);
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 0, 0, parentBox, List.of());
+    LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -45,9 +45,9 @@ public class FlowRootContentTest {
     ElementBox childBox = sizedReplacedBlockBox(50, 50);
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 50, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 50, parentBox, List.of(
       new UnmanagedBoxFragment(0, 0, 50, 50, childBox)));
-    FlowFragment actualFragment = doLayout(parentBox);
+    LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -58,10 +58,10 @@ public class FlowRootContentTest {
     ElementBox childBox2 = sizedReplacedBlockBox(50, 50);
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 100, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 100, parentBox, List.of(
       new UnmanagedBoxFragment(0, 0, 50, 50, childBox1),
       new UnmanagedBoxFragment(0, 50, 50, 50, childBox2)));
-    FlowFragment actualFragment = doLayout(parentBox);
+    LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -71,10 +71,10 @@ public class FlowRootContentTest {
     TestTextBox childBox = new TestTextBox("Hello");
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 25, 10, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 25, 10, parentBox, List.of(
       new LineBoxFragment(0, 0, 25, 10, List.of(
         new TextFragment(0, 0, 25, 10, "Hello")))));
-    FlowFragment actualFragment = doLayout(parentBox);
+    LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -85,11 +85,11 @@ public class FlowRootContentTest {
     TestTextBox childBox2 = new TestTextBox("World");
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 10, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 10, parentBox, List.of(
       new LineBoxFragment(0, 0, 50, 10, List.of(
         new TextFragment(0, 0, 25, 10, "Hello"),
         new TextFragment(25, 0, 25, 10, "World")))));
-    FlowFragment actualFragment = doLayout(parentBox);
+    LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -100,11 +100,11 @@ public class FlowRootContentTest {
     ElementBox childBox2 = sizedReplacedBlockBox(50, 50);
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 60, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 60, parentBox, List.of(
       new LineBoxFragment(0, 0, 25, 10, List.of(
         new TextFragment(0, 0, 25, 10, "Hello"))),
       new UnmanagedBoxFragment(0, 10, 50, 50, childBox2)));
-    FlowFragment actualFragment = doLayout(parentBox);
+    LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -115,11 +115,11 @@ public class FlowRootContentTest {
     TestTextBox childBox2 = new TestTextBox("Hello");
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 60, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 60, parentBox, List.of(
       new UnmanagedBoxFragment(0, 0, 50, 50, childBox1),
       new LineBoxFragment(0, 50, 25, 10, List.of(
         new TextFragment(0, 0, 25, 10, "Hello")))));
-    FlowFragment actualFragment = doLayout(parentBox);
+    LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -132,13 +132,13 @@ public class FlowRootContentTest {
     TestTextBox childBox4 = new TestTextBox("World");
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2, childBox3, childBox4));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 110, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 110, parentBox, List.of(
       new UnmanagedBoxFragment(0, 0, 50, 50, childBox1),
       new UnmanagedBoxFragment(0, 50, 50, 50, childBox2),
       new LineBoxFragment(0, 100, 50, 10, List.of(
         new TextFragment(0, 0, 25, 10, "Hello"),
         new TextFragment(25, 0, 25, 10, "World")))));
-    FlowFragment actualFragment = doLayout(parentBox);
+    LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -150,12 +150,12 @@ public class FlowRootContentTest {
     ElementBox nestingBox = flowInlineBox(List.of(nestedChildBox1, nestedChildBox2));
     ElementBox parentBox = flowBlockBox(List.of(nestingBox));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 10, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 10, parentBox, List.of(
       new LineBoxFragment(0, 0, 50, 10, List.of(
         new ManagedBoxFragment(0, 0, 50, 10, nestingBox, List.of(
           new TextFragment(0, 0, 25, 10, "Hello"),
           new TextFragment(25, 0, 25, 10, "World")))))));
-    FlowFragment actualFragment = doLayout(parentBox);
+    LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -168,12 +168,12 @@ public class FlowRootContentTest {
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2, childBox3));
 
     // TODO: This text might actually rely on the text's vertical alignment...
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 60, 20, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 60, 20, parentBox, List.of(
       new LineBoxFragment(0, 0, 60, 20, List.of(
         new TextFragment(0, 0, 25, 10, "Hello"),
         new UnmanagedBoxFragment(25, 0, 10, 20, childBox2),
         new TextFragment(35, 0, 25, 10, "World")))));
-    FlowFragment actualFragment = doLayout(parentBox);
+    LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -188,12 +188,12 @@ public class FlowRootContentTest {
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2, childBox3));
 
     // TODO: Find a way to test the inner box's layout
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 70, 50, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 70, 50, parentBox, List.of(
       new LineBoxFragment(0, 0, 70, 50, List.of(
         new TextFragment(0, 0, 25, 10, "Hello"),
         new UnmanagedBoxFragment(25, 0, 20, 50, childBox2),
         new TextFragment(45, 0, 25, 10, "World")))));
-    FlowFragment actualFragment = doLayout(parentBox);
+    LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -208,7 +208,7 @@ public class FlowRootContentTest {
     ElementBox outerBox = flowInlineBox(List.of(intermediateBox1, intermediateBox2, intermediateBox3));
     ElementBox parentBox = flowBlockBox(List.of(outerBox));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 30, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 30, parentBox, List.of(
       new LineBoxFragment(0, 0, 50, 10, List.of(
         new ManagedBoxFragment(0, 0, 50, 10, outerBox, List.of(
           new ManagedBoxFragment(0, 0, 50, 10, intermediateBox1, List.of(
@@ -221,7 +221,7 @@ public class FlowRootContentTest {
       new LineBoxFragment(0, 20, 15, 10, List.of(
       new ManagedBoxFragment(0, 0, 15, 10, outerBox, List.of(
         new TextFragment(0, 0, 15, 10, "!!!")))))));
-    FlowFragment actualFragment = doLayout(parentBox);
+    LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
   
@@ -233,9 +233,9 @@ public class FlowRootContentTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 0, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 0, parentBox, List.of(
       new ManagedBoxFragment(0, 0, 4, 0, childBox, List.of())));
-    FlowFragment actualFragment = doLayoutSized(parentBox, 80);
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 80);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -247,9 +247,9 @@ public class FlowRootContentTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 0, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 0, parentBox, List.of(
       new ManagedBoxFragment(0, 0, 20, 0, childBox, List.of())));
-    FlowFragment actualFragment = doLayoutSized(parentBox, 80);
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 80);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -262,11 +262,11 @@ public class FlowRootContentTest {
     ElementBox childBox2 = flowInlineBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
       new LineBoxFragment(0, 0, 45, 10, List.of(
         new TextFragment(0, 0, 25, 10, "Hello"),
         new UnmanagedBoxFragment(25, 0, 20, 0, childBox2)))));
-    FlowFragment actualFragment = doLayoutSized(parentBox, 80);
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 80);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -280,11 +280,11 @@ public class FlowRootContentTest {
     childBox2.dimensions().setIntrinsicRatio(.5f);
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 40, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 40, parentBox, List.of(
       new LineBoxFragment(0, 0, 45, 40, List.of(
         new TextFragment(0, 0, 25, 10, "Hello"),
         new UnmanagedBoxFragment(25, 0, 20, 40, childBox2)))));
-    FlowFragment actualFragment = doLayoutSized(parentBox, 80);
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 80);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -296,9 +296,9 @@ public class FlowRootContentTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 160, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 160, parentBox, List.of(
       new ManagedBoxFragment(0, 0, 80, 40, childBox, List.of())));
-    FlowFragment actualFragment = doLayoutSized(parentBox, 80, 160);
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 80, 160);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -312,11 +312,11 @@ public class FlowRootContentTest {
     ElementBox childBox2 = flowInlineBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
-    FlowFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 15, parentBox, List.of(
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 15, parentBox, List.of(
       new LineBoxFragment(0, 0, 30, 15, List.of(
         new TextFragment(0, 0, 25, 10, "Hello"),
         new UnmanagedBoxFragment(25, 0, 5, 15, childBox2)))));
-    FlowFragment actualFragment = doLayoutSized(parentBox, 80);
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 80);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
