@@ -22,7 +22,7 @@ public class ParseContextImp implements ParseContext {
   private InsertionMode originalInsertionMode;
   private MutableElement headElementPointer;
 
-  private TagToken lastTagToken;
+  private String lastTagTokenName;
 
   public ParseContextImp(MutableDocument document, TokenizeContext tokenizeContext) {
     this.document = document;
@@ -48,7 +48,7 @@ public class ParseContextImp implements ParseContext {
 
   @Override
   public void emitTagToken(TagToken tagToken) {
-    this.lastTagToken = tagToken;
+    this.lastTagTokenName = tagToken.name();
     boolean shouldReprocess;
     do {
       shouldReprocess = currentInsertionMode.emitTagToken(this, tagToken);
@@ -75,7 +75,7 @@ public class ParseContextImp implements ParseContext {
   // TODO: This should probably be in the tokenize context, but we have access to the
   // last token here
   public boolean isAppropriateEndTagToken(TagToken tagToken) {
-    return this.lastTagToken != null && lastTagToken.name().equals(tagToken.name());
+    return this.lastTagTokenName != null && lastTagTokenName.equals(tagToken.name());
   }
 
   @Override

@@ -125,7 +125,7 @@ public class ImageContent implements BoxContent {
 
     try {
       return URLUtil.createURL(refUrl, src);
-    } catch (BadURLException e) {
+    } catch (BadURLException | IllegalArgumentException e) {
       return null;
     }
   }

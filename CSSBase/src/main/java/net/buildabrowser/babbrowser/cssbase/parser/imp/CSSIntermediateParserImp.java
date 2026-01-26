@@ -83,7 +83,7 @@ public class CSSIntermediateParserImp {
           handleStyleBlockIdent(stream, declarations, token);
           break;
         default:
-          throw new UnsupportedOperationException("Not yet implemented!");
+          //throw new UnsupportedOperationException("Not yet implemented!");
       }
     }
   }
@@ -117,6 +117,7 @@ public class CSSIntermediateParserImp {
     }
 
     // TODO: !important
+    if (declValue.isEmpty()) return null;
     while (declValue.getLast() instanceof WhitespaceToken) {
       declValue.removeLast();
     }

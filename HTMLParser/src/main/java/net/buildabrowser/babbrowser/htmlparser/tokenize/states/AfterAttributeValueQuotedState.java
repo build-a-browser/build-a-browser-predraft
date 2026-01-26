@@ -23,8 +23,12 @@ public class AfterAttributeValueQuotedState implements TokenizeState {
         tokenizeContext.setTokenizeState(TokenizeStates.dataState);
         parseContext.emitTagToken(tokenizeContext.currentTagToken());
         break;
+      case TokenizeContext.EOF:
+        parseContext.parseError();
+        break;
       default:
-        throw new UnsupportedOperationException("Not yet implemented!");
+        parseContext.parseError();
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.beforeAttributeNameState);
     }
   }
 

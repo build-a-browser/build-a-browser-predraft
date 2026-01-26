@@ -11,7 +11,6 @@ public class SelfClosingStartTagState implements TokenizeState {
 
   @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
-        System.out.println("SELF");
     switch (ch) {
       // TODO: Other cases
       case '>':

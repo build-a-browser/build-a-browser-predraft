@@ -70,6 +70,7 @@ public final class ComplexSelectorParser {
       isInvalid |= parseSelectorPart(currentToken, tokenStream, parts);
     }
 
+    if (parts.isEmpty()) return null;
     isInvalid |= parts.getFirst() instanceof Combinator;
     isInvalid |= parts.getLast() instanceof Combinator;
     if (isInvalid) return null;

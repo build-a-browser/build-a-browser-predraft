@@ -23,7 +23,6 @@ public class InHeadInsertionMode implements InsertionMode {
         ParseTextUtil.insertACharacter(parseContext, ch);
         return false;
       default:
-        System.out.println("E: " + (char) ch);
         return handleAnythingElse(parseContext);
     }
   }
@@ -55,7 +54,6 @@ public class InHeadInsertionMode implements InsertionMode {
   }
 
   private boolean emitStartTagToken(ParseContext parseContext, TagToken tagToken) {
-    System.out.println(tagToken.name());
     // TODO: More start tag cases
     switch (tagToken.name()) {
       case "html":
