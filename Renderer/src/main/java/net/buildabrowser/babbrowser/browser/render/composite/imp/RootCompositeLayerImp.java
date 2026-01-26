@@ -61,5 +61,10 @@ public class RootCompositeLayerImp implements CompositeLayer {
   public int posY() {
     return 0;
   }
+
+  @Override
+  public int zIndex() {
+    return 0;
+  }
   
 }

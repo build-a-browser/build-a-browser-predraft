@@ -28,6 +28,8 @@ public interface CompositeLayer {
 
   int posY();
 
+  int zIndex();
+
   static CompositeLayer createRoot() {
     return new RootCompositeLayerImp();
   }

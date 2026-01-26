@@ -31,12 +31,15 @@ public class LayerScannerUtil {
 
   public static void createLayerForBox(CompositeLayer parent, int[] offsets, BoxFragment childBoxFragment) {
     CompositeLayer childLayer = parent.createChild(childBoxFragment);
-    if (actsReplaced(childBoxFragment)) {
-      // childBoxFragment.box().content().layer(childLayer);
-    } else {
+    CSSValue position = childBoxFragment.box().activeStyles().getProperty(CSSProperty.POSITION);
+    if (position.equals(PositionValue.RELATIVE)) {
       childLayer.incOffset(
         offsets[0] + childBoxFragment.borderX(),
         offsets[1] + childBoxFragment.borderY());
+    }
+    if (actsReplaced(childBoxFragment)) {
+      childBoxFragment.box().content().layer(childLayer);
+    } else {
       scanLayers(childLayer, childBoxFragment);
     }
   }
@@ -74,7 +77,9 @@ public class LayerScannerUtil {
 
   private static boolean actsReplaced(BoxFragment fragment) {
     CSSValue position = fragment.box().activeStyles().getProperty(CSSProperty.POSITION);
-    return !(position.equals(PositionValue.RELATIVE) || position.equals(PositionValue.STATIC));
+    return
+      !(position.equals(PositionValue.RELATIVE) || position.equals(PositionValue.STATIC))
+      || (!position.equals(PositionValue.STATIC) && !position.equals(CSSValue.AUTO));
   }
 
 }

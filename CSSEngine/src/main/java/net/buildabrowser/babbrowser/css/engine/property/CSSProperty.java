@@ -65,7 +65,9 @@ public enum CSSProperty {
   LEFT(nextId(), false, CSSValue.AUTO),
   RIGHT(nextId(), false, CSSValue.AUTO),
   
-  POSITION(nextId(), false, PositionValue.STATIC);
+  POSITION(nextId(), false, PositionValue.STATIC),
+  
+  Z_INDEX(nextId(), false, CSSValue.AUTO);
 
   private static int propertyId = 0;
 
@@ -112,7 +114,7 @@ public enum CSSProperty {
     // TODO: Why does propertyId seem to reset to 0?
     //   (I even tried it with volatile)
     // Manually update this for now
-    return 35;
+    return 36;
   }
 
   private static int nextId() {

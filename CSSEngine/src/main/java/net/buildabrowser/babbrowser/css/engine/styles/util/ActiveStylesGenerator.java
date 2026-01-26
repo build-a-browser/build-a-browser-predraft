@@ -19,6 +19,7 @@ import net.buildabrowser.babbrowser.css.engine.property.display.DisplayParser;
 import net.buildabrowser.babbrowser.css.engine.property.floats.ClearParser;
 import net.buildabrowser.babbrowser.css.engine.property.floats.FloatParser;
 import net.buildabrowser.babbrowser.css.engine.property.position.PositionParser;
+import net.buildabrowser.babbrowser.css.engine.property.position.ZIndexParser;
 import net.buildabrowser.babbrowser.css.engine.property.shared.ManySideShorthandParser;
 import net.buildabrowser.babbrowser.css.engine.property.size.SizeParser;
 import net.buildabrowser.babbrowser.css.engine.property.text.TextWrapModeParser;
@@ -97,6 +98,7 @@ public final class ActiveStylesGenerator {
     "right", SizeParser.forInset(CSSProperty.RIGHT),
 
     "position", new PositionParser(),
+    "z-index", new ZIndexParser(),
 
     "white-space-collapse", new WhitespaceCollapseValueParser(),
     "text-wrap-mode", new TextWrapModeParser()
