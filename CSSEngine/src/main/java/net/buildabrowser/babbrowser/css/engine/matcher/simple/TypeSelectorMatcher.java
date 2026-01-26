@@ -23,8 +23,10 @@ public class TypeSelectorMatcher implements SimpleSelectorMatcher<TypeSelector> 
   public void addSelectorReference(TypeSelector ref) {
     RefCounted<ElementSet> setRef = matchingElements
       .computeIfAbsent(ref, _ -> RefCounted.create(ElementSet.create()));
+    boolean didExist = setRef.isReferenced();
     setRef.incRefCount();
 
+    if (didExist) return;
     ElementSet set = setRef.object();
     for (Element element: allElements) {
       if (matches(element, ref)) {

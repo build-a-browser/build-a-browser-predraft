@@ -28,8 +28,10 @@ public class AttributeOneOfSelectorMatcher implements SimpleSelectorMatcher<Attr
     RefCounted<ElementSet> setRef = matchingElements
       .computeIfAbsent(ref.attrName(), _ -> new HashMap<>())
       .computeIfAbsent(ref.attrValue(), _ -> RefCounted.create(ElementSet.create()));
+    boolean didExist = setRef.isReferenced();
     setRef.incRefCount();
 
+    if (didExist) return;
     ElementSet set = setRef.object();
     for (Element element: allElements) {
       if (matches(element, ref)) {
