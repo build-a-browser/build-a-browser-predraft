@@ -7,22 +7,28 @@ import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
-public class SelfClosingStartTagState implements TokenizeState {
+public class AfterAttributeNameState implements TokenizeState {
 
   @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
-        System.out.println("SELF");
     switch (ch) {
-      // TODO: Other cases
-      case '>':
-        tokenizeContext.currentTagToken().setSelfClosing(true);
+      case '\t', '\n', '\f', ' ':
+        break;
+      case '/':
+        tokenizeContext.setTokenizeState(TokenizeStates.selfClosingStartTagState);
+        break;
+      case '=':
         tokenizeContext.setTokenizeState(TokenizeStates.dataState);
         parseContext.emitTagToken(tokenizeContext.currentTagToken());
         break;
+      case TokenizeContext.EOF:
+        parseContext.parseError();
+        parseContext.emitEOFToken();
+        break;
       default:
-        throw new UnsupportedOperationException("Not Implemented");
+        tokenizeContext.currentTagToken().startNewAttribute();
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.attributeNameState);
     }
   }
-
+  
 }
- 

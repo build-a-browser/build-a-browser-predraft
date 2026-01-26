@@ -11,14 +11,18 @@ public class BeforeAttributeNameState implements TokenizeState {
 
   @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
-    // TODO: Other cases
     switch (ch) {
+      case '\t', '\n', '\f', ' ':
+        break;
+      case '/', '>', TokenizeContext.EOF:
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.afterAttributeNameState);
+        break;
       case '=':
         tokenizeContext.setTokenizeState(TokenizeStates.beforeAttributeValueState);
         break;
       default:
         tokenizeContext.currentTagToken().startNewAttribute();
-        tokenizeContext.reconsumeInTokenizeState(ch, new AttributeNameState());
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.attributeNameState);
         break;
     }
   }

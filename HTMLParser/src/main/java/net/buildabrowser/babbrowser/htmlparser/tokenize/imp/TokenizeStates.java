@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.htmlparser.tokenize.imp;
 
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.states.AfterAttributeNameState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.AfterAttributeValueQuotedState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.AfterDoctypeNameState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.states.AfterDoctypePublicIdentifierState;
@@ -79,13 +80,14 @@ public final class TokenizeStates {
   
   private TokenizeStates() {}
 
+  public static final TokenizeState afterAttributeNameState = new AfterAttributeNameState();
   public static final TokenizeState afterAttributeValueQuotedState = new AfterAttributeValueQuotedState();
   public static final TokenizeState afterDoctypeNameState = new AfterDoctypeNameState();
   public static final TokenizeState afterDoctypePublicIdentifierState = new AfterDoctypePublicIdentifierState();
   public static final TokenizeState afterDoctypePublicKeywordState = new AfterDoctypePublicKeywordState();
   public static final TokenizeState afterDoctypeSystemIdentifierState = new AfterDoctypeSystemIdentifierState();
   public static final TokenizeState afterDoctypeSystemKeywordState = new AfterDoctypeSystemKeywordState();
-  public static final TokenizeState afterAttributeNameState = new AttributeNameState();
+  public static final TokenizeState attributeNameState = new AttributeNameState();
   public static final TokenizeState ambiguousAmpersandState = new AmbiguousAmpersandState();
   public static final TokenizeState attributeValueDoubleQuotedState = new AttributeValueDoubleQuotedState();
   public static final TokenizeState attributeValueSingleQuotedState = new AttributeValueSingleQuotedState();
