@@ -1,8 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.content.common.fragment;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
 
 public class BoxFragment extends LayoutFragment {
   
@@ -15,26 +13,6 @@ public class BoxFragment extends LayoutFragment {
 
   public ElementBox box() {
     return this.box;
-  }
-
-  @Override
-  public int paintOffsetX() {
-    if (box.activeStyles().getProperty(CSSProperty.POSITION).equals(PositionValue.RELATIVE)) {
-      int[] insets = box.dimensions().getComputedInsets();
-      return insets[2];
-    }
-
-    return 0;
-  }
-
-  @Override
-  public int paintOffsetY() {
-    if (box.activeStyles().getProperty(CSSProperty.POSITION).equals(PositionValue.RELATIVE)) {
-      int[] insets = box.dimensions().getComputedInsets();
-      return insets[0];
-    }
-
-    return 0;
   }
 
   @Override

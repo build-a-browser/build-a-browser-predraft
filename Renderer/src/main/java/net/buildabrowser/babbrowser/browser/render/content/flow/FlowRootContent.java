@@ -6,7 +6,6 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.composite.LayerScannerUtil;
-import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
@@ -78,7 +77,8 @@ public class FlowRootContent implements BoxContent {
   public void layer(CompositeLayer layer) {
     for (LayoutFragment floatFragment: floatTracker.allFloats()) {
       if (!LayerScannerUtil.startsLayer(floatFragment)) continue;
-      LayerScannerUtil.createLayerForBox(layer, new int[2], (BoxFragment) floatFragment);
+      // TODO: Adjust the code below
+      // LayerScannerUtil.createLayerForBox(layer, (BoxFragment) floatFragment, new int[2]);
     }
     LayerScannerUtil.scanLayers(layer, rootFragment);
   }

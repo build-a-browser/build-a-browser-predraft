@@ -8,11 +8,14 @@ import net.buildabrowser.babbrowser.dom.utils.CommonUtils;
 
 public record LayoutContext(
   URL refURL,
-  FontMetrics fontMetrics
+  FontMetrics fontMetrics,
+  StackingContext stackingContext
 ) {
   
-  public LayoutContext(FontMetrics fontMetrics) {
-    this(CommonUtils.rethrow(() -> URLUtil.createURL("https://example.com")), fontMetrics);
+  public LayoutContext(FontMetrics fontMetrics, StackingContext stackingContext) {
+    this(CommonUtils.rethrow(
+      () -> URLUtil.createURL("https://example.com")),
+      fontMetrics, stackingContext);
   }
 
 }

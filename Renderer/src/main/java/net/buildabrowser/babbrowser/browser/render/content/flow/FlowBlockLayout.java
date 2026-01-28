@@ -9,10 +9,11 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.PaddingUtil;
-import net.buildabrowser.babbrowser.browser.render.content.common.PositionUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionLayout;
+import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
@@ -62,9 +63,16 @@ public class FlowBlockLayout {
       if (childBox instanceof ElementBox elementBox) {
         BorderUtil.computeBorder(layoutContext, elementBox, widthConstraint);
         PaddingUtil.computePadding(layoutContext, elementBox, widthConstraint);
-        PositionUtil.computeInsets(layoutContext, elementBox, widthConstraint, heightConstraint);
       }
-      if (childBox instanceof ElementBox elementBox && FlowUtil.isFloat(elementBox) && !isInInline) {
+      if (
+        childBox instanceof ElementBox elementBox
+        && !PositionUtil.affectsLayout(elementBox)
+      ) {
+        addPositionedToBlock(layoutContext, elementBox);
+      } else if (
+        childBox instanceof ElementBox elementBox
+        && FlowUtil.isFloat(elementBox) && !isInInline
+      ) {
         ackFloatClear(elementBox);
         UnmanagedBoxFragment floatFragment = FloatLayout.renderFloat(
           layoutContext, elementBox, widthConstraint, heightConstraint);
@@ -191,6 +199,15 @@ public class FlowBlockLayout {
 
     UnmanagedBoxFragment newFragment = new UnmanagedBoxFragment(width, height, childBox);
     addFinishedFragment(newFragment, margin[2]);
+  }
+
+  private void addPositionedToBlock(LayoutContext layoutContext, ElementBox childBox) {
+    BlockFormattingContext parentContext = activeContext();
+    LayoutFragment newFragment = PositionLayout.layout(layoutContext, childBox);
+    parentContext.addFragment(newFragment);
+    
+    int[] margin = childBox.dimensions().getComputedMargin();
+    newFragment.setPos(margin[2], parentContext.currentY());
   }
 
   public void addFinishedFragment(LayoutFragment newFragment, int posX) {

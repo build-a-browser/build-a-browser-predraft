@@ -9,6 +9,7 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextFragment;
 
 public class LineBox {
@@ -27,7 +28,9 @@ public class LineBox {
   private int totalWidth = 0;
   
   public void addFragment(LayoutFragment flowFragment) {
-    this.totalWidth += flowFragment.marginWidth();
+    if (!(flowFragment instanceof PosRefBoxFragment)) {
+      this.totalWidth += flowFragment.marginWidth();
+    }
     lineSegments.peek().fragments().add(flowFragment);
   }
 

@@ -5,6 +5,7 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.Layou
 import net.buildabrowser.babbrowser.browser.render.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.browser.render.paint.test.TestFontMetrics;
 
 public final class FlowLayoutUtil {
@@ -12,7 +13,9 @@ public final class FlowLayoutUtil {
   private FlowLayoutUtil() {}
 
   public static LayoutFragment doLayout(ElementBox parentBox) {
-    LayoutContext layoutContext = new LayoutContext(TestFontMetrics.create(10, 5));
+    LayoutContext layoutContext = new LayoutContext(
+      TestFontMetrics.create(10, 5),
+      StackingContext.create(100, 100));
     FlowRootContent content = (FlowRootContent) parentBox.content();
     content.prelayout(layoutContext);
 
@@ -25,7 +28,9 @@ public final class FlowLayoutUtil {
   }
 
   public static FlowRootContent doLayoutContentSized(ElementBox parentBox, int width) {
-    LayoutContext layoutContext = new LayoutContext(TestFontMetrics.create(10, 5));
+    LayoutContext layoutContext = new LayoutContext(
+      TestFontMetrics.create(10, 5),
+      StackingContext.create(width, 100));
     FlowRootContent content = (FlowRootContent) parentBox.content();
     content.prelayout(layoutContext);
     content.layout(layoutContext, LayoutConstraint.of(width), LayoutConstraint.AUTO);
@@ -34,7 +39,9 @@ public final class FlowLayoutUtil {
   }
 
   public static LayoutFragment doLayoutSized(ElementBox parentBox, int width, int height) {
-    LayoutContext layoutContext = new LayoutContext(TestFontMetrics.create(10, 5));
+    LayoutContext layoutContext = new LayoutContext(
+      TestFontMetrics.create(10, 5),
+      StackingContext.create(width, height));
     FlowRootContent content = (FlowRootContent) parentBox.content();
     content.prelayout(layoutContext);
     content.layout(layoutContext, LayoutConstraint.of(width), LayoutConstraint.of(height));

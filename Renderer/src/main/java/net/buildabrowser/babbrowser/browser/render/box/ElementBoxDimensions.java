@@ -24,10 +24,6 @@ public interface ElementBoxDimensions {
 
   int[] getComputedMargin();
 
-  void setComputedInsets(int t, int b, int l, int r);
-
-  int[] getComputedInsets();
-
   void setPreferredMinWidthConstraint(int w);
 
   void setPreferredWidthConstraint(int w);

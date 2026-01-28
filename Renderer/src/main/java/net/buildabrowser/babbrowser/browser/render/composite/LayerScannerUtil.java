@@ -6,6 +6,9 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFr
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRefBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionUtil;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
@@ -29,14 +32,13 @@ public class LayerScannerUtil {
     });
   }
 
-  public static void createLayerForBox(CompositeLayer parent, int[] offsets, BoxFragment childBoxFragment) {
-    CompositeLayer childLayer = parent.createChild(childBoxFragment);
-    CSSValue position = childBoxFragment.box().activeStyles().getProperty(CSSProperty.POSITION);
-    if (position.equals(PositionValue.RELATIVE)) {
-      childLayer.incOffset(
-        offsets[0] + childBoxFragment.borderX(),
-        offsets[1] + childBoxFragment.borderY());
-    }
+  private static void createLayerForBox(
+    CompositeLayer parentLayer,
+    PosRefBoxFragment childBoxFragment,
+    int[] offsets
+  ) {
+    CompositeLayer childLayer = parentLayer.createChild(childBoxFragment);
+    positionBox(parentLayer, childLayer, childBoxFragment, offsets);
     if (actsReplaced(childBoxFragment)) {
       childBoxFragment.box().content().layer(childLayer);
     } else {
@@ -44,33 +46,66 @@ public class LayerScannerUtil {
     }
   }
 
-  private static void scanLayersRecurse(CompositeLayer parent, LayoutFragment fragment, int[] offsets) {
+  private static void positionBox(
+    CompositeLayer parentLayer,
+    CompositeLayer childLayer,
+    PosRefBoxFragment childBoxFragment,
+    int[] offsets
+  ) {
+    CSSValue position = childBoxFragment.box().activeStyles().getProperty(CSSProperty.POSITION);
+    
+
+    LayoutConstraint[] insets = PositionUtil.computeInsets(
+      childBoxFragment.referenceLayoutContext(),
+      childBoxFragment.box(),
+      LayoutConstraint.of(parentLayer.width()),
+      LayoutConstraint.of(parentLayer.height()));
+
+    if (position.equals(PositionValue.RELATIVE)) {
+      childLayer.incOffset(
+        offsets[0] + childBoxFragment.borderX() + insets[2].value(),
+        offsets[1] + childBoxFragment.borderY() + insets[0].value());
+    } else if (position.equals(PositionValue.ABSOLUTE)) {
+      childLayer.incOffset(
+        insets[2].value(), insets[0].value());
+    }
+  }
+
+  private static void scanLayersRecurse(
+    CompositeLayer parentLayer,
+    LayoutFragment fragment,
+    int[] offsets
+  ) {
     offsets[0] += fragment.contentX();
     offsets[1] += fragment.contentY();
     if (fragment instanceof ManagedBoxFragment parentFragment) {
-      scanLayersManagedBoxFragment(parent, offsets, parentFragment);
+      scanLayersManagedBoxFragment(parentLayer, parentFragment, offsets);
     } else if (fragment instanceof LineBoxFragment lineBoxFragment) {
       for (LayoutFragment childChildFragment: lineBoxFragment.fragments()) {
-        scanLayersRecurse(parent, childChildFragment, offsets);
+        scanLayersRecurse(parentLayer, childChildFragment, offsets);
       }
     }
     offsets[0] -= fragment.contentX();
     offsets[1] -= fragment.contentY();
   }
 
-  private static void scanLayersManagedBoxFragment(CompositeLayer parent, int[] offsets, ManagedBoxFragment fragment) {
-    if (parent instanceof RootCompositeLayerImp) {
-      parent = parent.createChild(fragment);
+  private static void scanLayersManagedBoxFragment(
+    CompositeLayer parentLayer,
+    ManagedBoxFragment fragment,
+    int[] offsets
+  ) {
+    if (parentLayer instanceof RootCompositeLayerImp) {
+      parentLayer = parentLayer.createChild(fragment);
     }
 
     for (LayoutFragment childFragment: fragment.fragments()) {
       if (
-        childFragment instanceof BoxFragment childBoxFragment
+        childFragment instanceof PosRefBoxFragment childBoxFragment
         && startsLayer(childBoxFragment)
       ) {
-        createLayerForBox(parent, offsets, childBoxFragment);
+        createLayerForBox(parentLayer, childBoxFragment, offsets);
       } else {
-        scanLayersRecurse(parent, childFragment, offsets);
+        scanLayersRecurse(parentLayer, childFragment, offsets);
       }
     }
   }

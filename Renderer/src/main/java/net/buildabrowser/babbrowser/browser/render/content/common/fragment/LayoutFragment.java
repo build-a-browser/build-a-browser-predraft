@@ -18,14 +18,6 @@ public abstract class LayoutFragment {
     this.posY = y;
   }
 
-  public int paintOffsetX() {
-    return 0;
-  }
-
-  public int paintOffsetY() {
-    return 0;
-  }
-
   public int marginX() {
     assert this.posX != -1 : "Attempt to get unset X position!";
     return this.posX;

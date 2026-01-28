@@ -10,11 +10,13 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.PaddingUtil;
-import net.buildabrowser.babbrowser.browser.render.content.common.PositionUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionLayout;
+import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.ManagedBoxEntryMarker;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.ManagedBoxExitMarker;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.StagedBlockLevelBox;
@@ -63,15 +65,13 @@ public class FlowInlineLayout {
       stagingArea.pushStagedElement(new StagedText(textBox, textBox.text()));
     } else if (box instanceof ElementBox elementBox) {
       // Might get computed twice for outer box, doesn't really matter
-      BlockFormattingContext activeBlockContext = rootContent.blockLayout().activeContext();
       LayoutConstraint widthConstraint = rootContent.blockLayout().activeContext().innerWidthConstraint();
       BorderUtil.computeBorder(layoutContext, elementBox, widthConstraint);
       PaddingUtil.computePadding(layoutContext, elementBox, widthConstraint);
-      PositionUtil.computeInsets(
-        layoutContext, elementBox,
-        widthConstraint,
-        activeBlockContext.innerHeightConstraint());
-      if (FlowUtil.isFloat(elementBox)) {
+      
+      if (!PositionUtil.affectsLayout(elementBox)) {
+        stagingArea.pushStagedElement(new StagedUnmanagedBox(elementBox));
+      } else if (FlowUtil.isFloat(elementBox)) {
         stagingArea.pushStagedElement(new StagedFloatBox(elementBox));
       } else if (elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)) {
         stagingArea.pushStagedElement(new StagedBlockLevelBox(elementBox));
@@ -99,8 +99,16 @@ public class FlowInlineLayout {
         case StagedText stagedText -> addTextToInline(layoutContext, parentStyles, stagedText);
         case StagedFloatBox stagedFloat -> addFloatAroundInline(
           layoutContext, stagedFloat.elementBox(), widthConstraint, heightConstraint);
-        case StagedUnmanagedBox stagedUnmanagedBox -> addUnmanagedBlockToInline(
-          layoutContext, stagedUnmanagedBox.elementBox(), widthConstraint, heightConstraint);
+        case StagedUnmanagedBox stagedUnmanagedBox -> {
+          if (PositionUtil.affectsLayout(stagedUnmanagedBox.elementBox())) {
+            addUnmanagedBlockToInline(
+              layoutContext, stagedUnmanagedBox.elementBox(), widthConstraint, heightConstraint);
+          } else {
+            LayoutFragment newFragment = PositionLayout.layout(layoutContext, stagedUnmanagedBox.elementBox());
+            InlineFormattingContext parentContext = inlineStack.peek();
+            parentContext.addFragment(newFragment);
+          }
+        }
         case StagedBlockLevelBox stagedBlockLevelBox -> addBlockLevelToInline(
           layoutContext, stagedBlockLevelBox.elementBox(), widthConstraint, heightConstraint);
         case ManagedBoxEntryMarker marker -> inlineStack.peek().pushElement(marker.elementBox());
@@ -200,6 +208,8 @@ public class FlowInlineLayout {
       // TODO: Is this the correct way to compute vertical positioning?
       int marginY = child.borderY() - child.marginY();
       child.setPos(x + marginX, marginY);
+
+      if (child instanceof PosRefBoxFragment) continue;
       x += child.marginWidth();
       if (child instanceof ManagedBoxFragment managedBoxFragment) {
         positionFragmentElements(managedBoxFragment.fragments());

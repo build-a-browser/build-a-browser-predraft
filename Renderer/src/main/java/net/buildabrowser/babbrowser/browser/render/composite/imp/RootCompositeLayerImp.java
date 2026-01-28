@@ -12,6 +12,13 @@ public class RootCompositeLayerImp implements CompositeLayer {
 
   private final List<CompositeLayer> childLayers = new LinkedList<>();
 
+  private final int width, height;
+
+  public RootCompositeLayerImp(int width, int height) {
+    this.width = width;
+    this.height = height;
+  } 
+
   @Override
   public List<CompositeLayer> childLayers() {
     return this.childLayers;
@@ -60,6 +67,16 @@ public class RootCompositeLayerImp implements CompositeLayer {
   @Override
   public int posY() {
     return 0;
+  }
+
+  @Override
+  public int width() {
+    return this.width;
+  }
+
+  @Override
+  public int height() {
+    return this.height;
   }
 
   @Override

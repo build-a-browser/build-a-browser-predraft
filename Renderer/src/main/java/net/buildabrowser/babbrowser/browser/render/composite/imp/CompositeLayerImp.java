@@ -92,12 +92,22 @@ public class CompositeLayerImp implements CompositeLayer {
 
   @Override
   public int posX() {
-    return rootFragment.paintOffsetX() + offsetX;
+    return offsetX;
   }
 
   @Override
   public int posY() {
-    return rootFragment.paintOffsetY() + offsetY;
+    return offsetY;
+  }
+
+  @Override
+  public int width() {
+    return rootFragment.borderWidth();
+  }
+
+  @Override
+  public int height() {
+    return rootFragment.borderHeight();
   }
 
   @Override
