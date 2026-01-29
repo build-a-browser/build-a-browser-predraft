@@ -9,61 +9,106 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.Manag
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
+import net.buildabrowser.babbrowser.browser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
 
 public final class FlowRootContentPainter {
+
+  public static BoxPainter FLOW_BLOCK_PAINTER = new FlowBlockPainter();
+  public static BoxPainter FLOW_INLINE_PAINTER = new FlowInlinePainter();
  
   private FlowRootContentPainter() {}
 
-  public static void paint(PaintCanvas canvas, FlowRootContent rootContent, ManagedBoxFragment rootFragment) {
-    canvas.pushPaint();
-    paintBlockLevelBackgrounds(canvas, rootFragment);
-    paintFloats(canvas, rootContent.floatTracker());
-    paintFragment(canvas, rootFragment);
-    canvas.popPaint();
-  }
+  public static class FlowRootBoxPainter implements BoxPainter {
+  
+    private final FlowRootContent rootContent;
 
-  public static void paintBackground(PaintCanvas canvas, FlowRootContent rootContent, BoxFragment rootFragment) {
-    paintBackgroundAndAdvance(canvas, rootFragment);
-  }
+    public FlowRootBoxPainter(FlowRootContent rootContent) {
+      this.rootContent = rootContent;
+    }
 
-  private static void paintBlockLevelBackgrounds(PaintCanvas canvas, ManagedBoxFragment fragment) {
-    for (LayoutFragment childFragment: fragment.fragments()) {
-      if (LayerScannerUtil.startsLayer(childFragment)) continue;
-
+    @Override
+    public void paint(BoxFragment fragment, PaintCanvas canvas) {
       canvas.pushPaint();
-      canvas.alterPaint(paint -> paint.incOffset(childFragment.borderX(), childFragment.borderY()));
-      switch (childFragment) {
-        case ManagedBoxFragment managedFragment:
-          paintBackgroundAndAdvance(canvas, managedFragment);
-          paintBlockLevelBackgrounds(canvas, managedFragment);
-          break;
-        case UnmanagedBoxFragment unmanagedFragment:
-          paintBackgroundAndAdvance(canvas, unmanagedFragment);
-          break;
-        default:
-          break;
+      paintBlockLevelBackgrounds(canvas, rootContent.rootFragment());
+      paintFloats(canvas, rootContent.floatTracker());
+      paintFragment(canvas, rootContent.rootFragment());
+      canvas.popPaint();
+    }
+
+    @Override
+    public void paintBackground(BoxFragment fragment, PaintCanvas canvas) {
+      // TODO: This triggers too early for <body>
+      paintBackgroundAndAdvance(canvas, fragment);
+    }
+
+    private static void paintBlockLevelBackgrounds(PaintCanvas canvas, ManagedBoxFragment fragment) {
+      for (LayoutFragment childFragment: fragment.fragments()) {
+        if (LayerScannerUtil.startsLayer(childFragment)) continue;
+
+        canvas.pushPaint();
+        canvas.alterPaint(paint -> paint.incOffset(childFragment.borderX(), childFragment.borderY()));
+        switch (childFragment) {
+          case ManagedBoxFragment managedFragment:
+            paintBackgroundAndAdvance(canvas, managedFragment);
+            paintBlockLevelBackgrounds(canvas, managedFragment);
+            break;
+          case UnmanagedBoxFragment unmanagedFragment:
+            paintBackgroundAndAdvance(canvas, unmanagedFragment);
+            break;
+          default:
+            break;
+        }
+        canvas.popPaint();
       }
-      canvas.popPaint();
     }
+
+    public static void paintFloats(PaintCanvas canvas, FloatTracker floatTracker) {
+      for (LayoutFragment childFragment: floatTracker.allFloats()) {
+        if (LayerScannerUtil.startsLayer(childFragment)) continue;
+
+        canvas.pushPaint();
+        canvas.alterPaint(paint -> paint.incOffset(childFragment.borderX(), childFragment.borderY()));
+        paintBackgroundAndAdvance(canvas, (BoxFragment) childFragment);
+        paintFragment(canvas, childFragment);
+        canvas.popPaint();
+      }
+    }
+
   }
 
-  public static void paintFloats(PaintCanvas canvas, FloatTracker floatTracker) {
-    for (LayoutFragment childFragment: floatTracker.allFloats()) {
-      if (LayerScannerUtil.startsLayer(childFragment)) continue;
+  private static class FlowBlockPainter implements BoxPainter {
 
-      canvas.pushPaint();
-      canvas.alterPaint(paint -> paint.incOffset(childFragment.borderX(), childFragment.borderY()));
-      paintBackgroundAndAdvance(canvas, (BoxFragment) childFragment);
-      paintFragment(canvas, childFragment);
-      canvas.popPaint();
+    @Override
+    public void paint(BoxFragment fragment, PaintCanvas canvas) {
+      paintManagedBoxFragment(canvas, (ManagedBoxFragment) fragment);
     }
+
+    @Override
+    public void paintBackground(BoxFragment fragment, PaintCanvas canvas) {
+      paintBackgroundAndAdvance(canvas, fragment);
+    }
+
+  }
+
+  private static class FlowInlinePainter implements BoxPainter {
+
+    @Override
+    public void paint(BoxFragment fragment, PaintCanvas canvas) {
+      paintInlineManagedBoxFragment(canvas, (ManagedBoxFragment) fragment);
+    }
+
+    @Override
+    public void paintBackground(BoxFragment fragment, PaintCanvas canvas) {
+      paintBackgroundAndAdvance(canvas, fragment);
+    }
+
   }
 
   public static void paintFragment(PaintCanvas canvas, LayoutFragment fragment) {
     switch (fragment) {
       case ManagedBoxFragment boxFragment -> paintManagedBoxFragment(canvas, boxFragment);
-      case UnmanagedBoxFragment boxFragment -> boxFragment.box().content().paint(canvas);
+      case UnmanagedBoxFragment boxFragment -> boxFragment.painter().paint(boxFragment, canvas);
       case LineBoxFragment lineboxFragment -> paintLineBoxFragment(canvas, lineboxFragment);
       default -> throw new UnsupportedOperationException("Unrecognized Fragment Type!");
     }
@@ -109,7 +154,7 @@ public final class FlowRootContentPainter {
 
   private static void paintInlineUnmanagedBoxFragment(PaintCanvas canvas, UnmanagedBoxFragment fragment) {
     paintBackgroundAndAdvance(canvas, fragment);
-    fragment.box().content().paint(canvas);
+    fragment.painter().paint(fragment, canvas);
   }
 
   private static void paintTextFragment(PaintCanvas canvas, TextFragment textFragment) {

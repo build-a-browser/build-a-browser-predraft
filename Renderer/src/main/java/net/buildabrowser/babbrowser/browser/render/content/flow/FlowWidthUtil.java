@@ -32,7 +32,7 @@ public final class FlowWidthUtil {
     ElementBoxDimensions boxDimensions = childBox.dimensions();
     if (
       boxDimensions.intrinsicWidth() != -1
-      && boxDimensions.getComputedHeight() != -1
+      && boxDimensions.intrinsicHeight() != -1
     ) {
       return LayoutConstraint.of(boxDimensions.intrinsicWidth());
     } else if (

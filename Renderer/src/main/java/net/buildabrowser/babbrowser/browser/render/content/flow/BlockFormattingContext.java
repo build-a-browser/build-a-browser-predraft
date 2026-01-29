@@ -103,7 +103,9 @@ public class BlockFormattingContext {
   public ManagedBoxFragment close(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
     int usedWidth = LayoutUtil.constraintOrDim(widthConstraint, width);
     int usedHeight = LayoutUtil.constraintOrDim(heightConstraint, y);
-    return new ManagedBoxFragment(usedWidth, usedHeight, elementBox, fragments);
+    return new ManagedBoxFragment(
+      usedWidth, usedHeight, elementBox,
+      FlowRootContentPainter.FLOW_BLOCK_PAINTER, fragments);
   }
 
 }

@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.browser.render.composite;
 
 import java.util.List;
 
-import net.buildabrowser.babbrowser.browser.render.composite.imp.RootCompositeLayerImp;
+import net.buildabrowser.babbrowser.browser.render.composite.imp.CompositeLayerImp;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
 import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
@@ -34,8 +34,8 @@ public interface CompositeLayer {
 
   int zIndex();
 
-  static CompositeLayer createRoot(int width, int height) {
-    return new RootCompositeLayerImp(width, height);
+  static CompositeLayer createRoot(BoxFragment rootFragment) {
+    return new CompositeLayerImp(null, rootFragment);
   }
 
 }

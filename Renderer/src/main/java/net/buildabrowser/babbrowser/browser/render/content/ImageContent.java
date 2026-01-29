@@ -14,13 +14,16 @@ import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
+import net.buildabrowser.babbrowser.browser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
 
-public class ImageContent implements BoxContent {
+public class ImageContent implements BoxContent, BoxPainter {
 
   private final ElementBox box;
 
@@ -57,13 +60,14 @@ public class ImageContent implements BoxContent {
   }
 
   @Override
-  public void layout(
+  public UnmanagedBoxFragment layout(
     LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     ElementBoxDimensions dimensions = box.dimensions();
     int realWidth = LayoutUtil.constraintOrDim(widthConstraint, dimensions.intrinsicWidth());
     int realHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.intrinsicHeight());
-    box.dimensions().setComputedSize(realWidth, realHeight);
+    
+    return new UnmanagedBoxFragment(realWidth, realHeight, box, this);
   }
 
   @Override
@@ -72,10 +76,10 @@ public class ImageContent implements BoxContent {
   }
 
   @Override
-  public void paint(PaintCanvas canvas) {
+  public void paint(BoxFragment fragment, PaintCanvas canvas) {
     canvas.alterPaint(paint -> paint.setColor(box.activeStyles().backgroundColor()));
-    int width = box.dimensions().getComputedWidth();
-    int height = box.dimensions().getComputedHeight();
+    int width = fragment.contentWidth();
+    int height = fragment.contentHeight();
     canvas.drawBox(0, 0, width, height);
     canvas.alterPaint(paint -> paint.setColor(box.activeStyles().textColor()));
 
@@ -89,7 +93,7 @@ public class ImageContent implements BoxContent {
   }
 
   @Override
-  public void paintBackground(PaintCanvas canvas) {
+  public void paintBackground(BoxFragment fragment, PaintCanvas canvas) {
     // TODO: Implement
   }
 

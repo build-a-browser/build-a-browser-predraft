@@ -3,24 +3,26 @@ package net.buildabrowser.babbrowser.browser.render.content.common.fragment;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.browser.render.paint.BoxPainter;
 
 public class ManagedBoxFragment extends BoxFragment {
 
   private final List<LayoutFragment> fragments;
 
   public ManagedBoxFragment(
-    int width, int height,
-    ElementBox box, List<LayoutFragment> fragments
+    int width, int height, ElementBox box,
+    BoxPainter painter,
+    List<LayoutFragment> fragments
   ) {
-    super(width, height, box);
+    super(width, height, box, painter);
     this.fragments = fragments;
   }
 
   public ManagedBoxFragment(
-    int x, int y, int width, int height,
-    ElementBox box, List<LayoutFragment> fragments
+    int x, int y, int width, int height, ElementBox box,
+    List<LayoutFragment> fragments
   ) {
-    this(width, height, box, fragments);
+    this(width, height, box, null, fragments);
     setPos(x, y);
   }
 

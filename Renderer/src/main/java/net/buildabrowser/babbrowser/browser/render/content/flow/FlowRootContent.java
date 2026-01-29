@@ -8,11 +8,12 @@ import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.composite.LayerScannerUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.flow.FlowRootContentPainter.FlowRootBoxPainter;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
-import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
 
 public class FlowRootContent implements BoxContent {
 
@@ -57,7 +58,7 @@ public class FlowRootContent implements BoxContent {
   }
 
   @Override
-  public void layout(
+  public UnmanagedBoxFragment layout(
     LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     floatTracker.reset();
@@ -69,8 +70,10 @@ public class FlowRootContent implements BoxContent {
     rootFragment.setPos(0, 0);
 
     int desiredHeight = Math.max(rootFragment.contentHeight(), floatTracker.contentHeight());
+    int usedWidth = LayoutUtil.constraintOrDim(widthConstraint, rootFragment.contentWidth());
     int usedHeight = LayoutUtil.constraintOrDim(heightConstraint, desiredHeight);
-    rootBox.dimensions().setComputedSize(rootFragment.contentWidth(), usedHeight);
+    
+    return new UnmanagedBoxFragment(usedWidth, usedHeight, rootBox, new FlowRootBoxPainter(this));
   }
 
   @Override
@@ -81,16 +84,6 @@ public class FlowRootContent implements BoxContent {
       // LayerScannerUtil.createLayerForBox(layer, (BoxFragment) floatFragment, new int[2]);
     }
     LayerScannerUtil.scanLayers(layer, rootFragment);
-  }
-
-  @Override
-  public void paint(PaintCanvas canvas) {
-    FlowRootContentPainter.paint(canvas, this, this.rootFragment);
-  }
-
-  @Override
-  public void paintBackground(PaintCanvas canvas) {
-    FlowRootContentPainter.paintBackground(canvas, this, rootFragment);
   }
 
   FlowBlockLayout blockLayout() {

@@ -1,18 +1,25 @@
 package net.buildabrowser.babbrowser.browser.render.content.common.fragment;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.browser.render.paint.BoxPainter;
 
 public class BoxFragment extends LayoutFragment {
   
   private final ElementBox box;
+  private final BoxPainter painter;
 
-  public BoxFragment(int width, int height, ElementBox box) {
+  public BoxFragment(int width, int height, ElementBox box, BoxPainter painter) {
     super(width, height);
     this.box = box;
+    this.painter = painter;
   }
 
   public ElementBox box() {
     return this.box;
+  }
+
+  public BoxPainter painter() {
+    return this.painter;
   }
 
   @Override

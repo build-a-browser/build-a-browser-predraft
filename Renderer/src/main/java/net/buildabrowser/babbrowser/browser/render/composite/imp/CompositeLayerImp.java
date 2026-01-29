@@ -60,7 +60,8 @@ public class CompositeLayerImp implements CompositeLayer {
   @Override
   public boolean isPassthrough() {
     return
-      positioning().equals(PositionValue.RELATIVE)
+      parent != null
+      && positioning().equals(PositionValue.RELATIVE)
       && rootFragment.box().activeStyles().getProperty(CSSProperty.Z_INDEX).equals(CSSValue.AUTO);
   }
 
@@ -72,12 +73,13 @@ public class CompositeLayerImp implements CompositeLayer {
       Collections.sort(childLayers, (a, b) -> Integer.compare(a.zIndex(), b.zIndex()));
       sorted = true;
     }
-    rootFragment.box().content().paintBackground(canvas);
+
+    rootFragment.painter().paintBackground(rootFragment, canvas);
     for (CompositeLayer layer: childLayers) {
       if (layer.zIndex() >= 0) continue;
       paintChildLayer(canvas, layer);
     }
-    rootFragment.box().content().paint(canvas);
+    rootFragment.painter().paint(rootFragment, canvas);
     for (CompositeLayer layer: childLayers) {
       if (layer.zIndex() < 0) continue;
       paintChildLayer(canvas, layer);

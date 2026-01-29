@@ -25,6 +25,7 @@ import net.buildabrowser.babbrowser.browser.render.box.DocumentBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.imp.DocumentBoxImp;
 import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
@@ -76,11 +77,11 @@ public class RendererImp implements Renderer {
           LayoutContext layoutContext = new LayoutContext(url, fontMetrics, stackingContext);
           BoxContent content = documentBox.htmlBox().content();
           content.prelayout(layoutContext);
-          content.layout(layoutContext,
+          UnmanagedBoxFragment rootFragment = content.layout(layoutContext,
             LayoutConstraint.of(this.getWidth()),
             LayoutConstraint.of(this.getHeight()));
           
-          CompositeLayer rootLayer = CompositeLayer.createRoot(this.getWidth(), this.getHeight());
+          CompositeLayer rootLayer = CompositeLayer.createRoot(rootFragment);
           content.layer(rootLayer);
 
           g.setColor(new Color(0xFFFFFF, false));

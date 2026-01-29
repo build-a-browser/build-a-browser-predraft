@@ -7,10 +7,13 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
+import net.buildabrowser.babbrowser.browser.render.composite.LayerScannerUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.PaddingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionUtil;
@@ -157,7 +160,7 @@ public class FlowBlockLayout {
     floatTracker.restoreMark(floatMark); // TODO: Ensure we still account for collapsed padding
     floatTracker.adjustPos(-margin[2] - border[2] - padding[2], activeContext().currentY() - preMargin); // TODO: Include X in the mark?
 
-    addFinishedFragment(newFragment, margin[2]);
+    addFinishedFragment(layoutContext, newFragment, margin[2]);
     
     if (!collapseAfter) {
       parentContext.recordMargin(childContext.currentMaxMargin());
@@ -189,16 +192,15 @@ public class FlowBlockLayout {
 
     activeContext().recordMargin(margin[0]);
     activeContext().collapse();
-    if (!parentWidthConstraint.isPreLayoutConstraint()) {
+    UnmanagedBoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
+      new UnmanagedBoxFragment(
+        FlowUtil.constraintWidth(childBox.dimensions(), childWidthConstraint),
+        FlowUtil.constraintHeight(childBox.dimensions(), childHeightConstraint),
+        childBox, null) :
       childBox.content().layout(layoutContext, childWidthConstraint, childHeightConstraint);
-    }
     activeContext().recordMargin(margin[1]);
 
-    int width = FlowUtil.constraintWidth(childBox.dimensions(), childWidthConstraint);
-    int height = FlowUtil.constraintHeight(childBox.dimensions(), childHeightConstraint);
-
-    UnmanagedBoxFragment newFragment = new UnmanagedBoxFragment(width, height, childBox);
-    addFinishedFragment(newFragment, margin[2]);
+    addFinishedFragment(layoutContext, newFragment, margin[2]);
   }
 
   private void addPositionedToBlock(LayoutContext layoutContext, ElementBox childBox) {
@@ -210,9 +212,16 @@ public class FlowBlockLayout {
     newFragment.setPos(margin[2], parentContext.currentY());
   }
 
-  public void addFinishedFragment(LayoutFragment newFragment, int posX) {
+  public void addFinishedFragment(LayoutContext layoutContext, LayoutFragment newFragment, int posX) {
     BlockFormattingContext parentContext = activeContext();
     newFragment.setPos(posX, parentContext.currentY());
+
+    if (
+      newFragment instanceof BoxFragment boxFragment
+      && LayerScannerUtil.startsLayer(newFragment)
+    ) {
+      newFragment = new PosRefBoxFragment(boxFragment, layoutContext);
+    }
 
     parentContext.increaseY(newFragment.borderHeight());
     parentContext.minWidth(newFragment.marginX() + newFragment.marginWidth());

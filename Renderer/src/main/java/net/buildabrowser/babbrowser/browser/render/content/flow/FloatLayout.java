@@ -5,7 +5,6 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.Unman
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.floats.FloatValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
@@ -34,13 +33,10 @@ public final class FloatLayout {
         layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
 
     if (!parentWidthConstraint.isPreLayoutConstraint()) {
-      childBox.content().layout(layoutContext, childWidthConstraint, childHeightContraint);
+      return childBox.content().layout(layoutContext, childWidthConstraint, childHeightContraint);
     }
 
-    int width = LayoutUtil.constraintOrDim(childWidthConstraint, childBox.dimensions().getComputedWidth());
-    int height = childBox.dimensions().getComputedHeight();
-
-    return new UnmanagedBoxFragment(width, height, childBox);
+    return new UnmanagedBoxFragment(0, 0, childBox, null);
   }
 
   public static boolean addFloat(

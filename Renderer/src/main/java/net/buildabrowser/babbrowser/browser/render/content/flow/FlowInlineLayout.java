@@ -25,7 +25,6 @@ import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingAre
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.StagedUnmanagedBox;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.text.TextWrapModeValue;
 import net.buildabrowser.babbrowser.css.engine.property.whitespace.WhitespaceCollapseValue;
@@ -167,14 +166,12 @@ public class FlowInlineLayout {
       FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
         layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
 
-    if (!parentWidthConstraint.isPreLayoutConstraint()) {
+    UnmanagedBoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
+      new UnmanagedBoxFragment(
+        FlowUtil.constraintWidth(childBox.dimensions(), parentWidthConstraint),
+        FlowUtil.constraintHeight(childBox.dimensions(), parentHeightConstraint),
+        childBox, null) :
       childBox.content().layout(layoutContext, childWidthConstraint, childHeightContraint);
-    }
-
-    int width = LayoutUtil.constraintOrDim(childWidthConstraint, childBox.dimensions().getComputedWidth());
-    int height = childBox.dimensions().getComputedHeight();
-
-    UnmanagedBoxFragment newFragment = new UnmanagedBoxFragment(width, height, childBox);
 
     InlineFormattingContext parentContext = inlineStack.peek();
     parentContext.addFragment(newFragment);
@@ -197,7 +194,7 @@ public class FlowInlineLayout {
   public void positionLine(LineBoxFragment fragment) {
     positionFragmentElements(fragment.fragments());
     int offsetX = rootContent.floatTracker().lineStartPos();
-    rootContent.blockLayout().addFinishedFragment(fragment, offsetX);
+    rootContent.blockLayout().addFinishedFragment(null, fragment, offsetX);
   }
 
   private void positionFragmentElements(List<LayoutFragment> fragments) {

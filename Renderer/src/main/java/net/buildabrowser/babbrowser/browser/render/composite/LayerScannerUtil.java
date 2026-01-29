@@ -1,7 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.composite;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.composite.imp.RootCompositeLayerImp;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineBoxFragment;
@@ -94,10 +93,6 @@ public class LayerScannerUtil {
     ManagedBoxFragment fragment,
     int[] offsets
   ) {
-    if (parentLayer instanceof RootCompositeLayerImp) {
-      parentLayer = parentLayer.createChild(fragment);
-    }
-
     for (LayoutFragment childFragment: fragment.fragments()) {
       if (
         childFragment instanceof PosRefBoxFragment childBoxFragment

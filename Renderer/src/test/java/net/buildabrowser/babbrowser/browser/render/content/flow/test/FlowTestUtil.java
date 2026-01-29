@@ -48,8 +48,8 @@ public final class FlowTestUtil {
   private static void assertFragmentEquals(UnmanagedBoxFragment expected, LayoutFragment actual) {
     Assertions.assertInstanceOf(UnmanagedBoxFragment.class, actual);
     UnmanagedBoxFragment actualFragment = (UnmanagedBoxFragment) actual;
-    Assertions.assertEquals(expected.contentWidth(), actualFragment.box().dimensions().getComputedWidth());
-    Assertions.assertEquals(expected.contentHeight(), actualFragment.box().dimensions().getComputedHeight());
+    Assertions.assertEquals(expected.contentWidth(), actualFragment.contentWidth());
+    Assertions.assertEquals(expected.contentHeight(), actualFragment.contentHeight());
     Assertions.assertEquals(expected.box(), actualFragment.box());
   }
 

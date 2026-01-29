@@ -3,9 +3,6 @@ package net.buildabrowser.babbrowser.browser.render.box.imp;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 
 public class ElementBoxDimensionsImp implements ElementBoxDimensions {
-  
-  private int computedWidth = 0;
-  private int computedHeight = 0;
 
   private int[] computedBorder = new int[] { 0, 0, 0, 0 };
   private int[] computedPadding = new int[] { 0, 0, 0, 0 };
@@ -17,22 +14,6 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   private int intrinsicWidth = -1;
   private int intrinsicHeight = -1;
   private float intrinsicRatio = -1;
-
-  @Override
-  public void setComputedSize(int w, int h) {
-    this.computedWidth = w;
-    this.computedHeight = h;
-  }
-
-  @Override
-  public int getComputedWidth() {
-    return this.computedWidth;
-  }
-
-  @Override
-  public int getComputedHeight() {
-    return this.computedHeight;
-  }
 
   @Override
   public void setComputedBorder(int t, int b, int l, int r) {

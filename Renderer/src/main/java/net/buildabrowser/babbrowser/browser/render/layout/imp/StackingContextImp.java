@@ -14,7 +14,7 @@ public class StackingContextImp implements StackingContext {
   private Deque<CompositeLayer> layers = new ArrayDeque<>();
 
   public StackingContextImp(int topWidth, int topHeight) {
-    layers.add(CompositeLayer.createRoot(topWidth, topHeight));
+    //layers.add(CompositeLayer.createRoot(topWidth, topHeight));
   }
 
   @Override

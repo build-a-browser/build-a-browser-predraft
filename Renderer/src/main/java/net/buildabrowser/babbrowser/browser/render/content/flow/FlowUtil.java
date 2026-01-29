@@ -18,7 +18,6 @@ public final class FlowUtil {
   public static int constraintWidth(ElementBoxDimensions dimensions, LayoutConstraint layoutConstraint) {
     return switch (layoutConstraint.type()) {
       case BOUNDED -> layoutConstraint.value();
-      case AUTO -> dimensions.getComputedWidth();
       case MIN_CONTENT -> dimensions.preferredMinWidthConstraint();
       case MAX_CONTENT -> dimensions.preferredWidthConstraint();
       default -> throw new UnsupportedOperationException("Unsupported constraint type!");
@@ -28,9 +27,10 @@ public final class FlowUtil {
   public static int constraintHeight(ElementBoxDimensions dimensions, LayoutConstraint layoutConstraint) {
     return switch (layoutConstraint.type()) {
       case BOUNDED -> layoutConstraint.value();
-      case AUTO -> dimensions.getComputedHeight();
-      case MIN_CONTENT -> throw new UnsupportedOperationException("Not yet implemented!");
-      case MAX_CONTENT -> throw new UnsupportedOperationException("Not yet implemented!");
+      case AUTO -> 0;
+      // Return 0 for now, we're not tracking the heights yet anyway
+      case MIN_CONTENT -> 0; // throw new UnsupportedOperationException("Not yet implemented!");
+      case MAX_CONTENT -> 0; //throw new UnsupportedOperationException("Not yet implemented!");
       default -> throw new UnsupportedOperationException("Unsupported constraint type!");
     };
   }
