@@ -132,11 +132,12 @@ public class FlowBlockLayout {
     int[] margin = childBox.dimensions().getComputedMargin();
     int[] border = childBox.dimensions().getComputedBorder();
     int[] padding = childBox.dimensions().getComputedPadding();
-    FloatTracker floatTracker = rootContent.floatTracker();
-    int floatMark = floatTracker.mark();
-    floatTracker.adjustPos(margin[2] + border[2] + padding[2], border[0] + padding[0]);
-    int preMargin = parentContext.currentY();
 
+    FloatTracker floatTracker = rootContent.floatTracker();
+    long floatMark = floatTracker.positionTracker().mark();
+    floatTracker.positionTracker().adjustPos(margin[2] + border[2] + padding[2], border[0] + padding[0]);
+
+    int preMargin = parentContext.currentY();
     parentContext.recordMargin(margin[0]);
     boolean collapseFirst = needsCollapsed(childBox, 0);
     if (collapseFirst) {
@@ -157,9 +158,9 @@ public class FlowBlockLayout {
     ManagedBoxFragment newFragment = childContext.close(childWidthConstraint, childHeightConstraint);
     blockStack.pop();
 
-    floatTracker.restoreMark(floatMark); // TODO: Ensure we still account for collapsed padding
-    floatTracker.adjustPos(-margin[2] - border[2] - padding[2], activeContext().currentY() - preMargin); // TODO: Include X in the mark?
-
+    floatTracker.positionTracker().restoreMark(floatMark); // TODO: Ensure we still account for collapsed padding
+    floatTracker.positionTracker().adjustPos(0, activeContext().currentY() - preMargin);
+    
     addFinishedFragment(layoutContext, newFragment, margin[2]);
     
     if (!collapseAfter) {
@@ -227,7 +228,7 @@ public class FlowBlockLayout {
     parentContext.minWidth(newFragment.marginX() + newFragment.marginWidth());
     parentContext.addFragment(newFragment);
 
-    rootContent.floatTracker().adjustPos(0, newFragment.borderHeight());
+    rootContent.floatTracker().positionTracker().adjustPos(0, newFragment.borderHeight());
   }
 
   private void ackFloatClear(ElementBox elementBox) {
@@ -237,7 +238,7 @@ public class FlowBlockLayout {
     int rightClear = clearValue.equals(ClearValue.LEFT) ? 0 : rootContent.floatTracker().clearedLineEndPosition();
     int totalClear = Math.max(leftClear, rightClear);
     blockStack.peek().increaseY(totalClear);
-    rootContent.floatTracker().adjustPos(0, totalClear);
+    rootContent.floatTracker().positionTracker().adjustPos(0, totalClear);
   }
 
   private boolean needsCollapsed(ElementBox box, int refIndex) {

@@ -5,6 +5,7 @@ import java.util.List;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.browser.render.layout.PositionTracker;
 
 public interface FloatTracker {
   
@@ -28,14 +29,7 @@ public interface FloatTracker {
 
   List<LayoutFragment> allFloats();
 
-  // Kind of hacky way to track int positions
-  void adjustPos(int x, int y);
-
-  // More hacky stuff for positioning - if we layout a block with a fixed height,
-  // the end y may increase by a different amount than the sum of lines inside
-  int mark();
-
-  void restoreMark(int mark);
+  PositionTracker positionTracker();
 
   // Exists to min-bound the containing block
   int contentHeight();

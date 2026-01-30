@@ -10,8 +10,7 @@ import java.util.TreeSet;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-
-// TODO: Needs to account for margins
+import net.buildabrowser.babbrowser.browser.render.layout.PositionTracker;
 public class FloatTrackerImp implements FloatTracker {
 
   private static final Comparator<BoxFragment> fragmentComparator = (r1, r2) -> {
@@ -27,8 +26,8 @@ public class FloatTrackerImp implements FloatTracker {
   private final Set<BoxFragment> rightFloats = new TreeSet<BoxFragment>(fragmentComparator);
   private final List<BoxFragment> allFloats = new LinkedList<>();
 
-  private int lineStartOffset = 0;
-  private int blockStartOffset = 0;
+  private final PositionTracker positionTracker = PositionTracker.create();
+
   private int blockEnd = 0;
 
   @Override
@@ -38,11 +37,11 @@ public class FloatTrackerImp implements FloatTracker {
 
     int[] freeInfo = new int[2];
     int freePos = findFreePos(lineConstraint, box.marginWidth() + reservedWidth, freeInfo);
-    if (reservedWidth != 0 && freePos != blockStartOffset) return false;
+    if (reservedWidth != 0 && freePos != positionTracker.posY()) return false;
 
     // Since the box is placed by border pos, we need to convert our margin pos to border pos
     int[] margin = box.box().dimensions().getComputedMargin();
-    box.setPos(Math.max(freeInfo[0] + margin[2], lineStartOffset), freePos + margin[0]);
+    box.setPos(Math.max(freeInfo[0] + margin[2], positionTracker.posX()), freePos + margin[0]);
 
     leftFloats.add(box);
     allFloats.add(box);
@@ -58,9 +57,9 @@ public class FloatTrackerImp implements FloatTracker {
 
     int[] freeInfo = new int[2];
     int freePos = findFreePos(lineConstraint, box.marginWidth() + reservedWidth, freeInfo);
-    if (reservedWidth != 0 && freePos != blockStartOffset) return false;
+    if (reservedWidth != 0 && freePos != positionTracker.posY()) return false;
 
-    int maxEdgePos = lineStartOffset + lineConstraint.value();
+    int maxEdgePos = positionTracker.posX() + lineConstraint.value();
     int maxTouchingPos = freeInfo[1];
     int boxStartPos = Math.min(maxEdgePos, maxTouchingPos) - box.marginWidth();
 
@@ -77,24 +76,24 @@ public class FloatTrackerImp implements FloatTracker {
 
   @Override
   public int clearedLineStartPosition() {
-    return Math.max(getFreePosition(blockStartOffset, leftFloats) - blockStartOffset, 0);
+    return Math.max(getFreePosition(positionTracker.posY(), leftFloats) - positionTracker.posY(), 0);
   }
 
   @Override
   public int clearedLineEndPosition() {
-    return Math.max(getFreePosition(blockStartOffset, rightFloats) - blockStartOffset, 0);
+    return Math.max(getFreePosition(positionTracker.posY(), rightFloats) - positionTracker.posY(), 0);
   }
 
   @Override
   public int lineStartPos() {
     int highestOffset = 0;
     for (BoxFragment box : leftFloats) {
-      if (blockStartOffset >= box.marginY() && blockStartOffset < box.marginY() + box.marginHeight()) {
+      if (positionTracker.posY() >= box.marginY() && positionTracker.posY() < box.marginY() + box.marginHeight()) {
         highestOffset = Math.max(highestOffset, box.marginX() + box.marginWidth());
       }
     }
 
-    return Math.max(0, highestOffset - lineStartOffset);
+    return Math.max(0, highestOffset - positionTracker.posX());
   }
 
   @Override
@@ -105,19 +104,18 @@ public class FloatTrackerImp implements FloatTracker {
 
     int highestOffset = Integer.MAX_VALUE;
     for (BoxFragment box : rightFloats) {
-      if (blockStartOffset >= box.marginY() && blockStartOffset < box.marginY() + box.marginHeight()) {
+      if (positionTracker.posY() >= box.marginY() && positionTracker.posY() < box.marginY() + box.marginHeight()) {
         highestOffset = Math.min(highestOffset, box.marginX());
       }
     }
 
-    return Math.max(0, Math.min(lineStartOffset + lineConstraint.value(), highestOffset - lineStartOffset));
+    return Math.max(0, Math.min(positionTracker.posX() + lineConstraint.value(), highestOffset - positionTracker.posX()));
   }
 
   @Override
   public void reset() {
-    this.lineStartOffset = 0;
-    this.blockStartOffset = 0;
     this.blockEnd = 0;
+    positionTracker.reset();
     leftFloats.clear();
     rightFloats.clear();
     allFloats.clear();
@@ -130,19 +128,8 @@ public class FloatTrackerImp implements FloatTracker {
   }
 
   @Override
-  public void adjustPos(int x, int y) {
-    this.lineStartOffset += x;
-    this.blockStartOffset += y;
-  }
-
-  @Override
-  public int mark() {
-    return this.blockStartOffset;
-  }
-
-  @Override
-  public void restoreMark(int mark) {
-    this.blockStartOffset = mark;
+  public PositionTracker positionTracker() {
+    return this.positionTracker;
   }
 
   @Override
@@ -155,7 +142,7 @@ public class FloatTrackerImp implements FloatTracker {
       throw new UnsupportedOperationException("Can not determine line-end during pre-layout!");
     }
 
-    int currentSearchBlockPos = blockStartOffset;
+    int currentSearchBlockPos = positionTracker.posY();
     int[] nextSearchBlockPos = new int[] { 0 };
 
     Iterator<BoxFragment> leftFragIt;
@@ -169,8 +156,8 @@ public class FloatTrackerImp implements FloatTracker {
       leftFragIt = leftFloats.iterator();
       rightFragIt = rightFloats.iterator();
       nextSearchBlockPos[0] = Integer.MAX_VALUE;
-      int leftOffset = lastValidInlinePos(leftFragIt, currentSearchBlockPos, lineStartOffset, nextSearchBlockPos);
-      int rightOffset = lastValidInlinePos(rightFragIt, currentSearchBlockPos, lineStartOffset + lineConstraint.value(), nextSearchBlockPos);
+      int leftOffset = lastValidInlinePos(leftFragIt, currentSearchBlockPos, positionTracker.posX(), nextSearchBlockPos);
+      int rightOffset = lastValidInlinePos(rightFragIt, currentSearchBlockPos, positionTracker.posX() + lineConstraint.value(), nextSearchBlockPos);
       if (
         rightOffset - leftOffset >= minWidth
         || (leftOffset <= 0 && rightOffset >= lineConstraint.value())
@@ -190,7 +177,7 @@ public class FloatTrackerImp implements FloatTracker {
   }
 
   private int lastValidInlinePos(Iterator<BoxFragment> fragIt, int blockPos, int initInlinePos, int[] outNextBlockPos) {
-    boolean isLeftSide = initInlinePos == lineStartOffset;
+    boolean isLeftSide = initInlinePos == positionTracker.posX();
     BoxFragment currentFragment = fragIt.hasNext() ? fragIt.next() : null;
     int inlinePos = initInlinePos;
     while (currentFragment != null && currentFragment.marginY() <= blockPos) {

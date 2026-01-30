@@ -74,7 +74,7 @@ public class BlockFormattingContext {
     }
 
     int amount = maxMargin + minMargin;
-    rootContent.floatTracker().adjustPos(0, amount);
+    rootContent.floatTracker().positionTracker().adjustPos(0, amount);
     increaseY(amount);
     this.maxMargin = 0;
     this.minMargin = 0;

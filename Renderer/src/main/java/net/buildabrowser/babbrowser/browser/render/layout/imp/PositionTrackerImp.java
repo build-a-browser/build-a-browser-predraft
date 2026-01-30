@@ -9,13 +9,13 @@ public class PositionTrackerImp implements PositionTracker {
 
   @Override
   public void adjustPos(int x, int y) {
-    this.posX = x;
-    this.posY = y;
+    this.posX += x;
+    this.posY += y;
   }
 
   @Override
   public long mark() {
-    return (this.posX << 32) | this.posY;
+    return (this.posX << 32) | (this.posY & 0xFFFFFFFFL);
   }
 
   @Override
