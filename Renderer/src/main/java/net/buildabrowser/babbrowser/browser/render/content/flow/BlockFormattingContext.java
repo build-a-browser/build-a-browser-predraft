@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
@@ -38,7 +38,7 @@ public class BlockFormattingContext {
     this.rootContent = rootContent;
     this.collapseContext = collapseContext;
 
-    this.fragments = new ArrayList<>();
+    this.fragments = new LinkedList<>();
   }
 
   public int currentY() {

@@ -21,7 +21,7 @@ public class TestFixedSizeReplacedContent implements BoxContent {
   }
 
   @Override
-  public void prelayout(LayoutContext layoutContext) {
+  public void prelayout(LayoutContext layoutContext, LayoutConstraint layoutConstraint) {
     ElementBoxDimensions dimensions = box.dimensions();
     dimensions.setPreferredMinWidthConstraint(width);
     dimensions.setPreferredWidthConstraint(width);

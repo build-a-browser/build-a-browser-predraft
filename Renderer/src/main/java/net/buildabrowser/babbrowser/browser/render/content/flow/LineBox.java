@@ -1,6 +1,5 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -17,11 +16,11 @@ public class LineBox {
   private final Deque<LineSegment> lineSegments;
 
   public LineBox() {
-    this.lineSegments = new ArrayDeque<>();
+    this.lineSegments = new LinkedList<>();
     lineSegments.push(new LineSegment(null, new LinkedList<>()));
   }
 
-  private LineBox(ArrayDeque<LineSegment> segments) {
+  private LineBox(Deque<LineSegment> segments) {
     this.lineSegments = segments;
   }
 
@@ -82,7 +81,7 @@ public class LineBox {
   }
 
   public LineBox split() {
-    ArrayDeque<LineSegment> newSegments = new ArrayDeque<>();
+    Deque<LineSegment> newSegments = new LinkedList<>();
     Iterator<LineSegment> it = lineSegments.descendingIterator();
     while (it.hasNext()) {
       LineSegment oldSegment = it.next();

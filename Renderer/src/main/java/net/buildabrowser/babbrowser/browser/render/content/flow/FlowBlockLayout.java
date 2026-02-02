@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.LinkedList;
 
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
@@ -27,7 +27,7 @@ import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 
 public class FlowBlockLayout {
 
-  private final Deque<BlockFormattingContext> blockStack = new ArrayDeque<>();
+  private final Deque<BlockFormattingContext> blockStack = new LinkedList<>();
   private final FlowRootContent rootContent;
   
   private BlockFormattingContext rootContext;
@@ -207,6 +207,10 @@ public class FlowBlockLayout {
         FlowUtil.constraintHeight(childBox.dimensions(), childHeightConstraint),
         childBox, null) :
       childBox.content().layout(layoutContext, childWidthConstraint, childHeightConstraint);
+    if (parentWidthConstraint.isPreLayoutConstraint()) {
+      childBox.content().prelayout(layoutContext, parentWidthConstraint);
+    }
+
     activeContext().recordMargin(margin[1]);
 
     addFinishedFragment(layoutContext, newFragment, margin[2]);

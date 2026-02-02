@@ -34,7 +34,7 @@ public class ImageContent implements BoxContent, BoxPainter {
   }
 
   @Override
-  public void prelayout(LayoutContext layoutContext) {
+  public void prelayout(LayoutContext layoutContext, LayoutConstraint layoutConstraint) {
     loadImage(layoutContext.refURL());
 
     ElementBoxDimensions dimensions = box.dimensions();

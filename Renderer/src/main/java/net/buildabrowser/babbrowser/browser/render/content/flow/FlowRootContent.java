@@ -1,6 +1,5 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
-import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
@@ -32,30 +31,21 @@ public class FlowRootContent implements BoxContent {
   }
 
   @Override
-  public void prelayout(LayoutContext layoutContext) {
-    // TODO: This might not be an efficient way to prelayout...
-    // Since it lays out a lot of stuff that will be skipped in the real run
-    for (Box child: rootBox.childBoxes()) {
-      if (child instanceof ElementBox elementBox) {
-        elementBox.content().prelayout(layoutContext);
-      }
-    }
-
+  public void prelayout(LayoutContext layoutContext, LayoutConstraint layoutConstraint) {
     ElementBoxDimensions dimensions = rootBox.dimensions();
 
     floatTracker.reset();
-    blockLayout.reset(rootBox, LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO);
+    blockLayout.reset(rootBox, layoutConstraint, LayoutConstraint.AUTO);
     blockLayout.addChildrenToBlock(
-      layoutContext, rootBox, LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO);
-    dimensions.setPreferredMinWidthConstraint(
-      blockLayout.close(LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).contentWidth());
-
-    floatTracker.reset();
-    blockLayout.reset(rootBox, LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO);
-    blockLayout.addChildrenToBlock(
-      layoutContext, rootBox, LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO);
+      layoutContext, rootBox, layoutConstraint, LayoutConstraint.AUTO);
+    if (layoutConstraint.equals(LayoutConstraint.MIN_CONTENT)) {
+      dimensions.setPreferredMinWidthConstraint(
+        blockLayout.close(layoutConstraint, LayoutConstraint.AUTO).contentWidth());
+    } else {
+      assert layoutConstraint.equals(LayoutConstraint.MAX_CONTENT);
     dimensions.setPreferredWidthConstraint(
       blockLayout.close(LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).contentWidth());
+    }
   }
 
   @Override

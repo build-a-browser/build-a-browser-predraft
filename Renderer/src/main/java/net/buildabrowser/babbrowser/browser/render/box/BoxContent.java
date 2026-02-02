@@ -6,7 +6,7 @@ import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 
 public interface BoxContent {
 
-  void prelayout(LayoutContext layoutContext);
+  void prelayout(LayoutContext layoutContext, LayoutConstraint option);
   
   UnmanagedBoxFragment layout(LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
 

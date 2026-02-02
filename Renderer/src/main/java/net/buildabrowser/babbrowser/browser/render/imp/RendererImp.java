@@ -76,9 +76,12 @@ public class RendererImp implements Renderer {
           FontMetrics fontMetrics = new J2DFontMetrics(g.getFontMetrics());
           BoxContent content = documentBox.htmlBox().content();
 
-          StackingContext plStackingContext = new PrelayoutStackingContextImp();
+          StackingContext plStackingContext = new PrelayoutStackingContextImp(LayoutConstraint.MIN_CONTENT);
           LayoutContext plLayoutContext = new LayoutContext(url, fontMetrics, plStackingContext);
-          content.prelayout(plLayoutContext);
+          content.prelayout(plLayoutContext, LayoutConstraint.MIN_CONTENT);
+          plStackingContext = new PrelayoutStackingContextImp(LayoutConstraint.MAX_CONTENT);
+          plLayoutContext = new LayoutContext(url, fontMetrics, plStackingContext);
+          content.prelayout(plLayoutContext, LayoutConstraint.MAX_CONTENT);
 
           StackingContext stackingContext = StackingContext.create();
           LayoutContext layoutContext = new LayoutContext(url, fontMetrics, stackingContext);

@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.browser.render.layout.imp;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.LinkedList;
 
 import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRefBoxFragment;
@@ -9,7 +9,7 @@ import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 
 public class StackingContextImp implements StackingContext {
 
-  private final Deque<StackingContext> contextStack = new ArrayDeque<>();
+  private final Deque<StackingContext> contextStack = new LinkedList<>();
 
   public StackingContextImp() {
     contextStack.push(new SubStackingContextImp());

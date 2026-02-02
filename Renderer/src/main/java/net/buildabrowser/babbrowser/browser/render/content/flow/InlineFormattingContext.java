@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.LinkedList;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
@@ -22,7 +22,7 @@ public class InlineFormattingContext {
     LayoutConstraint inlineConstraint,
     ActiveStyles initialStyles
   ) {
-    this(rootContent, inlineConstraint, new LineBox(), new ArrayDeque<>());
+    this(rootContent, inlineConstraint, new LineBox(), new LinkedList<>());
     stylesStack.push(initialStyles);
   }
 
