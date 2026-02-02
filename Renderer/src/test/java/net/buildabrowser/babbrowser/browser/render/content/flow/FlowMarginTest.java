@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.browser.render.content.flow;
 import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowBoxTestUtil.flowBlockBox;
 import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowBoxTestUtil.flowInlineBox;
 import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowLayoutUtil.doLayout;
-import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowLayoutUtil.doLayoutContentSized;
 import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowLayoutUtil.doLayoutSized;
 import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowTestUtil.assertFragmentEquals;
 
@@ -128,7 +127,7 @@ public class FlowMarginTest {
     TestTextBox childBox2 = new TestTextBox("Off");
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
-    FlowRootContent rootContent = doLayoutContentSized(parentBox, 80);
+    FlowRootContent rootContent = doLayoutSized(parentBox, 80).rootContent();
 
     LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
       new LineBoxFragment(40, 0, 15, 10, List.of(
@@ -222,7 +221,7 @@ public class FlowMarginTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    LayoutFragment actualFragment = doLayoutSized(parentBox, 80);
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 80).fragment();
     Assertions.assertEquals(80, actualFragment.contentWidth());
     Assertions.assertEquals(25, actualFragment.contentHeight());
 

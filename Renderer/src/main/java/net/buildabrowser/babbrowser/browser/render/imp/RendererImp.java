@@ -29,6 +29,7 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.Unman
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
+import net.buildabrowser.babbrowser.browser.render.layout.imp.PrelayoutStackingContextImp;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
 import net.buildabrowser.babbrowser.browser.render.paint.java2d.J2DFontMetrics;
@@ -73,16 +74,22 @@ public class RendererImp implements Renderer {
         protected void paintComponent(Graphics g) {
           if (documentBox == null) return;
           FontMetrics fontMetrics = new J2DFontMetrics(g.getFontMetrics());
-          StackingContext stackingContext = StackingContext.create(this.getWidth(), this.getHeight());
-          LayoutContext layoutContext = new LayoutContext(url, fontMetrics, stackingContext);
           BoxContent content = documentBox.htmlBox().content();
-          content.prelayout(layoutContext);
+
+          StackingContext plStackingContext = new PrelayoutStackingContextImp();
+          LayoutContext plLayoutContext = new LayoutContext(url, fontMetrics, plStackingContext);
+          content.prelayout(plLayoutContext);
+
+          StackingContext stackingContext = StackingContext.create();
+          LayoutContext layoutContext = new LayoutContext(url, fontMetrics, stackingContext);
+
           UnmanagedBoxFragment rootFragment = content.layout(layoutContext,
             LayoutConstraint.of(this.getWidth()),
             LayoutConstraint.of(this.getHeight()));
+          rootFragment.setPos(0, 0);
           
           CompositeLayer rootLayer = CompositeLayer.createRoot(rootFragment);
-          content.layer(rootLayer);
+          stackingContext.layoutDeferred(rootLayer);
 
           g.setColor(new Color(0xFFFFFF, false));
           g.fillRect(0, 0, getWidth(), getHeight());

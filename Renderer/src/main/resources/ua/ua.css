@@ -29,6 +29,11 @@ b {
   font-weight: bold;
 }
 
+p {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
 /* For content after this line, see licenses/WHATWG.txt for license information. */
 article, aside, h1, h2, h3, h4, h5, h6, hgroup, nav, section {
   display: block;

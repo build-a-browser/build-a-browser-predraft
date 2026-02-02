@@ -8,8 +8,10 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
+import net.buildabrowser.babbrowser.browser.render.composite.LayerUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.PaddingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
@@ -166,12 +168,22 @@ public class FlowInlineLayout {
       FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
         layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
 
-    UnmanagedBoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
+    if (LayerUtil.startsLayer(childBox)) {
+      layoutContext.stackingContext().start();
+    }
+
+    BoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
       new UnmanagedBoxFragment(
         FlowUtil.constraintWidth(childBox.dimensions(), parentWidthConstraint),
         FlowUtil.constraintHeight(childBox.dimensions(), parentHeightConstraint),
         childBox, null) :
       childBox.content().layout(layoutContext, childWidthConstraint, childHeightContraint);
+    
+    if (LayerUtil.startsLayer(childBox)) {
+      newFragment.setPos(0, 0);
+      newFragment = new PosRefBoxFragment(newFragment, layoutContext);
+      layoutContext.stackingContext().end((PosRefBoxFragment) newFragment);
+    }
 
     InlineFormattingContext parentContext = inlineStack.peek();
     parentContext.addFragment(newFragment);
@@ -206,7 +218,7 @@ public class FlowInlineLayout {
       int marginY = child.borderY() - child.marginY();
       child.setPos(x + marginX, marginY);
 
-      if (child instanceof PosRefBoxFragment) continue;
+      if (!PositionUtil.affectsLayout(child)) continue;
       x += child.marginWidth();
       if (child instanceof ManagedBoxFragment managedBoxFragment) {
         positionFragmentElements(managedBoxFragment.fragments());

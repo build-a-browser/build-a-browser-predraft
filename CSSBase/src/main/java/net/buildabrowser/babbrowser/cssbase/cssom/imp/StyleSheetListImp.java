@@ -9,7 +9,7 @@ public record StyleSheetListImp(List<CSSStyleSheet> styleSheets) implements Styl
 
   @Override
   public CSSStyleSheet item(long index) {
-    assert index <= Integer.MAX_VALUE && index > 0;
+    assert index <= Integer.MAX_VALUE && index >= 0;
     return styleSheets.get((int) index);
   }
 

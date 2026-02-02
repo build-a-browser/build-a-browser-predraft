@@ -13,7 +13,6 @@ import net.buildabrowser.babbrowser.browser.render.box.Box.InvalidationLevel;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
@@ -68,11 +67,6 @@ public class ImageContent implements BoxContent, BoxPainter {
     int realHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.intrinsicHeight());
     
     return new UnmanagedBoxFragment(realWidth, realHeight, box, this);
-  }
-
-  @Override
-  public void layer(CompositeLayer layer) {
-    // No-op
   }
 
   @Override

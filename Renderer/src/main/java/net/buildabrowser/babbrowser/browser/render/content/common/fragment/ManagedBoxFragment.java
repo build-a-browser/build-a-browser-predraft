@@ -16,6 +16,10 @@ public class ManagedBoxFragment extends BoxFragment {
   ) {
     super(width, height, box, painter);
     this.fragments = fragments;
+
+    for (LayoutFragment fragment: fragments) {
+      fragment.setParent(this);
+    }
   }
 
   public ManagedBoxFragment(

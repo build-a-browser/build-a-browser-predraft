@@ -9,3 +9,7 @@ dependencies {
 application {
     mainClass = 'net.buildabrowser.babbrowser.browser.Main'
 }
+
+run {
+    enableAssertions = true
+}

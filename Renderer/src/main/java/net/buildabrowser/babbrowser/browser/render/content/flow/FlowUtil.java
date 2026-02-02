@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.browser.render.content.flow;
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
-import net.buildabrowser.babbrowser.browser.render.composite.LayerScannerUtil;
+import net.buildabrowser.babbrowser.browser.render.composite.LayerUtil;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
@@ -47,7 +47,7 @@ public final class FlowUtil {
     return
       elementBox.activeStyles().innerDisplayValue().equals(InnerDisplayValue.FLOW)
       && !elementBox.isReplaced()
-      && !LayerScannerUtil.startsLayer(elementBox);
+      && !LayerUtil.startsLayer(elementBox);
   }
 
   public static boolean isFloat(ElementBox elementBox) {

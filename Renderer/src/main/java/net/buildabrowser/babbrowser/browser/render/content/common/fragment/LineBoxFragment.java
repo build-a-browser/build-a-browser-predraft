@@ -6,11 +6,17 @@ public class LineBoxFragment extends LayoutFragment {
 
   private final List<LayoutFragment> fragments;
 
+  private LayoutFragment parentFragment;
+
   public LineBoxFragment(
     int width, int height, List<LayoutFragment> fragments
   ) {
     super(width, height);
     this.fragments = fragments;
+
+    for (LayoutFragment fragment: fragments) {
+      fragment.setParent(this);
+    }
   }
 
   public LineBoxFragment(
@@ -22,6 +28,22 @@ public class LineBoxFragment extends LayoutFragment {
 
   public List<LayoutFragment> fragments() {
     return this.fragments;
+  }
+
+  public void setParent(LayoutFragment parent) {
+    this.parentFragment = parent;
+  }
+
+  @Override
+  public int layerX() {
+    assert parentFragment != null;
+    return parentFragment.layerX() + contentX();
+  }
+
+  @Override
+  public int layerY() {
+    assert parentFragment != null;
+    return parentFragment.layerY() + contentY();
   }
 
   @Override

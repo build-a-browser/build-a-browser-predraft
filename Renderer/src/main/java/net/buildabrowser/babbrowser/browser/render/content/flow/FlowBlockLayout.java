@@ -7,7 +7,7 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
-import net.buildabrowser.babbrowser.browser.render.composite.LayerScannerUtil;
+import net.buildabrowser.babbrowser.browser.render.composite.LayerUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
@@ -128,6 +128,10 @@ public class FlowBlockLayout {
       layoutContext, parentWidthConstraint, childBox);
     LayoutConstraint childHeightConstraint = FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
       layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
+    
+    if (LayerUtil.startsLayer(childBox)) {
+      layoutContext.stackingContext().start();
+    }
 
     int[] margin = childBox.dimensions().getComputedMargin();
     int[] border = childBox.dimensions().getComputedBorder();
@@ -189,8 +193,12 @@ public class FlowBlockLayout {
       FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
         layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
 
-    int[] margin = childBox.dimensions().getComputedMargin();
+    // TODO: withRelative helper?
+    if (LayerUtil.startsLayer(childBox)) {
+      layoutContext.stackingContext().start();
+    }
 
+    int[] margin = childBox.dimensions().getComputedMargin();
     activeContext().recordMargin(margin[0]);
     activeContext().collapse();
     UnmanagedBoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
@@ -206,24 +214,28 @@ public class FlowBlockLayout {
 
   private void addPositionedToBlock(LayoutContext layoutContext, ElementBox childBox) {
     BlockFormattingContext parentContext = activeContext();
+
+    int estimatedAboveMargin = parentContext.currentMaxMargin() + parentContext.currentMinMargin();
+    // Don't bother marking the float tracker position, the child should establish a new one
+
     LayoutFragment newFragment = PositionLayout.layout(layoutContext, childBox);
     parentContext.addFragment(newFragment);
-    
+
     int[] margin = childBox.dimensions().getComputedMargin();
-    newFragment.setPos(margin[2], parentContext.currentY());
+    newFragment.setPos(margin[2], margin[0] + estimatedAboveMargin + parentContext.currentY());
+
+    parentContext.addFragment(newFragment); // Still needed to set fragment parent
   }
 
   public void addFinishedFragment(LayoutContext layoutContext, LayoutFragment newFragment, int posX) {
-    BlockFormattingContext parentContext = activeContext();
-    newFragment.setPos(posX, parentContext.currentY());
-
-    if (
-      newFragment instanceof BoxFragment boxFragment
-      && LayerScannerUtil.startsLayer(newFragment)
-    ) {
-      newFragment = new PosRefBoxFragment(boxFragment, layoutContext);
+    if (LayerUtil.startsLayer(newFragment)) {
+      newFragment.setPos(0, 0);
+      newFragment = new PosRefBoxFragment((BoxFragment) newFragment, layoutContext);
+      layoutContext.stackingContext().end((PosRefBoxFragment) newFragment);
     }
 
+    BlockFormattingContext parentContext = activeContext();
+    newFragment.setPos(posX, parentContext.currentY());
     parentContext.increaseY(newFragment.borderHeight());
     parentContext.minWidth(newFragment.marginX() + newFragment.marginWidth());
     parentContext.addFragment(newFragment);

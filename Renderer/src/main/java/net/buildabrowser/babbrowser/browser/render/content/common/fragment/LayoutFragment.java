@@ -18,6 +18,10 @@ public abstract class LayoutFragment {
     this.posY = y;
   }
 
+  public void setParent(LayoutFragment parent) {
+    // No-op, subclasses can override
+  }
+
   public int marginX() {
     assert this.posX != -1 : "Attempt to get unset X position!";
     return this.posX;
@@ -44,6 +48,15 @@ public abstract class LayoutFragment {
 
   public int contentY() {
     return borderY();
+  }
+
+  // Since LineBoxFragment and BoxFragment do not share another common parent, the layerpos methods are here for convenience
+  public int layerX() {
+    throw new UnsupportedOperationException("This fragment does not support layer coordinates!");
+  }
+
+  public int layerY() {
+    throw new UnsupportedOperationException("This fragment does not support layer coordinates!");
   }
 
   public int marginWidth() {

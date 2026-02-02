@@ -4,8 +4,7 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
-import net.buildabrowser.babbrowser.browser.render.composite.LayerScannerUtil;
+import net.buildabrowser.babbrowser.browser.render.composite.LayerUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
@@ -34,6 +33,8 @@ public class FlowRootContent implements BoxContent {
 
   @Override
   public void prelayout(LayoutContext layoutContext) {
+    // TODO: This might not be an efficient way to prelayout...
+    // Since it lays out a lot of stuff that will be skipped in the real run
     for (Box child: rootBox.childBoxes()) {
       if (child instanceof ElementBox elementBox) {
         elementBox.content().prelayout(layoutContext);
@@ -68,22 +69,24 @@ public class FlowRootContent implements BoxContent {
 
     this.rootFragment = blockLayout.close(widthConstraint, heightConstraint);
     rootFragment.setPos(0, 0);
+    for (LayoutFragment floatFragment: floatTracker().allFloats()) {
+      floatFragment.setParent(rootFragment); // Wasn't implicitly set since it's not added to the managed fragment
+    }
 
     int desiredHeight = Math.max(rootFragment.contentHeight(), floatTracker.contentHeight());
     int usedWidth = LayoutUtil.constraintOrDim(widthConstraint, rootFragment.contentWidth());
     int usedHeight = LayoutUtil.constraintOrDim(heightConstraint, desiredHeight);
     
-    return new UnmanagedBoxFragment(usedWidth, usedHeight, rootBox, new FlowRootBoxPainter(this));
-  }
+    UnmanagedBoxFragment wrapperFragment = new UnmanagedBoxFragment(usedWidth, usedHeight, rootBox, new FlowRootBoxPainter(this));
 
-  @Override
-  public void layer(CompositeLayer layer) {
-    for (LayoutFragment floatFragment: floatTracker.allFloats()) {
-      if (!LayerScannerUtil.startsLayer(floatFragment)) continue;
-      // TODO: Adjust the code below
-      // LayerScannerUtil.createLayerForBox(layer, (BoxFragment) floatFragment, new int[2]);
+    // For a box that does not start a layer, setting the inner box's parent to the outer box has the effect of inheriting layerX
+    // and layerY (because the inner pos is (0, 0), the double boxing doesn't have an adverse effect despite the implicit addition).
+    // For a box that does start a layer, we skip the link so the inner box's layerPos is (0, 0).
+    if (!LayerUtil.startsLayer(wrapperFragment)) {
+      rootFragment.setParent(wrapperFragment);
     }
-    LayerScannerUtil.scanLayers(layer, rootFragment);
+
+    return wrapperFragment;
   }
 
   FlowBlockLayout blockLayout() {

@@ -9,7 +9,7 @@ public record CSSRuleListImp(List<CSSRule> rules) implements CSSRuleList {
 
   @Override
   public CSSRule item(long index) {
-    assert index <= Integer.MAX_VALUE && index > 0;
+    assert index <= Integer.MAX_VALUE && index >= 0;
     return rules.get((int) index);
   }
 

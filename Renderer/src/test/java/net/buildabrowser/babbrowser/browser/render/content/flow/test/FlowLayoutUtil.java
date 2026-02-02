@@ -1,7 +1,8 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow.test;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
@@ -12,41 +13,36 @@ public final class FlowLayoutUtil {
   
   private FlowLayoutUtil() {}
 
-  public static LayoutFragment doLayout(ElementBox parentBox) {
+  public static ManagedBoxFragment doLayout(ElementBox parentBox) {
+    return doLayoutConstrainted(parentBox, LayoutConstraint.AUTO, LayoutConstraint.AUTO).fragment();
+  }
+
+  public static FlowTestLayoutResult doLayoutSized(ElementBox parentBox, int width) {
+    return doLayoutConstrainted(parentBox, LayoutConstraint.of(width), LayoutConstraint.AUTO);
+  }
+
+  public static FlowTestLayoutResult doLayoutSized(ElementBox parentBox, int width, int height) {
+    return doLayoutConstrainted(parentBox, LayoutConstraint.of(width), LayoutConstraint.of(height));
+  }
+
+  public static FlowTestLayoutResult doLayoutConstrainted(
+    ElementBox parentBox,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
+  ) {
     LayoutContext layoutContext = new LayoutContext(
       TestFontMetrics.create(10, 5),
-      StackingContext.create(100, 100));
+      StackingContext.create());
     FlowRootContent content = (FlowRootContent) parentBox.content();
+    // TODO: Shouldn't really pre-layout with a normal stacking context
     content.prelayout(layoutContext);
 
-    content.layout(layoutContext, LayoutConstraint.AUTO, LayoutConstraint.AUTO);
-    return content.rootFragment();
+    UnmanagedBoxFragment dimensionFrag = content.layout(layoutContext, widthConstraint, heightConstraint);
+    return new FlowTestLayoutResult(dimensionFrag, content.rootFragment(), content);
   }
 
-  public static LayoutFragment doLayoutSized(ElementBox parentBox, int width) {
-    return doLayoutContentSized(parentBox, width).rootFragment();
-  }
-
-  public static FlowRootContent doLayoutContentSized(ElementBox parentBox, int width) {
-    LayoutContext layoutContext = new LayoutContext(
-      TestFontMetrics.create(10, 5),
-      StackingContext.create(width, 100));
-    FlowRootContent content = (FlowRootContent) parentBox.content();
-    content.prelayout(layoutContext);
-    content.layout(layoutContext, LayoutConstraint.of(width), LayoutConstraint.AUTO);
-
-    return content;
-  }
-
-  public static LayoutFragment doLayoutSized(ElementBox parentBox, int width, int height) {
-    LayoutContext layoutContext = new LayoutContext(
-      TestFontMetrics.create(10, 5),
-      StackingContext.create(width, height));
-    FlowRootContent content = (FlowRootContent) parentBox.content();
-    content.prelayout(layoutContext);
-    content.layout(layoutContext, LayoutConstraint.of(width), LayoutConstraint.of(height));
-
-    return content.rootFragment();
-  }
+  public static record FlowTestLayoutResult(
+    UnmanagedBoxFragment dimensionFrag, ManagedBoxFragment fragment, FlowRootContent rootContent
+  ) {}
 
 }

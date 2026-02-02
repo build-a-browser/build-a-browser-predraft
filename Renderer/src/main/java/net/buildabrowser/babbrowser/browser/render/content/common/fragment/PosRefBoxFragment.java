@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.content.common.fragment;
 
+import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
@@ -14,7 +15,18 @@ public class PosRefBoxFragment extends BoxFragment {
   private static final BoxPainter REF_PAINTER = new PosRefBoxFragmentPainter();
 
   private final BoxFragment refFragment;
+  private final ElementBox refBox;
   private final LayoutContext refLayoutContext;
+
+  public PosRefBoxFragment(
+    ElementBox refBox,
+    LayoutContext refLayoutContext
+  ) {
+    super(0, 0, refBox, REF_PAINTER);
+    this.refLayoutContext = refLayoutContext;
+    this.refBox = refBox;
+    this.refFragment = null;
+  }
 
   public PosRefBoxFragment(
     BoxFragment refFragment,
@@ -22,6 +34,7 @@ public class PosRefBoxFragment extends BoxFragment {
   ) {
     super(refFragment.contentWidth(), refFragment.contentHeight(), refFragment.box(), REF_PAINTER);
     this.refLayoutContext = refLayoutContext;
+    this.refBox = refFragment.box();
     this.refFragment = refFragment;
   }
 
@@ -35,6 +48,10 @@ public class PosRefBoxFragment extends BoxFragment {
 
   public BoxFragment referenceFragment() {
     return this.refFragment;
+  }
+
+  public ElementBox referenceBox() {
+    return this.refBox;
   }
 
   @Override

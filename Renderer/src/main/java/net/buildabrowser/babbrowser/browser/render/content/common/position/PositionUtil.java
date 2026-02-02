@@ -2,8 +2,11 @@ package net.buildabrowser.babbrowser.browser.render.content.common.position;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
@@ -15,22 +18,30 @@ public final class PositionUtil {
     CSSValue position = box.activeStyles().getProperty(CSSProperty.POSITION);
     return position.equals(PositionValue.STATIC) || position.equals(PositionValue.RELATIVE);
   }
+
+  public static boolean affectsLayout(LayoutFragment fragment) {
+    return
+      !(fragment instanceof PosRefBoxFragment refFrag)
+      || affectsLayout(refFrag.box());
+  }
   
-  public static LayoutConstraint[] computeInsets(
-    LayoutContext layoutContext,
-    ElementBox childBox,
+  public static int[] computeInsets(
+    PosRefBoxFragment refFragment,
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint
   ) {
-    PositionValue position = (PositionValue) childBox.activeStyles().getProperty(CSSProperty.POSITION);
+    PositionValue position = (PositionValue) refFragment.referenceBox().activeStyles().getProperty(CSSProperty.POSITION);
     if (position.equals(PositionValue.RELATIVE)) {
-      return computeRelativeInsets(layoutContext, parentWidthConstraint, parentHeightConstraint, childBox);
+      return computeRelativeInsets(
+        refFragment.referenceLayoutContext(),
+        parentWidthConstraint, parentHeightConstraint,
+        refFragment.referenceBox());
     } else {
-      return computeAbsoluteInsets(layoutContext, parentWidthConstraint, parentHeightConstraint, childBox);
+      return computeAbsoluteInsets(refFragment, parentWidthConstraint, parentHeightConstraint);
     }
   }
 
-  private static LayoutConstraint[] computeRelativeInsets(
+  private static int[] computeRelativeInsets(
     LayoutContext layoutContext, 
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint,
@@ -44,31 +55,41 @@ public final class PositionUtil {
       styles.getProperty(CSSProperty.LEFT), styles.getProperty(CSSProperty.RIGHT),
       layoutContext, childBox, parentWidthConstraint);
     
-    return new LayoutConstraint[] {
-      LayoutConstraint.of(topInset),
-      LayoutConstraint.of(-topInset),
-      LayoutConstraint.of(leftInset),
-      LayoutConstraint.of(-leftInset)
+    return new int[] {
+      topInset, -topInset, leftInset, -leftInset
     };
   }
 
-  private static LayoutConstraint[] computeAbsoluteInsets(
-    LayoutContext layoutContext, 
+  // TODO: Respect self-alignment
+  private static int[] computeAbsoluteInsets(
+    PosRefBoxFragment refFragment,
     LayoutConstraint parentWidthConstraint,
-    LayoutConstraint parentHeightConstraint,
-    ElementBox childBox
+    LayoutConstraint parentHeightConstraint
   ) {
-    ActiveStyles styles = childBox.activeStyles();
+    ActiveStyles styles = refFragment.referenceBox().activeStyles();
+    LayoutContext layoutContext = refFragment.referenceLayoutContext();
     LayoutConstraint topInset = SizingUtil.evaluateBaseSize(
       layoutContext, parentHeightConstraint, styles.getProperty(CSSProperty.TOP));
+    LayoutConstraint bottomInset = SizingUtil.evaluateBaseSize(
+      layoutContext, parentHeightConstraint, styles.getProperty(CSSProperty.BOTTOM));
+    LayoutConstraint leftInset = SizingUtil.evaluateBaseSize(
+      layoutContext, parentHeightConstraint, styles.getProperty(CSSProperty.LEFT));
+    LayoutConstraint rightInset = SizingUtil.evaluateBaseSize(
+      layoutContext, parentHeightConstraint, styles.getProperty(CSSProperty.RIGHT));
     
-      
-    return new LayoutConstraint[] {
-      LayoutConstraint.of(50),
-      LayoutConstraint.of(50),
-      LayoutConstraint.of(50),
-      LayoutConstraint.of(50)
+    
+    LayoutConstraint[] initConstraints = new LayoutConstraint[] {
+      topInset, bottomInset, leftInset, rightInset
     };
+    int[] adjustedConstraints = new int[4];
+
+    // Need to account for layoutPos being based on contentPos, but the box draws it's own borders
+    int borderPaddingWidth = refFragment.contentX() - refFragment.borderX();
+    int borderPaddingHeight = refFragment.contentY() - refFragment.borderY();
+    adjustAbsoluteConstraints(adjustedConstraints, initConstraints, 2, refFragment.layerX() - borderPaddingWidth);
+    adjustAbsoluteConstraints(adjustedConstraints, initConstraints, 0, refFragment.layerY() - borderPaddingHeight);
+      
+    return adjustedConstraints;
   }
 
   private static int computeRelativeInset(
@@ -89,6 +110,29 @@ public final class PositionUtil {
       return startConstraint.value();
     } else {
       return -endConstraint.value();
+    }
+  }
+
+  private static void adjustAbsoluteConstraints(
+    int[] adjustedConstraints,
+    LayoutConstraint[] initConstraints,
+    int conIndex,
+    int staticPos
+  ) {
+    boolean firstIsAuto = initConstraints[conIndex].type().equals(LayoutConstraintType.AUTO);
+    boolean secondIsAuto = initConstraints[conIndex + 1].type().equals(LayoutConstraintType.AUTO);
+    if (firstIsAuto && secondIsAuto) {
+      adjustedConstraints[conIndex] = staticPos;
+      adjustedConstraints[conIndex + 1] = 0;
+    } else if (firstIsAuto) {
+      adjustedConstraints[conIndex] = 0;
+      adjustedConstraints[conIndex + 1] = initConstraints[conIndex + 1].value();
+    } else if (secondIsAuto) {
+      adjustedConstraints[conIndex] = initConstraints[conIndex].value();
+      adjustedConstraints[conIndex + 1] = 0;
+    } else {
+      adjustedConstraints[conIndex] = initConstraints[conIndex].value();
+      adjustedConstraints[conIndex + 1] = initConstraints[conIndex + 1].value();
     }
   }
 

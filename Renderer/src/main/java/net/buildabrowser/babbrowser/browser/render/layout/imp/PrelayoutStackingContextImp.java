@@ -1,43 +1,31 @@
 package net.buildabrowser.babbrowser.browser.render.layout.imp;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-
 import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 
-public class StackingContextImp implements StackingContext {
-
-  private final Deque<StackingContext> contextStack = new ArrayDeque<>();
-
-  public StackingContextImp() {
-    contextStack.push(new SubStackingContextImp());
-  }
+public class PrelayoutStackingContextImp implements StackingContext {
 
   @Override
   public void defer(PosRefBoxFragment fragment) {
-    contextStack.peek().defer(fragment);
+    // Don't defer
+    fragment.box().content().prelayout(fragment.referenceLayoutContext());
   }
 
   @Override
   public StackingContext start() {
-    StackingContext childContext = contextStack.peek().start();
-    contextStack.push(childContext);
-
+    // No-op
     return this;
   }
 
   @Override
   public void end(PosRefBoxFragment fragment) {
-    contextStack.pop();
-    contextStack.peek().end(fragment);
+    // No-op
   }
 
   @Override
   public void layoutDeferred(CompositeLayer baseLayer) {
-    assert contextStack.size() == 1;
-    contextStack.peek().layoutDeferred(baseLayer);
+    // No-op
   }
   
 }
