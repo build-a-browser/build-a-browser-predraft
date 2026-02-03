@@ -98,6 +98,8 @@ public class RendererImp implements Renderer {
           g.fillRect(0, 0, getWidth(), getHeight());
           PaintCanvas canvas = new J2DPaintCanvas((Graphics2D) g);
           rootLayer.paint(canvas);
+          
+          System.gc();
         }
       };
 

@@ -84,9 +84,7 @@ public class FlowFloatTest {
     assertFragmentListEquals(expectedFloatFragments, actualFloatFragments);
   }
 
-  // Unfortunately, the text wrapping algorithm (currently) creates a ton of boxes, so we
-  // use _ except where we want a box
-  // Also right now line start spaces are preserved (they should not be),
+  // Right now line start spaces are preserved (they should not be),
   // so this will need adjusted later...
 
   @Test
@@ -95,21 +93,20 @@ public class FlowFloatTest {
     ActiveStyles childStyles = ActiveStyles.create();
     childStyles.setProperty(CSSProperty.FLOAT, FloatValue.LEFT);
     TestTextBox nestedChildBox1 = new TestTextBox("Hello");
-    TestTextBox childBox1 = new TestTextBox("John_is_a_human !!!");
+    TestTextBox childBox1 = new TestTextBox("John is a human !!!");
     ElementBox childBox2 = flowInlineBox(childStyles, List.of(nestedChildBox1));
-    TestTextBox childBox3 = new TestTextBox("Wow, text_is_long!");
+    TestTextBox childBox3 = new TestTextBox("Wow, text is long!");
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2, childBox3));
 
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);
 
     LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 30, parentBox, List.of(
       new LineBoxFragment(0, 0, 75, 10, List.of(
-        new TextFragment(0, 0, 75, 10, "John_is_a_human"))),
+        new TextFragment(0, 0, 75, 10, "John is a human"))),
       new LineBoxFragment(25, 10, 40, 10, List.of(
-        new TextFragment(0, 0, 20, 10, " !!!"),
-        new TextFragment(20, 0, 20, 10, "Wow,"))),
+        new TextFragment(0, 0, 40, 10, " !!!Wow,"))),
       new LineBoxFragment(0, 20, 70, 10, List.of(
-        new TextFragment(0, 0, 70, 10, " text_is_long!")))
+        new TextFragment(0, 0, 70, 10, " text is long!")))
     ));
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
@@ -130,21 +127,20 @@ public class FlowFloatTest {
     ActiveStyles childStyles = ActiveStyles.create();
     childStyles.setProperty(CSSProperty.FLOAT, FloatValue.RIGHT);
     TestTextBox nestedChildBox1 = new TestTextBox("Hello");
-    TestTextBox childBox1 = new TestTextBox("John_is_a_human !!!");
+    TestTextBox childBox1 = new TestTextBox("John is a human !!!");
     ElementBox childBox2 = flowInlineBox(childStyles, List.of(nestedChildBox1));
-    TestTextBox childBox3 = new TestTextBox("Wow, text_is_long!");
+    TestTextBox childBox3 = new TestTextBox("Wow, text is long!");
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2, childBox3));
 
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);;
 
     LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 30, parentBox, List.of(
       new LineBoxFragment(0, 0, 75, 10, List.of(
-        new TextFragment(0, 0, 75, 10, "John_is_a_human"))),
+        new TextFragment(0, 0, 75, 10, "John is a human"))),
       new LineBoxFragment(0, 10, 40, 10, List.of(
-        new TextFragment(0, 0, 20, 10, " !!!"),
-        new TextFragment(20, 0, 20, 10, "Wow,"))),
+        new TextFragment(0, 0, 40, 10, " !!!Wow,"))),
       new LineBoxFragment(0, 20, 70, 10, List.of(
-        new TextFragment(0, 0, 70, 10, " text_is_long!")))
+        new TextFragment(0, 0, 70, 10, " text is long!")))
     ));
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
@@ -270,7 +266,7 @@ public class FlowFloatTest {
     childStyles.setProperty(CSSProperty.WIDTH, LengthValue.create(15, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.HEIGHT, LengthValue.create(15, true, LengthType.PX));
 
-    TestTextBox nestedChildBox = new TestTextBox("baba_is_you keke_is_flag");
+    TestTextBox nestedChildBox = new TestTextBox("baba is you keke is flag");
     ElementBox childBox1 = flowInlineBox(childStyles, List.of());
     TestTextBox childBox2 = new TestTextBox("dragons");
     ElementBox childBox3 = flowBlockBox(List.of(nestedChildBox));
@@ -283,10 +279,10 @@ public class FlowFloatTest {
         new TextFragment(0, 0, 35, 10, "dragons"))),
       new ManagedBoxFragment(0, 10, 80, 20, childBox3, List.of(
         new LineBoxFragment(15, 0, 55, 10, List.of(
-          new TextFragment(0, 0, 55, 10, "baba_is_you")
+          new TextFragment(0, 0, 55, 10, "baba is you")
         )),
         new LineBoxFragment(0, 10, 65, 10, List.of(
-          new TextFragment(0, 0, 65, 10, " keke_is_flag")
+          new TextFragment(0, 0, 65, 10, " keke is flag")
         ))
       ))
     ));

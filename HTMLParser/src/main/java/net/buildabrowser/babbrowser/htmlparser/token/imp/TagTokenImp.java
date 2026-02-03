@@ -78,7 +78,7 @@ public class TagTokenImp implements TagToken {
 
   @Override
   public Map<String, String> attributes() {
-    Map<String, String> attributesMap = new HashMap<>();
+    Map<String, String> attributesMap = new HashMap<>(2);
     for (AttributePair attrPair: attributes) {
       attributesMap.put(attrPair.name, attrPair.value());
     }

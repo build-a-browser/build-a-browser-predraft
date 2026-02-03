@@ -87,8 +87,7 @@ public class FlowRootContentTest {
 
     LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 10, parentBox, List.of(
       new LineBoxFragment(0, 0, 50, 10, List.of(
-        new TextFragment(0, 0, 25, 10, "Hello"),
-        new TextFragment(25, 0, 25, 10, "World")))));
+        new TextFragment(0, 0, 50, 10, "HelloWorld")))));
     LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
@@ -136,8 +135,7 @@ public class FlowRootContentTest {
       new UnmanagedBoxFragment(0, 0, 50, 50, childBox1),
       new UnmanagedBoxFragment(0, 50, 50, 50, childBox2),
       new LineBoxFragment(0, 100, 50, 10, List.of(
-        new TextFragment(0, 0, 25, 10, "Hello"),
-        new TextFragment(25, 0, 25, 10, "World")))));
+        new TextFragment(0, 0, 50, 10, "HelloWorld")))));
     LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
@@ -153,8 +151,7 @@ public class FlowRootContentTest {
     LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 50, 10, parentBox, List.of(
       new LineBoxFragment(0, 0, 50, 10, List.of(
         new ManagedBoxFragment(0, 0, 50, 10, nestingBox, List.of(
-          new TextFragment(0, 0, 25, 10, "Hello"),
-          new TextFragment(25, 0, 25, 10, "World")))))));
+          new TextFragment(0, 0, 50, 10, "HelloWorld")))))));
     LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
@@ -212,8 +209,7 @@ public class FlowRootContentTest {
       new LineBoxFragment(0, 0, 50, 10, List.of(
         new ManagedBoxFragment(0, 0, 50, 10, outerBox, List.of(
           new ManagedBoxFragment(0, 0, 50, 10, intermediateBox1, List.of(
-            new TextFragment(0, 0, 25, 10, "Hello"),
-            new TextFragment(25, 0, 25, 10, "World"))))))),
+            new TextFragment(0, 0, 50, 10, "HelloWorld"))))))),
       // Importantly, this is reparented to parentBox
       new ManagedBoxFragment(0, 10, 25, 10, intermediateBox2, List.of(
         new LineBoxFragment(0, 0, 25, 10, List.of(

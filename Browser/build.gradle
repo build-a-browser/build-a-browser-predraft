@@ -8,6 +8,10 @@ dependencies {
 
 application {
     mainClass = 'net.buildabrowser.babbrowser.browser.Main'
+    applicationDefaultJvmArgs = [
+        '-XX:MaxHeapFreeRatio=10', '-XX:MinHeapFreeRatio=10',
+        '-XX:+UnlockExperimentalVMOptions', '-XX:+UseCompactObjectHeaders'
+    ]
 }
 
 run {

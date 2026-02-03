@@ -8,11 +8,12 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionUtil;
 
 public class LineBox {
 
+  private final FlowTextFragmentBuilder textBuilder = new FlowTextFragmentBuilder();
+  
   private final Deque<LineSegment> lineSegments;
 
   public LineBox() {
@@ -27,6 +28,7 @@ public class LineBox {
   private int totalWidth = 0;
   
   public void addFragment(LayoutFragment fragment) {
+    commitText();
     if (PositionUtil.affectsLayout(fragment)) {
       this.totalWidth += fragment.marginWidth();
     }
@@ -34,11 +36,12 @@ public class LineBox {
   }
 
   public void appendText(String text, int width, int height) {
-    // TODO: Merge fragments to reduce memory
-    addFragment(new TextFragment(width, height, text));
+    this.totalWidth += width;
+    textBuilder.addText(text, width, height);
   }
 
   public void pushElement(ElementBox elementBox) {
+    commitText();
     this.totalWidth +=
       elementBox.dimensions().getComputedMargin()[2] +
       elementBox.dimensions().getComputedBorder()[2] +
@@ -47,6 +50,7 @@ public class LineBox {
   }
 
   public ElementBox popElement() {
+    commitText();
     LineSegment lineSegment = lineSegments.pop();
     ManagedBoxFragment managedBoxFragment = new ManagedBoxFragment(
       lineSegment.width(), lineSegment.height(),
@@ -67,7 +71,7 @@ public class LineBox {
 
   // TODO: This is surely wrong...
   public int totalHeight() {
-    int totalHeight = 0;
+    int totalHeight = textBuilder.height();
     for (LineSegment segment: this.lineSegments) {
       totalHeight = Math.max(totalHeight, segment.height());
     }
@@ -76,11 +80,13 @@ public class LineBox {
   }
 
   public LineBoxFragment toFragment() {
+    commitText();
     LineSegment activeSegment = lineSegments.peek();
     return new LineBoxFragment(totalWidth, activeSegment.height(), activeSegment.fragments());
   }
 
   public LineBox split() {
+    commitText();
     Deque<LineSegment> newSegments = new LinkedList<>();
     Iterator<LineSegment> it = lineSegments.descendingIterator();
     while (it.hasNext()) {
@@ -94,6 +100,12 @@ public class LineBox {
     }
 
     return new LineBox(newSegments);
+  }
+
+  private void commitText() {
+    if (!textBuilder.isEmpty()) {
+      lineSegments.peek().fragments().add(textBuilder.commit());
+    }
   }
 
 }

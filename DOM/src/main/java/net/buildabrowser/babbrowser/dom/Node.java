@@ -8,6 +8,14 @@ public interface Node {
 
   NodeList childNodes();
 
+  Node firstChild();
+
+  Node lastChild();
+
+  Node nextSibling();
+
+  Node previousSibling();
+
   Node appendChild(Node node);
 
 }

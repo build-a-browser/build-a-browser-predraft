@@ -9,15 +9,15 @@ import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
 
 public class MutableElementImp extends MutableNodeImp implements MutableElement {
 
-  private final Map<String, String> attributes = new HashMap<>();
+  private final Map<String, String> attributes = new HashMap<>(2);
 
   private final String name;
   private final String namespace;
 
   public MutableElementImp(String name, String namespace, MutableNode parentNode) {
-    super(parentNode);
     this.name = name;
     this.namespace = namespace;
+    this.parentNode = parentNode;
   }
 
   @Override

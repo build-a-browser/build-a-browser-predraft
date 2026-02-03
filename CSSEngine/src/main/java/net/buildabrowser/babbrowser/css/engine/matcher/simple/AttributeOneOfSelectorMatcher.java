@@ -13,7 +13,7 @@ import net.buildabrowser.babbrowser.dom.Node;
 
 public class AttributeOneOfSelectorMatcher implements SimpleSelectorMatcher<AttributeSelector> {
 
-  private final Map<String, Map<String, RefCounted<ElementSet>>> matchingElements = new HashMap<>();
+  private final Map<String, Map<String, RefCounted<ElementSet>>> matchingElements = new HashMap<>(1);
 
   private final ElementSet allElements;
 
@@ -26,7 +26,7 @@ public class AttributeOneOfSelectorMatcher implements SimpleSelectorMatcher<Attr
     if (!ref.type().equals(AttributeType.ONE_OF)) return;
 
     RefCounted<ElementSet> setRef = matchingElements
-      .computeIfAbsent(ref.attrName(), _ -> new HashMap<>())
+      .computeIfAbsent(ref.attrName(), _ -> new HashMap<>(4))
       .computeIfAbsent(ref.attrValue(), _ -> RefCounted.create(ElementSet.create()));
     boolean didExist = setRef.isReferenced();
     setRef.incRefCount();

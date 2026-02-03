@@ -6,6 +6,14 @@ public interface MutableNode extends Node {
 
   MutableDocument ownerDocument();
 
+  MutableNode firstChild();
+
+  MutableNode lastChild();
+
+  MutableNode nextSibling();
+
+  MutableNode previousSibling();
+
   void setContext(Object context);
 
   Object getContext();

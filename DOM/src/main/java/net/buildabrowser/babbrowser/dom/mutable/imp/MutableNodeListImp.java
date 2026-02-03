@@ -1,7 +1,6 @@
 package net.buildabrowser.babbrowser.dom.mutable.imp;
 
 import java.util.Iterator;
-import java.util.List;
 
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
@@ -9,36 +8,52 @@ import net.buildabrowser.babbrowser.dom.mutable.MutableNodeList;
 
 public class MutableNodeListImp implements MutableNodeList {
 
-  private final List<MutableNode> nodes;
+  private final MutableNode parentNode;
 
-  public MutableNodeListImp(List<MutableNode> nodes) {
-    this.nodes = nodes;
+  public MutableNodeListImp(MutableNode parentNode) {
+    this.parentNode = parentNode;
   }
 
   @Override
   public long length() {
-    return nodes.size();
+    int size = 0;
+    MutableNode current = parentNode.firstChild();
+    while (current != null) {
+      size++;
+      current = current.nextSibling();
+    }
+
+    return size;
   }
 
   @Override
   public Iterator<Node> iterator() {
-    Iterator<MutableNode> it = nodes.iterator();
     return new Iterator<Node>() {
+      private MutableNode currentNode = parentNode.firstChild();
+
       @Override
       public boolean hasNext() {
-        return it.hasNext();
+        return currentNode != null;
       }
 
       @Override
       public Node next() {
-        return it.next();
+        MutableNode node = currentNode;
+        this.currentNode = currentNode.nextSibling();
+        return node;
       }
     };
   }
 
   @Override
   public MutableNode item(long index) {
-    return nodes.get((int) index);
+    MutableNode current = parentNode.firstChild();
+    while (index > 0) {
+      index--;
+      current = current.nextSibling();
+    }
+
+    return current;
   }
   
 }

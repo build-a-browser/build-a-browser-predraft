@@ -1,8 +1,5 @@
 package net.buildabrowser.babbrowser.dom.mutable.imp;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
 import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
@@ -10,16 +7,15 @@ import net.buildabrowser.babbrowser.dom.mutable.MutableNodeList;
 
 public abstract class MutableNodeImp implements MutableNode {
 
-  private final List<MutableNode> childNodes = new LinkedList<>();
-  private final MutableNodeList nodeList = MutableNodeList.create(childNodes);
+  private final MutableNodeList nodeList = MutableNodeList.create(this);
 
-  private final MutableNode parentNode;
+  protected MutableNode parentNode;
+  private MutableNodeImp firstChild;
+  private MutableNodeImp lastChild;
+  private MutableNodeImp previousSibling;
+  private MutableNodeImp nextSibling;
 
   private Object context;
-
-  public MutableNodeImp(MutableNode parentNode) {
-    this.parentNode = parentNode;
-  }
 
   @Override
   public MutableDocument ownerDocument() {
@@ -37,9 +33,39 @@ public abstract class MutableNodeImp implements MutableNode {
   }
 
   @Override
+  public MutableNode firstChild() {
+    return this.firstChild;
+  }
+
+  @Override
+  public MutableNode lastChild() {
+    return this.lastChild;
+  }
+
+  @Override
+  public MutableNode previousSibling() {
+    return this.previousSibling;
+  }
+
+  @Override
+  public MutableNode nextSibling() {
+    return this.nextSibling;
+  }
+
+  @Override
   public Node appendChild(Node node) {
     // TODO: Use the spec method. Also, the cast is not so great
-    childNodes.add((MutableNode) node);
+    MutableNodeImp mutableNode = (MutableNodeImp) node;
+    if (this.lastChild != null) {
+      this.lastChild.nextSibling = mutableNode;
+    }
+    mutableNode.previousSibling = this.lastChild;
+    this.lastChild = mutableNode;
+    if (this.firstChild == null) {
+      this.firstChild = mutableNode;
+    }
+    mutableNode.parentNode = this;
+
     ownerDocument().changeListener().onNodeAdded(node); // Custom addition
     return node;
   }

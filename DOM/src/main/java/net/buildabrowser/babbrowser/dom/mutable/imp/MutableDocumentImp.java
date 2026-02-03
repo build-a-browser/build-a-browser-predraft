@@ -11,7 +11,6 @@ public class MutableDocumentImp extends MutableNodeImp implements MutableDocumen
   private final DocumentChangeListener changeListener;
 
   public MutableDocumentImp(DocumentChangeListener changeListener) {
-    super(null);
     this.changeListener = changeListener;
     this.styleSheets = MutableStyleSheetList.create(
       styleSheet -> changeListener.onStylesheetAdded(styleSheet));

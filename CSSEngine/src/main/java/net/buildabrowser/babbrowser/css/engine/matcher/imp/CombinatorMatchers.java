@@ -49,17 +49,18 @@ public final class CombinatorMatchers {
   public static ElementSet matchNextSibling(ElementSet priorMatches, ElementSet nextMatches) {
     ElementSet newMatches = ElementSet.create();
     for (Element matchedElement: nextMatches) {
-      Node parent = matchedElement.parentNode();
-      Element lastElementMatched = null;
-      for (Node childNode: parent.childNodes()) {
-        if (childNode == matchedElement) {
-          break;
-        } else if (childNode instanceof Element element) {
-          lastElementMatched = element;
-        }
+      Node prevNode = matchedElement.previousSibling();
+      while (
+        prevNode != null
+        && !(prevNode instanceof Element)
+      ) {
+        prevNode = prevNode.previousSibling();
       }
 
-      if (priorMatches.contains(lastElementMatched)) {
+      if (
+        prevNode != null
+        && priorMatches.contains((Element) prevNode)
+      ) {
         newMatches.add(matchedElement);
       }
     }
@@ -70,17 +71,16 @@ public final class CombinatorMatchers {
   public static ElementSet matchSubsequentSibling(ElementSet priorMatches, ElementSet nextMatches) {
     ElementSet newMatches = ElementSet.create();
     for (Element matchedElement: nextMatches) {
-      Node parent = matchedElement.parentNode();
-      for (Node childNode: parent.childNodes()) {
-        if (childNode == matchedElement) {
-          break;
-        } else if (
-          childNode instanceof Element element
+      Node prevNode = matchedElement.previousSibling();
+      while (prevNode != null) {
+        if (
+          prevNode instanceof Element element
           && priorMatches.contains(element)
         ) {
           newMatches.add(matchedElement);
           break;
         }
+        prevNode = prevNode.previousSibling();
       }
     }
 

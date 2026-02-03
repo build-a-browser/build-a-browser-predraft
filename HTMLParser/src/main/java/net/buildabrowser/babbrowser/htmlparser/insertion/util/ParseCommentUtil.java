@@ -16,7 +16,7 @@ public final class ParseCommentUtil {
   public static void insertAComment(ParseContext parseContext, CommentToken commentToken, MutableNode targetOverride) {
     String data = commentToken.data();
     MutableNode adjustedInsertionLocation = ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, targetOverride);
-    MutableComment comment = MutableComment.create(data, adjustedInsertionLocation.ownerDocument());
+    MutableComment comment = MutableComment.create(data);
     adjustedInsertionLocation.appendChild(comment);
   }
 
