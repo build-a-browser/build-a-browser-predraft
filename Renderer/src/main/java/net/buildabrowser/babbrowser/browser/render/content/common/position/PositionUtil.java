@@ -25,7 +25,7 @@ public final class PositionUtil {
       || affectsLayout(refFrag.box());
   }
   
-  public static int[] computeInsets(
+  public static float[] computeInsets(
     PosRefBoxFragment refFragment,
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint
@@ -41,27 +41,27 @@ public final class PositionUtil {
     }
   }
 
-  private static int[] computeRelativeInsets(
+  private static float[] computeRelativeInsets(
     LayoutContext layoutContext, 
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint,
     ElementBox childBox
   ) {
     ActiveStyles styles = childBox.activeStyles();
-    int topInset = computeRelativeInset(
+    float topInset = computeRelativeInset(
       styles.getProperty(CSSProperty.TOP), styles.getProperty(CSSProperty.BOTTOM),
       layoutContext, childBox, parentHeightConstraint);
-    int leftInset = computeRelativeInset(
+    float leftInset = computeRelativeInset(
       styles.getProperty(CSSProperty.LEFT), styles.getProperty(CSSProperty.RIGHT),
       layoutContext, childBox, parentWidthConstraint);
     
-    return new int[] {
+    return new float[] {
       topInset, -topInset, leftInset, -leftInset
     };
   }
 
   // TODO: Respect self-alignment
-  private static int[] computeAbsoluteInsets(
+  private static float[] computeAbsoluteInsets(
     PosRefBoxFragment refFragment,
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint
@@ -81,18 +81,18 @@ public final class PositionUtil {
     LayoutConstraint[] initConstraints = new LayoutConstraint[] {
       topInset, bottomInset, leftInset, rightInset
     };
-    int[] adjustedConstraints = new int[4];
+    float[] adjustedConstraints = new float[4];
 
     // Need to account for layoutPos being based on contentPos, but the box draws it's own borders
-    int borderPaddingWidth = refFragment.contentX() - refFragment.borderX();
-    int borderPaddingHeight = refFragment.contentY() - refFragment.borderY();
+    float borderPaddingWidth = refFragment.contentX() - refFragment.borderX();
+    float borderPaddingHeight = refFragment.contentY() - refFragment.borderY();
     adjustAbsoluteConstraints(adjustedConstraints, initConstraints, 2, refFragment.layerX() - borderPaddingWidth);
     adjustAbsoluteConstraints(adjustedConstraints, initConstraints, 0, refFragment.layerY() - borderPaddingHeight);
       
     return adjustedConstraints;
   }
 
-  private static int computeRelativeInset(
+  private static float computeRelativeInset(
     CSSValue startProperty,
     CSSValue endProperty,
     LayoutContext layoutContext,
@@ -114,10 +114,10 @@ public final class PositionUtil {
   }
 
   private static void adjustAbsoluteConstraints(
-    int[] adjustedConstraints,
+    float[] adjustedConstraints,
     LayoutConstraint[] initConstraints,
     int conIndex,
-    int staticPos
+    float staticPos
   ) {
     boolean firstIsAuto = initConstraints[conIndex].type().equals(LayoutConstraintType.AUTO);
     boolean secondIsAuto = initConstraints[conIndex + 1].type().equals(LayoutConstraintType.AUTO);

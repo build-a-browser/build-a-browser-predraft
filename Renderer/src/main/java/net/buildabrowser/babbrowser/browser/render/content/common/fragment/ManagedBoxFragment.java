@@ -10,7 +10,7 @@ public class ManagedBoxFragment extends BoxFragment {
   private final List<LayoutFragment> fragments;
 
   public ManagedBoxFragment(
-    int width, int height, ElementBox box,
+    float width, float height, ElementBox box,
     BoxPainter painter,
     List<LayoutFragment> fragments
   ) {
@@ -23,7 +23,7 @@ public class ManagedBoxFragment extends BoxFragment {
   }
 
   public ManagedBoxFragment(
-    int x, int y, int width, int height, ElementBox box,
+    float x, float y, float width, float height, ElementBox box,
     List<LayoutFragment> fragments
   ) {
     this(width, height, box, null, fragments);

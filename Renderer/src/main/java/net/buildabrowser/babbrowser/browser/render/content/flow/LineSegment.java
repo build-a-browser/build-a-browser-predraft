@@ -10,8 +10,8 @@ public record LineSegment(
   List<LayoutFragment> fragments
 ) {
 
-  public int width() {
-    int width = 0;
+  public float width() {
+    float width = 0;
     for (LayoutFragment fragment: fragments) {
       width += fragment.borderWidth();
     }
@@ -19,8 +19,8 @@ public record LineSegment(
     return width;
   }
 
-  public int height() {
-    int height = 0;
+  public float height() {
+    float height = 0;
     for (LayoutFragment fragment: fragments) {
       height = Math.max(height, fragment.borderHeight());
     }

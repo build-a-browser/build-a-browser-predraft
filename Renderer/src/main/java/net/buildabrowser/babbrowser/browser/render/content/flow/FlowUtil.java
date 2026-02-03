@@ -15,7 +15,7 @@ public final class FlowUtil {
   
   private FlowUtil() {}
 
-  public static int constraintWidth(ElementBoxDimensions dimensions, LayoutConstraint layoutConstraint) {
+  public static float constraintWidth(ElementBoxDimensions dimensions, LayoutConstraint layoutConstraint) {
     return switch (layoutConstraint.type()) {
       case BOUNDED -> layoutConstraint.value();
       case MIN_CONTENT -> dimensions.preferredMinWidthConstraint();
@@ -24,7 +24,7 @@ public final class FlowUtil {
     };
   }
 
-  public static int constraintHeight(ElementBoxDimensions dimensions, LayoutConstraint layoutConstraint) {
+  public static float constraintHeight(ElementBoxDimensions dimensions, LayoutConstraint layoutConstraint) {
     return switch (layoutConstraint.type()) {
       case BOUNDED -> layoutConstraint.value();
       case AUTO -> 0;

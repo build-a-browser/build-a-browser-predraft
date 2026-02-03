@@ -9,7 +9,7 @@ public class LineBoxFragment extends LayoutFragment {
   private LayoutFragment parentFragment;
 
   public LineBoxFragment(
-    int width, int height, List<LayoutFragment> fragments
+    float width, float height, List<LayoutFragment> fragments
   ) {
     super(width, height);
     this.fragments = fragments;
@@ -20,7 +20,7 @@ public class LineBoxFragment extends LayoutFragment {
   }
 
   public LineBoxFragment(
-    int x, int y, int width, int height, List<LayoutFragment> fragments
+    float x, float y, float width, float height, List<LayoutFragment> fragments
   ) {
     this(width, height, fragments);
     setPos(x, y);
@@ -35,13 +35,13 @@ public class LineBoxFragment extends LayoutFragment {
   }
 
   @Override
-  public int layerX() {
+  public float layerX() {
     assert parentFragment != null;
     return parentFragment.layerX() + contentX();
   }
 
   @Override
-  public int layerY() {
+  public float layerY() {
     assert parentFragment != null;
     return parentFragment.layerY() + contentY();
   }

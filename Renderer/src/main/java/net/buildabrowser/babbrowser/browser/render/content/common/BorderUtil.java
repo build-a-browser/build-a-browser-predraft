@@ -16,22 +16,22 @@ public final class BorderUtil {
     LayoutContext layoutContext, ElementBox childBox, LayoutConstraint referenceConstraint
   ) {
     ActiveStyles styles = childBox.activeStyles();
-    int topBorder = computeBorder(
+    float topBorder = computeBorder(
       styles.getProperty(CSSProperty.BORDER_TOP_WIDTH), styles.getProperty(CSSProperty.BORDER_TOP_STYLE),
       layoutContext, childBox, referenceConstraint);
-    int bottomBorder = computeBorder(
+    float bottomBorder = computeBorder(
       styles.getProperty(CSSProperty.BORDER_BOTTOM_WIDTH), styles.getProperty(CSSProperty.BORDER_BOTTOM_STYLE),
       layoutContext, childBox, referenceConstraint);
-    int leftBorder = computeBorder(
+    float leftBorder = computeBorder(
       styles.getProperty(CSSProperty.BORDER_LEFT_WIDTH), styles.getProperty(CSSProperty.BORDER_LEFT_STYLE),
       layoutContext, childBox, referenceConstraint);
-    int rightBorder = computeBorder(
+    float rightBorder = computeBorder(
       styles.getProperty(CSSProperty.BORDER_RIGHT_WIDTH), styles.getProperty(CSSProperty.BORDER_RIGHT_STYLE),
       layoutContext, childBox, referenceConstraint);
     childBox.dimensions().setComputedBorder(topBorder, bottomBorder, leftBorder, rightBorder);
   }
 
-  private static int computeBorder(
+  private static float computeBorder(
     CSSValue property,
     CSSValue styleProperty,
     LayoutContext layoutContext,

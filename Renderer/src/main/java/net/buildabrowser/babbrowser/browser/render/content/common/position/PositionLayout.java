@@ -32,7 +32,7 @@ public final class PositionLayout {
   public static UnmanagedBoxFragment actuallyLayoutAbsolute(
     PosRefBoxFragment refFragment,
     StackingContext stackingContext,
-    int[] insets,
+    float[] insets,
     CompositeLayer refLayer
   ) {
     LayoutContext refContext = refFragment.referenceLayoutContext();
@@ -42,8 +42,8 @@ public final class PositionLayout {
     BoxContent content = refBox.content();
     ElementBoxDimensions dimensions = refBox.dimensions();
 
-    int containingWidth = refLayer.width() - insets[2] - insets[3];
-    int containingHeight = refLayer.height() - insets[0] - insets[1];
+    float containingWidth = refLayer.width() - insets[2] - insets[3];
+    float containingHeight = refLayer.height() - insets[0] - insets[1];
 
     LayoutConstraint baseWidth = SizingUtil.evaluateBaseSize(
       layoutContext, LayoutConstraint.of(containingWidth),
@@ -54,11 +54,11 @@ public final class PositionLayout {
 
     // TODO: Handle sizes other than fit-content
     // TODO: Also clamp to max width and min width
-    int fitContentWidth = Math.clamp(
+    float fitContentWidth = Math.clamp(
       containingWidth,
       dimensions.preferredMinWidthConstraint(),
       dimensions.preferredWidthConstraint());
-    int usedWidth = baseWidth.type().equals(LayoutConstraintType.AUTO) ?
+    float usedWidth = baseWidth.type().equals(LayoutConstraintType.AUTO) ?
       fitContentWidth :
       baseWidth.value();
     
@@ -74,8 +74,8 @@ public final class PositionLayout {
     return rootFragment;
   }
 
-  public static int[] positionAbsolute(
-    int[] insets,
+  public static float[] positionAbsolute(
+    float[] insets,
     UnmanagedBoxFragment computedFragment,
     CompositeLayer refLayer
   ) {
@@ -85,23 +85,23 @@ public final class PositionLayout {
     boolean leftInsetIsAuto = styles.getProperty(CSSProperty.LEFT).equals(CSSValue.AUTO);
     boolean rightInsetIsAuto = styles.getProperty(CSSProperty.RIGHT).equals(CSSValue.AUTO);
 
-    int leftPos = positionAbsoluteAxis(
+    float leftPos = positionAbsoluteAxis(
       leftInsetIsAuto, rightInsetIsAuto, insets, 2,
       computedFragment.borderWidth(), refLayer.width());
-    int topPos = positionAbsoluteAxis(
+    float topPos = positionAbsoluteAxis(
       topInsetIsAuto, bottomInsetIsAuto, insets, 0,
       computedFragment.borderHeight(), refLayer.height());
 
-    return new int[] { leftPos, topPos };
+    return new float[] { leftPos, topPos };
   }
 
-  private static int positionAbsoluteAxis(
+  private static float positionAbsoluteAxis(
     boolean topInsetIsAuto,
     boolean bottomInsetIsAuto,
-    int[] insets,
+    float[] insets,
     int conIndex,
-    int itemSize,
-    int axisSize
+    float itemSize,
+    float axisSize
   ) {
     if (bottomInsetIsAuto) {
       // TODO: Account for writing mode

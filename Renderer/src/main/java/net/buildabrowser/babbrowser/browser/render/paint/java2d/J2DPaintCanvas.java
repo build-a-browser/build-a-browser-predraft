@@ -16,7 +16,7 @@ public class J2DPaintCanvas implements PaintCanvas {
   private final Deque<J2DPaint> paintStack = new ArrayDeque<>();
   private final Graphics2D graphics;
 
-  int currentTranslateX, currentTranslateY;
+  float currentTranslateX, currentTranslateY;
 
   public J2DPaintCanvas(Graphics2D graphics) {
     this.graphics = graphics;
@@ -46,23 +46,23 @@ public class J2DPaintCanvas implements PaintCanvas {
   }
 
   @Override
-  public void drawBox(int x, int y, int w, int h) {
-    graphics.fillRect(x, y, w, h);
+  public void drawBox(float x, float y, float w, float h) {
+    graphics.fillRect((int) x, (int) y, (int) w, (int) h);
   }
 
   @Override
-  public void drawText(int x, int y, String text) {
-    graphics.drawChars(text.toCharArray(), 0, text.length(), x, y + fontMetrics().fontHeight());
+  public void drawText(float x, float y, String text) {
+    graphics.drawChars(text.toCharArray(), 0, text.length(), (int) x, (int) (y + fontMetrics().fontHeight()));
   }
 
   @Override
-  public void drawImage(int x, int y, BufferedImage image) {
-    graphics.drawImage(image, x, y, image.getWidth(), image.getHeight(), null);
+  public void drawImage(float x, float y, BufferedImage image) {
+    graphics.drawImage(image, (int) x, (int) y, image.getWidth(), image.getHeight(), null);
   }
 
   @Override
-  public void drawImage(int x, int y, int width, int height, BufferedImage image) {
-    graphics.drawImage(image, x, y, width, height, null);
+  public void drawImage(float x, float y, float width, float height, BufferedImage image) {
+    graphics.drawImage(image, (int) x, (int) y, (int) width, (int) height, null);
   }
 
   @Override

@@ -4,37 +4,37 @@ import net.buildabrowser.babbrowser.browser.render.box.imp.ElementBoxDimensionsI
 
 public interface ElementBoxDimensions {
 
-  void setComputedBorder(int t, int b, int l, int r);
+  void setComputedBorder(float t, float b, float l, float r);
 
-  int[] getComputedBorder();
+  float[] getComputedBorder();
 
-  void setComputedPadding(int t, int b, int l, int r);
+  void setComputedPadding(float t, float b, float l, float r);
 
-  int[] getComputedPadding();
+  float[] getComputedPadding();
 
-  void setComputedVerticalMargin(int t, int b);
+  void setComputedVerticalMargin(float t, float b);
 
-  void setComputedHorizontalMargin(int l , int r);
+  void setComputedHorizontalMargin(float l , float r);
 
-  int[] getComputedMargin();
+  float[] getComputedMargin();
 
-  void setPreferredMinWidthConstraint(int w);
+  void setPreferredMinWidthConstraint(float w);
 
-  void setPreferredWidthConstraint(int w);
+  void setPreferredWidthConstraint(float w);
 
-  int preferredMinWidthConstraint();
+  float preferredMinWidthConstraint();
 
-  int preferredWidthConstraint();
+  float preferredWidthConstraint();
 
-  void setIntrinsicWidth(int width);
+  void setIntrinsicWidth(float width);
 
-  void setInstrinsicHeight(int height);
+  void setInstrinsicHeight(float height);
 
   void setIntrinsicRatio(float ratio);
   
-  int intrinsicWidth();
+  float intrinsicWidth();
 
-  int intrinsicHeight();
+  float intrinsicHeight();
 
   float intrinsicRatio();
 

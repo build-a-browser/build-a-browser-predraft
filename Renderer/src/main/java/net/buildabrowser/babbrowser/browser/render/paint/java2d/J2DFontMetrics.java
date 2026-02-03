@@ -11,15 +11,13 @@ public class J2DFontMetrics implements FontMetrics {
   }
 
   @Override
-  public int stringWidth(String text) {
+  public float stringWidth(String text) {
     return innerFontMetrics.stringWidth(text);
   }
 
   @Override
-  public int fontHeight() {
+  public float fontHeight() {
     return innerFontMetrics.getHeight();
   }
   
-
-
 }

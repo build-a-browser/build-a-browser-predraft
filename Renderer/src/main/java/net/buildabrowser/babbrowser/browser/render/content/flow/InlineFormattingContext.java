@@ -71,7 +71,7 @@ public class InlineFormattingContext {
     rootContent.inlineLayout().positionLine(oldLineBox.toFragment());
   }
 
-  public boolean fits(int itemSize, boolean forceFirst) {
+  public boolean fits(float itemSize, boolean forceFirst) {
     if (forceFirst && this.activeLineBox.totalWidth() == 0) {
       return true;
     }

@@ -42,8 +42,8 @@ public final class FlowTextLayout {
     InlineFormattingContext formattingContext, boolean autoWrap
   ) {
     FontMetrics fontMetrics = layoutContext.fontMetrics();
-    int textWidth = fontMetrics.stringWidth(selectedText);
-    int textHeight = fontMetrics.fontHeight();
+    float textWidth = fontMetrics.stringWidth(selectedText);
+    float textHeight = fontMetrics.fontHeight();
 
     boolean textOverflows = !formattingContext.fits(textWidth, true);
     boolean shouldWrap = autoWrap && textOverflows;

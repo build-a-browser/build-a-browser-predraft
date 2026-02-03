@@ -47,7 +47,7 @@ public final class SizingUtil {
       default -> throw new UnsupportedOperationException("Unknown Unit!");
     };
 
-    return LayoutConstraint.of((int) sizeResult);
+    return LayoutConstraint.of((float) sizeResult);
   }
 
 }

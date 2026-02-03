@@ -39,8 +39,8 @@ public final class FlowWidthUtil {
       boxDimensions.intrinsicRatio() != -1
       && boxDimensions.intrinsicHeight() != -1
     ) { // TODO: Also consider specified height
-      int usedHeight = boxDimensions.intrinsicHeight();
-      int usedWidth = (int) (usedHeight * boxDimensions.intrinsicRatio());
+      float usedHeight = boxDimensions.intrinsicHeight();
+      float usedWidth = (int) (usedHeight * boxDimensions.intrinsicRatio());
       return LayoutConstraint.of(usedWidth);
     } else if (boxDimensions.intrinsicRatio() != -1) {
       // TODO: Compute as for block non-replaced
@@ -70,8 +70,8 @@ public final class FlowWidthUtil {
 
     boolean isLeftMarginSet = marginLeftConstraint.type().equals(LayoutConstraintType.BOUNDED);
     boolean isRightMarginSet = marginRightConstraint.type().equals(LayoutConstraintType.BOUNDED);
-    int usedLeftMargin = isLeftMarginSet ? marginLeftConstraint.value() : 0;
-    int usedRightMargin = isRightMarginSet ? marginRightConstraint.value() : 0;
+    float usedLeftMargin = isLeftMarginSet ? marginLeftConstraint.value() : 0;
+    float usedRightMargin = isRightMarginSet ? marginRightConstraint.value() : 0;
 
     if (determinedConstraint.isPreLayoutConstraint()) {
       childBox.dimensions().setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
@@ -84,13 +84,13 @@ public final class FlowWidthUtil {
         parentConstraint : determinedConstraint;
     }    
 
-    int[] border = childBox.dimensions().getComputedBorder();
-    int[] padding = childBox.dimensions().getComputedPadding();
+    float[] border = childBox.dimensions().getComputedBorder();
+    float[] padding = childBox.dimensions().getComputedPadding();
 
-    int parentMinusSurroundingsWidth = parentConstraint.value()
+    float parentMinusSurroundingsWidth = parentConstraint.value()
       - usedLeftMargin - usedRightMargin
       - border[2] - border[3] - padding[2] - padding[3];
-    int adjustedWidth = Math.max(0,
+    float adjustedWidth = Math.max(0,
       determinedConstraint.type().equals(LayoutConstraintType.BOUNDED) ?
         determinedConstraint.value() : parentMinusSurroundingsWidth);
     
@@ -105,7 +105,7 @@ public final class FlowWidthUtil {
         - usedRightMargin - adjustedWidth
         - border[2] - border[3] - padding[2] - padding[3];
     } else {
-      int remainingSpace = parentConstraint.value()
+      float remainingSpace = parentConstraint.value()
         - adjustedWidth
         - border[2] - border[3] - padding[2] - padding[3];
       usedLeftMargin = remainingSpace / 2;
@@ -134,9 +134,9 @@ public final class FlowWidthUtil {
     }
 
     ElementBoxDimensions boxDimensions = childBox.dimensions();
-    int preferredMinWidth = boxDimensions.preferredMinWidthConstraint();
-    int preferredWidth = boxDimensions.preferredWidthConstraint();
-    int availableWidth = parentConstraint.value();
+    float preferredMinWidth = boxDimensions.preferredMinWidthConstraint();
+    float preferredWidth = boxDimensions.preferredWidthConstraint();
+    float availableWidth = parentConstraint.value();
     if (!parentConstraint.type().equals(LayoutConstraintType.BOUNDED)) {
       return LayoutConstraint.of(preferredWidth);
     }
@@ -182,8 +182,8 @@ public final class FlowWidthUtil {
 
     boolean isLeftMarginSet = marginLeftConstraint.type().equals(LayoutConstraintType.BOUNDED);
     boolean isRightMarginSet = marginRightConstraint.type().equals(LayoutConstraintType.BOUNDED);
-    int usedLeftMargin = isLeftMarginSet ? marginLeftConstraint.value() : 0;
-    int usedRightMargin = isRightMarginSet ? marginRightConstraint.value() : 0;
+    float usedLeftMargin = isLeftMarginSet ? marginLeftConstraint.value() : 0;
+    float usedRightMargin = isRightMarginSet ? marginRightConstraint.value() : 0;
     childBox.dimensions().setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
   }
 

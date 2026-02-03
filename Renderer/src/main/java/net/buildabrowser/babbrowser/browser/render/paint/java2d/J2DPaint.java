@@ -5,8 +5,8 @@ import net.buildabrowser.babbrowser.browser.render.paint.Paint;
 public class J2DPaint implements Paint {
 
   private int color;
-  private int offsetX;
-  private int offsetY;
+  private float offsetX;
+  private float offsetY;
 
   @Override
   public void setColor(int color) {
@@ -19,24 +19,24 @@ public class J2DPaint implements Paint {
   }
 
   @Override
-  public void incOffset(int x, int y) {
+  public void incOffset(float x, float y) {
     this.offsetX += x;
     this.offsetY += y;
   }
 
   @Override
-  public void setOffset(int x, int y) {
+  public void setOffset(float x, float y) {
     this.offsetX = x;
     this.offsetY = y;
   }
 
   @Override
-  public int offsetX() {
+  public float offsetX() {
     return this.offsetX;
   }
 
   @Override
-  public int offsetY() {
+  public float offsetY() {
     return this.offsetY;
   }
 

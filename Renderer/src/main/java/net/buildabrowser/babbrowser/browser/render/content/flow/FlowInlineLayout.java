@@ -209,17 +209,17 @@ public class FlowInlineLayout {
   
   public void positionLine(LineBoxFragment fragment) {
     positionFragmentElements(fragment.fragments());
-    int offsetX = rootContent.floatTracker().lineStartPos();
+    float offsetX = rootContent.floatTracker().lineStartPos();
     rootContent.blockLayout().addFinishedFragment(null, fragment, offsetX);
   }
 
   private void positionFragmentElements(List<LayoutFragment> fragments) {
-    int x = 0;
+    float x = 0;
     for (LayoutFragment child: fragments) {
       child.setPos(0, 0); // Cheat to disable unset X assertions for next line
-      int marginX = child.borderX() - child.marginX();
+      float marginX = child.borderX() - child.marginX();
       // TODO: Is this the correct way to compute vertical positioning?
-      int marginY = child.borderY() - child.marginY();
+      float marginY = child.borderY() - child.marginY();
       child.setPos(x + marginX, marginY);
 
       if (!PositionUtil.affectsLayout(child)) continue;

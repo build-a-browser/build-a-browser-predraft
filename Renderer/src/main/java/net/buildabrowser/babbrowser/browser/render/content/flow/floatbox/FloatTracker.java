@@ -11,19 +11,19 @@ public interface FloatTracker {
   
   // Boolean return - if we have a non-0 reservedWidth, it could be hard to determine where the next line is
   // so just let the caller handle it for now
-  boolean addLineStartFloat(BoxFragment box, LayoutConstraint lineConstraint, int reservedWidth);
+  boolean addLineStartFloat(BoxFragment box, LayoutConstraint lineConstraint, float reservedWidth);
 
   // Line constraint is a hacky way to determine where the box will start
-  boolean addLineEndFloat(BoxFragment box, LayoutConstraint lineConstraint, int reservedWidth);
+  boolean addLineEndFloat(BoxFragment box, LayoutConstraint lineConstraint, float reservedWidth);
 
-  int clearedLineStartPosition();
+  float clearedLineStartPosition();
 
-  int clearedLineEndPosition();
+  float clearedLineEndPosition();
 
   // TODO: Optimize repeatedly getting the same value
-  int lineStartPos();
+  float lineStartPos();
 
-  int lineEndPos(LayoutConstraint lineConstraint);
+  float lineEndPos(LayoutConstraint lineConstraint);
 
   void reset();
 
@@ -32,7 +32,7 @@ public interface FloatTracker {
   PositionTracker positionTracker();
 
   // Exists to min-bound the containing block
-  int contentHeight();
+  float contentHeight();
   
   static FloatTracker create() {
     return new FloatTrackerImp();

@@ -78,8 +78,8 @@ public final class FlowHeightUtil {
 
     boolean isTopMarginSet = marginTopConstraint.type().equals(LayoutConstraintType.BOUNDED);
     boolean isBottomMarginSet = marginBottomConstraint.type().equals(LayoutConstraintType.BOUNDED);
-    int usedTopMargin = isTopMarginSet ? marginTopConstraint.value() : 0;
-    int usedBottomMargin = isBottomMarginSet ? marginBottomConstraint.value() : 0;
+    float usedTopMargin = isTopMarginSet ? marginTopConstraint.value() : 0;
+    float usedBottomMargin = isBottomMarginSet ? marginBottomConstraint.value() : 0;
 
     childBox.dimensions().setComputedVerticalMargin(usedTopMargin, usedBottomMargin);
   }

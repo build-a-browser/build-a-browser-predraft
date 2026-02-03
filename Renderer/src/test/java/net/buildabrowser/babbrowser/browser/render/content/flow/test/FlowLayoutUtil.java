@@ -19,11 +19,11 @@ public final class FlowLayoutUtil {
     return doLayoutConstrainted(parentBox, LayoutConstraint.AUTO, LayoutConstraint.AUTO).fragment();
   }
 
-  public static FlowTestLayoutResult doLayoutSized(ElementBox parentBox, int width) {
+  public static FlowTestLayoutResult doLayoutSized(ElementBox parentBox, float width) {
     return doLayoutConstrainted(parentBox, LayoutConstraint.of(width), LayoutConstraint.AUTO);
   }
 
-  public static FlowTestLayoutResult doLayoutSized(ElementBox parentBox, int width, int height) {
+  public static FlowTestLayoutResult doLayoutSized(ElementBox parentBox, float width, float height) {
     return doLayoutConstrainted(parentBox, LayoutConstraint.of(width), LayoutConstraint.of(height));
   }
 

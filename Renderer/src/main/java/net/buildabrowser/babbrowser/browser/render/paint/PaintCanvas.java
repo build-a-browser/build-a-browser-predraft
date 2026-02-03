@@ -11,14 +11,14 @@ public interface PaintCanvas {
 
   void alterPaint(Consumer<Paint> func);
 
-  void drawBox(int x, int y, int w, int h);
+  void drawBox( float x,  float y,  float w,  float h);
 
-  void drawText(int x, int y, String text);
+  void drawText( float x,  float y, String text);
 
   // TODO: Replace with something more portable
-  void drawImage(int x, int y, BufferedImage image);
+  void drawImage( float x,  float y, BufferedImage image);
 
-  void drawImage(int i, int j, int width, int height, BufferedImage image);
+  void drawImage( float i,  float j,  float width,  float height, BufferedImage image);
 
   FontMetrics fontMetrics();
 

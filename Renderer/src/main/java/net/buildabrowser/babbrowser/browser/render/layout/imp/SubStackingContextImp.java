@@ -39,7 +39,7 @@ public class SubStackingContextImp implements StackingContext {
   public void layoutDeferred(CompositeLayer baseLayer) {
     int childContextIndex = 0;
     for (PosRefBoxFragment childFragment: fragments) {
-      int[] insets = PositionUtil.computeInsets(
+      float[] insets = PositionUtil.computeInsets(
         childFragment,
         LayoutConstraint.of(baseLayer.width()),
         LayoutConstraint.of(baseLayer.height()));
@@ -48,8 +48,8 @@ public class SubStackingContextImp implements StackingContext {
         CompositeLayer nextLayer = baseLayer.createChild(childFragment.referenceFragment());
 
         // layerX/layerY are based on content pos, but the layer will draw it's own borders
-        int borderPaddingWidth = childFragment.contentX() - childFragment.borderX();
-        int borderPaddingHeight = childFragment.contentY() - childFragment.borderY();
+        float borderPaddingWidth = childFragment.contentX() - childFragment.borderX();
+        float borderPaddingHeight = childFragment.contentY() - childFragment.borderY();
         nextLayer.incOffset(
           childFragment.layerX() - borderPaddingWidth + insets[2],
           childFragment.layerY() - borderPaddingHeight + insets[0]);
@@ -64,7 +64,7 @@ public class SubStackingContextImp implements StackingContext {
         // TODO: This code currently assumes absolute, but it could be something else
         UnmanagedBoxFragment newFragment = PositionLayout.actuallyLayoutAbsolute(
           childFragment, childContext, insets, baseLayer);
-        int[] offset = PositionLayout.positionAbsolute(insets, newFragment, baseLayer);
+        float[] offset = PositionLayout.positionAbsolute(insets, newFragment, baseLayer);
 
         CompositeLayer nextLayer = baseLayer.createChild(newFragment);
         nextLayer.incOffset(offset[0], offset[1]);

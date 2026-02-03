@@ -5,11 +5,11 @@ import net.buildabrowser.babbrowser.browser.render.paint.BoxPainter;
 
 public class UnmanagedBoxFragment extends BoxFragment {
 
-  public UnmanagedBoxFragment(int width, int height, ElementBox box, BoxPainter painter) {
+  public UnmanagedBoxFragment(float width, float height, ElementBox box, BoxPainter painter) {
     super(width, height, box, painter);
   }
 
-  public UnmanagedBoxFragment(int x, int y, int width, int height, ElementBox box) {
+  public UnmanagedBoxFragment(float x, float y, float width, float height, ElementBox box) {
     super(width, height, box, null);
     setPos(x, y);
   }

@@ -6,12 +6,12 @@ public interface Paint {
 
   int getColor();
 
-  void incOffset(int x, int y);
+  void incOffset(float x, float y);
 
-  void setOffset(int x, int y);
+  void setOffset(float x, float y);
 
-  int offsetX();
+  float offsetX();
 
-  int offsetY();
+  float offsetY();
 
 }

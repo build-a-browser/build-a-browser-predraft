@@ -16,15 +16,15 @@ public interface CompositeLayer {
 
   void paint(PaintCanvas canvas);
 
-  void incOffset(int xOffset, int yOffset);
+  void incOffset(float xOffset, float yOffset);
 
-  int posX();
+  float posX();
 
-  int posY();
+  float posY();
 
-  int width();
+  float width();
 
-  int height();
+  float height();
 
   int zIndex();
 

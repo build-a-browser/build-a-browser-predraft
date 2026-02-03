@@ -6,10 +6,10 @@ public class FlowTextFragmentBuilder {
   
   private final StringBuilder textBuilder = new StringBuilder();
 
-  private int width = 0;
-  private int height = 0;
+  private float width = 0;
+  private float height = 0;
 
-  public void addText(String text, int width, int height) {
+  public void addText(String text, float width, float height) {
     this.width += width;
     this.height = Math.max(this.height, height);
     textBuilder.append(text);
@@ -19,7 +19,7 @@ public class FlowTextFragmentBuilder {
     return textBuilder.isEmpty();
   }
 
-  public int height() {
+  public float height() {
     return this.height;
   }
 

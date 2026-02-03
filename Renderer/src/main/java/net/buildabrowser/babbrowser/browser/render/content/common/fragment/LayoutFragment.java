@@ -2,18 +2,18 @@ package net.buildabrowser.babbrowser.browser.render.content.common.fragment;
 
 public abstract class LayoutFragment {
   
-  private final int width;
-  private final int height;
+  private final float width;
+  private final float height;
 
-  private int posX = -1;
-  private int posY = -1;
+  private float posX = -1;
+  private float posY = -1;
 
-  public LayoutFragment(int width, int height) {
+  public LayoutFragment(float width, float height) {
     this.width = width;
     this.height = height;
   }
 
-  public void setPos(int x, int y) {
+  public void setPos(float x, float y) {
     this.posX = x;
     this.posY = y;
   }
@@ -22,64 +22,64 @@ public abstract class LayoutFragment {
     // No-op, subclasses can override
   }
 
-  public int marginX() {
+  public float marginX() {
     assert this.posX != -1 : "Attempt to get unset X position!";
     return this.posX;
   }
 
-  public int marginY() {
+  public float marginY() {
     assert this.posY != -1 : "Attempt to get unset Y position!";
     return this.posY;
   }
 
-  public int borderX() {
+  public float borderX() {
     assert this.posX != -1 : "Attempt to get unset X position!";
     return this.posX;
   }
 
-  public int borderY() {
+  public float borderY() {
     assert this.posY != -1 : "Attempt to get unset Y position!";
     return this.posY;
   }
 
-  public int contentX() {
+  public float contentX() {
     return borderX();
   }
 
-  public int contentY() {
+  public float contentY() {
     return borderY();
   }
 
   // Since LineBoxFragment and BoxFragment do not share another common parent, the layerpos methods are here for convenience
-  public int layerX() {
+  public float layerX() {
     throw new UnsupportedOperationException("This fragment does not support layer coordinates!");
   }
 
-  public int layerY() {
+  public float layerY() {
     throw new UnsupportedOperationException("This fragment does not support layer coordinates!");
   }
 
-  public int marginWidth() {
+  public float marginWidth() {
     return this.width;
   }
 
-  public int marginHeight() {
+  public float marginHeight() {
     return this.height;
   }
 
-  public int borderWidth() {
+  public float borderWidth() {
     return this.width;
   }
 
-  public int borderHeight() {
+  public float borderHeight() {
     return this.height;
   }
 
-  public int contentWidth() {
+  public float contentWidth() {
     return this.width;
   }
 
-  public int contentHeight() {
+  public float contentHeight() {
     return this.height;
   }
 

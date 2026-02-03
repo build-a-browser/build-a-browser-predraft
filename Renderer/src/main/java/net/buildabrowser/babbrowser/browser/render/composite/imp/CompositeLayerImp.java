@@ -19,8 +19,8 @@ public class CompositeLayerImp implements CompositeLayer {
   private final CompositeLayer parent;
   private final BoxFragment rootFragment;
 
-  private int offsetX = 0;
-  private int offsetY = 0;
+  private float offsetX = 0;
+  private float offsetY = 0;
   private boolean sorted = false;
 
   public CompositeLayerImp(CompositeLayer parent, BoxFragment rootFragment) {
@@ -39,7 +39,7 @@ public class CompositeLayerImp implements CompositeLayer {
   @Override
   public void addChildLayer(CompositeLayer layer) {
     // Because content starts between padding, not borders
-    int[] border = rootFragment.box().dimensions().getComputedBorder();
+    float[] border = rootFragment.box().dimensions().getComputedBorder();
     layer.incOffset(border[2], border[0]);
     if (isPassthrough()) {
       layer.incOffset(posX(), posY());
@@ -84,31 +84,31 @@ public class CompositeLayerImp implements CompositeLayer {
   }
 
   @Override
-  public void incOffset(int offsetX, int offsetY) {
+  public void incOffset(float offsetX, float offsetY) {
     this.offsetX += offsetX;
     this.offsetY += offsetY;
   }
 
   @Override
-  public int posX() {
+  public float posX() {
     return offsetX;
   }
 
   @Override
-  public int posY() {
+  public float posY() {
     return offsetY;
   }
 
   @Override
-  public int width() {
+  public float width() {
     // TODO: Maybe add padding size methods?
-    int[] padding = rootFragment.box().dimensions().getComputedPadding();
+    float[] padding = rootFragment.box().dimensions().getComputedPadding();
     return rootFragment.contentWidth() + padding[2] + padding[3];
   }
 
   @Override
-  public int height() {
-    int[] padding = rootFragment.box().dimensions().getComputedPadding();
+  public float height() {
+    float[] padding = rootFragment.box().dimensions().getComputedPadding();
     return rootFragment.contentHeight() + padding[0] + padding[1];
   }
 

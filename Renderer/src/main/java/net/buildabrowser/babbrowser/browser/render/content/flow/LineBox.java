@@ -25,7 +25,7 @@ public class LineBox {
     this.lineSegments = segments;
   }
 
-  private int totalWidth = 0;
+  private float totalWidth = 0;
   
   public void addFragment(LayoutFragment fragment) {
     commitText();
@@ -35,7 +35,7 @@ public class LineBox {
     lineSegments.peek().fragments().add(fragment);
   }
 
-  public void appendText(String text, int width, int height) {
+  public void appendText(String text, float width, float height) {
     this.totalWidth += width;
     textBuilder.addText(text, width, height);
   }
@@ -65,13 +65,13 @@ public class LineBox {
     return managedBoxFragment.box();
   }
 
-  public int totalWidth() {
+  public float totalWidth() {
     return this.totalWidth;
   }
 
   // TODO: This is surely wrong...
-  public int totalHeight() {
-    int totalHeight = textBuilder.height();
+  public float totalHeight() {
+    float totalHeight = textBuilder.height();
     for (LineSegment segment: this.lineSegments) {
       totalHeight = Math.max(totalHeight, segment.height());
     }

@@ -133,15 +133,15 @@ public class FlowBlockLayout {
       layoutContext.stackingContext().start();
     }
 
-    int[] margin = childBox.dimensions().getComputedMargin();
-    int[] border = childBox.dimensions().getComputedBorder();
-    int[] padding = childBox.dimensions().getComputedPadding();
+    float[] margin = childBox.dimensions().getComputedMargin();
+    float[] border = childBox.dimensions().getComputedBorder();
+    float[] padding = childBox.dimensions().getComputedPadding();
 
     FloatTracker floatTracker = rootContent.floatTracker();
     long floatMark = floatTracker.positionTracker().mark();
     floatTracker.positionTracker().adjustPos(margin[2] + border[2] + padding[2], border[0] + padding[0]);
 
-    int preMargin = parentContext.currentY();
+    float preMargin = parentContext.currentY();
     parentContext.recordMargin(margin[0]);
     boolean collapseFirst = needsCollapsed(childBox, 0);
     if (collapseFirst) {
@@ -198,7 +198,7 @@ public class FlowBlockLayout {
       layoutContext.stackingContext().start();
     }
 
-    int[] margin = childBox.dimensions().getComputedMargin();
+    float[] margin = childBox.dimensions().getComputedMargin();
     activeContext().recordMargin(margin[0]);
     activeContext().collapse();
     UnmanagedBoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
@@ -219,19 +219,19 @@ public class FlowBlockLayout {
   private void addPositionedToBlock(LayoutContext layoutContext, ElementBox childBox) {
     BlockFormattingContext parentContext = activeContext();
 
-    int estimatedAboveMargin = parentContext.currentMaxMargin() + parentContext.currentMinMargin();
+    float estimatedAboveMargin = parentContext.currentMaxMargin() + parentContext.currentMinMargin();
     // Don't bother marking the float tracker position, the child should establish a new one
 
     LayoutFragment newFragment = PositionLayout.layout(layoutContext, childBox);
     parentContext.addFragment(newFragment);
 
-    int[] margin = childBox.dimensions().getComputedMargin();
+    float[] margin = childBox.dimensions().getComputedMargin();
     newFragment.setPos(margin[2], margin[0] + estimatedAboveMargin + parentContext.currentY());
 
     parentContext.addFragment(newFragment); // Still needed to set fragment parent
   }
 
-  public void addFinishedFragment(LayoutContext layoutContext, LayoutFragment newFragment, int posX) {
+  public void addFinishedFragment(LayoutContext layoutContext, LayoutFragment newFragment, float posX) {
     if (LayerUtil.startsLayer(newFragment)) {
       newFragment.setPos(0, 0);
       newFragment = new PosRefBoxFragment((BoxFragment) newFragment, layoutContext);
@@ -250,9 +250,9 @@ public class FlowBlockLayout {
   private void ackFloatClear(ElementBox elementBox) {
     CSSValue clearValue = elementBox.activeStyles().getProperty(CSSProperty.CLEAR);
     if (clearValue.equals(CSSValue.NONE)) return;
-    int leftClear = clearValue.equals(ClearValue.RIGHT) ? 0 : rootContent.floatTracker().clearedLineStartPosition();
-    int rightClear = clearValue.equals(ClearValue.LEFT) ? 0 : rootContent.floatTracker().clearedLineEndPosition();
-    int totalClear = Math.max(leftClear, rightClear);
+    float leftClear = clearValue.equals(ClearValue.RIGHT) ? 0 : rootContent.floatTracker().clearedLineStartPosition();
+    float rightClear = clearValue.equals(ClearValue.LEFT) ? 0 : rootContent.floatTracker().clearedLineEndPosition();
+    float totalClear = Math.max(leftClear, rightClear);
     blockStack.peek().increaseY(totalClear);
     rootContent.floatTracker().positionTracker().adjustPos(0, totalClear);
   }

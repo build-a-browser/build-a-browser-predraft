@@ -63,9 +63,9 @@ public class FlowRootContent implements BoxContent {
       floatFragment.setParent(rootFragment); // Wasn't implicitly set since it's not added to the managed fragment
     }
 
-    int desiredHeight = Math.max(rootFragment.contentHeight(), floatTracker.contentHeight());
-    int usedWidth = LayoutUtil.constraintOrDim(widthConstraint, rootFragment.contentWidth());
-    int usedHeight = LayoutUtil.constraintOrDim(heightConstraint, desiredHeight);
+    float desiredHeight = Math.max(rootFragment.contentHeight(), floatTracker.contentHeight());
+    float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, rootFragment.contentWidth());
+    float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, desiredHeight);
     
     UnmanagedBoxFragment wrapperFragment = new UnmanagedBoxFragment(usedWidth, usedHeight, rootBox, new FlowRootBoxPainter(this));
 

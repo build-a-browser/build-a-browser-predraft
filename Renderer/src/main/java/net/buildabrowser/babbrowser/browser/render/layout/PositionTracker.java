@@ -7,15 +7,15 @@ import net.buildabrowser.babbrowser.browser.render.layout.imp.PositionTrackerImp
 // There's probably a better way...
 public interface PositionTracker {
   
-  void adjustPos(int x, int y);
+  void adjustPos(float x, float y);
 
   long mark();
 
   void restoreMark(long mark);
 
-  int posX();
+  float posX();
 
-  int posY();
+  float posY();
 
   void reset();
 

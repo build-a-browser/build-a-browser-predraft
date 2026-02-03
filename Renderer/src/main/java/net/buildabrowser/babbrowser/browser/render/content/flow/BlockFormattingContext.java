@@ -18,12 +18,12 @@ public class BlockFormattingContext {
 
   private final List<LayoutFragment> fragments;
 
-  private int width;
-  private int y;
+  private float width;
+  private float y;
 
   private BlockFormattingContext collapseContext;
-  private int maxMargin = 0;
-  private int minMargin = 0;
+  private float maxMargin = 0;
+  private float minMargin = 0;
 
   public BlockFormattingContext(
     ElementBox elementBox,
@@ -41,19 +41,19 @@ public class BlockFormattingContext {
     this.fragments = new LinkedList<>();
   }
 
-  public int currentY() {
+  public float currentY() {
     return this.y;
   }
 
-  public void increaseY(int yInc) {
+  public void increaseY(float yInc) {
     this.y += yInc;
   }
 
-  public void minWidth(int minWidth) {
+  public void minWidth(float minWidth) {
     this.width = Math.max(width, minWidth);
   }
 
-  public void recordMargin(int margin) {
+  public void recordMargin(float margin) {
     if (this.collapseContext != null) {
       collapseContext.recordMargin(margin);
       return;
@@ -73,18 +73,18 @@ public class BlockFormattingContext {
       return;
     }
 
-    int amount = maxMargin + minMargin;
+    float amount = maxMargin + minMargin;
     rootContent.floatTracker().positionTracker().adjustPos(0, amount);
     increaseY(amount);
     this.maxMargin = 0;
     this.minMargin = 0;
   }
 
-  public int currentMaxMargin() {
+  public float currentMaxMargin() {
     return this.maxMargin;
   }
 
-  public int currentMinMargin() {
+  public float currentMinMargin() {
     return this.minMargin;
   }
 
@@ -101,8 +101,8 @@ public class BlockFormattingContext {
   }
 
   public ManagedBoxFragment close(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
-    int usedWidth = LayoutUtil.constraintOrDim(widthConstraint, width);
-    int usedHeight = LayoutUtil.constraintOrDim(heightConstraint, y);
+    float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, width);
+    float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, y);
     return new ManagedBoxFragment(
       usedWidth, usedHeight, elementBox,
       FlowRootContentPainter.FLOW_BLOCK_PAINTER, fragments);

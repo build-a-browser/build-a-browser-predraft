@@ -4,12 +4,12 @@ public class TextFragment extends LayoutFragment {
 
   private final String text;
 
-  public TextFragment(int width, int height, String text) {
+  public TextFragment(float width, float height, String text) {
     super(width, height);
     this.text = text;
   }
 
-  public TextFragment(int x, int y, int width, int height, String text) {
+  public TextFragment(float x, float y, float width, float height, String text) {
     super(width, height);
     setPos(x, y);
     this.text = text;

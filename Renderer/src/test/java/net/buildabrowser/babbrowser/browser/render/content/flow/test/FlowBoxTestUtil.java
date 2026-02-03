@@ -19,7 +19,7 @@ public final class FlowBoxTestUtil {
   private FlowBoxTestUtil() {}
 
 
-  public static ElementBox sizedReplacedBlockBox(int width, int height) {
+  public static ElementBox sizedReplacedBlockBox(float width, float height) {
     ActiveStyles childrenStyles = ActiveStyles.create();
     ElementBox myBox = new TestElementBox(
       box -> new TestFixedSizeReplacedContent(box, width, height), BoxLevel.BLOCK_LEVEL, childrenStyles, List.of());
@@ -28,11 +28,11 @@ public final class FlowBoxTestUtil {
     return myBox;
   }
 
-  public static ElementBox sizedReplacedInlineBlockBox(int width, int height) {
+  public static ElementBox sizedReplacedInlineBlockBox(float width, float height) {
     return sizedReplacedInlineBlockBox(ActiveStyles.create(), width, height);
   }
 
-  public static ElementBox sizedReplacedInlineBlockBox(ActiveStyles styles, int width, int height) {
+  public static ElementBox sizedReplacedInlineBlockBox(ActiveStyles styles, float width, float height) {
     styles.setProperty(CSSProperty.DISPLAY, DisplayValue.create(OuterDisplayValue.BLOCK, InnerDisplayValue.FLOW_ROOT));
     TestElementBox myBox = new TestElementBox(
       box -> new TestFixedSizeReplacedContent(box, width, height), BoxLevel.INLINE_LEVEL, styles, List.of());

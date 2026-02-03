@@ -50,7 +50,7 @@ public class ImageContent implements BoxContent, BoxPainter {
     String alt = getImageAlt();
     FontMetrics fm = layoutContext.fontMetrics();
     
-    int width = fm.stringWidth(alt);
+    float width = fm.stringWidth(alt);
     
     dimensions.setPreferredMinWidthConstraint(width);
     dimensions.setPreferredWidthConstraint(width);
@@ -63,8 +63,8 @@ public class ImageContent implements BoxContent, BoxPainter {
     LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     ElementBoxDimensions dimensions = box.dimensions();
-    int realWidth = LayoutUtil.constraintOrDim(widthConstraint, dimensions.intrinsicWidth());
-    int realHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.intrinsicHeight());
+    float realWidth = LayoutUtil.constraintOrDim(widthConstraint, dimensions.intrinsicWidth());
+    float realHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.intrinsicHeight());
     
     return new UnmanagedBoxFragment(realWidth, realHeight, box, this);
   }
@@ -72,8 +72,8 @@ public class ImageContent implements BoxContent, BoxPainter {
   @Override
   public void paint(BoxFragment fragment, PaintCanvas canvas) {
     canvas.alterPaint(paint -> paint.setColor(box.activeStyles().backgroundColor()));
-    int width = fragment.contentWidth();
-    int height = fragment.contentHeight();
+    float width = fragment.contentWidth();
+    float height = fragment.contentHeight();
     canvas.drawBox(0, 0, width, height);
     canvas.alterPaint(paint -> paint.setColor(box.activeStyles().textColor()));
 

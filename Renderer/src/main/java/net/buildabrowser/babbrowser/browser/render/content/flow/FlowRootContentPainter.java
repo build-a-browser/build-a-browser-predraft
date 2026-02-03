@@ -187,7 +187,7 @@ public final class FlowRootContentPainter {
 
   private static void paintBorders(PaintCanvas canvas, BoxFragment fragment) {
     // Quick and dirty implementation, ignore styles for now
-    int[] borders = fragment.box().dimensions().getComputedBorder();
+    float[] borders = fragment.box().dimensions().getComputedBorder();
     
     canvas.alterPaint(paint -> paint.setColor(fragment.box().activeStyles().borderTopColor()));
     canvas.drawBox(0, 0, fragment.borderWidth(), borders[0]);

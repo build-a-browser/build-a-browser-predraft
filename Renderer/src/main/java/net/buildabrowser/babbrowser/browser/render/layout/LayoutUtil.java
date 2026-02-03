@@ -6,7 +6,7 @@ public final class LayoutUtil {
   
   private LayoutUtil() {}
 
-  public static int constraintOrDim(LayoutConstraint constraint, int dim) {
+  public static float constraintOrDim(LayoutConstraint constraint, float dim) {
     return constraint.type().equals(LayoutConstraintType.BOUNDED) ?
       constraint.value() : dim;
   }

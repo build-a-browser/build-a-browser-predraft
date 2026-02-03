@@ -45,7 +45,7 @@ public final class FloatLayout {
     UnmanagedBoxFragment floatFragment,
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint,
-    int reservedWidth
+    float reservedWidth
   ) {
     FloatTracker floatTracker = rootContent.floatTracker();
     ActiveStyles childStyles = floatFragment.box().activeStyles();

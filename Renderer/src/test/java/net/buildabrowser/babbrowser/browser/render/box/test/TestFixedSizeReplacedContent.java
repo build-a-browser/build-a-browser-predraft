@@ -11,10 +11,10 @@ import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 public class TestFixedSizeReplacedContent implements BoxContent {
 
   private final ElementBox box;
-  private final int width;
-  private final int height;
+  private final float width;
+  private final float height;
 
-  public TestFixedSizeReplacedContent(ElementBox box, int width, int height) {
+  public TestFixedSizeReplacedContent(ElementBox box, float width, float height) {
     this.box = box;
     this.width = width;
     this.height = height;
@@ -31,8 +31,8 @@ public class TestFixedSizeReplacedContent implements BoxContent {
   public UnmanagedBoxFragment layout(
     LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
-    int usedWidth = LayoutUtil.constraintOrDim(widthConstraint, width);
-    int usedHeight = LayoutUtil.constraintOrDim(heightConstraint, height);
+    float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, width);
+    float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, height);
     
     return new UnmanagedBoxFragment(usedWidth, usedHeight, box, null);
   }

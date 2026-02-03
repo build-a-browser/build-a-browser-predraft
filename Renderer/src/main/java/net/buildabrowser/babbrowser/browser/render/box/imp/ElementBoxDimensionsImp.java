@@ -4,19 +4,19 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 
 public class ElementBoxDimensionsImp implements ElementBoxDimensions {
 
-  private int[] computedBorder = new int[] { 0, 0, 0, 0 };
-  private int[] computedPadding = new int[] { 0, 0, 0, 0 };
-  private int[] computedMargin = new int[] { 0, 0, 0, 0 };
+  private float[] computedBorder = new float[] { 0, 0, 0, 0 };
+  private float[] computedPadding = new float[] { 0, 0, 0, 0 };
+  private float[] computedMargin = new float[] { 0, 0, 0, 0 };
 
-  private int preferredMinWidthConstraint = 0;
-  private int preferredWidthConstraint = 0;
+  private float preferredMinWidthConstraint = 0;
+  private float preferredWidthConstraint = 0;
 
-  private int intrinsicWidth = -1;
-  private int intrinsicHeight = -1;
+  private float intrinsicWidth = -1;
+  private float intrinsicHeight = -1;
   private float intrinsicRatio = -1;
 
   @Override
-  public void setComputedBorder(int t, int b, int l, int r) {
+  public void setComputedBorder(float t, float b, float l, float r) {
     computedBorder[0] = t;
     computedBorder[1] = b;
     computedBorder[2] = l;
@@ -24,12 +24,12 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   }
 
   @Override
-  public int[] getComputedBorder() {
+  public float[] getComputedBorder() {
     return computedBorder;
   }
 
   @Override
-  public void setComputedPadding(int t, int b, int l, int r) {
+  public void setComputedPadding(float t, float b, float l, float r) {
     computedPadding[0] = t;
     computedPadding[1] = b;
     computedPadding[2] = l;
@@ -37,54 +37,54 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   }
 
   @Override
-  public int[] getComputedPadding() {
+  public float[] getComputedPadding() {
     return computedPadding;
   }
 
   @Override
-  public void setComputedVerticalMargin(int t, int b) {
+  public void setComputedVerticalMargin(float t, float b) {
     computedMargin[0] = t;
     computedMargin[1] = b;
   }
 
   @Override
-  public void setComputedHorizontalMargin(int l , int r) {
+  public void setComputedHorizontalMargin(float l , float r) {
     computedMargin[2] = l;
     computedMargin[3] = r;
   }
 
   @Override
-  public int[] getComputedMargin() {
+  public float[] getComputedMargin() {
     return this.computedMargin;
   }
 
   @Override
-  public void setPreferredMinWidthConstraint(int w) {
+  public void setPreferredMinWidthConstraint(float w) {
     this.preferredMinWidthConstraint = w;
   }
 
   @Override
-  public void setPreferredWidthConstraint(int w) {
+  public void setPreferredWidthConstraint(float w) {
     this.preferredWidthConstraint = w;
   }
 
   @Override
-  public int preferredMinWidthConstraint() {
+  public float preferredMinWidthConstraint() {
     return this.preferredMinWidthConstraint;
   }
 
   @Override
-  public int preferredWidthConstraint() {
+  public float preferredWidthConstraint() {
     return this.preferredWidthConstraint;
   }
 
   @Override
-  public void setIntrinsicWidth(int width) {
+  public void setIntrinsicWidth(float width) {
     this.intrinsicWidth = width;
   }
 
   @Override
-  public void setInstrinsicHeight(int height) {
+  public void setInstrinsicHeight(float height) {
     this.intrinsicHeight = height;
   }
 
@@ -94,12 +94,12 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   }
 
   @Override
-  public int intrinsicWidth() {
+  public float intrinsicWidth() {
     return this.intrinsicWidth;
   }
 
   @Override
-  public int intrinsicHeight() {
+  public float intrinsicHeight() {
     return this.intrinsicHeight;
   }
 
