@@ -5,6 +5,7 @@ import java.util.Map;
 
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
+import net.buildabrowser.babbrowser.css.engine.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParserUtil.AnyOrderResult;
@@ -12,6 +13,7 @@ import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.Inn
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 
 public class DisplayParser implements PropertyValueParser {
 
@@ -50,6 +52,7 @@ public class DisplayParser implements PropertyValueParser {
       (stream1, _) -> PropertyValueParserUtil.parseIdentMap(stream, BOX_VALUES),
       (stream1, _) -> PropertyValueParserUtil.parseIdentMap(stream, LEGACY_VALUES));
     
+    if (!(stream.peek() instanceof EOFToken)) return CSSFailure.EXPECTED_EOF;
     if (result instanceof DisplayValue unionValue) {
       activeStyles.setProperty(CSSProperty.DISPLAY, unionValue);
     }

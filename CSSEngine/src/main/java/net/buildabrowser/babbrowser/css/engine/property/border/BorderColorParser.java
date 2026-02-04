@@ -12,8 +12,6 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStr
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 
 public class BorderColorParser implements PropertyValueParser {
-  
-private static final CSSFailure EXPECTED_EOF = new CSSFailure("Expected an EOF token");
 
   private final PropertyValueParser innerParser;
   private final CSSProperty relatedProperty;
@@ -27,9 +25,7 @@ private static final CSSFailure EXPECTED_EOF = new CSSFailure("Expected an EOF t
   public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
     CSSValue result = innerParser.parse(stream, activeStyles);
     if (result.isFailure()) return result;
-    if (!(stream.peek() instanceof EOFToken)) {
-      return EXPECTED_EOF;
-    }
+    if (!(stream.peek() instanceof EOFToken)) return CSSFailure.EXPECTED_EOF;
 
     activeStyles.setProperty(innerParser.relatedProperty(), result);
     return result;

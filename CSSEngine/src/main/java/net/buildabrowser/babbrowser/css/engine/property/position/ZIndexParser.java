@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.css.engine.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
@@ -35,6 +36,8 @@ public class ZIndexParser implements PropertyValueParser {
     if (value == null) {
       return EXPECTED_INTEGER;
     }
+
+    if (!(stream.peek() instanceof EOFToken)) return CSSFailure.EXPECTED_EOF;
 
     activeStyles.setProperty(CSSProperty.Z_INDEX, value);
     return value;

@@ -7,16 +7,14 @@ import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
-import net.buildabrowser.babbrowser.css.engine.property.size.SizeParser;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue.LengthType;
+import net.buildabrowser.babbrowser.css.engine.property.size.SizeParser;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 
 public class BorderSizeParser implements PropertyValueParser {
-
-  private static final CSSFailure EXPECTED_EOF = new CSSFailure("Expected an EOF token");
 
   private final SizeParser innerParser;
 
@@ -28,9 +26,7 @@ public class BorderSizeParser implements PropertyValueParser {
   public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
     CSSValue result = parseInternal(stream, activeStyles);
     if (result.isFailure()) return result;
-    if (!(stream.peek() instanceof EOFToken)) {
-      return EXPECTED_EOF;
-    }
+    if (!(stream.peek() instanceof EOFToken)) return CSSFailure.EXPECTED_EOF;
 
     activeStyles.setProperty(innerParser.relatedProperty(), result);
     return result;

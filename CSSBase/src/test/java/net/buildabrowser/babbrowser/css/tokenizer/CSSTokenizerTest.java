@@ -148,6 +148,13 @@ public class CSSTokenizerTest {
   }
 
   @Test
+  @DisplayName("Can tokenize an escaped ident token")
+  public void canTokenizeAnEscapedIdentToken() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("\\{\\0061\\}"));
+    Assertions.assertEquals(IdentToken.create("{a}"), token);
+  }
+
+  @Test
   @DisplayName("Can ignore comments")
   public void canIgnoreComments() throws IOException {
     Token token = cssTokenizer.consumeAToken(stringInput("/*Gorillas*/;"));

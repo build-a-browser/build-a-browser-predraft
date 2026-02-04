@@ -14,8 +14,6 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStr
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 
 public class BorderSideShorthandParser implements PropertyValueParser {
-  
-  private static final CSSFailure EXPECTED_EOF = new CSSFailure("Expected an EOF token");
 
   private static final PropertyValueParser widthParser = new BorderSizeParser(null)::parseInternal;
   private static final PropertyValueParser colorParser = new ColorBaseParser();
@@ -39,10 +37,7 @@ public class BorderSideShorthandParser implements PropertyValueParser {
   public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
     CSSValue result = PropertyValueParserUtil.parseAnyOrder(stream, widthParser, colorParser, styleParser);
     if (result.isFailure()) return result;
-
-    if (!(stream.peek() instanceof EOFToken)) {
-      return EXPECTED_EOF;
-    }
+    if (!(stream.peek() instanceof EOFToken)) return CSSFailure.EXPECTED_EOF;
 
     CSSValue[] components = ((AnyOrderResult) result).values();
     if (components[0] != null) activeStyles.setProperty(widthProperty, components[0]);

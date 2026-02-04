@@ -12,7 +12,6 @@ import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 
 public class ManySideShorthandParser implements PropertyValueParser {
 
-  private static final CSSFailure EXPECTED_EOF = new CSSFailure("Expected an EOF token");
   private static final CSSFailure EXPECTED_SIZE = new CSSFailure("Expected at least one size");
 
   private final PropertyValueParser innerParser;
@@ -41,7 +40,7 @@ public class ManySideShorthandParser implements PropertyValueParser {
     if (i == 0) {
       return EXPECTED_SIZE;
     } else if (!(stream.peek() instanceof EOFToken)) {
-      return EXPECTED_EOF;
+      return CSSFailure.EXPECTED_EOF;
     }
 
     switch (i) {

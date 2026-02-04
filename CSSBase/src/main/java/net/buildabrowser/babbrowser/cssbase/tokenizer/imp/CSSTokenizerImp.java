@@ -38,6 +38,7 @@ public class CSSTokenizerImp implements CSSTokenizer {
       case '.' -> consumeFullStop(stream);
       case ':' -> ColonToken.create();
       case ';' -> SemicolonToken.create();
+      case '\\' -> consumeReverseSolidus(stream);
       case '{' -> LCBracketToken.create();
       case '}' -> RCBracketToken.create();
       case -1 -> EOFToken.create();
@@ -131,6 +132,16 @@ public class CSSTokenizerImp implements CSSTokenizer {
     }
 
     return new DelimToken('.');
+  }
+
+  private Token consumeReverseSolidus(CSSTokenizerInput stream) throws IOException {
+    if (TokenizerUtil.isValidEscape('\\', stream.peek())) {
+      stream.unread('\\');
+      return identTokenizer.consumeAnIdentLikeToken(stream);
+    }
+
+    // TODO: Parse error
+    return new DelimToken('\\');
   }
   
 }

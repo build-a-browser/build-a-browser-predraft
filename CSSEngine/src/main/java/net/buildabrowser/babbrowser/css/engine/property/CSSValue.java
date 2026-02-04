@@ -16,6 +16,8 @@ public interface CSSValue {
 
   public static record CSSFailure(String reason) implements CSSValue {
 
+    public static CSSFailure EXPECTED_EOF = new CSSFailure("Expected an EOF token");
+
     public boolean isFailure() {
       return true;
     }

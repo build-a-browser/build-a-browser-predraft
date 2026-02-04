@@ -116,7 +116,7 @@ public final class ComplexSelectorParser {
       case '>' -> parts.add(ChildCombinator.create());
       case '+' -> parts.add(NextSiblingCombinator.create());
       case '~' -> parts.add(SubsequentSiblingCombinator.create());
-      default -> {}
+      default -> isInvalid = true;
     }
 
     return isInvalid;
