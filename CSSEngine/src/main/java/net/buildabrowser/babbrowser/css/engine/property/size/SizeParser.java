@@ -8,10 +8,8 @@ import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue.LengthType;
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
-import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
@@ -21,7 +19,6 @@ public class SizeParser implements PropertyValueParser {
 
   private static final CSSFailure NO_VALID_RESULT = new CSSFailure("No valid result...");
   private static final CSSFailure INVALID_LENGTH_TYPE = new CSSFailure("Unknown length type!");
-  private static final CSSFailure EXPECTED_EOF = new CSSFailure("Expected an EOF token");
 
   private static final Map<String, LengthType> LENGTH_TYPES = Map.of(
     "em", LengthType.EM,
@@ -51,23 +48,7 @@ public class SizeParser implements PropertyValueParser {
   }
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
-    CSSValue result = parseInternal(stream, activeStyles);
-    if (result.isFailure()) return result;
-    if (!(stream.peek() instanceof EOFToken)) {
-      return EXPECTED_EOF;
-    }
-
-    activeStyles.setProperty(property, result);
-    return result;
-  }
-
-  @Override
-  public CSSProperty relatedProperty() {
-    return property;
-  }
-
-  public CSSValue parseInternal(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
+  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
     Token token = stream.read();
     if (
       allowNone
@@ -103,6 +84,11 @@ public class SizeParser implements PropertyValueParser {
     } else {
       return NO_VALID_RESULT;
     }
+  }
+
+  @Override
+  public CSSProperty relatedProperty() {
+    return property;
   }
 
   public static SizeParser forMargin(CSSProperty unit) {

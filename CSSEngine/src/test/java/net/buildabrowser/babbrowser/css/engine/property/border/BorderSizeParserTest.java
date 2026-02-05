@@ -10,7 +10,6 @@ import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue.LengthType;
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -23,8 +22,7 @@ public class BorderSizeParserTest {
   @DisplayName("Can parse border with named thickness")
   public void canParseBorderWithNamedThickness() throws IOException {
     CSSValue value = borderSizeParser.parse(
-      CSSTokenStream.create(IdentToken.create("thin")),
-      ActiveStyles.create());
+      CSSTokenStream.create(IdentToken.create("thin")));
     Assertions.assertEquals(LengthValue.create(2, true, LengthType.PX), value);
   }
 
@@ -32,8 +30,7 @@ public class BorderSizeParserTest {
   @DisplayName("Can parse border with sized width")
   public void canParseBorderWithSizedWidth() throws IOException {
     CSSValue value = borderSizeParser.parse(
-      CSSTokenStream.create(DimensionToken.create(5, "em")),
-      ActiveStyles.create());
+      CSSTokenStream.create(DimensionToken.create(5, "em")));
     Assertions.assertEquals(LengthValue.create(5, true, LengthType.EM), value);
   }
 

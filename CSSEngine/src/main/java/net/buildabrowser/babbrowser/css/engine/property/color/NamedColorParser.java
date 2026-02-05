@@ -4,9 +4,8 @@ import java.io.IOException;
 
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue.CSSFailure;
-import net.buildabrowser.babbrowser.css.engine.property.color.ColorValue.SRGBAColor;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.css.engine.property.color.ColorValue.SRGBAColor;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
@@ -17,18 +16,14 @@ public class NamedColorParser implements PropertyValueParser {
   private static final CSSFailure UNKNOWN_COLOR = new CSSFailure("Not a known color!");
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
+  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
     Token token = stream.read();
     if (!(token instanceof IdentToken identToken)) {
       return INVALID_TOKEN;
     }
 
     SRGBAColor color = HTMLColors.HTML_COLORS.get(identToken.value());
-    if (color == null) {
-      return UNKNOWN_COLOR;
-    }
-
-    return color;
+    return color == null ? UNKNOWN_COLOR : color;
   }
   
 }

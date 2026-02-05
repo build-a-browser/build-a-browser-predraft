@@ -5,15 +5,12 @@ import java.util.Map;
 
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
-import net.buildabrowser.babbrowser.css.engine.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParserUtil.AnyOrderResult;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
-import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 
 public class DisplayParser implements PropertyValueParser {
 
@@ -46,24 +43,18 @@ public class DisplayParser implements PropertyValueParser {
 
   // TOOO: Listitem and internal types
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
-    CSSValue result = PropertyValueParserUtil.parseLongest(stream,
-      (stream1, _) -> parseTuple(stream),
-      (stream1, _) -> PropertyValueParserUtil.parseIdentMap(stream, BOX_VALUES),
-      (stream1, _) -> PropertyValueParserUtil.parseIdentMap(stream, LEGACY_VALUES));
-    
-    if (!(stream.peek() instanceof EOFToken)) return CSSFailure.EXPECTED_EOF;
-    if (result instanceof DisplayValue unionValue) {
-      activeStyles.setProperty(CSSProperty.DISPLAY, unionValue);
-    }
-
-    return result;
+  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+    return PropertyValueParserUtil.parseLongest(stream,
+      stream1 -> parseTuple(stream1),
+      stream1 -> PropertyValueParserUtil.parseIdentMap(stream1, BOX_VALUES),
+      stream1 -> PropertyValueParserUtil.parseIdentMap(stream1, LEGACY_VALUES));
+  
   }
 
   private CSSValue parseTuple(SeekableCSSTokenStream stream) throws IOException {
     CSSValue result = PropertyValueParserUtil.parseAnyOrder(stream,
-      (stream1, _) -> PropertyValueParserUtil.parseIdentMap(stream1, OUTER_VALUES),
-      (stream1, _) -> PropertyValueParserUtil.parseIdentMap(stream1, INNER_VALUES));
+      stream1 -> PropertyValueParserUtil.parseIdentMap(stream1, OUTER_VALUES),
+      stream1 -> PropertyValueParserUtil.parseIdentMap(stream1, INNER_VALUES));
     if (!(result instanceof AnyOrderResult anyOrderResult)) return result;
 
     OuterDisplayValue outerDisplayValue = (OuterDisplayValue) anyOrderResult.values()[0];

@@ -19,8 +19,7 @@ public class HexColorParserTest {
   @DisplayName("Can parse six-component color")
   public void canParseSixComponentColor() throws IOException {
     CSSValue value = hexColorParser.parse(
-      CSSTokenStream.create(HashToken.create("babbab", HashToken.Type.ID)),
-      null);
+      CSSTokenStream.create(HashToken.create("babbab", HashToken.Type.ID)));
     Assertions.assertEquals(SRGBAColor.create(186, 187, 171, 255), value);
   }
 

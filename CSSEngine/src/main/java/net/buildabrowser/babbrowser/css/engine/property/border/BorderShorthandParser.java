@@ -15,35 +15,18 @@ import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 
 public class BorderShorthandParser implements PropertyValueParser {
 
-  private static final PropertyValueParser widthParser = new BorderSizeParser(null)::parseInternal;
+  private static final PropertyValueParser widthParser = new BorderSizeParser(null);
   private static final PropertyValueParser colorParser = new ColorBaseParser();
-  private static final PropertyValueParser styleParser = new BorderStyleParser(null)::parseInternal;
+  private static final PropertyValueParser styleParser = new BorderStyleParser(null);
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
+  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
     CSSValue result = PropertyValueParserUtil.parseAnyOrder(stream, widthParser, colorParser, styleParser);
     if (result.isFailure()) return result;
     if (!(stream.peek() instanceof EOFToken)) return CSSFailure.EXPECTED_EOF;
 
     CSSValue[] components = ((AnyOrderResult) result).values();
-    if (components[0] != null) {
-      activeStyles.setProperty(CSSProperty.BORDER_TOP_WIDTH, components[0]);
-      activeStyles.setProperty(CSSProperty.BORDER_BOTTOM_WIDTH, components[0]);
-      activeStyles.setProperty(CSSProperty.BORDER_LEFT_WIDTH, components[0]);
-      activeStyles.setProperty(CSSProperty.BORDER_RIGHT_WIDTH, components[0]);
-    }
-    if (components[1] != null) {
-      activeStyles.setProperty(CSSProperty.BORDER_TOP_COLOR, components[1]);
-      activeStyles.setProperty(CSSProperty.BORDER_BOTTOM_COLOR, components[1]);
-      activeStyles.setProperty(CSSProperty.BORDER_LEFT_COLOR, components[1]);
-      activeStyles.setProperty(CSSProperty.BORDER_RIGHT_COLOR, components[1]);
-    }
-    if (components[2] != null) {
-      activeStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, components[2]);
-      activeStyles.setProperty(CSSProperty.BORDER_BOTTOM_STYLE, components[2]);
-      activeStyles.setProperty(CSSProperty.BORDER_LEFT_STYLE, components[2]);
-      activeStyles.setProperty(CSSProperty.BORDER_RIGHT_STYLE, components[2]);
-    }
+    
     
     return new BorderCompositeValue(components[0], components[1], components[2]);
   }
@@ -51,6 +34,32 @@ public class BorderShorthandParser implements PropertyValueParser {
   @Override
   public CSSProperty relatedProperty() {
     return CSSProperty.BORDER;
+  }
+
+  @Override
+  public void updateProperty(CSSValue result, ActiveStyles activeStyles) {
+    if (!(result instanceof BorderCompositeValue compositeValue)) return;
+    CSSValue widthValue = compositeValue.width();
+    CSSValue colorValue = compositeValue.color();
+    CSSValue styleValue = compositeValue.style();
+    if (widthValue != null) {
+      activeStyles.setProperty(CSSProperty.BORDER_TOP_WIDTH, widthValue);
+      activeStyles.setProperty(CSSProperty.BORDER_BOTTOM_WIDTH, widthValue);
+      activeStyles.setProperty(CSSProperty.BORDER_LEFT_WIDTH, widthValue);
+      activeStyles.setProperty(CSSProperty.BORDER_RIGHT_WIDTH, widthValue);
+    }
+    if (colorValue != null) {
+      activeStyles.setProperty(CSSProperty.BORDER_TOP_COLOR, colorValue);
+      activeStyles.setProperty(CSSProperty.BORDER_BOTTOM_COLOR, colorValue);
+      activeStyles.setProperty(CSSProperty.BORDER_LEFT_COLOR, colorValue);
+      activeStyles.setProperty(CSSProperty.BORDER_RIGHT_COLOR, colorValue);
+    }
+    if (styleValue != null) {
+      activeStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, styleValue);
+      activeStyles.setProperty(CSSProperty.BORDER_BOTTOM_STYLE, styleValue);
+      activeStyles.setProperty(CSSProperty.BORDER_LEFT_STYLE, styleValue);
+      activeStyles.setProperty(CSSProperty.BORDER_RIGHT_STYLE, styleValue);
+    }
   }
 
 }

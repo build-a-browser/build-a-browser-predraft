@@ -34,7 +34,7 @@ public class RGBColorParserTest {
       NumberToken.create(.5, false)
     ));
 
-    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue), null);
+    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue));
     Assertions.assertFalse(result.isFailure());
 
     ColorValue colorValue = Assertions.assertInstanceOf(ColorValue.class, result);
@@ -57,7 +57,7 @@ public class RGBColorParserTest {
       PercentageToken.create(50)
     ));
 
-    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue), null);
+    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue));
     Assertions.assertFalse(result.isFailure());
 
     ColorValue colorValue = Assertions.assertInstanceOf(ColorValue.class, result);
@@ -80,7 +80,7 @@ public class RGBColorParserTest {
       NumberToken.create(0)
     ));
 
-    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue), null);
+    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue));
     Assertions.assertFalse(result.isFailure());
 
     ColorValue colorValue = Assertions.assertInstanceOf(ColorValue.class, result);
@@ -103,7 +103,7 @@ public class RGBColorParserTest {
       NumberToken.create(0)
     ));
 
-    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue), null);
+    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue));
     Assertions.assertTrue(result.isFailure());
   }
 
@@ -116,7 +116,7 @@ public class RGBColorParserTest {
       PercentageToken.create(1)
     ));
 
-    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue), null);
+    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue));
     Assertions.assertFalse(result.isFailure());
 
     ColorValue colorValue = Assertions.assertInstanceOf(ColorValue.class, result);
@@ -139,7 +139,7 @@ public class RGBColorParserTest {
       PercentageToken.create(1)
     ));
 
-    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue), null);
+    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue));
     Assertions.assertFalse(result.isFailure());
 
     ColorValue colorValue = Assertions.assertInstanceOf(ColorValue.class, result);
@@ -164,7 +164,7 @@ public class RGBColorParserTest {
       NumberToken.create(.5f, false)
     ));
 
-    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue), null);
+    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue));
     Assertions.assertFalse(result.isFailure());
 
     ColorValue colorValue = Assertions.assertInstanceOf(ColorValue.class, result);
@@ -189,7 +189,7 @@ public class RGBColorParserTest {
       IdentToken.create("none")
     ));
 
-    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue), null);
+    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue));
     Assertions.assertFalse(result.isFailure());
 
     ColorValue colorValue = Assertions.assertInstanceOf(ColorValue.class, result);
@@ -209,7 +209,7 @@ public class RGBColorParserTest {
       CommaToken.create()
     ));
 
-    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue), null);
+    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue));
     Assertions.assertTrue(result.isFailure());
   }
 
@@ -223,7 +223,7 @@ public class RGBColorParserTest {
       WhitespaceToken.create()
     ));
 
-    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue), null);
+    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue));
     Assertions.assertTrue(result.isFailure());
   }
 
@@ -237,7 +237,7 @@ public class RGBColorParserTest {
       NumberToken.create(0)
     ));
 
-    CSSValue result1 = rgbColorParser.parse(ListCSSTokenStream.create(functionValue), null);
+    CSSValue result1 = rgbColorParser.parse(ListCSSTokenStream.create(functionValue));
     Assertions.assertTrue(result1.isFailure());
 
     functionValue = new FunctionValue("rgb", List.of(
@@ -247,7 +247,7 @@ public class RGBColorParserTest {
       NumberToken.create(0)
     ));
 
-    CSSValue result2 = rgbColorParser.parse(ListCSSTokenStream.create(functionValue), null);
+    CSSValue result2 = rgbColorParser.parse(ListCSSTokenStream.create(functionValue));
     Assertions.assertTrue(result2.isFailure());
   }
 
@@ -262,7 +262,7 @@ public class RGBColorParserTest {
       NumberToken.create(0)
     ));
 
-    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue), null);
+    CSSValue result = rgbColorParser.parse(ListCSSTokenStream.create(functionValue));
     Assertions.assertTrue(result.isFailure());
   }
 

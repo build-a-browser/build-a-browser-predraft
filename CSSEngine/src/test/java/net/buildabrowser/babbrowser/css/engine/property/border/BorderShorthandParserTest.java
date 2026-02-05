@@ -10,7 +10,6 @@ import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.color.ColorValue.SRGBAColor;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue.LengthType;
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -26,8 +25,7 @@ public class BorderShorthandParserTest {
       CSSTokenStream.create(
         IdentToken.create("red"),
         DimensionToken.create(1, "px"),
-        IdentToken.create("solid")),
-      ActiveStyles.create());
+        IdentToken.create("solid")));
       
     Assertions.assertEquals(new BorderCompositeValue(
       LengthValue.create(1, true, LengthType.PX),
@@ -42,8 +40,7 @@ public class BorderShorthandParserTest {
     CSSValue value = borderShorthandParser.parse(
       CSSTokenStream.create(
         IdentToken.create("red"),
-        IdentToken.create("solid")),
-      ActiveStyles.create());
+        IdentToken.create("solid")));
 
     Assertions.assertEquals(new BorderCompositeValue(
       null,

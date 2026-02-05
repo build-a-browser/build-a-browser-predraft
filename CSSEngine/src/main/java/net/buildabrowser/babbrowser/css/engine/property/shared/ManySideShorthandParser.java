@@ -26,14 +26,14 @@ public class ManySideShorthandParser implements PropertyValueParser {
   }
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
+  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
     // Inhherit should be handled for us
 
     CSSValue[] consumedValues = new CSSValue[4];
     int i;
     for (i = 0; i < 4; i++) {
       if (stream.peek() instanceof EOFToken) break;
-      CSSValue innerResult = innerParser.parse(stream, activeStyles);
+      CSSValue innerResult = innerParser.parse(stream);
       if (innerResult.isFailure()) return innerResult;
       consumedValues[i] = innerResult;
     }
@@ -59,10 +59,6 @@ public class ManySideShorthandParser implements PropertyValueParser {
         break;
     }
 
-    for (int j = 0; j < 4; j++) {
-      activeStyles.setProperty(relatedProperties[j], consumedValues[j]);
-    }
-
     return new ManySideValue(
       consumedValues[0], consumedValues[1],
       consumedValues[2], consumedValues[3]);
@@ -71,6 +67,15 @@ public class ManySideShorthandParser implements PropertyValueParser {
   @Override
   public CSSProperty relatedProperty() {
     return this.primaryProperty;
+  }
+
+  @Override
+  public void updateProperty(CSSValue result, ActiveStyles activeStyles) {
+    if (!(result instanceof ManySideValue sides)) return;
+    activeStyles.setProperty(relatedProperties[0], sides.top());
+    activeStyles.setProperty(relatedProperties[1], sides.right());
+    activeStyles.setProperty(relatedProperties[2], sides.bottom());
+    activeStyles.setProperty(relatedProperties[3], sides.left());
   }
 
 }

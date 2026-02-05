@@ -19,8 +19,7 @@ public class NamedColorParserTest {
   @DisplayName("Can parse named color")
   public void canParseNamedColor() throws IOException {
     CSSValue value = namedColorParser.parse(
-      CSSTokenStream.create(IdentToken.create("rebeccapurple")),
-      null);
+      CSSTokenStream.create(IdentToken.create("rebeccapurple")));
     Assertions.assertEquals(SRGBAColor.create(102, 51, 153, 255), value);
   }
 

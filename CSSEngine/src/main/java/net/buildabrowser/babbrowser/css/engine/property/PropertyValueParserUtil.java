@@ -20,7 +20,7 @@ public final class PropertyValueParserUtil {
 
     int firstPos = stream.position();
     for (PropertyValueParser parser: parsers) {
-      CSSValue result = parser.parse(stream, null);
+      CSSValue result = parser.parse(stream);
       if (!result.isFailure() && (stream.position() > longestPos || longestValue.isFailure())) {
         longestPos = stream.position();
         longestValue = result;
@@ -55,7 +55,7 @@ public final class PropertyValueParserUtil {
 
       stream.seek(firstPos);
 
-      CSSValue result = parser.parse(stream, null);
+      CSSValue result = parser.parse(stream);
       if (result.isFailure()) continue;
 
       output.values()[i] = result;

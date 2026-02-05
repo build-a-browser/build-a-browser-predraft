@@ -6,9 +6,7 @@ import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
-import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
@@ -18,7 +16,7 @@ public class ZIndexParser implements PropertyValueParser {
   private static final CSSFailure EXPECTED_INTEGER = new CSSFailure("Expected an integer token");
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
+  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
     Token token = stream.read();
     CSSValue value = null;
     if (
@@ -33,14 +31,7 @@ public class ZIndexParser implements PropertyValueParser {
       value = ZIndexValue.create(numberToken.value().intValue());
     }
 
-    if (value == null) {
-      return EXPECTED_INTEGER;
-    }
-
-    if (!(stream.peek() instanceof EOFToken)) return CSSFailure.EXPECTED_EOF;
-
-    activeStyles.setProperty(CSSProperty.Z_INDEX, value);
-    return value;
+    return value == null ? EXPECTED_INTEGER : value;
   }
   
   @Override

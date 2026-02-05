@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
+import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundColorParser;
 import net.buildabrowser.babbrowser.css.engine.property.border.BorderColorParser;
@@ -30,6 +31,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 
 public final class ActiveStylesGenerator {
@@ -50,7 +52,7 @@ public final class ActiveStylesGenerator {
     "padding-bottom", SizeParser.forPadding(CSSProperty.PADDING_BOTTOM),
     "padding-left", SizeParser.forPadding(CSSProperty.PADDING_LEFT),
     "padding-right", SizeParser.forPadding(CSSProperty.PADDING_RIGHT),
-    "padding", new ManySideShorthandParser(new SizeParser(false, false, null)::parseInternal,
+    "padding", new ManySideShorthandParser(new SizeParser(false, false, null),
       new CSSProperty[] { CSSProperty.PADDING_TOP, CSSProperty.PADDING_RIGHT, CSSProperty.PADDING_BOTTOM, CSSProperty.PADDING_LEFT },
       CSSProperty.PADDING),
     
@@ -58,7 +60,7 @@ public final class ActiveStylesGenerator {
     "border-bottom-width", new BorderSizeParser(CSSProperty.BORDER_BOTTOM_WIDTH),
     "border-left-width", new BorderSizeParser(CSSProperty.BORDER_LEFT_WIDTH),
     "border-right-width", new BorderSizeParser(CSSProperty.BORDER_RIGHT_WIDTH),
-    "border-width", new ManySideShorthandParser(new BorderSizeParser(null)::parseInternal,
+    "border-width", new ManySideShorthandParser(new BorderSizeParser(null),
       new CSSProperty[] { CSSProperty.BORDER_TOP_WIDTH, CSSProperty.BORDER_RIGHT_WIDTH, CSSProperty.BORDER_BOTTOM_WIDTH, CSSProperty.BORDER_LEFT_WIDTH },
       CSSProperty.BORDER_WIDTH),
 
@@ -74,7 +76,7 @@ public final class ActiveStylesGenerator {
     "border-bottom-style", new BorderStyleParser(CSSProperty.BORDER_BOTTOM_STYLE),
     "border-left-style", new BorderStyleParser(CSSProperty.BORDER_LEFT_STYLE),
     "border-right-style", new BorderStyleParser(CSSProperty.BORDER_RIGHT_STYLE),
-    "border-style", new ManySideShorthandParser(new BorderStyleParser(null)::parseInternal,
+    "border-style", new ManySideShorthandParser(new BorderStyleParser(null),
       new CSSProperty[] { CSSProperty.BORDER_TOP_STYLE, CSSProperty.BORDER_RIGHT_STYLE, CSSProperty.BORDER_BOTTOM_STYLE, CSSProperty.BORDER_LEFT_STYLE },
       CSSProperty.BORDER_STYLE),
 
@@ -88,7 +90,7 @@ public final class ActiveStylesGenerator {
     "margin-bottom", SizeParser.forMargin(CSSProperty.MARGIN_BOTTOM),
     "margin-left", SizeParser.forMargin(CSSProperty.MARGIN_LEFT),
     "margin-right", SizeParser.forMargin(CSSProperty.MARGIN_RIGHT),
-    "margin", new ManySideShorthandParser(new SizeParser(false, true, null)::parseInternal,
+    "margin", new ManySideShorthandParser(new SizeParser(false, true, null),
       new CSSProperty[] { CSSProperty.MARGIN_TOP, CSSProperty.MARGIN_RIGHT, CSSProperty.MARGIN_BOTTOM, CSSProperty.MARGIN_LEFT },
       CSSProperty.MARGIN),
     
@@ -149,7 +151,13 @@ public final class ActiveStylesGenerator {
     // TODO: Do any cases preserve whitespace?
     SeekableCSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(declaration.value());
     try {
-      parser.parse(tokenStream, activeStyles);
+      CSSValue result = parser.parse(tokenStream);
+      if (
+        !result.isFailure()
+        && tokenStream.peek() instanceof EOFToken
+      ) {
+        parser.updateProperty(result, activeStyles);
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }

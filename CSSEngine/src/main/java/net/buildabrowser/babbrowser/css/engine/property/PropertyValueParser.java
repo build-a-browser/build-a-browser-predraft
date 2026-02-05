@@ -7,10 +7,14 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStr
 
 public interface PropertyValueParser {
  
-  CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException;
+  CSSValue parse(SeekableCSSTokenStream stream) throws IOException;
 
   default CSSProperty relatedProperty() {
     return null;
+  }
+
+  default void updateProperty(CSSValue result, ActiveStyles activeStyles) {
+    activeStyles.setProperty(relatedProperty(), result);
   }
 
 }

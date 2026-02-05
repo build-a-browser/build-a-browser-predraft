@@ -5,12 +5,9 @@ import java.util.Map;
 
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
-import net.buildabrowser.babbrowser.css.engine.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParserUtil;
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
-import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 
 
 public class WhitespaceCollapseValueParser implements PropertyValueParser {
@@ -25,13 +22,8 @@ public class WhitespaceCollapseValueParser implements PropertyValueParser {
   );
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
-    CSSValue result = PropertyValueParserUtil.parseIdentMap(stream, COLLAPSE_VALUES);
-    if (result.isFailure()) return result;
-    if (!(stream.peek() instanceof EOFToken)) return CSSFailure.EXPECTED_EOF;
-
-    activeStyles.setProperty(CSSProperty.WHITE_SPACE_COLLAPSE, result);
-    return result;
+  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+    return PropertyValueParserUtil.parseIdentMap(stream, COLLAPSE_VALUES);
   }
 
   @Override

@@ -7,7 +7,6 @@ import net.buildabrowser.babbrowser.css.engine.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.css.engine.property.color.ColorValue.SRGBAColor;
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
@@ -25,10 +24,9 @@ public class RGBColorParser implements PropertyValueParser {
   private static final CSSFailure EXPECTED_NUMBER = new CSSFailure("Expect a number token");
   private static final CSSFailure EXPECTED_PERCENTAGE = new CSSFailure("Expect a percentage token");
   private static final CSSFailure EXPECTED_COMMA = new CSSFailure("Expect a comma token");
-  private static final CSSFailure EXPECTED_EOF = new CSSFailure("Expect an EOF token");
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
+  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
     if (!(
       stream.read() instanceof FunctionValue function
       && (function.name().equals("rgb") || function.name().equals("rgba"))
@@ -43,7 +41,7 @@ public class RGBColorParser implements PropertyValueParser {
       this::parseModernColor);
   }
 
-  public CSSValue parseLegacyColor(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
+  public CSSValue parseLegacyColor(SeekableCSSTokenStream stream) throws IOException {
     boolean isPercent = stream.peek() instanceof PercentageToken;
 
     CSSFailure failure = checkLegacyColorComponent(stream.peek(), isPercent);
@@ -74,13 +72,13 @@ public class RGBColorParser implements PropertyValueParser {
     }
 
     if (!(stream.peek() instanceof EOFToken)) {
-      return EXPECTED_EOF;
+      return CSSFailure.EXPECTED_EOF;
     }
 
     return SRGBAColor.create(redComponent, greenComponent, blueComponent, alphaComponent);
   }
 
-  public CSSValue parseModernColor(SeekableCSSTokenStream stream, ActiveStyles activeStyles) throws IOException {
+  public CSSValue parseModernColor(SeekableCSSTokenStream stream) throws IOException {
     CSSFailure failure = checkModernColorComponent(stream.peek());
     if (failure != null) return failure;
     int redComponent = parseModernColorComponent(stream.read());
@@ -117,7 +115,7 @@ public class RGBColorParser implements PropertyValueParser {
     }
 
     if (!(stream.peek() instanceof EOFToken)) {
-      return EXPECTED_EOF;
+      return CSSFailure.EXPECTED_EOF;
     }
 
     return SRGBAColor.create(redComponent, greenComponent, blueComponent, alphaComponent);
