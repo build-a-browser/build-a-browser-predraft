@@ -1,0 +1,11 @@
+package net.buildabrowser.babbrowser.css.engine.property.flex;
+
+import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
+
+public record FlexFlowValue(FlexDirectionValue direction, FlexWrapValue wrap) implements CSSValue {
+  
+  public static FlexFlowValue create(FlexDirectionValue direction, FlexWrapValue wrap) {
+    return new FlexFlowValue(direction, wrap);
+  }
+
+}

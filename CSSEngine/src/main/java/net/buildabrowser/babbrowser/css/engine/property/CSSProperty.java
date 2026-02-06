@@ -4,6 +4,14 @@ import net.buildabrowser.babbrowser.css.engine.property.color.ColorValue.SRGBACo
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.css.engine.property.display.OrderValue;
+import net.buildabrowser.babbrowser.css.engine.property.flex.AlignContentValue;
+import net.buildabrowser.babbrowser.css.engine.property.flex.AlignItemsValue;
+import net.buildabrowser.babbrowser.css.engine.property.flex.FlexDirectionValue;
+import net.buildabrowser.babbrowser.css.engine.property.flex.FlexGrowValue;
+import net.buildabrowser.babbrowser.css.engine.property.flex.FlexShrinkValue;
+import net.buildabrowser.babbrowser.css.engine.property.flex.FlexWrapValue;
+import net.buildabrowser.babbrowser.css.engine.property.flex.JustifyContentValue;
 import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
 import net.buildabrowser.babbrowser.css.engine.property.text.TextWrapModeValue;
@@ -51,7 +59,6 @@ public enum CSSProperty {
   BORDER_BOTTOM(new CSSProperty[] { BORDER_BOTTOM_WIDTH, BORDER_BOTTOM_COLOR, BORDER_BOTTOM_STYLE }),
   BORDER_LEFT(new CSSProperty[] { BORDER_LEFT_WIDTH, BORDER_LEFT_COLOR, BORDER_LEFT_STYLE }),
   BORDER_RIGHT(new CSSProperty[] { BORDER_RIGHT_WIDTH, BORDER_RIGHT_COLOR, BORDER_RIGHT_STYLE }),
-
   BORDER(new CSSProperty[] { BORDER_TOP, BORDER_BOTTOM, BORDER_LEFT, BORDER_RIGHT }),
   
   MARGIN_TOP(nextId(), false, LengthValue.ZERO),
@@ -67,7 +74,23 @@ public enum CSSProperty {
   
   POSITION(nextId(), false, PositionValue.STATIC),
   
-  Z_INDEX(nextId(), false, CSSValue.AUTO);
+  Z_INDEX(nextId(), false, CSSValue.AUTO),
+  
+  ORDER(nextId(), false, OrderValue.create(0)),
+  
+  FLEX_DIRECTION(nextId(), false, FlexDirectionValue.ROW),
+  FLEX_WRAP(nextId(), false, FlexWrapValue.NOWRAP),
+  FLEX_FLOW(new CSSProperty[] { CSSProperty.FLEX_DIRECTION, CSSProperty.FLEX_WRAP }),
+  
+  FLEX_GROW(nextId(), false, FlexGrowValue.create(0)),
+  FLEX_SHRINK(nextId(), false, FlexShrinkValue.create(1)),
+  FLEX_BASIS(nextId(), false, CSSValue.AUTO),
+  FLEX(new CSSProperty[] { CSSProperty.FLEX_GROW, CSSProperty.FLEX_SHRINK, CSSProperty.FLEX_BASIS }),
+  
+  JUSTIFY_CONTENT(nextId(), false, JustifyContentValue.FLEX_START),
+  ALIGN_ITEMS(nextId(), false, AlignItemsValue.STRETCH),
+  ALIGN_SELF(nextId(), false, CSSValue.AUTO),
+  ALIGN_CONTENT(nextId(), false, AlignContentValue.STRETCH);
 
   private static int propertyId = 0;
 
@@ -110,11 +133,18 @@ public enum CSSProperty {
     return this.expansions;
   }
 
+  // Because propertyId keeps getting reset to 0
+  private static int propertyIdCopy = Integer.MAX_VALUE;
   public static int idCount() {
-    // TODO: Why does propertyId seem to reset to 0?
-    //   (I even tried it with volatile)
-    // Manually update this for now
-    return 36;
+    if (propertyIdCopy == Integer.MAX_VALUE) {
+      propertyIdCopy = 0;
+      for (CSSProperty property: values()) {
+        if (property.id != Integer.MAX_VALUE) {
+          propertyIdCopy++;
+        }
+      }
+    }
+    return propertyIdCopy;
   }
 
   private static int nextId() {
