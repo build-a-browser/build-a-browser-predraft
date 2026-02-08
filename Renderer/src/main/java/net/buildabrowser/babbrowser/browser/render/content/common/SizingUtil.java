@@ -1,11 +1,13 @@
 package net.buildabrowser.babbrowser.browser.render.content.common;
 
+import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.PercentageValue;
+import net.buildabrowser.babbrowser.css.engine.property.size.SizeValue;
 
 public final class SizingUtil {
   
@@ -26,6 +28,68 @@ public final class SizingUtil {
       return LayoutConstraint.of(percentageValue.value() * parentConstraint.value() / 100);
     } else {
       return LayoutConstraint.AUTO;
+    }
+  }
+
+  public static LayoutConstraint evaluateBaseWidthSize(
+    LayoutContext layoutContext,
+    LayoutConstraint parentConstraint,
+    ElementBoxDimensions referenceDimensions,
+    CSSValue sizeValue
+  ) {
+    // TODO: Is this a good way to handle prelayout?
+    if (
+      parentConstraint.isPreLayoutConstraint()
+      && sizeValue instanceof SizeValue.FitContent fitContent
+    ) {
+      LayoutConstraint innerConstraint = evaluateBaseSize(layoutContext, parentConstraint, fitContent.optimal());
+      if (innerConstraint.type().equals(LayoutConstraintType.BOUNDED)) {
+        return innerConstraint;
+      }
+      return parentConstraint;
+    } else if (
+      parentConstraint.type().equals(LayoutConstraintType.MIN_CONTENT)
+      && sizeValue.equals(SizeValue.MIN_CONTENT)
+    ) {
+      return LayoutConstraint.MIN_CONTENT;
+    } else if (
+      parentConstraint.type().equals(LayoutConstraintType.MAX_CONTENT)
+      && sizeValue.equals(SizeValue.MAX_CONTENT)
+    ) {
+      return LayoutConstraint.MAX_CONTENT;
+    } else if (parentConstraint.isPreLayoutConstraint()) {
+      return evaluateBaseSize(layoutContext, parentConstraint, sizeValue);
+    }
+
+    if (sizeValue.equals(SizeValue.MIN_CONTENT)) {
+      return LayoutConstraint.of(referenceDimensions.preferredMinWidthConstraint());
+    } else if (sizeValue.equals(SizeValue.MAX_CONTENT)) {
+      return LayoutConstraint.of(referenceDimensions.preferredWidthConstraint());
+    } else if (sizeValue instanceof SizeValue.FitContent fitContent) {
+      LayoutConstraint innerConstraint = evaluateBaseSize(layoutContext, parentConstraint, fitContent.optimal());
+      assert innerConstraint.type().equals(LayoutConstraintType.BOUNDED);
+      float min = referenceDimensions.preferredMinWidthConstraint();
+      float max = referenceDimensions.preferredWidthConstraint();
+      float preferred = innerConstraint.value();
+      return LayoutConstraint.of(Math.clamp(preferred, min, max));
+    } else {
+      return evaluateBaseSize(layoutContext, parentConstraint, sizeValue);
+    }
+  }
+
+  public static LayoutConstraint evaluateBaseHeightSize(
+    LayoutContext layoutContext,
+    LayoutConstraint parentConstraint,
+    CSSValue sizeValue
+  ) {
+    if (
+      sizeValue.equals(SizeValue.MIN_CONTENT)
+      || sizeValue.equals(SizeValue.MAX_CONTENT)
+      || sizeValue instanceof SizeValue.FitContent
+    ) {
+      return LayoutConstraint.AUTO;
+    } else {
+      return evaluateBaseSize(layoutContext, parentConstraint, sizeValue);
     }
   }
 
