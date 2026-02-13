@@ -5,11 +5,15 @@ import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 public record DisplayValue(OuterDisplayValue outerDisplayValue, InnerDisplayValue innerDisplayValue) implements CSSValue {
   
   public static enum OuterDisplayValue implements CSSValue {
-    BLOCK, INLINE, RUN_IN, CONTENTS, NONE
+    BLOCK, INLINE, RUN_IN, CONTENTS, NONE,
+    TABLE_ROW_GROUP, TABLE_HEADER_GROUP, TABLE_FOOTER_GROUP, TABLE_ROW, TABLE_CELL,
+    TABLE_COLUMN_GROUP, TABLE_COLUMN, TABLE_CAPTION
   }
 
   public static enum InnerDisplayValue implements CSSValue {
-    FLOW, FLOW_ROOT, TABLE, FLEX, GRID, RUBY
+    FLOW, FLOW_ROOT, TABLE, FLEX, GRID, RUBY,
+    TABLE_ROW_GROUP, TABLE_HEADER_GROUP, TABLE_FOOTER_GROUP, TABLE_ROW,
+    TABLE_COLUMN_GROUP, TABLE_COLUMN
   }
 
   public static DisplayValue create(OuterDisplayValue outerDisplayValue, InnerDisplayValue innerDisplayValue) {

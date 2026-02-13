@@ -44,7 +44,7 @@ public class BoxGeneratorImp implements BoxGenerator {
       case RUN_IN:
         throw new UnsupportedOperationException("run-in boxes not supported!");
       default:
-        throw new UnsupportedOperationException("Unrecognized box type!");
+        return createElementBox(parentBox, element, BoxLevel.INLINE_LEVEL);
     }
   }
 
