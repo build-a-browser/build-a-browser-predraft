@@ -41,14 +41,25 @@ public class DisplayParser implements PropertyValueParser {
     "inline-grid", DisplayValue.create(OuterDisplayValue.INLINE, InnerDisplayValue.GRID)
   );
 
+  private static final Map<String, CSSValue> INTERNAL_VALUES = Map.of(
+    "table-row-group", DisplayValue.create(OuterDisplayValue.TABLE_ROW_GROUP, InnerDisplayValue.TABLE_ROW_GROUP),
+    "table-header-group", DisplayValue.create(OuterDisplayValue.TABLE_HEADER_GROUP, InnerDisplayValue.TABLE_HEADER_GROUP),
+    "table-footer-group", DisplayValue.create(OuterDisplayValue.TABLE_FOOTER_GROUP, InnerDisplayValue.TABLE_FOOTER_GROUP),
+    "table-row", DisplayValue.create(OuterDisplayValue.TABLE_ROW, InnerDisplayValue.TABLE_ROW),
+    "table-cell", DisplayValue.create(OuterDisplayValue.TABLE_CELL, InnerDisplayValue.FLOW_ROOT),
+    "table-column-group", DisplayValue.create(OuterDisplayValue.TABLE_COLUMN_GROUP, InnerDisplayValue.TABLE_COLUMN_GROUP),
+    "table-column", DisplayValue.create(OuterDisplayValue.TABLE_COLUMN, InnerDisplayValue.TABLE_COLUMN),
+    "table-caption", DisplayValue.create(OuterDisplayValue.TABLE_CAPTION, InnerDisplayValue.FLOW_ROOT)
+  );
+
   // TOOO: Listitem and internal types
   @Override
   public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
     return PropertyValueParserUtil.parseLongest(stream,
       stream1 -> parseTuple(stream1),
       stream1 -> PropertyValueParserUtil.parseIdentMap(stream1, BOX_VALUES),
-      stream1 -> PropertyValueParserUtil.parseIdentMap(stream1, LEGACY_VALUES));
-  
+      stream1 -> PropertyValueParserUtil.parseIdentMap(stream1, LEGACY_VALUES),
+      stream1 -> PropertyValueParserUtil.parseIdentMap(stream, INTERNAL_VALUES));
   }
 
   private CSSValue parseTuple(SeekableCSSTokenStream stream) throws IOException {
