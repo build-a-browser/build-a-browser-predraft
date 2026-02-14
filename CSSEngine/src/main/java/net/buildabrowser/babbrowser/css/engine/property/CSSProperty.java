@@ -1,5 +1,10 @@
 package net.buildabrowser.babbrowser.css.engine.property;
 
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundAttachmentValue;
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundRepeatValue;
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundRepeatValue.BackgroundAxisRepeatValue;
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundSizeValue.SizedBackgroundSizeValue;
+import net.buildabrowser.babbrowser.css.engine.property.box.VisualBoxValue;
 import net.buildabrowser.babbrowser.css.engine.property.color.ColorValue.SRGBAColor;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue;
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.InnerDisplayValue;
@@ -20,8 +25,16 @@ import net.buildabrowser.babbrowser.css.engine.property.whitespace.WhitespaceCol
 public enum CSSProperty {
   
   COLOR(nextId(), true, SRGBAColor.create(0, 0, 0, 255)),
+
   BACKGROUND_COLOR(nextId(), false, SRGBAColor.create(0, 0, 0, 0)),
+  BACKGROUND_REPEAT(nextId(), false, BackgroundRepeatValue.create(
+    BackgroundAxisRepeatValue.REPEAT, BackgroundAxisRepeatValue.REPEAT)),
+  BACKGROUND_ATTACHMENT(nextId(), false, BackgroundAttachmentValue.SCROLL),
+  BACKGROUND_CLIP(nextId(), false, VisualBoxValue.BORDER_BOX),
+  BACKGROUND_ORIGIN(nextId(), false, VisualBoxValue.PADDING_BOX),
+  BACKGROUND_SIZE(nextId(), false, SizedBackgroundSizeValue.create(CSSValue.AUTO, CSSValue.AUTO)),
   BACKGROUND(new CSSProperty[] { BACKGROUND_COLOR }),
+
   WIDTH(nextId(), false, CSSValue.AUTO),
   HEIGHT(nextId(), false, CSSValue.AUTO),
   DISPLAY(nextId(), false, DisplayValue.create(OuterDisplayValue.INLINE, InnerDisplayValue.FLOW)),

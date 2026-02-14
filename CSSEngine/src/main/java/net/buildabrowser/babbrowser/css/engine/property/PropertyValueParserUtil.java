@@ -1,10 +1,13 @@
 package net.buildabrowser.babbrowser.css.engine.property;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 
 public final class PropertyValueParserUtil {
@@ -68,7 +71,30 @@ public final class PropertyValueParserUtil {
     return NO_VALID_RESULT;
   }
 
+  public static CSSValue parseCommaRepeat(SeekableCSSTokenStream stream, PropertyValueParser parser) throws IOException {
+    // Assumes whitespace already removed
+    CSSValue firstValue = parser.parse(stream);
+    if (firstValue.isFailure()) return firstValue;
+
+    List<CSSValue> relatedValues = new ArrayList<>();
+    relatedValues.add(firstValue);
+
+    while (stream.peek() instanceof CommaToken) {
+      stream.read();
+
+      CSSValue nextValue = parser.parse(stream);
+      if (nextValue.isFailure()) return nextValue;
+      relatedValues.add(nextValue);
+    }
+
+    return new ListResult(relatedValues);
+  }
+
   public static record AnyOrderResult(CSSValue[] values) implements CSSValue {
+    
+  }
+
+  public static record ListResult(List<CSSValue> values) implements CSSValue {
     
   }
 
