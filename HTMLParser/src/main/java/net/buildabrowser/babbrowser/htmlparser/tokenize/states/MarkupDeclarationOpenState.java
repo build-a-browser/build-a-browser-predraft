@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.MatchTrie;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
 public class MarkupDeclarationOpenState implements TokenizeState {
+
+  private static final MatchTrie OPTIONS_TRIE = MatchTrie.compile(
+    List.of("--", "DOCTYPE", "[CDATA["));
 
   @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
@@ -32,12 +36,8 @@ public class MarkupDeclarationOpenState implements TokenizeState {
   }
 
   @Override
-  public List<String> lookaheadOptions() {
-    return List.of(
-      "--",
-      "DOCTYPE",
-      "[CDATA["
-    );
+  public MatchTrie lookaheadOptions() {
+    return OPTIONS_TRIE;
   }
 
 }

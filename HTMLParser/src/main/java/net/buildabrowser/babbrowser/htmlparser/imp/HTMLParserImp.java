@@ -3,12 +3,12 @@ package net.buildabrowser.babbrowser.htmlparser.imp;
 import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.Reader;
-import java.util.List;
 
 import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
 import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.MatchTrie;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeBuffer;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
@@ -39,15 +39,16 @@ public class HTMLParserImp implements HTMLParser {
     TokenizeBuffer tokenizeBuffer, PushbackReader reader, int ch
   ) throws IOException {
     TokenizeState tokenizeState = tokenizeContext.getTokenizeState();
-    List<String> lookaheadOptions = tokenizeState.lookaheadOptions();
+    MatchTrie lookaheadOptions = tokenizeState.lookaheadOptions();
 
     if (ch == -1 && !tokenizeBuffer.dump().isEmpty()) {
       endBuffer(tokenizeContext, parseContext, reader, tokenizeBuffer);
     } else if (lookaheadOptions == null || ch == -1) {
       tokenizeState.consume(ch, tokenizeContext, parseContext);
     } else {
+      tokenizeBuffer.markLookahead(lookaheadOptions);
       tokenizeBuffer.appendCodePoint(ch);
-      if (!tokenizeBuffer.continues(lookaheadOptions)) {
+      if (!tokenizeBuffer.continues()) {
         endBuffer(tokenizeContext, parseContext, reader, tokenizeBuffer);
       }
     }

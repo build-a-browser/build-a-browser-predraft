@@ -24,6 +24,14 @@ public final class ASCIIUtil {
 
   public static int toLower(int ch) {
     if (ch >= 'A' && ch <= 'Z') {
+      return ch + 0x20;
+    }
+
+    return ch;
+  }
+
+  public static int toUpper(int ch) {
+    if (ch >= 'a' && ch <= 'z') {
       return ch - 0x20;
     }
 
