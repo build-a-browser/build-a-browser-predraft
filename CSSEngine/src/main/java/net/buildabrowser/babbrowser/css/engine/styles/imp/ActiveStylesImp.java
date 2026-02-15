@@ -4,13 +4,13 @@ import java.util.BitSet;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
-import net.buildabrowser.babbrowser.css.engine.property.color.ColorValue;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.InnerDisplayValue;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 
 public class ActiveStylesImp implements ActiveStyles {
 

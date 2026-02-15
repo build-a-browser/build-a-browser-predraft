@@ -7,10 +7,10 @@ import java.util.List;
 import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
-import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
-import net.buildabrowser.babbrowser.css.engine.property.position.ZIndexValue;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
+import net.buildabrowser.babbrowser.cssbase.property.position.ZIndexValue;
 
 public class CompositeLayerImp implements CompositeLayer {
 

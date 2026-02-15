@@ -9,7 +9,7 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.context.ElementContext;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.dom.Comment;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.NodeList;

@@ -5,8 +5,8 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 
 public final class FlowWidthUtil {
   

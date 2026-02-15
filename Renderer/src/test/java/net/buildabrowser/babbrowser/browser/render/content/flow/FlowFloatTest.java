@@ -20,12 +20,12 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.Manag
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowLayoutUtil.FlowTestLayoutResult;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.floats.ClearValue;
-import net.buildabrowser.babbrowser.css.engine.property.floats.FloatValue;
-import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
-import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.floats.ClearValue;
+import net.buildabrowser.babbrowser.cssbase.property.floats.FloatValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 
 public class FlowFloatTest {
 

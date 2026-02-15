@@ -6,9 +6,9 @@ import java.util.LinkedList;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.ManagedBoxEntryMarker;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.ManagedBoxExitMarker;
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.StagedText;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.whitespace.WhitespaceCollapseValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
 
 public final class LineWhitespaceCollapser {
   

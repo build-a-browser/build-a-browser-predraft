@@ -19,14 +19,14 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.Layou
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextFragment;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.InnerDisplayValue;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
-import net.buildabrowser.babbrowser.css.engine.property.floats.FloatValue;
-import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
-import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.property.floats.FloatValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 
 public class FlowPaddingTest {
   

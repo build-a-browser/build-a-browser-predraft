@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.browser.render.content.table;
 
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 
 public final class TableBoxUtil {
   

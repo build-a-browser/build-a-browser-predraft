@@ -21,11 +21,11 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineB
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
-import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue.LengthType;
-import net.buildabrowser.babbrowser.css.engine.property.size.PercentageValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 
 public class FlowRootContentTest {
   

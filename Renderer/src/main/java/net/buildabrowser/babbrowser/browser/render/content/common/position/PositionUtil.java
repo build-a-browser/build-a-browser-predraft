@@ -7,10 +7,10 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRe
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
-import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 
 public final class PositionUtil {
 

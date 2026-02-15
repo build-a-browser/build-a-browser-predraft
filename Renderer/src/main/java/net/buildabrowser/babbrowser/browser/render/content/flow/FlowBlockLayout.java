@@ -18,10 +18,10 @@ import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTr
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
-import net.buildabrowser.babbrowser.css.engine.property.floats.ClearValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.floats.ClearValue;
 
 public class FlowBlockLayout {
 

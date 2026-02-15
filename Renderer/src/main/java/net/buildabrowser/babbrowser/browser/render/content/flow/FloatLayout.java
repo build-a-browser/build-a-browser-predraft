@@ -5,9 +5,9 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.Unman
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.floats.FloatValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.floats.FloatValue;
 
 public final class FloatLayout {
   

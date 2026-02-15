@@ -12,11 +12,11 @@ import org.junit.jupiter.api.Test;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
-import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
-import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 
 public class FlowPositionTest {
   

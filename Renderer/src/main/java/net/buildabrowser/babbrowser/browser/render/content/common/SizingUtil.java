@@ -2,10 +2,10 @@ package net.buildabrowser.babbrowser.browser.render.content.common;
 
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
-import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
-import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
-import net.buildabrowser.babbrowser.css.engine.property.size.PercentageValue;
 
 public final class SizingUtil {
   

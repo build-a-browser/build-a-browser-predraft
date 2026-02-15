@@ -4,8 +4,8 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 
 // This exists to keep the fragment in-tree for proper ordering when scanning for positioned
 // fragments, but also provide a target that can be ignored during standard layout operations

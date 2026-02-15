@@ -7,11 +7,11 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.InnerDisplayValue;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 
 public final class TableFixup {
 

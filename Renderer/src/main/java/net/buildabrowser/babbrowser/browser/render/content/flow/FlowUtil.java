@@ -7,9 +7,9 @@ import net.buildabrowser.babbrowser.browser.render.composite.LayerUtil;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.InnerDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 
 public final class FlowUtil {
   

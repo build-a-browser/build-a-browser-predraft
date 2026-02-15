@@ -6,8 +6,8 @@ import net.buildabrowser.babbrowser.browser.render.content.ImageContent;
 import net.buildabrowser.babbrowser.browser.render.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.browser.render.content.table.TableContent;
 import net.buildabrowser.babbrowser.browser.render.context.ElementContext;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
 

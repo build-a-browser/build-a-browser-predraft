@@ -8,7 +8,7 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.browser.render.content.table.Table.RowGroup;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 
 public final class TableFormer {
   

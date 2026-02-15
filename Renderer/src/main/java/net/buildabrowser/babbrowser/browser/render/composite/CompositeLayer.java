@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.browser.render.composite;
 import net.buildabrowser.babbrowser.browser.render.composite.imp.CompositeLayerImp;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
-import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
+import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 
 // Despite the name, CompositeLayer does not support compositing at this time
 public interface CompositeLayer {
