@@ -17,8 +17,11 @@ public class TestElementBox extends AbstractElementBoxImp {
 
   public TestElementBox(Function<ElementBox, BoxContent> contentFunc, BoxLevel boxLevel, ActiveStyles activeStyles, List<Box> childBoxes) {
     super(null, boxLevel);
-    this.content = contentFunc.apply(this);
+    for (Box childBox: childBoxes) {
+      addChild(childBox);
+    }
     this.activeStyles = activeStyles;
+    this.content = contentFunc.apply(this);
   }
 
   @Override

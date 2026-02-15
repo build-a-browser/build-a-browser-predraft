@@ -66,10 +66,5 @@ public abstract class AbstractElementBoxImp implements ElementBox {
   public BoxLevel boxLevel() {
     return this.boxLevel;
   }
-
-  @Override
-  public boolean isReplaced() {
-    return false;
-  }
-
+  
 }

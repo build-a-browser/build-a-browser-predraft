@@ -42,8 +42,8 @@ public class ElementBoxImp extends AbstractElementBoxImp {
       return new ImageContent(this);
     }
     
-    InnerDisplayValue outerDisplay = activeStyles().innerDisplayValue();
-    return switch (outerDisplay) {
+    InnerDisplayValue innerDisplay = activeStyles().innerDisplayValue();
+    return switch (innerDisplay) {
       case TABLE -> new TableContent(this);
       default -> new FlowRootContent(this);
     };
