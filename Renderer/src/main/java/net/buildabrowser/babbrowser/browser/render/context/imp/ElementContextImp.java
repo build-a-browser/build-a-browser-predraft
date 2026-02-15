@@ -1,8 +1,7 @@
 package net.buildabrowser.babbrowser.browser.render.context.imp;
 
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import net.buildabrowser.babbrowser.browser.render.context.ElementContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
@@ -22,7 +21,8 @@ public class ElementContextImp implements ElementContext {
 
   private static final SelectorSpecificity ATTR_SPECIFICITY = new SelectorSpecificity(true, 0, 0, 0);
 
-  private final Set<WeightedStyleRule> styleRules = new TreeSet<>(WeightedStyleRule::compare);
+  // TreeSet has a ton of overhead, sort on access instead
+  private final List<WeightedStyleRule> styleRules = new LinkedList<>();
   private final MutableElement element;
 
   private ActiveStyles activeStyles = null;
@@ -59,6 +59,7 @@ public class ElementContextImp implements ElementContext {
       ActiveStyles parentStyles = element.parentNode() instanceof MutableElement element ?
         ((ElementContext) element.getContext()).activeStyles() :
         null;
+      styleRules.sort(WeightedStyleRule::compare);
       this.activeStyles = ActiveStylesGenerator.generateActiveStyles(styleRules, parentStyles);
     }
 

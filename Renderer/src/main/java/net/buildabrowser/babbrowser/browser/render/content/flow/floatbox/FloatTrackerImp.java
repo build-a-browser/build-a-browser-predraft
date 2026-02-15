@@ -4,8 +4,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
@@ -23,12 +21,14 @@ public class FloatTrackerImp implements FloatTracker {
     return result;
   };
 
-  private final Set<BoxFragment> leftFloats = new TreeSet<BoxFragment>(fragmentComparator);
-  private final Set<BoxFragment> rightFloats = new TreeSet<BoxFragment>(fragmentComparator);
+  // TreeSet has a ton of overhead, sort on access instead
+  private final List<BoxFragment> leftFloats = new LinkedList<>();
+  private final List<BoxFragment> rightFloats = new LinkedList<>();
   private final List<BoxFragment> allFloats = new LinkedList<>();
 
   private final PositionTracker positionTracker = PositionTracker.create();
 
+  private boolean sidesSorted = true;
   private float blockEnd = 0;
 
   @Override
@@ -46,6 +46,7 @@ public class FloatTrackerImp implements FloatTracker {
 
     leftFloats.add(box);
     allFloats.add(box);
+    sidesSorted = false;
 
     this.blockEnd = Math.max(this.blockEnd, freePos + box.marginHeight());
 
@@ -69,6 +70,7 @@ public class FloatTrackerImp implements FloatTracker {
 
     rightFloats.add(box);
     allFloats.add(box);
+    sidesSorted = true;
 
     this.blockEnd = Math.max(this.blockEnd, freePos + box.marginHeight());
 
@@ -200,7 +202,13 @@ public class FloatTrackerImp implements FloatTracker {
     return inlinePos;
   }
 
-  private float getFreePosition(float blockStart, Set<BoxFragment> floats) {
+  private float getFreePosition(float blockStart, List<BoxFragment> floats) {
+    if (!sidesSorted) {
+      leftFloats.sort(fragmentComparator);
+      rightFloats.sort(fragmentComparator);
+      this.sidesSorted = true;
+    }
+
     float nextUncheckedY = -1;
     for (BoxFragment box : floats) {
       if (nextUncheckedY >= blockStart && box.marginY() > nextUncheckedY) {

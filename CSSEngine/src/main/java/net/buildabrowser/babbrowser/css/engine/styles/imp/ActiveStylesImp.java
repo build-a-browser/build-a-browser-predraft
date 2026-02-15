@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.css.engine.styles.imp;
 
 import java.util.BitSet;
 
+import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.color.ColorValue;
@@ -10,18 +11,18 @@ import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.Inn
 import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 
-// TODO: Storage really needs optimized...
 public class ActiveStylesImp implements ActiveStyles {
 
-  private final CSSValue[] propertyValues;
-  private final BitSet inheritValues;
-
   private final ActiveStyles parentStyles;
+  private final BitSet inheritValues;
+  private final BitSet hasOwnValues;
+
+  private SinglyLinkedList<CSSValue> activeProperties;
 
   public ActiveStylesImp(ActiveStyles parentStyles) {
     this.parentStyles = parentStyles;
-    this.propertyValues = new CSSValue[CSSProperty.idCount()];
     this.inheritValues = new BitSet(CSSProperty.idCount());
+    this.hasOwnValues = new BitSet(CSSProperty.idCount());
   }
 
   @Override
@@ -30,7 +31,7 @@ public class ActiveStylesImp implements ActiveStyles {
       throw new UnsupportedOperationException("Cannot set expanded property!");
     }
 
-    propertyValues[property.id()] = value;
+    addEntry(property.id(), value);
     inheritValues.set(property.id(), false);
   }
 
@@ -41,7 +42,7 @@ public class ActiveStylesImp implements ActiveStyles {
         inheritProperty(expansion);
       }
     } else {
-      propertyValues[property.id()] = null;
+      removeEntry(property.id());
       inheritValues.set(property.id(), true);
     }
   }
@@ -59,7 +60,7 @@ public class ActiveStylesImp implements ActiveStyles {
 
   @Override
   public void unsetProperty(CSSProperty property) {
-    propertyValues[property.id()] = null;
+    removeEntry(property.id());
     inheritValues.set(property.id(), false);
   }
 
@@ -70,10 +71,12 @@ public class ActiveStylesImp implements ActiveStyles {
     }
 
     int id = property.id();
-    return
-      parentStyles != null && inheritValues.get(id) ? parentStyles.getProperty(property) :
-      propertyValues[id] != null ? propertyValues[id] :
-      parentStyles != null && property.inherited() ? parentStyles.getProperty(property) :
+    if (hasOwnValues.get(id)) {
+      return scanValue(id);
+    }
+
+    return parentStyles != null && (property.inherited() || inheritValues.get(id)) ?
+      parentStyles.getProperty(property) :
       property.initial();
   }
 
@@ -123,6 +126,44 @@ public class ActiveStylesImp implements ActiveStyles {
   @Override
   public InnerDisplayValue innerDisplayValue() {
     return ((DisplayValue) getProperty(CSSProperty.DISPLAY)).innerDisplayValue();
+  }
+
+  private CSSValue scanValue(int id) {
+    if (!hasOwnValues.get(id)) return null;
+    int listPos = getPropertyPos(id);
+    return SinglyLinkedList.get(activeProperties, listPos);
+  }
+  
+  private void addEntry(int id, CSSValue value) {
+    boolean wasPresent = hasOwnValues.get(id);
+    int listPos = getPropertyPos(id);
+
+    if (wasPresent) {
+      SinglyLinkedList.replace(activeProperties, listPos, value);
+    } else {
+      activeProperties = SinglyLinkedList.insert(activeProperties, listPos, value);
+    }
+    hasOwnValues.set(id, true);
+  }
+
+  private void removeEntry(int id) {
+    if (!hasOwnValues.get(id)) return;
+    hasOwnValues.set(id, false);
+
+    int listPos = getPropertyPos(id);
+    activeProperties = SinglyLinkedList.remove(activeProperties, listPos);
+  }
+
+  private int getPropertyPos(int id) {
+    int listPos = 0;
+    int currentId = 0;
+    while (currentId < id) {
+      if (hasOwnValues.get(currentId)) {
+        listPos++;
+      }
+      currentId++;
+    }
+    return listPos;
   }
   
 }

@@ -1,9 +1,9 @@
 package net.buildabrowser.babbrowser.css.engine.styles.util;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
@@ -108,7 +108,7 @@ public final class ActiveStylesGenerator {
   
   private ActiveStylesGenerator() {}
 
-  public static ActiveStyles generateActiveStyles(Set<WeightedStyleRule> styleRules, ActiveStyles parentStyles) {
+  public static ActiveStyles generateActiveStyles(Collection<WeightedStyleRule> styleRules, ActiveStyles parentStyles) {
     ActiveStyles activeStyles = ActiveStyles.create(parentStyles);
     for (WeightedStyleRule styleRule: styleRules) {
       addToActiveStyles(activeStyles, styleRule.rule());
