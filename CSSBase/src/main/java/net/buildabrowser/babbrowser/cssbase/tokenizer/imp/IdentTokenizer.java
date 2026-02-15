@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.cssbase.tokenizer.imp;
 
+import static net.buildabrowser.babbrowser.common.util.ASCIIUtil.hexValue;
+
 import java.io.IOException;
 
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
@@ -66,19 +68,6 @@ public class IdentTokenizer {
     } else {
       return ch;
     }
-  }
-
-  // TODO: Make the proper ASCII util class accessible from here
-  private static int hexValue(int ch) {
-    if (ch >= '0' && ch <='9') {
-      return ch - '0';
-    } else if (ch >= 'a' && ch <= 'f') {
-      return ch - 'a' + 10;
-    } else if (ch >= 'A' && ch <= 'F') {
-      return ch - 'A' + 10;
-    }
-
-    return -1;
   }
 
 }

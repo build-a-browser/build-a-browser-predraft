@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.css.engine.property.color;
 
 import java.io.IOException;
 
+import net.buildabrowser.babbrowser.common.util.ASCIIUtil;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
@@ -82,31 +83,18 @@ public class HexColorParser implements PropertyValueParser {
   }
 
   private int parseSingleComponent(String hexValue, int index) {
-    int hex = fromHex(hexValue.codePointAt(index));
+    int hex = ASCIIUtil.hexValue(hexValue.codePointAt(index));
     if (hex == -1) return -1;
 
     return hex * 16 + hex;
   }
 
   private int parseDoubleComponent(String hexValue, int index) {
-    int hex1 = fromHex(hexValue.codePointAt(index));
-    int hex2 = fromHex(hexValue.codePointAt(index + 1));
+    int hex1 = ASCIIUtil.hexValue(hexValue.codePointAt(index));
+    int hex2 = ASCIIUtil.hexValue(hexValue.codePointAt(index + 1));
     if (hex1 == -1 || hex2 == -1) return -1;
 
     return hex1 * 16 + hex2;
-  }
-
-  // TODO: Move to ASCIIUtil
-  private int fromHex(int ch) {
-    if (ch >= '0' && ch <= '9') {
-      return ch - '0';
-    } else if (ch >= 'A' && ch <= 'F') {
-      return ch - 'A' + 10;
-    } else if (ch >= 'a' && ch <= 'f') {
-      return ch - 'a' + 10;
-    } else {
-      return -1;
-    }
   }
 
 }

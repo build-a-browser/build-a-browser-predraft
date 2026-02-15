@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.tokenizer.imp;
 
 import java.io.IOException;
 
+import net.buildabrowser.babbrowser.common.util.ASCIIUtil;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizer;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
@@ -47,7 +48,7 @@ public class CSSTokenizerImp implements CSSTokenizer {
   }
 
   private Token handleOtherValue(CSSTokenizerInput stream, int ch) throws IOException {
-    if (TokenizerUtil.isDigit(ch)) {
+    if (ASCIIUtil.isDigit(ch)) {
       stream.unread(ch);
       return numberTokenizer.consumeANumericToken(stream);
     } else if (TokenizerUtil.isIdentStartCodePoint(ch)) {

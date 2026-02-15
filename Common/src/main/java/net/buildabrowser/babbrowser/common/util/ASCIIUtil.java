@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.htmlparser.tokenize.util;
+package net.buildabrowser.babbrowser.common.util;
 
 public final class ASCIIUtil {
   
@@ -8,6 +8,18 @@ public final class ASCIIUtil {
     return
       (ch >= 'a' && ch <= 'z')
       || (ch >= 'A' && ch <= 'Z');
+  }
+
+  public static boolean isUpper(int ch) {
+    return ch >= 'A' && ch <= 'Z';
+  }
+
+  public static boolean isLower(int ch) {
+    return ch >= 'a' && ch <= 'z';
+  }
+
+  public static boolean isNonAsciiCodePoint(int ch) {
+    return ch >= 0x80;
   }
 
   public static int toLower(int ch) {

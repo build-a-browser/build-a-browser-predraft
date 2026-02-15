@@ -8,7 +8,7 @@ import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
-import static net.buildabrowser.babbrowser.cssbase.tokenizer.imp.TokenizerUtil.isDigit;
+import static net.buildabrowser.babbrowser.common.util.ASCIIUtil.isDigit;
 
 public class NumberTokenizer {
 
