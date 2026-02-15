@@ -4,23 +4,23 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.paint.BoxPainter;
-import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 
 public class ManagedBoxFragment extends BoxFragment {
 
-  private final SinglyLinkedList<LayoutFragment> fragments;
+  private final LayoutFragment fragments;
 
   public ManagedBoxFragment(
     float width, float height, ElementBox box,
     BoxPainter painter,
-    SinglyLinkedList<LayoutFragment> fragments
+    LayoutFragment fragments
   ) {
     super(width, height, box, painter);
     this.fragments = fragments;
 
-    SinglyLinkedList<LayoutFragment> curNode = fragments;
+    LayoutFragment curNode = fragments;
     while (curNode != null) {
-      curNode.item().setParent(this);
+      curNode.setParent(this);
       curNode = curNode.next();
     }
   }
@@ -31,7 +31,7 @@ public class ManagedBoxFragment extends BoxFragment {
     List<LayoutFragment> fragments
   ) {
     super(width, height, box, null);
-    this.fragments = SinglyLinkedList.fromList(fragments);
+    this.fragments = IntrusiveList.fromList(fragments);
 
     for (LayoutFragment fragment: fragments) {
       fragment.setParent(this);
@@ -39,7 +39,7 @@ public class ManagedBoxFragment extends BoxFragment {
     setPos(x, y);
   }
 
-  public SinglyLinkedList<LayoutFragment> fragments() {
+  public LayoutFragment fragments() {
     return this.fragments;
   }
 
@@ -48,9 +48,9 @@ public class ManagedBoxFragment extends BoxFragment {
     StringBuilder textBuilder = new StringBuilder();
     textBuilder.append("[ManagedBoxFragment pos=[" + borderX() + ", " + borderY() + "] size=[" + contentWidth() + "x" + contentHeight() + "]]");
 
-    SinglyLinkedList<LayoutFragment> curNode = fragments;
+    IntrusiveList<LayoutFragment> curNode = fragments;
     while (curNode != null) {
-      textBuilder.append("\n\t" + curNode.item().toString().replace("\n", "\n\t"));
+      textBuilder.append("\n\t" + curNode.toString().replace("\n", "\n\t"));
       curNode = curNode.next();
     }
     return textBuilder.toString();

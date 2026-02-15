@@ -199,8 +199,9 @@ public class FlowRootContentTest {
   public void canLayoutBlockBoxWithComplexNestingStructure() {
     TestTextBox nestedChildBox1 = new TestTextBox("Hello");
     TestTextBox nestedChildBox2 = new TestTextBox("World");
+    TestTextBox nestedChildBox3 = new TestTextBox("Hello");
     ElementBox intermediateBox1 = flowInlineBox(List.of(nestedChildBox1, nestedChildBox2));
-    ElementBox intermediateBox2 = flowBlockBox(List.of(nestedChildBox1));
+    ElementBox intermediateBox2 = flowBlockBox(List.of(nestedChildBox3));
     TestTextBox intermediateBox3 = new TestTextBox("!!!");
     ElementBox outerBox = flowInlineBox(List.of(intermediateBox1, intermediateBox2, intermediateBox3));
     ElementBox parentBox = flowBlockBox(List.of(outerBox));

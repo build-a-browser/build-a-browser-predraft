@@ -1,6 +1,8 @@
 package net.buildabrowser.babbrowser.browser.render.box;
 
-public interface Box {
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
+
+public interface Box extends IntrusiveList<Box> {
 
   void invalidate(InvalidationLevel invalidationLevel);
 

@@ -2,13 +2,13 @@ package net.buildabrowser.babbrowser.browser.render.content.flow;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 
 public class LineSegment {
 
   private final ElementBox box;
-  private SinglyLinkedList<LayoutFragment> fragments;
-  private SinglyLinkedList<LayoutFragment> nextFragment;
+  private LayoutFragment fragments;
+  private LayoutFragment nextFragment;
 
   public LineSegment(ElementBox box) {
     this.box = box;
@@ -18,16 +18,16 @@ public class LineSegment {
     return this.box;
   }
 
-  public SinglyLinkedList<LayoutFragment> fragments() {
+  public LayoutFragment fragments() {
     return this.fragments;
   }
 
   public float width() {
     float width = 0;
 
-    SinglyLinkedList<LayoutFragment> curNode = fragments;
+    LayoutFragment curNode = fragments;
     while (curNode != null) {
-      width += curNode.item().borderWidth();
+      width += curNode.borderWidth();
       curNode = curNode.next();
     }
 
@@ -37,9 +37,9 @@ public class LineSegment {
   public float height() {
     float height = 0;
 
-    SinglyLinkedList<LayoutFragment> curNode = fragments;
+    LayoutFragment curNode = fragments;
     while (curNode != null) {
-      height = Math.max(height, curNode.item().borderHeight());
+      height = Math.max(height, curNode.borderHeight());
       curNode = curNode.next();
     }
 
@@ -47,7 +47,7 @@ public class LineSegment {
   }
 
   public void addFragment(LayoutFragment managedBoxFragment) {
-    SinglyLinkedList<LayoutFragment> newFragment = SinglyLinkedList.add(nextFragment, managedBoxFragment);
+    LayoutFragment newFragment = IntrusiveList.add(nextFragment, managedBoxFragment);
     if (fragments == null) {
       fragments = newFragment;
     }

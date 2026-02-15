@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.browser.render.box.imp;
 import net.buildabrowser.babbrowser.browser.render.box.DocumentBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 
-public abstract class DocumentBoxImp implements DocumentBox {
+public abstract class DocumentBoxImp extends AbstractBoxImp implements DocumentBox {
 
   private ElementBox childBox;
 

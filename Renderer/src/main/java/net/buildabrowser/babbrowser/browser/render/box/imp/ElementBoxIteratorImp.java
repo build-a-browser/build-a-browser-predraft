@@ -4,15 +4,15 @@ import java.util.Iterator;
 
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxIterator;
-import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 
 public class ElementBoxIteratorImp implements ElementBoxIterator {
 
   private final AbstractElementBoxImp elementBox;
 
-  private SinglyLinkedList<Box> prevPrevBox;
-  private SinglyLinkedList<Box> prevBox;
-  private SinglyLinkedList<Box> nextBox;
+  private Box prevPrevBox;
+  private Box prevBox;
+  private Box nextBox;
   private int curIndex = 0;
 
   public ElementBoxIteratorImp(AbstractElementBoxImp elementBox) {
@@ -43,7 +43,7 @@ public class ElementBoxIteratorImp implements ElementBoxIterator {
     prevPrevBox = prevBox;
     prevBox = nextBox;
     nextBox = nextBox.next();
-    return prevBox.item();
+    return prevBox;
   }
 
   @Override
@@ -75,17 +75,25 @@ public class ElementBoxIteratorImp implements ElementBoxIterator {
       elementBox.nextBox = null;
     }
     if (prevPrevBox == null) {
-      elementBox.childBoxes = prevBox.next();
+      elementBox.childBoxes = nextBox;
       prevBox = null;
     } else {
-      SinglyLinkedList.remove(prevPrevBox, 1);
+      IntrusiveList.remove(prevPrevBox, 1);
       prevBox = prevPrevBox;
     }
   }
 
   @Override
   public void set(Box e) {
-    SinglyLinkedList.replace(prevBox, 0, e);
+    // TODO: Invalidate nextBox if needed
+    if (prevPrevBox != null) {
+      IntrusiveList.replace(prevPrevBox, 1, e);
+      prevBox = e;
+    } else {
+      assert prevBox != prevPrevBox : "Cannot call set after remove!";
+      elementBox.childBoxes = prevBox = IntrusiveList.replace(prevBox, 0, e);
+      elementBox.nextBox = null;
+    }
   }
 
   @Override
@@ -93,10 +101,10 @@ public class ElementBoxIteratorImp implements ElementBoxIterator {
     curIndex++;
     prevPrevBox = prevBox;
     if (prevPrevBox != null) {
-      SinglyLinkedList.insert(prevPrevBox, 1, e);
+      IntrusiveList.insert(prevPrevBox, 1, e);
       prevBox = prevPrevBox.next();
     } else {
-      prevBox = elementBox.childBoxes = SinglyLinkedList.insert(nextBox, 0, e);
+      prevBox = elementBox.childBoxes = IntrusiveList.insert(nextBox, 0, e);
     }
 
     if (elementBox.nextBox == prevPrevBox) {

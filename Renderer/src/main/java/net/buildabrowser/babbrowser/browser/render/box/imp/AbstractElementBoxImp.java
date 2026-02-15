@@ -4,17 +4,17 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxIterator;
-import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.dom.Element;
 
-public abstract class AbstractElementBoxImp implements ElementBox {
+public abstract class AbstractElementBoxImp extends AbstractBoxImp implements ElementBox {
 
   private final ElementBoxDimensions dimensions;
   private final Box parentBox;
   private final BoxLevel boxLevel;
 
-  SinglyLinkedList<Box> childBoxes; // Package-level for the iterator
-  SinglyLinkedList<Box> nextBox;
+  Box childBoxes; // Package-level for the iterator
+  Box nextBox;
 
   public AbstractElementBoxImp(Box parentBox, BoxLevel boxLevel) {
     this.dimensions = ElementBoxDimensions.create();
@@ -47,15 +47,15 @@ public abstract class AbstractElementBoxImp implements ElementBox {
   @Override
   public void addChild(Box box) {
     if (nextBox == null) {
-      nextBox = SinglyLinkedList.lastNode(childBoxes);
+      nextBox = IntrusiveList.last(childBoxes);
     }
 
-    SinglyLinkedList<Box> newBox = SinglyLinkedList.add(nextBox, box);
+    Box newBox = IntrusiveList.add(nextBox, box);
     if (childBoxes == null) {
       childBoxes = newBox;
     }
 
-    nextBox = nextBox == null ? newBox : nextBox.next();
+    nextBox = newBox;
   }
 
   @Override

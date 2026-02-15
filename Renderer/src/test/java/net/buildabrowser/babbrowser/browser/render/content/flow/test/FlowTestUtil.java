@@ -9,7 +9,7 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineB
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 
 public final class FlowTestUtil {
   
@@ -40,12 +40,12 @@ public final class FlowTestUtil {
     Assertions.assertInstanceOf(ManagedBoxFragment.class, actual);
     ManagedBoxFragment actualFragment = (ManagedBoxFragment) actual;
     Assertions.assertEquals(expected.box(), actualFragment.box());
-    Assertions.assertEquals(SinglyLinkedList._testingOnlySize(expected.fragments()), SinglyLinkedList._testingOnlySize(actualFragment.fragments()));
+    Assertions.assertEquals(IntrusiveList._testingOnlySize(expected.fragments()), IntrusiveList._testingOnlySize(actualFragment.fragments()));
 
-    SinglyLinkedList<LayoutFragment> curExpected = expected.fragments();
-    SinglyLinkedList<LayoutFragment> curActual = actualFragment.fragments();
+    LayoutFragment curExpected = expected.fragments();
+    LayoutFragment curActual = actualFragment.fragments();
     while (curExpected != null) {
-      assertFragmentEquals(curExpected.item(), curActual.item());
+      assertFragmentEquals(curExpected, curActual);
       curExpected = curExpected.next();
       curActual = curActual.next();
     }
@@ -69,10 +69,10 @@ public final class FlowTestUtil {
     Assertions.assertInstanceOf(LineBoxFragment.class, actual);
     LineBoxFragment actualFragment = (LineBoxFragment) actual;
 
-    SinglyLinkedList<LayoutFragment> curExpected = expected.fragments();
-    SinglyLinkedList<LayoutFragment> curActual = actualFragment.fragments();
+    LayoutFragment curExpected = expected.fragments();
+    LayoutFragment curActual = actualFragment.fragments();
     while (curExpected != null) {
-      assertFragmentEquals(curExpected.item(), curActual.item());
+      assertFragmentEquals(curExpected, curActual);
       curExpected = curExpected.next();
       curActual = curActual.next();
     }

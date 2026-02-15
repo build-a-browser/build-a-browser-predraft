@@ -17,7 +17,7 @@ import net.buildabrowser.babbrowser.browser.render.content.common.position.Posit
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
-import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.floats.ClearValue;
@@ -27,7 +27,7 @@ public class FlowBlockLayout {
 
   private final FlowRootContent rootContent;
 
-  private SinglyLinkedList<BlockFormattingContext> blockStack;
+  private BlockFormattingContext blockStack;
   private BlockFormattingContext rootContext;
 
   public FlowBlockLayout(FlowRootContent rootContent) {
@@ -37,7 +37,7 @@ public class FlowBlockLayout {
   public void reset(ElementBox rootBox, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
     this.rootContext = new BlockFormattingContext(rootBox,
       widthConstraint, heightConstraint, rootContent, null);
-    blockStack = SinglyLinkedList.add(null, rootContext);
+    blockStack = IntrusiveList.add(null, rootContext);
   }
 
   public ManagedBoxFragment close(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
@@ -46,7 +46,7 @@ public class FlowBlockLayout {
   }
 
   public BlockFormattingContext activeContext() {
-    return SinglyLinkedList.last(blockStack);
+    return IntrusiveList.last(blockStack);
   }
   
   public void addChildrenToBlock(
@@ -148,8 +148,8 @@ public class FlowBlockLayout {
     BlockFormattingContext childContext = new BlockFormattingContext(childBox,
       childWidthConstraint, childHeightConstraint, rootContent, collapseContext);
     
-    SinglyLinkedList<BlockFormattingContext> preBlockStack = SinglyLinkedList.lastNode(blockStack);
-    blockStack = SinglyLinkedList.add(preBlockStack, childContext);
+    BlockFormattingContext preBlockStack = IntrusiveList.last(blockStack);
+    blockStack = IntrusiveList.add(preBlockStack, childContext);
 
     addChildrenToBlock(layoutContext, childBox, childWidthConstraint, childHeightConstraint);
 
@@ -159,7 +159,7 @@ public class FlowBlockLayout {
     }
 
     ManagedBoxFragment newFragment = childContext.close(childWidthConstraint, childHeightConstraint);
-    blockStack = SinglyLinkedList.removeLast(preBlockStack);
+    blockStack = IntrusiveList.removeLast(preBlockStack);
 
     floatTracker.positionTracker().restoreMark(floatMark); // TODO: Ensure we still account for collapsed padding
     floatTracker.positionTracker().adjustPos(0, activeContext().currentY() - preMargin);
@@ -222,12 +222,10 @@ public class FlowBlockLayout {
     // Don't bother marking the float tracker position, the child should establish a new one
 
     LayoutFragment newFragment = PositionLayout.layout(layoutContext, childBox);
-    parentContext.addFragment(newFragment);
+    parentContext.addFragment(newFragment); // Still needed to set fragment parent
 
     float[] margin = childBox.dimensions().getComputedMargin();
     newFragment.setPos(margin[2], margin[0] + estimatedAboveMargin + parentContext.currentY());
-
-    parentContext.addFragment(newFragment); // Still needed to set fragment parent
   }
 
   public void addFinishedFragment(LayoutContext layoutContext, LayoutFragment newFragment, float posX) {
@@ -252,7 +250,7 @@ public class FlowBlockLayout {
     float leftClear = clearValue.equals(ClearValue.RIGHT) ? 0 : rootContent.floatTracker().clearedLineStartPosition();
     float rightClear = clearValue.equals(ClearValue.LEFT) ? 0 : rootContent.floatTracker().clearedLineEndPosition();
     float totalClear = Math.max(leftClear, rightClear);
-    SinglyLinkedList.last(blockStack).increaseY(totalClear);
+    IntrusiveList.last(blockStack).increaseY(totalClear);
     rootContent.floatTracker().positionTracker().adjustPos(0, totalClear);
   }
 

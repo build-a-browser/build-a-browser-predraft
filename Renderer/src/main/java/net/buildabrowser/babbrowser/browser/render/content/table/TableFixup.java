@@ -119,8 +119,8 @@ public final class TableFixup {
         anonStyles.setProperty(CSSProperty.DISPLAY, DisplayValue.create(
           OuterDisplayValue.TABLE_ROW, InnerDisplayValue.TABLE_ROW));
         currentFixupWrapper = ElementBox.createAnonymous(anonStyles, elementBox, BoxLevel.INLINE_LEVEL);
-        currentFixupWrapper.addChild(childBox);
         childIt.set(currentFixupWrapper);
+        currentFixupWrapper.addChild(childBox);
       }
     }
 
@@ -145,6 +145,7 @@ public final class TableFixup {
           OuterDisplayValue.TABLE_ROW, InnerDisplayValue.TABLE_ROW));
         currentFixupWrapper = ElementBox.createAnonymous(anonStyles, elementBox, BoxLevel.BLOCK_LEVEL);
         childIt.set(currentFixupWrapper);
+        currentFixupWrapper.addChild(childBox);
       }
     }
   }
@@ -176,6 +177,7 @@ public final class TableFixup {
           OuterDisplayValue.TABLE_CELL, InnerDisplayValue.FLOW_ROOT));
         currentFixupWrapper = ElementBox.createAnonymous(anonStyles, elementBox, BoxLevel.BLOCK_LEVEL);
         childIt.set(currentFixupWrapper);
+        currentFixupWrapper.addChild(childBox);
       }
     }
   }

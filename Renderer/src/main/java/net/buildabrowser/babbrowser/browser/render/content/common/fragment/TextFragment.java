@@ -17,7 +17,7 @@ public class TextFragment extends LayoutFragment {
 
   public String text() {
     return this.text;
-  };
+  }
 
   @Override
   public String toString() {

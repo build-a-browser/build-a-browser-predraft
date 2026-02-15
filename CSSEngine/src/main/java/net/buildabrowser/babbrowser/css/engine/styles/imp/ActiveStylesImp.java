@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.css.engine.styles.imp;
 
 import java.util.BitSet;
 
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
@@ -17,6 +18,7 @@ public class ActiveStylesImp implements ActiveStyles {
   private final BitSet inheritValues;
   private final BitSet hasOwnValues;
 
+  // TODO: Switch to an IntrusiveList?
   private SinglyLinkedList<CSSValue> activeProperties;
 
   public ActiveStylesImp(ActiveStyles parentStyles) {
@@ -131,7 +133,7 @@ public class ActiveStylesImp implements ActiveStyles {
   private CSSValue scanValue(int id) {
     if (!hasOwnValues.get(id)) return null;
     int listPos = getPropertyPos(id);
-    return SinglyLinkedList.get(activeProperties, listPos);
+    return IntrusiveList.get(activeProperties, listPos).item();
   }
   
   private void addEntry(int id, CSSValue value) {
@@ -139,9 +141,9 @@ public class ActiveStylesImp implements ActiveStyles {
     int listPos = getPropertyPos(id);
 
     if (wasPresent) {
-      SinglyLinkedList.replace(activeProperties, listPos, value);
+      activeProperties = IntrusiveList.replace(activeProperties, listPos, new SinglyLinkedList<>(value));
     } else {
-      activeProperties = SinglyLinkedList.insert(activeProperties, listPos, value);
+      activeProperties = IntrusiveList.insert(activeProperties, listPos, new SinglyLinkedList<>(value));
     }
     hasOwnValues.set(id, true);
   }
@@ -151,7 +153,7 @@ public class ActiveStylesImp implements ActiveStyles {
     hasOwnValues.set(id, false);
 
     int listPos = getPropertyPos(id);
-    activeProperties = SinglyLinkedList.remove(activeProperties, listPos);
+    activeProperties = IntrusiveList.remove(activeProperties, listPos);
   }
 
   private int getPropertyPos(int id) {

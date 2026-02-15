@@ -26,7 +26,6 @@ import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingAre
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.StagedUnmanagedBox;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
-import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.text.TextWrapModeValue;
 import net.buildabrowser.babbrowser.css.engine.property.whitespace.WhitespaceCollapseValue;
@@ -213,12 +212,11 @@ public class FlowInlineLayout {
     rootContent.blockLayout().addFinishedFragment(null, fragment, offsetX);
   }
 
-  private void positionFragmentElements(SinglyLinkedList<LayoutFragment> fragments) {
+  private void positionFragmentElements(LayoutFragment fragments) {
     float x = 0;
 
-    SinglyLinkedList<LayoutFragment> curNode = fragments;
-    while (curNode != null) {
-      LayoutFragment child = curNode.item();
+    LayoutFragment child = fragments;
+    while (child != null) {
       child.setPos(0, 0); // Cheat to disable unset X assertions for next line
       float marginX = child.borderX() - child.marginX();
       // TODO: Is this the correct way to compute vertical positioning?
@@ -232,7 +230,7 @@ public class FlowInlineLayout {
       }
 
 
-      curNode = curNode.next();
+      child = child.next();
     }
   }
 

@@ -5,22 +5,23 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.Layou
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
-import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 
-public class BlockFormattingContext {
+public class BlockFormattingContext implements IntrusiveList<BlockFormattingContext> {
 
   private final ElementBox elementBox;
   private final LayoutConstraint innerWidthConstraint;
   private final LayoutConstraint innerHeightConstraint;
   private final FlowRootContent rootContent;
 
-  private SinglyLinkedList<LayoutFragment> fragments;
-  private SinglyLinkedList<LayoutFragment> nextFragment;
+  private LayoutFragment fragments;
+  private LayoutFragment nextFragment;
 
   private float width;
   private float y;
 
   private BlockFormattingContext collapseContext;
+  private BlockFormattingContext nextContext;
   private float maxMargin = 0;
   private float minMargin = 0;
 
@@ -36,6 +37,16 @@ public class BlockFormattingContext {
     this.innerHeightConstraint = innerHeightConstraint;
     this.rootContent = rootContent;
     this.collapseContext = collapseContext;
+  }
+
+  @Override
+  public BlockFormattingContext next() {
+    return this.nextContext;
+  }
+
+  @Override
+  public void setNext(BlockFormattingContext nextNode) {
+    this.nextContext = nextNode;
   }
 
   public float currentY() {
@@ -86,12 +97,13 @@ public class BlockFormattingContext {
   }
 
   public void addFragment(LayoutFragment fragment) {
-    SinglyLinkedList<LayoutFragment> newFragment = SinglyLinkedList.add(nextFragment, fragment);
     if (fragments == null) {
-      fragments = newFragment;
+      fragments = fragment;
+    } else {
+      IntrusiveList.add(nextFragment, fragment);
     }
 
-    nextFragment = nextFragment == null ? newFragment : nextFragment.next();
+    nextFragment = fragment;
   }
 
   public LayoutConstraint innerWidthConstraint() {

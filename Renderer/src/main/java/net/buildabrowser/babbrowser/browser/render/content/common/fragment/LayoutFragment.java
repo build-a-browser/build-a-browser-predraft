@@ -1,16 +1,29 @@
 package net.buildabrowser.babbrowser.browser.render.content.common.fragment;
 
-public abstract class LayoutFragment {
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
+
+public abstract class LayoutFragment implements IntrusiveList<LayoutFragment> {
   
   private final float width;
   private final float height;
 
+  private LayoutFragment nextFragment;
   private float posX = -1;
   private float posY = -1;
 
   public LayoutFragment(float width, float height) {
     this.width = width;
     this.height = height;
+  }
+
+  @Override
+  public LayoutFragment next() {
+    return this.nextFragment;
+  }
+
+  @Override
+  public void setNext(LayoutFragment nextFragment) {
+    this.nextFragment = nextFragment;
   }
 
   public void setPos(float x, float y) {

@@ -11,7 +11,6 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.Unman
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
-import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 
 public final class FlowRootContentPainter {
 
@@ -44,9 +43,9 @@ public final class FlowRootContentPainter {
     }
 
     private static void paintBlockLevelBackgrounds(PaintCanvas canvas, ManagedBoxFragment fragment) {
-      SinglyLinkedList<LayoutFragment> curNode = fragment.fragments();
+      LayoutFragment curNode = fragment.fragments();
       while (curNode != null) {
-        LayoutFragment childFragment = curNode.item();
+        LayoutFragment childFragment = curNode;
         curNode = curNode.next();
         if (LayerUtil.startsLayer(childFragment)) continue;
 
@@ -121,9 +120,9 @@ public final class FlowRootContentPainter {
   private static void paintManagedBoxFragment(PaintCanvas canvas, ManagedBoxFragment fragment) {
     ElementBox parentBox = fragment.box();
     
-    SinglyLinkedList<LayoutFragment> curNode = fragment.fragments();
+    LayoutFragment curNode = fragment.fragments();
     while (curNode != null) {
-      LayoutFragment childFragment = curNode.item();
+      LayoutFragment childFragment = curNode;
       curNode = curNode.next();
       if (LayerUtil.startsLayer(childFragment)) continue;
 
@@ -149,9 +148,9 @@ public final class FlowRootContentPainter {
     paintBackgroundAndAdvance(canvas, fragment);
 
     ElementBox parentBox = fragment.box();
-    SinglyLinkedList<LayoutFragment> curNode = fragment.fragments();
+    LayoutFragment curNode = fragment.fragments();
     while (curNode != null) {
-      LayoutFragment childFragment = curNode.item();
+      LayoutFragment childFragment = curNode;
       curNode = curNode.next();
       if (LayerUtil.startsLayer(childFragment)) continue;
 
@@ -173,9 +172,9 @@ public final class FlowRootContentPainter {
   }
 
   private static void paintLineBoxFragment(PaintCanvas canvas, LineBoxFragment lineboxFragment) {
-    SinglyLinkedList<LayoutFragment> curNode = lineboxFragment.fragments();
+    LayoutFragment curNode = lineboxFragment.fragments();
     while (curNode != null) {
-      LayoutFragment childFragment = curNode.item();
+      LayoutFragment childFragment = curNode;
       curNode = curNode.next();
       if (LayerUtil.startsLayer(childFragment)) continue;
 
