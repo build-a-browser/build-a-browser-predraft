@@ -1,8 +1,5 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
-import java.util.Deque;
-import java.util.LinkedList;
-
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
@@ -20,6 +17,7 @@ import net.buildabrowser.babbrowser.browser.render.content.common.position.Posit
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.floats.ClearValue;
@@ -27,9 +25,9 @@ import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 
 public class FlowBlockLayout {
 
-  private final Deque<BlockFormattingContext> blockStack = new LinkedList<>();
   private final FlowRootContent rootContent;
-  
+
+  private SinglyLinkedList<BlockFormattingContext> blockStack;
   private BlockFormattingContext rootContext;
 
   public FlowBlockLayout(FlowRootContent rootContent) {
@@ -39,8 +37,7 @@ public class FlowBlockLayout {
   public void reset(ElementBox rootBox, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
     this.rootContext = new BlockFormattingContext(rootBox,
       widthConstraint, heightConstraint, rootContent, null);
-    blockStack.clear();
-    blockStack.add(rootContext);
+    blockStack = SinglyLinkedList.add(null, rootContext);
   }
 
   public ManagedBoxFragment close(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
@@ -49,7 +46,7 @@ public class FlowBlockLayout {
   }
 
   public BlockFormattingContext activeContext() {
-    return blockStack.peek();
+    return SinglyLinkedList.last(blockStack);
   }
   
   public void addChildrenToBlock(
@@ -150,7 +147,9 @@ public class FlowBlockLayout {
     BlockFormattingContext collapseContext = collapseFirst ? null : parentContext;
     BlockFormattingContext childContext = new BlockFormattingContext(childBox,
       childWidthConstraint, childHeightConstraint, rootContent, collapseContext);
-    blockStack.push(childContext);
+    
+    SinglyLinkedList<BlockFormattingContext> preBlockStack = SinglyLinkedList.lastNode(blockStack);
+    blockStack = SinglyLinkedList.add(preBlockStack, childContext);
 
     addChildrenToBlock(layoutContext, childBox, childWidthConstraint, childHeightConstraint);
 
@@ -160,7 +159,7 @@ public class FlowBlockLayout {
     }
 
     ManagedBoxFragment newFragment = childContext.close(childWidthConstraint, childHeightConstraint);
-    blockStack.pop();
+    blockStack = SinglyLinkedList.removeLast(preBlockStack);
 
     floatTracker.positionTracker().restoreMark(floatMark); // TODO: Ensure we still account for collapsed padding
     floatTracker.positionTracker().adjustPos(0, activeContext().currentY() - preMargin);
@@ -253,7 +252,7 @@ public class FlowBlockLayout {
     float leftClear = clearValue.equals(ClearValue.RIGHT) ? 0 : rootContent.floatTracker().clearedLineStartPosition();
     float rightClear = clearValue.equals(ClearValue.LEFT) ? 0 : rootContent.floatTracker().clearedLineEndPosition();
     float totalClear = Math.max(leftClear, rightClear);
-    blockStack.peek().increaseY(totalClear);
+    SinglyLinkedList.last(blockStack).increaseY(totalClear);
     rootContent.floatTracker().positionTracker().adjustPos(0, totalClear);
   }
 

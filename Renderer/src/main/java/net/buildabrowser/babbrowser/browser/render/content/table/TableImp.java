@@ -15,6 +15,7 @@ public class TableImp implements Table {
 
   @Override
   public boolean isSlotAssigned(int x, int y) {
+    if (x >= width || y >= height) return false;
     return cells[0][y][x] != null;
   }
 

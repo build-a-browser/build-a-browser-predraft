@@ -1,13 +1,11 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
+import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 
 public class BlockFormattingContext {
 
@@ -16,7 +14,8 @@ public class BlockFormattingContext {
   private final LayoutConstraint innerHeightConstraint;
   private final FlowRootContent rootContent;
 
-  private final List<LayoutFragment> fragments;
+  private SinglyLinkedList<LayoutFragment> fragments;
+  private SinglyLinkedList<LayoutFragment> nextFragment;
 
   private float width;
   private float y;
@@ -37,8 +36,6 @@ public class BlockFormattingContext {
     this.innerHeightConstraint = innerHeightConstraint;
     this.rootContent = rootContent;
     this.collapseContext = collapseContext;
-
-    this.fragments = new LinkedList<>();
   }
 
   public float currentY() {
@@ -88,8 +85,13 @@ public class BlockFormattingContext {
     return this.minMargin;
   }
 
-  public void addFragment(LayoutFragment newFragment) {
-    this.fragments.add(newFragment);
+  public void addFragment(LayoutFragment fragment) {
+    SinglyLinkedList<LayoutFragment> newFragment = SinglyLinkedList.add(nextFragment, fragment);
+    if (fragments == null) {
+      fragments = newFragment;
+    }
+
+    nextFragment = nextFragment == null ? newFragment : nextFragment.next();
   }
 
   public LayoutConstraint innerWidthConstraint() {

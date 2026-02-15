@@ -9,6 +9,7 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineB
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 
 public final class FlowTestUtil {
   
@@ -39,9 +40,14 @@ public final class FlowTestUtil {
     Assertions.assertInstanceOf(ManagedBoxFragment.class, actual);
     ManagedBoxFragment actualFragment = (ManagedBoxFragment) actual;
     Assertions.assertEquals(expected.box(), actualFragment.box());
-    Assertions.assertEquals(expected.fragments().size(), actualFragment.fragments().size());
-    for (int i = 0; i < expected.fragments().size(); i++) {
-      assertFragmentEquals(expected.fragments().get(i), actualFragment.fragments().get(i));
+    Assertions.assertEquals(SinglyLinkedList._testingOnlySize(expected.fragments()), SinglyLinkedList._testingOnlySize(actualFragment.fragments()));
+
+    SinglyLinkedList<LayoutFragment> curExpected = expected.fragments();
+    SinglyLinkedList<LayoutFragment> curActual = actualFragment.fragments();
+    while (curExpected != null) {
+      assertFragmentEquals(curExpected.item(), curActual.item());
+      curExpected = curExpected.next();
+      curActual = curActual.next();
     }
   }
 
@@ -62,9 +68,13 @@ public final class FlowTestUtil {
   public static void assertFragmentEquals(LineBoxFragment expected, LayoutFragment actual) {
     Assertions.assertInstanceOf(LineBoxFragment.class, actual);
     LineBoxFragment actualFragment = (LineBoxFragment) actual;
-    Assertions.assertEquals(expected.fragments().size(), actualFragment.fragments().size());
-    for (int i = 0; i < expected.fragments().size(); i++) {
-      assertFragmentEquals(expected.fragments().get(i), actualFragment.fragments().get(i));
+
+    SinglyLinkedList<LayoutFragment> curExpected = expected.fragments();
+    SinglyLinkedList<LayoutFragment> curActual = actualFragment.fragments();
+    while (curExpected != null) {
+      assertFragmentEquals(curExpected.item(), curActual.item());
+      curExpected = curExpected.next();
+      curActual = curActual.next();
     }
   }
 

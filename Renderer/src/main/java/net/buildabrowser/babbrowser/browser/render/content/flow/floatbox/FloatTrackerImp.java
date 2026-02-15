@@ -22,11 +22,11 @@ public class FloatTrackerImp implements FloatTracker {
   };
 
   // TreeSet has a ton of overhead, sort on access instead
-  private final List<BoxFragment> leftFloats = new LinkedList<>();
-  private final List<BoxFragment> rightFloats = new LinkedList<>();
-  private final List<BoxFragment> allFloats = new LinkedList<>();
-
   private final PositionTracker positionTracker = PositionTracker.create();
+
+  private List<BoxFragment> leftFloats;
+  private List<BoxFragment> rightFloats;
+  private List<BoxFragment> allFloats;
 
   private boolean sidesSorted = true;
   private float blockEnd = 0;
@@ -35,6 +35,7 @@ public class FloatTrackerImp implements FloatTracker {
   public boolean addLineStartFloat(BoxFragment box, LayoutConstraint lineConstraint, float reservedWidth) {
     // TODO: Find a proper way to handle pre-layout constraints
     if (lineConstraint.isPreLayoutConstraint()) return true;
+    ensureListsInit();
 
     float[] freeInfo = new float[2];
     float freePos = findFreePos(lineConstraint, box.marginWidth() + reservedWidth, freeInfo);
@@ -56,6 +57,7 @@ public class FloatTrackerImp implements FloatTracker {
   @Override
   public boolean addLineEndFloat(BoxFragment box, LayoutConstraint lineConstraint, float reservedWidth) {
     if (lineConstraint.isPreLayoutConstraint()) return true;
+    ensureListsInit();
 
     float[] freeInfo = new float[2];
     float freePos = findFreePos(lineConstraint, box.marginWidth() + reservedWidth, freeInfo);
@@ -89,6 +91,8 @@ public class FloatTrackerImp implements FloatTracker {
 
   @Override
   public float lineStartPos() {
+    if (leftFloats == null) return 0;
+
     float highestOffset = 0;
     for (BoxFragment box : leftFloats) {
       if (positionTracker.posY() >= box.marginY() && positionTracker.posY() < box.marginY() + box.marginHeight()) {
@@ -105,6 +109,8 @@ public class FloatTrackerImp implements FloatTracker {
       throw new UnsupportedOperationException("Can not determine line-end during pre-layout!");
     }
 
+    if (rightFloats == null) return positionTracker.posX() + lineConstraint.value();
+
     float highestOffset = Integer.MAX_VALUE;
     for (BoxFragment box : rightFloats) {
       if (positionTracker.posY() >= box.marginY() && positionTracker.posY() < box.marginY() + box.marginHeight()) {
@@ -119,6 +125,8 @@ public class FloatTrackerImp implements FloatTracker {
   public void reset() {
     this.blockEnd = 0;
     positionTracker.reset();
+
+    if (allFloats == null) return;
     leftFloats.clear();
     rightFloats.clear();
     allFloats.clear();
@@ -127,6 +135,7 @@ public class FloatTrackerImp implements FloatTracker {
   @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public List<LayoutFragment> allFloats() {
+    if (allFloats == null) return List.of(); // Java caches this
     return (List<LayoutFragment>) (List) this.allFloats;
   }
 
@@ -203,6 +212,8 @@ public class FloatTrackerImp implements FloatTracker {
   }
 
   private float getFreePosition(float blockStart, List<BoxFragment> floats) {
+    if (floats == null) return blockStart;
+
     if (!sidesSorted) {
       leftFloats.sort(fragmentComparator);
       rightFloats.sort(fragmentComparator);
@@ -219,6 +230,13 @@ public class FloatTrackerImp implements FloatTracker {
     }
 
     return Math.max(nextUncheckedY, blockStart);
+  }
+
+  private void ensureListsInit() {
+    if (this.allFloats != null) return;
+    this.leftFloats = new LinkedList<>();
+    this.rightFloats = new LinkedList<>();
+    this.allFloats = new LinkedList<>();
   }
 
 }

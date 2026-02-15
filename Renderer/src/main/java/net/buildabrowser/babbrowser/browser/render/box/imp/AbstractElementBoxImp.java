@@ -1,20 +1,20 @@
 package net.buildabrowser.babbrowser.browser.render.box.imp;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.browser.render.box.ElementBoxIterator;
+import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.dom.Element;
 
 public abstract class AbstractElementBoxImp implements ElementBox {
-  
-  private final List<Box> childBoxes = new LinkedList<>();
 
   private final ElementBoxDimensions dimensions;
   private final Box parentBox;
   private final BoxLevel boxLevel;
+
+  SinglyLinkedList<Box> childBoxes; // Package-level for the iterator
+  SinglyLinkedList<Box> nextBox;
 
   public AbstractElementBoxImp(Box parentBox, BoxLevel boxLevel) {
     this.dimensions = ElementBoxDimensions.create();
@@ -38,28 +38,30 @@ public abstract class AbstractElementBoxImp implements ElementBox {
   }
 
   @Override
-  public List<Box> childBoxes() {
-    return this.childBoxes;
+  public ElementBoxIterator childBoxes() {
+    // Hopefully the iterator is done being used by the next addChild.
+    // Otherwise, undefined behaviour may occur.
+    return new ElementBoxIteratorImp(this);
   }
 
   @Override
   public void addChild(Box box) {
-    this.childBoxes.add(box);
-  }
+    if (nextBox == null) {
+      nextBox = SinglyLinkedList.lastNode(childBoxes);
+    }
 
-  @Override
-  public void removeChild(Box box) {
-    this.childBoxes.remove(box);
-  }
+    SinglyLinkedList<Box> newBox = SinglyLinkedList.add(nextBox, box);
+    if (childBoxes == null) {
+      childBoxes = newBox;
+    }
 
-  @Override
-  public void removeChild(int i) {
-    this.childBoxes.remove(i);
+    nextBox = nextBox == null ? newBox : nextBox.next();
   }
 
   @Override
   public void clearChildren() {
-    this.childBoxes.clear();
+    this.childBoxes = null;
+    this.nextBox = null;
   }
 
   @Override

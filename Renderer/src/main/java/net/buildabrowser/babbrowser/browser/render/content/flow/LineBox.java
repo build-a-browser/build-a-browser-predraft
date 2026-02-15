@@ -18,7 +18,7 @@ public class LineBox {
 
   public LineBox() {
     this.lineSegments = new LinkedList<>();
-    lineSegments.push(new LineSegment(null, new LinkedList<>()));
+    lineSegments.push(new LineSegment(null));
   }
 
   private LineBox(Deque<LineSegment> segments) {
@@ -32,7 +32,7 @@ public class LineBox {
     if (PositionUtil.affectsLayout(fragment)) {
       this.totalWidth += fragment.marginWidth();
     }
-    lineSegments.peek().fragments().add(fragment);
+    lineSegments.peek().addFragment(fragment);
   }
 
   public void appendText(String text, float width, float height) {
@@ -46,7 +46,7 @@ public class LineBox {
       elementBox.dimensions().getComputedMargin()[2] +
       elementBox.dimensions().getComputedBorder()[2] +
       elementBox.dimensions().getComputedPadding()[2];
-    lineSegments.push(new LineSegment(elementBox, new LinkedList<>()));
+    lineSegments.push(new LineSegment(elementBox));
   }
 
   public ElementBox popElement() {
@@ -56,7 +56,7 @@ public class LineBox {
       lineSegment.width(), lineSegment.height(),
       lineSegment.box(), FlowRootContentPainter.FLOW_INLINE_PAINTER,
       lineSegment.fragments());
-    lineSegments.peek().fragments().add(managedBoxFragment);
+    lineSegments.peek().addFragment(managedBoxFragment);
     
     this.totalWidth +=
       lineSegment.box().dimensions().getComputedMargin()[3] +
@@ -91,7 +91,7 @@ public class LineBox {
     Iterator<LineSegment> it = lineSegments.descendingIterator();
     while (it.hasNext()) {
       LineSegment oldSegment = it.next();
-      LineSegment newSegment = new LineSegment(oldSegment.box(), new LinkedList<>());
+      LineSegment newSegment = new LineSegment(oldSegment.box());
       newSegments.push(newSegment);
     }
 
@@ -104,7 +104,7 @@ public class LineBox {
 
   private void commitText() {
     if (!textBuilder.isEmpty()) {
-      lineSegments.peek().fragments().add(textBuilder.commit());
+      lineSegments.peek().addFragment(textBuilder.commit());
     }
   }
 

@@ -2,7 +2,6 @@ package net.buildabrowser.babbrowser.browser.render.content.flow;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
@@ -27,6 +26,7 @@ import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingAre
 import net.buildabrowser.babbrowser.browser.render.content.flow.InlineStagingArea.StagedUnmanagedBox;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.text.TextWrapModeValue;
 import net.buildabrowser.babbrowser.css.engine.property.whitespace.WhitespaceCollapseValue;
@@ -213,9 +213,12 @@ public class FlowInlineLayout {
     rootContent.blockLayout().addFinishedFragment(null, fragment, offsetX);
   }
 
-  private void positionFragmentElements(List<LayoutFragment> fragments) {
+  private void positionFragmentElements(SinglyLinkedList<LayoutFragment> fragments) {
     float x = 0;
-    for (LayoutFragment child: fragments) {
+
+    SinglyLinkedList<LayoutFragment> curNode = fragments;
+    while (curNode != null) {
+      LayoutFragment child = curNode.item();
       child.setPos(0, 0); // Cheat to disable unset X assertions for next line
       float marginX = child.borderX() - child.marginX();
       // TODO: Is this the correct way to compute vertical positioning?
@@ -227,6 +230,9 @@ public class FlowInlineLayout {
       if (child instanceof ManagedBoxFragment managedBoxFragment) {
         positionFragmentElements(managedBoxFragment.fragments());
       }
+
+
+      curNode = curNode.next();
     }
   }
 

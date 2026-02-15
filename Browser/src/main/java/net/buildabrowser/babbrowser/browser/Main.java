@@ -18,8 +18,7 @@ import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
 
 public class Main {
   
-  public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
-    Thread.sleep(10000);
+  public static void main(String[] args) throws IOException, URISyntaxException {
     setLookAndFeel();
 
     ProtocolRegistry protocolRegistry = new ProtocolRegistryImp();

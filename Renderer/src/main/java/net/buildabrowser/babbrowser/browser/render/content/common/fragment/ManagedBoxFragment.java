@@ -4,33 +4,42 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.paint.BoxPainter;
+import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 
 public class ManagedBoxFragment extends BoxFragment {
 
-  private final List<LayoutFragment> fragments;
+  private final SinglyLinkedList<LayoutFragment> fragments;
 
   public ManagedBoxFragment(
     float width, float height, ElementBox box,
     BoxPainter painter,
-    List<LayoutFragment> fragments
+    SinglyLinkedList<LayoutFragment> fragments
   ) {
     super(width, height, box, painter);
     this.fragments = fragments;
 
-    for (LayoutFragment fragment: fragments) {
-      fragment.setParent(this);
+    SinglyLinkedList<LayoutFragment> curNode = fragments;
+    while (curNode != null) {
+      curNode.item().setParent(this);
+      curNode = curNode.next();
     }
   }
 
+  // Constructor used by tests, don't use in normal code
   public ManagedBoxFragment(
     float x, float y, float width, float height, ElementBox box,
     List<LayoutFragment> fragments
   ) {
-    this(width, height, box, null, fragments);
+    super(width, height, box, null);
+    this.fragments = SinglyLinkedList.fromList(fragments);
+
+    for (LayoutFragment fragment: fragments) {
+      fragment.setParent(this);
+    }
     setPos(x, y);
   }
 
-  public List<LayoutFragment> fragments() {
+  public SinglyLinkedList<LayoutFragment> fragments() {
     return this.fragments;
   }
 
@@ -38,8 +47,11 @@ public class ManagedBoxFragment extends BoxFragment {
   public String toString() {
     StringBuilder textBuilder = new StringBuilder();
     textBuilder.append("[ManagedBoxFragment pos=[" + borderX() + ", " + borderY() + "] size=[" + contentWidth() + "x" + contentHeight() + "]]");
-    for (LayoutFragment fragment : fragments()) {
-      textBuilder.append("\n\t" + fragment.toString().replace("\n", "\n\t"));
+
+    SinglyLinkedList<LayoutFragment> curNode = fragments;
+    while (curNode != null) {
+      textBuilder.append("\n\t" + curNode.item().toString().replace("\n", "\n\t"));
+      curNode = curNode.next();
     }
     return textBuilder.toString();
   }

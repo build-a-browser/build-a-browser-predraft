@@ -15,7 +15,7 @@ public final class TableFormer {
   private TableFormer() {}
 
   public static Table formTable(Table table, ElementBox refBox) {
-    ListIterator<Box> childIt = refBox.childBoxes().listIterator();
+    ListIterator<Box> childIt = refBox.childBoxes();
     if (!childIt.hasNext()) {
       table.markSize(0, 0);
       return table;
@@ -92,7 +92,7 @@ public final class TableFormer {
     int xCurrent = 0;
     growDownwardGrowingCells(table, bookkeeping);
 
-    ListIterator<Box> childIt = refBox.childBoxes().listIterator();
+    ListIterator<Box> childIt = refBox.childBoxes();
 
     while (childIt.hasNext()) {
       ElementBox currentCell = (ElementBox) childIt.next();

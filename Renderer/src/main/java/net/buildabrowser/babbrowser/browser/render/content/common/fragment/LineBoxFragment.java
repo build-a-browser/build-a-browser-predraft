@@ -2,31 +2,36 @@ package net.buildabrowser.babbrowser.browser.render.content.common.fragment;
 
 import java.util.List;
 
+import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
+
 public class LineBoxFragment extends LayoutFragment {
 
-  private final List<LayoutFragment> fragments;
+  private final SinglyLinkedList<LayoutFragment> fragments;
 
   private LayoutFragment parentFragment;
 
   public LineBoxFragment(
-    float width, float height, List<LayoutFragment> fragments
+    float width, float height, SinglyLinkedList<LayoutFragment> fragments
   ) {
     super(width, height);
     this.fragments = fragments;
 
-    for (LayoutFragment fragment: fragments) {
-      fragment.setParent(this);
+    SinglyLinkedList<LayoutFragment> curNode = fragments;
+    while (curNode != null) {
+      curNode.item().setParent(this);
+      curNode = curNode.next();
     }
   }
 
+  // This constructor is for testing, not normal code use
   public LineBoxFragment(
     float x, float y, float width, float height, List<LayoutFragment> fragments
   ) {
-    this(width, height, fragments);
+    this(width, height, SinglyLinkedList.fromList(fragments));
     setPos(x, y);
   }
 
-  public List<LayoutFragment> fragments() {
+  public SinglyLinkedList<LayoutFragment> fragments() {
     return this.fragments;
   }
 
@@ -50,8 +55,11 @@ public class LineBoxFragment extends LayoutFragment {
   public String toString() {
     StringBuilder textBuilder = new StringBuilder();
     textBuilder.append("[LineBoxFragment pos=[" + borderX() + ", " + borderY() + "] size=[" + contentWidth() + "x" + contentHeight() + "]]");
-    for (LayoutFragment fragment : fragments()) {
-      textBuilder.append("\n\t" + fragment.toString().replace("\n", "\n\t"));
+    
+    SinglyLinkedList<LayoutFragment> curNode = fragments;
+    while (curNode != null) {
+      textBuilder.append("\n\t" + curNode.item().toString().replace("\n", "\n\t"));
+      curNode = curNode.next();
     }
 
     return textBuilder.toString();

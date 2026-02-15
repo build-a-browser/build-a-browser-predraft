@@ -1,7 +1,5 @@
 package net.buildabrowser.babbrowser.browser.render.box;
 
-import java.util.List;
-
 import net.buildabrowser.babbrowser.browser.render.box.imp.AnonymousElementBoxImp;
 import net.buildabrowser.babbrowser.browser.render.box.imp.ElementBoxImp;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
@@ -18,13 +16,9 @@ public interface ElementBox extends Box {
 
   ElementBoxDimensions dimensions();
 
-  List<Box> childBoxes();
+  ElementBoxIterator childBoxes();
 
   void addChild(Box box);
-
-  void removeChild(Box box);
-
-  void removeChild(int i);
 
   void clearChildren();
 
