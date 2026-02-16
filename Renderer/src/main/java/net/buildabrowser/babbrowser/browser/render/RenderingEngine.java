@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.browser.network.ProtocolRegistry;
@@ -13,7 +13,7 @@ public interface RenderingEngine {
 
   Renderer createBlankRenderer();
 
-  void openRenderer(URL url, Frame frame, Consumer<Renderer> onOpen);
+  void openRenderer(URI url, Frame frame, Consumer<Renderer> onOpen);
 
   static RenderingEngine create(ProtocolRegistry protocolRegistry) {
     return new RenderingEngineImp(protocolRegistry);

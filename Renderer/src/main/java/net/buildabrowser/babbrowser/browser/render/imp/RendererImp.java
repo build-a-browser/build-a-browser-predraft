@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
@@ -48,11 +48,11 @@ import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
 public class RendererImp implements Renderer {
   
   private final ProtocolRegistry protocolRegistry;
-  private final URL url;
+  private final URI url;
 
   private DocumentBox documentBox;
 
-  public RendererImp(ProtocolRegistry protocolRegistry, URL url) {
+  public RendererImp(ProtocolRegistry protocolRegistry, URI url) {
     this.protocolRegistry = protocolRegistry;
     this.url = url;
   }

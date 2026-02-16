@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.browser;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -28,7 +27,7 @@ public class Main {
     WindowSet windowSet = WindowSet.create(browserInstance);
     Window window = windowSet.openWindow(new WindowOptions(false));
     for (String urlStr: args) {
-      URL url = new URI(urlStr).toURL();
+      URI url = new URI(urlStr);
       window.openTab().navigate(url);
     }
 

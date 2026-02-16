@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.uistate.imp;
 
-import java.net.URL;
+import java.net.URI;
 
 import net.buildabrowser.babbrowser.browser.network.URLUtil;
 import net.buildabrowser.babbrowser.browser.network.exception.BadURLException;
@@ -15,7 +15,7 @@ public class FrameImp implements Frame {
   private final RenderingEngine renderingEngine;
   private final BrowserEventDispatcher<FrameEventListener> eventDispatcher = BrowserEventDispatcher.create();
   
-  private URL url;
+  private URI url;
   private Renderer currentRenderer;
 
   public FrameImp(RenderingEngine renderingEngine) {
@@ -42,12 +42,12 @@ public class FrameImp implements Frame {
   }
 
   @Override
-  public URL getURL() {
+  public URI getURL() {
     return this.url;
   }
 
   @Override
-  public void navigate(URL url) {
+  public void navigate(URI url) {
     this.url = url;
     eventDispatcher.fire(listener -> listener.onURLChange(url));
     renderingEngine.openRenderer(url, this, renderer -> {
@@ -57,7 +57,7 @@ public class FrameImp implements Frame {
   }
   
   @Override
-  public boolean redirect(URL url) {
+  public boolean redirect(URI url) {
     this.url = url;
     eventDispatcher.fire(listener -> listener.onURLChange(url));
     

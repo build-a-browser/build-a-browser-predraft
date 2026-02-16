@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.imp;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.browser.network.ProtocolRegistry;
@@ -29,7 +29,7 @@ public class RenderingEngineImp implements RenderingEngine {
   }
 
   @Override
-  public void openRenderer(URL url, Frame frame, Consumer<Renderer> onOpen) {
+  public void openRenderer(URI url, Frame frame, Consumer<Renderer> onOpen) {
     onOpen.accept(Renderer.create(protocolRegistery, url));
   }
   

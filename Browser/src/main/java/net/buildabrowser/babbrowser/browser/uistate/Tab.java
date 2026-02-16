@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.browser.uistate;
 
-import java.net.URL;
+import java.net.URI;
 
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
 import net.buildabrowser.babbrowser.browser.render.uistate.Frame;
@@ -15,9 +15,9 @@ public interface Tab {
   
   Frame getFrame();
   
-  URL getURL();
+  URI getURL();
   
-  void navigate(URL url);
+  void navigate(URI url);
   
   void reload();
   

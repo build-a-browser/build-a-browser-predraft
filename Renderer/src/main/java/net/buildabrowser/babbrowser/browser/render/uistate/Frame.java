@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.uistate;
 
-import java.net.URL;
+import java.net.URI;
 
 import net.buildabrowser.babbrowser.browser.render.Renderer;
 import net.buildabrowser.babbrowser.browser.render.RenderingEngine;
@@ -13,11 +13,11 @@ public interface Frame {
 
   String getName();
 
-  URL getURL();
+  URI getURL();
 
-  void navigate(URL url);
+  void navigate(URI url);
   
-  boolean redirect(URL url);
+  boolean redirect(URI url);
 
   void reload();
 

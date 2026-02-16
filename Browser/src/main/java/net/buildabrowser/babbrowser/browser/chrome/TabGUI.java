@@ -4,7 +4,7 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 
 import javax.swing.JPanel;
 
@@ -23,7 +23,7 @@ public class TabGUI extends JPanel implements TabMutationEventListener {
   }
 
   @Override
-  public void onNavigate(Tab tab, URL url) {
+  public void onNavigate(Tab tab, URI url) {
     try {
       this.removeAll();
       Component renderedContent = tab.getFrame().getCurrentRenderer().render();

@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.browser.uistate.imp;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class WindowSetImp implements WindowSet {
   }
 
   @Override
-  public void open(URL url) {
+  public void open(URI url) {
     windows.get(0).openTab().navigate(url);
   }
 

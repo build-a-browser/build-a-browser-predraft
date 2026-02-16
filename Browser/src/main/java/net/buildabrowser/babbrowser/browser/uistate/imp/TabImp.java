@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.browser.uistate.imp;
 
-import java.net.URL;
+import java.net.URI;
 
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
 import net.buildabrowser.babbrowser.browser.render.uistate.Frame;
@@ -38,12 +38,12 @@ public class TabImp implements Tab {
   }
 
   @Override
-  public URL getURL() {
+  public URI getURL() {
     return frame.getURL();
   }
 
   @Override
-  public void navigate(URL url) {
+  public void navigate(URI url) {
     frame.navigate(url);
     mutationEventDispatcher.fire(l -> l.onNavigate(this, url));
   }

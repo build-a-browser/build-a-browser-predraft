@@ -10,10 +10,11 @@ application {
     mainClass = 'net.buildabrowser.babbrowser.browser.Main'
     applicationDefaultJvmArgs = [
         '-XX:MaxHeapFreeRatio=10', '-XX:MinHeapFreeRatio=10',
-        '-XX:+UnlockExperimentalVMOptions', '-XX:+UseCompactObjectHeaders'
+        '-XX:+UnlockExperimentalVMOptions', '-XX:+UseCompactObjectHeaders',
+        '-Djava.net.preferIPv4Stack=true'
     ]
 }
 
 run {
-    enableAssertions = true
+    // enableAssertions = true
 }

@@ -2,13 +2,11 @@ package net.buildabrowser.babbrowser.browser.render.content;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.URI;
 
 import javax.imageio.ImageIO;
 
 import net.buildabrowser.babbrowser.browser.network.URLUtil;
-import net.buildabrowser.babbrowser.browser.network.exception.BadURLException;
 import net.buildabrowser.babbrowser.browser.render.box.Box.InvalidationLevel;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
@@ -26,7 +24,7 @@ public class ImageContent implements BoxContent, BoxPainter {
 
   private final ElementBox box;
 
-  private URL loadingImageURL;
+  private URI loadingImageURL;
   private BufferedImage image;
 
   public ImageContent(ElementBox box) {
@@ -96,8 +94,8 @@ public class ImageContent implements BoxContent, BoxPainter {
     return true;
   };
 
-  private void loadImage(URL refURL) {
-    URL imageSource = getImageSource(refURL);
+  private void loadImage(URI refURL) {
+    URI imageSource = getImageSource(refURL);
     if (loadingImageURL == null || !loadingImageURL.equals(imageSource)) {
       image = null;
       loadingImageURL = imageSource;
@@ -105,17 +103,17 @@ public class ImageContent implements BoxContent, BoxPainter {
     }
   }
 
-  private synchronized void loadBufferedImage(URL loadingImageURL) {
+  private synchronized void loadBufferedImage(URI loadingImageURL) {
     try {
-      this.image = ImageIO.read(loadingImageURL.toURI().toURL());
+      this.image = ImageIO.read(loadingImageURL.toURL());
       box.invalidate(InvalidationLevel.LAYOUT);
-    } catch (IOException | URISyntaxException e) {
+    } catch (IOException e) {
       e.printStackTrace();
       this.image = null;
     }
   }
 
-  private URL getImageSource(URL refUrl) {
+  private URI getImageSource(URI refUrl) {
     String src = box.element().attributes().get("src");
     if (src == null || src.isEmpty()) {
       return null;
@@ -123,7 +121,7 @@ public class ImageContent implements BoxContent, BoxPainter {
 
     try {
       return URLUtil.createURL(refUrl, src);
-    } catch (BadURLException | IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       return null;
     }
   }

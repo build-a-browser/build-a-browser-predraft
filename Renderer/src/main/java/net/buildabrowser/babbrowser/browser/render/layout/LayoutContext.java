@@ -1,13 +1,13 @@
 package net.buildabrowser.babbrowser.browser.render.layout;
 
-import java.net.URL;
+import java.net.URI;
 
 import net.buildabrowser.babbrowser.browser.network.URLUtil;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.dom.utils.CommonUtils;
 
 public record LayoutContext(
-  URL refURL,
+  URI refURL,
   FontMetrics fontMetrics,
   StackingContext stackingContext
 ) {
