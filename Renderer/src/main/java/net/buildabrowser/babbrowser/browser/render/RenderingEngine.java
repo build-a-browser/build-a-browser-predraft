@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.browser.network.ProtocolRegistry;
 import net.buildabrowser.babbrowser.browser.render.imp.RenderingEngineImp;
+import net.buildabrowser.babbrowser.browser.render.paint.Painter;
 import net.buildabrowser.babbrowser.browser.render.uistate.Frame;
 
 public interface RenderingEngine {
@@ -15,8 +16,8 @@ public interface RenderingEngine {
 
   void openRenderer(URL url, Frame frame, Consumer<Renderer> onOpen);
 
-  static RenderingEngine create(ProtocolRegistry protocolRegistry) {
-    return new RenderingEngineImp(protocolRegistry);
+  static RenderingEngine create(ProtocolRegistry protocolRegistry, Painter painter) {
+    return new RenderingEngineImp(protocolRegistry, painter);
   }
   
 }

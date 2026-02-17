@@ -37,7 +37,7 @@ public final class PositionLayout {
   ) {
     LayoutContext refContext = refFragment.referenceLayoutContext();
     LayoutContext layoutContext = new LayoutContext(
-      refContext.refURL(), refContext.fontMetrics(), stackingContext);
+      refContext.global(), refContext.fontMetrics(), stackingContext);
     ElementBox refBox = refFragment.referenceBox();
     BoxContent content = refBox.content();
     ElementBoxDimensions dimensions = refBox.dimensions();

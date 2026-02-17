@@ -33,15 +33,15 @@ public final class FlowLayoutUtil {
     LayoutConstraint heightConstraint
   ) {
     FontMetrics testMetrics = TestFontMetrics.create(10, 5);
-    LayoutContext layoutContext = new LayoutContext(testMetrics, StackingContext.create());
+    LayoutContext layoutContext = new LayoutContext(null, testMetrics, StackingContext.create());
     FlowRootContent content = (FlowRootContent) parentBox.content();
     // TODO: Shouldn't really pre-layout with a normal stacking context
 
     StackingContext plStackingContext = new PrelayoutStackingContextImp(LayoutConstraint.MIN_CONTENT);
-    LayoutContext plLayoutContext = new LayoutContext(testMetrics, plStackingContext);
+    LayoutContext plLayoutContext = new LayoutContext(null, testMetrics, plStackingContext);
     content.prelayout(plLayoutContext, LayoutConstraint.MIN_CONTENT);
     plStackingContext = new PrelayoutStackingContextImp(LayoutConstraint.MAX_CONTENT);
-    plLayoutContext = new LayoutContext(testMetrics, plStackingContext);
+    plLayoutContext = new LayoutContext(null, testMetrics, plStackingContext);
     content.prelayout(plLayoutContext, LayoutConstraint.MAX_CONTENT);
 
     UnmanagedBoxFragment dimensionFrag = content.layout(layoutContext, widthConstraint, heightConstraint);

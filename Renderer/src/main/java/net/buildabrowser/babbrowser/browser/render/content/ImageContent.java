@@ -1,11 +1,8 @@
 package net.buildabrowser.babbrowser.browser.render.content;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import javax.imageio.ImageIO;
 
 import net.buildabrowser.babbrowser.browser.network.URLUtil;
 import net.buildabrowser.babbrowser.browser.network.exception.BadURLException;
@@ -15,11 +12,13 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.browser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
+import net.buildabrowser.babbrowser.browser.render.paint.LoadedImage;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
 
 public class ImageContent implements BoxContent, BoxPainter {
@@ -27,7 +26,7 @@ public class ImageContent implements BoxContent, BoxPainter {
   private final ElementBox box;
 
   private URL loadingImageURL;
-  private BufferedImage image;
+  private LoadedImage image;
 
   public ImageContent(ElementBox box) {
     this.box = box;
@@ -35,15 +34,15 @@ public class ImageContent implements BoxContent, BoxPainter {
 
   @Override
   public void prelayout(LayoutContext layoutContext, LayoutConstraint layoutConstraint) {
-    loadImage(layoutContext.refURL());
+    loadImage(layoutContext.global());
 
     ElementBoxDimensions dimensions = box.dimensions();
     if (image != null) {
-      dimensions.setPreferredMinWidthConstraint(image.getWidth());
-      dimensions.setPreferredWidthConstraint(image.getWidth());
-      dimensions.setIntrinsicWidth(image.getWidth());
-      dimensions.setInstrinsicHeight(image.getHeight());
-      dimensions.setIntrinsicRatio((float) image.getWidth() / (float) image.getHeight());
+      dimensions.setPreferredMinWidthConstraint(image.width());
+      dimensions.setPreferredWidthConstraint(image.width());
+      dimensions.setIntrinsicWidth(image.width());
+      dimensions.setInstrinsicHeight(image.height());
+      dimensions.setIntrinsicRatio((float) image.width() / (float) image.height());
       return;
     }
 
@@ -96,18 +95,18 @@ public class ImageContent implements BoxContent, BoxPainter {
     return true;
   };
 
-  private void loadImage(URL refURL) {
-    URL imageSource = getImageSource(refURL);
+  private void loadImage(GlobalLayoutContext layoutContext) {
+    URL imageSource = getImageSource(layoutContext.refURL());
     if (loadingImageURL == null || !loadingImageURL.equals(imageSource)) {
       image = null;
       loadingImageURL = imageSource;
-      new Thread(() -> loadBufferedImage(loadingImageURL)).start();
+      new Thread(() -> loadBufferedImage(layoutContext, loadingImageURL)).start();
     }
   }
 
-  private synchronized void loadBufferedImage(URL loadingImageURL) {
+  private synchronized void loadBufferedImage(GlobalLayoutContext layoutContext, URL loadingImageURL) {
     try {
-      this.image = ImageIO.read(loadingImageURL.toURI().toURL());
+      this.image = layoutContext.resourceLoader().loadImage(loadingImageURL.toURI().toURL().openStream());
       box.invalidate(InvalidationLevel.LAYOUT);
     } catch (IOException | URISyntaxException e) {
       e.printStackTrace();

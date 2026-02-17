@@ -12,6 +12,9 @@ import net.buildabrowser.babbrowser.browser.chrome.WindowSetGUI;
 import net.buildabrowser.babbrowser.browser.net.imp.ProtocolRegistryImp;
 import net.buildabrowser.babbrowser.browser.network.ProtocolRegistry;
 import net.buildabrowser.babbrowser.browser.render.RenderingEngine;
+import net.buildabrowser.babbrowser.browser.render.paint.Painter;
+import net.buildabrowser.babbrowser.browser.render.paint.java2d.Java2DPainter;
+import net.buildabrowser.babbrowser.browser.render.paint.skija.SkijaPainter;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
@@ -21,13 +24,24 @@ public class Main {
   public static void main(String[] args) throws IOException, URISyntaxException {
     setLookAndFeel();
 
+    // TODO: Use a proper argument parser
+    boolean useJava2d = false;
+    for (String arg: args) {
+      useJava2d = useJava2d || arg.equals("--use-java2d");
+    }
+
+    Painter painter = useJava2d ?
+      new Java2DPainter() :
+      new SkijaPainter();
+
     ProtocolRegistry protocolRegistry = new ProtocolRegistryImp();
-    RenderingEngine renderingEngine = RenderingEngine.create(protocolRegistry);
+    RenderingEngine renderingEngine = RenderingEngine.create(protocolRegistry, painter);
     BrowserInstance browserInstance = BrowserInstance.create(renderingEngine);
   
     WindowSet windowSet = WindowSet.create(browserInstance);
     Window window = windowSet.openWindow(new WindowOptions(false));
     for (String urlStr: args) {
+      if (urlStr.startsWith("--")) continue;
       URL url = new URI(urlStr).toURL();
       window.openTab().navigate(url);
     }
