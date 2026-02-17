@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import net.buildabrowser.babbrowser.browser.network.ProtocolRegistry;
 import net.buildabrowser.babbrowser.browser.render.imp.RendererImp;
+import net.buildabrowser.babbrowser.browser.render.paint.Painter;
 
 public interface Renderer {
   
@@ -14,8 +15,8 @@ public interface Renderer {
 
   Optional<String> getTitle();
 
-  public static Renderer create(ProtocolRegistry protocolRegistry, URI url) {
-    return new RendererImp(protocolRegistry, url);
+  public static Renderer create(ProtocolRegistry protocolRegistry, URI url, Painter painter) {
+    return new RendererImp(protocolRegistry, url, painter);
   }
 
 }

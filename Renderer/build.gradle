@@ -1,9 +1,26 @@
+import org.gradle.internal.os.OperatingSystem
+
 plugins {
     id 'java-library'
+}
+
+project.ext.skijaVersion = "0.143.6"
+switch (OperatingSystem.current()) {
+    case OperatingSystem.LINUX:
+        project.ext.skijaNatives = "skija-linux-x64"
+        break
+    case OperatingSystem.WINDOWS:
+        project.ext.skijaNatives = "skija-windows-x64"
+        break
+    case OperatingSystem.MAC_OS:
+        project.ext.skijaNatives = "skija-macos-arm64"
+        break
 }
 
 dependencies {
     api project(':Network')
     implementation project(':HTMLParser')
     implementation project(':CSSEngine')
+
+    implementation "io.github.humbleui:${skijaNatives}:${skijaVersion}"
 }

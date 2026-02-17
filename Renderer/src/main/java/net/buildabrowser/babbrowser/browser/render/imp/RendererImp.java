@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.browser.render.imp;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,14 +25,14 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.imp.DocumentBoxImp;
 import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.browser.render.layout.imp.PrelayoutStackingContextImp;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
-import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
+import net.buildabrowser.babbrowser.browser.render.paint.Painter;
 import net.buildabrowser.babbrowser.browser.render.paint.java2d.J2DFontMetrics;
-import net.buildabrowser.babbrowser.browser.render.paint.java2d.J2DPaintCanvas;
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
@@ -49,12 +48,14 @@ public class RendererImp implements Renderer {
   
   private final ProtocolRegistry protocolRegistry;
   private final URI url;
+  private final Painter painter;
 
   private DocumentBox documentBox;
 
-  public RendererImp(ProtocolRegistry protocolRegistry, URI url) {
+  public RendererImp(ProtocolRegistry protocolRegistry, URI url, Painter painter) {
     this.protocolRegistry = protocolRegistry;
     this.url = url;
+    this.painter = painter;
   }
 
   public Component render() throws IOException {
@@ -76,15 +77,17 @@ public class RendererImp implements Renderer {
           FontMetrics fontMetrics = new J2DFontMetrics(g.getFontMetrics());
           BoxContent content = documentBox.htmlBox().content();
 
+          GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(url, painter.resourceLoader());
+
           StackingContext plStackingContext = new PrelayoutStackingContextImp(LayoutConstraint.MIN_CONTENT);
-          LayoutContext plLayoutContext = new LayoutContext(url, fontMetrics, plStackingContext);
+          LayoutContext plLayoutContext = new LayoutContext(globalLayoutContext, fontMetrics, plStackingContext);
           content.prelayout(plLayoutContext, LayoutConstraint.MIN_CONTENT);
           plStackingContext = new PrelayoutStackingContextImp(LayoutConstraint.MAX_CONTENT);
-          plLayoutContext = new LayoutContext(url, fontMetrics, plStackingContext);
+          plLayoutContext = new LayoutContext(globalLayoutContext, fontMetrics, plStackingContext);
           content.prelayout(plLayoutContext, LayoutConstraint.MAX_CONTENT);
 
           StackingContext stackingContext = StackingContext.create();
-          LayoutContext layoutContext = new LayoutContext(url, fontMetrics, stackingContext);
+          LayoutContext layoutContext = new LayoutContext(globalLayoutContext, fontMetrics, stackingContext);
 
           UnmanagedBoxFragment rootFragment = content.layout(layoutContext,
             LayoutConstraint.of(this.getWidth()),
@@ -96,8 +99,9 @@ public class RendererImp implements Renderer {
 
           g.setColor(new Color(0xFFFFFF, false));
           g.fillRect(0, 0, getWidth(), getHeight());
-          PaintCanvas canvas = new J2DPaintCanvas((Graphics2D) g);
-          rootLayer.paint(canvas);
+          
+          painter.withCanvas(g, this.getWidth(), this.getHeight(), canvas ->
+            rootLayer.paint(canvas));
           
           System.gc();
         }

@@ -1,6 +1,5 @@
 package net.buildabrowser.babbrowser.browser.render.paint;
 
-import java.awt.image.BufferedImage;
 import java.util.function.Consumer;
 
 public interface PaintCanvas {
@@ -15,10 +14,9 @@ public interface PaintCanvas {
 
   void drawText( float x,  float y, String text);
 
-  // TODO: Replace with something more portable
-  void drawImage( float x,  float y, BufferedImage image);
+  void drawImage( float x,  float y, LoadedImage image);
 
-  void drawImage( float i,  float j,  float width,  float height, BufferedImage image);
+  void drawImage( float x,  float y,  float width,  float height, LoadedImage image);
 
   FontMetrics fontMetrics();
 

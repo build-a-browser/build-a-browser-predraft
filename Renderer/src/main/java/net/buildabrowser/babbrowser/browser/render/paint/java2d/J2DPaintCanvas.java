@@ -2,12 +2,12 @@ package net.buildabrowser.babbrowser.browser.render.paint.java2d;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
+import net.buildabrowser.babbrowser.browser.render.paint.LoadedImage;
 import net.buildabrowser.babbrowser.browser.render.paint.Paint;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
 
@@ -56,13 +56,13 @@ public class J2DPaintCanvas implements PaintCanvas {
   }
 
   @Override
-  public void drawImage(float x, float y, BufferedImage image) {
-    graphics.drawImage(image, (int) x, (int) y, image.getWidth(), image.getHeight(), null);
+  public void drawImage(float x, float y, LoadedImage image) {
+    graphics.drawImage(((J2DLoadedImage) image).image(), (int) x, (int) y, (int) image.width(), (int) image.height(), null);
   }
 
   @Override
-  public void drawImage(float x, float y, float width, float height, BufferedImage image) {
-    graphics.drawImage(image, (int) x, (int) y, (int) width, (int) height, null);
+  public void drawImage(float x, float y, float width, float height, LoadedImage image) {
+    graphics.drawImage(((J2DLoadedImage) image).image(), (int) x, (int) y, (int) width, (int) height, null);
   }
 
   @Override
