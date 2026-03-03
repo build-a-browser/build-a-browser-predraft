@@ -18,8 +18,9 @@ public final class FlowWidthUtil {
     ElementBox childBox
   ) {
     computeHorizontalMarginsOrZero(layoutContext, parentConstraint, childBox);
-    LayoutConstraint baseWidth = SizingUtil.evaluateBaseSize(
-      layoutContext, parentConstraint, childBox.activeStyles().getProperty(CSSProperty.WIDTH));
+    LayoutConstraint baseWidth = SizingUtil.evaluateBaseWidthSize(
+      layoutContext, parentConstraint, childBox.dimensions(),
+      childBox.activeStyles().getProperty(CSSProperty.WIDTH));
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
       return baseWidth;
@@ -58,8 +59,8 @@ public final class FlowWidthUtil {
     LayoutConstraint parentConstraint,
     ElementBox childBox
   ) {
-    LayoutConstraint determinedConstraint = SizingUtil.evaluateBaseSize(
-      layoutContext, parentConstraint,
+    LayoutConstraint determinedConstraint = SizingUtil.evaluateBaseWidthSize(
+      layoutContext, parentConstraint, childBox.dimensions(),
       childBox.activeStyles().getProperty(CSSProperty.WIDTH));
     LayoutConstraint marginLeftConstraint = SizingUtil.evaluateBaseSize(
       layoutContext, parentConstraint,
@@ -122,8 +123,9 @@ public final class FlowWidthUtil {
     ElementBox childBox
   ) {
     computeHorizontalMarginsOrZero(layoutContext, parentConstraint, childBox);
-    LayoutConstraint baseWidth = SizingUtil.evaluateBaseSize(
-      layoutContext, parentConstraint, childBox.activeStyles().getProperty(CSSProperty.WIDTH));
+    LayoutConstraint baseWidth = SizingUtil.evaluateBaseWidthSize(
+      layoutContext, parentConstraint, childBox.dimensions(),
+      childBox.activeStyles().getProperty(CSSProperty.WIDTH));
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
       return baseWidth;
@@ -154,8 +156,9 @@ public final class FlowWidthUtil {
       return parentConstraint;
     }
 
-    LayoutConstraint baseWidth = SizingUtil.evaluateBaseSize(
-      layoutContext, parentConstraint, childBox.activeStyles().getProperty(CSSProperty.WIDTH));
+    LayoutConstraint baseWidth = SizingUtil.evaluateBaseWidthSize(
+      layoutContext, parentConstraint, childBox.dimensions(),
+      childBox.activeStyles().getProperty(CSSProperty.WIDTH));
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
       return baseWidth;
@@ -185,6 +188,18 @@ public final class FlowWidthUtil {
     float usedLeftMargin = isLeftMarginSet ? marginLeftConstraint.value() : 0;
     float usedRightMargin = isRightMarginSet ? marginRightConstraint.value() : 0;
     childBox.dimensions().setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
+  }
+
+  public static void recordConstraint(
+    LayoutConstraint referenceConstraint,
+    float value,
+    ElementBoxDimensions dimensions
+  ) {
+    if (referenceConstraint.type().equals(LayoutConstraintType.MIN_CONTENT)) {
+      dimensions.setPreferredMinWidthConstraint(value);
+    } else if (referenceConstraint.type().equals(LayoutConstraintType.MAX_CONTENT)) {
+      dimensions.setPreferredWidthConstraint(value);
+    } 
   }
 
 }

@@ -3,19 +3,24 @@ package net.buildabrowser.babbrowser.cssbase.property.size;
 import java.io.IOException;
 import java.util.Map;
 
+import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
 public class SizeParser implements PropertyValueParser {
+
+  private static final SizeParser PURE_LENGTH_PERCENTAGE = new SizeParser(false, false, null);
 
   private static final CSSFailure NO_VALID_RESULT = new CSSFailure("No valid result...");
   private static final CSSFailure INVALID_LENGTH_TYPE = new CSSFailure("Unknown length type!");
@@ -34,17 +39,25 @@ public class SizeParser implements PropertyValueParser {
   private final boolean allowNone;
   private final boolean allowAuto;
   private final boolean allowPercent;
+  private final boolean allowMinMax;
   private final CSSProperty property;
 
-  public SizeParser(boolean allowNone, boolean allowAuto, boolean allowPercent, CSSProperty property) {
+  public SizeParser(
+    boolean allowNone,
+    boolean allowAuto,
+    boolean allowPercent,
+    boolean allowMinMax,
+    CSSProperty property
+  ) {
     this.allowNone = allowNone;
     this.allowAuto = allowAuto;
     this.allowPercent = allowPercent;
+    this.allowMinMax = allowMinMax;
     this.property = property;
   }
 
   public SizeParser(boolean allowNone, boolean allowAuto, CSSProperty property) {
-    this(allowNone, allowAuto, true, property);
+    this(allowNone, allowAuto, true, false, property);
   }
 
   @Override
@@ -81,6 +94,24 @@ public class SizeParser implements PropertyValueParser {
       && numberToken.value().intValue() == 0
     ) {
       return LengthValue.create(0, true, null);
+    } else if (
+      allowMinMax
+      && token instanceof IdentToken identToken
+      && identToken.value().equals("min-content")
+    ) {
+      return SizeValue.MIN_CONTENT;
+    } else if (
+      allowMinMax
+      && token instanceof IdentToken identToken
+      && identToken.value().equals("max-content")
+    ) {
+      return SizeValue.MAX_CONTENT;
+    } else if (
+      allowMinMax
+      && token instanceof FunctionValue funcValue
+      && funcValue.name().equals("fit-content")
+    ) {
+      return parseFitContent(funcValue);
     } else {
       return NO_VALID_RESULT;
     }
@@ -89,6 +120,15 @@ public class SizeParser implements PropertyValueParser {
   @Override
   public CSSProperty relatedProperty() {
     return property;
+  }
+
+  private CSSValue parseFitContent(FunctionValue funcValue) throws IOException {
+    SeekableCSSTokenStream stream = ListCSSTokenStream.createWithSkippedWhitespace(funcValue.value());
+    CSSValue result = PURE_LENGTH_PERCENTAGE.parse(stream);
+    if (result.isFailure()) return result;
+    if (!(stream.peek() instanceof EOFToken)) return CSSFailure.EXPECTED_EOF;
+
+    return SizeValue.FitContent.create(result);
   }
 
   public static SizeParser forMargin(CSSProperty unit) {
@@ -104,7 +144,7 @@ public class SizeParser implements PropertyValueParser {
   }
 
   public static SizeParser forNormal(CSSProperty unit) {
-    return new SizeParser(false, true, unit);
+    return new SizeParser(false, true, true, true, unit);
   }
 
   public static SizeParser forInset(CSSProperty unit) {
@@ -112,11 +152,11 @@ public class SizeParser implements PropertyValueParser {
   }
 
   public static SizeParser forMin(CSSProperty unit) {
-    return new SizeParser(false, false, unit);
+    return new SizeParser(false, false, true, true, unit);
   }
 
   public static SizeParser forMax(CSSProperty unit) {
-    return new SizeParser(true, false, unit);
+    return new SizeParser(true, false, true, true, unit);
   }
   
 }

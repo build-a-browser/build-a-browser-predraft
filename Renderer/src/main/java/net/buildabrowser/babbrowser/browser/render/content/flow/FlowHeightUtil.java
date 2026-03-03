@@ -26,7 +26,7 @@ public final class FlowHeightUtil {
       return parentHeightConstraint;
     }
 
-    LayoutConstraint determinedHeightConstraint = SizingUtil.evaluateBaseSize(
+    LayoutConstraint determinedHeightConstraint = SizingUtil.evaluateBaseHeightSize(
       layoutContext, parentHeightConstraint, childBox.activeStyles().getProperty(CSSProperty.HEIGHT));
     
     boolean isHeightAuto = determinedHeightConstraint.type().equals(LayoutConstraintType.AUTO);
@@ -59,7 +59,7 @@ public final class FlowHeightUtil {
 
     // TODO: An actual proper implementation
     ActiveStyles childStyles = childBox.activeStyles();
-    LayoutConstraint determinedConstraint = SizingUtil.evaluateBaseSize(
+    LayoutConstraint determinedConstraint = SizingUtil.evaluateBaseHeightSize(
       layoutContext, parentHeightConstraint, childStyles.getProperty(CSSProperty.HEIGHT));
 
     return determinedConstraint;

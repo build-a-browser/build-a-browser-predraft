@@ -161,6 +161,7 @@ public class FlowBlockLayout {
     ManagedBoxFragment newFragment = childContext.close(childWidthConstraint, childHeightConstraint);
     blockStack = IntrusiveList.removeLast(preBlockStack);
 
+    FlowWidthUtil.recordConstraint(parentWidthConstraint, newFragment.contentWidth(), childBox.dimensions());
     floatTracker.positionTracker().restoreMark(floatMark); // TODO: Ensure we still account for collapsed padding
     floatTracker.positionTracker().adjustPos(0, activeContext().currentY() - preMargin);
     

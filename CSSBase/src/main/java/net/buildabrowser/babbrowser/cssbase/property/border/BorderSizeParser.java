@@ -16,7 +16,7 @@ public class BorderSizeParser implements PropertyValueParser {
   private final SizeParser innerParser;
 
   public BorderSizeParser(CSSProperty property) {
-    this.innerParser = new SizeParser(false, false, false, property);
+    this.innerParser = new SizeParser(false, false, false, false, property);
   }
 
   @Override
