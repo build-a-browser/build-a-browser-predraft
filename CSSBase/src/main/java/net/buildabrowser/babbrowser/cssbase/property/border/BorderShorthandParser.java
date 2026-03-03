@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStr
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.AnyOrderResult;
@@ -36,7 +37,7 @@ public class BorderShorthandParser implements PropertyValueParser {
   }
 
   @Override
-  public void updateProperty(CSSValue result, PropertySetter propertySetter) {
+  public void updateProperty(CSSValue result, PropertyContainer propertySetter) {
     if (!(result instanceof BorderCompositeValue compositeValue)) return;
     CSSValue widthValue = compositeValue.width();
     CSSValue colorValue = compositeValue.color();

@@ -2,9 +2,9 @@ package net.buildabrowser.babbrowser.cssbase.property;
 
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue.SRGBAColor;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
-import net.buildabrowser.babbrowser.cssbase.property.display.OrderValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.property.display.OrderValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexDirectionValue;

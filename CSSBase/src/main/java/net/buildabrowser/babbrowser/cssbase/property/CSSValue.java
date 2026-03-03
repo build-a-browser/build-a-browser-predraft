@@ -1,5 +1,10 @@
 package net.buildabrowser.babbrowser.cssbase.property;
 
+import java.util.List;
+
+import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
+import net.buildabrowser.babbrowser.cssbase.tokens.Token;
+
 public interface CSSValue {
 
   public static CSSValue INHERIT = SpecialCSSValue.INHERIT;
@@ -16,10 +21,12 @@ public interface CSSValue {
 
   public static record CSSFailure(String reason) implements CSSValue {
 
-    public static CSSFailure EXPECTED_EOF = new CSSFailure("Expected an EOF token!");
-    public static CSSFailure EXPECTED_INTEGER = new CSSFailure("Expected an integer value!");
-    public static CSSFailure EXPECTED_NUMBER = new CSSFailure("Expected a numerical value!");
-    public static CSSFailure EXPECTED_POSITIVE_NUMBER = new CSSFailure("Expected a positive numerical value!");
+    public static final CSSFailure EXPECTED_EOF = new CSSFailure("Expected an EOF token!");
+    public static final CSSFailure EXPECTED_INTEGER = new CSSFailure("Expected an integer value!");
+    public static final CSSFailure EXPECTED_NUMBER = new CSSFailure("Expected a numerical value!");
+    public static final CSSFailure EXPECTED_POSITIVE_NUMBER = new CSSFailure("Expected a positive numerical value!");
+
+    public static final CSSFailure UNSET_CUSTOM_PROPERTY = new CSSFailure("Custom property is unset");
 
     public boolean isFailure() {
       return true;
@@ -27,7 +34,14 @@ public interface CSSValue {
 
   }
 
-  public static record CSSSuccess() implements CSSValue {}
+  public static record CSSDeferred(
+    Declaration value,
+    PropertyValueParser parser
+  ) implements CSSValue {}
+
+  public static record CSSVarValue(
+    List<Token> propertyTokens
+  ) implements CSSValue {}
 
   static enum SpecialCSSValue implements CSSValue {
     INHERIT, AUTO, NONE,

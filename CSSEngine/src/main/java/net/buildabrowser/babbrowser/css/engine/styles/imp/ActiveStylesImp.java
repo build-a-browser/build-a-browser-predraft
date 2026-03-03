@@ -1,12 +1,15 @@
 package net.buildabrowser.babbrowser.css.engine.styles.imp;
 
 import java.util.BitSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
@@ -20,11 +23,17 @@ public class ActiveStylesImp implements ActiveStyles {
 
   // TODO: Switch to an IntrusiveList?
   private SinglyLinkedList<CSSValue> activeProperties;
+  private Map<String, CSSValue> customProperties;
 
   public ActiveStylesImp(ActiveStyles parentStyles) {
     this.parentStyles = parentStyles;
     this.inheritValues = new BitSet(CSSProperty.idCount());
     this.hasOwnValues = new BitSet(CSSProperty.idCount());
+  }
+
+  @Override
+  public ActiveStyles parent() {
+    return this.parentStyles;
   }
 
   @Override
@@ -35,6 +44,13 @@ public class ActiveStylesImp implements ActiveStyles {
 
     addEntry(property.id(), value);
     inheritValues.set(property.id(), false);
+  }
+
+  @Override
+  public void setCustomProperty(String property, CSSValue value) {
+    lazilyInitCustomProperties();
+
+    customProperties.put(property, value);
   }
 
   @Override
@@ -61,6 +77,12 @@ public class ActiveStylesImp implements ActiveStyles {
   }
 
   @Override
+  public void useInitialCustomProperty(String property) {
+    lazilyInitCustomProperties();
+    customProperties.put(property, null);
+  }
+
+  @Override
   public void unsetProperty(CSSProperty property) {
     removeEntry(property.id());
     inheritValues.set(property.id(), false);
@@ -80,6 +102,18 @@ public class ActiveStylesImp implements ActiveStyles {
     return parentStyles != null && (property.inherited() || inheritValues.get(id)) ?
       parentStyles.getProperty(property) :
       property.initial();
+  }
+
+  @Override
+  public CSSValue getCustomProperty(String property) {
+    if (
+      customProperties == null
+      || !customProperties.containsKey(property)
+    ) {
+      return CSSFailure.UNSET_CUSTOM_PROPERTY;
+    }
+
+    return customProperties.get(property);
   }
 
   @Override
@@ -166,6 +200,12 @@ public class ActiveStylesImp implements ActiveStyles {
       currentId++;
     }
     return listPos;
+  }
+
+  private void lazilyInitCustomProperties() {
+    if (customProperties == null) {
+      this.customProperties = new HashMap<>(4);
+    }
   }
   
 }

@@ -12,12 +12,8 @@ public interface PropertyValueParser {
     return null;
   }
 
-  default void updateProperty(CSSValue result, PropertySetter propertySetter) {
+  default void updateProperty(CSSValue result, PropertyContainer propertySetter) {
     propertySetter.setProperty(relatedProperty(), result);
-  }
-
-  interface PropertySetter {
-    void setProperty(CSSProperty property, CSSValue value);
   }
 
 }

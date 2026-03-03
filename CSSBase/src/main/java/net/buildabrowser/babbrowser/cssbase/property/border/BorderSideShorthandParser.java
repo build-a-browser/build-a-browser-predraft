@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.AnyOrderResult;
@@ -45,7 +46,7 @@ public class BorderSideShorthandParser implements PropertyValueParser {
   }
 
   @Override
-  public void updateProperty(CSSValue result, PropertySetter propertySetter) {
+  public void updateProperty(CSSValue result, PropertyContainer propertySetter) {
     if (!(result instanceof BorderCompositeValue compositeValue)) return;
     if (compositeValue.width() != null) propertySetter.setProperty(widthProperty, compositeValue.width());
     if (compositeValue.color() != null) propertySetter.setProperty(colorProperty, compositeValue.color());

@@ -2,21 +2,21 @@ package net.buildabrowser.babbrowser.css.engine.styles;
 
 import net.buildabrowser.babbrowser.css.engine.styles.imp.ActiveStylesImp;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
-import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 
-public interface ActiveStyles {
+public interface ActiveStyles extends PropertyContainer {
 
-  void setProperty(CSSProperty property, CSSValue value);
+  ActiveStyles parent();
 
   void inheritProperty(CSSProperty property);
 
   void useInitialProperty(CSSProperty property);
 
-  void unsetProperty(CSSProperty property);
+  void useInitialCustomProperty(String property);
 
-  CSSValue getProperty(CSSProperty property);
+  void unsetProperty(CSSProperty property);
 
   int textColor();
 

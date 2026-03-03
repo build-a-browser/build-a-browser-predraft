@@ -2,11 +2,14 @@ package net.buildabrowser.babbrowser.cssbase.property;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSDeferred;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSVarValue;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundColorParser;
 import net.buildabrowser.babbrowser.cssbase.property.border.BorderColorParser;
 import net.buildabrowser.babbrowser.cssbase.property.border.BorderShorthandParser;
@@ -26,6 +29,7 @@ import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeParser;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValueParser;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
 public final class DeclarationParser {
 
@@ -100,11 +104,11 @@ public final class DeclarationParser {
   );
 
   public static boolean isKnownDeclarationName(String declName) {
-    return PROPERTY_PARSERS.containsKey(declName);
+    return PROPERTY_PARSERS.containsKey(declName.toLowerCase());
   }
 
   public static CSSValue parseDeclaration(Declaration declaration) {
-    PropertyValueParser parser = PROPERTY_PARSERS.get(declaration.name());
+    PropertyValueParser parser = PROPERTY_PARSERS.get(declaration.name().toLowerCase());
     if (parser == null) return CSSValue.SpecialCSSValue.INVALID;
     if (parser.relatedProperty() == null) {
       throw new UnsupportedOperationException("Parser does not have a related property!");
@@ -124,6 +128,10 @@ public final class DeclarationParser {
 
       // TODO: Support revert keyword
     }
+
+    Boolean shouldDefer = CustomPropertyParser.hasVarReferences(declaration.value());
+    if (shouldDefer == null) return CSSValue.SpecialCSSValue.INVALID;
+    if (shouldDefer) return new CSSDeferred(declaration, parser);
 
     // TODO: Do any cases preserve whitespace?
     SeekableCSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(declaration.value());
@@ -150,6 +158,27 @@ public final class DeclarationParser {
     }
 
     return parser;
+  }
+
+  public static CSSValue parseDeferredDeclaration(CSSDeferred deferredValue, PropertyContainer refContainer) {
+    CSSValue resolvedValue = CustomPropertyParser.resolveVarValues(deferredValue.value(), refContainer);
+    if (resolvedValue == null) return CSSValue.SpecialCSSValue.INVALID;
+    if (resolvedValue.isFailure()) return CSSValue.SpecialCSSValue.INVALID;
+    List<Token> resolvedTokens = ((CSSVarValue) resolvedValue).propertyTokens();
+    SeekableCSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(resolvedTokens);
+    try {
+      CSSValue result = deferredValue.parser().parse(tokenStream);
+      if (
+        !result.isFailure()
+        && tokenStream.peek() instanceof EOFToken
+      ) {
+        return result;
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return CSSValue.SpecialCSSValue.INVALID;
   }
 
   @SuppressWarnings("unchecked")
