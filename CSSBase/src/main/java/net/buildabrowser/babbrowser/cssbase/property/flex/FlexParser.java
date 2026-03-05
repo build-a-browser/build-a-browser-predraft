@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.AnyOrderResult;
@@ -36,7 +37,6 @@ public class FlexParser implements PropertyValueParser {
 
     CSSValue basis = innerValues[1] == null ? CSSValue.AUTO : innerValues[1];
     return innerValues[0] instanceof FlexValue innerFlexValue ?
-
       FlexValue.create(
         innerFlexValue.flexGrow(),
         innerFlexValue.flexShrink(),
@@ -50,6 +50,14 @@ public class FlexParser implements PropertyValueParser {
   @Override
   public CSSProperty relatedProperty() {
     return CSSProperty.FLEX;
+  }
+
+  @Override
+  public void updateProperty(CSSValue result, PropertyContainer propertySetter) {
+    FlexValue flexValue = (FlexValue) result;
+    propertySetter.setProperty(CSSProperty.FLEX_GROW, flexValue.flexGrow());
+    propertySetter.setProperty(CSSProperty.FLEX_SHRINK, flexValue.flexShrink());
+    propertySetter.setProperty(CSSProperty.FLEX_BASIS, flexValue.flexBasis());
   }
 
   private CSSValue parseGrowShrink(SeekableCSSTokenStream stream) throws IOException {

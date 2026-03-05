@@ -39,6 +39,7 @@ public class ActiveStylesImp implements ActiveStyles {
   @Override
   public void setProperty(CSSProperty property, CSSValue value) {
     if (property.hasExpansion()) {
+      System.out.println(property);
       throw new UnsupportedOperationException("Cannot set expanded property!");
     }
 

@@ -215,8 +215,11 @@ public class FlowInlineLayout {
   private void positionFragmentElements(LayoutFragment fragments) {
     float x = 0;
 
-    LayoutFragment child = fragments;
-    while (child != null) {
+    LayoutFragment nextChild = fragments;
+    while (nextChild != null) {
+      LayoutFragment child = nextChild;
+      nextChild = nextChild.next();
+
       child.setPos(0, 0); // Cheat to disable unset X assertions for next line
       float marginX = child.borderX() - child.marginX();
       // TODO: Is this the correct way to compute vertical positioning?
@@ -228,9 +231,6 @@ public class FlowInlineLayout {
       if (child instanceof ManagedBoxFragment managedBoxFragment) {
         positionFragmentElements(managedBoxFragment.fragments());
       }
-
-
-      child = child.next();
     }
   }
 

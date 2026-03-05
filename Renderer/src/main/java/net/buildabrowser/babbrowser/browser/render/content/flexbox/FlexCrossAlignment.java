@@ -1,0 +1,99 @@
+package net.buildabrowser.babbrowser.browser.render.content.flexbox;
+
+import java.util.List;
+
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
+
+public class FlexCrossAlignment {
+  
+  private FlexCrossAlignment() {}
+
+  public static void alignCrossAxis(
+    CrossAlignmentContext alignmentContext, List<FlexLine> lines
+  ) {
+    alignLines(alignmentContext, lines);
+    // TODO: Align items within the lines
+  }
+
+  private static void alignLines(
+    CrossAlignmentContext alignmentContext, List<FlexLine> lines
+  ) {
+    // TODO: But does the align affect overflow?
+    float spaceLeft = computeRemainingFreeSpace(alignmentContext, lines);
+    switch (alignmentContext.alignContent()) {
+      case FLEX_START -> positionLinesAt(0, alignmentContext, lines, 0);
+      case FLEX_END -> positionLinesAt(spaceLeft, alignmentContext, lines, 0);
+      case CENTER -> positionLinesAt(spaceLeft / 2, alignmentContext, lines, 0);
+      case SPACE_BETWEEN -> positionLinesBetween(alignmentContext, lines, spaceLeft);
+      case SPACE_AROUND -> positionLinesAround(alignmentContext, lines, spaceLeft);
+      case STRETCH -> positionLinesAt(0, alignmentContext, lines, 0); // TODO
+      default -> throw new UnsupportedOperationException("Unsupported alignment!");
+    }
+  }
+
+  private static void positionLinesAt(
+    float startPos, CrossAlignmentContext alignmentContext, List<FlexLine> lines, float gapSize
+  ) {
+    for (FlexLine line: lines) {
+      setCrossPos(line, startPos, alignmentContext.isVertical());
+      startPos += line.crossSize();
+      startPos += gapSize;
+    }
+  }
+
+  private static void positionLinesBetween(
+    CrossAlignmentContext alignmentContext, List<FlexLine> lines, float spaceLeft
+  ) {
+    if (spaceLeft < 0 || lines.size() == 1) {
+      // TODO: What is the safe varient?
+      positionLinesAt(0, alignmentContext, lines, 0);
+      return;
+    }
+
+    float distSize = spaceLeft / (lines.size() - 1);
+    positionLinesAt(0, alignmentContext, lines, distSize);
+  }
+
+  private static void positionLinesAround(
+    CrossAlignmentContext alignmentContext, List<FlexLine> lines, float spaceLeft
+  ) {
+    if (spaceLeft < 0 || lines.size() == 1) {
+      positionLinesAt(spaceLeft / 2, alignmentContext, lines, 0);
+      return;
+    }
+
+    float distSize = spaceLeft / lines.size();
+    positionLinesAt(distSize / 2, alignmentContext, lines, distSize);
+  }
+
+  private static float computeRemainingFreeSpace(
+    CrossAlignmentContext alignmentContext, List<FlexLine> lines
+  ) {
+    // TODO: Handle the case where cross size not specified
+    float remainingFreeSpace = alignmentContext.crossSize().value();
+    for (FlexLine line: lines) {
+      remainingFreeSpace -= line.crossSize();
+    }
+
+    return Math.max(0, remainingFreeSpace);
+  }
+
+  private static void setCrossPos(FlexLine line, float startPos, boolean isVertical) {
+    for (FlexItem item: line.items()) {
+      if (isVertical) {
+        float newX = item.fragment().borderX() + startPos;
+        item.fragment().setPos(newX, item.fragment().borderY());
+      } else {
+        float newY = item.fragment().borderY() + startPos;
+        item.fragment().setPos(item.fragment().borderX(), newY);
+      }
+    }
+  }
+
+  public static record CrossAlignmentContext(
+    LayoutContext layoutContext, LayoutConstraint crossSize, boolean isVertical, AlignContentValue alignContent
+  ) {}
+
+}

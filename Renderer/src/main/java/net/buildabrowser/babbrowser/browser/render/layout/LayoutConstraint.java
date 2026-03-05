@@ -16,6 +16,10 @@ public record LayoutConstraint(LayoutConstraintType type, float value) {
       && !type.equals(LayoutConstraintType.AUTO);
   }
 
+  public boolean isBounded() {
+    return type.equals(LayoutConstraintType.BOUNDED);
+  }
+
   public static enum LayoutConstraintType {
     BOUNDED, AUTO, MIN_CONTENT, MAX_CONTENT
   }

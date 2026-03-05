@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.browser.render.box.imp;
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.content.ImageContent;
+import net.buildabrowser.babbrowser.browser.render.content.flexbox.FlexBoxContent;
 import net.buildabrowser.babbrowser.browser.render.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.browser.render.content.table.TableContent;
 import net.buildabrowser.babbrowser.browser.render.context.ElementContext;
@@ -45,6 +46,7 @@ public class ElementBoxImp extends AbstractElementBoxImp {
     InnerDisplayValue innerDisplay = activeStyles().innerDisplayValue();
     return switch (innerDisplay) {
       case TABLE -> new TableContent(this);
+      case FLEX -> new FlexBoxContent(this);
       default -> new FlowRootContent(this);
     };
   }

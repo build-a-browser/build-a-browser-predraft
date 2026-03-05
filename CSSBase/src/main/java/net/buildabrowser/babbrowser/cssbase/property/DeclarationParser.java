@@ -19,6 +19,18 @@ import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleParser;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorBaseParser;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorParser;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayParser;
+import net.buildabrowser.babbrowser.cssbase.property.display.OrderParser;
+import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentParser;
+import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsParser;
+import net.buildabrowser.babbrowser.cssbase.property.flex.AlignSelfParser;
+import net.buildabrowser.babbrowser.cssbase.property.flex.FlexBasisParser;
+import net.buildabrowser.babbrowser.cssbase.property.flex.FlexDirectionParser;
+import net.buildabrowser.babbrowser.cssbase.property.flex.FlexFlowParser;
+import net.buildabrowser.babbrowser.cssbase.property.flex.FlexGrowParser;
+import net.buildabrowser.babbrowser.cssbase.property.flex.FlexParser;
+import net.buildabrowser.babbrowser.cssbase.property.flex.FlexShrinkParser;
+import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapParser;
+import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentParser;
 import net.buildabrowser.babbrowser.cssbase.property.floats.ClearParser;
 import net.buildabrowser.babbrowser.cssbase.property.floats.FloatParser;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionParser;
@@ -100,7 +112,21 @@ public final class DeclarationParser {
     "z-index", new ZIndexParser(),
 
     "white-space-collapse", new WhitespaceCollapseValueParser(),
-    "text-wrap-mode", new TextWrapModeParser()
+    "text-wrap-mode", new TextWrapModeParser(),
+
+    "order", new OrderParser(),
+
+    "flex-direction", new FlexDirectionParser(),
+    "flex-wrap", new FlexWrapParser(),
+    "flex-flow", new FlexFlowParser(),
+    "flex", new FlexParser(),
+    "flex-grow", new FlexGrowParser(),
+    "flex-shrink", new FlexShrinkParser(),
+    "flex-basis", new FlexBasisParser(),
+    "justify-content", new JustifyContentParser(),
+    "align-items", new AlignItemsParser(),
+    "align-self", new AlignSelfParser(),
+    "align-content", new AlignContentParser()
   );
 
   public static boolean isKnownDeclarationName(String declName) {
@@ -162,12 +188,14 @@ public final class DeclarationParser {
 
   public static CSSValue parseDeferredDeclaration(CSSDeferred deferredValue, PropertyContainer refContainer) {
     CSSValue resolvedValue = CustomPropertyParser.resolveVarValues(deferredValue.value(), refContainer);
+    System.out.println(resolvedValue);
     if (resolvedValue == null) return CSSValue.SpecialCSSValue.INVALID;
     if (resolvedValue.isFailure()) return CSSValue.SpecialCSSValue.INVALID;
     List<Token> resolvedTokens = ((CSSVarValue) resolvedValue).propertyTokens();
     SeekableCSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(resolvedTokens);
     try {
       CSSValue result = deferredValue.parser().parse(tokenStream);
+      System.out.println(result);
       if (
         !result.isFailure()
         && tokenStream.peek() instanceof EOFToken

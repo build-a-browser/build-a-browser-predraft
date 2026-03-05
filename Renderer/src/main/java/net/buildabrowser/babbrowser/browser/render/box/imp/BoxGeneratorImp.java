@@ -53,6 +53,7 @@ public class BoxGeneratorImp implements BoxGenerator {
     for (Box childBox: createChildBoxes(elementBox, element.childNodes())) {
       elementBox.addChild(childBox);
     }
+    elementBox.content().fixupChildren();
 
     return List.of(elementBox);
   }
