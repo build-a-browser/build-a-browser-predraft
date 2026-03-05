@@ -45,7 +45,7 @@ public final class FlowWidthUtil {
       return LayoutConstraint.of(usedWidth);
     } else if (boxDimensions.intrinsicRatio() != -1) {
       // TODO: Compute as for block non-replaced
-      return LayoutConstraint.of(boxDimensions.preferredWidthConstraint());
+      return LayoutConstraint.of(boxDimensions.preferredWidthConstraint(layoutContext));
     } else if (boxDimensions.intrinsicWidth() != -1) {
       return LayoutConstraint.of(boxDimensions.intrinsicWidth());
     } else {
@@ -136,8 +136,8 @@ public final class FlowWidthUtil {
     }
 
     ElementBoxDimensions boxDimensions = childBox.dimensions();
-    float preferredMinWidth = boxDimensions.preferredMinWidthConstraint();
-    float preferredWidth = boxDimensions.preferredWidthConstraint();
+    float preferredMinWidth = boxDimensions.preferredMinWidthConstraint(layoutContext);
+    float preferredWidth = boxDimensions.preferredWidthConstraint(layoutContext);
     float availableWidth = parentConstraint.value();
     if (!parentConstraint.type().equals(LayoutConstraintType.BOUNDED)) {
       return LayoutConstraint.of(preferredWidth);
@@ -167,8 +167,8 @@ public final class FlowWidthUtil {
     ElementBoxDimensions boxDimensions = childBox.dimensions();
     return LayoutConstraint.of(Math.min(
       // TODO: Account for margins
-      Math.max(boxDimensions.preferredMinWidthConstraint(), parentConstraint.value()),
-      boxDimensions.preferredWidthConstraint()));
+      Math.max(boxDimensions.preferredMinWidthConstraint(layoutContext), parentConstraint.value()),
+      boxDimensions.preferredWidthConstraint(layoutContext)));
   }
 
   public static void computeHorizontalMarginsOrZero(
@@ -188,18 +188,6 @@ public final class FlowWidthUtil {
     float usedLeftMargin = isLeftMarginSet ? marginLeftConstraint.value() : 0;
     float usedRightMargin = isRightMarginSet ? marginRightConstraint.value() : 0;
     childBox.dimensions().setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
-  }
-
-  public static void recordConstraint(
-    LayoutConstraint referenceConstraint,
-    float value,
-    ElementBoxDimensions dimensions
-  ) {
-    if (referenceConstraint.type().equals(LayoutConstraintType.MIN_CONTENT)) {
-      dimensions.setPreferredMinWidthConstraint(value);
-    } else if (referenceConstraint.type().equals(LayoutConstraintType.MAX_CONTENT)) {
-      dimensions.setPreferredWidthConstraint(value);
-    } 
   }
 
 }

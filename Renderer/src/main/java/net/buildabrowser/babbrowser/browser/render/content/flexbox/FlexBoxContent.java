@@ -7,7 +7,6 @@ import java.util.List;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
-import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
@@ -70,23 +69,6 @@ public class FlexBoxContent implements BoxContent {
       ) {
         childIt.add(anonymousBox);
       }
-    }
-  }
-
-  @Override
-  public void prelayout(LayoutContext layoutContext, LayoutConstraint layoutConstraint) {
-    List<FlexItem> flexItems = collectFlexItems();
-    for (FlexItem item: flexItems) {
-      item.box().content().prelayout(layoutContext, layoutConstraint);
-    }
-
-    ElementBoxDimensions dimensions = rootBox.dimensions();
-    UnmanagedBoxFragment result = layoutItems(layoutContext, flexItems, layoutConstraint, layoutConstraint);
-    if (layoutConstraint.equals(LayoutConstraint.MIN_CONTENT)) {
-      dimensions.setPreferredMinWidthConstraint(result.contentWidth());
-    } else {
-      assert layoutConstraint.equals(LayoutConstraint.MAX_CONTENT);
-      dimensions.setPreferredWidthConstraint(result.contentWidth());
     }
   }
 

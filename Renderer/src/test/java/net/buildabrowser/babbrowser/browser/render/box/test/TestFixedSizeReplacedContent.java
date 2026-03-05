@@ -2,7 +2,6 @@ package net.buildabrowser.babbrowser.browser.render.box.test;
 
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
@@ -18,13 +17,6 @@ public class TestFixedSizeReplacedContent implements BoxContent {
     this.box = box;
     this.width = width;
     this.height = height;
-  }
-
-  @Override
-  public void prelayout(LayoutContext layoutContext, LayoutConstraint layoutConstraint) {
-    ElementBoxDimensions dimensions = box.dimensions();
-    dimensions.setPreferredMinWidthConstraint(width);
-    dimensions.setPreferredWidthConstraint(width);
   }
 
   @Override

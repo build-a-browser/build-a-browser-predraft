@@ -2,7 +2,10 @@ package net.buildabrowser.babbrowser.browser.render.box.imp;
 
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.FlowRootContent;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.dom.Element;
 
@@ -35,6 +38,14 @@ public class AnonymousElementBoxImp extends AbstractElementBoxImp {
   @Override
   public boolean isReplaced() {
     return false;
+  }
+
+  @Override
+  public UnmanagedBoxFragment layout(
+    LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+  ) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'layout'");
   }
   
 }

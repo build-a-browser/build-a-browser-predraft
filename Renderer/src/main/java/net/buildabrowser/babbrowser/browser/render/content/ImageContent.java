@@ -31,13 +31,11 @@ public class ImageContent implements BoxContent, BoxPainter {
   }
 
   @Override
-  public void prelayout(LayoutContext layoutContext, LayoutConstraint layoutConstraint) {
+  public void computeIntrinsics(LayoutContext layoutContext) {
     loadImage(layoutContext.global());
 
     ElementBoxDimensions dimensions = box.dimensions();
     if (image != null) {
-      dimensions.setPreferredMinWidthConstraint(image.width());
-      dimensions.setPreferredWidthConstraint(image.width());
       dimensions.setIntrinsicWidth(image.width());
       dimensions.setInstrinsicHeight(image.height());
       dimensions.setIntrinsicRatio((float) image.width() / (float) image.height());
@@ -49,8 +47,6 @@ public class ImageContent implements BoxContent, BoxPainter {
     
     float width = fm.stringWidth(alt);
     
-    dimensions.setPreferredMinWidthConstraint(width);
-    dimensions.setPreferredWidthConstraint(width);
     dimensions.setIntrinsicWidth(width);
     dimensions.setInstrinsicHeight(fm.fontHeight());
   }

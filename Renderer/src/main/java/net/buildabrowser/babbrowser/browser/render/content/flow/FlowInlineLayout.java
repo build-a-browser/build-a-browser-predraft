@@ -173,14 +173,10 @@ public class FlowInlineLayout {
 
     BoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
       new UnmanagedBoxFragment(
-        FlowUtil.constraintWidth(childBox.dimensions(), parentWidthConstraint),
+        FlowUtil.constraintWidth(layoutContext, childBox.dimensions(), parentWidthConstraint),
         FlowUtil.constraintHeight(childBox.dimensions(), parentHeightConstraint),
         childBox, null) :
       childBox.content().layout(layoutContext, childWidthConstraint, childHeightContraint);
-
-    if (parentWidthConstraint.isPreLayoutConstraint()) {
-      childBox.content().prelayout(layoutContext, parentWidthConstraint);
-    }
     
     if (LayerUtil.startsLayer(childBox)) {
       newFragment.setPos(0, 0);

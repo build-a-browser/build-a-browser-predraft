@@ -1,19 +1,27 @@
 package net.buildabrowser.babbrowser.browser.render.box.imp;
 
+import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
+import net.buildabrowser.babbrowser.browser.render.layout.imp.PrelayoutStackingContextImp;
 
 public class ElementBoxDimensionsImp implements ElementBoxDimensions {
 
-  private float[] computedBorder = new float[] { 0, 0, 0, 0 };
-  private float[] computedPadding = new float[] { 0, 0, 0, 0 };
-  private float[] computedMargin = new float[] { 0, 0, 0, 0 };
+  private final ElementBox box;
 
-  private float preferredMinWidthConstraint = 0;
-  private float preferredWidthConstraint = 0;
+  private final float[] computedBorder = new float[] { 0, 0, 0, 0 };
+  private final float[] computedPadding = new float[] { 0, 0, 0, 0 };
+  private final float[] computedMargin = new float[] { 0, 0, 0, 0 };
 
   private float intrinsicWidth = -1;
   private float intrinsicHeight = -1;
   private float intrinsicRatio = -1;
+
+  public ElementBoxDimensionsImp(ElementBox box) {
+    this.box = box;
+  }
 
   @Override
   public void setComputedBorder(float t, float b, float l, float r) {
@@ -59,23 +67,19 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   }
 
   @Override
-  public void setPreferredMinWidthConstraint(float w) {
-    this.preferredMinWidthConstraint = w;
+  public float preferredMinWidthConstraint(LayoutContext layoutContext) {
+    StackingContext dummyStackingContext = new PrelayoutStackingContextImp();
+    return box.cachedLayout(
+      new LayoutContext(layoutContext.global(), layoutContext.fontMetrics(), dummyStackingContext),
+      LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).width();
   }
 
   @Override
-  public void setPreferredWidthConstraint(float w) {
-    this.preferredWidthConstraint = w;
-  }
-
-  @Override
-  public float preferredMinWidthConstraint() {
-    return this.preferredMinWidthConstraint;
-  }
-
-  @Override
-  public float preferredWidthConstraint() {
-    return this.preferredWidthConstraint;
+  public float preferredWidthConstraint(LayoutContext layoutContext) {
+    StackingContext dummyStackingContext = new PrelayoutStackingContextImp();
+    return box.cachedLayout(
+      new LayoutContext(layoutContext.global(), layoutContext.fontMetrics(), dummyStackingContext),
+      LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).width();
   }
 
   @Override

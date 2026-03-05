@@ -57,8 +57,8 @@ public final class FlexHypotheticalSizeDetermination {
         && !isVertical
       ) {
         item.setBaseSize(mainSize.type().equals(LayoutConstraintType.MAX_CONTENT) ?
-          itemDimensions.preferredWidthConstraint() :
-        itemDimensions.preferredMinWidthConstraint());
+          itemDimensions.preferredWidthConstraint(layoutContext) :
+        itemDimensions.preferredMinWidthConstraint(layoutContext));
         continue;
       }
 
@@ -70,7 +70,7 @@ public final class FlexHypotheticalSizeDetermination {
           || mainSize.type().equals(LayoutConstraintType.AUTO))
         && !isVertical
       ) {
-        item.setBaseSize(itemDimensions.preferredWidthConstraint());
+        item.setBaseSize(itemDimensions.preferredWidthConstraint(layoutContext));
         continue;
       }
 
@@ -82,10 +82,10 @@ public final class FlexHypotheticalSizeDetermination {
           flexBasis.equals(FlexBasisValue.CONTENT)
           || flexBasis.equals(SizeValue.MAX_CONTENT)
         ) {
-          item.setBaseSize(itemDimensions.preferredWidthConstraint());
+          item.setBaseSize(itemDimensions.preferredWidthConstraint(layoutContext));
           continue;
         } else if (flexBasis.equals(SizeValue.MIN_CONTENT)) {
-          item.setBaseSize(itemDimensions.preferredMinWidthConstraint());
+          item.setBaseSize(itemDimensions.preferredMinWidthConstraint(layoutContext));
           continue;
         }
       }
@@ -94,10 +94,10 @@ public final class FlexHypotheticalSizeDetermination {
       assert isVertical;
 
       float fitContent = !crossSize.isBounded() ?
-        itemDimensions.preferredWidthConstraint() :
+        itemDimensions.preferredWidthConstraint(layoutContext) :
         Math.min(
-          itemDimensions.preferredWidthConstraint(),
-          Math.max(itemDimensions.preferredMinWidthConstraint(), crossSize.value()));
+          itemDimensions.preferredWidthConstraint(layoutContext),
+          Math.max(itemDimensions.preferredMinWidthConstraint(layoutContext), crossSize.value()));
 
       // TODO: The guard should only apply for auto?
       LayoutConstraint usedCrossSize = !itemCrossSize.isBounded() ?

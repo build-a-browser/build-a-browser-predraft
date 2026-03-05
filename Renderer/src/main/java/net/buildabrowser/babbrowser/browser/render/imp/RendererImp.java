@@ -29,7 +29,6 @@ import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
-import net.buildabrowser.babbrowser.browser.render.layout.imp.PrelayoutStackingContextImp;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.browser.render.paint.Painter;
 import net.buildabrowser.babbrowser.browser.render.paint.java2d.J2DFontMetrics;
@@ -77,14 +76,7 @@ public class RendererImp implements Renderer {
           FontMetrics fontMetrics = new J2DFontMetrics(g.getFontMetrics());
           BoxContent content = documentBox.htmlBox().content();
 
-          GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(url, painter.resourceLoader());
-
-          StackingContext plStackingContext = new PrelayoutStackingContextImp(LayoutConstraint.MIN_CONTENT);
-          LayoutContext plLayoutContext = new LayoutContext(globalLayoutContext, fontMetrics, plStackingContext);
-          content.prelayout(plLayoutContext, LayoutConstraint.MIN_CONTENT);
-          plStackingContext = new PrelayoutStackingContextImp(LayoutConstraint.MAX_CONTENT);
-          plLayoutContext = new LayoutContext(globalLayoutContext, fontMetrics, plStackingContext);
-          content.prelayout(plLayoutContext, LayoutConstraint.MAX_CONTENT);
+          GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(url, painter.resourceLoader(), new Object());
 
           StackingContext stackingContext = StackingContext.create();
           LayoutContext layoutContext = new LayoutContext(globalLayoutContext, fontMetrics, stackingContext);

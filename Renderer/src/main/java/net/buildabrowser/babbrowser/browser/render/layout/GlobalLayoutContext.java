@@ -6,7 +6,8 @@ import net.buildabrowser.babbrowser.browser.render.paint.ResourceLoader;
 
 public record GlobalLayoutContext(
   URI refURL,
-  ResourceLoader resourceLoader
+  ResourceLoader resourceLoader,
+  Object cacheKey
 ) {
   
 }
