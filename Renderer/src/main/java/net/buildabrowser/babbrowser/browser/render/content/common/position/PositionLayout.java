@@ -56,8 +56,8 @@ public final class PositionLayout {
     // TODO: Also clamp to max width and min width
     float fitContentWidth = Math.clamp(
       containingWidth,
-      dimensions.preferredMinWidthConstraint(),
-      dimensions.preferredWidthConstraint());
+      dimensions.preferredMinWidthConstraint(layoutContext),
+      dimensions.preferredWidthConstraint(layoutContext));
     float usedWidth = baseWidth.type().equals(LayoutConstraintType.AUTO) ?
       fitContentWidth :
       baseWidth.value();

@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.browser.render.box;
 
 import net.buildabrowser.babbrowser.browser.render.box.imp.ElementBoxDimensionsImp;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 
 public interface ElementBoxDimensions {
 
@@ -18,13 +19,9 @@ public interface ElementBoxDimensions {
 
   float[] getComputedMargin();
 
-  void setPreferredMinWidthConstraint(float w);
+  float preferredMinWidthConstraint(LayoutContext layoutContext);
 
-  void setPreferredWidthConstraint(float w);
-
-  float preferredMinWidthConstraint();
-
-  float preferredWidthConstraint();
+  float preferredWidthConstraint(LayoutContext layoutContext);
 
   void setIntrinsicWidth(float width);
 
@@ -38,8 +35,8 @@ public interface ElementBoxDimensions {
 
   float intrinsicRatio();
 
-  static ElementBoxDimensions create() {
-    return new ElementBoxDimensionsImp();
+  static ElementBoxDimensions create(ElementBox box) {
+    return new ElementBoxDimensionsImp(box);
   }
   
 }

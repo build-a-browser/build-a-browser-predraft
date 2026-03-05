@@ -6,9 +6,9 @@ import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 
 public interface BoxContent {
 
-  void prelayout(LayoutContext layoutContext, LayoutConstraint layoutConstraint);
-  
   UnmanagedBoxFragment layout(LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
+
+  default void computeIntrinsics(LayoutContext layoutContext) {}
 
   default boolean isReplaced() {
     return false;

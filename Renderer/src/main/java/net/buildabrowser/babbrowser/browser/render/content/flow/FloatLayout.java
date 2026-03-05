@@ -33,10 +33,9 @@ public final class FloatLayout {
         layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
 
     if (!parentWidthConstraint.isPreLayoutConstraint()) {
-      return childBox.content().layout(layoutContext, childWidthConstraint, childHeightContraint);
+      return childBox.layout(layoutContext, childWidthConstraint, childHeightContraint);
     }
 
-    childBox.content().prelayout(layoutContext, parentWidthConstraint);
     return new UnmanagedBoxFragment(0, 0, childBox, null);
   }
 

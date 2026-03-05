@@ -2,6 +2,10 @@ package net.buildabrowser.babbrowser.browser.render.box;
 
 import net.buildabrowser.babbrowser.browser.render.box.imp.AnonymousElementBoxImp;
 import net.buildabrowser.babbrowser.browser.render.box.imp.ElementBoxImp;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.layout.CachedLayoutResult;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
@@ -23,6 +27,10 @@ public interface ElementBox extends Box {
   void clearChildren();
 
   BoxLevel boxLevel();
+
+  UnmanagedBoxFragment layout(LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
+
+  CachedLayoutResult cachedLayout(LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
 
   default boolean isReplaced() {
     return content().isReplaced();

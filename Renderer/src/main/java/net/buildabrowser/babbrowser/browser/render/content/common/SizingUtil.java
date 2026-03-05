@@ -62,14 +62,14 @@ public final class SizingUtil {
     }
 
     if (sizeValue.equals(SizeValue.MIN_CONTENT)) {
-      return LayoutConstraint.of(referenceDimensions.preferredMinWidthConstraint());
+      return LayoutConstraint.of(referenceDimensions.preferredMinWidthConstraint(layoutContext));
     } else if (sizeValue.equals(SizeValue.MAX_CONTENT)) {
-      return LayoutConstraint.of(referenceDimensions.preferredWidthConstraint());
+      return LayoutConstraint.of(referenceDimensions.preferredWidthConstraint(layoutContext));
     } else if (sizeValue instanceof SizeValue.FitContent fitContent) {
       LayoutConstraint innerConstraint = evaluateBaseSize(layoutContext, parentConstraint, fitContent.optimal());
       assert innerConstraint.type().equals(LayoutConstraintType.BOUNDED);
-      float min = referenceDimensions.preferredMinWidthConstraint();
-      float max = referenceDimensions.preferredWidthConstraint();
+      float min = referenceDimensions.preferredMinWidthConstraint(layoutContext);
+      float max = referenceDimensions.preferredWidthConstraint(layoutContext);
       float preferred = innerConstraint.value();
       return LayoutConstraint.of(Math.clamp(preferred, min, max));
     } else {

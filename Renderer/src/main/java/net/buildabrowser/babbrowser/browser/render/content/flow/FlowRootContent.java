@@ -2,7 +2,6 @@ package net.buildabrowser.babbrowser.browser.render.content.flow;
 
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.composite.LayerUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
@@ -28,24 +27,6 @@ public class FlowRootContent implements BoxContent {
     this.blockLayout = new FlowBlockLayout(this);
     this.inlineLayout = new FlowInlineLayout(this);
     this.floatTracker = FloatTracker.create();
-  }
-
-  @Override
-  public void prelayout(LayoutContext layoutContext, LayoutConstraint layoutConstraint) {
-    ElementBoxDimensions dimensions = rootBox.dimensions();
-
-    floatTracker.reset();
-    blockLayout.reset(rootBox, layoutConstraint, LayoutConstraint.AUTO);
-    blockLayout.addChildrenToBlock(
-      layoutContext, rootBox, layoutConstraint, LayoutConstraint.AUTO);
-    if (layoutConstraint.equals(LayoutConstraint.MIN_CONTENT)) {
-      dimensions.setPreferredMinWidthConstraint(
-        blockLayout.close(layoutConstraint, LayoutConstraint.AUTO).contentWidth());
-    } else {
-      assert layoutConstraint.equals(LayoutConstraint.MAX_CONTENT);
-    dimensions.setPreferredWidthConstraint(
-      blockLayout.close(LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).contentWidth());
-    }
   }
 
   @Override
