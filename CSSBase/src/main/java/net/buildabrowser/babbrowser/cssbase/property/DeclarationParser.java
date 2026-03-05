@@ -188,14 +188,12 @@ public final class DeclarationParser {
 
   public static CSSValue parseDeferredDeclaration(CSSDeferred deferredValue, PropertyContainer refContainer) {
     CSSValue resolvedValue = CustomPropertyParser.resolveVarValues(deferredValue.value(), refContainer);
-    System.out.println(resolvedValue);
     if (resolvedValue == null) return CSSValue.SpecialCSSValue.INVALID;
     if (resolvedValue.isFailure()) return CSSValue.SpecialCSSValue.INVALID;
     List<Token> resolvedTokens = ((CSSVarValue) resolvedValue).propertyTokens();
     SeekableCSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(resolvedTokens);
     try {
       CSSValue result = deferredValue.parser().parse(tokenStream);
-      System.out.println(result);
       if (
         !result.isFailure()
         && tokenStream.peek() instanceof EOFToken

@@ -176,7 +176,7 @@ public class FlowInlineLayout {
         FlowUtil.constraintWidth(layoutContext, childBox.dimensions(), parentWidthConstraint),
         FlowUtil.constraintHeight(childBox.dimensions(), parentHeightConstraint),
         childBox, null) :
-      childBox.content().layout(layoutContext, childWidthConstraint, childHeightContraint);
+      childBox.layout(layoutContext, childWidthConstraint, childHeightContraint);
     
     if (LayerUtil.startsLayer(childBox)) {
       newFragment.setPos(0, 0);

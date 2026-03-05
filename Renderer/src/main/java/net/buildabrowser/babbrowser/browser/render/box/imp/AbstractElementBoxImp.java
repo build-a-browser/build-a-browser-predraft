@@ -85,6 +85,9 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
     if (cache != null && cache.applies(widthConstraint, heightConstraint)) {
       return cachedFragment;
     }
+    if (cache == null) {
+      content().computeIntrinsics(layoutContext);
+    }
 
     // TODO: Is it worth scanning for and removing the old cache result?
     UnmanagedBoxFragment layoutResult = content().layout(layoutContext, widthConstraint, heightConstraint);

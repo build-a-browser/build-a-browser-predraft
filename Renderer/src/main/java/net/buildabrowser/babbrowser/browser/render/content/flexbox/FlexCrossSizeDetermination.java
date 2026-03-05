@@ -42,7 +42,7 @@ public final class FlexCrossSizeDetermination {
       itemCrossConstraint = LayoutConstraint.AUTO;
     }
 
-    UnmanagedBoxFragment boxFragment = item.box().content().layout(
+    UnmanagedBoxFragment boxFragment = item.box().layout(
       layoutContext,
       isVertical ? itemCrossConstraint : itemMainConstraint,
       isVertical ? itemMainConstraint : itemCrossConstraint);
@@ -109,7 +109,7 @@ public final class FlexCrossSizeDetermination {
       itemCrossConstraint = LayoutConstraint.of(containerCrossSize.value());
 
       // TODO: Preferably, avoid exponential runtime (eg use a cache)
-      UnmanagedBoxFragment boxFragment = item.box().content().layout(
+      UnmanagedBoxFragment boxFragment = item.box().layout(
         layoutContext,
         isVertical ? itemCrossConstraint : itemMainConstraint,
         isVertical ? itemMainConstraint : itemCrossConstraint);

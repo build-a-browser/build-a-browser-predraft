@@ -205,7 +205,7 @@ public class FlowBlockLayout {
         FlowUtil.constraintWidth(layoutContext, childBox.dimensions(), childWidthConstraint),
         FlowUtil.constraintHeight(childBox.dimensions(), childHeightConstraint),
         childBox, null) :
-      childBox.content().layout(layoutContext, childWidthConstraint, childHeightConstraint);
+      childBox.layout(layoutContext, childWidthConstraint, childHeightConstraint);
 
     activeContext().recordMargin(margin[1]);
 

@@ -79,7 +79,7 @@ public class TableContent implements BoxContent {
           Cell cell = table.getCell(x, y, z);
           if (cell.getRelatedFragment() != null) continue;
 
-          UnmanagedBoxFragment fragment = cell.cellBox().content().layout(
+          UnmanagedBoxFragment fragment = cell.cellBox().layout(
             layoutContext, LayoutConstraint.of(columnWidths[x]), LayoutConstraint.AUTO);
           cell.setRelatedFragment(fragment);
 

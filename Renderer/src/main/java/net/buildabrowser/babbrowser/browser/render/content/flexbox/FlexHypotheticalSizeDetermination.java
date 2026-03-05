@@ -104,7 +104,7 @@ public final class FlexHypotheticalSizeDetermination {
         LayoutConstraint.of(fitContent) :
         itemCrossSize;
       
-      UnmanagedBoxFragment fragmentAtCross = item.box().content().layout(layoutContext, usedCrossSize, LayoutConstraint.AUTO);
+      UnmanagedBoxFragment fragmentAtCross = item.box().layout(layoutContext, usedCrossSize, LayoutConstraint.AUTO);
       item.setBaseSize(fragmentAtCross.contentHeight());
     }
     for (FlexItem item: items) {

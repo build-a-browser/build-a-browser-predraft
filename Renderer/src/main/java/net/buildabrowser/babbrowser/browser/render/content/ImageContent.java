@@ -94,6 +94,7 @@ public class ImageContent implements BoxContent, BoxPainter {
     if (loadingImageURL == null || !loadingImageURL.equals(imageSource)) {
       image = null;
       loadingImageURL = imageSource;
+      System.out.println(loadingImageURL);
       new Thread(() -> loadBufferedImage(layoutContext, loadingImageURL)).start();
     }
   }
