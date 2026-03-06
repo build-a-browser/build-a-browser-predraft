@@ -9,6 +9,8 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
+import net.buildabrowser.babbrowser.browser.render.content.common.BorderUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flexbox.FlexCrossAlignment.CrossAlignmentContext;
 import net.buildabrowser.babbrowser.browser.render.content.flexbox.FlexMainAlignment.MainAlignmentContext;
@@ -80,6 +82,10 @@ public class FlexBoxContent implements BoxContent {
   ) {
     // TODO: Also support gap
     List<FlexItem> flexItems = collectFlexItems();
+    for (FlexItem item: flexItems) {
+      BorderUtil.computeBorder(layoutContext, item.box(), widthConstraint);
+      PaddingUtil.computePadding(layoutContext, item.box(), widthConstraint);
+    }
     return layoutItems(layoutContext, flexItems, widthConstraint, heightConstraint);
   }
 

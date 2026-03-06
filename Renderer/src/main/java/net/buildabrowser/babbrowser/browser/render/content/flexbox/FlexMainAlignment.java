@@ -82,6 +82,7 @@ public final class FlexMainAlignment {
       startPos += firstMargin.isBounded() ? firstMargin.value() : autoSize;
       setMainPos(item, startPos, alignmentContext.isVertical());
       startPos += item.mainSize();
+      startPos += item.box().dimensions().decorWidth();
       LayoutConstraint secondMargin = secondMargin(alignmentContext, item);
       startPos += secondMargin.isBounded() ? secondMargin.value() : autoSize;
       startPos += gapSize;
@@ -95,6 +96,7 @@ public final class FlexMainAlignment {
       LayoutConstraint secondMargin = secondMargin(alignmentContext, item);
       startPos -= secondMargin.isBounded() ? secondMargin.value() : autoSize;
       startPos -= item.mainSize();
+      startPos -= item.box().dimensions().decorWidth();
       setMainPos(item, startPos, alignmentContext.isVertical());
       LayoutConstraint firstMargin = firstMargin(alignmentContext, item);
       startPos -= firstMargin.isBounded() ? firstMargin.value() : autoSize;
@@ -158,6 +160,7 @@ public final class FlexMainAlignment {
     float remainingFreeSpace = alignmentContext.mainSize().value();
     for (FlexItem item: line.items()) {
       remainingFreeSpace -= item.mainSize();
+      remainingFreeSpace -= item.box().dimensions().decorWidth();
       
       LayoutConstraint firstMargin = firstMargin(alignmentContext, item);
       if (firstMargin.isBounded()) {

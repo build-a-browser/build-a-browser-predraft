@@ -35,6 +35,10 @@ public interface ElementBoxDimensions {
 
   float intrinsicRatio();
 
+  float decorWidth();
+
+  float decorHeight();
+
   static ElementBoxDimensions create(ElementBox box) {
     return new ElementBoxDimensionsImp(box);
   }

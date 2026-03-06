@@ -111,5 +111,15 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   public float intrinsicRatio() {
     return this.intrinsicRatio;
   }
+
+  @Override
+  public float decorWidth() {
+    return computedBorder[2] + computedBorder[3] + computedPadding[2] + computedPadding[3];
+  }
+
+  @Override
+  public float decorHeight() {
+    return computedBorder[0] + computedBorder[1] + computedPadding[0] + computedPadding[1];
+  }
   
 }

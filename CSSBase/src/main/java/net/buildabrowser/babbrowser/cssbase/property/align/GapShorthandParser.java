@@ -28,6 +28,11 @@ public class GapShorthandParser implements PropertyValueParser {
   }
 
   @Override
+  public CSSProperty relatedProperty() {
+    return CSSProperty.GAP;
+  }
+
+  @Override
   public void updateProperty(CSSValue result, PropertyContainer propertySetter) {
     propertySetter.setProperty(CSSProperty.ROW_GAP, ((GapShorthandValue) result).rowGap());
     propertySetter.setProperty(CSSProperty.COLUMN_GAP, ((GapShorthandValue) result).columnGap());
