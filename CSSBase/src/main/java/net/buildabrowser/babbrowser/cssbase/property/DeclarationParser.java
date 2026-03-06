@@ -10,6 +10,8 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStr
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSDeferred;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSVarValue;
+import net.buildabrowser.babbrowser.cssbase.property.align.GapParser;
+import net.buildabrowser.babbrowser.cssbase.property.align.GapShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundColorParser;
 import net.buildabrowser.babbrowser.cssbase.property.border.BorderColorParser;
 import net.buildabrowser.babbrowser.cssbase.property.border.BorderShorthandParser;
@@ -126,7 +128,11 @@ public final class DeclarationParser {
     "justify-content", new JustifyContentParser(),
     "align-items", new AlignItemsParser(),
     "align-self", new AlignSelfParser(),
-    "align-content", new AlignContentParser()
+    "align-content", new AlignContentParser(),
+
+    "row-gap", new GapParser(CSSProperty.ROW_GAP),
+    "column-gap", new GapParser(CSSProperty.COLUMN_GAP),
+    "gap", new GapShorthandParser()
   );
 
   public static boolean isKnownDeclarationName(String declName) {

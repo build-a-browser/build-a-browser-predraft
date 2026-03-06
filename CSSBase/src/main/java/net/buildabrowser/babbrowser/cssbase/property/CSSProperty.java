@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.cssbase.property;
 
+import net.buildabrowser.babbrowser.cssbase.property.align.GapValue;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue.SRGBAColor;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
@@ -90,7 +91,11 @@ public enum CSSProperty {
   JUSTIFY_CONTENT(nextId(), false, JustifyContentValue.FLEX_START),
   ALIGN_ITEMS(nextId(), false, AlignItemsValue.STRETCH),
   ALIGN_SELF(nextId(), false, CSSValue.AUTO),
-  ALIGN_CONTENT(nextId(), false, AlignContentValue.STRETCH);
+  ALIGN_CONTENT(nextId(), false, AlignContentValue.STRETCH),
+
+  ROW_GAP(nextId(), false, GapValue.NORMAL),
+  COLUMN_GAP(nextId(), false, GapValue.NORMAL),
+  GAP(new CSSProperty[] { CSSProperty.ROW_GAP, CSSProperty.COLUMN_GAP });
 
   private static int propertyId = 0;
 
