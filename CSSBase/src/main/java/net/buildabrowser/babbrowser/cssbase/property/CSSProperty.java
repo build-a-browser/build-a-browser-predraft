@@ -14,6 +14,7 @@ import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
+import net.buildabrowser.babbrowser.cssbase.property.text.LineHeightValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
 
@@ -29,6 +30,7 @@ public enum CSSProperty {
   CLEAR(nextId(), false, CSSValue.NONE),
   WHITE_SPACE_COLLAPSE(nextId(), true, WhitespaceCollapseValue.COLLAPSE),
   TEXT_WRAP_MODE(nextId(), true, TextWrapModeValue.WRAP),
+  LINE_HEIGHT(nextId(), true, LineHeightValue.NORMAL),
 
   PADDING_TOP(nextId(), false, LengthValue.ZERO),
   PADDING_BOTTOM(nextId(), false, LengthValue.ZERO),

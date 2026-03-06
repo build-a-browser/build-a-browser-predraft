@@ -37,6 +37,7 @@ import net.buildabrowser.babbrowser.cssbase.property.position.PositionParser;
 import net.buildabrowser.babbrowser.cssbase.property.position.ZIndexParser;
 import net.buildabrowser.babbrowser.cssbase.property.shared.ManySideShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.size.SizeParser;
+import net.buildabrowser.babbrowser.cssbase.property.text.LineHeightParser;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeParser;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValueParser;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
@@ -113,6 +114,7 @@ public final class DeclarationParser {
 
     "white-space-collapse", new WhitespaceCollapseValueParser(),
     "text-wrap-mode", new TextWrapModeParser(),
+    "line-height", new LineHeightParser(),
 
     "order", new OrderParser(),
 
