@@ -1,10 +1,13 @@
 package net.buildabrowser.babbrowser.browser.render.content.common;
 
+import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.SizeValue;
@@ -91,6 +94,44 @@ public final class SizingUtil {
     } else {
       return evaluateBaseSize(layoutContext, parentConstraint, sizeValue);
     }
+  }
+
+  public static LayoutConstraint evaluateAdjustedWidthSize(
+    LayoutContext layoutContext,
+    LayoutConstraint parentConstraint,
+    ElementBox refBox,
+    CSSValue sizeValue
+  ) {
+    LayoutConstraint constraint = evaluateBaseWidthSize(
+      layoutContext, parentConstraint, refBox.dimensions(), sizeValue);
+    if (!constraint.isBounded()) return constraint;
+
+    CSSValue boxSizing = refBox.activeStyles().getProperty(CSSProperty.BOX_SIZING);
+    if (boxSizing.equals(BoxSizingValue.CONTENT_BOX)) return constraint;
+    assert boxSizing.equals(BoxSizingValue.BORDER_BOX);
+
+    float adjustedConstraint = Math.max(0,
+      constraint.value() - refBox.dimensions().decorWidth());
+    return LayoutConstraint.of(adjustedConstraint);
+  }
+
+  public static LayoutConstraint evaluateAdjustedHeightSize(
+    LayoutContext layoutContext,
+    LayoutConstraint parentConstraint,
+    ElementBox refBox,
+    CSSValue sizeValue
+  ) {
+    LayoutConstraint constraint = evaluateBaseHeightSize(
+      layoutContext, parentConstraint, sizeValue);
+    if (!constraint.isBounded()) return constraint;
+
+    CSSValue boxSizing = refBox.activeStyles().getProperty(CSSProperty.BOX_SIZING);
+    if (boxSizing.equals(BoxSizingValue.CONTENT_BOX)) return constraint;
+    assert boxSizing.equals(BoxSizingValue.BORDER_BOX);
+
+    float adjustedConstraint = Math.max(0,
+      constraint.value() - refBox.dimensions().decorHeight());
+    return LayoutConstraint.of(adjustedConstraint);
   }
 
   private static LayoutConstraint evaluateLengthBaseSize(

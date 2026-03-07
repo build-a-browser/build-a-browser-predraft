@@ -45,11 +45,11 @@ public final class PositionLayout {
     float containingWidth = refLayer.width() - insets[2] - insets[3];
     float containingHeight = refLayer.height() - insets[0] - insets[1];
 
-    LayoutConstraint baseWidth = SizingUtil.evaluateBaseSize(
-      layoutContext, LayoutConstraint.of(containingWidth),
+    LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(
+      layoutContext, LayoutConstraint.of(containingWidth), refBox,
       refBox.activeStyles().getProperty(CSSProperty.WIDTH));
-    LayoutConstraint baseHeight = SizingUtil.evaluateBaseSize(
-      layoutContext, LayoutConstraint.of(containingHeight),
+    LayoutConstraint baseHeight = SizingUtil.evaluateAdjustedHeightSize(
+      layoutContext, LayoutConstraint.of(containingHeight), refBox,
       refBox.activeStyles().getProperty(CSSProperty.HEIGHT));
 
     // TODO: Handle sizes other than fit-content

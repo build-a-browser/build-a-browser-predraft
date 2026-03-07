@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.browser.render.content.flexbox;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
@@ -27,7 +26,9 @@ public final class FlexHypotheticalSizeDetermination {
       ElementBoxDimensions itemDimensions = item.box().dimensions();
       
       CSSValue flexBasis = determineUsedBasis(item, isVertical);
-      LayoutConstraint basisConstraint = SizingUtil.evaluateBaseSize(layoutContext, mainSize, flexBasis);
+      LayoutConstraint basisConstraint = FlexUtil.evaluateFlexBasis(
+        layoutContext, item.box(), mainSize,
+        flexBasis, isVertical);
       if (basisConstraint.isBounded()) {
         item.setBaseSize(basisConstraint.value());
         continue;
@@ -45,8 +46,9 @@ public final class FlexHypotheticalSizeDetermination {
       }
 
       // Bit hacky, but refConstraint tells us if the value would resolve given finite space
-      LayoutConstraint refConstraint = SizingUtil.evaluateBaseSize(
-        layoutContext, LayoutConstraint.of(1), flexBasis);
+      LayoutConstraint refConstraint = FlexUtil.evaluateFlexBasis(
+        layoutContext, item.box(), LayoutConstraint.of(1),
+        flexBasis, isVertical);
       boolean dependsOnAvailableSpace = refConstraint.isBounded();
 
       // TODO: This currently only handles !isVertical, and lets other cases fall through

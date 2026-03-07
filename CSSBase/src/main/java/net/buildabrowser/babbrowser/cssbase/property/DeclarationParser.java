@@ -38,6 +38,7 @@ import net.buildabrowser.babbrowser.cssbase.property.floats.FloatParser;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionParser;
 import net.buildabrowser.babbrowser.cssbase.property.position.ZIndexParser;
 import net.buildabrowser.babbrowser.cssbase.property.shared.ManySideShorthandParser;
+import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingParser;
 import net.buildabrowser.babbrowser.cssbase.property.size.SizeParser;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeParser;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValueParser;
@@ -58,6 +59,7 @@ public final class DeclarationParser {
 
     "width", SizeParser.forNormal(CSSProperty.WIDTH),
     "height", SizeParser.forNormal(CSSProperty.HEIGHT),
+    "box-sizing", new BoxSizingParser(),
 
     "padding-top", SizeParser.forPadding(CSSProperty.PADDING_TOP),
     "padding-bottom", SizeParser.forPadding(CSSProperty.PADDING_BOTTOM),

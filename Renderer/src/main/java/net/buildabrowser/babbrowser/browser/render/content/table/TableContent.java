@@ -83,8 +83,8 @@ public class TableContent implements BoxContent {
             layoutContext, LayoutConstraint.of(columnWidths[x]), LayoutConstraint.AUTO);
           cell.setRelatedFragment(fragment);
 
-          LayoutConstraint fragmentHeight = SizingUtil.evaluateBaseSize(
-            layoutContext, LayoutConstraint.AUTO,
+          LayoutConstraint fragmentHeight = SizingUtil.evaluateAdjustedHeightSize(
+            layoutContext, LayoutConstraint.AUTO, cell.cellBox(),
             cell.cellBox().activeStyles().getProperty(CSSProperty.HEIGHT));
 
           float usedHeight = fragmentHeight.type().equals(LayoutConstraintType.BOUNDED) ?

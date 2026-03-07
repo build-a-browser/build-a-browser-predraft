@@ -11,14 +11,37 @@ public final class FlexUtil {
   
   private FlexUtil() {}
 
-  public static LayoutConstraint boxCrossSize(
-    LayoutContext layoutContext, ElementBox box, LayoutConstraint parentCrossSize, boolean isVertical
+  public static LayoutConstraint evaluateFlexBasis(
+    LayoutContext layoutContext,
+    ElementBox box,
+    LayoutConstraint parentMainSize,
+    CSSValue flexBasis,
+    boolean isVertical
   ) {
-    CSSValue crossValue = isVertical ?
-      box.activeStyles().getProperty(CSSProperty.WIDTH) :
-      box.activeStyles().getProperty(CSSProperty.HEIGHT);
+    if (isVertical) {
+      return SizingUtil.evaluateAdjustedHeightSize(
+        layoutContext, parentMainSize, box, flexBasis);
+    } else {
+      return SizingUtil.evaluateAdjustedWidthSize(
+        layoutContext, parentMainSize, box, flexBasis);
+    }
+  }
 
-    return SizingUtil.evaluateBaseSize(layoutContext, parentCrossSize, crossValue);
+  public static LayoutConstraint boxCrossSize(
+    LayoutContext layoutContext,
+    ElementBox box,
+    LayoutConstraint parentCrossSize,
+    boolean isVertical
+  ) {
+    if (isVertical) {
+      return SizingUtil.evaluateAdjustedWidthSize(
+        layoutContext, parentCrossSize, box,
+        box.activeStyles().getProperty(CSSProperty.WIDTH));
+    } else {
+      return SizingUtil.evaluateAdjustedHeightSize(
+        layoutContext, parentCrossSize, box,
+        box.activeStyles().getProperty(CSSProperty.HEIGHT));
+    }
   }
   
 }

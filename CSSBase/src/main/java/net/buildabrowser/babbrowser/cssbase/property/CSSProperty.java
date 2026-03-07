@@ -14,6 +14,7 @@ import net.buildabrowser.babbrowser.cssbase.property.flex.FlexShrinkValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
@@ -25,6 +26,7 @@ public enum CSSProperty {
   BACKGROUND(new CSSProperty[] { BACKGROUND_COLOR }),
   WIDTH(nextId(), false, CSSValue.AUTO),
   HEIGHT(nextId(), false, CSSValue.AUTO),
+  BOX_SIZING(nextId(), false, BoxSizingValue.CONTENT_BOX),
   DISPLAY(nextId(), false, DisplayValue.create(OuterDisplayValue.INLINE, InnerDisplayValue.FLOW)),
   FLOAT(nextId(), false, CSSValue.NONE),
   CLEAR(nextId(), false, CSSValue.NONE),

@@ -18,8 +18,8 @@ public final class FlowWidthUtil {
     ElementBox childBox
   ) {
     computeHorizontalMarginsOrZero(layoutContext, parentConstraint, childBox);
-    LayoutConstraint baseWidth = SizingUtil.evaluateBaseWidthSize(
-      layoutContext, parentConstraint, childBox.dimensions(),
+    LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(
+      layoutContext, parentConstraint, childBox,
       childBox.activeStyles().getProperty(CSSProperty.WIDTH));
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
@@ -59,8 +59,8 @@ public final class FlowWidthUtil {
     LayoutConstraint parentConstraint,
     ElementBox childBox
   ) {
-    LayoutConstraint determinedConstraint = SizingUtil.evaluateBaseWidthSize(
-      layoutContext, parentConstraint, childBox.dimensions(),
+    LayoutConstraint determinedConstraint = SizingUtil.evaluateAdjustedWidthSize(
+      layoutContext, parentConstraint, childBox,
       childBox.activeStyles().getProperty(CSSProperty.WIDTH));
     LayoutConstraint marginLeftConstraint = SizingUtil.evaluateBaseSize(
       layoutContext, parentConstraint,
@@ -123,8 +123,8 @@ public final class FlowWidthUtil {
     ElementBox childBox
   ) {
     computeHorizontalMarginsOrZero(layoutContext, parentConstraint, childBox);
-    LayoutConstraint baseWidth = SizingUtil.evaluateBaseWidthSize(
-      layoutContext, parentConstraint, childBox.dimensions(),
+    LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(
+      layoutContext, parentConstraint, childBox,
       childBox.activeStyles().getProperty(CSSProperty.WIDTH));
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
@@ -156,8 +156,8 @@ public final class FlowWidthUtil {
       return parentConstraint;
     }
 
-    LayoutConstraint baseWidth = SizingUtil.evaluateBaseWidthSize(
-      layoutContext, parentConstraint, childBox.dimensions(),
+    LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(
+      layoutContext, parentConstraint, childBox,
       childBox.activeStyles().getProperty(CSSProperty.WIDTH));
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {

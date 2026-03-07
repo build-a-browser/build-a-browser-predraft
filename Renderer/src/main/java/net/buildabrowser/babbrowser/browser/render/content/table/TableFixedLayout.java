@@ -19,8 +19,8 @@ public final class TableFixedLayout {
     for (int i = 0; i < table.width();) {
       // TODO: Check column widths
       Cell cell = table.getCell(i, 0, 0);
-      LayoutConstraint itemWidth = cell == null ? null : SizingUtil.evaluateBaseSize(
-        layoutContext, widthConstraint,
+      LayoutConstraint itemWidth = cell == null ? null : SizingUtil.evaluateAdjustedWidthSize(
+        layoutContext, widthConstraint, cell.cellBox(),
         cell.cellBox().activeStyles().getProperty(CSSProperty.WIDTH));
 
       int cellWidth = cell == null ? 1 : cell.width();
