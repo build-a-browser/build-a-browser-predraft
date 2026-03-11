@@ -15,7 +15,7 @@ public class PositionTrackerImp implements PositionTracker {
 
   @Override
   public long mark() {
-    return (Float.floatToIntBits(this.posX) << 32) | (Float.floatToIntBits(this.posY) & 0xFFFFFFFFL);
+    return ((long) Float.floatToIntBits(this.posX) << 32) | ((long) Float.floatToIntBits(this.posY) & 0xFFFFFFFFL);
   }
 
   @Override

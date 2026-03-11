@@ -7,7 +7,6 @@ import net.buildabrowser.babbrowser.browser.render.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
-import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.browser.render.paint.test.TestFontMetrics;
 
@@ -34,8 +33,8 @@ public final class FlowLayoutUtil {
   ) {
     FontMetrics testMetrics = TestFontMetrics.create(10, 5);
     LayoutContext layoutContext = new LayoutContext(
-      new GlobalLayoutContext(null, null, new Object()),
-      testMetrics, StackingContext.create());
+      new GlobalLayoutContext(null, null, testMetrics, new Object()),
+      testMetrics);
     FlowRootContent content = (FlowRootContent) parentBox.content();
 
     UnmanagedBoxFragment dimensionFrag = parentBox.layout(layoutContext, widthConstraint, heightConstraint);

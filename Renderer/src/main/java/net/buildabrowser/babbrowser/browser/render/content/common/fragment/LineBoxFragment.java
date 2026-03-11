@@ -8,19 +8,11 @@ public class LineBoxFragment extends LayoutFragment {
 
   private final LayoutFragment fragments;
 
-  private LayoutFragment parentFragment;
-
   public LineBoxFragment(
     float width, float height, LayoutFragment fragments
   ) {
     super(width, height);
     this.fragments = fragments;
-
-    LayoutFragment curNode = fragments;
-    while (curNode != null) {
-      curNode.setParent(this);
-      curNode = curNode.next();
-    }
   }
 
   // This constructor is for testing, not normal code use
@@ -33,22 +25,6 @@ public class LineBoxFragment extends LayoutFragment {
 
   public LayoutFragment fragments() {
     return this.fragments;
-  }
-
-  public void setParent(LayoutFragment parent) {
-    this.parentFragment = parent;
-  }
-
-  @Override
-  public float layerX() {
-    assert parentFragment != null;
-    return parentFragment.layerX() + contentX();
-  }
-
-  @Override
-  public float layerY() {
-    assert parentFragment != null;
-    return parentFragment.layerY() + contentY();
   }
 
   @Override

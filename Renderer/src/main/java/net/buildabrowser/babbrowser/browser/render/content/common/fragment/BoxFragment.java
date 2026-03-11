@@ -8,8 +8,6 @@ public class BoxFragment extends LayoutFragment {
   private final ElementBox box;
   private final BoxPainter painter;
 
-  private LayoutFragment parentFragment;
-
   public BoxFragment(
     float width, float height,
     ElementBox box, BoxPainter painter
@@ -17,6 +15,7 @@ public class BoxFragment extends LayoutFragment {
     super(width, height);
     this.box = box;
     this.painter = painter;
+    box.updateFragment(this);
   }
 
   public ElementBox box() {
@@ -25,10 +24,6 @@ public class BoxFragment extends LayoutFragment {
 
   public BoxPainter painter() {
     return this.painter;
-  }
-
-  public void setParent(LayoutFragment parent) {
-    this.parentFragment = parent;
   }
 
   @Override
@@ -43,22 +38,6 @@ public class BoxFragment extends LayoutFragment {
     float[] border = box.dimensions().getComputedBorder();
     float[] padding = box.dimensions().getComputedPadding();
     return borderY() + border[0] + padding[0];
-  }
-
-  @Override
-  public float layerX() {
-    float[] padding = box.dimensions().getComputedPadding();
-    return parentFragment == null ?
-      padding[2] :
-      parentFragment.layerX() + contentX();
-  }
-
-  @Override
-  public float layerY() {
-    float[] padding = box.dimensions().getComputedPadding();
-    return parentFragment == null ?
-      padding[0] :
-      parentFragment.layerY() + contentY();
   }
 
   @Override

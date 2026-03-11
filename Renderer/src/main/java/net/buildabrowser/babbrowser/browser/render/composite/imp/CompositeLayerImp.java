@@ -3,63 +3,48 @@ package net.buildabrowser.babbrowser.browser.render.composite.imp;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
+import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayerEntry;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
-import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
-import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
-import net.buildabrowser.babbrowser.cssbase.property.position.ZIndexValue;
 
 public class CompositeLayerImp implements CompositeLayer {
 
   private final List<CompositeLayer> childLayers = new LinkedList<>();
 
-  private final CompositeLayer parent;
-  private final BoxFragment rootFragment;
+  private final PositionValue positioning;
+  private final float offsetX;
+  private final float offsetY;
+  private final int zIndex;
 
-  private float offsetX = 0;
-  private float offsetY = 0;
+  // Unfortunately can't use the LayoutFragment's intrusive list, as it is already in use
+  private CompositeLayerEntry entries;
+
   private boolean sorted = false;
 
-  public CompositeLayerImp(CompositeLayer parent, BoxFragment rootFragment) {
-    this.parent = parent;
-    this.rootFragment = rootFragment;
+  public CompositeLayerImp(
+    PositionValue positioning,
+    float offsetX, float offsetY,
+    int zIndex
+  ) {
+    this.positioning = positioning;
+    this.offsetX = offsetX;
+    this.offsetY = offsetY;
+    this.zIndex = zIndex;
   }
 
   @Override
-  public CompositeLayer createChild(BoxFragment childBoxFragment) {
-    CompositeLayer childLayer = new CompositeLayerImp(this, childBoxFragment);
-    addChildLayer(childLayer);
-
-    return childLayer;
+  public void addChild(CompositeLayer childLayer) {
+    sorted = false;
+    childLayers.add(childLayer);
   }
 
   @Override
-  public void addChildLayer(CompositeLayer layer) {
-    // Because content starts between padding, not borders
-    float[] border = rootFragment.box().dimensions().getComputedBorder();
-    layer.incOffset(border[2], border[0]);
-    if (isPassthrough()) {
-      layer.incOffset(posX(), posY());
-      parent.addChildLayer(layer);
-    } else {
-      sorted = false;
-      childLayers.add(layer);
-    }
-  }
-
-  @Override
-  public PositionValue positioning() {
-    return (PositionValue) rootFragment.box().activeStyles().getProperty(CSSProperty.POSITION);
-  }
-
-  public boolean isPassthrough() {
-    return
-      parent != null
-      && positioning().equals(PositionValue.RELATIVE)
-      && rootFragment.box().activeStyles().getProperty(CSSProperty.Z_INDEX).equals(CSSValue.AUTO);
+  public void addEntries(CompositeLayerEntry entries) {
+    this.entries = entries;
   }
 
   @Override
@@ -71,22 +56,38 @@ public class CompositeLayerImp implements CompositeLayer {
       sorted = true;
     }
 
-    rootFragment.painter().paintBackground(rootFragment, canvas);
+    forEachFragment(fragment -> fragment.painter().paintBackground(fragment, canvas), canvas);
     for (CompositeLayer layer: childLayers) {
       if (layer.zIndex() >= 0) continue;
       paintChildLayer(canvas, layer);
     }
-    rootFragment.painter().paint(rootFragment, canvas);
+    forEachFragment(fragment -> {
+      canvas.alterPaint(p -> p.incOffset(
+        fragment.contentX() - fragment.borderX(),
+        fragment.contentY() - fragment.borderY()));
+      fragment.painter().paint(fragment, canvas);
+    }, canvas);
     for (CompositeLayer layer: childLayers) {
       if (layer.zIndex() < 0) continue;
       paintChildLayer(canvas, layer);
     }
   }
 
+  private void forEachFragment(Consumer<BoxFragment> func, PaintCanvas canvas) {
+    CompositeLayerEntry nextEntry = entries;
+    while (nextEntry != null) {
+      canvas.pushPaint();
+      CompositeLayerEntry currentEntry = nextEntry;
+      nextEntry = nextEntry.next();
+      canvas.alterPaint(p -> p.incOffset(currentEntry.offsetX(), currentEntry.offsetY()));
+      func.accept(currentEntry.fragment());
+      canvas.popPaint();
+    }
+  }
+
   @Override
-  public void incOffset(float offsetX, float offsetY) {
-    this.offsetX += offsetX;
-    this.offsetY += offsetY;
+  public PositionValue positioning() {
+    return this.positioning;
   }
 
   @Override
@@ -100,22 +101,8 @@ public class CompositeLayerImp implements CompositeLayer {
   }
 
   @Override
-  public float width() {
-    // TODO: Maybe add padding size methods?
-    float[] padding = rootFragment.box().dimensions().getComputedPadding();
-    return rootFragment.contentWidth() + padding[2] + padding[3];
-  }
-
-  @Override
-  public float height() {
-    float[] padding = rootFragment.box().dimensions().getComputedPadding();
-    return rootFragment.contentHeight() + padding[0] + padding[1];
-  }
-
-  @Override
   public int zIndex() {
-    CSSValue zIndexValue = rootFragment.box().activeStyles().getProperty(CSSProperty.Z_INDEX);
-    return zIndexValue.equals(CSSValue.AUTO) ? 0 : ((ZIndexValue) zIndexValue).zIndex();
+    return this.zIndex;
   }
 
   private void paintChildLayer(PaintCanvas canvas, CompositeLayer layer) {

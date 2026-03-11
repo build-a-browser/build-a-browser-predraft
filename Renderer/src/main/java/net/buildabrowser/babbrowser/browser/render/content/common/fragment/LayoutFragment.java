@@ -31,10 +31,6 @@ public abstract class LayoutFragment implements IntrusiveList<LayoutFragment> {
     this.posY = y;
   }
 
-  public void setParent(LayoutFragment parent) {
-    // No-op, subclasses can override
-  }
-
   public float marginX() {
     assert this.posX != -1 : "Attempt to get unset X position!";
     return this.posX;
@@ -61,15 +57,6 @@ public abstract class LayoutFragment implements IntrusiveList<LayoutFragment> {
 
   public float contentY() {
     return borderY();
-  }
-
-  // Since LineBoxFragment and BoxFragment do not share another common parent, the layerpos methods are here for convenience
-  public float layerX() {
-    throw new UnsupportedOperationException("This fragment does not support layer coordinates!");
-  }
-
-  public float layerY() {
-    throw new UnsupportedOperationException("This fragment does not support layer coordinates!");
   }
 
   public float marginWidth() {

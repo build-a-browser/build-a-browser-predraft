@@ -1,12 +1,14 @@
 package net.buildabrowser.babbrowser.browser.render.content.common.position;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -24,72 +26,23 @@ public final class PositionUtil {
       !(fragment instanceof PosRefBoxFragment refFrag)
       || affectsLayout(refFrag.box());
   }
-  
-  public static float[] computeInsets(
-    PosRefBoxFragment refFragment,
-    LayoutConstraint parentWidthConstraint,
-    LayoutConstraint parentHeightConstraint
-  ) {
-    PositionValue position = (PositionValue) refFragment.referenceBox().activeStyles().getProperty(CSSProperty.POSITION);
-    if (position.equals(PositionValue.RELATIVE)) {
-      return computeRelativeInsets(
-        refFragment.referenceLayoutContext(),
-        parentWidthConstraint, parentHeightConstraint,
-        refFragment.referenceBox());
-    } else {
-      return computeAbsoluteInsets(refFragment, parentWidthConstraint, parentHeightConstraint);
-    }
-  }
 
-  private static float[] computeRelativeInsets(
-    LayoutContext layoutContext, 
-    LayoutConstraint parentWidthConstraint,
-    LayoutConstraint parentHeightConstraint,
+  public static float[] computeRelativeInsets(
+    LayoutContext layoutContext,
+    float parentWidth, float parentHeight,
     ElementBox childBox
   ) {
     ActiveStyles styles = childBox.activeStyles();
     float topInset = computeRelativeInset(
       styles.getProperty(CSSProperty.TOP), styles.getProperty(CSSProperty.BOTTOM),
-      layoutContext, childBox, parentHeightConstraint);
+      layoutContext, childBox, LayoutConstraint.of(parentHeight));
     float leftInset = computeRelativeInset(
       styles.getProperty(CSSProperty.LEFT), styles.getProperty(CSSProperty.RIGHT),
-      layoutContext, childBox, parentWidthConstraint);
+      layoutContext, childBox, LayoutConstraint.of(parentWidth));
     
     return new float[] {
       topInset, -topInset, leftInset, -leftInset
     };
-  }
-
-  // TODO: Respect self-alignment
-  private static float[] computeAbsoluteInsets(
-    PosRefBoxFragment refFragment,
-    LayoutConstraint parentWidthConstraint,
-    LayoutConstraint parentHeightConstraint
-  ) {
-    ActiveStyles styles = refFragment.referenceBox().activeStyles();
-    LayoutContext layoutContext = refFragment.referenceLayoutContext();
-    LayoutConstraint topInset = SizingUtil.evaluateBaseSize(
-      layoutContext, parentHeightConstraint, styles.getProperty(CSSProperty.TOP));
-    LayoutConstraint bottomInset = SizingUtil.evaluateBaseSize(
-      layoutContext, parentHeightConstraint, styles.getProperty(CSSProperty.BOTTOM));
-    LayoutConstraint leftInset = SizingUtil.evaluateBaseSize(
-      layoutContext, parentHeightConstraint, styles.getProperty(CSSProperty.LEFT));
-    LayoutConstraint rightInset = SizingUtil.evaluateBaseSize(
-      layoutContext, parentHeightConstraint, styles.getProperty(CSSProperty.RIGHT));
-    
-    
-    LayoutConstraint[] initConstraints = new LayoutConstraint[] {
-      topInset, bottomInset, leftInset, rightInset
-    };
-    float[] adjustedConstraints = new float[4];
-
-    // Need to account for layoutPos being based on contentPos, but the box draws it's own borders
-    float borderPaddingWidth = refFragment.contentX() - refFragment.borderX();
-    float borderPaddingHeight = refFragment.contentY() - refFragment.borderY();
-    adjustAbsoluteConstraints(adjustedConstraints, initConstraints, 2, refFragment.layerX() - borderPaddingWidth);
-    adjustAbsoluteConstraints(adjustedConstraints, initConstraints, 0, refFragment.layerY() - borderPaddingHeight);
-      
-    return adjustedConstraints;
   }
 
   private static float computeRelativeInset(
@@ -113,6 +66,39 @@ public final class PositionUtil {
     }
   }
 
+  // TODO: Respect self-alignment
+  public static float[] computeAbsoluteInsets(
+    ElementBox box, LayoutContext layoutContext,
+    float refWidth, float refHeight
+  ) {
+    ActiveStyles styles = box.activeStyles();
+    LayoutConstraint refHeightConstraint = LayoutConstraint.of(refHeight);
+    LayoutConstraint refWidthConstraint = LayoutConstraint.of(refWidth);
+    LayoutConstraint topInset = SizingUtil.evaluateBaseSize(
+      layoutContext, refHeightConstraint, styles.getProperty(CSSProperty.TOP));
+    LayoutConstraint bottomInset = SizingUtil.evaluateBaseSize(
+      layoutContext, refHeightConstraint, styles.getProperty(CSSProperty.BOTTOM));
+    LayoutConstraint leftInset = SizingUtil.evaluateBaseSize(
+      layoutContext, refWidthConstraint, styles.getProperty(CSSProperty.LEFT));
+    LayoutConstraint rightInset = SizingUtil.evaluateBaseSize(
+      layoutContext, refWidthConstraint, styles.getProperty(CSSProperty.RIGHT));
+    
+    
+    LayoutConstraint[] initConstraints = new LayoutConstraint[] {
+      topInset, bottomInset, leftInset, rightInset
+    };
+    float[] adjustedConstraints = new float[4];
+
+    ElementBoxDimensions boxDimensions = box.dimensions();
+    StackingContext parentContext = box.stackingContext().parentContext();
+    adjustAbsoluteConstraints(adjustedConstraints, initConstraints, 2,
+      boxDimensions.staticX() - parentContext.posX()); // TODO: Having to check the parentContext pos isn't great, make less confusing logic
+    adjustAbsoluteConstraints(adjustedConstraints, initConstraints, 0,
+      boxDimensions.staticY() - parentContext.posY());
+      
+    return adjustedConstraints;
+  }
+    
   private static void adjustAbsoluteConstraints(
     float[] adjustedConstraints,
     LayoutConstraint[] initConstraints,
