@@ -20,6 +20,7 @@ public class MatchTrieViewImp implements MatchTrieView {
     if (currentIndex == currentTrie.base().length()) {
       MatchTrieImp newTrie = (MatchTrieImp) currentTrie.extensions().get(ch);
       this.currentTrie = newTrie == null ? EMPTY_TRIE : newTrie;
+      this.currentIndex = 0;
     } else if (currentTrie.base().codePointAt(currentIndex) == ch) {
       currentIndex++;
     } else {

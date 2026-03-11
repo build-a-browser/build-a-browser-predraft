@@ -65,8 +65,7 @@ public class StackingContextImp implements StackingContext {
   @Override
   public CompositeLayer createLayer() {
     assert insets != null;
-    CompositeLayer layer = CompositeLayer.create(
-      positioning, 0, 0, zIndexOrder);
+    CompositeLayer layer = createLayer(0, 0);
     SinglyLinkedList<StackingContext> childContext = childContexts;
     while (childContext != null) {
       childContext.item().addLayer(layer::addChild, 0, 0);
