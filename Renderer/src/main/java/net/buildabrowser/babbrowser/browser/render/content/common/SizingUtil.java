@@ -25,7 +25,7 @@ public final class SizingUtil {
       return evaluateLengthBaseSize(layoutContext, lengthValue);
     } else if (
       sizeValue instanceof PercentageValue percentageValue
-      && parentConstraint.type().equals(LayoutConstraintType.BOUNDED)
+      && parentConstraint.isBounded()
     ) {
       // TODO: Is this the right width to compare against?
       return LayoutConstraint.of(percentageValue.value() * parentConstraint.value() / 100);
@@ -46,7 +46,7 @@ public final class SizingUtil {
       && sizeValue instanceof SizeValue.FitContent fitContent
     ) {
       LayoutConstraint innerConstraint = evaluateBaseSize(layoutContext, parentConstraint, fitContent.optimal());
-      if (innerConstraint.type().equals(LayoutConstraintType.BOUNDED)) {
+      if (innerConstraint.isBounded()) {
         return innerConstraint;
       }
       return parentConstraint;
@@ -70,7 +70,7 @@ public final class SizingUtil {
       return LayoutConstraint.of(referenceDimensions.preferredWidthConstraint());
     } else if (sizeValue instanceof SizeValue.FitContent fitContent) {
       LayoutConstraint innerConstraint = evaluateBaseSize(layoutContext, parentConstraint, fitContent.optimal());
-      assert innerConstraint.type().equals(LayoutConstraintType.BOUNDED);
+      assert innerConstraint.isBounded();
       float min = referenceDimensions.preferredMinWidthConstraint();
       float max = referenceDimensions.preferredWidthConstraint();
       float preferred = innerConstraint.value();

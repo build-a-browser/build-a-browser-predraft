@@ -9,7 +9,6 @@ import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 
@@ -85,7 +84,7 @@ public class TableContent implements BoxContent {
             LayoutConstraint.AUTO, cell.cellBox(),
             cell.cellBox().activeStyles().getProperty(CSSProperty.HEIGHT));
 
-          float usedHeight = fragmentHeight.type().equals(LayoutConstraintType.BOUNDED) ?
+          float usedHeight = fragmentHeight.isBounded() ?
             fragmentHeight.value() :
             cell.getRelatedFragment().contentHeight();
           // cell.height() > 1 is technically unspecified behaviour

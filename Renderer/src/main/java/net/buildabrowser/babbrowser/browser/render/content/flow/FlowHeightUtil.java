@@ -73,8 +73,8 @@ public final class FlowHeightUtil {
     LayoutConstraint marginBottomConstraint = SizingUtil.evaluateBaseSize(
       childBox.layoutContext(), parentWidthConstraint, childStyles.getProperty(CSSProperty.MARGIN_BOTTOM));
 
-    boolean isTopMarginSet = marginTopConstraint.type().equals(LayoutConstraintType.BOUNDED);
-    boolean isBottomMarginSet = marginBottomConstraint.type().equals(LayoutConstraintType.BOUNDED);
+    boolean isTopMarginSet = marginTopConstraint.isBounded();
+    boolean isBottomMarginSet = marginBottomConstraint.isBounded();
     float usedTopMargin = isTopMarginSet ? marginTopConstraint.value() : 0;
     float usedBottomMargin = isBottomMarginSet ? marginBottomConstraint.value() : 0;
 

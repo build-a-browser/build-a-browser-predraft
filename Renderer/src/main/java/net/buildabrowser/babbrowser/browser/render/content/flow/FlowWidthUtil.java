@@ -64,8 +64,8 @@ public final class FlowWidthUtil {
       childBox.layoutContext(), parentConstraint,
       childBox.activeStyles().getProperty(CSSProperty.MARGIN_RIGHT));
 
-    boolean isLeftMarginSet = marginLeftConstraint.type().equals(LayoutConstraintType.BOUNDED);
-    boolean isRightMarginSet = marginRightConstraint.type().equals(LayoutConstraintType.BOUNDED);
+    boolean isLeftMarginSet = marginLeftConstraint.isBounded();
+    boolean isRightMarginSet = marginRightConstraint.isBounded();
     float usedLeftMargin = isLeftMarginSet ? marginLeftConstraint.value() : 0;
     float usedRightMargin = isRightMarginSet ? marginRightConstraint.value() : 0;
 
@@ -74,7 +74,7 @@ public final class FlowWidthUtil {
       return determinedConstraint;
     }
 
-    if (!parentConstraint.type().equals(LayoutConstraintType.BOUNDED)) {
+    if (!parentConstraint.isBounded()) {
       childBox.dimensions().setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
       return determinedConstraint.type().equals(LayoutConstraintType.AUTO) ?
         parentConstraint : determinedConstraint;
@@ -87,7 +87,7 @@ public final class FlowWidthUtil {
       - usedLeftMargin - usedRightMargin
       - border[2] - border[3] - padding[2] - padding[3];
     float adjustedWidth = Math.max(0,
-      determinedConstraint.type().equals(LayoutConstraintType.BOUNDED) ?
+      determinedConstraint.isBounded() ?
         determinedConstraint.value() : parentMinusSurroundingsWidth);
     
     if (isLeftMarginSet) {
@@ -132,7 +132,7 @@ public final class FlowWidthUtil {
     float preferredMinWidth = boxDimensions.preferredMinWidthConstraint();
     float preferredWidth = boxDimensions.preferredWidthConstraint();
     float availableWidth = parentConstraint.value();
-    if (!parentConstraint.type().equals(LayoutConstraintType.BOUNDED)) {
+    if (!parentConstraint.isBounded()) {
       return LayoutConstraint.of(preferredWidth);
     }
 
@@ -173,8 +173,8 @@ public final class FlowWidthUtil {
       childBox.layoutContext(), parentConstraint,
       childBox.activeStyles().getProperty(CSSProperty.MARGIN_RIGHT));
 
-    boolean isLeftMarginSet = marginLeftConstraint.type().equals(LayoutConstraintType.BOUNDED);
-    boolean isRightMarginSet = marginRightConstraint.type().equals(LayoutConstraintType.BOUNDED);
+    boolean isLeftMarginSet = marginLeftConstraint.isBounded();
+    boolean isRightMarginSet = marginRightConstraint.isBounded();
     float usedLeftMargin = isLeftMarginSet ? marginLeftConstraint.value() : 0;
     float usedRightMargin = isRightMarginSet ? marginRightConstraint.value() : 0;
     childBox.dimensions().setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);

@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.browser.render.content.table;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 
 public final class TableFixedLayout {
@@ -23,7 +22,7 @@ public final class TableFixedLayout {
         cell.cellBox().activeStyles().getProperty(CSSProperty.WIDTH));
 
       int cellWidth = cell == null ? 1 : cell.width();
-      float itemWidthPer = cell == null || !itemWidth.type().equals(LayoutConstraintType.BOUNDED) ?
+      float itemWidthPer = cell == null || !itemWidth.isBounded() ?
         -1 :
         itemWidth.value() / cellWidth;
       
@@ -39,7 +38,7 @@ public final class TableFixedLayout {
     }
 
     boolean canDiv =
-      widthConstraint.type().equals(LayoutConstraintType.BOUNDED)
+      widthConstraint.isBounded()
       && widthConstraint.value() > usedWidth;
 
     float divWidth = canDiv ? (widthConstraint.value() - usedWidth) / numUnsizedItems : 0;
