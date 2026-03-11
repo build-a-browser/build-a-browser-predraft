@@ -5,14 +5,13 @@ import net.buildabrowser.babbrowser.browser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 
 public final class TableFixedLayout {
   
   // TODO: Account for borders
   // TODO: Handle overlapping cells
 
-  public static float[] computeColumnWidths(LayoutContext layoutContext, Table table, LayoutConstraint widthConstraint) {
+  public static float[] computeColumnWidths(Table table, LayoutConstraint widthConstraint) {
     int numUnsizedItems = 0;
     float usedWidth = 0;
     float[] columnWidths = new float[table.width()];
@@ -20,7 +19,7 @@ public final class TableFixedLayout {
       // TODO: Check column widths
       Cell cell = table.getCell(i, 0, 0);
       LayoutConstraint itemWidth = cell == null ? null : SizingUtil.evaluateAdjustedWidthSize(
-        layoutContext, widthConstraint, cell.cellBox(),
+        widthConstraint, cell.cellBox(),
         cell.cellBox().activeStyles().getProperty(CSSProperty.WIDTH));
 
       int cellWidth = cell == null ? 1 : cell.width();

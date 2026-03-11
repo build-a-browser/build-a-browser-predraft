@@ -5,7 +5,6 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 
@@ -14,20 +13,19 @@ public final class FlowHeightUtil {
   private FlowHeightUtil() {}
 
   public static LayoutConstraint evaluateReplacedBlockHeightAndMargins(
-    LayoutContext layoutContext,
     LayoutConstraint parentHeightConstraint,
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint childWidthConstraint,
     ElementBox childBox
   ) {
-    computeVerticalMarginsOrZero(layoutContext, childBox, parentWidthConstraint);
+    computeVerticalMarginsOrZero(childBox, parentWidthConstraint);
 
     if (parentHeightConstraint.isPreLayoutConstraint() || childWidthConstraint.isPreLayoutConstraint()) {
       return parentHeightConstraint;
     }
 
     LayoutConstraint determinedHeightConstraint = SizingUtil.evaluateAdjustedHeightSize(
-      layoutContext, parentHeightConstraint, childBox,
+      parentHeightConstraint, childBox,
       childBox.activeStyles().getProperty(CSSProperty.HEIGHT));
     
     boolean isHeightAuto = determinedHeightConstraint.type().equals(LayoutConstraintType.AUTO);
@@ -51,32 +49,29 @@ public final class FlowHeightUtil {
   }
 
   public static LayoutConstraint evaluateNonReplacedBlockHeightAndMargins(
-    LayoutContext layoutContext,
     LayoutConstraint parentHeightConstraint,
     LayoutConstraint parentWidthConstraint,
     ElementBox childBox
   ) {
-    computeVerticalMarginsOrZero(layoutContext, childBox, parentWidthConstraint);
+    computeVerticalMarginsOrZero(childBox, parentWidthConstraint);
 
     // TODO: An actual proper implementation
     ActiveStyles childStyles = childBox.activeStyles();
     LayoutConstraint determinedConstraint = SizingUtil.evaluateAdjustedHeightSize(
-      layoutContext, parentHeightConstraint, childBox,
+      parentHeightConstraint, childBox,
       childStyles.getProperty(CSSProperty.HEIGHT));
 
     return determinedConstraint;
   }
 
   public static void computeVerticalMarginsOrZero(
-    LayoutContext layoutContext,
-    ElementBox childBox,
-    LayoutConstraint parentWidthConstraint
+    ElementBox childBox, LayoutConstraint parentWidthConstraint
   ) {
     ActiveStyles childStyles = childBox.activeStyles();
     LayoutConstraint marginTopConstraint = SizingUtil.evaluateBaseSize(
-      layoutContext, parentWidthConstraint, childStyles.getProperty(CSSProperty.MARGIN_TOP));
+      childBox.layoutContext(), parentWidthConstraint, childStyles.getProperty(CSSProperty.MARGIN_TOP));
     LayoutConstraint marginBottomConstraint = SizingUtil.evaluateBaseSize(
-      layoutContext, parentWidthConstraint, childStyles.getProperty(CSSProperty.MARGIN_BOTTOM));
+      childBox.layoutContext(), parentWidthConstraint, childStyles.getProperty(CSSProperty.MARGIN_BOTTOM));
 
     boolean isTopMarginSet = marginTopConstraint.type().equals(LayoutConstraintType.BOUNDED);
     boolean isBottomMarginSet = marginBottomConstraint.type().equals(LayoutConstraintType.BOUNDED);

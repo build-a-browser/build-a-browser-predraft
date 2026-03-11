@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -190,7 +189,7 @@ public final class FlexMainAlignment {
       activeStyles.getProperty(CSSProperty.MARGIN_TOP) :
       activeStyles.getProperty(CSSProperty.MARGIN_LEFT);
     return SizingUtil.evaluateBaseSize(
-      alignmentContext.layoutContext(), alignmentContext.mainSize(), relevantValue);
+      item.box().layoutContext(), alignmentContext.mainSize(), relevantValue);
   }
 
   private static LayoutConstraint secondMargin(
@@ -201,7 +200,7 @@ public final class FlexMainAlignment {
       activeStyles.getProperty(CSSProperty.MARGIN_BOTTOM) :
       activeStyles.getProperty(CSSProperty.MARGIN_RIGHT);
     return SizingUtil.evaluateBaseSize(
-      alignmentContext.layoutContext(), alignmentContext.mainSize(), relevantValue);
+      item.box().layoutContext(), alignmentContext.mainSize(), relevantValue);
   }
 
   private static void setMainPos(FlexItem item, float startPos, boolean isVertical) {
@@ -214,7 +213,7 @@ public final class FlexMainAlignment {
   }
 
   public static record MainAlignmentContext(
-    LayoutContext layoutContext, LayoutConstraint mainSize,
+    LayoutConstraint mainSize,
     boolean isVertical, boolean isReverse, JustifyContentValue justification
   ) {}
 

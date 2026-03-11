@@ -10,7 +10,6 @@ import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayerEntry;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionUtil;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
@@ -56,11 +55,11 @@ public class StackingContextImp implements StackingContext {
   }
 
   @Override
-  public float[] computeInsets(LayoutContext layoutContext) {
+  public float[] computeInsets() {
     CSSValue position = relatedBox.activeStyles().getProperty(CSSProperty.POSITION);
     return this.insets = position.equals(PositionValue.RELATIVE) ?
-      determineRelativeInsets(layoutContext) :
-      determineAbsoluteInsets(layoutContext);
+      determineRelativeInsets() :
+      determineAbsoluteInsets();
   }
 
   @Override
@@ -176,7 +175,7 @@ public class StackingContextImp implements StackingContext {
     return Math.max(0, maxY - minY);
   }
 
-  private float[] determineRelativeInsets(LayoutContext layoutContext) {
+  private float[] determineRelativeInsets() {
     Box refBox = relatedBox.parentBox();
     while (
       refBox instanceof ElementBox elementBox
@@ -192,15 +191,15 @@ public class StackingContextImp implements StackingContext {
     }
     BoxFragment refFragment = elementBox.lastCachedFragment();
     return PositionUtil.computeRelativeInsets(
-      layoutContext, refFragment.contentWidth(), refFragment.contentHeight(), relatedBox);
+      refFragment.contentWidth(), refFragment.contentHeight(), relatedBox);
   }
 
-  private float[] determineAbsoluteInsets(LayoutContext layoutContext) {
+  private float[] determineAbsoluteInsets() {
     if (parentContext == null) return new float[4];
     float refWidth = parentContext.computeWidth();
     float refHeight = parentContext.computeHeight();
     return PositionUtil.computeAbsoluteInsets(
-      relatedBox, layoutContext, refWidth, refHeight);
+      relatedBox, refWidth, refHeight);
   }
 
   private void addChild(StackingContext childContext) {

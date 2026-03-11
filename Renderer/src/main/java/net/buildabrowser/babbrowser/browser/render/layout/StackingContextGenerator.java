@@ -14,42 +14,38 @@ public final class StackingContextGenerator {
   private StackingContextGenerator() {}
 
   public static void generateStackingContextsRoot(
-    ElementBox rootBox, Deque<ElementBox> deferredBoxes, GlobalLayoutContext globalLayoutContext
+    ElementBox rootBox, Deque<ElementBox> deferredBoxes
   ) {
-    // TODO: Need to track font
-    LayoutContext layoutContext = new LayoutContext(globalLayoutContext, globalLayoutContext.rootMetrics());
     StackingContext rootContext = StackingContext.createRoot(rootBox);
     rootBox.setStackingContext(rootContext);
-    rootContext.computeInsets(layoutContext);
+    rootContext.computeInsets();
 
     ElementBoxIterator childIt = rootBox.childBoxes();
     while (childIt.hasNext()) {
-      generateStackingContexts(childIt.next(), rootContext, layoutContext, deferredBoxes);
+      generateStackingContexts(childIt.next(), rootContext, deferredBoxes);
     }
   }
 
   public static void generateStackingContextsDeferred(
-    ElementBox deferredBox, Deque<ElementBox> deferredBoxes, GlobalLayoutContext globalLayoutContext
+    ElementBox deferredBox, Deque<ElementBox> deferredBoxes
   ) {
     // TODO: Need to track font
-    LayoutContext layoutContext = new LayoutContext(globalLayoutContext, globalLayoutContext.rootMetrics());
     StackingContext deferredContext = deferredBox.stackingContext();
 
     ElementBoxIterator childIt = deferredBox.childBoxes();
     while (childIt.hasNext()) {
-      generateStackingContexts(childIt.next(), deferredContext, layoutContext, deferredBoxes);
+      generateStackingContexts(childIt.next(), deferredContext, deferredBoxes);
     }
   }
 
   private static void generateStackingContexts(
-    Box box, StackingContext parentContext, LayoutContext layoutContext,
-    Deque<ElementBox> deferredBoxes
+    Box box, StackingContext parentContext, Deque<ElementBox> deferredBoxes
   ) {
     if (!(box instanceof ElementBox elementBox)) return;
     CSSValue positioning = elementBox.activeStyles().getProperty(CSSProperty.POSITION);
     if (positioning.equals(PositionValue.RELATIVE)) {
       parentContext = parentContext.createChild(elementBox);
-      parentContext.computeInsets(layoutContext);
+      parentContext.computeInsets();
     } else if (positioning.equals(PositionValue.ABSOLUTE)) {
       parentContext = parentContext.createChild(elementBox);
       deferredBoxes.add(elementBox);
@@ -58,7 +54,7 @@ public final class StackingContextGenerator {
     ElementBoxIterator childIt = elementBox.childBoxes();
     if (!positioning.equals(PositionValue.ABSOLUTE)) {
       while (childIt.hasNext()) {
-        generateStackingContexts(childIt.next(), parentContext, layoutContext, deferredBoxes);
+        generateStackingContexts(childIt.next(), parentContext, deferredBoxes);
       }
     }
   }

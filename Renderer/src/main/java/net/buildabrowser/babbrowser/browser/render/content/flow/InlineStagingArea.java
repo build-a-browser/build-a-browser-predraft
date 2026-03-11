@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 
 public class InlineStagingArea {
   
@@ -55,7 +56,8 @@ public class InlineStagingArea {
 
   public void setText(int i, String text) {
     StagedText oldStagedText = (StagedText) stagedElements.get(i);
-    stagedElements.set(i, new StagedText(oldStagedText.boxRef(), text));
+    stagedElements.set(i, new StagedText(
+      oldStagedText.layoutContext(), oldStagedText.boxRef(), text));
   }
 
   public StagingElement stagingElementAt(int i) {
@@ -73,7 +75,7 @@ public class InlineStagingArea {
 
   public static interface StagingElement {}
 
-  public record StagedText(TextBox boxRef, String currentText) implements StagingElement {}
+  public record StagedText(LayoutContext layoutContext, TextBox boxRef, String currentText) implements StagingElement {}
 
   public record StagedFloatBox(ElementBox elementBox) implements StagingElement {}
 

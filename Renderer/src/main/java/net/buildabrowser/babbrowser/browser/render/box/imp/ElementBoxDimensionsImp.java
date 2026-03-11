@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.browser.render.box.imp;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 
 public class ElementBoxDimensionsImp implements ElementBoxDimensions {
 
@@ -84,17 +83,13 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   }
 
   @Override
-  public float preferredMinWidthConstraint(LayoutContext layoutContext) {
-    return box.cachedLayout(
-      new LayoutContext(layoutContext.global(), layoutContext.fontMetrics()),
-      LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).width();
+  public float preferredMinWidthConstraint() {
+    return box.cachedLayout(LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).width();
   }
 
   @Override
-  public float preferredWidthConstraint(LayoutContext layoutContext) {
-    return box.cachedLayout(
-      new LayoutContext(layoutContext.global(), layoutContext.fontMetrics()),
-      LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).width();
+  public float preferredWidthConstraint() {
+    return box.cachedLayout(LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).width();
   }
 
   @Override

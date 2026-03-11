@@ -12,7 +12,7 @@ public interface StackingContext {
 
   StackingContext createChild(ElementBox relatedBox);
 
-  float[] computeInsets(LayoutContext layoutContext);
+  float[] computeInsets();
 
   void addFragment(float posX, float posY, BoxFragment fragment);
 

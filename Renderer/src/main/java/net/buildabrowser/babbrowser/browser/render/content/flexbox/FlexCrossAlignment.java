@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.browser.render.content.flexbox;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
 
 public class FlexCrossAlignment {
@@ -93,7 +92,7 @@ public class FlexCrossAlignment {
   }
 
   public static record CrossAlignmentContext(
-    LayoutContext layoutContext, LayoutConstraint crossSize, boolean isVertical, AlignContentValue alignContent
+    LayoutConstraint crossSize, boolean isVertical, AlignContentValue alignContent
   ) {}
 
 }

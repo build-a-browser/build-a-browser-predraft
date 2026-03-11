@@ -13,7 +13,6 @@ import net.buildabrowser.babbrowser.browser.render.content.common.position.Posit
 import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
@@ -47,7 +46,6 @@ public class FlowBlockLayout {
   }
   
   public void addChildrenToBlock(
-    LayoutContext layoutContext,
     ElementBox box,
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
@@ -59,33 +57,33 @@ public class FlowBlockLayout {
     for (Box childBox: box.childBoxes()) {
       if (childBox instanceof ElementBox elementBox) {
         // TODO: Maybe add a util method that groups all of this stuff
-        BorderUtil.computeBorder(layoutContext, elementBox, widthConstraint);
-        PaddingUtil.computePadding(layoutContext, elementBox, widthConstraint);
+        BorderUtil.computeBorder(elementBox, widthConstraint);
+        PaddingUtil.computePadding( elementBox, widthConstraint);
       }
       if (
         childBox instanceof ElementBox elementBox
         && !PositionUtil.affectsLayout(elementBox)
       ) {
-        addPositionedToBlock(layoutContext, elementBox);
+        addPositionedToBlock(elementBox);
       } else if (
         childBox instanceof ElementBox elementBox
         && FlowUtil.isFloat(elementBox)
       ) {
         if (isInInline) {
-          inlineLayout.stageInline(layoutContext, childBox);
+          inlineLayout.stageInline(box.layoutContext(), childBox);
           continue;
         }
         activeContext().collapse();
         ackFloatClear(elementBox);
         UnmanagedBoxFragment floatFragment = FloatLayout.renderFloat(
-          layoutContext, elementBox, widthConstraint, heightConstraint);
+          elementBox, widthConstraint, heightConstraint);
         FloatLayout.addFloat(rootContent, floatFragment, widthConstraint, heightConstraint, 0);
       } else if (FlowUtil.isBlockLevel(childBox)) {
         if (isInInline) {
-          inlineLayout.stopInline(layoutContext, widthConstraint, heightConstraint, boxStyles);
+          inlineLayout.stopInline(widthConstraint, heightConstraint, boxStyles);
           isInInline = false;
         }
-        addToBlock(layoutContext, (ElementBox) childBox, widthConstraint, heightConstraint);
+        addToBlock((ElementBox) childBox, widthConstraint, heightConstraint);
       } else if (childBox instanceof TextBox textBox && textBox.text().isBlank()) {
         continue; // TODO: Check the actual spec-compliant way to handle this
       } else {
@@ -94,40 +92,38 @@ public class FlowBlockLayout {
           inlineLayout.startInline(boxStyles, widthConstraint);
           isInInline = true;
         }
-        inlineLayout.stageInline(layoutContext, childBox);
+        inlineLayout.stageInline(box.layoutContext(), childBox);
       }
     }
 
     if (isInInline) {
-      inlineLayout.stopInline(layoutContext, widthConstraint, heightConstraint, boxStyles);
+      inlineLayout.stopInline(widthConstraint, heightConstraint, boxStyles);
     }
   }
 
   public void addToBlock(
-    LayoutContext layoutContext,
     ElementBox elementBox,
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
     ackFloatClear(elementBox);
     if (FlowUtil.isInFlow(elementBox)) {
-      addManagedBlockToBlock(layoutContext, elementBox, widthConstraint, heightConstraint);
+      addManagedBlockToBlock(elementBox, widthConstraint, heightConstraint);
     } else {
-      addUnmanagedBlockToBlock(layoutContext, elementBox, widthConstraint, heightConstraint);
+      addUnmanagedBlockToBlock(elementBox, widthConstraint, heightConstraint);
     }
   }
 
   private void addManagedBlockToBlock(
-    LayoutContext layoutContext,
     ElementBox childBox,
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint
   ) {
     BlockFormattingContext parentContext = activeContext();
     LayoutConstraint childWidthConstraint = FlowWidthUtil.evaluateNonReplacedBlockWidthAndMargins(
-      layoutContext, parentWidthConstraint, childBox);
+      parentWidthConstraint, childBox);
     LayoutConstraint childHeightConstraint = FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
-      layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
+      parentHeightConstraint, parentWidthConstraint, childBox);
 
     float[] margin = childBox.dimensions().getComputedMargin();
     float[] border = childBox.dimensions().getComputedBorder();
@@ -150,7 +146,7 @@ public class FlowBlockLayout {
     BlockFormattingContext preBlockStack = IntrusiveList.last(blockStack);
     blockStack = IntrusiveList.add(preBlockStack, childContext);
 
-    addChildrenToBlock(layoutContext, childBox, childWidthConstraint, childHeightConstraint);
+    addChildrenToBlock(childBox, childWidthConstraint, childHeightConstraint);
 
     boolean collapseAfter = needsCollapsed(childBox, 1);
     if (collapseAfter) {
@@ -163,7 +159,7 @@ public class FlowBlockLayout {
     floatTracker.positionTracker().restoreMark(floatMark); // TODO: Ensure we still account for collapsed padding
     floatTracker.positionTracker().adjustPos(0, activeContext().currentY() - preMargin);
     
-    addFinishedFragment(layoutContext, newFragment, margin[2]);
+    addFinishedFragment(newFragment, margin[2]);
     
     if (!collapseAfter) {
       parentContext.recordMargin(childContext.currentMaxMargin());
@@ -174,52 +170,51 @@ public class FlowBlockLayout {
 
   // TODO: Handle the edge case where an unmanaged block interacts with a float
   private void addUnmanagedBlockToBlock(
-    LayoutContext layoutContext,
     ElementBox childBox,
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint
   ) {
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
       FlowWidthUtil.determineBlockReplacedWidthAndMargins(
-        layoutContext, parentWidthConstraint, childBox) :
+        parentWidthConstraint, childBox) :
       FlowWidthUtil.evaluateNonReplacedBlockWidthAndMargins(
-        layoutContext, parentWidthConstraint, childBox);
+        parentWidthConstraint, childBox);
     LayoutConstraint childHeightConstraint = childBox.isReplaced() ?
       FlowHeightUtil.evaluateReplacedBlockHeightAndMargins(
-        layoutContext, parentHeightConstraint, parentWidthConstraint,
+        parentHeightConstraint, parentWidthConstraint,
         childWidthConstraint, childBox) :
       FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
-        layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
+        parentHeightConstraint, parentWidthConstraint, childBox);
 
     float[] margin = childBox.dimensions().getComputedMargin();
     activeContext().recordMargin(margin[0]);
     activeContext().collapse();
     UnmanagedBoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
       new UnmanagedBoxFragment(
-        FlowUtil.constraintWidth(layoutContext, childBox.dimensions(), childWidthConstraint),
+        FlowUtil.constraintWidth(childBox.dimensions(), childWidthConstraint),
         FlowUtil.constraintHeight(childBox.dimensions(), childHeightConstraint),
         childBox, null) :
-      childBox.layout(layoutContext, childWidthConstraint, childHeightConstraint);
+      childBox.layout(childWidthConstraint, childHeightConstraint);
 
     activeContext().recordMargin(margin[1]);
 
-    addFinishedFragment(layoutContext, newFragment, margin[2]);
+    addFinishedFragment(newFragment, margin[2]);
   }
 
-  private void addPositionedToBlock(LayoutContext layoutContext, ElementBox childBox) {
+  private void addPositionedToBlock(ElementBox childBox) {
     BlockFormattingContext parentContext = activeContext();
 
     float estimatedAboveMargin = parentContext.currentMaxMargin() + parentContext.currentMinMargin();
     // Don't bother marking the float tracker position, the child should establish a new one
 
-    LayoutFragment newFragment = PositionLayout.layout(layoutContext, childBox);
+    LayoutFragment newFragment = PositionLayout.layout(childBox);
     parentContext.addFragment(newFragment); // Still needed to set fragment parent
 
     float[] margin = childBox.dimensions().getComputedMargin();
     newFragment.setPos(margin[2], margin[0] + estimatedAboveMargin + parentContext.currentY());
   }
 
-  public void addFinishedFragment(LayoutContext layoutContext, LayoutFragment newFragment, float posX) {
+  public void addFinishedFragment(LayoutFragment newFragment, float posX) {
     BlockFormattingContext parentContext = activeContext();
     newFragment.setPos(posX, parentContext.currentY());
     parentContext.increaseY(newFragment.borderHeight());

@@ -29,6 +29,7 @@ import net.buildabrowser.babbrowser.browser.render.content.common.position.Posit
 import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutContextGenerator;
 import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.browser.render.layout.StackingContextGenerator;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
@@ -82,19 +83,20 @@ public class RendererImp implements Renderer {
             url, painter.resourceLoader(), fontMetrics, cacheKey);
 
           LayoutContext layoutContext = new LayoutContext(globalLayoutContext, fontMetrics);
+          LayoutContextGenerator.generateLayoutContexts(rootBox, layoutContext);
           ArrayDeque<ElementBox> deferredLayout = new ArrayDeque<>();
 
-          UnmanagedBoxFragment fragment = rootBox.layout(layoutContext,
+          UnmanagedBoxFragment fragment = rootBox.layout(
             LayoutConstraint.of(this.getWidth()),
             LayoutConstraint.of(this.getHeight()));
           fragment.setPos(0, 0);
-          StackingContextGenerator.generateStackingContextsRoot(rootBox, deferredLayout, globalLayoutContext);
+          StackingContextGenerator.generateStackingContextsRoot(rootBox, deferredLayout);
           rootBox.stackingContext().addFragment(0, 0, fragment);
-          rootBox.content().positionLayers(0, 0, layoutContext.global());
+          rootBox.content().positionLayers(0, 0);
           
           while (!deferredLayout.isEmpty()) {
             ElementBox itemBox = deferredLayout.pop();
-            layoutAbsolute(globalLayoutContext, layoutContext, deferredLayout, itemBox);
+            layoutAbsolute(deferredLayout, itemBox);
           }
           
           CompositeLayer rootLayer = rootBox.stackingContext().createLayer();
@@ -109,27 +111,25 @@ public class RendererImp implements Renderer {
         }
 
         private void layoutAbsolute(
-          GlobalLayoutContext globalLayoutContext,
-          LayoutContext layoutContext,
           ArrayDeque<ElementBox> deferredLayout,
           ElementBox itemBox
         ) {
           // TODO: Need to use proper layout context for item
           StackingContext parentContext = itemBox.stackingContext().parentContext();
-          float[] insets = itemBox.stackingContext().computeInsets(layoutContext);
+          float[] insets = itemBox.stackingContext().computeInsets();
           float refWidth = parentContext.computeWidth();
           float refHeight = parentContext.computeHeight();
           UnmanagedBoxFragment itemFragment = PositionLayout.actuallyLayoutAbsolute(
-            layoutContext, itemBox, refWidth, refHeight, insets);
+            itemBox, refWidth, refHeight, insets);
           float[] position = PositionLayout.positionAbsolute(
             insets, itemFragment, refWidth, refHeight);
           
-          StackingContextGenerator.generateStackingContextsDeferred(itemBox, deferredLayout, globalLayoutContext);
+          StackingContextGenerator.generateStackingContextsDeferred(itemBox, deferredLayout);
           itemBox.stackingContext().addFragment(
             parentContext.posX() + position[0],
             parentContext.posY() + position[1],
             itemFragment);
-          itemBox.content().positionLayers(0, 0, layoutContext.global());
+          itemBox.content().positionLayers(0, 0);
         }
       };
 

@@ -39,7 +39,6 @@ public class FlowInlineLayout {
   }
 
   public void stopInline(
-    LayoutContext layoutContext,
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint,
     ActiveStyles parentStyles
@@ -47,7 +46,7 @@ public class FlowInlineLayout {
     LineWhitespaceCollapser.collapseWhitespace(
       inlineStack.peek().stagingArea(),
       (WhitespaceCollapseValue) parentStyles.getProperty(CSSProperty.WHITE_SPACE_COLLAPSE));
-    addStagedElements(layoutContext, widthConstraint, heightConstraint);
+    addStagedElements(widthConstraint, heightConstraint);
     inlineStack.pop().closeLine();
   }
 
@@ -57,15 +56,15 @@ public class FlowInlineLayout {
 
   // #region Staging
 
-  public void stageInline(LayoutContext layoutContext, Box box) {
+  public void stageInline(LayoutContext parentContext, Box box) {
     InlineStagingArea stagingArea = inlineStack.peek().stagingArea();
     if (box instanceof TextBox textBox) {
-      stagingArea.pushStagedElement(new StagedText(textBox, textBox.text()));
+      stagingArea.pushStagedElement(new StagedText(parentContext, textBox, textBox.text()));
     } else if (box instanceof ElementBox elementBox) {
       // Might get computed twice for outer box, doesn't really matter
       LayoutConstraint widthConstraint = rootContent.blockLayout().activeContext().innerWidthConstraint();
-      BorderUtil.computeBorder(layoutContext, elementBox, widthConstraint);
-      PaddingUtil.computePadding(layoutContext, elementBox, widthConstraint);
+      BorderUtil.computeBorder(elementBox, widthConstraint);
+      PaddingUtil.computePadding(elementBox, widthConstraint);
       
       if (!PositionUtil.affectsLayout(elementBox)) {
         stagingArea.pushStagedElement(new StagedUnmanagedBox(elementBox));
@@ -76,10 +75,10 @@ public class FlowInlineLayout {
       } else if (!FlowUtil.isInFlow(elementBox)) {
         stagingArea.pushStagedElement(new StagedUnmanagedBox(elementBox));
       } else {
-        FlowWidthUtil.computeHorizontalMarginsOrZero(layoutContext, widthConstraint, elementBox);
+        FlowWidthUtil.computeHorizontalMarginsOrZero(widthConstraint, elementBox);
         stagingArea.pushStagedElement(new ManagedBoxEntryMarker(elementBox));
         for (Box childBox: elementBox.childBoxes()) {
-          stageInline(layoutContext, childBox);
+          stageInline(elementBox.layoutContext(), childBox);
         }
         stagingArea.pushStagedElement(new ManagedBoxExitMarker(elementBox));
       }
@@ -89,27 +88,27 @@ public class FlowInlineLayout {
   }
 
   // TODO: Handle float clear?
-  private void addStagedElements(LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
+  private void addStagedElements(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
     InlineStagingArea stagingArea = inlineStack.peek().stagingArea();
     stagingArea.resetCursor();
     ActiveStyles parentStyles = inlineStack.peek().activeStyles();
     while (!stagingArea.done()) {
       switch (stagingArea.next()) {
-        case StagedText stagedText -> addTextToInline(layoutContext, parentStyles, stagedText);
+        case StagedText stagedText -> addTextToInline(stagedText.layoutContext(), parentStyles, stagedText);
         case StagedFloatBox stagedFloat -> addFloatAroundInline(
-          layoutContext, stagedFloat.elementBox(), widthConstraint, heightConstraint);
+          stagedFloat.elementBox(), widthConstraint, heightConstraint);
         case StagedUnmanagedBox stagedUnmanagedBox -> {
           if (PositionUtil.affectsLayout(stagedUnmanagedBox.elementBox())) {
             addUnmanagedBlockToInline(
-              layoutContext, stagedUnmanagedBox.elementBox(), widthConstraint, heightConstraint);
+              stagedUnmanagedBox.elementBox(), widthConstraint, heightConstraint);
           } else {
-            LayoutFragment newFragment = PositionLayout.layout(layoutContext, stagedUnmanagedBox.elementBox());
+            LayoutFragment newFragment = PositionLayout.layout(stagedUnmanagedBox.elementBox());
             InlineFormattingContext parentContext = inlineStack.peek();
             parentContext.addFragment(newFragment);
           }
         }
         case StagedBlockLevelBox stagedBlockLevelBox -> addBlockLevelToInline(
-          layoutContext, stagedBlockLevelBox.elementBox(), widthConstraint, heightConstraint);
+          stagedBlockLevelBox.elementBox(), widthConstraint, heightConstraint);
         case ManagedBoxEntryMarker marker -> inlineStack.peek().pushElement(marker.elementBox());
         case ManagedBoxExitMarker _ -> inlineStack.peek().popElement();
         default -> throw new UnsupportedOperationException("Unknown staging element type");
@@ -120,14 +119,13 @@ public class FlowInlineLayout {
   // #region Sizing
 
   private void addFloatAroundInline(
-    LayoutContext layoutContext,
     ElementBox elementBox,
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
     InlineFormattingContext inlineContext = inlineStack.peek();
     UnmanagedBoxFragment floatFragment = FloatLayout.renderFloat(
-      layoutContext, elementBox, widthConstraint, heightConstraint);
+      elementBox, widthConstraint, heightConstraint);
     boolean fitsInLine = FloatLayout.addFloat(
       rootContent, floatFragment, widthConstraint, heightConstraint, inlineContext.lineBox().totalWidth());
     if (fitsInLine) return;
@@ -137,41 +135,39 @@ public class FlowInlineLayout {
   }
 
   private void addBlockLevelToInline(
-    LayoutContext layoutContext,
     ElementBox elementBox,
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
     inlineStack.peek().nextLine();
     rootContent.blockLayout().addToBlock(
-      layoutContext, elementBox, widthConstraint, heightConstraint);
+      elementBox, widthConstraint, heightConstraint);
     rootContent.blockLayout().activeContext().collapse();
   }
 
   private void addUnmanagedBlockToInline(
-    LayoutContext layoutContext,
     ElementBox childBox,
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint
   ) {
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
       FlowWidthUtil.determineBlockReplacedWidthAndMargins(
-        layoutContext, parentWidthConstraint, childBox) :
+        parentWidthConstraint, childBox) :
       FlowWidthUtil.determineInlineBlockNonReplacedWidthAndMargins(
-        layoutContext, parentWidthConstraint, childBox);
+        parentWidthConstraint, childBox);
     LayoutConstraint childHeightContraint = childBox.isReplaced() ?
       FlowHeightUtil.evaluateReplacedBlockHeightAndMargins(
-        layoutContext, parentHeightConstraint, parentWidthConstraint,
+        parentHeightConstraint, parentWidthConstraint,
         childWidthConstraint, childBox) :
       FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
-        layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
+        parentHeightConstraint, parentWidthConstraint, childBox);
 
     BoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
       new UnmanagedBoxFragment(
-        FlowUtil.constraintWidth(layoutContext, childBox.dimensions(), parentWidthConstraint),
+        FlowUtil.constraintWidth(childBox.dimensions(), parentWidthConstraint),
         FlowUtil.constraintHeight(childBox.dimensions(), parentHeightConstraint),
         childBox, null) :
-      childBox.layout(layoutContext, childWidthConstraint, childHeightContraint);
+      childBox.layout(childWidthConstraint, childHeightContraint);
 
     InlineFormattingContext parentContext = inlineStack.peek();
     parentContext.addFragment(newFragment);
@@ -194,7 +190,7 @@ public class FlowInlineLayout {
   public void positionLine(LineBoxFragment fragment) {
     positionFragmentElements(fragment.fragments());
     float offsetX = rootContent.floatTracker().lineStartPos();
-    rootContent.blockLayout().addFinishedFragment(null, fragment, offsetX);
+    rootContent.blockLayout().addFinishedFragment(fragment, offsetX);
   }
 
   private void positionFragmentElements(LayoutFragment fragments) {

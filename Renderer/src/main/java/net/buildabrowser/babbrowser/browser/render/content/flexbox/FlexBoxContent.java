@@ -14,10 +14,8 @@ import net.buildabrowser.babbrowser.browser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flexbox.FlexCrossAlignment.CrossAlignmentContext;
 import net.buildabrowser.babbrowser.browser.render.content.flexbox.FlexMainAlignment.MainAlignmentContext;
-import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
@@ -79,15 +77,15 @@ public class FlexBoxContent implements BoxContent {
 
   @Override
   public UnmanagedBoxFragment layout(
-    LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+    LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     // TODO: Also support gap
     List<FlexItem> flexItems = collectFlexItems();
     for (FlexItem item: flexItems) {
-      BorderUtil.computeBorder(layoutContext, item.box(), widthConstraint);
-      PaddingUtil.computePadding(layoutContext, item.box(), widthConstraint);
+      BorderUtil.computeBorder(item.box(), widthConstraint);
+      PaddingUtil.computePadding(item.box(), widthConstraint);
     }
-    return layoutItems(layoutContext, flexItems, widthConstraint, heightConstraint);
+    return layoutItems(flexItems, widthConstraint, heightConstraint);
   }
 
   public UnmanagedBoxFragment fragments() {
@@ -95,30 +93,30 @@ public class FlexBoxContent implements BoxContent {
   }
 
   private UnmanagedBoxFragment layoutItems(
-    LayoutContext layoutContext, List<FlexItem> items, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+    List<FlexItem> items, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     FlexDirectionValue flexDirection = (FlexDirectionValue) rootBox.activeStyles().getProperty(CSSProperty.FLEX_DIRECTION);
     boolean isVertical = flexDirection.equals(FlexDirectionValue.COLUMN) || flexDirection.equals(FlexDirectionValue.COLUMN_REVERSE);
     LayoutConstraint mainSize = isVertical ? heightConstraint : widthConstraint;
     LayoutConstraint crossSize = isVertical ? widthConstraint : heightConstraint;
-    FlexHypotheticalSizeDetermination.determineBaseAndHypotheticalSizes(layoutContext, items, mainSize, crossSize, isVertical);
+    FlexHypotheticalSizeDetermination.determineBaseAndHypotheticalSizes(items, mainSize, crossSize, isVertical);
     List<FlexLine> lines = collectFlexItemsIntoFlexLines(mainSize, items);
     for (FlexLine line: lines) {
       Flexer.flex(mainSize, line);
     }
     if (!widthConstraint.isPreLayoutConstraint()) {
-      FlexCrossSizeDetermination.determineCrossSize(layoutContext, rootBox, lines, crossSize, isVertical);
+      FlexCrossSizeDetermination.determineCrossSize(rootBox, lines, crossSize, isVertical);
 
       JustifyContentValue contentJustification = (JustifyContentValue) rootBox.activeStyles().getProperty(CSSProperty.JUSTIFY_CONTENT);
       boolean isReverse =
         flexDirection.equals(FlexDirectionValue.ROW_REVERSE)
         || flexDirection.equals(FlexDirectionValue.COLUMN_REVERSE);
       FlexMainAlignment.alignMainAxis(
-        new MainAlignmentContext(layoutContext, mainSize, isVertical, isReverse, contentJustification),
+        new MainAlignmentContext(mainSize, isVertical, isReverse, contentJustification),
         lines);
       AlignContentValue alignContent = (AlignContentValue) rootBox.activeStyles().getProperty(CSSProperty.ALIGN_CONTENT);
       FlexCrossAlignment.alignCrossAxis(
-        new CrossAlignmentContext(layoutContext, crossSize, isVertical, alignContent),
+        new CrossAlignmentContext(crossSize, isVertical, alignContent),
         lines);
 
       collectedChildFragments(items);
@@ -199,7 +197,7 @@ public class FlexBoxContent implements BoxContent {
   }
 
   @Override
-  public void positionLayers(float layerX, float layerY, GlobalLayoutContext layoutContext) {
+  public void positionLayers(float layerX, float layerY) {
     // TODO: Implement
   }
   

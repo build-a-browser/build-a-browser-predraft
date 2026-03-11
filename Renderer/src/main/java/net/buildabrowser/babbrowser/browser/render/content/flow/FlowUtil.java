@@ -7,7 +7,6 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
@@ -17,12 +16,12 @@ public final class FlowUtil {
   private FlowUtil() {}
 
   public static float constraintWidth(
-    LayoutContext layoutContext, ElementBoxDimensions dimensions, LayoutConstraint layoutConstraint
+    ElementBoxDimensions dimensions, LayoutConstraint layoutConstraint
   ) {
     return switch (layoutConstraint.type()) {
       case BOUNDED -> layoutConstraint.value();
-      case MIN_CONTENT -> dimensions.preferredMinWidthConstraint(layoutContext);
-      case MAX_CONTENT -> dimensions.preferredWidthConstraint(layoutContext);
+      case MIN_CONTENT -> dimensions.preferredMinWidthConstraint();
+      case MAX_CONTENT -> dimensions.preferredWidthConstraint();
       default -> throw new UnsupportedOperationException("Unsupported constraint type!");
     };
   }

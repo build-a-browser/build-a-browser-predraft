@@ -10,9 +10,7 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextF
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.FlowRootContentPainter.FlowRootBoxPainter;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
-import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 
@@ -35,12 +33,12 @@ public class FlowRootContent implements BoxContent {
 
   @Override
   public UnmanagedBoxFragment layout(
-    LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+    LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     floatTracker.reset();
 
     blockLayout.reset(rootBox, widthConstraint, heightConstraint);
-    blockLayout.addChildrenToBlock(layoutContext, rootBox, widthConstraint, heightConstraint);
+    blockLayout.addChildrenToBlock(rootBox, widthConstraint, heightConstraint);
 
     this.rootFragment = blockLayout.close(widthConstraint, heightConstraint);
     rootFragment.setPos(0, 0);
@@ -55,9 +53,9 @@ public class FlowRootContent implements BoxContent {
   }
 
   @Override
-  public void positionLayers(float layerX, float layerY, GlobalLayoutContext layoutContext) {
+  public void positionLayers(float layerX, float layerY) {
     recursePositionLayers(
-      layerX, layerY, layoutContext,
+      layerX, layerY,
       rootFragment, rootBox.stackingContext());
 
     float offsetX = layerX + (rootFragment.contentX() - rootFragment.borderX());
@@ -66,7 +64,6 @@ public class FlowRootContent implements BoxContent {
       recursePositionLayers(
         offsetX + floatFragment.borderX(),
         offsetY + floatFragment.borderY(),
-        layoutContext,
         floatFragment, rootBox.stackingContext());
     }
   }
@@ -84,8 +81,7 @@ public class FlowRootContent implements BoxContent {
   }
 
   private void recursePositionLayers(
-    float layerX, float layerY, GlobalLayoutContext layoutContext,
-    LayoutFragment fragment, StackingContext refContext
+    float layerX, float layerY, LayoutFragment fragment, StackingContext refContext
   ) {
     switch (fragment) {
       case TextFragment _ -> {}
@@ -98,7 +94,6 @@ public class FlowRootContent implements BoxContent {
           recursePositionLayers(
             layerX + child.borderX(),
             layerY + child.borderY(),
-            layoutContext,
             child, refContext);
           child = child.next();
         }
@@ -116,7 +111,6 @@ public class FlowRootContent implements BoxContent {
           recursePositionLayers(
             offsetX + child.borderX(),
             offsetY + child.borderY(),
-            layoutContext,
             child, refContext);
           child = child.next();
         }
@@ -126,8 +120,7 @@ public class FlowRootContent implements BoxContent {
           refContext = boxFragment.box().stackingContext();
           refContext.addFragment(layerX, layerY, boxFragment);
         }
-        boxFragment.box().content().positionLayers(
-          layerX, layerY, layoutContext);
+        boxFragment.box().content().positionLayers(layerX, layerY);
       }
       default -> throw new UnsupportedOperationException("Don't recognize fragment type!");
     }

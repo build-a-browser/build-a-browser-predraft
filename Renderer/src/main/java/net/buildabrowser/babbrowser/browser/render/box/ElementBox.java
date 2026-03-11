@@ -32,13 +32,17 @@ public interface ElementBox extends Box {
 
   BoxLevel boxLevel();
 
-  UnmanagedBoxFragment layout(LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
+  UnmanagedBoxFragment layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
 
-  CachedLayoutResult cachedLayout(LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
+  CachedLayoutResult cachedLayout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
 
   void updateFragment(BoxFragment boxFragment);
 
   BoxFragment lastCachedFragment();
+
+  LayoutContext layoutContext();
+
+  void setLayoutContext(LayoutContext layoutContext);
 
   StackingContext stackingContext();
 

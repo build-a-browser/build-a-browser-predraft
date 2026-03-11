@@ -28,17 +28,15 @@ public final class PositionUtil {
   }
 
   public static float[] computeRelativeInsets(
-    LayoutContext layoutContext,
-    float parentWidth, float parentHeight,
-    ElementBox childBox
+    float parentWidth, float parentHeight, ElementBox childBox
   ) {
     ActiveStyles styles = childBox.activeStyles();
     float topInset = computeRelativeInset(
       styles.getProperty(CSSProperty.TOP), styles.getProperty(CSSProperty.BOTTOM),
-      layoutContext, childBox, LayoutConstraint.of(parentHeight));
+      childBox, LayoutConstraint.of(parentHeight));
     float leftInset = computeRelativeInset(
       styles.getProperty(CSSProperty.LEFT), styles.getProperty(CSSProperty.RIGHT),
-      layoutContext, childBox, LayoutConstraint.of(parentWidth));
+      childBox, LayoutConstraint.of(parentWidth));
     
     return new float[] {
       topInset, -topInset, leftInset, -leftInset
@@ -48,10 +46,10 @@ public final class PositionUtil {
   private static float computeRelativeInset(
     CSSValue startProperty,
     CSSValue endProperty,
-    LayoutContext layoutContext,
     ElementBox childBox,
     LayoutConstraint referenceConstraint
   ) {
+    LayoutContext layoutContext = childBox.layoutContext();
     LayoutConstraint startConstraint = SizingUtil.evaluateBaseSize(layoutContext, referenceConstraint, startProperty);
     LayoutConstraint endConstraint = SizingUtil.evaluateBaseSize(layoutContext, referenceConstraint, endProperty);
     
@@ -68,10 +66,10 @@ public final class PositionUtil {
 
   // TODO: Respect self-alignment
   public static float[] computeAbsoluteInsets(
-    ElementBox box, LayoutContext layoutContext,
-    float refWidth, float refHeight
+    ElementBox box, float refWidth, float refHeight
   ) {
     ActiveStyles styles = box.activeStyles();
+    LayoutContext layoutContext = box.layoutContext();
     LayoutConstraint refHeightConstraint = LayoutConstraint.of(refHeight);
     LayoutConstraint refWidthConstraint = LayoutConstraint.of(refWidth);
     LayoutConstraint topInset = SizingUtil.evaluateBaseSize(

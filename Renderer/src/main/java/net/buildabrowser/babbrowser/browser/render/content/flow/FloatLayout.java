@@ -4,7 +4,6 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.floats.FloatValue;
@@ -14,7 +13,6 @@ public final class FloatLayout {
   private FloatLayout() {}
 
   public static UnmanagedBoxFragment renderFloat(
-    LayoutContext layoutContext,
     ElementBox childBox,
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint
@@ -22,18 +20,18 @@ public final class FloatLayout {
     // TODO: Check height calculation
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
       FlowWidthUtil.determineBlockReplacedWidthAndMargins(
-        layoutContext, parentWidthConstraint, childBox) :
+        parentWidthConstraint, childBox) :
       FlowWidthUtil.determineFloatNonReplacedWidthAndMargins(
-        layoutContext, parentWidthConstraint, childBox);
+        parentWidthConstraint, childBox);
     LayoutConstraint childHeightContraint = childBox.isReplaced() ?
       FlowHeightUtil.evaluateReplacedBlockHeightAndMargins(
-        layoutContext, parentHeightConstraint, parentWidthConstraint,
+        parentHeightConstraint, parentWidthConstraint,
         childWidthConstraint, childBox) :
       FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
-        layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
+        parentHeightConstraint, parentWidthConstraint, childBox);
 
     if (!parentWidthConstraint.isPreLayoutConstraint()) {
-      return childBox.layout(layoutContext, childWidthConstraint, childHeightContraint);
+      return childBox.layout(childWidthConstraint, childHeightContraint);
     }
 
     return new UnmanagedBoxFragment(0, 0, childBox, null);

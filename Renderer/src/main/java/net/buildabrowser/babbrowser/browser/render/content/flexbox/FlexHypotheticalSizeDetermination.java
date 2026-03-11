@@ -6,7 +6,6 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -18,7 +17,7 @@ public final class FlexHypotheticalSizeDetermination {
   private FlexHypotheticalSizeDetermination() {}
 
   public static void determineBaseAndHypotheticalSizes(
-    LayoutContext layoutContext, List<FlexItem> items,
+    List<FlexItem> items,
     LayoutConstraint mainSize, LayoutConstraint crossSize,
     boolean isVertical
   ) {
@@ -27,14 +26,13 @@ public final class FlexHypotheticalSizeDetermination {
       
       CSSValue flexBasis = determineUsedBasis(item, isVertical);
       LayoutConstraint basisConstraint = FlexUtil.evaluateFlexBasis(
-        layoutContext, item.box(), mainSize,
-        flexBasis, isVertical);
+        item.box(), mainSize, flexBasis, isVertical);
       if (basisConstraint.isBounded()) {
         item.setBaseSize(basisConstraint.value());
         continue;
       }
 
-      LayoutConstraint itemCrossSize = FlexUtil.boxCrossSize(layoutContext, item.box(), crossSize, isVertical);
+      LayoutConstraint itemCrossSize = FlexUtil.boxCrossSize(item.box(), crossSize, isVertical);
       if (
         flexBasis.equals(FlexBasisValue.CONTENT)
         && itemCrossSize.isBounded()
@@ -47,7 +45,7 @@ public final class FlexHypotheticalSizeDetermination {
 
       // Bit hacky, but refConstraint tells us if the value would resolve given finite space
       LayoutConstraint refConstraint = FlexUtil.evaluateFlexBasis(
-        layoutContext, item.box(), LayoutConstraint.of(1),
+        item.box(), LayoutConstraint.of(1),
         flexBasis, isVertical);
       boolean dependsOnAvailableSpace = refConstraint.isBounded();
 
@@ -59,8 +57,8 @@ public final class FlexHypotheticalSizeDetermination {
         && !isVertical
       ) {
         item.setBaseSize(mainSize.type().equals(LayoutConstraintType.MAX_CONTENT) ?
-          itemDimensions.preferredWidthConstraint(layoutContext) :
-        itemDimensions.preferredMinWidthConstraint(layoutContext));
+          itemDimensions.preferredWidthConstraint() :
+        itemDimensions.preferredMinWidthConstraint());
         continue;
       }
 
@@ -72,7 +70,7 @@ public final class FlexHypotheticalSizeDetermination {
           || mainSize.type().equals(LayoutConstraintType.AUTO))
         && !isVertical
       ) {
-        item.setBaseSize(itemDimensions.preferredWidthConstraint(layoutContext));
+        item.setBaseSize(itemDimensions.preferredWidthConstraint());
         continue;
       }
 
@@ -84,10 +82,10 @@ public final class FlexHypotheticalSizeDetermination {
           flexBasis.equals(FlexBasisValue.CONTENT)
           || flexBasis.equals(SizeValue.MAX_CONTENT)
         ) {
-          item.setBaseSize(itemDimensions.preferredWidthConstraint(layoutContext));
+          item.setBaseSize(itemDimensions.preferredWidthConstraint());
           continue;
         } else if (flexBasis.equals(SizeValue.MIN_CONTENT)) {
-          item.setBaseSize(itemDimensions.preferredMinWidthConstraint(layoutContext));
+          item.setBaseSize(itemDimensions.preferredMinWidthConstraint());
           continue;
         }
       }
@@ -96,17 +94,17 @@ public final class FlexHypotheticalSizeDetermination {
       assert isVertical;
 
       float fitContent = !crossSize.isBounded() ?
-        itemDimensions.preferredWidthConstraint(layoutContext) :
+        itemDimensions.preferredWidthConstraint() :
         Math.min(
-          itemDimensions.preferredWidthConstraint(layoutContext),
-          Math.max(itemDimensions.preferredMinWidthConstraint(layoutContext), crossSize.value()));
+          itemDimensions.preferredWidthConstraint(),
+          Math.max(itemDimensions.preferredMinWidthConstraint(), crossSize.value()));
 
       // TODO: The guard should only apply for auto?
       LayoutConstraint usedCrossSize = !itemCrossSize.isBounded() ?
         LayoutConstraint.of(fitContent) :
         itemCrossSize;
       
-      UnmanagedBoxFragment fragmentAtCross = item.box().layout(layoutContext, usedCrossSize, LayoutConstraint.AUTO);
+      UnmanagedBoxFragment fragmentAtCross = item.box().layout(usedCrossSize, LayoutConstraint.AUTO);
       item.setBaseSize(fragmentAtCross.contentHeight());
     }
     for (FlexItem item: items) {

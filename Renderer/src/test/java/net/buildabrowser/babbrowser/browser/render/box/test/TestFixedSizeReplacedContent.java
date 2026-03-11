@@ -3,9 +3,7 @@ package net.buildabrowser.babbrowser.browser.render.box.test;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 
 public class TestFixedSizeReplacedContent implements BoxContent {
@@ -22,7 +20,7 @@ public class TestFixedSizeReplacedContent implements BoxContent {
 
   @Override
   public UnmanagedBoxFragment layout(
-    LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+    LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, width);
     float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, height);
@@ -36,7 +34,7 @@ public class TestFixedSizeReplacedContent implements BoxContent {
   }
 
   @Override
-  public void positionLayers(float layerX, float layerY, GlobalLayoutContext layoutContext) {
+  public void positionLayers(float layerX, float layerY) {
     
   }
   

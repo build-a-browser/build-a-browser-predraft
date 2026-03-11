@@ -8,10 +8,8 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.table.Table.Cell;
-import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 
@@ -32,7 +30,6 @@ public class TableContent implements BoxContent {
 
   @Override
   public UnmanagedBoxFragment layout(
-    LayoutContext layoutContext,
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
@@ -48,7 +45,7 @@ public class TableContent implements BoxContent {
         rootBox, painter);
     }
 
-    float[] columnWidths = TableFixedLayout.computeColumnWidths(layoutContext, table, widthConstraint);
+    float[] columnWidths = TableFixedLayout.computeColumnWidths(table, widthConstraint);
     float totalWidth = sumWidths(columnWidths);
     if (widthConstraint.isPreLayoutConstraint()) {
       return new UnmanagedBoxFragment(
@@ -58,9 +55,9 @@ public class TableContent implements BoxContent {
     }
 
     float[] rowHeights = new float[table.height()];
-    layoutCellsAndHeights(layoutContext, table, columnWidths, rowHeights);
+    layoutCellsAndHeights(table, columnWidths, rowHeights);
     // TODO: Respect alignments and explicit row heights
-    positionCells(layoutContext, table, columnWidths, rowHeights);
+    positionCells(table, columnWidths, rowHeights);
 
     this.sizedTable = new SizedTable(table, columnWidths, rowHeights);
     return new UnmanagedBoxFragment(
@@ -73,7 +70,7 @@ public class TableContent implements BoxContent {
     return this.sizedTable;
   }
 
-  private void layoutCellsAndHeights(LayoutContext layoutContext, Table table, float[] columnWidths, float[] rowHeights) {
+  private void layoutCellsAndHeights(Table table, float[] columnWidths, float[] rowHeights) {
     for (int y = 0; y < table.height(); y++) {
       for (int x = 0; x < table.width(); x++) {
         for (int z = 0; table.getCell(x, y, z) != null; z++) {
@@ -81,11 +78,11 @@ public class TableContent implements BoxContent {
           if (cell.getRelatedFragment() != null) continue;
 
           UnmanagedBoxFragment fragment = cell.cellBox().layout(
-            layoutContext, LayoutConstraint.of(columnWidths[x]), LayoutConstraint.AUTO);
+            LayoutConstraint.of(columnWidths[x]), LayoutConstraint.AUTO);
           cell.setRelatedFragment(fragment);
 
           LayoutConstraint fragmentHeight = SizingUtil.evaluateAdjustedHeightSize(
-            layoutContext, LayoutConstraint.AUTO, cell.cellBox(),
+            LayoutConstraint.AUTO, cell.cellBox(),
             cell.cellBox().activeStyles().getProperty(CSSProperty.HEIGHT));
 
           float usedHeight = fragmentHeight.type().equals(LayoutConstraintType.BOUNDED) ?
@@ -99,7 +96,7 @@ public class TableContent implements BoxContent {
     }
   }
 
-  private List<UnmanagedBoxFragment> positionCells(LayoutContext layoutContext, Table table, float[] columnWidths, float[] rowHeights) {
+  private List<UnmanagedBoxFragment> positionCells(Table table, float[] columnWidths, float[] rowHeights) {
     List<UnmanagedBoxFragment> fragments = new ArrayList<>();
 
     float currentY = 0;
@@ -133,7 +130,7 @@ public class TableContent implements BoxContent {
   public static record SizedTable(Table table, float[] columnWidths, float[] columnHeights) {}
 
   @Override
-  public void positionLayers(float layerX, float layerY, GlobalLayoutContext layoutContext) {
+  public void positionLayers(float layerX, float layerY) {
     // TODO: Implement this
   }
   

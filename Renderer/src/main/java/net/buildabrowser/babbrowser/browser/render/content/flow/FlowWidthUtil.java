@@ -6,20 +6,17 @@ import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 
 public final class FlowWidthUtil {
   
   private FlowWidthUtil() {}
 
   public static LayoutConstraint determineBlockReplacedWidthAndMargins(
-    LayoutContext layoutContext,
-    LayoutConstraint parentConstraint,
-    ElementBox childBox
+    LayoutConstraint parentConstraint, ElementBox childBox
   ) {
-    computeHorizontalMarginsOrZero(layoutContext, parentConstraint, childBox);
+    computeHorizontalMarginsOrZero(parentConstraint, childBox);
     LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(
-      layoutContext, parentConstraint, childBox,
+      parentConstraint, childBox,
       childBox.activeStyles().getProperty(CSSProperty.WIDTH));
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
@@ -45,7 +42,7 @@ public final class FlowWidthUtil {
       return LayoutConstraint.of(usedWidth);
     } else if (boxDimensions.intrinsicRatio() != -1) {
       // TODO: Compute as for block non-replaced
-      return LayoutConstraint.of(boxDimensions.preferredWidthConstraint(layoutContext));
+      return LayoutConstraint.of(boxDimensions.preferredWidthConstraint());
     } else if (boxDimensions.intrinsicWidth() != -1) {
       return LayoutConstraint.of(boxDimensions.intrinsicWidth());
     } else {
@@ -55,18 +52,16 @@ public final class FlowWidthUtil {
   }
 
   public static LayoutConstraint evaluateNonReplacedBlockWidthAndMargins(
-    LayoutContext layoutContext,
-    LayoutConstraint parentConstraint,
-    ElementBox childBox
+    LayoutConstraint parentConstraint, ElementBox childBox
   ) {
     LayoutConstraint determinedConstraint = SizingUtil.evaluateAdjustedWidthSize(
-      layoutContext, parentConstraint, childBox,
+      parentConstraint, childBox,
       childBox.activeStyles().getProperty(CSSProperty.WIDTH));
     LayoutConstraint marginLeftConstraint = SizingUtil.evaluateBaseSize(
-      layoutContext, parentConstraint,
+      childBox.layoutContext(), parentConstraint,
       childBox.activeStyles().getProperty(CSSProperty.MARGIN_LEFT));
     LayoutConstraint marginRightConstraint = SizingUtil.evaluateBaseSize(
-      layoutContext, parentConstraint,
+      childBox.layoutContext(), parentConstraint,
       childBox.activeStyles().getProperty(CSSProperty.MARGIN_RIGHT));
 
     boolean isLeftMarginSet = marginLeftConstraint.type().equals(LayoutConstraintType.BOUNDED);
@@ -118,13 +113,11 @@ public final class FlowWidthUtil {
   }
 
   public static LayoutConstraint determineInlineBlockNonReplacedWidthAndMargins(
-    LayoutContext layoutContext,
-    LayoutConstraint parentConstraint,
-    ElementBox childBox
+    LayoutConstraint parentConstraint, ElementBox childBox
   ) {
-    computeHorizontalMarginsOrZero(layoutContext, parentConstraint, childBox);
+    computeHorizontalMarginsOrZero(parentConstraint, childBox);
     LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(
-      layoutContext, parentConstraint, childBox,
+      parentConstraint, childBox,
       childBox.activeStyles().getProperty(CSSProperty.WIDTH));
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
@@ -136,8 +129,8 @@ public final class FlowWidthUtil {
     }
 
     ElementBoxDimensions boxDimensions = childBox.dimensions();
-    float preferredMinWidth = boxDimensions.preferredMinWidthConstraint(layoutContext);
-    float preferredWidth = boxDimensions.preferredWidthConstraint(layoutContext);
+    float preferredMinWidth = boxDimensions.preferredMinWidthConstraint();
+    float preferredWidth = boxDimensions.preferredWidthConstraint();
     float availableWidth = parentConstraint.value();
     if (!parentConstraint.type().equals(LayoutConstraintType.BOUNDED)) {
       return LayoutConstraint.of(preferredWidth);
@@ -147,17 +140,15 @@ public final class FlowWidthUtil {
   }
 
   public static LayoutConstraint determineFloatNonReplacedWidthAndMargins(
-    LayoutContext layoutContext,
-    LayoutConstraint parentConstraint,
-    ElementBox childBox
+    LayoutConstraint parentConstraint, ElementBox childBox
   ) {
-    computeHorizontalMarginsOrZero(layoutContext, parentConstraint, childBox);
+    computeHorizontalMarginsOrZero(parentConstraint, childBox);
     if (parentConstraint.isPreLayoutConstraint()) {
       return parentConstraint;
     }
 
     LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(
-      layoutContext, parentConstraint, childBox,
+      parentConstraint, childBox,
       childBox.activeStyles().getProperty(CSSProperty.WIDTH));
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
@@ -167,20 +158,19 @@ public final class FlowWidthUtil {
     ElementBoxDimensions boxDimensions = childBox.dimensions();
     return LayoutConstraint.of(Math.min(
       // TODO: Account for margins
-      Math.max(boxDimensions.preferredMinWidthConstraint(layoutContext), parentConstraint.value()),
-      boxDimensions.preferredWidthConstraint(layoutContext)));
+      Math.max(boxDimensions.preferredMinWidthConstraint(), parentConstraint.value()),
+      boxDimensions.preferredWidthConstraint()));
   }
 
   public static void computeHorizontalMarginsOrZero(
-    LayoutContext layoutContext,
     LayoutConstraint parentConstraint,
     ElementBox childBox
   ) {
     LayoutConstraint marginLeftConstraint = SizingUtil.evaluateBaseSize(
-      layoutContext, parentConstraint,
+      childBox.layoutContext(), parentConstraint,
       childBox.activeStyles().getProperty(CSSProperty.MARGIN_LEFT));
     LayoutConstraint marginRightConstraint = SizingUtil.evaluateBaseSize(
-      layoutContext, parentConstraint,
+      childBox.layoutContext(), parentConstraint,
       childBox.activeStyles().getProperty(CSSProperty.MARGIN_RIGHT));
 
     boolean isLeftMarginSet = marginLeftConstraint.type().equals(LayoutConstraintType.BOUNDED);

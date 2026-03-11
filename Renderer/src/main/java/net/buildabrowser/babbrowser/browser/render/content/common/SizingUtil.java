@@ -65,14 +65,14 @@ public final class SizingUtil {
     }
 
     if (sizeValue.equals(SizeValue.MIN_CONTENT)) {
-      return LayoutConstraint.of(referenceDimensions.preferredMinWidthConstraint(layoutContext));
+      return LayoutConstraint.of(referenceDimensions.preferredMinWidthConstraint());
     } else if (sizeValue.equals(SizeValue.MAX_CONTENT)) {
-      return LayoutConstraint.of(referenceDimensions.preferredWidthConstraint(layoutContext));
+      return LayoutConstraint.of(referenceDimensions.preferredWidthConstraint());
     } else if (sizeValue instanceof SizeValue.FitContent fitContent) {
       LayoutConstraint innerConstraint = evaluateBaseSize(layoutContext, parentConstraint, fitContent.optimal());
       assert innerConstraint.type().equals(LayoutConstraintType.BOUNDED);
-      float min = referenceDimensions.preferredMinWidthConstraint(layoutContext);
-      float max = referenceDimensions.preferredWidthConstraint(layoutContext);
+      float min = referenceDimensions.preferredMinWidthConstraint();
+      float max = referenceDimensions.preferredWidthConstraint();
       float preferred = innerConstraint.value();
       return LayoutConstraint.of(Math.clamp(preferred, min, max));
     } else {
@@ -97,13 +97,12 @@ public final class SizingUtil {
   }
 
   public static LayoutConstraint evaluateAdjustedWidthSize(
-    LayoutContext layoutContext,
     LayoutConstraint parentConstraint,
     ElementBox refBox,
     CSSValue sizeValue
   ) {
     LayoutConstraint constraint = evaluateBaseWidthSize(
-      layoutContext, parentConstraint, refBox.dimensions(), sizeValue);
+      refBox.layoutContext(), parentConstraint, refBox.dimensions(), sizeValue);
     if (!constraint.isBounded()) return constraint;
 
     CSSValue boxSizing = refBox.activeStyles().getProperty(CSSProperty.BOX_SIZING);
@@ -116,13 +115,12 @@ public final class SizingUtil {
   }
 
   public static LayoutConstraint evaluateAdjustedHeightSize(
-    LayoutContext layoutContext,
     LayoutConstraint parentConstraint,
     ElementBox refBox,
     CSSValue sizeValue
   ) {
     LayoutConstraint constraint = evaluateBaseHeightSize(
-      layoutContext, parentConstraint, sizeValue);
+      refBox.layoutContext(), parentConstraint, sizeValue);
     if (!constraint.isBounded()) return constraint;
 
     CSSValue boxSizing = refBox.activeStyles().getProperty(CSSProperty.BOX_SIZING);

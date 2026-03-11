@@ -1,7 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.box;
 
 import net.buildabrowser.babbrowser.browser.render.box.imp.ElementBoxDimensionsImp;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 
 public interface ElementBoxDimensions {
 
@@ -25,9 +24,9 @@ public interface ElementBoxDimensions {
 
   float staticY();
 
-  float preferredMinWidthConstraint(LayoutContext layoutContext);
+  float preferredMinWidthConstraint();
 
-  float preferredWidthConstraint(LayoutContext layoutContext);
+  float preferredWidthConstraint();
 
   void setIntrinsicWidth(float width);
 

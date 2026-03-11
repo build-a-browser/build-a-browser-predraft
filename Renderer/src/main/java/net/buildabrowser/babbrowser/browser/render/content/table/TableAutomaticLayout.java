@@ -2,7 +2,6 @@ package net.buildabrowser.babbrowser.browser.render.content.table;
 
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 
 public final class TableAutomaticLayout {
@@ -10,22 +9,20 @@ public final class TableAutomaticLayout {
   private TableAutomaticLayout() {}
 
   public static UnmanagedBoxFragment layout(
-    LayoutContext layoutContext,
     Table table,
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
     float[] columnMinWidths = widthConstraint.type().equals(LayoutConstraintType.MAX_CONTENT) ? null :
-      computeColumnMinContentWidths(layoutContext, table, widthConstraint);
+      computeColumnMinContentWidths(table, widthConstraint);
     float[] columnPreferredWidths = widthConstraint.type().equals(LayoutConstraintType.MIN_CONTENT) ? columnMinWidths :
-      computeColumnMinContentWidths(layoutContext, table, widthConstraint);
+      computeColumnMinContentWidths(table, widthConstraint);
     columnMinWidths = columnMinWidths == null ? columnPreferredWidths : columnMinWidths;
     
     return null;
   }
 
-  private static float[] computeColumnMinContentWidths(LayoutContext layoutContext, Table table,
-      LayoutConstraint widthConstraint) {
+  private static float[] computeColumnMinContentWidths(Table table, LayoutConstraint widthConstraint) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'computeColumnMinContentWidths'");
   }

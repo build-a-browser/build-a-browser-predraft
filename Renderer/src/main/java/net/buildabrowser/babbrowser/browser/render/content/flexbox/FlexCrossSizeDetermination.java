@@ -5,7 +5,6 @@ import java.util.List;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsValue;
@@ -16,34 +15,32 @@ public final class FlexCrossSizeDetermination {
   private FlexCrossSizeDetermination() {}
 
   public static void determineCrossSize(
-    LayoutContext layoutContext, ElementBox rootBox, List<FlexLine> lines,
+    ElementBox rootBox, List<FlexLine> lines,
     LayoutConstraint containerCrossSize, boolean isVertical
   ) {
     for (FlexLine line: lines) {
       for (FlexItem item: line.items()) {
-        layoutItem(layoutContext, item, containerCrossSize, isVertical);
+        layoutItem(item, containerCrossSize, isVertical);
       }
 
       calculateLineCrossSize(rootBox, line, containerCrossSize);
     }
 
     // TODO: Handle align-content: stretch and visibility: collapse
-    determineItemCrossSizes(layoutContext, rootBox, lines, containerCrossSize, isVertical);
+    determineItemCrossSizes(rootBox, lines, containerCrossSize, isVertical);
   }
 
   private static void layoutItem(
-    LayoutContext layoutContext, FlexItem item, LayoutConstraint containerCrossSize, boolean isVertical
+    FlexItem item, LayoutConstraint containerCrossSize, boolean isVertical
   ) {
     LayoutConstraint itemMainConstraint = LayoutConstraint.of(item.mainSize());
-    LayoutConstraint itemCrossConstraint =
-      FlexUtil.boxCrossSize(layoutContext, item.box(), containerCrossSize, isVertical);
+    LayoutConstraint itemCrossConstraint = FlexUtil.boxCrossSize(item.box(), containerCrossSize, isVertical);
     if (!itemCrossConstraint.isBounded()) {
       // TODO: Actually fit-content
       itemCrossConstraint = LayoutConstraint.AUTO;
     }
 
     UnmanagedBoxFragment boxFragment = item.box().layout(
-      layoutContext,
       isVertical ? itemCrossConstraint : itemMainConstraint,
       isVertical ? itemMainConstraint : itemCrossConstraint);
     item.setFragment(boxFragment);
@@ -74,18 +71,18 @@ public final class FlexCrossSizeDetermination {
   }
 
   private static void determineItemCrossSizes(
-    LayoutContext layoutContext, ElementBox rootBox, List<FlexLine> lines,
+    ElementBox rootBox, List<FlexLine> lines,
     LayoutConstraint containerCrossSize, boolean isVertical
   ) {
     for (FlexLine line: lines) {
       for (FlexItem item: line.items()) {
-        determineItemCrossSize(layoutContext, rootBox, item, containerCrossSize, isVertical);
+        determineItemCrossSize(rootBox, item, containerCrossSize, isVertical);
       }
     }
   }
 
   private static void determineItemCrossSize(
-    LayoutContext layoutContext, ElementBox rootBox, FlexItem item,
+    ElementBox rootBox, FlexItem item,
     LayoutConstraint containerCrossSize, boolean isVertical
   ) {
     CSSValue itemAlignmentValue = item.box().activeStyles().getProperty(CSSProperty.ALIGN_SELF);
@@ -96,7 +93,7 @@ public final class FlexCrossSizeDetermination {
 
     LayoutConstraint itemMainConstraint = LayoutConstraint.of(item.mainSize());
     LayoutConstraint itemCrossConstraint =
-      FlexUtil.boxCrossSize(layoutContext, item.box(), containerCrossSize, isVertical);
+      FlexUtil.boxCrossSize(item.box(), containerCrossSize, isVertical);
 
     if (
       itemAlignmentValue.equals(AlignItemsValue.STRETCH)
@@ -110,7 +107,6 @@ public final class FlexCrossSizeDetermination {
 
       // TODO: Preferably, avoid exponential runtime (eg use a cache)
       UnmanagedBoxFragment boxFragment = item.box().layout(
-        layoutContext,
         isVertical ? itemCrossConstraint : itemMainConstraint,
         isVertical ? itemMainConstraint : itemCrossConstraint);
       item.setFragment(boxFragment);

@@ -1,6 +1,5 @@
 package net.buildabrowser.babbrowser.browser.render.content.common.position;
 
-import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
@@ -8,7 +7,6 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRe
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -18,47 +16,43 @@ public final class PositionLayout {
   private PositionLayout() {}
 
   public static PosRefBoxFragment layout(
-    LayoutContext layoutContext,
     ElementBox box
   ) {
-    PosRefBoxFragment refFragment = new PosRefBoxFragment(box, layoutContext);
+    PosRefBoxFragment refFragment = new PosRefBoxFragment(box);
     return refFragment;
   }
 
   public static UnmanagedBoxFragment actuallyLayoutAbsolute(
-    LayoutContext layoutContext,
     ElementBox refBox,
     float refWidth, float refHeight,
     float[] insets
   ) {
-    BoxContent content = refBox.content();
     ElementBoxDimensions dimensions = refBox.dimensions();
 
     float containingWidth = refWidth - insets[2] - insets[3];
     float containingHeight = refHeight - insets[0] - insets[1];
 
     LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(
-      layoutContext, LayoutConstraint.of(containingWidth), refBox,
+      LayoutConstraint.of(containingWidth), refBox,
       refBox.activeStyles().getProperty(CSSProperty.WIDTH));
     LayoutConstraint baseHeight = SizingUtil.evaluateAdjustedHeightSize(
-      layoutContext, LayoutConstraint.of(containingHeight), refBox,
+      LayoutConstraint.of(containingHeight), refBox,
       refBox.activeStyles().getProperty(CSSProperty.HEIGHT));
 
     // TODO: Handle sizes other than fit-content
     // TODO: Also clamp to max width and min width
     float fitContentWidth = Math.clamp(
       containingWidth,
-      dimensions.preferredMinWidthConstraint(layoutContext),
-      dimensions.preferredWidthConstraint(layoutContext));
+      dimensions.preferredMinWidthConstraint(),
+      dimensions.preferredWidthConstraint());
     float usedWidth = baseWidth.type().equals(LayoutConstraintType.AUTO) ?
       fitContentWidth :
       baseWidth.value();
     
     // TODO: Actually determine a height to use
 
-    UnmanagedBoxFragment itemFragment = content.layout(layoutContext,
-      LayoutConstraint.of(usedWidth),
-      baseHeight);
+    UnmanagedBoxFragment itemFragment = refBox.layout(
+      LayoutConstraint.of(usedWidth), baseHeight);
     itemFragment.setPos(0, 0);
 
     // TODO: Compute margins

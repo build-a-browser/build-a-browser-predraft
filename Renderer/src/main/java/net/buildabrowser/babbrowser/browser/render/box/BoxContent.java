@@ -1,19 +1,17 @@
 package net.buildabrowser.babbrowser.browser.render.box;
 
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 
 public interface BoxContent {
 
   default void fixupChildren() {}
 
-  default void computeIntrinsics(LayoutContext layoutContext) {}
+  default void computeIntrinsics() {}
   
-  UnmanagedBoxFragment layout(LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
+  UnmanagedBoxFragment layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
 
-  void positionLayers(float layerX, float layerY, GlobalLayoutContext layoutContext);
+  void positionLayers(float layerX, float layerY);
 
   default boolean isReplaced() {
     return false;

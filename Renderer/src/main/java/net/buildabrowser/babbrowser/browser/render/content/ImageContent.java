@@ -31,7 +31,8 @@ public class ImageContent implements BoxContent, BoxPainter {
   }
 
   @Override
-  public void computeIntrinsics(LayoutContext layoutContext) {
+  public void computeIntrinsics() {
+    LayoutContext layoutContext = box.layoutContext();
     loadImage(layoutContext.global());
 
     ElementBoxDimensions dimensions = box.dimensions();
@@ -53,7 +54,7 @@ public class ImageContent implements BoxContent, BoxPainter {
 
   @Override
   public UnmanagedBoxFragment layout(
-    LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+    LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     ElementBoxDimensions dimensions = box.dimensions();
     float realWidth = LayoutUtil.constraintOrDim(widthConstraint, dimensions.intrinsicWidth());
@@ -130,7 +131,7 @@ public class ImageContent implements BoxContent, BoxPainter {
   }
 
   @Override
-  public void positionLayers(float layerX, float layerY, GlobalLayoutContext layoutContext) {
+  public void positionLayers(float layerX, float layerY) {
     // No-op
   }
   
