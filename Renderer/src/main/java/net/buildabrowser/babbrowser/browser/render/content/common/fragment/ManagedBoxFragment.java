@@ -17,12 +17,6 @@ public class ManagedBoxFragment extends BoxFragment {
   ) {
     super(width, height, box, painter);
     this.fragments = fragments;
-
-    LayoutFragment curNode = fragments;
-    while (curNode != null) {
-      curNode.setParent(this);
-      curNode = curNode.next();
-    }
   }
 
   // Constructor used by tests, don't use in normal code
@@ -32,10 +26,6 @@ public class ManagedBoxFragment extends BoxFragment {
   ) {
     super(width, height, box, null);
     this.fragments = IntrusiveList.fromList(fragments);
-
-    for (LayoutFragment fragment: fragments) {
-      fragment.setParent(this);
-    }
     setPos(x, y);
   }
 

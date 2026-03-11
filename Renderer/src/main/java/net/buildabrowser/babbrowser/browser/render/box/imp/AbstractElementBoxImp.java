@@ -4,10 +4,12 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxIterator;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.CachedLayoutResult;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.dom.Element;
 
@@ -19,7 +21,9 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
 
   private Object cacheKey;
   private CachedLayoutResult cache;
-  private UnmanagedBoxFragment cachedFragment;
+  private BoxFragment cachedFragment;
+
+  private StackingContext stackingContext;
 
   Box childBoxes; // Package-level for the iterator
   Box nextBox;
@@ -33,6 +37,11 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   @Override
   public Element element() {
     throw new UnsupportedOperationException("Anonymous box is not associated with an element!");
+  }
+
+  @Override
+  public Box parentBox() {
+    return this.parentBox;
   }
 
   @Override
@@ -82,8 +91,12 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
     LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     verifyCache(layoutContext);
-    if (cache != null && cache.applies(widthConstraint, heightConstraint)) {
-      return cachedFragment;
+    if (
+      cache != null
+      && cachedFragment instanceof UnmanagedBoxFragment umCachedFragment
+      && cache.applies(widthConstraint, heightConstraint)
+    ) {
+      return umCachedFragment;
     }
     if (cache == null) {
       content().computeIntrinsics(layoutContext);
@@ -114,12 +127,37 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
     return cache;
   }
 
+  @Override
+  public void updateFragment(BoxFragment boxFragment) {
+    this.cachedFragment = boxFragment;
+  }
+
+  @Override
+  public BoxFragment lastCachedFragment() {
+    return this.cachedFragment;
+  }
+
+  @Override
+  public StackingContext stackingContext() {
+    return this.stackingContext;
+  }
+
+  @Override
+  public void setStackingContext(StackingContext stackingContext) {
+    this.stackingContext = stackingContext;
+  }
+
   private void verifyCache(LayoutContext layoutContext) {
-    if (layoutContext.global().cacheKey() != cacheKey) {
-      this.cacheKey = layoutContext.global().cacheKey();
+    verifyCache(layoutContext.global().cacheKey());
+  }
+
+  private void verifyCache(Object cacheKey) {
+    if (cacheKey != this.cacheKey) {
+      this.cacheKey = cacheKey;
       this.cache = null;
-      this.cachedFragment = null;
+      // Can't reset the cached fragment since updateFragment does not set a cache key
+      // Hopefully it is correct...
     }
   }
-  
+
 }

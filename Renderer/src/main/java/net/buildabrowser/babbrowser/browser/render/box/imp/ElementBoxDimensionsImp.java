@@ -4,8 +4,6 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
-import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
-import net.buildabrowser.babbrowser.browser.render.layout.imp.PrelayoutStackingContextImp;
 
 public class ElementBoxDimensionsImp implements ElementBoxDimensions {
 
@@ -14,6 +12,9 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   private final float[] computedBorder = new float[] { 0, 0, 0, 0 };
   private final float[] computedPadding = new float[] { 0, 0, 0, 0 };
   private final float[] computedMargin = new float[] { 0, 0, 0, 0 };
+
+  private float staticX = 0;
+  private float staticY = 0;
 
   private float intrinsicWidth = -1;
   private float intrinsicHeight = -1;
@@ -67,18 +68,32 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   }
 
   @Override
+  public void setStaticPosition(float staticX, float staticY) {
+    this.staticX = staticX;
+    this.staticY = staticY;
+  }
+
+  @Override
+  public float staticX() {
+    return this.staticX;
+  }
+
+  @Override
+  public float staticY() {
+    return this.staticY;
+  }
+
+  @Override
   public float preferredMinWidthConstraint(LayoutContext layoutContext) {
-    StackingContext dummyStackingContext = new PrelayoutStackingContextImp();
     return box.cachedLayout(
-      new LayoutContext(layoutContext.global(), layoutContext.fontMetrics(), dummyStackingContext),
+      new LayoutContext(layoutContext.global(), layoutContext.fontMetrics()),
       LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).width();
   }
 
   @Override
   public float preferredWidthConstraint(LayoutContext layoutContext) {
-    StackingContext dummyStackingContext = new PrelayoutStackingContextImp();
     return box.cachedLayout(
-      new LayoutContext(layoutContext.global(), layoutContext.fontMetrics(), dummyStackingContext),
+      new LayoutContext(layoutContext.global(), layoutContext.fontMetrics()),
       LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).width();
   }
 

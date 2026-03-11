@@ -7,14 +7,12 @@ import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
-import net.buildabrowser.babbrowser.browser.render.composite.LayerUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionUtil;
@@ -90,6 +88,7 @@ public class FlowInlineLayout {
     }
   }
 
+  // TODO: Handle float clear?
   private void addStagedElements(LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
     InlineStagingArea stagingArea = inlineStack.peek().stagingArea();
     stagingArea.resetCursor();
@@ -167,22 +166,12 @@ public class FlowInlineLayout {
       FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
         layoutContext, parentHeightConstraint, parentWidthConstraint, childBox);
 
-    if (LayerUtil.startsLayer(childBox)) {
-      layoutContext.stackingContext().start();
-    }
-
     BoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
       new UnmanagedBoxFragment(
         FlowUtil.constraintWidth(layoutContext, childBox.dimensions(), parentWidthConstraint),
         FlowUtil.constraintHeight(childBox.dimensions(), parentHeightConstraint),
         childBox, null) :
       childBox.layout(layoutContext, childWidthConstraint, childHeightContraint);
-    
-    if (LayerUtil.startsLayer(childBox)) {
-      newFragment.setPos(0, 0);
-      newFragment = new PosRefBoxFragment(newFragment, layoutContext);
-      layoutContext.stackingContext().end((PosRefBoxFragment) newFragment);
-    }
 
     InlineFormattingContext parentContext = inlineStack.peek();
     parentContext.addFragment(newFragment);

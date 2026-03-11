@@ -19,6 +19,12 @@ public interface ElementBoxDimensions {
 
   float[] getComputedMargin();
 
+  void setStaticPosition(float staticX, float staticY);
+
+  float staticX();
+
+  float staticY();
+
   float preferredMinWidthConstraint(LayoutContext layoutContext);
 
   float preferredWidthConstraint(LayoutContext layoutContext);

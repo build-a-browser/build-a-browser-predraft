@@ -4,8 +4,7 @@ import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 
 public record LayoutContext(
   GlobalLayoutContext global,
-  FontMetrics fontMetrics,
-  StackingContext stackingContext
+  FontMetrics fontMetrics
 ) {
 
 }

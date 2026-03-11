@@ -2,15 +2,19 @@ package net.buildabrowser.babbrowser.browser.render.content.flow;
 
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.composite.LayerUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRefBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flow.FlowRootContentPainter.FlowRootBoxPainter;
 import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTracker;
+import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
+import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 
 public class FlowRootContent implements BoxContent {
 
@@ -40,9 +44,6 @@ public class FlowRootContent implements BoxContent {
 
     this.rootFragment = blockLayout.close(widthConstraint, heightConstraint);
     rootFragment.setPos(0, 0);
-    for (LayoutFragment floatFragment: floatTracker().allFloats()) {
-      floatFragment.setParent(rootFragment); // Wasn't implicitly set since it's not added to the managed fragment
-    }
 
     float desiredHeight = Math.max(rootFragment.contentHeight(), floatTracker.contentHeight());
     float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, rootFragment.contentWidth());
@@ -50,14 +51,24 @@ public class FlowRootContent implements BoxContent {
     
     UnmanagedBoxFragment wrapperFragment = new UnmanagedBoxFragment(usedWidth, usedHeight, rootBox, new FlowRootBoxPainter(this));
 
-    // For a box that does not start a layer, setting the inner box's parent to the outer box has the effect of inheriting layerX
-    // and layerY (because the inner pos is (0, 0), the double boxing doesn't have an adverse effect despite the implicit addition).
-    // For a box that does start a layer, we skip the link so the inner box's layerPos is (0, 0).
-    if (!LayerUtil.startsLayer(wrapperFragment)) {
-      rootFragment.setParent(wrapperFragment);
-    }
-
     return wrapperFragment;
+  }
+
+  @Override
+  public void positionLayers(float layerX, float layerY, GlobalLayoutContext layoutContext) {
+    recursePositionLayers(
+      layerX, layerY, layoutContext,
+      rootFragment, rootBox.stackingContext());
+
+    float offsetX = layerX + (rootFragment.contentX() - rootFragment.borderX());
+    float offsetY = layerY + (rootFragment.contentY() - rootFragment.borderY());
+    for (LayoutFragment floatFragment: floatTracker.allFloats()) {
+      recursePositionLayers(
+        offsetX + floatFragment.borderX(),
+        offsetY + floatFragment.borderY(),
+        layoutContext,
+        floatFragment, rootBox.stackingContext());
+    }
   }
 
   FlowBlockLayout blockLayout() {
@@ -70,6 +81,56 @@ public class FlowRootContent implements BoxContent {
 
   FloatTracker floatTracker() {
     return this.floatTracker;
+  }
+
+  private void recursePositionLayers(
+    float layerX, float layerY, GlobalLayoutContext layoutContext,
+    LayoutFragment fragment, StackingContext refContext
+  ) {
+    switch (fragment) {
+      case TextFragment _ -> {}
+      case PosRefBoxFragment posRef -> {
+        posRef.box().dimensions().setStaticPosition(layerX, layerY);
+      }
+      case LineBoxFragment lineBoxFragment -> {
+        LayoutFragment child = lineBoxFragment.fragments();
+        while (child != null) {
+          recursePositionLayers(
+            layerX + child.borderX(),
+            layerY + child.borderY(),
+            layoutContext,
+            child, refContext);
+          child = child.next();
+        }
+      }
+      case ManagedBoxFragment boxFragment -> {
+        if (boxFragment.box().stackingContext() != refContext) {
+          refContext = boxFragment.box().stackingContext();
+          refContext.addFragment(layerX, layerY, boxFragment);
+        }
+        
+        LayoutFragment child = boxFragment.fragments();
+        float offsetX = layerX + (fragment.contentX() - fragment.borderX());
+        float offsetY = layerY + (fragment.contentY() - fragment.borderY());
+        while (child != null) {
+          recursePositionLayers(
+            offsetX + child.borderX(),
+            offsetY + child.borderY(),
+            layoutContext,
+            child, refContext);
+          child = child.next();
+        }
+      }
+      case UnmanagedBoxFragment boxFragment -> {
+        if (boxFragment.box().stackingContext() != refContext) {
+          refContext = boxFragment.box().stackingContext();
+          refContext.addFragment(layerX, layerY, boxFragment);
+        }
+        boxFragment.box().content().positionLayers(
+          layerX, layerY, layoutContext);
+      }
+      default -> throw new UnsupportedOperationException("Don't recognize fragment type!");
+    }
   }
 
   // For testing

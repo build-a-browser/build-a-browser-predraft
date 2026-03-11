@@ -3,14 +3,12 @@ package net.buildabrowser.babbrowser.browser.render.content.common.position;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
-import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -24,26 +22,20 @@ public final class PositionLayout {
     ElementBox box
   ) {
     PosRefBoxFragment refFragment = new PosRefBoxFragment(box, layoutContext);
-    layoutContext.stackingContext().defer(refFragment);
-
     return refFragment;
   }
 
   public static UnmanagedBoxFragment actuallyLayoutAbsolute(
-    PosRefBoxFragment refFragment,
-    StackingContext stackingContext,
-    float[] insets,
-    CompositeLayer refLayer
+    LayoutContext layoutContext,
+    ElementBox refBox,
+    float refWidth, float refHeight,
+    float[] insets
   ) {
-    LayoutContext refContext = refFragment.referenceLayoutContext();
-    LayoutContext layoutContext = new LayoutContext(
-      refContext.global(), refContext.fontMetrics(), stackingContext);
-    ElementBox refBox = refFragment.referenceBox();
     BoxContent content = refBox.content();
     ElementBoxDimensions dimensions = refBox.dimensions();
 
-    float containingWidth = refLayer.width() - insets[2] - insets[3];
-    float containingHeight = refLayer.height() - insets[0] - insets[1];
+    float containingWidth = refWidth - insets[2] - insets[3];
+    float containingHeight = refHeight - insets[0] - insets[1];
 
     LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(
       layoutContext, LayoutConstraint.of(containingWidth), refBox,
@@ -64,20 +56,20 @@ public final class PositionLayout {
     
     // TODO: Actually determine a height to use
 
-    UnmanagedBoxFragment rootFragment = content.layout(layoutContext,
+    UnmanagedBoxFragment itemFragment = content.layout(layoutContext,
       LayoutConstraint.of(usedWidth),
       baseHeight);
-    rootFragment.setPos(0, 0);
+    itemFragment.setPos(0, 0);
 
     // TODO: Compute margins
 
-    return rootFragment;
+    return itemFragment;
   }
 
   public static float[] positionAbsolute(
     float[] insets,
     UnmanagedBoxFragment computedFragment,
-    CompositeLayer refLayer
+    float refWidth, float refHeight
   ) {
     ActiveStyles styles = computedFragment.box().activeStyles();
     boolean topInsetIsAuto = styles.getProperty(CSSProperty.TOP).equals(CSSValue.AUTO);
@@ -87,10 +79,10 @@ public final class PositionLayout {
 
     float leftPos = positionAbsoluteAxis(
       leftInsetIsAuto, rightInsetIsAuto, insets, 2,
-      computedFragment.borderWidth(), refLayer.width());
+      computedFragment.borderWidth(), refWidth);
     float topPos = positionAbsoluteAxis(
       topInsetIsAuto, bottomInsetIsAuto, insets, 0,
-      computedFragment.borderHeight(), refLayer.height());
+      computedFragment.borderHeight(), refHeight);
 
     return new float[] { leftPos, topPos };
   }

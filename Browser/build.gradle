@@ -9,6 +9,7 @@ dependencies {
 application {
     mainClass = 'net.buildabrowser.babbrowser.browser.Main'
     applicationDefaultJvmArgs = [
+        '-Xms32m',
         '-XX:MaxHeapFreeRatio=10', '-XX:MinHeapFreeRatio=10',
         '-XX:+UnlockExperimentalVMOptions', '-XX:+UseCompactObjectHeaders',
         '-Djava.net.preferIPv4Stack=true'

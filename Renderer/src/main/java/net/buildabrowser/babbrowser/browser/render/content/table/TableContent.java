@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.table.Table.Cell;
+import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
@@ -130,5 +131,10 @@ public class TableContent implements BoxContent {
   }
 
   public static record SizedTable(Table table, float[] columnWidths, float[] columnHeights) {}
+
+  @Override
+  public void positionLayers(float layerX, float layerY, GlobalLayoutContext layoutContext) {
+    // TODO: Implement this
+  }
   
 }

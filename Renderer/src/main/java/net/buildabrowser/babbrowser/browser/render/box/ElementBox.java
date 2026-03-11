@@ -2,10 +2,12 @@ package net.buildabrowser.babbrowser.browser.render.box;
 
 import net.buildabrowser.babbrowser.browser.render.box.imp.AnonymousElementBoxImp;
 import net.buildabrowser.babbrowser.browser.render.box.imp.ElementBoxImp;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.CachedLayoutResult;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
@@ -17,6 +19,8 @@ public interface ElementBox extends Box {
   BoxContent content();
 
   Element element();
+
+  Box parentBox();
 
   ElementBoxDimensions dimensions();
 
@@ -32,9 +36,17 @@ public interface ElementBox extends Box {
 
   CachedLayoutResult cachedLayout(LayoutContext layoutContext, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
 
+  void updateFragment(BoxFragment boxFragment);
+
+  BoxFragment lastCachedFragment();
+
+  StackingContext stackingContext();
+
+  void setStackingContext(StackingContext stackingContext);
+
   default boolean isReplaced() {
     return content().isReplaced();
-  };
+  }
  
   public static ElementBox create(MutableElement element, Box parentBox, BoxLevel boxLevel) {
     return new ElementBoxImp(element, parentBox, boxLevel);

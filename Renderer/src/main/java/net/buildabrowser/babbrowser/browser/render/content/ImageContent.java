@@ -94,7 +94,6 @@ public class ImageContent implements BoxContent, BoxPainter {
     if (loadingImageURL == null || !loadingImageURL.equals(imageSource)) {
       image = null;
       loadingImageURL = imageSource;
-      System.out.println(loadingImageURL);
       new Thread(() -> loadBufferedImage(layoutContext, loadingImageURL)).start();
     }
   }
@@ -128,6 +127,11 @@ public class ImageContent implements BoxContent, BoxPainter {
       return "Image";
     }
     return alt;
+  }
+
+  @Override
+  public void positionLayers(float layerX, float layerY, GlobalLayoutContext layoutContext) {
+    // No-op
   }
   
 }

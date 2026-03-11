@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,17 +19,18 @@ import net.buildabrowser.babbrowser.browser.network.ProtocolRegistry;
 import net.buildabrowser.babbrowser.browser.render.Renderer;
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.Box.InvalidationLevel;
-import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.BoxGenerator;
 import net.buildabrowser.babbrowser.browser.render.box.DocumentBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.imp.DocumentBoxImp;
 import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
+import net.buildabrowser.babbrowser.browser.render.layout.StackingContextGenerator;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.browser.render.paint.Painter;
 import net.buildabrowser.babbrowser.browser.render.paint.java2d.J2DFontMetrics;
@@ -66,7 +68,6 @@ public class RendererImp implements Renderer {
       Document document = HTMLParser.create().parse(new InputStreamReader(inputStream, StandardCharsets.UTF_8), changeListener);
       long elapsed = System.currentTimeMillis() - time;
       System.out.println("Num millis elapsed: " + elapsed);
-      // System.out.println(document);
       cssMatcher.applyStylesheets(document, uaStyleSheets);
       
       JPanel jpanel = new JPanel() {
@@ -74,20 +75,29 @@ public class RendererImp implements Renderer {
         protected void paintComponent(Graphics g) {
           if (documentBox == null) return;
           FontMetrics fontMetrics = new J2DFontMetrics(g.getFontMetrics());
-          BoxContent content = documentBox.htmlBox().content();
+          ElementBox rootBox = documentBox.htmlBox();
 
-          GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(url, painter.resourceLoader(), new Object());
+          Object cacheKey = new Object();
+          GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
+            url, painter.resourceLoader(), fontMetrics, cacheKey);
 
-          StackingContext stackingContext = StackingContext.create();
-          LayoutContext layoutContext = new LayoutContext(globalLayoutContext, fontMetrics, stackingContext);
+          LayoutContext layoutContext = new LayoutContext(globalLayoutContext, fontMetrics);
+          ArrayDeque<ElementBox> deferredLayout = new ArrayDeque<>();
 
-          UnmanagedBoxFragment rootFragment = content.layout(layoutContext,
+          UnmanagedBoxFragment fragment = rootBox.layout(layoutContext,
             LayoutConstraint.of(this.getWidth()),
             LayoutConstraint.of(this.getHeight()));
-          rootFragment.setPos(0, 0);
+          fragment.setPos(0, 0);
+          StackingContextGenerator.generateStackingContextsRoot(rootBox, deferredLayout, globalLayoutContext);
+          rootBox.stackingContext().addFragment(0, 0, fragment);
+          rootBox.content().positionLayers(0, 0, layoutContext.global());
           
-          CompositeLayer rootLayer = CompositeLayer.createRoot(rootFragment);
-          stackingContext.layoutDeferred(rootLayer);
+          while (!deferredLayout.isEmpty()) {
+            ElementBox itemBox = deferredLayout.pop();
+            layoutAbsolute(globalLayoutContext, layoutContext, deferredLayout, itemBox);
+          }
+          
+          CompositeLayer rootLayer = rootBox.stackingContext().createLayer();
 
           g.setColor(new Color(0xFFFFFF, false));
           g.fillRect(0, 0, getWidth(), getHeight());
@@ -96,6 +106,30 @@ public class RendererImp implements Renderer {
             rootLayer.paint(canvas));
           
           System.gc();
+        }
+
+        private void layoutAbsolute(
+          GlobalLayoutContext globalLayoutContext,
+          LayoutContext layoutContext,
+          ArrayDeque<ElementBox> deferredLayout,
+          ElementBox itemBox
+        ) {
+          // TODO: Need to use proper layout context for item
+          StackingContext parentContext = itemBox.stackingContext().parentContext();
+          float[] insets = itemBox.stackingContext().computeInsets(layoutContext);
+          float refWidth = parentContext.computeWidth();
+          float refHeight = parentContext.computeHeight();
+          UnmanagedBoxFragment itemFragment = PositionLayout.actuallyLayoutAbsolute(
+            layoutContext, itemBox, refWidth, refHeight, insets);
+          float[] position = PositionLayout.positionAbsolute(
+            insets, itemFragment, refWidth, refHeight);
+          
+          StackingContextGenerator.generateStackingContextsDeferred(itemBox, deferredLayout, globalLayoutContext);
+          itemBox.stackingContext().addFragment(
+            parentContext.posX() + position[0],
+            parentContext.posY() + position[1],
+            itemFragment);
+          itemBox.content().positionLayers(0, 0, layoutContext.global());
         }
       };
 
