@@ -43,7 +43,7 @@ public class IdentTokenizer {
     return strBuilder.toString();
   }
 
-  private int consumeAnEscapedCodepoint(CSSTokenizerInput stream) throws IOException {
+  public int consumeAnEscapedCodepoint(CSSTokenizerInput stream) throws IOException {
     int ch = stream.read();
     if (hexValue(ch) != -1) {
       int wholeValue = hexValue(ch);

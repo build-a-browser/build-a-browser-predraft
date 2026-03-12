@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.common.util.ASCIIUtil;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizer;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
+import net.buildabrowser.babbrowser.cssbase.tokens.BadStringToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
@@ -15,6 +16,7 @@ import net.buildabrowser.babbrowser.cssbase.tokens.LParenToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RCBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RParenToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.SemicolonToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.StringToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
 
@@ -30,7 +32,9 @@ public class CSSTokenizerImp implements CSSTokenizer {
     // TODO: More cases
     return switch (ch) {
       case '\n', ' ', '\t' -> consumeWhitespace(stream);
+      case '\"' -> consumeAStringToken(stream, '\"');
       case '#' -> consumeNumberSign(stream);
+      case '\'' -> consumeAStringToken(stream, '\'');
       case '(' -> LParenToken.create();
       case ')' -> RParenToken.create();
       case '+' -> consumePlusSign(stream);
@@ -89,6 +93,32 @@ public class CSSTokenizerImp implements CSSTokenizer {
     stream.unread(ch);
 
     return WhitespaceToken.create();
+  }
+
+  private Token consumeAStringToken(CSSTokenizerInput stream, char endingCodepoint) throws IOException {
+    StringBuilder builder = new StringBuilder();
+    while (true) {
+      int ch = stream.read();
+      if (ch == endingCodepoint) {
+        return StringToken.create(builder.toString());
+      } else if (ch == -1) {
+        // TODO: Parse error
+        return StringToken.create(builder.toString());
+      } else if (ch == '\n') {
+        // TODO: Parse error
+        return BadStringToken.create();
+      } else if (ch == '\\') {
+        int ch2 = stream.peek();
+        if (ch2 == '\n') {
+          stream.read();
+        } else if (ch2 != -1) {
+          int codepoint = identTokenizer.consumeAnEscapedCodepoint(stream);
+          builder.appendCodePoint(codepoint);
+        }
+      } else {
+        builder.appendCodePoint(ch);
+      }
+    }
   }
 
   private Token consumeNumberSign(CSSTokenizerInput stream) throws IOException {

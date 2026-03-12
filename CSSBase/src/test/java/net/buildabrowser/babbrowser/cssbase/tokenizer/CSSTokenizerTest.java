@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import net.buildabrowser.babbrowser.cssbase.tokens.BadStringToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
@@ -21,6 +22,7 @@ import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RCBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RParenToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.SemicolonToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.StringToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
 
@@ -150,6 +152,34 @@ public class CSSTokenizerTest {
   public void canTokenizeAnEscapedIdentToken() throws IOException {
     Token token = cssTokenizer.consumeAToken(stringInput("\\{\\0061\\}"));
     Assertions.assertEquals(IdentToken.create("{a}"), token);
+  }
+
+  @Test
+  @DisplayName("Can tokenize a string token")
+  public void canTokenizeAStringToken() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("\"Hello World\""));
+    Assertions.assertEquals(StringToken.create("Hello World"), token);
+  }
+
+  @Test
+  @DisplayName("Can tokenize a bad string token")
+  public void canTokenizeABadStringToken() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("\"Hello\n World\""));
+    Assertions.assertEquals(BadStringToken.create(), token);
+  }
+
+  @Test
+  @DisplayName("Can escape a newline in a string token")
+  public void canEscapeANewlineInAStringToken() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("\"Hello\\\nWorld\""));
+    Assertions.assertEquals(StringToken.create("HelloWorld"), token);
+  }
+
+  @Test
+  @DisplayName("Can tokenize an escaped string token")
+  public void canTokenizeAnEscapedStringToken() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("'\\{\\0061\\}'"));
+    Assertions.assertEquals(StringToken.create("{a}"), token);
   }
 
   @Test
