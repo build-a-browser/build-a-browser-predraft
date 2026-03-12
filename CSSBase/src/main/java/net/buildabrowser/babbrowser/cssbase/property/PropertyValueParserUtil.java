@@ -1,10 +1,13 @@
 package net.buildabrowser.babbrowser.cssbase.property;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
+import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 
 public final class PropertyValueParserUtil {
@@ -32,7 +35,23 @@ public final class PropertyValueParserUtil {
     stream.seek(longestPos);
 
     return longestValue;
-  };
+  }
+
+  public static CSSValue parseOneOrMoreComma(SeekableCSSTokenStream stream, PropertyValueParser parser) throws IOException {
+    List<CSSValue> times = new LinkedList<>();
+    CSSValue result = parser.parse(stream);
+    if (result.isFailure()) return result;
+    times.add(result);
+
+    while (stream.peek() instanceof CommaToken) {
+      stream.read();
+      result = parser.parse(stream);
+      if (result.isFailure()) return result;
+      times.add(result);
+    }
+
+    return new ManyResult(times);
+  }
 
   public static CSSValue parseIdentMap(SeekableCSSTokenStream stream, Map<String, CSSValue> options) throws IOException {
     if (!(stream.read() instanceof IdentToken identToken)) {
@@ -69,6 +88,10 @@ public final class PropertyValueParserUtil {
   }
 
   public static record AnyOrderResult(CSSValue[] values) implements CSSValue {
+    
+  }
+
+  public static record ManyResult(List<CSSValue> values) implements CSSValue {
     
   }
 

@@ -25,6 +25,7 @@ public interface CSSValue {
     public static final CSSFailure EXPECTED_INTEGER = new CSSFailure("Expected an integer value!");
     public static final CSSFailure EXPECTED_NUMBER = new CSSFailure("Expected a numerical value!");
     public static final CSSFailure EXPECTED_POSITIVE_NUMBER = new CSSFailure("Expected a positive numerical value!");
+    public static final CSSFailure EXPECTED_IDENT = new CSSFailure("Expected an identifier token!");
 
     public static final CSSFailure UNSET_CUSTOM_PROPERTY = new CSSFailure("Custom property is unset");
 

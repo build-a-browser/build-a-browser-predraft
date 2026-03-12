@@ -35,6 +35,10 @@ import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapParser;
 import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentParser;
 import net.buildabrowser.babbrowser.cssbase.property.floats.ClearParser;
 import net.buildabrowser.babbrowser.cssbase.property.floats.FloatParser;
+import net.buildabrowser.babbrowser.cssbase.property.font.FontFamilyParser;
+import net.buildabrowser.babbrowser.cssbase.property.font.FontShorthandParser;
+import net.buildabrowser.babbrowser.cssbase.property.font.FontSizeParser;
+import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightParser;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionParser;
 import net.buildabrowser.babbrowser.cssbase.property.position.ZIndexParser;
 import net.buildabrowser.babbrowser.cssbase.property.shared.ManySideShorthandParser;
@@ -61,6 +65,11 @@ public final class DeclarationParser {
     "width", SizeParser.forNormal(CSSProperty.WIDTH),
     "height", SizeParser.forNormal(CSSProperty.HEIGHT),
     "box-sizing", new BoxSizingParser(),
+
+    "font-family", new FontFamilyParser(),
+    "font-weight", new FontWeightParser(),
+    "font-size", new FontSizeParser(),
+    "font", new FontShorthandParser(),
 
     "padding-top", SizeParser.forPadding(CSSProperty.PADDING_TOP),
     "padding-bottom", SizeParser.forPadding(CSSProperty.PADDING_BOTTOM),

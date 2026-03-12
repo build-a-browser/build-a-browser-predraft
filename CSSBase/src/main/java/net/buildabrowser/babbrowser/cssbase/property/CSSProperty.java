@@ -13,6 +13,9 @@ import net.buildabrowser.babbrowser.cssbase.property.flex.FlexGrowValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexShrinkValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
+import net.buildabrowser.babbrowser.cssbase.property.font.FontNameValue;
+import net.buildabrowser.babbrowser.cssbase.property.font.FontNamedSizeValue;
+import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
@@ -34,6 +37,12 @@ public enum CSSProperty {
   WHITE_SPACE_COLLAPSE(nextId(), true, WhitespaceCollapseValue.COLLAPSE),
   TEXT_WRAP_MODE(nextId(), true, TextWrapModeValue.WRAP),
   LINE_HEIGHT(nextId(), true, LineHeightValue.NORMAL),
+
+  FONT_FAMILY(nextId(), true, FontNameValue.create("Times New Roman")),
+  FONT_WEIGHT(nextId(), true, FontWeightValue.create(400)),
+  FONT_SIZE(nextId(), true, FontNamedSizeValue.MEDIUM),
+  // TODO: There are still other properties to support...
+  FONT(new CSSProperty[] { FONT_WEIGHT, FONT_SIZE, LINE_HEIGHT, FONT_FAMILY }),
 
   PADDING_TOP(nextId(), false, LengthValue.ZERO),
   PADDING_BOTTOM(nextId(), false, LengthValue.ZERO),
