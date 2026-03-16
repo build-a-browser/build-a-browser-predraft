@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ComplexSelectorParser;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
-import net.buildabrowser.babbrowser.cssbase.selector.ChildCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
+import net.buildabrowser.babbrowser.cssbase.selector.ChildCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
@@ -20,10 +20,13 @@ import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.HashToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.HashToken.Type;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.LSBracketToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.RSBracketToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.StringToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
-import net.buildabrowser.babbrowser.cssbase.tokens.HashToken.Type;
 
 public class ComplexSelectorParserTest {
   
@@ -65,6 +68,47 @@ public class ComplexSelectorParserTest {
       DelimToken.create('*'));
     List<ComplexSelector> expectedSelectors = oneSelector(
       UniversalSelector.create());
+    Assertions.assertEquals(expectedSelectors, actualSelectors);
+  }
+
+  @Test
+  @DisplayName("Can parse has attribute selector")
+  public void canParseHasAttributeSelector() throws IOException {
+    List<ComplexSelector> actualSelectors = parseTokens(
+      LSBracketToken.create(),
+      IdentToken.create("fuffuu"),
+      RSBracketToken.create());
+    List<ComplexSelector> expectedSelectors = oneSelector(
+      AttributeSelector.create("fuffuu", "", AttributeType.HAS_ATTR));
+    Assertions.assertEquals(expectedSelectors, actualSelectors);
+  }
+
+  @Test
+  @DisplayName("Can parse exactly attribute selector")
+  public void canParseExactlyAttributeSelector() throws IOException {
+    List<ComplexSelector> actualSelectors = parseTokens(
+      LSBracketToken.create(),
+      StringToken.create("food"),
+      DelimToken.create('='),
+      StringToken.create("rock"),
+      RSBracketToken.create());
+    List<ComplexSelector> expectedSelectors = oneSelector(
+      AttributeSelector.create("food", "rock", AttributeType.EXACTLY));
+    Assertions.assertEquals(expectedSelectors, actualSelectors);
+  }
+
+  @Test
+  @DisplayName("Can parse prefix attribute selector")
+  public void canParsePrefixAttributeSelector() throws IOException {
+    List<ComplexSelector> actualSelectors = parseTokens(
+      LSBracketToken.create(),
+      IdentToken.create("food"),
+      DelimToken.create('|'),
+      DelimToken.create('='),
+      IdentToken.create("ice"),
+      RSBracketToken.create());
+    List<ComplexSelector> expectedSelectors = oneSelector(
+      AttributeSelector.create("food", "ice", AttributeType.PREFIX));
     Assertions.assertEquals(expectedSelectors, actualSelectors);
   }
 

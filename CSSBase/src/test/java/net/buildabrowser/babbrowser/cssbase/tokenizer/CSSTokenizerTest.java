@@ -17,10 +17,12 @@ import net.buildabrowser.babbrowser.cssbase.tokens.HashToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LCBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LParenToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.LSBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RCBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RParenToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.RSBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.SemicolonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.StringToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
@@ -68,6 +70,20 @@ public class CSSTokenizerTest {
   public void canTokenizeASemicolonToken() throws IOException {
     Token token = cssTokenizer.consumeAToken(stringInput(";"));
     Assertions.assertEquals(SemicolonToken.create(), token);
+  }
+
+  @Test
+  @DisplayName("Can tokenize a left square bracket token")
+  public void canTokenizeALeftSquareBracketToken() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("["));
+    Assertions.assertEquals(LSBracketToken.create(), token);
+  }
+
+  @Test
+  @DisplayName("Can tokenize a right square bracket token")
+  public void canTokenizeARightSquareBracketToken() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("]"));
+    Assertions.assertEquals(RSBracketToken.create(), token);
   }
 
   @Test

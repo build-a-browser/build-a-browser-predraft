@@ -18,6 +18,10 @@ public class AfterAttributeNameState implements TokenizeState {
         tokenizeContext.setTokenizeState(TokenizeStates.selfClosingStartTagState);
         break;
       case '=':
+        tokenizeContext.setTokenizeState(TokenizeStates.beforeAttributeValueState);
+        parseContext.emitTagToken(tokenizeContext.currentTagToken());
+        break;
+      case '>':
         tokenizeContext.setTokenizeState(TokenizeStates.dataState);
         parseContext.emitTagToken(tokenizeContext.currentTagToken());
         break;

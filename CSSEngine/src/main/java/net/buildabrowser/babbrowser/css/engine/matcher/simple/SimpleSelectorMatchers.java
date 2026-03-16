@@ -19,11 +19,13 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
   private final ElementSet allElements = ElementSet.create();
   private final TypeSelectorMatcher typeSelectorMatcher = new TypeSelectorMatcher(allElements);
   private final IdSelectorMatcher idSelectorMatcher = new IdSelectorMatcher();
+  private final AttributeSelectorMatcher attributePresentSelectorMatcher = new AttributeSelectorMatcher(allElements);
   private final AttributeOneOfSelectorMatcher attributeOneOfSelectorMatcher = new AttributeOneOfSelectorMatcher(allElements);
 
   private final List<SimpleSelectorMatcher<?>> allMatchers = List.of(
     typeSelectorMatcher,
     idSelectorMatcher,
+    attributePresentSelectorMatcher,
     attributeOneOfSelectorMatcher
   );
 
@@ -59,6 +61,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
       case TypeSelector typeSelector -> typeSelectorMatcher.match(typeSelector);
       case AttributeSelector attributeSelector -> switch (attributeSelector.type()) {
         case AttributeType.ONE_OF -> attributeOneOfSelectorMatcher.match(attributeSelector);
+        default -> attributePresentSelectorMatcher.match(attributeSelector);
       };
       case UniversalSelector _ -> allElements;
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
@@ -71,6 +74,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
       case TypeSelector typeSelector -> typeSelectorMatcher.addSelectorReference(typeSelector);
       case AttributeSelector attributeSelector -> { switch (attributeSelector.type()) {
         case AttributeType.ONE_OF -> attributeOneOfSelectorMatcher.addSelectorReference(attributeSelector);
+        default -> attributePresentSelectorMatcher.addSelectorReference(attributeSelector);
       } }
       case Combinator _, UniversalSelector _ -> {}
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
@@ -83,6 +87,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
       case TypeSelector typeSelector -> typeSelectorMatcher.removeSelectorReference(typeSelector);
       case AttributeSelector attributeSelector -> { switch (attributeSelector.type()) {
         case AttributeType.ONE_OF -> attributeOneOfSelectorMatcher.removeSelectorReference(attributeSelector);
+        default -> attributePresentSelectorMatcher.removeSelectorReference(attributeSelector);
       } }
       case Combinator _, UniversalSelector _ -> {}
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
