@@ -9,7 +9,9 @@ import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContextGenerator;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
+import net.buildabrowser.babbrowser.browser.render.paint.ResourceLoader;
 import net.buildabrowser.babbrowser.browser.render.paint.test.TestFontMetrics;
+import net.buildabrowser.babbrowser.browser.render.paint.test.TestResourceLoader;
 
 public final class FlowLayoutUtil {
   
@@ -33,9 +35,12 @@ public final class FlowLayoutUtil {
     LayoutConstraint heightConstraint
   ) {
     FontMetrics testMetrics = TestFontMetrics.create(10, 5);
+    ResourceLoader resourceLoader = new TestResourceLoader(() -> testMetrics);
     LayoutContext layoutContext = new LayoutContext(
-      new GlobalLayoutContext(null, null, testMetrics, new Object()),
-      testMetrics);
+      new GlobalLayoutContext(
+        null, resourceLoader, testMetrics,
+        resourceLoader.fontLoader()::load, new Object()),
+      () -> testMetrics);
     LayoutContextGenerator.generateLayoutContexts(parentBox, layoutContext);
     FlowRootContent content = (FlowRootContent) parentBox.content();
 

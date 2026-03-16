@@ -115,8 +115,14 @@ public final class FlowRootContentPainter {
       if (startsStackingContext(childFragment, refFragment)) continue;
 
       canvas.pushPaint();
-      canvas.alterPaint(paint -> paint.incOffset(childFragment.contentX(), childFragment.contentY()));
-      canvas.alterPaint(paint -> paint.setColor(parentBox.activeStyles().textColor()));
+      canvas.alterPaint(paint -> {
+        paint.incOffset(childFragment.contentX(), childFragment.contentY());
+        if (parentBox.layoutContext() != null) {
+          // TODO: Remove this if once I move some stuff to fixupChildren
+          paint.setFont(parentBox.layoutContext().font());
+        }
+        paint.setColor(parentBox.activeStyles().textColor());
+      });
       paintFragment(canvas, childFragment, refFragment);
       canvas.popPaint();
     }
@@ -147,8 +153,11 @@ public final class FlowRootContentPainter {
       if (startsStackingContext(childFragment, refFragment)) continue;
 
       canvas.pushPaint();
-      canvas.alterPaint(paint -> paint.incOffset(childFragment.contentX(), childFragment.contentY()));
-      canvas.alterPaint(paint -> paint.setColor(parentBox.activeStyles().textColor()));
+      canvas.alterPaint(paint -> {
+        paint.incOffset(childFragment.contentX(), childFragment.contentY());
+        paint.setFont(parentBox.layoutContext().font());
+        paint.setColor(parentBox.activeStyles().textColor());
+      });
       paintInlineFragment(canvas, childFragment, refFragment);
       canvas.popPaint();
     }

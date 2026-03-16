@@ -18,6 +18,8 @@ public interface ActiveStyles extends PropertyContainer {
 
   void unsetProperty(CSSProperty property);
 
+  boolean wasInherited(CSSProperty property);
+
   int textColor();
 
   int backgroundColor();

@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.browser.render.paint.test;
 
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 
-public record TestFontMetrics(float fontHeight, float charWidth) implements FontMetrics {
+public record TestFontMetrics(float height, float charWidth) implements FontMetrics {
 
   // Test with height 10 and width 5 per char
   public static TestFontMetrics create() {
@@ -16,6 +16,21 @@ public record TestFontMetrics(float fontHeight, float charWidth) implements Font
   @Override
   public float stringWidth(String text) {
     return text.length() * charWidth;
+  }
+
+  @Override
+  public float size() {
+    return height;
+  }
+
+  @Override
+  public int weight() {
+    return 400;
+  }
+
+  @Override
+  public double xHeight() {
+    return height;
   }
 
 }

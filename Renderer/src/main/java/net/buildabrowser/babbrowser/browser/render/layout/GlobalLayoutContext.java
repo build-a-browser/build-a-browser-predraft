@@ -9,6 +9,7 @@ public record GlobalLayoutContext(
   URI refURL,
   ResourceLoader resourceLoader,
   FontMetrics rootMetrics,
+  FontCache fontCache,
   Object cacheKey
 ) {
   

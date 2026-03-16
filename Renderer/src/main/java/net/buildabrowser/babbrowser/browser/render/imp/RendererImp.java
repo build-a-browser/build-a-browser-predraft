@@ -26,15 +26,18 @@ import net.buildabrowser.babbrowser.browser.render.box.imp.DocumentBoxImp;
 import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionLayout;
+import net.buildabrowser.babbrowser.browser.render.layout.FontCache;
 import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContextGenerator;
 import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.browser.render.layout.StackingContextGenerator;
-import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
+import net.buildabrowser.babbrowser.browser.render.paint.FontLoader;
+import net.buildabrowser.babbrowser.browser.render.paint.FontLoader.FontOptions;
+import net.buildabrowser.babbrowser.browser.render.paint.LoadedFont;
 import net.buildabrowser.babbrowser.browser.render.paint.Painter;
-import net.buildabrowser.babbrowser.browser.render.paint.java2d.J2DFontMetrics;
+import net.buildabrowser.babbrowser.browser.render.paint.ResourceLoader;
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
@@ -75,14 +78,20 @@ public class RendererImp implements Renderer {
         @Override
         protected void paintComponent(Graphics g) {
           if (documentBox == null) return;
-          FontMetrics fontMetrics = new J2DFontMetrics(g.getFontMetrics());
+
+          ResourceLoader resourceLoader = painter.resourceLoader();
+          FontLoader fontLoader = resourceLoader.fontLoader();
+          FontCache fontCache = FontCache.create(fontLoader);
+          LoadedFont rootFont = fontCache.load(
+            new FontOptions(List.of(fontLoader.sansSerif()), 16, 400));
+
           ElementBox rootBox = documentBox.htmlBox();
 
           Object cacheKey = new Object();
           GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
-            url, painter.resourceLoader(), fontMetrics, cacheKey);
+            url, painter.resourceLoader(), rootFont.metrics(), fontCache, cacheKey);
 
-          LayoutContext layoutContext = new LayoutContext(globalLayoutContext, fontMetrics);
+          LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
           LayoutContextGenerator.generateLayoutContexts(rootBox, layoutContext);
           ArrayDeque<ElementBox> deferredLayout = new ArrayDeque<>();
 
@@ -104,8 +113,10 @@ public class RendererImp implements Renderer {
           g.setColor(new Color(0xFFFFFF, false));
           g.fillRect(0, 0, getWidth(), getHeight());
           
-          painter.withCanvas(g, this.getWidth(), this.getHeight(), canvas ->
-            rootLayer.paint(canvas));
+          painter.withCanvas(g, this.getWidth(), this.getHeight(), canvas -> {
+            canvas.alterPaint(p -> p.setFont(rootFont));
+            rootLayer.paint(canvas);
+          });
           
           System.gc();
         }

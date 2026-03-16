@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.paint.java2d;
 
+import net.buildabrowser.babbrowser.browser.render.paint.LoadedFont;
 import net.buildabrowser.babbrowser.browser.render.paint.Paint;
 
 public class J2DPaint implements Paint {
@@ -7,6 +8,7 @@ public class J2DPaint implements Paint {
   private int color;
   private float offsetX;
   private float offsetY;
+  private J2DLoadedFont loadedFont;
 
   @Override
   public void setColor(int color) {
@@ -38,6 +40,20 @@ public class J2DPaint implements Paint {
   @Override
   public float offsetY() {
     return this.offsetY;
+  }
+
+  @Override
+  public void setFont(LoadedFont loadedFont) {
+    if (!(loadedFont instanceof J2DLoadedFont j2dLoadedFont)) {
+      throw new IllegalArgumentException("Attempt to pass non-Java2D font into Java2D renderer!");
+    }
+
+    this.loadedFont = j2dLoadedFont;
+  }
+
+  @Override
+  public J2DLoadedFont getFont() {
+    return this.loadedFont;
   }
 
 }

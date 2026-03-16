@@ -4,8 +4,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 import java.util.function.Consumer;
 
+import net.buildabrowser.babbrowser.browser.render.paint.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.browser.render.paint.LoadedImage;
 import net.buildabrowser.babbrowser.browser.render.paint.Paint;
@@ -16,7 +18,8 @@ public class J2DPaintCanvas implements PaintCanvas {
   private final Deque<J2DPaint> paintStack = new ArrayDeque<>();
   private final Graphics2D graphics;
 
-  float currentTranslateX, currentTranslateY;
+  private float currentTranslateX, currentTranslateY;
+  private J2DLoadedFont font;
 
   public J2DPaintCanvas(Graphics2D graphics) {
     this.graphics = graphics;
@@ -30,6 +33,7 @@ public class J2DPaintCanvas implements PaintCanvas {
     paintStack.push(paint);
     paint.setOffset(parentPaint.offsetX(), parentPaint.offsetY());
     paint.setColor(parentPaint.getColor());
+    paint.setFont(parentPaint.getFont());
     postPaintUpdate();
   }
 
@@ -52,7 +56,7 @@ public class J2DPaintCanvas implements PaintCanvas {
 
   @Override
   public void drawText(float x, float y, String text) {
-    graphics.drawChars(text.toCharArray(), 0, text.length(), (int) x, (int) (y + fontMetrics().fontHeight()));
+    font.drawText(x, y, text, graphics);
   }
 
   @Override
@@ -67,7 +71,7 @@ public class J2DPaintCanvas implements PaintCanvas {
 
   @Override
   public FontMetrics fontMetrics() {
-    return new J2DFontMetrics(graphics.getFontMetrics());
+    return new J2DFontMetrics(graphics.getFontMetrics(), new FontOptions(List.of(), 0, 0));
   }
 
   private void postPaintUpdate() {
@@ -80,6 +84,8 @@ public class J2DPaintCanvas implements PaintCanvas {
       paint.offsetY() - currentTranslateY);
     currentTranslateX = paint.offsetX();
     currentTranslateY = paint.offsetY();
+
+    this.font = paint.getFont();
   }
   
 }

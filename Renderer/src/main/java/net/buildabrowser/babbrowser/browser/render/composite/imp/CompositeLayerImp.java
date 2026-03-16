@@ -79,6 +79,8 @@ public class CompositeLayerImp implements CompositeLayer {
       canvas.pushPaint();
       CompositeLayerEntry currentEntry = nextEntry;
       nextEntry = nextEntry.next();
+      // TODO: Figure out why pre-layout fragments are making it into composite layers
+      if (currentEntry.fragment().painter() == null) continue;
       canvas.alterPaint(p -> p.incOffset(currentEntry.offsetX(), currentEntry.offsetY()));
       func.accept(currentEntry.fragment());
       canvas.popPaint();

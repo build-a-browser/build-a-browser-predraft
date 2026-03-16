@@ -1,9 +1,15 @@
 package net.buildabrowser.babbrowser.browser.render.paint;
 
 public interface FontMetrics {
+
+  float size();
+
+  int weight();
   
   float stringWidth(String text);
 
-  float fontHeight();
+  float height();
+
+  double xHeight();
 
 }

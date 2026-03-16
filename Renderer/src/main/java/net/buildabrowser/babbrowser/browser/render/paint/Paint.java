@@ -14,4 +14,8 @@ public interface Paint {
 
   float offsetY();
 
+  void setFont(LoadedFont font);
+  
+  LoadedFont getFont();
+
 }

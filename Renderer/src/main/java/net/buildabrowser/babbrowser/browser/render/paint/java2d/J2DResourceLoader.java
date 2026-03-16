@@ -5,14 +5,22 @@ import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
+import net.buildabrowser.babbrowser.browser.render.paint.FontLoader;
 import net.buildabrowser.babbrowser.browser.render.paint.LoadedImage;
 import net.buildabrowser.babbrowser.browser.render.paint.ResourceLoader;
 
 public class J2DResourceLoader implements ResourceLoader {
 
+  private final FontLoader fontLoader = new J2DFontLoader();
+
   @Override
   public LoadedImage loadImage(InputStream imageStream) throws IOException {
     return new J2DLoadedImage(ImageIO.read(imageStream));
+  }
+
+  @Override
+  public FontLoader fontLoader() {
+    return this.fontLoader;
   }
 
 }

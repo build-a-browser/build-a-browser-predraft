@@ -139,8 +139,8 @@ public final class SizingUtil {
     double baseValue = lengthValue.value().doubleValue();
     double sizeResult = baseValue == 0 ? 0 : switch (lengthValue.dimension()) {
       // TODO: Use real values for EM, EX
-      case EM -> baseValue * layoutContext.fontMetrics().fontHeight();
-      case EX -> baseValue * layoutContext.fontMetrics().fontHeight() / 2;
+      case EM -> baseValue * layoutContext.font().metrics().size();
+      case EX -> baseValue * layoutContext.font().metrics().xHeight() / 2;
       case IN -> baseValue * 96;
       case CM -> baseValue * 96 / 2.54;
       case MM -> baseValue * 96 / 2.54 / 100;

@@ -117,6 +117,14 @@ public class ActiveStylesImp implements ActiveStyles {
   }
 
   @Override
+  public boolean wasInherited(CSSProperty property) {
+    return
+      parentStyles != null
+      && (property.inherited() || inheritValues.get(property.id()))
+      && !hasOwnValues.get(property.id());
+  }
+
+  @Override
   public int textColor() {
     return ((ColorValue) getProperty(CSSProperty.COLOR)).asSARGB();
   }

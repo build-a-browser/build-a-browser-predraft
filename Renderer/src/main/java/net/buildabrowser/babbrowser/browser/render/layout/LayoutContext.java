@@ -1,10 +1,10 @@
 package net.buildabrowser.babbrowser.browser.render.layout;
 
-import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
+import net.buildabrowser.babbrowser.browser.render.paint.LoadedFont;
 
 public record LayoutContext(
   GlobalLayoutContext global,
-  FontMetrics fontMetrics
+  LoadedFont font
 ) {
 
 }

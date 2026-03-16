@@ -1,19 +1,32 @@
 package net.buildabrowser.babbrowser.browser.render.paint.skija;
 
 import io.github.humbleui.skija.Font;
+import net.buildabrowser.babbrowser.browser.render.paint.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 
 public class SkijaFontMetrics implements FontMetrics {
 
-  private final Font rawFont;
-  private final io.github.humbleui.skija.FontMetrics rawMetrics;
+  private final Font[] rawFonts;
+  private final io.github.humbleui.skija.FontMetrics primaryMetrics;
+  private final FontOptions fontOptions;
 
   private final float[] widthCache = new float[256];
 
 
-  public SkijaFontMetrics(Font font) {
-    this.rawFont = font;
-    this.rawMetrics = font.getMetrics();
+  public SkijaFontMetrics(Font[] rawFonts, FontOptions fontOptions) {
+    this.rawFonts = rawFonts;
+    this.primaryMetrics = rawFonts[0].getMetrics();
+    this.fontOptions = fontOptions;
+  }
+
+  @Override
+  public float size() {
+    return fontOptions.size();
+  }
+
+  @Override
+  public int weight() {
+    return fontOptions.weight();
   }
 
   @Override
@@ -27,8 +40,13 @@ public class SkijaFontMetrics implements FontMetrics {
   }
 
   @Override
-  public float fontHeight() {
-    return rawMetrics.getHeight();
+  public float height() {
+    return primaryMetrics.getHeight();
+  }
+
+  @Override
+  public double xHeight() {
+    return primaryMetrics.getXHeight();
   }
 
   private float getCharacterWidth(int codePoint) {
@@ -36,8 +54,14 @@ public class SkijaFontMetrics implements FontMetrics {
       return widthCache[codePoint];
     }
     
-    short glyph = rawFont.getUTF32Glyph(codePoint);
-    float width = rawFont.getWidths(new short[] { glyph })[0];
+    short glyph = rawFonts[0].getUTF32Glyph(codePoint);
+    float width = rawFonts[0].getWidths(new short[] { glyph })[0];
+    for (int i = 1; i < rawFonts.length && glyph == 0; i++) {
+      Font rawFont = rawFonts[i];
+      glyph = rawFont.getUTF32Glyph(codePoint);
+      if (glyph == 0) continue;
+      width = rawFont.getWidths(new short[] { glyph })[0];
+    }
 
     if (codePoint < 256) {
       widthCache[codePoint] = width;

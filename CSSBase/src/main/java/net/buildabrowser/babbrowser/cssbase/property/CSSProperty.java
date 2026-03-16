@@ -1,5 +1,8 @@
 package net.buildabrowser.babbrowser.cssbase.property;
 
+import java.util.List;
+
+import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
 import net.buildabrowser.babbrowser.cssbase.property.align.GapValue;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue.SRGBAColor;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
@@ -38,7 +41,7 @@ public enum CSSProperty {
   TEXT_WRAP_MODE(nextId(), true, TextWrapModeValue.WRAP),
   LINE_HEIGHT(nextId(), true, LineHeightValue.NORMAL),
 
-  FONT_FAMILY(nextId(), true, FontNameValue.create("Times New Roman")),
+  FONT_FAMILY(nextId(), true, new ManyResult(List.of(FontNameValue.create("sans-serif")))),
   FONT_WEIGHT(nextId(), true, FontWeightValue.create(400)),
   FONT_SIZE(nextId(), true, FontNamedSizeValue.MEDIUM),
   // TODO: There are still other properties to support...

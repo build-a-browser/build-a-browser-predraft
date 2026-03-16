@@ -44,12 +44,12 @@ public class ImageContent implements BoxContent, BoxPainter {
     }
 
     String alt = getImageAlt();
-    FontMetrics fm = layoutContext.fontMetrics();
+    FontMetrics fm = layoutContext.font().metrics();
     
     float width = fm.stringWidth(alt);
     
     dimensions.setIntrinsicWidth(width);
-    dimensions.setInstrinsicHeight(fm.fontHeight());
+    dimensions.setInstrinsicHeight(fm.height());
   }
 
   @Override
@@ -69,7 +69,10 @@ public class ImageContent implements BoxContent, BoxPainter {
     float width = fragment.contentWidth();
     float height = fragment.contentHeight();
     canvas.drawBox(0, 0, width, height);
-    canvas.alterPaint(paint -> paint.setColor(box.activeStyles().textColor()));
+    canvas.alterPaint(paint -> {
+      paint.setFont(box.layoutContext().font());
+      paint.setColor(box.activeStyles().textColor());
+    });
 
     if (image != null) {
       canvas.drawImage(0, 0, width, height, image);

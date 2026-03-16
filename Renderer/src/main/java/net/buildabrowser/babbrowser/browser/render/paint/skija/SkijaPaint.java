@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.paint.skija;
 
+import net.buildabrowser.babbrowser.browser.render.paint.LoadedFont;
 import net.buildabrowser.babbrowser.browser.render.paint.Paint;
 
 public class SkijaPaint implements Paint {
@@ -7,6 +8,7 @@ public class SkijaPaint implements Paint {
   private int color;
   private float offsetX;
   private float offsetY;
+  private SkijaLoadedFont font;
 
   @Override
   public void setColor(int color) {
@@ -38,6 +40,19 @@ public class SkijaPaint implements Paint {
   @Override
   public float offsetY() {
     return this.offsetY;
+  }
+
+  @Override
+  public void setFont(LoadedFont font) {
+    if (!(font instanceof SkijaLoadedFont skijaFont)) {
+      throw new IllegalArgumentException("Attempt to pass non-skija font into Skija renderer!");
+    }
+    this.font = skijaFont;
+  }
+
+  @Override
+  public SkijaLoadedFont getFont() {
+    return this.font;
   }
 
 }
