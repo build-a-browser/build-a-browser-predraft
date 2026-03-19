@@ -47,11 +47,12 @@ public final class FlexMainAlignment {
     MainAlignmentContext alignmentContext, FlexLine line, float autoSize
   ) {
     // TODO: But does the align affect overflow?
+    float gapSize = alignmentContext.mainGap();
     float spaceLeft = computeRemainingFreeSpace(alignmentContext, line, autoSize, new int[1]);
     switch (alignmentContext.justification()) {
-      case FLEX_START -> positionItemsAt(0, alignmentContext, line, autoSize, 0);
-      case FLEX_END -> positionItemsAt(spaceLeft, alignmentContext, line, autoSize, 0);
-      case CENTER -> positionItemsAt(spaceLeft / 2, alignmentContext, line, autoSize, 0);
+      case FLEX_START -> positionItemsAt(0, alignmentContext, line, autoSize, gapSize);
+      case FLEX_END -> positionItemsAt(spaceLeft, alignmentContext, line, autoSize, gapSize);
+      case CENTER -> positionItemsAt(spaceLeft / 2, alignmentContext, line, autoSize, gapSize);
       case SPACE_BETWEEN -> positionItemsBetween(alignmentContext, line, autoSize, spaceLeft);
       case SPACE_AROUND -> positionItemsAround(alignmentContext, line, autoSize, spaceLeft);
       default -> throw new UnsupportedOperationException("Unsupported justification!");
@@ -61,12 +62,13 @@ public final class FlexMainAlignment {
   private static void justifyItemsReverse(
     MainAlignmentContext alignmentContext, FlexLine line, float autoSize
   ) {
+    float gapSize = alignmentContext.mainGap();
     float lineSize = alignmentContext.mainSize().value();
     float spaceLeft = computeRemainingFreeSpace(alignmentContext, line, autoSize, new int[1]);
     switch (alignmentContext.justification()) {
-      case FLEX_START -> positionItemsAtReverse(lineSize, alignmentContext, line, autoSize, 0);
-      case FLEX_END -> positionItemsAtReverse(lineSize - spaceLeft, alignmentContext, line, autoSize, 0);
-      case CENTER -> positionItemsAtReverse(lineSize - spaceLeft / 2, alignmentContext, line, autoSize, 0);
+      case FLEX_START -> positionItemsAtReverse(lineSize, alignmentContext, line, autoSize, gapSize);
+      case FLEX_END -> positionItemsAtReverse(lineSize - spaceLeft, alignmentContext, line, autoSize, gapSize);
+      case CENTER -> positionItemsAtReverse(lineSize - spaceLeft / 2, alignmentContext, line, autoSize, gapSize);
       case SPACE_BETWEEN -> positionItemsBetweenReverse(alignmentContext, line, lineSize, autoSize, spaceLeft);
       case SPACE_AROUND -> positionItemsAroundReverse(alignmentContext, line, lineSize, autoSize, spaceLeft);
       default -> throw new UnsupportedOperationException("Unsupported justification!");
@@ -106,50 +108,54 @@ public final class FlexMainAlignment {
   private static void positionItemsBetween(
     MainAlignmentContext alignmentContext, FlexLine line, float autoSize, float spaceLeft
   ) {
+    float gapSize = alignmentContext.mainGap();
     if (spaceLeft < 0 || line.items().size() == 1) {
       // TODO: What is the safe variant?
-      positionItemsAt(0, alignmentContext, line, autoSize, 0);
+      positionItemsAt(0, alignmentContext, line, autoSize, gapSize);
       return;
     }
 
     float distSize = spaceLeft / (line.items().size() - 1);
-    positionItemsAt(0, alignmentContext, line, autoSize, distSize);
+    positionItemsAt(0, alignmentContext, line, autoSize, distSize + gapSize);
   }
 
   private static void positionItemsAround(
     MainAlignmentContext alignmentContext, FlexLine line, float autoSize, float spaceLeft
   ) {
+    float gapSize = alignmentContext.mainGap();
     if (spaceLeft < 0 || line.items().size() == 1) {
-      positionItemsAt(spaceLeft / 2, alignmentContext, line, autoSize, 0);
+      positionItemsAt(spaceLeft / 2, alignmentContext, line, autoSize, gapSize);
       return;
     }
 
     float distSize = spaceLeft / line.items().size();
-    positionItemsAt(distSize / 2, alignmentContext, line, autoSize, distSize);
+    positionItemsAt(distSize / 2, alignmentContext, line, autoSize, distSize + gapSize);
   }
   
   private static void positionItemsBetweenReverse(
     MainAlignmentContext alignmentContext, FlexLine line, float startPos, float autoSize, float spaceLeft
   ) {
+    float gapSize = alignmentContext.mainGap();
     if (spaceLeft < 0 || line.items().size() == 1) {
-      positionItemsAtReverse(startPos, alignmentContext, line, autoSize, 0);
+      positionItemsAtReverse(startPos, alignmentContext, line, autoSize, gapSize);
       return;
     }
 
     float distSize = spaceLeft / (line.items().size() - 1);
-    positionItemsAtReverse(startPos, alignmentContext, line, autoSize, distSize);
+    positionItemsAtReverse(startPos, alignmentContext, line, autoSize, distSize + gapSize);
   }
 
   private static void positionItemsAroundReverse(
     MainAlignmentContext alignmentContext, FlexLine line, float startPos, float autoSize, float spaceLeft
   ) {
+    float gapSize = alignmentContext.mainGap();
     if (spaceLeft < 0 || line.items().size() == 1) {
-      positionItemsAtReverse(startPos - spaceLeft / 2, alignmentContext, line, autoSize, 0);
+      positionItemsAtReverse(startPos - spaceLeft / 2, alignmentContext, line, autoSize, gapSize);
       return;
     }
 
     float distSize = spaceLeft / line.items().size();
-    positionItemsAtReverse(startPos - distSize / 2, alignmentContext, line, autoSize, distSize);
+    positionItemsAtReverse(startPos - distSize / 2, alignmentContext, line, autoSize, distSize + gapSize);
   }
 
   private static float computeRemainingFreeSpace(
@@ -157,6 +163,7 @@ public final class FlexMainAlignment {
     float autoSize, int[] numAutos // Annoying output param to avoid duplicating this code for distributeMainSpace
   ) {
     float remainingFreeSpace = alignmentContext.mainSize().value();
+    remainingFreeSpace -= alignmentContext.mainGap() * (line.items().size() - 1);
     for (FlexItem item: line.items()) {
       remainingFreeSpace -= item.mainSize();
       remainingFreeSpace -= item.box().dimensions().decorWidth();
@@ -214,7 +221,7 @@ public final class FlexMainAlignment {
 
   public static record MainAlignmentContext(
     LayoutConstraint mainSize,
-    boolean isVertical, boolean isReverse, JustifyContentValue justification
+    boolean isVertical, boolean isReverse, JustifyContentValue justification, float mainGap
   ) {}
 
 }

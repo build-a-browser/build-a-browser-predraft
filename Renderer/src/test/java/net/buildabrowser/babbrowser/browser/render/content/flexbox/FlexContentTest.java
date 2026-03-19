@@ -22,8 +22,8 @@ import net.buildabrowser.babbrowser.cssbase.property.flex.FlexGrowValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
-import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
+import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
 
 public class FlexContentTest {
 
@@ -245,6 +245,56 @@ public class FlexContentTest {
     assertFragmentListEquals(expectedFragments, actualFragments);
   }
 
-  // TODO: Tests for border, gap, and position
+  // TODO: Test for border/padding/margin
+  
+  @Test
+  @DisplayName("Can layout flexbox with column-gap")
+  public void canLayoutFlexboxWithColumnGap() {
+    ElementBox child1 = flowBlockBox(List.of(new TestTextBox("Red")));
+    ElementBox child2 = flowBlockBox(List.of(new TestTextBox("Green")));
+    ElementBox child3 = flowBlockBox(List.of(new TestTextBox("Blue")));
+
+    ActiveStyles parentStyles = ActiveStyles.create();
+    parentStyles.setProperty(CSSProperty.COLUMN_GAP, LengthValue.create(1, true, LengthType.EM));
+    ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2, child3));
+
+    List<LayoutFragment> expectedFragments = List.of(
+      new UnmanagedBoxFragment(0, 0, 15, 10, child1),
+      new UnmanagedBoxFragment(25, 0, 25, 10, child2),
+      new UnmanagedBoxFragment(60, 0, 20, 10, child3)
+    );
+
+    LayoutFragment actualFragments = doLayoutSized(parentBox, 100).childFragments();
+    assertFragmentListEquals(expectedFragments, actualFragments);
+  }
+
+  @Test
+  @DisplayName("Can layout flexbox with row gap")
+  public void canLayoutFlexboxWithRowGap() {
+    ActiveStyles child12Styles = ActiveStyles.create();
+    child12Styles.setProperty(CSSProperty.FLEX_BASIS, PercentageValue.create(40));
+    ActiveStyles child3Styles = ActiveStyles.create();
+    child3Styles.setProperty(CSSProperty.FLEX_BASIS, PercentageValue.create(40));
+
+    ElementBox child1 = flowBlockBox(child12Styles, List.of(new TestTextBox("Red")));
+    ElementBox child2 = flowBlockBox(child12Styles, List.of(new TestTextBox("Green")));
+    ElementBox child3 = flowBlockBox(child3Styles, List.of(new TestTextBox("Blue")));
+
+    ActiveStyles parentStyles = ActiveStyles.create();
+    parentStyles.setProperty(CSSProperty.FLEX_WRAP, FlexWrapValue.WRAP);
+    parentStyles.setProperty(CSSProperty.ROW_GAP, LengthValue.create(1, true, LengthType.EM));
+    ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2, child3));
+
+    List<LayoutFragment> expectedFragments = List.of(
+      new UnmanagedBoxFragment(0, 0, 26, 10, child1),
+      new UnmanagedBoxFragment(26, 0, 26, 10, child2),
+      new UnmanagedBoxFragment(0, 20, 26, 10, child3)
+    );
+
+    LayoutFragment actualFragments = doLayoutSized(parentBox, 65).childFragments();
+    assertFragmentListEquals(expectedFragments, actualFragments);
+  }
+
+  // TODO: Test for position
   
 }

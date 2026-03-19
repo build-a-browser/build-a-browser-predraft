@@ -11,6 +11,7 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.PaddingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.flexbox.FlexCrossAlignment.CrossAlignmentContext;
 import net.buildabrowser.babbrowser.browser.render.content.flexbox.FlexMainAlignment.MainAlignmentContext;
@@ -20,6 +21,7 @@ import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.OrderValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexDirectionValue;
@@ -100,26 +102,18 @@ public class FlexBoxContent implements BoxContent {
     LayoutConstraint mainSize = isVertical ? heightConstraint : widthConstraint;
     LayoutConstraint crossSize = isVertical ? widthConstraint : heightConstraint;
     FlexHypotheticalSizeDetermination.determineBaseAndHypotheticalSizes(items, mainSize, crossSize, isVertical);
-    List<FlexLine> lines = collectFlexItemsIntoFlexLines(mainSize, items);
+    float mainGap = mainGap(isVertical, mainSize);
+    List<FlexLine> lines = collectFlexItemsIntoFlexLines(mainSize, items, mainGap);
     for (FlexLine line: lines) {
-      Flexer.flex(mainSize, line);
+      Flexer.flex(mainSize, line, mainGap);
     }
     if (!widthConstraint.isPreLayoutConstraint()) {
       FlexCrossSizeDetermination.determineCrossSize(rootBox, lines, crossSize, isVertical);
 
-      JustifyContentValue contentJustification = (JustifyContentValue) rootBox.activeStyles().getProperty(CSSProperty.JUSTIFY_CONTENT);
-      boolean isReverse =
-        flexDirection.equals(FlexDirectionValue.ROW_REVERSE)
-        || flexDirection.equals(FlexDirectionValue.COLUMN_REVERSE);
-      FlexMainAlignment.alignMainAxis(
-        new MainAlignmentContext(mainSize, isVertical, isReverse, contentJustification),
-        lines);
-      AlignContentValue alignContent = (AlignContentValue) rootBox.activeStyles().getProperty(CSSProperty.ALIGN_CONTENT);
-      FlexCrossAlignment.alignCrossAxis(
-        new CrossAlignmentContext(crossSize, isVertical, alignContent),
-        lines);
+      alignMainAxis(flexDirection, isVertical, mainSize, lines);
+      alignCrossAxis(isVertical, mainSize, crossSize, lines);
 
-      collectedChildFragments(items);
+      collectChildFragments(items);
     }
 
     return createRootFragment(isVertical, mainSize, crossSize, lines);
@@ -142,7 +136,9 @@ public class FlexBoxContent implements BoxContent {
     return ((OrderValue) item.box().activeStyles().getProperty(CSSProperty.ORDER)).order();
   }
 
-  private List<FlexLine> collectFlexItemsIntoFlexLines(LayoutConstraint mainConstraint, List<FlexItem> flexItems) {
+  private List<FlexLine> collectFlexItemsIntoFlexLines(
+    LayoutConstraint mainConstraint, List<FlexItem> flexItems, float mainGap
+  ) {
     List<FlexLine> lines = new LinkedList<>();
     FlexLine activeLine = new FlexLine();
     if (rootBox.activeStyles().getProperty(CSSProperty.FLEX_WRAP).equals(FlexWrapValue.NOWRAP)) {
@@ -164,7 +160,7 @@ public class FlexBoxContent implements BoxContent {
         }
 
         activeLine.addItem(item);
-        lineSize += item.hypotheticalMainSize();
+        lineSize += item.hypotheticalMainSize() + mainGap;
       }
     }
 
@@ -172,7 +168,44 @@ public class FlexBoxContent implements BoxContent {
     return lines;
   }
 
-  private void collectedChildFragments(List<FlexItem> items) {
+  private void alignMainAxis(
+    FlexDirectionValue flexDirection, boolean isVertical, LayoutConstraint mainSize, List<FlexLine> lines
+  ) {
+    float mainGap = mainGap(isVertical, mainSize);
+    JustifyContentValue contentJustification = (JustifyContentValue) rootBox.activeStyles().getProperty(CSSProperty.JUSTIFY_CONTENT);
+    boolean isReverse =
+      flexDirection.equals(FlexDirectionValue.ROW_REVERSE)
+      || flexDirection.equals(FlexDirectionValue.COLUMN_REVERSE);
+    FlexMainAlignment.alignMainAxis(
+      new MainAlignmentContext(mainSize, isVertical, isReverse, contentJustification, mainGap),
+      lines);
+  }
+
+  private void alignCrossAxis(
+    boolean isVertical, LayoutConstraint mainSize, LayoutConstraint crossSize, List<FlexLine> lines
+  ) {
+    float crossGap = crossGap(isVertical, mainSize);
+    AlignContentValue alignContent = (AlignContentValue) rootBox.activeStyles().getProperty(CSSProperty.ALIGN_CONTENT);
+    FlexCrossAlignment.alignCrossAxis(
+      new CrossAlignmentContext(crossSize, isVertical, alignContent, crossGap),
+      lines);
+  }
+
+  private float mainGap(boolean isVertical, LayoutConstraint mainSize) {
+    ActiveStyles parentStyles = rootBox.activeStyles();
+    CSSValue mainGapValue = isVertical ?
+      parentStyles.getProperty(CSSProperty.ROW_GAP) :
+      parentStyles.getProperty(CSSProperty.COLUMN_GAP);
+    LayoutConstraint mainGapConstraint = SizingUtil.evaluateBaseSize(
+      rootBox.layoutContext(), mainSize, mainGapValue);
+    return mainGapConstraint.isBounded() ? mainGapConstraint.value() : 0;
+  }
+
+  private float crossGap(boolean isVertical, LayoutConstraint mainSize) {
+    return mainGap(!isVertical, mainSize);
+  }
+
+  private void collectChildFragments(List<FlexItem> items) {
     fragments = null;
     for (FlexItem item: items) {
       fragments = (UnmanagedBoxFragment) IntrusiveList.add(fragments, item.fragment());
@@ -182,15 +215,19 @@ public class FlexBoxContent implements BoxContent {
   private UnmanagedBoxFragment createRootFragment(
     boolean isVertical, LayoutConstraint mainSize, LayoutConstraint crossSize, List<FlexLine> lines
   ) {
+    float mainGap = mainGap(isVertical, mainSize);
+    float crossGap = crossGap(isVertical, mainSize);
+
     float largestLineMain = 0;
-    float largestLineCross = 0;
+    float totalLineCross = 0;
     for (FlexLine line: lines) {
-      largestLineMain = Math.max(line.sumHypotheticalMainSizes(), largestLineCross);
-      largestLineCross += line.crossSize();
+      largestLineMain = Math.max(line.sumHypotheticalMainSizes(mainGap), totalLineCross);
+      totalLineCross += line.crossSize();
     }
+    totalLineCross += crossGap * (lines.size() - 1);
     
     float resolvedMain = LayoutUtil.constraintOrDim(mainSize, largestLineMain);
-    float resolvedCross = LayoutUtil.constraintOrDim(crossSize, largestLineCross);
+    float resolvedCross = LayoutUtil.constraintOrDim(crossSize, totalLineCross);
     return new UnmanagedBoxFragment(
       isVertical ? resolvedCross : resolvedMain,
       isVertical ? resolvedMain : resolvedCross, rootBox, painter);

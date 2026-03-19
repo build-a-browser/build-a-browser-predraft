@@ -21,11 +21,12 @@ public class FlexLine {
     return items.isEmpty();
   }
 
-  public float sumHypotheticalMainSizes() {
+  public float sumHypotheticalMainSizes(float mainGap) {
     float hypotheticalSum = 0;
     for (FlexItem item: items) {
       hypotheticalSum += item.hypotheticalMainSize();
     }
+    hypotheticalSum += mainGap * (items.size() - 1);
     return hypotheticalSum;
   }
 

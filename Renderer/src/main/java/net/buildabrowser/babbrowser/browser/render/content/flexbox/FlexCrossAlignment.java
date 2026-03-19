@@ -20,14 +20,15 @@ public class FlexCrossAlignment {
     CrossAlignmentContext alignmentContext, List<FlexLine> lines
   ) {
     // TODO: But does the align affect overflow?
+    float gapSize = alignmentContext.crossGap();
     float spaceLeft = computeRemainingFreeSpace(alignmentContext, lines);
     switch (alignmentContext.alignContent()) {
-      case FLEX_START -> positionLinesAt(0, alignmentContext, lines, 0);
-      case FLEX_END -> positionLinesAt(spaceLeft, alignmentContext, lines, 0);
-      case CENTER -> positionLinesAt(spaceLeft / 2, alignmentContext, lines, 0);
+      case FLEX_START -> positionLinesAt(0, alignmentContext, lines, gapSize);
+      case FLEX_END -> positionLinesAt(spaceLeft, alignmentContext, lines, gapSize);
+      case CENTER -> positionLinesAt(spaceLeft / 2, alignmentContext, lines, gapSize);
       case SPACE_BETWEEN -> positionLinesBetween(alignmentContext, lines, spaceLeft);
       case SPACE_AROUND -> positionLinesAround(alignmentContext, lines, spaceLeft);
-      case STRETCH -> positionLinesAt(0, alignmentContext, lines, 0); // TODO
+      case STRETCH -> positionLinesAt(0, alignmentContext, lines, gapSize); // TODO
       default -> throw new UnsupportedOperationException("Unsupported alignment!");
     }
   }
@@ -45,26 +46,28 @@ public class FlexCrossAlignment {
   private static void positionLinesBetween(
     CrossAlignmentContext alignmentContext, List<FlexLine> lines, float spaceLeft
   ) {
+    float crossGap = alignmentContext.crossGap();
     if (spaceLeft < 0 || lines.size() == 1) {
       // TODO: What is the safe varient?
-      positionLinesAt(0, alignmentContext, lines, 0);
+      positionLinesAt(0, alignmentContext, lines, crossGap);
       return;
     }
 
     float distSize = spaceLeft / (lines.size() - 1);
-    positionLinesAt(0, alignmentContext, lines, distSize);
+    positionLinesAt(0, alignmentContext, lines, distSize + crossGap);
   }
 
   private static void positionLinesAround(
     CrossAlignmentContext alignmentContext, List<FlexLine> lines, float spaceLeft
   ) {
+    float crossGap = alignmentContext.crossGap();
     if (spaceLeft < 0 || lines.size() == 1) {
-      positionLinesAt(spaceLeft / 2, alignmentContext, lines, 0);
+      positionLinesAt(spaceLeft / 2, alignmentContext, lines, crossGap);
       return;
     }
 
     float distSize = spaceLeft / lines.size();
-    positionLinesAt(distSize / 2, alignmentContext, lines, distSize);
+    positionLinesAt(distSize / 2, alignmentContext, lines, distSize + crossGap);
   }
 
   private static float computeRemainingFreeSpace(
@@ -72,6 +75,7 @@ public class FlexCrossAlignment {
   ) {
     // TODO: Handle the case where cross size not specified
     float remainingFreeSpace = alignmentContext.crossSize().value();
+    remainingFreeSpace -= alignmentContext.crossGap();
     for (FlexLine line: lines) {
       remainingFreeSpace -= line.crossSize();
     }
@@ -92,7 +96,7 @@ public class FlexCrossAlignment {
   }
 
   public static record CrossAlignmentContext(
-    LayoutConstraint crossSize, boolean isVertical, AlignContentValue alignContent
+    LayoutConstraint crossSize, boolean isVertical, AlignContentValue alignContent, float crossGap
   ) {}
 
 }
