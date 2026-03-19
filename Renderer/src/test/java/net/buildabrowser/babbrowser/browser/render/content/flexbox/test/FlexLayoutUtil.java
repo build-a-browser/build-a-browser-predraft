@@ -1,9 +1,8 @@
-package net.buildabrowser.babbrowser.browser.render.content.flow.test;
+package net.buildabrowser.babbrowser.browser.render.content.flexbox.test;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.browser.render.content.flow.FlowRootContent;
+import net.buildabrowser.babbrowser.browser.render.content.flexbox.FlexBoxContent;
 import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
@@ -13,23 +12,23 @@ import net.buildabrowser.babbrowser.browser.render.paint.ResourceLoader;
 import net.buildabrowser.babbrowser.browser.render.paint.test.TestFontMetrics;
 import net.buildabrowser.babbrowser.browser.render.paint.test.TestResourceLoader;
 
-public final class FlowLayoutUtil {
+public final class FlexLayoutUtil {
   
-  private FlowLayoutUtil() {}
+  private FlexLayoutUtil() {}
 
-  public static ManagedBoxFragment doLayout(ElementBox parentBox) {
-    return doLayoutConstrained(parentBox, LayoutConstraint.AUTO, LayoutConstraint.AUTO).fragment();
+  public static UnmanagedBoxFragment doLayout(ElementBox parentBox) {
+    return doLayoutConstrained(parentBox, LayoutConstraint.AUTO, LayoutConstraint.AUTO).childFragments();
   }
 
-  public static FlowTestLayoutResult doLayoutSized(ElementBox parentBox, float width) {
+  public static FlexTestLayoutResult doLayoutSized(ElementBox parentBox, float width) {
     return doLayoutConstrained(parentBox, LayoutConstraint.of(width), LayoutConstraint.AUTO);
   }
 
-  public static FlowTestLayoutResult doLayoutSized(ElementBox parentBox, float width, float height) {
+  public static FlexTestLayoutResult doLayoutSized(ElementBox parentBox, float width, float height) {
     return doLayoutConstrained(parentBox, LayoutConstraint.of(width), LayoutConstraint.of(height));
   }
 
-  public static FlowTestLayoutResult doLayoutConstrained(
+  public static FlexTestLayoutResult doLayoutConstrained(
     ElementBox parentBox,
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
@@ -42,14 +41,14 @@ public final class FlowLayoutUtil {
         resourceLoader.fontLoader()::load, new Object()),
       () -> testMetrics);
     LayoutContextGenerator.generateLayoutContexts(parentBox, layoutContext);
-    FlowRootContent content = (FlowRootContent) parentBox.content();
+    FlexBoxContent content = (FlexBoxContent) parentBox.content();
 
     UnmanagedBoxFragment dimensionFrag = parentBox.layout(widthConstraint, heightConstraint);
-    return new FlowTestLayoutResult(dimensionFrag, content.rootFragment(), content);
+    return new FlexTestLayoutResult(dimensionFrag, content.fragments(), content);
   }
 
-  public static record FlowTestLayoutResult(
-    UnmanagedBoxFragment dimensionFrag, ManagedBoxFragment fragment, FlowRootContent rootContent
+  public static record FlexTestLayoutResult(
+    UnmanagedBoxFragment dimensionFrag, UnmanagedBoxFragment childFragments, FlexBoxContent rootContent
   ) {}
 
 }

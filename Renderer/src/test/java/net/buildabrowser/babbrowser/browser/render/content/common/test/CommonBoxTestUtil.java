@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.browser.render.content.flow.test;
+package net.buildabrowser.babbrowser.browser.render.content.common.test;
 
 import java.util.List;
 
@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.browser.render.box.test.TestElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.test.TestFixedSizeReplacedContent;
+import net.buildabrowser.babbrowser.browser.render.content.flexbox.FlexBoxContent;
 import net.buildabrowser.babbrowser.browser.render.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
@@ -14,10 +15,9 @@ import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 
-public final class FlowBoxTestUtil {
+public final class CommonBoxTestUtil {
   
-  private FlowBoxTestUtil() {}
-
+  private CommonBoxTestUtil() {}
 
   public static ElementBox sizedReplacedBlockBox(float width, float height) {
     ActiveStyles childrenStyles = ActiveStyles.create();
@@ -40,7 +40,6 @@ public final class FlowBoxTestUtil {
     myBox.dimensions().setInstrinsicHeight(height);
     return myBox;
   }
-
 
   public static ElementBox flowBlockBox(List<Box> children) {
     return flowBlockBox(ActiveStyles.create(), children);
@@ -75,6 +74,18 @@ public final class FlowBoxTestUtil {
     ElementBox parentBox = new TestElementBox(
       box -> new FlowRootContent(box),
       BoxLevel.INLINE_LEVEL, styles, children);
+
+    return parentBox;
+  }
+
+  public static ElementBox flexBlockBox(List<Box> children) {
+    return flexBlockBox(ActiveStyles.create(), children);
+  }
+
+  public static ElementBox flexBlockBox(ActiveStyles styles, List<Box> children) {
+    ElementBox parentBox = new TestElementBox(
+      box -> new FlexBoxContent(box),
+      BoxLevel.BLOCK_LEVEL, styles, children);
 
     return parentBox;
   }

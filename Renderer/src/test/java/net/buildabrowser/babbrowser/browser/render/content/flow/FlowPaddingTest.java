@@ -1,10 +1,10 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
-import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowBoxTestUtil.flowBlockBox;
-import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowBoxTestUtil.flowInlineBox;
+import static net.buildabrowser.babbrowser.browser.render.content.common.test.CommonBoxTestUtil.flowBlockBox;
+import static net.buildabrowser.babbrowser.browser.render.content.common.test.CommonBoxTestUtil.flowInlineBox;
+import static net.buildabrowser.babbrowser.browser.render.content.common.test.FragmentTestUtil.assertFragmentEquals;
 import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowLayoutUtil.doLayout;
 import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowLayoutUtil.doLayoutSized;
-import static net.buildabrowser.babbrowser.browser.render.content.flow.test.FlowTestUtil.assertFragmentEquals;
 
 import java.util.List;
 

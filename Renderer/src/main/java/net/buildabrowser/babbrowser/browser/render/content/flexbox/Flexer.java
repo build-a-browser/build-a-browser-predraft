@@ -10,7 +10,7 @@ public final class Flexer {
 
   public static void flex(LayoutConstraint mainSize, FlexLine flexLine) {
     // TODO: Better prelayout constraint handling
-    if (!mainSize.isPreLayoutConstraint()) return;
+    if (mainSize.isPreLayoutConstraint()) return;
     // TODO: For flex items, the below would still grow to the min size, as override by section 4.5
     if (!mainSize.isBounded()) return;
     boolean isGrow = flexLine.sumHypotheticalMainSizes() < mainSize.value();

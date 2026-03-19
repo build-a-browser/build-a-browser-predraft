@@ -1,5 +1,6 @@
-package net.buildabrowser.babbrowser.browser.render.content.flow.test;
+package net.buildabrowser.babbrowser.browser.render.content.common.test;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -11,9 +12,9 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.TextF
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 
-public final class FlowTestUtil {
+public final class FragmentTestUtil {
   
-  private FlowTestUtil() {}
+  private FragmentTestUtil() {}
 
   public static void assertFragmentEquals(LayoutFragment expected, LayoutFragment actual) {
     Assertions.assertEquals(expected.borderX(), actual.borderX());
@@ -33,6 +34,22 @@ public final class FlowTestUtil {
     Assertions.assertEquals(expected.size(), actual.size());
     for (int i = 0; i < expected.size(); i++) {
       assertFragmentEquals(expected.get(i), actual.get(i));
+    }
+  }
+
+  public static void assertFragmentListEquals(List<LayoutFragment> expected, LayoutFragment actual) {
+    LayoutFragment current = actual;
+    Iterator<LayoutFragment> fragIt = expected.iterator();
+    while (current != null) {
+      if (!fragIt.hasNext()) {
+        throw new AssertionError("Fragment list sizes do not match!");
+      }
+
+      assertFragmentEquals(fragIt.next(), current);
+      current = current.next();
+    }
+    if (fragIt.hasNext()) {
+      throw new AssertionError("Fragment list sizes do not match!");
     }
   }
 
