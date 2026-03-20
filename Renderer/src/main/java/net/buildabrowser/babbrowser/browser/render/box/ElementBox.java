@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.browser.render.box;
 
+import java.util.Comparator;
+
 import net.buildabrowser.babbrowser.browser.render.box.imp.AnonymousElementBoxImp;
 import net.buildabrowser.babbrowser.browser.render.box.imp.ElementBoxImp;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
@@ -29,6 +31,9 @@ public interface ElementBox extends Box {
   void addChild(Box box);
 
   void clearChildren();
+
+  // TODO: I don't really like this method, but it is needed for order-modified fixup
+  void sortChildren(Comparator<? super Box> comparator);
 
   BoxLevel boxLevel();
 

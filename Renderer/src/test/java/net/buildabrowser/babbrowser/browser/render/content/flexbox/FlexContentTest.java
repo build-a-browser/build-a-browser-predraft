@@ -7,6 +7,7 @@ import static net.buildabrowser.babbrowser.browser.render.content.flexbox.test.F
 
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,9 +15,13 @@ import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.test.TestTextBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.flexbox.test.FlexLayoutUtil.FlexTestLayoutResult;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.OrderValue;
+import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexDirectionValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexGrowValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
@@ -244,9 +249,79 @@ public class FlexContentTest {
     LayoutFragment actualFragments = doLayoutSized(parentBox, 100).childFragments();
     assertFragmentListEquals(expectedFragments, actualFragments);
   }
-
-  // TODO: Test for border/padding/margin
   
+  @Test
+  @DisplayName("Can layout flexbox with align-content")
+  public void canLayoutFlexboxWithAlignContent() {
+    ActiveStyles childStyles = ActiveStyles.create();
+    childStyles.setProperty(CSSProperty.FLEX_BASIS, PercentageValue.create(40));
+
+    ElementBox child1 = flowBlockBox(childStyles, List.of(new TestTextBox("Red")));
+    ElementBox child2 = flowBlockBox(childStyles, List.of(new TestTextBox("Green")));
+    ElementBox child3 = flowBlockBox(childStyles, List.of(new TestTextBox("Blue")));
+
+    ActiveStyles parentStyles = ActiveStyles.create();
+    parentStyles.setProperty(CSSProperty.FLEX_WRAP, FlexWrapValue.WRAP);
+    parentStyles.setProperty(CSSProperty.ALIGN_CONTENT, AlignContentValue.SPACE_AROUND);
+    ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2, child3));
+
+    List<LayoutFragment> expectedFragments = List.of(
+      new UnmanagedBoxFragment(0, 10, 26, 10, child1),
+      new UnmanagedBoxFragment(26, 10, 26, 10, child2),
+      new UnmanagedBoxFragment(0, 40, 26, 10, child3)
+    );
+
+    LayoutFragment actualFragments = doLayoutSized(parentBox, 65, 60).childFragments();
+    assertFragmentListEquals(expectedFragments, actualFragments);
+  }
+
+
+  @Test
+  @DisplayName("Can layout flexbox where items have margin/padding/border")
+  public void canLayoutFlexboxWhereItemsHaveDecoration() {
+    ActiveStyles childStyles = ActiveStyles.create();
+    setMany(childStyles, LengthValue.create(1, true, LengthType.PX),
+      CSSProperty.BORDER_TOP_WIDTH, CSSProperty.BORDER_BOTTOM_WIDTH,
+      CSSProperty.BORDER_LEFT_WIDTH, CSSProperty.BORDER_RIGHT_WIDTH);
+    setMany(childStyles, BorderStyleValue.SOLID,
+      CSSProperty.BORDER_TOP_STYLE, CSSProperty.BORDER_BOTTOM_STYLE,
+      CSSProperty.BORDER_LEFT_STYLE, CSSProperty.BORDER_RIGHT_STYLE);
+
+    setMany(childStyles, LengthValue.create(1, true, LengthType.EM),
+      CSSProperty.MARGIN_TOP, CSSProperty.MARGIN_BOTTOM, CSSProperty.MARGIN_LEFT, CSSProperty.MARGIN_RIGHT);
+
+    childStyles.setProperty(CSSProperty.PADDING_TOP, LengthValue.create(0.5f, false, LengthType.EM));  
+    childStyles.setProperty(CSSProperty.PADDING_BOTTOM, LengthValue.create(0.5f, false, LengthType.EM));  
+    childStyles.setProperty(CSSProperty.PADDING_LEFT, LengthValue.create(1, true, LengthType.EM));  
+    childStyles.setProperty(CSSProperty.PADDING_RIGHT, LengthValue.create(1, true, LengthType.EM));  
+
+    ElementBox child1 = flowBlockBox(childStyles, List.of(new TestTextBox("Red")));
+    ElementBox child2 = flowBlockBox(childStyles, List.of(new TestTextBox("Green")));
+    ElementBox child3 = flowBlockBox(childStyles, List.of(new TestTextBox("Blue")));
+    ElementBox parentBox = flexBlockBox(List.of(child1, child2, child3));
+
+    // x, y use border bounds, but width/height use content bounds
+    // Horizontal Offset (to content edge) = 1px border + 1em (10px) margin + 1em (10px) padding = 21px
+    // Offset (to border edge) = 1em (10px) margin
+    List<LayoutFragment> expectedFragments = List.of(
+      new UnmanagedBoxFragment(10, 10, 15, 10, child1),
+      new UnmanagedBoxFragment(21 + 15 + 21 + 10, 10, 25, 10, child2),
+      new UnmanagedBoxFragment(21 + 15 + 21 + 21 + 25 + 21 + 10, 10, 20, 10, child3)
+    );
+
+    FlexTestLayoutResult layoutResult = doLayoutSized(parentBox, 100);
+    LayoutFragment actualFragments = layoutResult.childFragments();
+    assertFragmentListEquals(expectedFragments, actualFragments);
+
+    // Some additional checks (actualFragments represents the first item here)
+    Assertions.assertEquals(21, actualFragments.contentX());
+    Assertions.assertEquals(16, actualFragments.contentY());
+    Assertions.assertEquals(37, actualFragments.borderWidth());
+    Assertions.assertEquals(22, actualFragments.borderHeight());
+
+    Assertions.assertEquals(16 + 10 + 16, layoutResult.dimensionFrag().contentHeight());
+  }
+
   @Test
   @DisplayName("Can layout flexbox with column-gap")
   public void canLayoutFlexboxWithColumnGap() {
@@ -295,6 +370,12 @@ public class FlexContentTest {
     assertFragmentListEquals(expectedFragments, actualFragments);
   }
 
-  // TODO: Test for position
+  // TODO: Test for position and nested flex
+  
+  private void setMany(ActiveStyles activeStyles, CSSValue value, CSSProperty... properties) {
+    for (CSSProperty property: properties) {
+      activeStyles.setProperty(property, value);
+    }
+  }
   
 }

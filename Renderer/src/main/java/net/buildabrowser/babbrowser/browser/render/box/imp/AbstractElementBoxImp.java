@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.browser.render.box.imp;
 
+import java.util.Comparator;
+
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
@@ -79,6 +81,11 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   public void clearChildren() {
     this.childBoxes = null;
     this.nextBox = null;
+  }
+
+  @Override
+  public void sortChildren(Comparator<? super Box> comparator) {
+    this.childBoxes = IntrusiveList.sort(childBoxes, comparator);
   }
 
   @Override

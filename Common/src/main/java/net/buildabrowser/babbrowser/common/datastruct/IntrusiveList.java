@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.common.datastruct;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -113,12 +115,31 @@ public interface IntrusiveList<T extends IntrusiveList<T>> {
     return list;
   }
 
-  public static <T extends IntrusiveList<T>> T fromList(List<T> fragments) {
-    if (fragments.isEmpty()) return null;
-    Iterator<T> it = fragments.iterator();
+  public static <T extends IntrusiveList<T>> T sort(T list, Comparator<? super T> comparator) {
+    if (list == null) return null;
+    // TODO: This is the easy way to do things, but look into sorting without a copy
+    List<T> toSort = toList(list);
+    toSort.sort(comparator);
+    return fromList(toSort);
+  }
+
+  static <T extends IntrusiveList<T>> List<T> toList(T list) {
+    List<T> asList = new ArrayList<>(_testingOnlySize(list));
+    T current = list;
+    while (current != null) {
+      asList.add(current);
+      current = current.next();
+    }
+
+    return asList;
+  }
+
+  public static <T extends IntrusiveList<T>> T fromList(List<T> list) {
+    if (list.isEmpty()) return null;
+    Iterator<T> it = list.iterator();
     assert it.hasNext();
-    T list = it.next();
-    T curNode = list;
+    T asList = it.next();
+    T curNode = asList;
 
     while (it.hasNext()) {
       curNode.setNext(it.next());
@@ -126,9 +147,8 @@ public interface IntrusiveList<T extends IntrusiveList<T>> {
     }
     curNode.setNext(null);
 
-    return list;
+    return asList;
   }
-
   
   public static int _testingOnlySize(IntrusiveList<?> curNode) {
     int calcSize = 0;

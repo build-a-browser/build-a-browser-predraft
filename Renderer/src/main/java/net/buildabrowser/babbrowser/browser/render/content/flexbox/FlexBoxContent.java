@@ -4,20 +4,26 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.browser.render.box.TextBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.BorderUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.MarginUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.browser.render.content.flexbox.FlexCrossAlignment.CrossAlignmentContext;
 import net.buildabrowser.babbrowser.browser.render.content.flexbox.FlexMainAlignment.MainAlignmentContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
+import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
@@ -73,6 +79,8 @@ public class FlexBoxContent implements BoxContent {
         childIt.add(anonymousBox);
       }
     }
+
+    rootBox.sortChildren((a, b) -> Integer.compare(orderOf(a), orderOf(b)));
   }
 
   // TODO: Test how well this code handles positioned items..
@@ -84,6 +92,7 @@ public class FlexBoxContent implements BoxContent {
     // TODO: Also support gap
     List<FlexItem> flexItems = collectFlexItems();
     for (FlexItem item: flexItems) {
+      MarginUtil.computeSimpleMargin(item.box(), widthConstraint);
       BorderUtil.computeBorder(item.box(), widthConstraint);
       PaddingUtil.computePadding(item.box(), widthConstraint);
     }
@@ -113,7 +122,7 @@ public class FlexBoxContent implements BoxContent {
       alignMainAxis(flexDirection, isVertical, mainSize, lines);
       alignCrossAxis(isVertical, mainSize, crossSize, lines);
 
-      collectChildFragments(items);
+      collectChildFragments();
     }
 
     return createRootFragment(isVertical, mainSize, crossSize, lines);
@@ -124,16 +133,17 @@ public class FlexBoxContent implements BoxContent {
     ElementBoxIterator childIt = rootBox.childBoxes();
     while (childIt.hasNext()) {
       // Anonymous box generation is handled during fixupChildren
-      items.add(new FlexItem((ElementBox) childIt.next()));
+      ElementBox childBox = (ElementBox) childIt.next();
+      if (!PositionUtil.affectsLayout(childBox)) continue;
+      items.add(new FlexItem(childBox));
     }
-
-    items.sort((a, b) -> Integer.compare(orderOf(a), orderOf(b)));
 
     return items;
   }
 
-  private int orderOf(FlexItem item) {
-    return ((OrderValue) item.box().activeStyles().getProperty(CSSProperty.ORDER)).order();
+  private int orderOf(Box box) {
+    assert box instanceof ElementBox;
+    return ((OrderValue) ((ElementBox) box).activeStyles().getProperty(CSSProperty.ORDER)).order();
   }
 
   private List<FlexLine> collectFlexItemsIntoFlexLines(
@@ -205,10 +215,21 @@ public class FlexBoxContent implements BoxContent {
     return mainGap(!isVertical, mainSize);
   }
 
-  private void collectChildFragments(List<FlexItem> items) {
-    fragments = null;
-    for (FlexItem item: items) {
-      fragments = (UnmanagedBoxFragment) IntrusiveList.add(fragments, item.fragment());
+  private void collectChildFragments() {
+    ElementBoxIterator childIt = rootBox.childBoxes();
+    UnmanagedBoxFragment lastFragment = null;
+    while (childIt.hasNext()) {
+      // After fixup, flex should only have element children
+      ElementBox box = (ElementBox) childIt.next();
+      if (!PositionUtil.affectsLayout(box)) continue;
+      UnmanagedBoxFragment boxFragment = (UnmanagedBoxFragment) box.lastCachedFragment();
+      boxFragment.setNext(null);
+      if (lastFragment == null) {
+        fragments = lastFragment = boxFragment;
+      } else {
+        lastFragment = (UnmanagedBoxFragment) IntrusiveList.add(lastFragment, boxFragment);
+        lastFragment = (UnmanagedBoxFragment) lastFragment.next();
+      }
     }
   }
 
@@ -235,7 +256,29 @@ public class FlexBoxContent implements BoxContent {
 
   @Override
   public void positionLayers(float layerX, float layerY) {
-    // TODO: Implement
+    LayoutFragment rootFragment = rootBox.lastCachedFragment();
+    StackingContext refContext = rootBox.stackingContext();
+    float offsetX = layerX + (rootFragment.contentX() - rootFragment.borderX());
+    float offsetY = layerY + (rootFragment.contentY() - rootFragment.borderY());
+
+    ElementBoxIterator childIt = rootBox.childBoxes();
+    while (childIt.hasNext()) {
+      // Once again, fixup should have made everything ElementBox
+      ElementBox childBox = (ElementBox) childIt.next();
+      if (!PositionUtil.affectsLayout(childBox)) {
+        childBox.dimensions().setStaticPosition(layerX, layerY);
+        continue;
+      }
+
+      BoxFragment childFragment = childBox.lastCachedFragment();
+      float childX = offsetX + childBox.lastCachedFragment().borderX();
+      float childY = offsetY + childBox.lastCachedFragment().borderY();
+      if (childBox.stackingContext() != refContext) {
+        refContext = childBox.stackingContext();
+        refContext.addFragment(childX, childY, childFragment);
+      }
+      childBox.content().positionLayers(childX, childY);
+    }
   }
   
 }

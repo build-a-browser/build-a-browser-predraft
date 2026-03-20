@@ -43,6 +43,7 @@ public final class FlexLayoutUtil {
     LayoutContextGenerator.generateLayoutContexts(parentBox, layoutContext);
     FlexBoxContent content = (FlexBoxContent) parentBox.content();
 
+    content.fixupChildren();
     UnmanagedBoxFragment dimensionFrag = parentBox.layout(widthConstraint, heightConstraint);
     return new FlexTestLayoutResult(dimensionFrag, content.fragments(), content);
   }

@@ -44,7 +44,10 @@ public final class FlexCrossSizeDetermination {
       isVertical ? itemCrossConstraint : itemMainConstraint,
       isVertical ? itemMainConstraint : itemCrossConstraint);
     item.setFragment(boxFragment);
-    item.setHypotheticalCrossSize(isVertical ? boxFragment.borderWidth() : boxFragment.borderHeight());
+
+    item.setHypotheticalCrossSize(isVertical ?
+      boxFragment.marginWidth() :
+      boxFragment.marginHeight());
   }
 
   private static void calculateLineCrossSize(
@@ -76,13 +79,13 @@ public final class FlexCrossSizeDetermination {
   ) {
     for (FlexLine line: lines) {
       for (FlexItem item: line.items()) {
-        determineItemCrossSize(rootBox, item, containerCrossSize, isVertical);
+        determineItemCrossSize(rootBox, item, line, containerCrossSize, isVertical);
       }
     }
   }
 
   private static void determineItemCrossSize(
-    ElementBox rootBox, FlexItem item,
+    ElementBox rootBox, FlexItem item, FlexLine itemLine,
     LayoutConstraint containerCrossSize, boolean isVertical
   ) {
     CSSValue itemAlignmentValue = item.box().activeStyles().getProperty(CSSProperty.ALIGN_SELF);
@@ -102,10 +105,10 @@ public final class FlexCrossSizeDetermination {
       // TODO: Other checks
     ) {
       // TODO: Clamp
+      // TODO: Need to account for margin
       item.setCrossSize(containerCrossSize.value());
-      itemCrossConstraint = LayoutConstraint.of(containerCrossSize.value());
+      itemCrossConstraint = LayoutConstraint.of(itemLine.crossSize());
 
-      // TODO: Preferably, avoid exponential runtime (eg use a cache)
       UnmanagedBoxFragment boxFragment = item.box().layout(
         isVertical ? itemCrossConstraint : itemMainConstraint,
         isVertical ? itemMainConstraint : itemCrossConstraint);

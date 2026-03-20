@@ -85,12 +85,14 @@ public class FlexCrossAlignment {
 
   private static void setCrossPos(FlexLine line, float startPos, boolean isVertical) {
     for (FlexItem item: line.items()) {
+      // TODO: Handle auto margin
+      float[] margin = item.box().dimensions().getComputedMargin();
       if (isVertical) {
         float newX = item.fragment().borderX() + startPos;
-        item.fragment().setPos(newX, item.fragment().borderY());
+        item.fragment().setPos(newX + margin[2], item.fragment().borderY());
       } else {
         float newY = item.fragment().borderY() + startPos;
-        item.fragment().setPos(item.fragment().borderX(), newY);
+        item.fragment().setPos(item.fragment().borderX(), newY + margin[0]);
       }
     }
   }
