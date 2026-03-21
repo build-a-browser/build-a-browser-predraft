@@ -23,6 +23,7 @@ import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.LineHeightValue;
+import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
 
@@ -40,6 +41,7 @@ public enum CSSProperty {
   WHITE_SPACE_COLLAPSE(nextId(), true, WhitespaceCollapseValue.COLLAPSE),
   TEXT_WRAP_MODE(nextId(), true, TextWrapModeValue.WRAP),
   LINE_HEIGHT(nextId(), true, LineHeightValue.NORMAL),
+  TEXT_ALIGN(nextId(), true, TextAlignValue.START),
 
   FONT_FAMILY(nextId(), true, new ManyResult(List.of(FontNameValue.create("sans-serif")))),
   FONT_WEIGHT(nextId(), true, FontWeightValue.create(400)),

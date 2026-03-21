@@ -26,6 +26,7 @@ import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
 
@@ -187,10 +188,20 @@ public class FlowInlineLayout {
 
   // #region Positioning
   
-  public void positionLine(LineBoxFragment fragment) {
+  public void positionLine(
+    LineBoxFragment fragment,
+    LayoutConstraint inlineConstraint,
+    ActiveStyles lineStyles
+  ) {
     positionFragmentElements(fragment.fragments());
-    float offsetX = rootContent.floatTracker().lineStartPos();
-    rootContent.blockLayout().addFinishedFragment(fragment, offsetX);
+    float startPos = rootContent.floatTracker().lineStartPos();
+    float inlineOffset = inlineConstraint.isBounded() ?
+      alignFragment(
+        lineStyles, startPos,
+        rootContent.floatTracker().lineEndPos(inlineConstraint),
+        fragment.contentWidth()) :
+      startPos;
+    rootContent.blockLayout().addFinishedFragment(fragment, inlineOffset);
   }
 
   private void positionFragmentElements(LayoutFragment fragments) {
@@ -213,6 +224,36 @@ public class FlowInlineLayout {
         positionFragmentElements(managedBoxFragment.fragments());
       }
     }
+  }
+
+  private float alignFragment(ActiveStyles lineStyles, float startPos, float endPos, float lineWidth) {
+    TextAlignValue textAlign = (TextAlignValue) lineStyles.getProperty(CSSProperty.TEXT_ALIGN);
+    while (
+      textAlign.equals(TextAlignValue.MATCH_PARENT)
+      && lineStyles.parent() != null
+    ) {
+      lineStyles = lineStyles.parent();
+      textAlign = (TextAlignValue) lineStyles.getProperty(CSSProperty.TEXT_ALIGN);
+    }
+
+
+    return switch (textAlign) {
+      // TODO: Once rtl is supported, obey rtl
+      case START -> startPos;
+      case END -> endPos - lineWidth;
+
+      case LEFT -> startPos;
+      case CENTER -> startPos + (endPos - startPos) / 2 - lineWidth / 2;
+      case RIGHT -> endPos - lineWidth;
+
+      // TODO: Properly implement these
+      case JUSTIFY -> startPos;
+      case JUSTIFY_ALL -> startPos;
+      // MATCH_PARENT remains unresolved, default to START
+      case MATCH_PARENT -> startPos;
+
+      default -> throw new UnsupportedOperationException("Unrecognized value: " + textAlign);
+    };
   }
 
 }

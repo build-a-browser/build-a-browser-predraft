@@ -62,13 +62,15 @@ public class InlineFormattingContext {
   }
 
   public void closeLine() {
-    rootContent.inlineLayout().positionLine(activeLineBox.toFragment());
+    rootContent.inlineLayout().positionLine(
+      activeLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
   }
 
   public void nextLine() {
     LineBox oldLineBox = this.activeLineBox;
     this.activeLineBox = activeLineBox.split();
-    rootContent.inlineLayout().positionLine(oldLineBox.toFragment());
+    rootContent.inlineLayout().positionLine(
+      oldLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
   }
 
   public boolean fits(float itemSize, boolean forceFirst) {
