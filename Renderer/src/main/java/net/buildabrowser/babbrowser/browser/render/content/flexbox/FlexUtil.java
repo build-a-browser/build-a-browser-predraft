@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.browser.render.content.flexbox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 
 public final class FlexUtil {
@@ -31,13 +30,11 @@ public final class FlexUtil {
     boolean isVertical
   ) {
     if (isVertical) {
-      return SizingUtil.evaluateAdjustedWidthSize(
-        parentCrossSize, box,
-        box.activeStyles().getProperty(CSSProperty.WIDTH));
+      LayoutConstraint crossSize = SizingUtil.evaluateAdjustedWidthSize(parentCrossSize, box);
+      return SizingUtil.clampWidth(parentCrossSize, box, crossSize);
     } else {
-      return SizingUtil.evaluateAdjustedHeightSize(
-        parentCrossSize, box,
-        box.activeStyles().getProperty(CSSProperty.HEIGHT));
+      LayoutConstraint crossSize = SizingUtil.evaluateAdjustedHeightSize(parentCrossSize, box);
+      return SizingUtil.clampHeight(parentCrossSize, box, crossSize);
     }
   }
   

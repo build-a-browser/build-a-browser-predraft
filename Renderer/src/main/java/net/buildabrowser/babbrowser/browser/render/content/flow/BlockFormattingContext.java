@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
@@ -114,9 +115,21 @@ public class BlockFormattingContext implements IntrusiveList<BlockFormattingCont
     return this.innerHeightConstraint;
   }
 
-  public ManagedBoxFragment close(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
-    float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, width);
-    float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, y);
+  public ManagedBoxFragment close(
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
+  ) {
+    float preclampWidth = LayoutUtil.constraintOrDim(widthConstraint, width);
+    float preclampHeight = LayoutUtil.constraintOrDim(heightConstraint, y);
+    
+    // In case it wasn't originally resolved. Passing AUTO should be fine because if the parent is
+    // definite it should have already resolved anyways. Note that this will not resolve child percentages
+    // if the original clamp was not definite, that is intentional.
+    float usedWidth = SizingUtil.clampWidth(
+      LayoutConstraint.AUTO, elementBox, LayoutConstraint.of(preclampWidth)).value();
+    float usedHeight = SizingUtil.clampHeight(
+      LayoutConstraint.AUTO, elementBox, LayoutConstraint.of(preclampHeight)).value();
+
     return new ManagedBoxFragment(
       usedWidth, usedHeight, elementBox,
       FlowRootContentPainter.FLOW_BLOCK_PAINTER, fragments);

@@ -12,6 +12,7 @@ public final class FlowHeightUtil {
   
   private FlowHeightUtil() {}
 
+  // TODO: Handle the case where both width and height are auto and min/max constraints are present
   public static LayoutConstraint evaluateReplacedBlockHeightAndMargins(
     LayoutConstraint parentHeightConstraint,
     LayoutConstraint parentWidthConstraint,
@@ -25,27 +26,27 @@ public final class FlowHeightUtil {
     }
 
     LayoutConstraint determinedHeightConstraint = SizingUtil.evaluateAdjustedHeightSize(
-      parentHeightConstraint, childBox,
-      childBox.activeStyles().getProperty(CSSProperty.HEIGHT));
+      parentHeightConstraint, childBox);
     
     boolean isHeightAuto = determinedHeightConstraint.type().equals(LayoutConstraintType.AUTO);
     ElementBoxDimensions boxDimensions = childBox.dimensions();
+    LayoutConstraint chosenConstraint = determinedHeightConstraint;
     if (
       childWidthConstraint.type().equals(LayoutConstraintType.AUTO)
       && isHeightAuto
       && boxDimensions.intrinsicHeight() != -1
     ) {
-      return LayoutConstraint.of(boxDimensions.intrinsicHeight());
+      chosenConstraint = LayoutConstraint.of(boxDimensions.intrinsicHeight());
     } else if (isHeightAuto && boxDimensions.intrinsicRatio() != -1) {
-      return LayoutConstraint.of((int) (childWidthConstraint.value() / boxDimensions.intrinsicRatio())); 
+      chosenConstraint = LayoutConstraint.of((int) (childWidthConstraint.value() / boxDimensions.intrinsicRatio())); 
     } else if (isHeightAuto && boxDimensions.intrinsicHeight() != -1) {
-      return LayoutConstraint.of(boxDimensions.intrinsicHeight());
+      chosenConstraint = LayoutConstraint.of(boxDimensions.intrinsicHeight());
     } else if (isHeightAuto) {
       // TODO: Viewport width
-      return LayoutConstraint.of(Math.min(childWidthConstraint.value() / 2, 150));
-    } else {
-      return determinedHeightConstraint;
+      chosenConstraint = LayoutConstraint.of(Math.min(childWidthConstraint.value() / 2, 150));
     }
+
+    return SizingUtil.clampHeight(parentHeightConstraint, childBox, chosenConstraint);
   }
 
   public static LayoutConstraint evaluateNonReplacedBlockHeightAndMargins(
@@ -56,12 +57,10 @@ public final class FlowHeightUtil {
     computeVerticalMarginsOrZero(childBox, parentWidthConstraint);
 
     // TODO: An actual proper implementation
-    ActiveStyles childStyles = childBox.activeStyles();
     LayoutConstraint determinedConstraint = SizingUtil.evaluateAdjustedHeightSize(
-      parentHeightConstraint, childBox,
-      childStyles.getProperty(CSSProperty.HEIGHT));
+      parentHeightConstraint, childBox);
 
-    return determinedConstraint;
+    return SizingUtil.clampHeight(parentHeightConstraint, childBox, determinedConstraint);
   }
 
   public static void computeVerticalMarginsOrZero(

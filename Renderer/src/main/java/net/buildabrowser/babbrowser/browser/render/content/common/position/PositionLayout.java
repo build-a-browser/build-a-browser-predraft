@@ -33,11 +33,9 @@ public final class PositionLayout {
     float containingHeight = refHeight - insets[0] - insets[1];
 
     LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(
-      LayoutConstraint.of(containingWidth), refBox,
-      refBox.activeStyles().getProperty(CSSProperty.WIDTH));
+      LayoutConstraint.of(containingWidth), refBox);
     LayoutConstraint baseHeight = SizingUtil.evaluateAdjustedHeightSize(
-      LayoutConstraint.of(containingHeight), refBox,
-      refBox.activeStyles().getProperty(CSSProperty.HEIGHT));
+      LayoutConstraint.of(containingHeight), refBox);
 
     // TODO: Handle sizes other than fit-content
     // TODO: Also clamp to max width and min width
@@ -48,11 +46,15 @@ public final class PositionLayout {
     float usedWidth = baseWidth.type().equals(LayoutConstraintType.AUTO) ?
       fitContentWidth :
       baseWidth.value();
+    LayoutConstraint usedWidthConstraint = SizingUtil.clampHeight(
+      LayoutConstraint.of(containingWidth), refBox, LayoutConstraint.of(usedWidth));
     
     // TODO: Actually determine a height to use
+    LayoutConstraint usedHeightConstraint = SizingUtil.clampHeight(
+      LayoutConstraint.of(containingHeight), refBox, baseHeight);
 
     UnmanagedBoxFragment itemFragment = refBox.layout(
-      LayoutConstraint.of(usedWidth), baseHeight);
+      usedWidthConstraint, usedHeightConstraint);
     itemFragment.setPos(0, 0);
 
     // TODO: Compute margins

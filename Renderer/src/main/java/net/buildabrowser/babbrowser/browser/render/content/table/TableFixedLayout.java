@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.browser.render.content.table;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 
 public final class TableFixedLayout {
   
@@ -17,9 +16,10 @@ public final class TableFixedLayout {
     for (int i = 0; i < table.width();) {
       // TODO: Check column widths
       Cell cell = table.getCell(i, 0, 0);
-      LayoutConstraint itemWidth = cell == null ? null : SizingUtil.evaluateAdjustedWidthSize(
-        widthConstraint, cell.cellBox(),
-        cell.cellBox().activeStyles().getProperty(CSSProperty.WIDTH));
+      LayoutConstraint itemWidth = cell == null ? null :
+        SizingUtil.clampWidth(widthConstraint, cell.cellBox(),
+          SizingUtil.evaluateAdjustedWidthSize(
+            widthConstraint, cell.cellBox()));
 
       int cellWidth = cell == null ? 1 : cell.width();
       float itemWidthPer = cell == null || !itemWidth.isBounded() ?

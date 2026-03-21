@@ -10,7 +10,6 @@ import net.buildabrowser.babbrowser.browser.render.content.common.fragment.Unman
 import net.buildabrowser.babbrowser.browser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
-import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 
 public class TableContent implements BoxContent {
 
@@ -81,8 +80,7 @@ public class TableContent implements BoxContent {
           cell.setRelatedFragment(fragment);
 
           LayoutConstraint fragmentHeight = SizingUtil.evaluateAdjustedHeightSize(
-            LayoutConstraint.AUTO, cell.cellBox(),
-            cell.cellBox().activeStyles().getProperty(CSSProperty.HEIGHT));
+            LayoutConstraint.AUTO, cell.cellBox());
 
           float usedHeight = fragmentHeight.isBounded() ?
             fragmentHeight.value() :

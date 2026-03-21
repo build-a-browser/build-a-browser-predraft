@@ -91,11 +91,6 @@ public class FlexBoxContent implements BoxContent {
   ) {
     // TODO: Also support gap
     List<FlexItem> flexItems = collectFlexItems();
-    for (FlexItem item: flexItems) {
-      MarginUtil.computeSimpleMargin(item.box(), widthConstraint);
-      BorderUtil.computeBorder(item.box(), widthConstraint);
-      PaddingUtil.computePadding(item.box(), widthConstraint);
-    }
     return layoutItems(flexItems, widthConstraint, heightConstraint);
   }
 
@@ -110,6 +105,14 @@ public class FlexBoxContent implements BoxContent {
     boolean isVertical = flexDirection.equals(FlexDirectionValue.COLUMN) || flexDirection.equals(FlexDirectionValue.COLUMN_REVERSE);
     LayoutConstraint mainSize = isVertical ? heightConstraint : widthConstraint;
     LayoutConstraint crossSize = isVertical ? widthConstraint : heightConstraint;
+
+    for (FlexItem item: items) {
+      MarginUtil.computeSimpleMargin(item.box(), widthConstraint);
+      BorderUtil.computeBorder(item.box(), widthConstraint);
+      PaddingUtil.computePadding(item.box(), widthConstraint);
+      item.computeMinMaxSizes(mainSize, isVertical);
+    }
+
     FlexHypotheticalSizeDetermination.determineBaseAndHypotheticalSizes(items, mainSize, crossSize, isVertical);
     float mainGap = mainGap(isVertical, mainSize);
     List<FlexLine> lines = collectFlexItemsIntoFlexLines(mainSize, items, mainGap);

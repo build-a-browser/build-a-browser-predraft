@@ -64,7 +64,13 @@ public final class DeclarationParser {
     "display", new DisplayParser(),
 
     "width", SizeParser.forNormal(CSSProperty.WIDTH),
+    "min-width", SizeParser.forMin(CSSProperty.MIN_WIDTH),
+    "max-width", SizeParser.forMin(CSSProperty.MAX_WIDTH),
+    
     "height", SizeParser.forNormal(CSSProperty.HEIGHT),
+    "min-height", SizeParser.forMin(CSSProperty.MIN_HEIGHT),
+    "max-height", SizeParser.forMin(CSSProperty.MAX_HEIGHT),
+    
     "box-sizing", new BoxSizingParser(),
 
     "font-family", new FontFamilyParser(),

@@ -90,11 +90,41 @@ public final class Flexer {
 
   private static boolean correctViolations(List<FlexItem> items) {
     // TODO: Actually find and correct violations
+    float totalViolation = 0;
+    for (FlexItem item: items) {
+      if (item.mainSize() < item.minMainSize()) {
+        totalViolation += item.minMainSize() - item.mainSize();
+      } else if (
+        item.maxMainSize() != null
+        && item.mainSize() > item.maxMainSize()
+      ) {
+        totalViolation += item.maxMainSize() - item.mainSize();
+      }
+    }
+
     boolean didFreezeItems = false;
     for (FlexItem item: items) {
       if (item.isFrozen()) continue;
       didFreezeItems = true;
-      item.freeze();
+
+      if (item.mainSize() < item.minMainSize()) {
+        item.setTargetMainSize(item.minMainSize());
+        if (totalViolation < 0) {
+          item.freeze();
+        }
+      } else if (
+        item.maxMainSize() != null &&
+        item.mainSize() > item.maxMainSize()
+      ) {
+        item.setTargetMainSize(item.maxMainSize());
+        if (totalViolation > 0) {
+          item.freeze();
+        }
+      }
+
+      if (totalViolation == 0) {
+        item.freeze();
+      }
     }
 
     return didFreezeItems;

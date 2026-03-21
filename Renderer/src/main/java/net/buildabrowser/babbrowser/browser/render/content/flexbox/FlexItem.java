@@ -1,8 +1,12 @@
 package net.buildabrowser.babbrowser.browser.render.content.flexbox;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexGrowValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexShrinkValue;
 
@@ -17,6 +21,8 @@ public class FlexItem {
   private float hypotheticalMainSize;
   private float hypotheticalCrossSize;
   private float mainSize; // Also represents targetMainSize too
+  private float minMainSize;
+  private Float maxMainSize;
   private float usedCrossSize;
   private boolean isFrozen;
 
@@ -32,6 +38,29 @@ public class FlexItem {
     return this.itemBox;
   }
 
+  public void computeMinMaxSizes(LayoutConstraint refMainSize, boolean isVertical) {
+    ActiveStyles activeStyles = itemBox.activeStyles();
+    CSSValue minSizeValue = isVertical ?
+      activeStyles.getProperty(CSSProperty.MIN_HEIGHT) :
+      activeStyles.getProperty(CSSProperty.MIN_WIDTH);
+    LayoutConstraint minMainSizeC = isVertical ?
+      SizingUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, minSizeValue) :
+      SizingUtil.evaluateAdjustedWidthSize(refMainSize, itemBox, minSizeValue);
+    if (minMainSizeC.isBounded()) {
+      this.minMainSize = minMainSizeC.value();
+    }
+    
+    CSSValue maxSizeValue = isVertical ?
+      activeStyles.getProperty(CSSProperty.MAX_HEIGHT) :
+      activeStyles.getProperty(CSSProperty.MAX_WIDTH);
+    LayoutConstraint maxMainSizeC = isVertical ?
+      SizingUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, maxSizeValue) :
+      SizingUtil.evaluateAdjustedWidthSize(refMainSize, itemBox, maxSizeValue);
+    if (maxMainSizeC.isBounded()) {
+      this.maxMainSize = maxMainSizeC.value();
+    }
+  }
+
   public void setBaseSize(float baseSize) {
     this.baseSize = baseSize;
     this.mainSize = baseSize;
@@ -42,6 +71,10 @@ public class FlexItem {
   }
 
   public void setHypotheticalMainSize(float hypotheticalMainSize) {
+    if (maxMainSize != null) {
+      hypotheticalMainSize = Math.min(hypotheticalMainSize, maxMainSize);
+    }
+    hypotheticalMainSize = Math.max(hypotheticalMainSize, minMainSize);
     this.hypotheticalMainSize = hypotheticalMainSize;
   }
 
@@ -59,6 +92,14 @@ public class FlexItem {
 
   public float mainSize() {
     return this.mainSize;
+  }
+
+  public float minMainSize() {
+    return this.minMainSize;
+  }
+
+  public Float maxMainSize() {
+    return this.maxMainSize;
   }
 
   public void setTargetMainSize(float targetMainSize) {

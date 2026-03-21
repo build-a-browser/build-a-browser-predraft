@@ -30,13 +30,17 @@ public class FlowBlockLayout {
     this.rootContent = rootContent;
   }
 
-  public void reset(ElementBox rootBox, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
+  public void reset(
+    ElementBox rootBox, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+  ) {
     this.rootContext = new BlockFormattingContext(rootBox,
       widthConstraint, heightConstraint, rootContent, null);
     blockStack = IntrusiveList.add(null, rootContext);
   }
 
-  public ManagedBoxFragment close(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
+  public ManagedBoxFragment close(
+    LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+  ) {
     rootContext.collapse();
     return rootContext.close(widthConstraint, heightConstraint);
   }

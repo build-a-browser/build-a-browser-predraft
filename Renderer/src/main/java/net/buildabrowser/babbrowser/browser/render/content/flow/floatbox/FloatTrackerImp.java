@@ -109,7 +109,7 @@ public class FloatTrackerImp implements FloatTracker {
       throw new UnsupportedOperationException("Can not determine line-end during pre-layout!");
     }
 
-    if (rightFloats == null) return positionTracker.posX() + lineConstraint.value();
+    if (rightFloats == null) return lineConstraint.value();
 
     float highestOffset = Integer.MAX_VALUE;
     for (BoxFragment box : rightFloats) {
@@ -118,7 +118,7 @@ public class FloatTrackerImp implements FloatTracker {
       }
     }
 
-    return Math.max(0, Math.min(positionTracker.posX() + lineConstraint.value(), highestOffset - positionTracker.posX()));
+    return Math.max(0, Math.min(lineConstraint.value(), highestOffset - positionTracker.posX()));
   }
 
   @Override

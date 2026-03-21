@@ -98,20 +98,38 @@ public final class SizingUtil {
 
   public static LayoutConstraint evaluateAdjustedWidthSize(
     LayoutConstraint parentConstraint,
+    ElementBox refBox
+  ) {
+    return evaluateAdjustedWidthSize(
+      parentConstraint, refBox,
+      refBox.activeStyles().getProperty(CSSProperty.WIDTH));
+  }
+
+  public static LayoutConstraint evaluateAdjustedWidthSize(
+    LayoutConstraint parentConstraint,
     ElementBox refBox,
     CSSValue sizeValue
   ) {
     LayoutConstraint constraint = evaluateBaseWidthSize(
       refBox.layoutContext(), parentConstraint, refBox.dimensions(), sizeValue);
     if (!constraint.isBounded()) return constraint;
+    if (constraint.value() < 0) return LayoutConstraint.of(0);
 
     CSSValue boxSizing = refBox.activeStyles().getProperty(CSSProperty.BOX_SIZING);
     if (boxSizing.equals(BoxSizingValue.CONTENT_BOX)) return constraint;
-    assert boxSizing.equals(BoxSizingValue.BORDER_BOX);
 
     float adjustedConstraint = Math.max(0,
       constraint.value() - refBox.dimensions().decorWidth());
     return LayoutConstraint.of(adjustedConstraint);
+  }
+
+  public static LayoutConstraint evaluateAdjustedHeightSize(
+    LayoutConstraint parentConstraint,
+    ElementBox refBox
+  ) {
+    return evaluateAdjustedHeightSize(
+      parentConstraint, refBox,
+      refBox.activeStyles().getProperty(CSSProperty.HEIGHT));
   }
 
   public static LayoutConstraint evaluateAdjustedHeightSize(
@@ -122,6 +140,7 @@ public final class SizingUtil {
     LayoutConstraint constraint = evaluateBaseHeightSize(
       refBox.layoutContext(), parentConstraint, sizeValue);
     if (!constraint.isBounded()) return constraint;
+    if (constraint.value() < 0) return LayoutConstraint.of(0);
 
     CSSValue boxSizing = refBox.activeStyles().getProperty(CSSProperty.BOX_SIZING);
     if (boxSizing.equals(BoxSizingValue.CONTENT_BOX)) return constraint;
@@ -129,6 +148,49 @@ public final class SizingUtil {
 
     float adjustedConstraint = Math.max(0,
       constraint.value() - refBox.dimensions().decorHeight());
+    return LayoutConstraint.of(adjustedConstraint);
+  }
+
+  public static LayoutConstraint clampWidth(
+    LayoutConstraint parentConstraint, ElementBox refBox,
+    LayoutConstraint constraint
+  ) {
+    return clampConstraint(
+      parentConstraint, refBox, constraint,
+      CSSProperty.MIN_WIDTH, CSSProperty.MAX_WIDTH);
+  }
+
+  public static LayoutConstraint clampHeight(
+    LayoutConstraint parentConstraint, ElementBox refBox,
+    LayoutConstraint constraint
+  ) {
+    return clampConstraint(
+      parentConstraint, refBox, constraint,
+      CSSProperty.MIN_HEIGHT, CSSProperty.MAX_HEIGHT);
+  }
+
+  private static LayoutConstraint clampConstraint(
+    LayoutConstraint parentConstraint, ElementBox refBox,
+    LayoutConstraint constraint,
+    CSSProperty minConstraintProp, CSSProperty maxConstraintProp
+  ) {
+    if (!constraint.isBounded()) return constraint;
+
+    float adjustedConstraint = constraint.value();
+
+    LayoutConstraint maxConstraint = evaluateAdjustedHeightSize(
+      parentConstraint, refBox,
+      refBox.activeStyles().getProperty(maxConstraintProp));
+    if (maxConstraint.isBounded()) {
+      adjustedConstraint = Math.min(adjustedConstraint, maxConstraint.value());
+    }
+
+    LayoutConstraint minConstraint = evaluateAdjustedHeightSize(
+      parentConstraint, refBox,
+      refBox.activeStyles().getProperty(minConstraintProp));
+    assert minConstraint.isBounded();
+    adjustedConstraint = Math.max(adjustedConstraint, minConstraint.value());
+
     return LayoutConstraint.of(adjustedConstraint);
   }
 

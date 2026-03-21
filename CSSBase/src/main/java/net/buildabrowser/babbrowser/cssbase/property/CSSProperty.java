@@ -32,8 +32,15 @@ public enum CSSProperty {
   COLOR(nextId(), true, SRGBAColor.create(0, 0, 0, 255)),
   BACKGROUND_COLOR(nextId(), false, SRGBAColor.create(0, 0, 0, 0)),
   BACKGROUND(new CSSProperty[] { BACKGROUND_COLOR }),
+
   WIDTH(nextId(), false, CSSValue.AUTO),
+  MIN_WIDTH(nextId(), false, LengthValue.ZERO),
+  MAX_WIDTH(nextId(), false, CSSValue.NONE),
+
   HEIGHT(nextId(), false, CSSValue.AUTO),
+  MIN_HEIGHT(nextId(), false, LengthValue.ZERO),
+  MAX_HEIGHT(nextId(), false, CSSValue.NONE),
+  
   BOX_SIZING(nextId(), false, BoxSizingValue.CONTENT_BOX),
   DISPLAY(nextId(), false, DisplayValue.create(OuterDisplayValue.INLINE, InnerDisplayValue.FLOW)),
   FLOAT(nextId(), false, CSSValue.NONE),
