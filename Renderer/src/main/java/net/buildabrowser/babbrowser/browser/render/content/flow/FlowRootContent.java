@@ -28,7 +28,7 @@ public class FlowRootContent implements BoxContent {
     this.rootBox = box;
     this.blockLayout = new FlowBlockLayout(this);
     this.inlineLayout = new FlowInlineLayout(this);
-    this.floatTracker = FloatTracker.create();
+    this.floatTracker = FloatTracker.createForFlow(() -> blockLayout.activeContext());
   }
 
   @Override

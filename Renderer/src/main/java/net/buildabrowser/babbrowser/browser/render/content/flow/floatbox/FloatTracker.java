@@ -1,11 +1,12 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow.floatbox;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.browser.render.content.flow.BlockFormattingContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.browser.render.layout.PositionTracker;
 
 public interface FloatTracker {
   
@@ -29,13 +30,11 @@ public interface FloatTracker {
 
   List<LayoutFragment> allFloats();
 
-  PositionTracker positionTracker();
-
   // Exists to min-bound the containing block
   float contentHeight();
   
-  static FloatTracker create() {
-    return new FloatTrackerImp();
+  static FloatTracker createForFlow(Supplier<BlockFormattingContext> activeFormattingContext) {
+    return new FloatTrackerImp(activeFormattingContext);
   }
 
 }

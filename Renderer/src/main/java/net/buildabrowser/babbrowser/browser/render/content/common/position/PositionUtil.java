@@ -18,7 +18,7 @@ public final class PositionUtil {
 
   public static boolean affectsLayout(ElementBox box) {
     CSSValue position = box.activeStyles().getProperty(CSSProperty.POSITION);
-    return position.equals(PositionValue.STATIC) || position.equals(PositionValue.RELATIVE);
+    return position.equals(PositionValue.STATIC) || position.equals(PositionValue.RELATIVE) || position.equals(PositionValue.STICKY);
   }
 
   public static boolean affectsLayout(LayoutFragment fragment) {

@@ -53,7 +53,9 @@ public final class FlowRootContentPainter {
         if (startsStackingContext(childFragment, refFragment)) continue;
 
         canvas.pushPaint();
-        canvas.alterPaint(paint -> paint.incOffset(childFragment.borderX(), childFragment.borderY()));
+        canvas.alterPaint(paint -> paint.incOffset(
+          childFragment.borderX(),
+          childFragment.borderY()));
         paintBackgroundAndAdvance(canvas, (BoxFragment) childFragment);
         paintFragment(canvas, childFragment, refFragment);
         canvas.popPaint();
@@ -154,7 +156,7 @@ public final class FlowRootContentPainter {
 
       canvas.pushPaint();
       canvas.alterPaint(paint -> {
-        paint.incOffset(childFragment.contentX(), childFragment.contentY());
+        paint.incOffset(childFragment.borderX(), childFragment.borderY());
         paint.setFont(parentBox.layoutContext().font());
         paint.setColor(parentBox.activeStyles().textColor());
       });

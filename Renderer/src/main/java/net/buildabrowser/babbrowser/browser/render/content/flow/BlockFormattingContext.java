@@ -8,12 +8,11 @@ import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 
-public class BlockFormattingContext implements IntrusiveList<BlockFormattingContext> {
+public class BlockFormattingContext {
 
   private final ElementBox elementBox;
   private final LayoutConstraint innerWidthConstraint;
   private final LayoutConstraint innerHeightConstraint;
-  private final FlowRootContent rootContent;
 
   private LayoutFragment fragments;
   private LayoutFragment nextFragment;
@@ -21,8 +20,8 @@ public class BlockFormattingContext implements IntrusiveList<BlockFormattingCont
   private float width;
   private float y;
 
+  private BlockFormattingContext parentContext;
   private BlockFormattingContext collapseContext;
-  private BlockFormattingContext nextContext;
   private float maxMargin = 0;
   private float minMargin = 0;
 
@@ -30,24 +29,14 @@ public class BlockFormattingContext implements IntrusiveList<BlockFormattingCont
     ElementBox elementBox,
     LayoutConstraint innerWidthConstraint,
     LayoutConstraint innerHeightConstraint,
-    FlowRootContent rootContent,
+    BlockFormattingContext parentContext,
     BlockFormattingContext collapseContext
   ) {
     this.elementBox = elementBox;
     this.innerWidthConstraint = innerWidthConstraint;
     this.innerHeightConstraint = innerHeightConstraint;
-    this.rootContent = rootContent;
+    this.parentContext = parentContext;
     this.collapseContext = collapseContext;
-  }
-
-  @Override
-  public BlockFormattingContext next() {
-    return this.nextContext;
-  }
-
-  @Override
-  public void setNext(BlockFormattingContext nextNode) {
-    this.nextContext = nextNode;
   }
 
   public float currentY() {
@@ -56,6 +45,27 @@ public class BlockFormattingContext implements IntrusiveList<BlockFormattingCont
 
   public void increaseY(float yInc) {
     this.y += yInc;
+  }
+
+  public float estimateAbsX() {
+    if (parentContext == null) {
+      return 0;
+    } else {
+      float[] margin = elementBox.dimensions().getComputedMargin();
+      float[] border = elementBox.dimensions().getComputedBorder();
+      float[] padding = elementBox.dimensions().getComputedPadding();
+      return margin[2] + border[2] + padding[2] + parentContext.estimateAbsX();
+    }
+  }
+
+  public float estimateAbsY() {
+    if (parentContext == null) {
+      return this.y;
+    } else {
+      float[] border = elementBox.dimensions().getComputedBorder();
+      float[] padding = elementBox.dimensions().getComputedPadding();
+      return this.y + border[0] + padding[0] + parentContext.estimateAbsY();
+    }
   }
 
   public void minWidth(float minWidth) {
@@ -83,7 +93,6 @@ public class BlockFormattingContext implements IntrusiveList<BlockFormattingCont
     }
 
     float amount = maxMargin + minMargin;
-    rootContent.floatTracker().positionTracker().adjustPos(0, amount);
     increaseY(amount);
     this.maxMargin = 0;
     this.minMargin = 0;
