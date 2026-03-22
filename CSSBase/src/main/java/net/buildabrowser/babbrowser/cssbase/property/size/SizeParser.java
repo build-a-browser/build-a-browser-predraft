@@ -9,6 +9,7 @@ import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
+import net.buildabrowser.babbrowser.cssbase.property.shared.CalcParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
@@ -36,6 +37,8 @@ public class SizeParser implements PropertyValueParser {
     "px", LengthType.PX
   );
 
+  private final CalcParser calcParser;
+
   private final boolean allowNone;
   private final boolean allowAuto;
   private final boolean allowPercent;
@@ -54,6 +57,7 @@ public class SizeParser implements PropertyValueParser {
     this.allowPercent = allowPercent;
     this.allowMinMax = allowMinMax;
     this.property = property;
+    this.calcParser = new CalcParser(property, this::parseInner);
   }
 
   public SizeParser(boolean allowNone, boolean allowAuto, CSSProperty property) {
@@ -62,20 +66,29 @@ public class SizeParser implements PropertyValueParser {
 
   @Override
   public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
-    Token token = stream.read();
+    Token token = stream.peek();
     if (
       allowNone
       && token instanceof IdentToken identToken
       && identToken.value().equals("none")
     ) {
+      stream.read();
       return CSSValue.NONE;
     } else if (
       allowAuto
       && token instanceof IdentToken identToken
       && identToken.value().equals("auto")
     ) {
+      stream.read();
       return CSSValue.AUTO;
-    } else if (token instanceof PercentageToken percentageToken && allowPercent) {
+    } else {
+      return calcParser.parse(stream);
+    }
+  }
+
+  public CSSValue parseInner(SeekableCSSTokenStream stream) throws IOException {
+    Token token = stream.read();
+    if (token instanceof PercentageToken percentageToken && allowPercent) {
       return PercentageValue.create(percentageToken.value());
     } else if (token instanceof DimensionToken dimensionToken) {
       LengthType lengthType = dimensionToken.dimension() == null ? null :
