@@ -15,7 +15,21 @@ public interface CalcValue extends CSSValue {
   }
 
   enum CalcKeyword implements CSSValue {
-    E, PI, INFINITY, NEG_INFINITY, NaN
+    E((float) Math.E),
+    PI((float) Math.PI),
+    INFINITY(Float.POSITIVE_INFINITY),
+    NEG_INFINITY(Float.NEGATIVE_INFINITY),
+    NaN(Float.NaN);
+
+    private float value;
+
+    private CalcKeyword(float value) {
+      this.value = value;
+    }
+
+    public float value() {
+      return this.value;
+    }
   }
 
   enum RoundingStrategy {

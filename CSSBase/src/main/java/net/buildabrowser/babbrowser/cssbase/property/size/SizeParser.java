@@ -9,8 +9,8 @@ import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
-import net.buildabrowser.babbrowser.cssbase.property.shared.CalcParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
+import net.buildabrowser.babbrowser.cssbase.property.shared.CalcParser;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
@@ -81,6 +81,12 @@ public class SizeParser implements PropertyValueParser {
     ) {
       stream.read();
       return CSSValue.AUTO;
+    } else if (
+      token instanceof NumberToken numberToken
+      && numberToken.isInteger()
+      && numberToken.value().intValue() == 0
+    ) {
+      return LengthValue.create(0, true, null);
     } else {
       return calcParser.parse(stream);
     }
@@ -91,9 +97,8 @@ public class SizeParser implements PropertyValueParser {
     if (token instanceof PercentageToken percentageToken && allowPercent) {
       return PercentageValue.create(percentageToken.value());
     } else if (token instanceof DimensionToken dimensionToken) {
-      LengthType lengthType = dimensionToken.dimension() == null ? null :
-        LENGTH_TYPES.get(dimensionToken.dimension());
-      if (lengthType == null && !dimensionToken.value().equals((Number) 0)) {
+      LengthType lengthType = LENGTH_TYPES.get(dimensionToken.dimension());
+      if (lengthType == null) {
         return INVALID_LENGTH_TYPE;
       }
 
@@ -101,12 +106,6 @@ public class SizeParser implements PropertyValueParser {
         dimensionToken.value(),
         dimensionToken.isInteger(),
         lengthType);
-    } else if (
-      token instanceof NumberToken numberToken
-      && numberToken.isInteger()
-      && numberToken.value().intValue() == 0
-    ) {
-      return LengthValue.create(0, true, null);
     } else if (
       allowMinMax
       && token instanceof IdentToken identToken
