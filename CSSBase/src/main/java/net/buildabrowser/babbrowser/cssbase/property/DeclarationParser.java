@@ -54,6 +54,7 @@ import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
 public final class DeclarationParser {
 
+  // TODO: A number of these need CalcParser added. Things handled by SizeParser get this free.
   private final static Map<String, PropertyValueParser> PROPERTY_PARSERS = mapOf(
     "color", new ColorParser(),
     "background", new BackgroundColorParser(),

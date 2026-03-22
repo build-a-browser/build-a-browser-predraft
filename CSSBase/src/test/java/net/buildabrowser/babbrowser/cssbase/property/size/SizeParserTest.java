@@ -14,6 +14,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
 
 public class SizeParserTest {
@@ -36,7 +37,7 @@ public class SizeParserTest {
   @DisplayName("Can parse length size value of zero")
   public void canParseLengthSizeValueOfZero() throws IOException {
     CSSValue value = sizeParser.parse(
-      CSSTokenStream.create(DimensionToken.create(0, null)));
+      CSSTokenStream.create(NumberToken.create(0)));
     Assertions.assertEquals(
       LengthValue.create(0, true, null),
       value);

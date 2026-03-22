@@ -22,6 +22,7 @@ public interface CSSValue {
   public static record CSSFailure(String reason) implements CSSValue {
 
     public static final CSSFailure EXPECTED_EOF = new CSSFailure("Expected an EOF token!");
+    public static final CSSFailure EXPECTED_COMMA = new CSSFailure("Expected a comma token!");
     public static final CSSFailure EXPECTED_INTEGER = new CSSFailure("Expected an integer value!");
     public static final CSSFailure EXPECTED_NUMBER = new CSSFailure("Expected a numerical value!");
     public static final CSSFailure EXPECTED_POSITIVE_NUMBER = new CSSFailure("Expected a positive numerical value!");

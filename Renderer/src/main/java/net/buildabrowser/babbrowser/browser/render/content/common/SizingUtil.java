@@ -7,6 +7,9 @@ import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.Layou
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.calc.CalcEvaluation;
+import net.buildabrowser.babbrowser.cssbase.property.calc.CalcEvaluation.CalcEvalType;
+import net.buildabrowser.babbrowser.cssbase.property.calc.CalcInterpreter;
 import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
@@ -21,20 +24,31 @@ public final class SizingUtil {
     LayoutConstraint parentConstraint,
     CSSValue sizeValue
   ) {
+    CalcEvaluation calcResult = CalcInterpreter.evaluateNode(sizeValue,
+      innerSizeValue -> evaluateBaseSizeRaw(layoutContext, parentConstraint, innerSizeValue));
+    return calcResult.valueType().equals(CalcEvalType.LENGTH_PERCENTAGE) ?
+      LayoutConstraint.of(calcResult.floatValue()) :
+      LayoutConstraint.AUTO;
+  }
+
+  private static LayoutConstraint evaluateBaseSizeRaw(
+    LayoutContext layoutContext,
+    LayoutConstraint parentConstraint,
+    CSSValue sizeValue
+  ) {
     if (sizeValue instanceof LengthValue lengthValue) {
       return evaluateLengthBaseSize(layoutContext, lengthValue);
     } else if (
       sizeValue instanceof PercentageValue percentageValue
       && parentConstraint.isBounded()
     ) {
-      // TODO: Is this the right width to compare against?
       return LayoutConstraint.of(percentageValue.value() * parentConstraint.value() / 100);
     } else {
       return LayoutConstraint.AUTO;
     }
   }
 
-  public static LayoutConstraint evaluateBaseWidthSize(
+  private static LayoutConstraint evaluateBaseWidthSize(
     LayoutContext layoutContext,
     LayoutConstraint parentConstraint,
     ElementBoxDimensions referenceDimensions,
@@ -45,7 +59,7 @@ public final class SizingUtil {
       parentConstraint.isPreLayoutConstraint()
       && sizeValue instanceof SizeValue.FitContent fitContent
     ) {
-      LayoutConstraint innerConstraint = evaluateBaseSize(layoutContext, parentConstraint, fitContent.optimal());
+      LayoutConstraint innerConstraint = evaluateBaseSizeRaw(layoutContext, parentConstraint, fitContent.optimal());
       if (innerConstraint.isBounded()) {
         return innerConstraint;
       }
@@ -61,7 +75,7 @@ public final class SizingUtil {
     ) {
       return LayoutConstraint.MAX_CONTENT;
     } else if (parentConstraint.isPreLayoutConstraint()) {
-      return evaluateBaseSize(layoutContext, parentConstraint, sizeValue);
+      return evaluateBaseSizeRaw(layoutContext, parentConstraint, sizeValue);
     }
 
     if (sizeValue.equals(SizeValue.MIN_CONTENT)) {
@@ -69,18 +83,18 @@ public final class SizingUtil {
     } else if (sizeValue.equals(SizeValue.MAX_CONTENT)) {
       return LayoutConstraint.of(referenceDimensions.preferredWidthConstraint());
     } else if (sizeValue instanceof SizeValue.FitContent fitContent) {
-      LayoutConstraint innerConstraint = evaluateBaseSize(layoutContext, parentConstraint, fitContent.optimal());
+      LayoutConstraint innerConstraint = evaluateBaseSizeRaw(layoutContext, parentConstraint, fitContent.optimal());
       assert innerConstraint.isBounded();
       float min = referenceDimensions.preferredMinWidthConstraint();
       float max = referenceDimensions.preferredWidthConstraint();
       float preferred = innerConstraint.value();
       return LayoutConstraint.of(Math.clamp(preferred, min, max));
     } else {
-      return evaluateBaseSize(layoutContext, parentConstraint, sizeValue);
+      return evaluateBaseSizeRaw(layoutContext, parentConstraint, sizeValue);
     }
   }
 
-  public static LayoutConstraint evaluateBaseHeightSize(
+  private static LayoutConstraint evaluateBaseHeightSize(
     LayoutContext layoutContext,
     LayoutConstraint parentConstraint,
     CSSValue sizeValue
@@ -92,7 +106,7 @@ public final class SizingUtil {
     ) {
       return LayoutConstraint.AUTO;
     } else {
-      return evaluateBaseSize(layoutContext, parentConstraint, sizeValue);
+      return evaluateBaseSizeRaw(layoutContext, parentConstraint, sizeValue);
     }
   }
 
@@ -106,6 +120,18 @@ public final class SizingUtil {
   }
 
   public static LayoutConstraint evaluateAdjustedWidthSize(
+    LayoutConstraint parentConstraint,
+    ElementBox refBox,
+    CSSValue sizeValue
+  ) {
+    CalcEvaluation calcResult = CalcInterpreter.evaluateNode(sizeValue,
+      innerSizeValue -> evaluateAdjustedWidthSizeRaw(parentConstraint, refBox, innerSizeValue));
+    return calcResult.valueType().equals(CalcEvalType.LENGTH_PERCENTAGE) ?
+      LayoutConstraint.of(calcResult.floatValue()) :
+      LayoutConstraint.AUTO;
+  }
+
+  private static LayoutConstraint evaluateAdjustedWidthSizeRaw(
     LayoutConstraint parentConstraint,
     ElementBox refBox,
     CSSValue sizeValue
@@ -133,6 +159,18 @@ public final class SizingUtil {
   }
 
   public static LayoutConstraint evaluateAdjustedHeightSize(
+    LayoutConstraint parentConstraint,
+    ElementBox refBox,
+    CSSValue sizeValue
+  ) {
+    CalcEvaluation calcResult = CalcInterpreter.evaluateNode(sizeValue,
+      innerSizeValue -> evaluateAdjustedHeightSizeRaw(parentConstraint, refBox, innerSizeValue));
+    return calcResult.valueType().equals(CalcEvalType.LENGTH_PERCENTAGE) ?
+      LayoutConstraint.of(calcResult.floatValue()) :
+      LayoutConstraint.AUTO;
+  }
+
+  private static LayoutConstraint evaluateAdjustedHeightSizeRaw(
     LayoutConstraint parentConstraint,
     ElementBox refBox,
     CSSValue sizeValue
