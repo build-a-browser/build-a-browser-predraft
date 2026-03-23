@@ -46,6 +46,10 @@ public class ReadableStreamImp implements ReadableStream {
     throw new UnsupportedOperationException("Not implemented!");
   }
 
+  public boolean isLocked() {
+    return reader != null;
+  }
+
   void addReadRequest(ReadRequest readRequest) {
     assert reader instanceof ReadableStreamDefaultReaderImp;
     assert this.state.equals(ReadableStreamState.READABLE);

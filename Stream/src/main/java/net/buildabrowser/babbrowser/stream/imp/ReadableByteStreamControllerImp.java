@@ -126,11 +126,13 @@ public class ReadableByteStreamControllerImp implements ReadableByteStreamContro
     ByteBuffer transferredBuffer = chunk;
     // TODO: Check pending pull intos
     
-    // TODO: Call pull if needed
     if (stream.reader instanceof ReadableStreamDefaultReaderImp reader) {
       innerEnqueDefaultReader(transferredBuffer, reader);
+    } else { // TODO: Check if stream has BYOB reader
+      assert !stream.isLocked();
+      enqueueChunkToQueue(transferredBuffer);
     }
-    // TODO: Check if stream has BYOB reader, or fallback, then pull again
+    callPullIfNeeded();
   }
 
   private void innerEnqueDefaultReader(ByteBuffer transferredBuffer, ReadableStreamDefaultReaderImp reader) {
@@ -159,16 +161,32 @@ public class ReadableByteStreamControllerImp implements ReadableByteStreamContro
   }
 
   private void fillReadRequestFromQueue(ReadRequest readRequest) {
-    
+    assert queueTotalSize > 0;
+    ByteBuffer entry = queue.removeFirst();
+    this.queueTotalSize -= entry.limit();
+    handleQueueDrain();
+    // TODO: Create a view
+    readRequest.chunk(entry);
+  }
+
+  private void handleQueueDrain() {
+    assert stream.state.equals(ReadableStreamState.READABLE);
+    if (queueTotalSize == 0 && closeRequested) {
+      clearAlgorithms();
+      stream.close();
+    } else {
+      callPullIfNeeded();
+    }
   }
 
   // TODO: Also take offset/length
-  private void enqueueChunkToQueue(ByteBuffer transferredBuffer) {
-    
+  private void enqueueChunkToQueue(ByteBuffer buffer) {
+    queue.add(buffer);
+    this.queueTotalSize += buffer.limit();
   }
 
   private void callPullIfNeeded() {
-    
+    // TODO: Implement
   }
 
   private void clearAlgorithms() {
