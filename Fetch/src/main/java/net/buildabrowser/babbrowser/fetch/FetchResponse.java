@@ -1,0 +1,24 @@
+package net.buildabrowser.babbrowser.fetch;
+
+import net.buildabrowser.babbrowser.fetch.imp.MutableFetchResponseImp;
+import net.buildabrowser.babbrowser.mutable.MutableFetchResponse;
+
+public interface FetchResponse {
+
+  FetchBody body();
+
+  public static MutableFetchResponse createMutable() {
+    return new MutableFetchResponseImp();
+  }
+  
+  public static FetchResponse create(String status, HeaderList headerList, FetchBody body) {
+    // TODO
+    return new MutableFetchResponseImp();
+  }
+
+  public static FetchResponse createNetworkError() {
+    // TODO
+    return new MutableFetchResponseImp();
+  }
+
+}

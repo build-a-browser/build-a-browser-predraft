@@ -1,2 +1,6 @@
 rootProject.name = 'buildabrowser'
-include(':Common', ':Browser', ':HTMLParser', ':DOM', ':CSSBase', ':CSSEngine', ':Renderer', ':Network')
+include(
+  ':Common', ':Infra',
+  ':CSSBase', ':CSSEngine', ':Renderer',
+  ':DOM', ':HTMLParser',':Browser', ':Network',
+  ':Stream', ':Fetch')
