@@ -86,6 +86,7 @@ public class SizeParser implements PropertyValueParser {
       && numberToken.isInteger()
       && numberToken.value().intValue() == 0
     ) {
+      stream.read();
       return LengthValue.create(0, true, null);
     } else {
       return calcParser.parse(stream);
@@ -106,6 +107,8 @@ public class SizeParser implements PropertyValueParser {
         dimensionToken.value(),
         dimensionToken.isInteger(),
         lengthType);
+    // TODO: The below should only be allowed in the calc-size variant
+    // They will need tested once said exists
     } else if (
       allowMinMax
       && token instanceof IdentToken identToken

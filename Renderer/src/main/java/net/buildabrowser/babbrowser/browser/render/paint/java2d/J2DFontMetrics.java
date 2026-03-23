@@ -25,8 +25,13 @@ public class J2DFontMetrics implements FontMetrics {
   }
 
   @Override
-  public double xHeight() {
+  public float xHeight() {
     return innerFontMetrics.getHeight() / 2;
+  }
+
+  @Override
+  public float ascent() {
+    return -innerFontMetrics.getAscent();
   }
 
   @Override

@@ -29,8 +29,13 @@ public record TestFontMetrics(float height, float charWidth) implements FontMetr
   }
 
   @Override
-  public double xHeight() {
+  public float xHeight() {
     return height;
+  }
+
+  @Override
+  public float ascent() {
+    return -height;
   }
 
 }

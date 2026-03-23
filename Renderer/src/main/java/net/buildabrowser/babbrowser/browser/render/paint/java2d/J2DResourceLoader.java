@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.paint.java2d;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -15,7 +16,11 @@ public class J2DResourceLoader implements ResourceLoader {
 
   @Override
   public LoadedImage loadImage(InputStream imageStream) throws IOException {
-    return new J2DLoadedImage(ImageIO.read(imageStream));
+    BufferedImage image = ImageIO.read(imageStream);
+    if (image == null) {
+      throw new IOException("Failed to read image from stream");
+    }
+    return new J2DLoadedImage(image);
   }
 
   @Override

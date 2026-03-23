@@ -10,6 +10,8 @@ public interface FontMetrics {
 
   float height();
 
-  double xHeight();
+  float xHeight();
+
+  float ascent();
 
 }

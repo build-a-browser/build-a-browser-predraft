@@ -33,7 +33,7 @@ public class SkijaLoadedFont implements LoadedFont {
     
     int windowStart = 0;
     float currentX = x;
-    float adjustedY = y + metrics.height();
+    float adjustedY = y - metrics.ascent();
     while (windowStart < text.length()) {
       Font currentFont = glyphFont(text.codePointAt(windowStart));
       int windowEnd = endOfConsecutiveFontChars(text, windowStart);

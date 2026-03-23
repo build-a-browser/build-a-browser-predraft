@@ -45,8 +45,13 @@ public class SkijaFontMetrics implements FontMetrics {
   }
 
   @Override
-  public double xHeight() {
+  public float xHeight() {
     return primaryMetrics.getXHeight();
+  }
+
+  @Override
+  public float ascent() {
+    return primaryMetrics.getAscent();
   }
 
   private float getCharacterWidth(int codePoint) {
