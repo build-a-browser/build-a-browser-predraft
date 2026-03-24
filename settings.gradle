@@ -2,5 +2,5 @@ rootProject.name = 'buildabrowser'
 include(
   ':Common', ':Infra',
   ':CSSBase', ':CSSEngine', ':Renderer',
-  ':DOM', ':HTMLParser',':Browser', ':Network',
+  ':DOM', ':HTML', ':HTMLParser',':Browser', ':Network',
   ':Stream', ':Fetch')

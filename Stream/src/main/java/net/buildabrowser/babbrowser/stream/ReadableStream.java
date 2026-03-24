@@ -19,4 +19,12 @@ public interface ReadableStream {
     BYOB
   }
 
+  static void enqueue(ReadableStream stream, Object chunk) {
+    ((ReadableStreamImp) stream).enqueue(chunk);
+  }
+
+  static void close(ReadableStream stream) {
+    ((ReadableStreamImp) stream).requestClose();
+  }
+
 }

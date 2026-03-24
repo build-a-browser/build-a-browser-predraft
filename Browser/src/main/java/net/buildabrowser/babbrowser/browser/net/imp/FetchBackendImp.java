@@ -30,12 +30,6 @@ public class FetchBackendImp implements FetchBackend {
       
       return BodyHandlers.ofByteArrayConsumer(byteConsumer).apply(responseInfo);
     }).exceptionally(e -> { e.printStackTrace(); return null; });
-    try {
-      Thread.sleep(5000);
-    } catch (InterruptedException e1) {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
-    }
     // TODO: Proper exception handling
   }
   

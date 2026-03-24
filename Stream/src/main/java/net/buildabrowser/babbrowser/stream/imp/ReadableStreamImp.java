@@ -46,6 +46,18 @@ public class ReadableStreamImp implements ReadableStream {
     throw new UnsupportedOperationException("Not implemented!");
   }
 
+  public void enqueue(Object chunk) {
+    // TODO: A proper implementation of this
+    ((ReadableByteStreamControllerImp) controller).enqueue((ByteBuffer) chunk);
+  }
+
+  public void requestClose() {
+    // TODO: Actually handle this properly
+    if (controller instanceof ReadableByteStreamControllerImp controllerImp) {
+      controllerImp.close();
+    }
+  }
+
   public boolean isLocked() {
     return reader != null;
   }

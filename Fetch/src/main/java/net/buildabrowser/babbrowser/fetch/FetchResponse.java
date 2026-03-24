@@ -13,7 +13,9 @@ public interface FetchResponse {
   
   public static FetchResponse create(String status, HeaderList headerList, FetchBody body) {
     // TODO
-    return new MutableFetchResponseImp();
+    MutableFetchResponse response = new MutableFetchResponseImp();
+    response.setBody(body);
+    return response;
   }
 
   public static FetchResponse createNetworkError() {

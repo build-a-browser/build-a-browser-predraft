@@ -7,12 +7,12 @@ import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchBody;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.fetch.FetchParameters;
+import net.buildabrowser.babbrowser.fetch.FetchParameters.ProcessResponseConsumeBody;
 import net.buildabrowser.babbrowser.fetch.FetchParams;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.fetch.FetchResponse;
-import net.buildabrowser.babbrowser.fetch.FetchUtil;
 import net.buildabrowser.babbrowser.fetch.HeaderList;
-import net.buildabrowser.babbrowser.fetch.FetchParameters.ProcessResponseConsumeBody;
+import net.buildabrowser.babbrowser.fetch.imp.DataURLProcessor.DataURL;
 import net.buildabrowser.babbrowser.mutable.MutableFetchResponse;
 import net.buildabrowser.babbrowser.stream.ReadableByteStreamController;
 import net.buildabrowser.babbrowser.stream.ReadableStream;
@@ -67,7 +67,14 @@ public class FetchEngineImp implements FetchEngine {
   }
 
   private FetchResponse mainFetchChain(FetchParams fetchParams) {
-    return overrideFetch(OverrideFetchType.HTTP_FETCH, fetchParams);
+    FetchRequest request = fetchParams.request();
+    // TODO: More cases
+    if (request.currentURL().getScheme().equals("data")) {
+      // TODO: Response tainting, also more options in the if
+      return overrideFetch(OverrideFetchType.SCHEME_FETCH, fetchParams);
+    } else {
+      return overrideFetch(OverrideFetchType.HTTP_FETCH, fetchParams);
+    }
   }
 
   private FetchResponse overrideFetch(OverrideFetchType fetchType, FetchParams fetchParams) {
@@ -98,8 +105,13 @@ public class FetchEngineImp implements FetchEngine {
         // TODO: Implement blob
         break;
       case "data":
-        // TODO: Implement data
-        break;
+        DataURL dataURL = DataURLProcessor.processDataURL(request.currentURL());
+        if (dataURL == null) return FetchResponse.createNetworkError();
+        String mimeType = dataURL.mimeType();
+        return FetchResponse.create(
+          "OK",
+          HeaderList.create("Content-Type", mimeType),
+          FetchUtil.getBytesAsABody(dataURL.body()));
       case "file":
         // TODO: Implement file
         break;
