@@ -15,6 +15,8 @@ public interface Renderer {
 
   Optional<String> getTitle();
 
+  void close();
+
   public static Renderer create(ProtocolRegistry protocolRegistry, URI url, Painter painter) {
     return new RendererImp(protocolRegistry, url, painter);
   }

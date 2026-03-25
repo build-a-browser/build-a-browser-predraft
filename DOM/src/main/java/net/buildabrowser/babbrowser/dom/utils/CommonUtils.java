@@ -12,9 +12,23 @@ public final class CommonUtils {
     }
   }
 
+  public static void rethrow(ThrowingSupplierVoid func) {
+    try {
+      func.get();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public static interface ThrowingSupplier<T> {
   
     T get() throws Exception;
+    
+  }
+
+  public static interface ThrowingSupplierVoid {
+  
+    void get() throws Exception;
     
   }
 

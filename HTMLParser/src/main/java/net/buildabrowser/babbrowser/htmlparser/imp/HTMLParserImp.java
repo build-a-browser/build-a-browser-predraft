@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.Reader;
 
-import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
 import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
@@ -17,10 +16,9 @@ public class HTMLParserImp implements HTMLParser {
 
   private static final int EOF = -1;
   
-  public MutableDocument parse(Reader streamReader, DocumentChangeListener changeListener) throws IOException {
+  public MutableDocument parse(Reader streamReader, MutableDocument document) throws IOException {
     PushbackReader pushbackReader = new PushbackReader(streamReader, 16);
     TokenizeContext tokenizeContext = TokenizeContext.create(pushbackReader);
-    MutableDocument document = MutableDocument.create(changeListener);
     ParseContext parseContext = ParseContext.create(document, tokenizeContext);
     TokenizeBuffer tokenizeBuffer = TokenizeBuffer.create();
     // TODO: Handle lookahead buffer

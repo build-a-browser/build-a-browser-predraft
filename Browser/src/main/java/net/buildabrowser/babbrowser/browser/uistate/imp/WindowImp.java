@@ -25,6 +25,9 @@ public class WindowImp implements Window {
   @Override
   public void close() {
     mutationEventDispatcher.fire(listener -> listener.onClose(this));
+    for (Tab tab: tabs) {
+      tab.close();
+    }
   }
 
   @Override

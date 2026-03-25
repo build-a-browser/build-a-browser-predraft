@@ -24,7 +24,7 @@ public class IdSelectorMatcherTest {
   @DisplayName("Can match valid IDs")
   @SuppressWarnings("deprecation")
   public void canMatchValidIds() {
-    MutableElement element = MutableElement.create("b", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("b", MutableDocument.createForTesting(matcher));
     IdSelector selector = IdSelector.create("a");
     matcher.addSelectorReference(selector);
     element.addAttribute("id", "a");
@@ -36,7 +36,7 @@ public class IdSelectorMatcherTest {
   @DisplayName("Can not match invalid IDs")
   @SuppressWarnings("deprecation")
   public void canNotMatchInvalidIds() {
-    MutableElement element = MutableElement.create("b", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("b", MutableDocument.createForTesting(matcher));
     IdSelector selector = IdSelector.create("c");
     matcher.addSelectorReference(selector);
     element.addAttribute("id", "a");

@@ -51,6 +51,9 @@ public class FrameImp implements Frame {
     this.url = url;
     eventDispatcher.fire(listener -> listener.onURLChange(url));
     renderingEngine.openRenderer(url, this, renderer -> {
+      if (this.currentRenderer != null) {
+        currentRenderer.close();
+      }
       this.currentRenderer = renderer;
       eventDispatcher.fire(listener -> listener.onRendererChange(renderer));
     });
@@ -66,7 +69,7 @@ public class FrameImp implements Frame {
 
   @Override
   public void close() {
-    // TODO: Implement
+    currentRenderer.close();
   }
 
   @Override

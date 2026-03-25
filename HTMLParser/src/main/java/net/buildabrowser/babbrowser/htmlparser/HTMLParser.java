@@ -10,13 +10,14 @@ import net.buildabrowser.babbrowser.htmlparser.imp.HTMLParserImp;
 
 public interface HTMLParser {
   
-  MutableDocument parse(Reader streamReader, DocumentChangeListener changeListener) throws IOException;
+  // // The spec has the parser create the document, but we need some parameters, so it is easier to pass in
+  MutableDocument parse(Reader streamReader, MutableDocument document) throws IOException;
 
   default MutableDocument parse(Reader streamReader) throws IOException {
-    return parse(streamReader, new DocumentChangeListener() {
+    return parse(streamReader, MutableDocument.create(new DocumentChangeListener() {
       @Override public void onNodeAdded(Node node) {}
       @Override public void onNodeRemoved(Node node) {}
-    });
+    }, null));
   }
 
   public static HTMLParser create() {

@@ -14,8 +14,16 @@ public interface MutableNode extends Node {
 
   MutableNode previousSibling();
 
-  void setContext(Object context);
+  //
 
   Object getContext();
+
+  void setContext(Object context);
+
+  // Thanks again to not have type information here
+  
+  Object getBox();
+
+  void setBox(Object box);
 
 }

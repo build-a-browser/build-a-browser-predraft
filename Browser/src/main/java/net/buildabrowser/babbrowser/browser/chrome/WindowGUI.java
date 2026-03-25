@@ -1,6 +1,8 @@
 package net.buildabrowser.babbrowser.browser.chrome;
 
 import java.awt.Dimension;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
@@ -25,6 +27,12 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
     window.addWindowMutationEventListener(this, true);
     
     this.add(tabbedPane);
+    this.addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+        window.close();
+      }
+    });
   }
 
   public void showWindow() {

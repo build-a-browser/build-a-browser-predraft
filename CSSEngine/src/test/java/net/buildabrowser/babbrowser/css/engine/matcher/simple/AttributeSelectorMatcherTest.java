@@ -28,7 +28,7 @@ public class AttributeSelectorMatcherTest {
   @DisplayName("Can match valid has-attr attributes")
   @SuppressWarnings("deprecation")
   public void canMatchValidHasAttrAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "", AttributeType.HAS_ATTR);
@@ -42,7 +42,7 @@ public class AttributeSelectorMatcherTest {
   @DisplayName("Can not match invalid has-attr attributes")
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidValidHasAttrAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "", AttributeType.HAS_ATTR);
@@ -55,7 +55,7 @@ public class AttributeSelectorMatcherTest {
   @DisplayName("Can match valid exactly attributes")
   @SuppressWarnings("deprecation")
   public void canMatchValidExactlyAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "mytext", AttributeType.EXACTLY);
@@ -69,7 +69,7 @@ public class AttributeSelectorMatcherTest {
   @DisplayName("Can not match invalid exactly attributes")
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidExactlyAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "mytext", AttributeType.EXACTLY);
@@ -83,7 +83,7 @@ public class AttributeSelectorMatcherTest {
   @DisplayName("Can match valid prefix attributes")
   @SuppressWarnings("deprecation")
   public void canMatchValidPrefixAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "jordan", AttributeType.PREFIX);
@@ -97,7 +97,7 @@ public class AttributeSelectorMatcherTest {
   @DisplayName("Can not match invalid prefix attributes")
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidPrefixAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "jordan", AttributeType.PREFIX);
@@ -111,7 +111,7 @@ public class AttributeSelectorMatcherTest {
   @DisplayName("Can match valid starts-with attributes")
   @SuppressWarnings("deprecation")
   public void canMatchValidStartsWithAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "jordan", AttributeType.STARTS_WITH);
@@ -125,7 +125,7 @@ public class AttributeSelectorMatcherTest {
   @DisplayName("Can not match invalid starts-with attributes")
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidStartsWithAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "jordan", AttributeType.STARTS_WITH);
@@ -139,7 +139,7 @@ public class AttributeSelectorMatcherTest {
   @DisplayName("Can match valid ends-with attributes")
   @SuppressWarnings("deprecation")
   public void canMatchValidEndsWithAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "jon", AttributeType.ENDS_WITH);
@@ -153,7 +153,7 @@ public class AttributeSelectorMatcherTest {
   @DisplayName("Can not match valid ends-with attributes")
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidEndsWithAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "jon", AttributeType.ENDS_WITH);
@@ -167,7 +167,7 @@ public class AttributeSelectorMatcherTest {
   @DisplayName("Can match valid contains attributes")
   @SuppressWarnings("deprecation")
   public void canMatchValidContainsAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "onati", AttributeType.CONTAINS);
@@ -181,7 +181,7 @@ public class AttributeSelectorMatcherTest {
   @DisplayName("Can not match invalid contains attributes")
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidContainsAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "onati", AttributeType.CONTAINS);

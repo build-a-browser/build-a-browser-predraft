@@ -27,7 +27,7 @@ public class TypeSelectorMatcherTest {
   @DisplayName("Can match valid types")
   @SuppressWarnings("deprecation")
   public void canMatchValidTypes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     TypeSelector selector = TypeSelector.create("a");
     matcher.onNodeAdded(element);
@@ -39,7 +39,7 @@ public class TypeSelectorMatcherTest {
   @DisplayName("Can not match invalid types")
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidValidTypes() {
-    MutableElement element = MutableElement.create("b", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("b", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     TypeSelector selector = TypeSelector.create("a");
     matcher.onNodeAdded(element);

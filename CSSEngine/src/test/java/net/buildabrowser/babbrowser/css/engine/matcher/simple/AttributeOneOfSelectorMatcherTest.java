@@ -28,7 +28,7 @@ public class AttributeOneOfSelectorMatcherTest {
   @DisplayName("Can match valid attributes")
   @SuppressWarnings("deprecation")
   public void canMatchValidAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "class", "john", AttributeType.ONE_OF);
@@ -42,7 +42,7 @@ public class AttributeOneOfSelectorMatcherTest {
   @DisplayName("Can not match invalid attributes")
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidValidAttributes() {
-    MutableElement element = MutableElement.create("b", MutableDocument.create(matcher));
+    MutableElement element = MutableElement.create("b", MutableDocument.createForTesting(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "class", "john", AttributeType.ONE_OF);

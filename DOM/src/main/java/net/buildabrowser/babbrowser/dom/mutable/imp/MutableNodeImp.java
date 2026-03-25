@@ -16,6 +16,7 @@ public abstract class MutableNodeImp implements MutableNode {
   private MutableNodeImp nextSibling;
 
   private Object context;
+  private Object box;
 
   @Override
   public MutableDocument ownerDocument() {
@@ -71,13 +72,23 @@ public abstract class MutableNodeImp implements MutableNode {
   }
 
   @Override
-  public void setContext(Object context) {
-    this.context = context;
-  }
-
-  @Override
   public Object getContext() {
     return this.context;
   }
+
+  @Override
+  public void setContext(Object context) {
+    this.context = context;
+  }
   
+  @Override
+  public Object getBox() {
+    return this.box;
+  }
+
+  @Override
+  public void setBox(Object box) {
+    this.box = box;
+  }
+
 }
