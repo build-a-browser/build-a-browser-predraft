@@ -8,8 +8,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import net.buildabrowser.babbrowser.browser.chrome.WindowSetGUI;
-import net.buildabrowser.babbrowser.browser.net.imp.ProtocolRegistryImp;
-import net.buildabrowser.babbrowser.browser.network.ProtocolRegistry;
+import net.buildabrowser.babbrowser.browser.net.imp.FetchBackendImp;
 import net.buildabrowser.babbrowser.browser.render.RenderingEngine;
 import net.buildabrowser.babbrowser.browser.render.paint.Painter;
 import net.buildabrowser.babbrowser.browser.render.paint.java2d.Java2DPainter;
@@ -17,6 +16,7 @@ import net.buildabrowser.babbrowser.browser.render.paint.skija.SkijaPainter;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
+import net.buildabrowser.babbrowser.fetch.FetchEngine;
 
 public class Main {
   
@@ -33,8 +33,8 @@ public class Main {
       new Java2DPainter() :
       new SkijaPainter();
 
-    ProtocolRegistry protocolRegistry = new ProtocolRegistryImp();
-    RenderingEngine renderingEngine = RenderingEngine.create(protocolRegistry, painter);
+    FetchEngine fetchEngine = FetchEngine.create(new FetchBackendImp());
+    RenderingEngine renderingEngine = RenderingEngine.create(fetchEngine, painter);
     BrowserInstance browserInstance = BrowserInstance.create(renderingEngine);
   
     WindowSet windowSet = WindowSet.create(browserInstance);

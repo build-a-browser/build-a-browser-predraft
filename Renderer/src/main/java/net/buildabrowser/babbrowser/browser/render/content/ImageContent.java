@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.content;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 
@@ -18,6 +19,9 @@ import net.buildabrowser.babbrowser.browser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.browser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.browser.render.paint.LoadedImage;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
+import net.buildabrowser.babbrowser.fetch.FetchParameters;
+import net.buildabrowser.babbrowser.fetch.FetchRequest;
+import net.buildabrowser.babbrowser.mutable.MutableFetchRequest;
 
 public class ImageContent implements BoxContent, BoxPainter {
 
@@ -98,15 +102,29 @@ public class ImageContent implements BoxContent, BoxPainter {
     if (loadingImageURL == null || !loadingImageURL.equals(imageSource)) {
       image = null;
       loadingImageURL = imageSource;
-      new Thread(() -> loadBufferedImage(layoutContext, loadingImageURL)).start();
+      
+      MutableFetchRequest fetchRequest = FetchRequest.createMutable();
+      fetchRequest.setURL(imageSource);
+      fetchRequest.setMethod("GET");
+
+      FetchParameters fetchParameters = new FetchParameters();
+      fetchParameters.request = fetchRequest;
+      fetchParameters.processResponseConsumeBody = (response, success, bytes) -> {
+        if (success) {
+          loadBufferedImage(layoutContext, bytes);
+        }
+      };
+
+      layoutContext.fetchEngine().fetch(fetchParameters);
     }
   }
 
-  private synchronized void loadBufferedImage(GlobalLayoutContext layoutContext, URI loadingImageURL) {
+  private synchronized void loadBufferedImage(GlobalLayoutContext layoutContext, byte[] bytes) {
     try {
-      this.image = layoutContext.resourceLoader().loadImage(loadingImageURL.toURL().openStream());
+      // TODO: Also need to handle SVG
+      this.image = layoutContext.resourceLoader().loadImage(new ByteArrayInputStream(bytes));
       box.invalidate(InvalidationLevel.LAYOUT);
-    } catch (IOException e) {
+    } catch (IOException | IllegalArgumentException e) {
       e.printStackTrace();
       this.image = null;
     }

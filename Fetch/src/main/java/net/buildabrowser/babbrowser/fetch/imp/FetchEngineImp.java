@@ -1,8 +1,12 @@
 package net.buildabrowser.babbrowser.fetch.imp;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.concurrent.CompletableFuture;
 
+import net.buildabrowser.babbrowser.browser.network.ExtensionUtil;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchBody;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
@@ -69,7 +73,11 @@ public class FetchEngineImp implements FetchEngine {
   private FetchResponse mainFetchChain(FetchParams fetchParams) {
     FetchRequest request = fetchParams.request();
     // TODO: More cases
-    if (request.currentURL().getScheme().equals("data")) {
+    if (
+      // TODO: Right now I'm special-casing file, but it should instead do scheme upon some-origin or no-cors
+      request.currentURL().getScheme().equals("file")
+      || request.currentURL().getScheme().equals("data")
+    ) {
       // TODO: Response tainting, also more options in the if
       return overrideFetch(OverrideFetchType.SCHEME_FETCH, fetchParams);
     } else {
@@ -104,17 +112,8 @@ public class FetchEngineImp implements FetchEngine {
       case "blob":
         // TODO: Implement blob
         break;
-      case "data":
-        DataURL dataURL = DataURLProcessor.processDataURL(request.currentURL());
-        if (dataURL == null) return FetchResponse.createNetworkError();
-        String mimeType = dataURL.mimeType();
-        return FetchResponse.create(
-          "OK",
-          HeaderList.create("Content-Type", mimeType),
-          FetchUtil.getBytesAsABody(dataURL.body()));
-      case "file":
-        // TODO: Implement file
-        break;
+      case "data": return fetchData(request);
+      case "file": return fetchFile(request);
       case "http", "https":
         return httpFetch(fetchParams, false);
       default:
@@ -122,6 +121,39 @@ public class FetchEngineImp implements FetchEngine {
     }
 
     return FetchResponse.createNetworkError();
+  }
+
+  private FetchResponse fetchData(FetchRequest request) {
+    DataURL dataURL = DataURLProcessor.processDataURL(request.currentURL());
+    if (dataURL == null) return FetchResponse.createNetworkError();
+    String mimeType = dataURL.mimeType();
+    return FetchResponse.create(
+      "OK",
+      HeaderList.create("Content-Type", mimeType),
+      FetchUtil.getBytesAsABody(dataURL.body()));
+  }
+
+  private FetchResponse fetchFile(FetchRequest request) {
+    // The spec does not say how to implement file
+    // TODO: Improve security
+    File file = new File(request.url());
+    if (!file.exists() || file.isDirectory()) {
+      return FetchResponse.createNetworkError();
+    }
+    
+    try {
+      byte[] bytes = Files.readAllBytes(file.toPath());
+      String mimeType = ExtensionUtil.guessMimeTypeFromFileName(file.getPath());
+      if (mimeType == null) {
+        mimeType = "application/octet-stream";
+      }
+      return FetchResponse.create(
+        "OK",
+        HeaderList.create("Content-Type", mimeType),
+        FetchUtil.getBytesAsABody(bytes));
+    } catch (IOException e) {
+      return FetchResponse.createNetworkError();
+    }
   }
 
   private FetchResponse httpFetch(FetchParams fetchParams, boolean makeCORSPreflight) {

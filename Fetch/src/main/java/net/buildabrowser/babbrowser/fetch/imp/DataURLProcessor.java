@@ -17,15 +17,15 @@ public final class DataURLProcessor {
     mimeType = mimeType.strip();
     position[0]++;
     String encodedBody = input.substring(position[0]);
-    String stringBody = URLDecoder.decode(encodedBody, StandardCharsets.UTF_8);
+    String stringBody = URLDecoder.decode(encodedBody.replace("+", "%2B"), StandardCharsets.UTF_8);
     byte[] body;
-    if (mimeType.matches(".*;%s*$")) {
+    if (mimeType.matches(".*;\\s*base64$")) {
       body = Base64Util.forgivingBase64Decode(stringBody);
       if (body == null) return null;
       mimeType = mimeType
         .substring(0, mimeType.length() - 6)
-        .stripTrailing()
-        .substring(0, mimeType.length() - 1);
+        .stripTrailing();
+      mimeType = mimeType.substring(0, mimeType.length() - 1);
     } else {
       body = stringBody.getBytes();
     }

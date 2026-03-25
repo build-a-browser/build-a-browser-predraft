@@ -25,12 +25,14 @@ public class EventLoopImp implements EventLoop {
   @SuppressWarnings("unused")
   private Task currentlyRunningTask;
 
+  protected AtomicBoolean hasStarted = new AtomicBoolean(false);
   protected AtomicBoolean isClosing = new AtomicBoolean(false);
 
   // TODO: Properly shut down the event loop
 
   @Override
   public void start() {
+    hasStarted.set(true);
     // TODO: Need to do timing and stuff
     while (!isClosing.get()) {
       synchronized(tasks) {
@@ -65,7 +67,13 @@ public class EventLoopImp implements EventLoop {
 
   @Override
   public void runInParallel(Runnable runnable) {
-    threadGroup.submit(runnable);
+    threadGroup.submit(() -> {
+      try {
+        runnable.run();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+  });
   }
 
   @Override

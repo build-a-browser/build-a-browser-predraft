@@ -11,7 +11,6 @@ import java.util.Optional;
 
 import javax.swing.JPanel;
 
-import net.buildabrowser.babbrowser.browser.network.ProtocolRegistry;
 import net.buildabrowser.babbrowser.browser.render.Renderer;
 import net.buildabrowser.babbrowser.browser.render.paint.Painter;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
@@ -20,6 +19,7 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
 import net.buildabrowser.babbrowser.dom.utils.CommonUtils;
+import net.buildabrowser.babbrowser.fetch.FetchEngine;
 
 public class RendererImp implements Renderer {
 
@@ -29,9 +29,9 @@ public class RendererImp implements Renderer {
 
   private JPanel jpanel;
 
-  public RendererImp(ProtocolRegistry protocolRegistry, URI url, Painter painter) {
+  public RendererImp(FetchEngine fetchEngine, URI url, Painter painter) {
     this.documentRenderer = new DocumentRendererImp(
-      url, painter, protocolRegistry,
+      url, painter, fetchEngine,
       uaStyleSheets, () -> {
         jpanel.revalidate();
         jpanel.repaint();

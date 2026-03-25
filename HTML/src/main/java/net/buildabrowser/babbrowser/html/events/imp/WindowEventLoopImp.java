@@ -17,9 +17,9 @@ import net.buildabrowser.babbrowser.html.navigation.Navigable;
 
 public class WindowEventLoopImp extends EventLoopImp implements WindowEventLoop {
 
-  private Set<Navigable> relatedNavigables = new HashSet<>();
-  private AtomicBoolean isLooping = new AtomicBoolean(false);
-  private AtomicBoolean queuedGlobalTask = new AtomicBoolean(false);
+  private final Set<Navigable> relatedNavigables = new HashSet<>();
+  private final AtomicBoolean isLooping = new AtomicBoolean(false);
+  private final AtomicBoolean queuedGlobalTask = new AtomicBoolean(false);
   
   // TODO: The spec defines an algorithm involving realms and a loop
   // but we do not have realms yet
@@ -28,11 +28,21 @@ public class WindowEventLoopImp extends EventLoopImp implements WindowEventLoop 
     // Hopefully called in the same thread as the main event loop
     // Avoiding synchronizing
     relatedNavigables.add(navigable);
-    if (!isLooping.get() && !isClosing.get()) {
+    if (hasStarted.get() && !isLooping.get() && !isClosing.get()) {
       assert navigable.activeWindow().agent().eventLoop() == this;
       isLooping.set(true);
       runInParallel(() -> updateRenderingLoop(navigable.activeWindow()));
     }
+  }
+
+  @Override
+  public void start() {
+    if (!relatedNavigables.isEmpty()) {
+      isLooping.set(true);
+      runInParallel(() -> updateRenderingLoop(
+        relatedNavigables.iterator().next().activeWindow()));
+    }
+    super.start();
   }
 
   private void updateRenderingLoop(GlobalObject globalObject) {

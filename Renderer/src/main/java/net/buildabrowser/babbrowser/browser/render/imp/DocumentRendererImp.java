@@ -3,6 +3,8 @@ package net.buildabrowser.babbrowser.browser.render.imp;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -11,7 +13,6 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.function.Consumer;
 
-import net.buildabrowser.babbrowser.browser.network.ProtocolRegistry;
 import net.buildabrowser.babbrowser.browser.render.box.Box;
 import net.buildabrowser.babbrowser.browser.render.box.Box.InvalidationLevel;
 import net.buildabrowser.babbrowser.browser.render.box.BoxGenerator;
@@ -39,6 +40,9 @@ import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
 import net.buildabrowser.babbrowser.dom.utils.CommonUtils;
+import net.buildabrowser.babbrowser.fetch.FetchEngine;
+import net.buildabrowser.babbrowser.fetch.FetchParameters;
+import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.html.Window;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
@@ -49,6 +53,7 @@ import net.buildabrowser.babbrowser.html.navigation.DocumentState;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.SessionHistoryEntry;
 import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
+import net.buildabrowser.babbrowser.mutable.MutableFetchRequest;
 
 public class DocumentRendererImp implements DocumentRenderer {
 
@@ -59,7 +64,7 @@ public class DocumentRendererImp implements DocumentRenderer {
 
   private final URI url;
   private final Painter painter;
-  private final ProtocolRegistry protocolRegistry;
+  private final FetchEngine fetchEngine;
   private final StyleSheetList uaStyleSheets;
   private final Runnable postRepaint;
   private final CSSMatcher cssMatcher;
@@ -82,13 +87,13 @@ public class DocumentRendererImp implements DocumentRenderer {
   public DocumentRendererImp(
     URI url,
     Painter painter,
-    ProtocolRegistry protocolRegistry,
+    FetchEngine fetchEngine,
     StyleSheetList uaStyleSheets,
     Runnable postRepaint
   ) {
     this.url = url;
     this.painter = painter;
-    this.protocolRegistry = protocolRegistry;
+    this.fetchEngine = fetchEngine;
     this.uaStyleSheets = uaStyleSheets;
     this.postRepaint = postRepaint;
 
@@ -113,17 +118,30 @@ public class DocumentRendererImp implements DocumentRenderer {
     Window window = ((BrowsingContext) document.browsingContext()).window();
     this.eventLoop = window.agent().eventLoop();
     eventLoop.runInParallel(() -> eventLoop.start());
-    EventLoop.queueGlobalTask(TaskSource.DOM, window, () -> CommonUtils.rethrow(() -> {
-      // TODO: Switch from protocolRegistry to the new Fetch system
-      try (InputStream inputStream = protocolRegistry.request(url)) {
-        long time = System.currentTimeMillis();
-        HTMLParser.create().parse(
-          new InputStreamReader(inputStream, StandardCharsets.UTF_8),
-          document);
-        long elapsed = System.currentTimeMillis() - time;
-        System.out.println("Num millis elapsed: " + elapsed);
-      }
-    }));
+
+    MutableFetchRequest fetchRequest = FetchRequest.createMutable();
+    fetchRequest.setURL(url);
+    fetchRequest.setMethod("GET");
+
+    FetchParameters fetchParameters = new FetchParameters();
+    fetchParameters.request = fetchRequest;
+    fetchParameters.processResponseConsumeBody = (response, success, body) -> {
+      // TODO: Actually process chunk by chunk, and report issue
+      if (!success) throw new RuntimeException(new IOException("Response not success!"));
+      EventLoop.queueGlobalTask(TaskSource.DOM, window, () -> CommonUtils.rethrow(() -> {
+        try (InputStream inputStream = new ByteArrayInputStream(body)) {
+          long time = System.currentTimeMillis();
+          HTMLParser.create().parse(
+            new InputStreamReader(inputStream, StandardCharsets.UTF_8),
+            document);
+          long elapsed = System.currentTimeMillis() - time;
+          documentBox.invalidate(InvalidationLevel.LAYOUT);
+          System.out.println("Num millis elapsed: " + elapsed);
+        }
+      }));
+    };
+
+    fetchEngine.fetch(fetchParameters);
   }
 
   @Override
@@ -162,7 +180,8 @@ public class DocumentRendererImp implements DocumentRenderer {
 
     Object cacheKey = new Object();
     GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
-      url, painter.resourceLoader(), rootFont.metrics(), fontCache, cacheKey);
+      url, painter.resourceLoader(), fetchEngine,
+      rootFont.metrics(), fontCache, cacheKey);
 
     LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
     LayoutContextGenerator.generateLayoutContexts(rootBox, layoutContext);

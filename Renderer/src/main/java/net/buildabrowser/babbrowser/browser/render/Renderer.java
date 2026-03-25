@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
 
-import net.buildabrowser.babbrowser.browser.network.ProtocolRegistry;
 import net.buildabrowser.babbrowser.browser.render.imp.RendererImp;
 import net.buildabrowser.babbrowser.browser.render.paint.Painter;
+import net.buildabrowser.babbrowser.fetch.FetchEngine;
 
 public interface Renderer {
   
@@ -17,8 +17,8 @@ public interface Renderer {
 
   void close();
 
-  public static Renderer create(ProtocolRegistry protocolRegistry, URI url, Painter painter) {
-    return new RendererImp(protocolRegistry, url, painter);
+  public static Renderer create(FetchEngine fetchEngine, URI url, Painter painter) {
+    return new RendererImp(fetchEngine, url, painter);
   }
 
 }
