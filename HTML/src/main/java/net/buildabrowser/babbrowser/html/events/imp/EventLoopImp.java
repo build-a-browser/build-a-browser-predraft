@@ -15,6 +15,8 @@ import net.buildabrowser.babbrowser.html.events.TaskSource;
 
 public class EventLoopImp implements EventLoop {
 
+  private static final int LONG_RENDER_DURATION = 32;
+
   private final Map<TaskSource, TaskQueue> tasks = new HashMap<>();
   // For now, just doing round-robin. Will change in the future
   private final Set<TaskSource> taskOrder = new LinkedHashSet<>();
@@ -24,6 +26,9 @@ public class EventLoopImp implements EventLoop {
 
   @SuppressWarnings("unused")
   private Task currentlyRunningTask;
+
+  private float lastRenderDuration = 16;
+  private long lastRenderTime = 0;
 
   protected AtomicBoolean hasStarted = new AtomicBoolean(false);
   protected AtomicBoolean isClosing = new AtomicBoolean(false);
@@ -35,20 +40,36 @@ public class EventLoopImp implements EventLoop {
     hasStarted.set(true);
     // TODO: Need to do timing and stuff
     while (!isClosing.get()) {
+      TaskQueue taskQueue = null;
+      Task oldestTask = null;
       synchronized(tasks) {
-        TaskQueue taskQueue = chooseTaskQueue();
+        taskQueue = chooseTaskQueue();
         if (taskQueue != null) {
-          Task oldestTask = taskQueue.tasks().iterator().next();
-          currentlyRunningTask = oldestTask;
+          oldestTask = taskQueue.tasks().iterator().next();
           taskQueue.tasks().remove(oldestTask);
-          oldestTask.steps().run();
-          currentlyRunningTask = null;
-          // TODO: Run microtasks
         }
+      }
 
-        runLoopSpecificTask();
-        // TODO: Properly start an idle period
+      if (oldestTask != null) {
+        currentlyRunningTask = oldestTask;
 
+        // Include some extra non-spec timing code for scheduling heuristics
+        long taskStart = System.currentTimeMillis();
+        oldestTask.steps().run();
+        if (oldestTask.source().equals(TaskSource.RENDERING)) {
+          this.lastRenderTime = taskStart;
+          this.lastRenderDuration = System.currentTimeMillis() - lastRenderTime;
+        }
+        
+        currentlyRunningTask = null;
+        // TODO: Run microtasks
+      }
+
+      runLoopSpecificTask();
+    
+      // TODO: Properly start an idle period
+
+      synchronized (tasks) {
         if (taskQueue == null) {
           try {
             tasks.wait();
@@ -90,14 +111,33 @@ public class EventLoopImp implements EventLoop {
 
   protected void runLoopSpecificTask() {}
 
+  // Rendering can take a long time, so we'll let other tasks fill a similar duration
   private TaskQueue chooseTaskQueue() {
+    TaskQueue renderingQueue = tasks.get(TaskSource.RENDERING);
+    boolean hasRenderingTasks = renderingQueue != null && !renderingQueue.tasks().isEmpty();
+    if (
+      hasRenderingTasks
+      && lastRenderDuration > 32
+      && System.currentTimeMillis() - lastRenderTime > lastRenderDuration * 2
+    ) {
+      return renderingQueue;
+    }
+
     for (TaskSource source: taskOrder) {
+      if (
+        source.equals(TaskSource.RENDERING)
+        && lastRenderDuration > LONG_RENDER_DURATION
+      ) continue;
       TaskQueue queue = tasks.get(source);
       if (!queue.tasks().isEmpty()) {
         taskOrder.remove(source);
         taskOrder.add(source);
         return queue;
       }
+    }
+
+    if (hasRenderingTasks) {
+      return renderingQueue;
     }
 
     return null;

@@ -1,8 +1,5 @@
 package net.buildabrowser.babbrowser.htmlparser.tokenize;
 
-import java.io.IOException;
-import java.io.PushbackReader;
-
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
 import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
@@ -15,7 +12,7 @@ public interface TokenizeContext {
   
   void setTokenizeState(TokenizeState tokenizeState);
 
-  void reconsumeInTokenizeState(int ch, TokenizeState tokenizeState) throws IOException;
+  void reconsumeInTokenizeState(int ch, TokenizeState tokenizeState);
 
   TokenizeState getTokenizeState();
 
@@ -55,8 +52,14 @@ public interface TokenizeContext {
 
   }
 
-  public static TokenizeContext create(PushbackReader pushbackReader) {
-    return new TokenizeContextImp(pushbackReader);
+  interface Pushback {
+
+    void unread(int ch);
+
+  }
+
+  public static TokenizeContext create(Pushback pushback) {
+    return new TokenizeContextImp(pushback);
   }
 
 }

@@ -104,8 +104,9 @@ public class ImageContent implements BoxContent, BoxPainter {
       loadingImageURL = imageSource;
       
       MutableFetchRequest fetchRequest = FetchRequest.createMutable();
-      fetchRequest.setURL(imageSource);
       fetchRequest.setMethod("GET");
+      fetchRequest.setURL(imageSource);
+      fetchRequest.setClient(layoutContext.scriptingContext().environmentSettingsObject());
 
       FetchParameters fetchParameters = new FetchParameters();
       fetchParameters.request = fetchRequest;
@@ -115,7 +116,7 @@ public class ImageContent implements BoxContent, BoxPainter {
         }
       };
 
-      layoutContext.fetchEngine().fetch(fetchParameters);
+      layoutContext.scriptingContext().fetchEngine().fetch(fetchParameters);
     }
   }
 

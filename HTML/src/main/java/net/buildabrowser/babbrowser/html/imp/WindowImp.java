@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.html.imp;
 
 import net.buildabrowser.babbrowser.dom.Document;
-import net.buildabrowser.babbrowser.html.SimilarOriginWindowAgent;
-import net.buildabrowser.babbrowser.html.Window;
+import net.buildabrowser.babbrowser.html.scripting.SimilarOriginWindowAgent;
+import net.buildabrowser.babbrowser.html.scripting.Window;
 
 public class WindowImp implements Window {
 

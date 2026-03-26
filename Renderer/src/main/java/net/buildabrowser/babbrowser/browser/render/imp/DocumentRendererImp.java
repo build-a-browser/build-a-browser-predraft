@@ -3,11 +3,8 @@ package net.buildabrowser.babbrowser.browser.render.imp;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.List;
@@ -22,6 +19,7 @@ import net.buildabrowser.babbrowser.browser.render.box.imp.DocumentBoxImp;
 import net.buildabrowser.babbrowser.browser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.position.PositionLayout;
+import net.buildabrowser.babbrowser.browser.render.context.ScriptingContext;
 import net.buildabrowser.babbrowser.browser.render.layout.FontCache;
 import net.buildabrowser.babbrowser.browser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
@@ -39,11 +37,9 @@ import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
-import net.buildabrowser.babbrowser.dom.utils.CommonUtils;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.fetch.FetchParameters;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
-import net.buildabrowser.babbrowser.html.Window;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
@@ -52,8 +48,15 @@ import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.DocumentState;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.SessionHistoryEntry;
+import net.buildabrowser.babbrowser.html.scripting.EnvironmentSettingsObject;
+import net.buildabrowser.babbrowser.html.scripting.Realm;
+import net.buildabrowser.babbrowser.html.scripting.RealmExecutionContext;
+import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
 import net.buildabrowser.babbrowser.mutable.MutableFetchRequest;
+import net.buildabrowser.babbrowser.stream.ReadRequest;
+import net.buildabrowser.babbrowser.stream.ReadableStream.ReadableStreamGetReaderOptions;
+import net.buildabrowser.babbrowser.stream.imp.ReadableStreamDefaultReaderImp;
 
 public class DocumentRendererImp implements DocumentRenderer {
 
@@ -64,14 +67,12 @@ public class DocumentRendererImp implements DocumentRenderer {
 
   private final URI url;
   private final Painter painter;
-  private final FetchEngine fetchEngine;
   private final StyleSheetList uaStyleSheets;
   private final Runnable postRepaint;
   private final CSSMatcher cssMatcher;
   private final MutableDocument document;
   private final DocumentBox documentBox;
-
-  private WindowEventLoop eventLoop;
+  private final ScriptingContext scriptingContext;
 
   private boolean needsLayout = true;
   private boolean needsPaint = true;
@@ -93,7 +94,6 @@ public class DocumentRendererImp implements DocumentRenderer {
   ) {
     this.url = url;
     this.painter = painter;
-    this.fetchEngine = fetchEngine;
     this.uaStyleSheets = uaStyleSheets;
     this.postRepaint = postRepaint;
 
@@ -101,12 +101,18 @@ public class DocumentRendererImp implements DocumentRenderer {
 
     // TODO: Really not the right way to do this
     DocumentChangeListener changeListener = new RenderDocumentChangeListener(cssMatcher.documentChangeListener());
-    WindowEventLoop eventLoop = EventLoop.createWindowEventLoop();
     this.document = MutableDocument.create(changeListener, this);
+
+    WindowEventLoop eventLoop = EventLoop.createWindowEventLoop();
     Window window = Window.create(() -> eventLoop, this.document);
     document.setBrowsingContext(BrowsingContext.create(window));
     eventLoop.addNavigable(Navigable.create(
       SessionHistoryEntry.create(DocumentState.create(document))));
+    
+    Realm realm = Realm.create(window); // TODO: Actually, spec says the global object should be created during creation of relam
+    RealmExecutionContext realmExecutionContext = RealmExecutionContext.create(realm);
+    EnvironmentSettingsObject environmentSettingsObject = EnvironmentSettingsObject.create(realmExecutionContext);
+    this.scriptingContext = ScriptingContext.create(fetchEngine, environmentSettingsObject);
 
     this.documentBox = createDocumentBox();
 
@@ -116,38 +122,56 @@ public class DocumentRendererImp implements DocumentRenderer {
   @Override
   public void start() {
     Window window = ((BrowsingContext) document.browsingContext()).window();
-    this.eventLoop = window.agent().eventLoop();
+    WindowEventLoop eventLoop = window.agent().eventLoop();
     eventLoop.runInParallel(() -> eventLoop.start());
 
     MutableFetchRequest fetchRequest = FetchRequest.createMutable();
-    fetchRequest.setURL(url);
     fetchRequest.setMethod("GET");
+    fetchRequest.setURL(url);
+    fetchRequest.setClient(scriptingContext.environmentSettingsObject());
+
+    long time = System.currentTimeMillis();
+    HTMLParser htmlParser = HTMLParser.create(document, StandardCharsets.UTF_8);
 
     FetchParameters fetchParameters = new FetchParameters();
     fetchParameters.request = fetchRequest;
-    fetchParameters.processResponseConsumeBody = (response, success, body) -> {
-      // TODO: Actually process chunk by chunk, and report issue
-      if (!success) throw new RuntimeException(new IOException("Response not success!"));
-      EventLoop.queueGlobalTask(TaskSource.DOM, window, () -> CommonUtils.rethrow(() -> {
-        try (InputStream inputStream = new ByteArrayInputStream(body)) {
-          long time = System.currentTimeMillis();
-          HTMLParser.create().parse(
-            new InputStreamReader(inputStream, StandardCharsets.UTF_8),
-            document);
+    fetchParameters.processResponse = (response) -> {
+      ReadableStreamGetReaderOptions options = new ReadableStreamGetReaderOptions();
+      ReadableStreamDefaultReaderImp reader = (ReadableStreamDefaultReaderImp) response.body().stream().getReader(options);
+      // TODO: Use the normal reader's exposed methods instead, once implemented
+      reader.read(new ReadRequest() {
+
+        @Override
+        public void chunk(ByteBuffer chunk) {
+          EventLoop.queueGlobalTask(TaskSource.DOM, window,
+            () -> {
+              htmlParser.parse(chunk);
+              documentBox.invalidate(InvalidationLevel.LAYOUT);
+            });
+          reader.read(this);
+        }
+
+        @Override
+        public void close() {
+          EventLoop.queueGlobalTask(TaskSource.DOM, window, htmlParser::done);
           long elapsed = System.currentTimeMillis() - time;
-          documentBox.invalidate(InvalidationLevel.LAYOUT);
           System.out.println("Num millis elapsed: " + elapsed);
         }
-      }));
+
+        @Override
+        public void error(Object e) {
+          ((Throwable) e).printStackTrace();
+        }
+        
+      });
     };
 
-    fetchEngine.fetch(fetchParameters);
+    scriptingContext.fetchEngine().fetch(fetchParameters);
   }
 
   @Override
   public void shutdown() {
-    if (this.eventLoop == null) return;
-    eventLoop.shutdown();
+    scriptingContext.globalObject().agent().eventLoop().shutdown();
   }
 
   @Override
@@ -180,8 +204,8 @@ public class DocumentRendererImp implements DocumentRenderer {
 
     Object cacheKey = new Object();
     GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
-      url, painter.resourceLoader(), fetchEngine,
-      rootFont.metrics(), fontCache, cacheKey);
+      url, painter.resourceLoader(), rootFont.metrics(), fontCache,
+      scriptingContext, cacheKey);
 
     LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
     LayoutContextGenerator.generateLayoutContexts(rootBox, layoutContext);

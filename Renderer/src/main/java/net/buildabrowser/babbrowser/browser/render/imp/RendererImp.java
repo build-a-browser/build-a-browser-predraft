@@ -42,7 +42,7 @@ public class RendererImp implements Renderer {
     if (this.jpanel != null) {
       return this.jpanel;
     }
-
+    
     documentRenderer.start();
 
     return this.jpanel = new JPanel() {

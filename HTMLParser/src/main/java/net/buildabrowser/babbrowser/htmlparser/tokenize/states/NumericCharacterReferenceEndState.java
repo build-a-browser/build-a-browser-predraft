@@ -1,7 +1,5 @@
 package net.buildabrowser.babbrowser.htmlparser.tokenize.states;
 
-import java.io.IOException;
-
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
@@ -41,7 +39,7 @@ public class NumericCharacterReferenceEndState implements TokenizeState {
   }
 
   @Override
-  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
+  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     int charRefCode = tokenizeContext.getCharacterReferenceCode();
     // Character.isSurrogate requires a char, but we have an int
     if (charRefCode == 0 || charRefCode >= 0x10FFFF || isSurrogate(charRefCode)) {

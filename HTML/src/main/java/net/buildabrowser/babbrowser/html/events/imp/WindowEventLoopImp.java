@@ -8,12 +8,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
-import net.buildabrowser.babbrowser.html.GlobalObject;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
+import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
 
 public class WindowEventLoopImp extends EventLoopImp implements WindowEventLoop {
 

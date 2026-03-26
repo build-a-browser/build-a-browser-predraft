@@ -1,9 +1,9 @@
 package net.buildabrowser.babbrowser.html.events;
 
 import net.buildabrowser.babbrowser.dom.Document;
-import net.buildabrowser.babbrowser.html.GlobalObject;
-import net.buildabrowser.babbrowser.html.Window;
 import net.buildabrowser.babbrowser.html.events.imp.WindowEventLoopImp;
+import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
+import net.buildabrowser.babbrowser.html.scripting.Window;
 
 public interface EventLoop {
 

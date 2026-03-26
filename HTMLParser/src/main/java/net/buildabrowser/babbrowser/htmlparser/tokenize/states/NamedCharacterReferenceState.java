@@ -1,6 +1,5 @@
 package net.buildabrowser.babbrowser.htmlparser.tokenize.states;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,7 @@ public class NamedCharacterReferenceState implements TokenizeState {
   }
 
   @Override
-  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
+  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     // Automatically occurs upon no lookahead matched
     tokenizeContext.flushCodePointsConsumedAsACharacterReference(parseContext);
     // Since this stage technically does not consume unless a match is present,

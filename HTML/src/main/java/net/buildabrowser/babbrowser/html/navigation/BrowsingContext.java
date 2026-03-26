@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.html.navigation;
 
-import net.buildabrowser.babbrowser.html.Window;
+import net.buildabrowser.babbrowser.html.scripting.Window;
 
 public record BrowsingContext(
   Window window // TODO: Should be an unwrappable proxy

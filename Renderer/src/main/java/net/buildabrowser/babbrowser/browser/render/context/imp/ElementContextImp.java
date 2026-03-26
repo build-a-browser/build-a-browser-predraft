@@ -35,7 +35,10 @@ public class ElementContextImp implements ElementContext {
   
   @Override
   public void onCSSRuleMatched(WeightedStyleRule styleRule) {
-    styleRules.add(styleRule);
+    // TODO: Could cause exponential growth as the list grows large..
+    if (!styleRules.contains(styleRule)) {
+      styleRules.add(styleRule);
+    }
     this.activeStyles = null;
   }
 

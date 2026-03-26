@@ -1,7 +1,5 @@
 package net.buildabrowser.babbrowser.htmlparser.tokenize.states;
 
-import java.io.IOException;
-
 import net.buildabrowser.babbrowser.common.util.ASCIIUtil;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
@@ -12,7 +10,7 @@ import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 public class BeforeDoctypeNameState implements TokenizeState {
 
   @Override
-  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
+  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     if (ASCIIUtil.isAlpha(ch)) {
       tokenizeContext.beginDoctypeToken().appendCodePointToName(ASCIIUtil.toLower(ch));
       tokenizeContext.setTokenizeState(TokenizeStates.doctypeNameState);

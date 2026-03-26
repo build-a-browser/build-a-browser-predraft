@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.html.navigation;
 
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
-import net.buildabrowser.babbrowser.html.GlobalObject;
+import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
 
 public record Navigable(
   // TODO: The various fields required by the spec

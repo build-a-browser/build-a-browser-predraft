@@ -1,6 +1,5 @@
 package net.buildabrowser.babbrowser.htmlparser.tokenize.states;
 
-import java.io.IOException;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
@@ -15,7 +14,7 @@ public class MarkupDeclarationOpenState implements TokenizeState {
     List.of("--", "DOCTYPE", "[CDATA["));
 
   @Override
-  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
+  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     throw new UnsupportedOperationException("Not yet implemented!");
   }
 

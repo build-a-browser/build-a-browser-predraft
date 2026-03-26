@@ -129,7 +129,6 @@ public class ReadableStreamImp implements ReadableStream {
       this, pullAlgorithm, cancelAlgorithm);
     this.controller = controller;
     Object startResult = startAlgorithm.apply(controller);
-    // TODO: The spec uses a promise, but I think just a try/catch has the same result?
     CompletableFuture<?> startPromise = startResult instanceof CompletableFuture completeableFuture ?
       completeableFuture :
       CompletableFuture.completedFuture(null);

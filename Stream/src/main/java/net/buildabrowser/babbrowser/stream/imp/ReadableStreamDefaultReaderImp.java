@@ -23,7 +23,7 @@ public class ReadableStreamDefaultReaderImp
     read(new ReadAllBytesReadRequest(this, successSteps, failureSteps));
   }
 
-  void read(ReadRequest request) {
+  public void read(ReadRequest request) {
     assert stream != null;
     stream.disturbed = true;
     if (stream.state.equals(ReadableStreamState.CLOSED)) {
