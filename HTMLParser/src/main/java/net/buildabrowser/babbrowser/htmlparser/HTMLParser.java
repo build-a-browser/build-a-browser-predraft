@@ -23,7 +23,7 @@ public interface HTMLParser {
     MutableDocument document = MutableDocument.create(new DocumentChangeListener() {
       @Override public void onNodeAdded(Node node) {}
       @Override public void onNodeRemoved(Node node) {}
-    }, null);
+    });
 
     HTMLParser parser = create(document, StandardCharsets.UTF_8);
     int ch;

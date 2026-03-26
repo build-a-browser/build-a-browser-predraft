@@ -1,13 +1,21 @@
 package net.buildabrowser.babbrowser.html.navigation;
 
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
+import net.buildabrowser.babbrowser.html.html.UAHTMLDocumentOptions;
+import net.buildabrowser.babbrowser.html.navigation.imp.BrowsingContextImp;
+import net.buildabrowser.babbrowser.html.scripting.Realm;
 import net.buildabrowser.babbrowser.html.scripting.Window;
 
-public record BrowsingContext(
-  Window window // TODO: Should be an unwrappable proxy
-) {
-  
-  public static BrowsingContext create(Window window) {
-    return new BrowsingContext(window);
+public interface BrowsingContext {
+
+  Window activeWindow();
+
+  HTMLDocument activeDocument();
+
+  Realm realm();
+
+  public static BrowsingContext create(UAHTMLDocumentOptions documentOptions) {
+    return new BrowsingContextImp(documentOptions);
   }
 
 }

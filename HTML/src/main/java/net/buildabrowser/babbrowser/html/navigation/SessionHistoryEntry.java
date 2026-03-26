@@ -1,12 +1,12 @@
 package net.buildabrowser.babbrowser.html.navigation;
 
-import net.buildabrowser.babbrowser.dom.Document;
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 
 public record SessionHistoryEntry(
   DocumentState documentState
 ) {
   
-  public Document getDocument() {
+  public HTMLDocument getDocument() {
     return documentState.document();
   }
 

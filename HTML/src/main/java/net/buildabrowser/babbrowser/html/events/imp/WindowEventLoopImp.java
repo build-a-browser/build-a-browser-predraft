@@ -7,10 +7,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.buildabrowser.babbrowser.dom.Document;
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
@@ -79,14 +79,14 @@ public class WindowEventLoopImp extends EventLoopImp implements WindowEventLoop 
     for (Navigable navigable: relatedNavigables) {
       Document doc = navigable.activeDocument();
       // TODO: A number of conditions
-      DocumentRenderer renderer = (DocumentRenderer) ((MutableDocument) doc).renderer();
+      DocumentRenderer renderer = ((HTMLDocument) doc).renderer();
       if (!renderer.shouldRender()) continue;
       docs.add(doc);
     }
     
     // TODO: A ton of other steps
     for (Document doc: docs) {
-      DocumentRenderer renderer = (DocumentRenderer) ((MutableDocument) doc).renderer();
+      DocumentRenderer renderer = ((HTMLDocument) doc).renderer();
       renderer.recalculateStyles();
       renderer.updateLayout();
       // TODO: and resize observers
@@ -94,7 +94,7 @@ public class WindowEventLoopImp extends EventLoopImp implements WindowEventLoop 
     
     // TODO: and a few steps in between...
     for (Document doc: docs) {
-      DocumentRenderer renderer = (DocumentRenderer) ((MutableDocument) doc).renderer();
+      DocumentRenderer renderer = ((HTMLDocument) doc).renderer();
       renderer.updateRendering();
     }
     // TODO: and the rest...

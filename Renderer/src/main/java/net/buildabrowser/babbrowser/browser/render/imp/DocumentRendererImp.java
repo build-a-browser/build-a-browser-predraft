@@ -36,21 +36,19 @@ import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.fetch.FetchParameters;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
+import net.buildabrowser.babbrowser.html.html.UAHTMLDocumentOptions;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.DocumentState;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.SessionHistoryEntry;
-import net.buildabrowser.babbrowser.html.scripting.EnvironmentSettingsObject;
-import net.buildabrowser.babbrowser.html.scripting.Realm;
-import net.buildabrowser.babbrowser.html.scripting.RealmExecutionContext;
 import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
 import net.buildabrowser.babbrowser.mutable.MutableFetchRequest;
@@ -70,7 +68,7 @@ public class DocumentRendererImp implements DocumentRenderer {
   private final StyleSheetList uaStyleSheets;
   private final Runnable postRepaint;
   private final CSSMatcher cssMatcher;
-  private final MutableDocument document;
+  private final HTMLDocument document;
   private final DocumentBox documentBox;
   private final ScriptingContext scriptingContext;
 
@@ -99,20 +97,19 @@ public class DocumentRendererImp implements DocumentRenderer {
 
     this.cssMatcher = CSSMatcher.create(new RenderCSSMatcherContext());
 
-    // TODO: Really not the right way to do this
     DocumentChangeListener changeListener = new RenderDocumentChangeListener(cssMatcher.documentChangeListener());
-    this.document = MutableDocument.create(changeListener, this);
+    UAHTMLDocumentOptions documentOptions = new UAHTMLDocumentOptions(changeListener, this);
 
-    WindowEventLoop eventLoop = EventLoop.createWindowEventLoop();
-    Window window = Window.create(() -> eventLoop, this.document);
-    document.setBrowsingContext(BrowsingContext.create(window));
+    BrowsingContext browsingContext = BrowsingContext.create(documentOptions);
+    this.document = browsingContext.activeDocument();
+    WindowEventLoop eventLoop = browsingContext.activeWindow().agent().eventLoop();
     eventLoop.addNavigable(Navigable.create(
       SessionHistoryEntry.create(DocumentState.create(document))));
     
-    Realm realm = Realm.create(window); // TODO: Actually, spec says the global object should be created during creation of relam
-    RealmExecutionContext realmExecutionContext = RealmExecutionContext.create(realm);
-    EnvironmentSettingsObject environmentSettingsObject = EnvironmentSettingsObject.create(realmExecutionContext);
-    this.scriptingContext = ScriptingContext.create(fetchEngine, environmentSettingsObject);
+    
+    this.scriptingContext = ScriptingContext.create(
+      fetchEngine,
+      browsingContext.realm().hostDefined());
 
     this.documentBox = createDocumentBox();
 
@@ -121,7 +118,7 @@ public class DocumentRendererImp implements DocumentRenderer {
 
   @Override
   public void start() {
-    Window window = ((BrowsingContext) document.browsingContext()).window();
+    Window window = document.browsingContext().activeWindow();
     WindowEventLoop eventLoop = window.agent().eventLoop();
     eventLoop.runInParallel(() -> eventLoop.start());
 

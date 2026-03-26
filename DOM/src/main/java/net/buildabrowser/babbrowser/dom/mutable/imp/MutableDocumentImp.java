@@ -9,18 +9,11 @@ public class MutableDocumentImp extends MutableNodeImp implements MutableDocumen
 
   private final MutableStyleSheetList styleSheets;
   private final DocumentChangeListener changeListener;
-  private final Object renderer;
 
-  private Object browsingContext;
-
-  public MutableDocumentImp(
-    DocumentChangeListener changeListener,
-    Object renderer
-  ) {
+  public MutableDocumentImp(DocumentChangeListener changeListener) {
     this.changeListener = changeListener;
     this.styleSheets = MutableStyleSheetList.create(
       styleSheet -> changeListener.onStylesheetAdded(styleSheet));
-    this.renderer = renderer;
   }
 
   @Override
@@ -48,21 +41,6 @@ public class MutableDocumentImp extends MutableNodeImp implements MutableDocumen
     }
     
     return builder.toString();
-  }
-
-  @Override
-  public Object browsingContext() {
-    return this.browsingContext;
-  }
-
-  @Override
-  public void setBrowsingContext(Object browsingContext) {
-    this.browsingContext = browsingContext;
-  }
-
-  @Override
-  public Object renderer() {
-    return this.renderer;
   }
 
 }

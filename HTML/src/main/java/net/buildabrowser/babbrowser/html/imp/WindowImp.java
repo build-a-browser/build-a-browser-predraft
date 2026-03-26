@@ -1,17 +1,17 @@
 package net.buildabrowser.babbrowser.html.imp;
 
-import net.buildabrowser.babbrowser.dom.Document;
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.scripting.SimilarOriginWindowAgent;
 import net.buildabrowser.babbrowser.html.scripting.Window;
 
 public class WindowImp implements Window {
 
   private final SimilarOriginWindowAgent agent;
-  private final Document document;
+  private final HTMLDocument document;
 
   public WindowImp(
     SimilarOriginWindowAgent agent,
-    Document document
+    HTMLDocument document
   ) {
     this.agent = agent;
     this.document = document;
@@ -23,7 +23,7 @@ public class WindowImp implements Window {
   }
 
   @Override
-  public Document associatedDocument() {
+  public HTMLDocument associatedDocument() {
     return this.document;
   }
   
