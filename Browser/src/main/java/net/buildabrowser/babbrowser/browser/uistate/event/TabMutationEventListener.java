@@ -2,8 +2,8 @@ package net.buildabrowser.babbrowser.browser.uistate.event;
 
 import java.net.URI;
 
-import net.buildabrowser.babbrowser.browser.render.uistate.event.BrowserEventListener;
 import net.buildabrowser.babbrowser.browser.uistate.Tab;
+import net.buildabrowser.babbrowser.render.uistate.event.BrowserEventListener;
 
 public interface TabMutationEventListener extends BrowserEventListener {
 

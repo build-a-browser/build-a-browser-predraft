@@ -3,10 +3,10 @@ package net.buildabrowser.babbrowser.browser.uistate.imp;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
-import net.buildabrowser.babbrowser.browser.render.uistate.Frame;
-import net.buildabrowser.babbrowser.browser.render.uistate.event.BrowserEventDispatcher;
 import net.buildabrowser.babbrowser.browser.uistate.Tab;
 import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListener;
+import net.buildabrowser.babbrowser.render.uistate.Frame;
+import net.buildabrowser.babbrowser.render.uistate.event.BrowserEventDispatcher;
 
 public class TabImp implements Tab {
   

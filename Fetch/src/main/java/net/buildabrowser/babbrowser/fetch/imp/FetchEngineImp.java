@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-import net.buildabrowser.babbrowser.browser.network.ExtensionUtil;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchBody;
 import net.buildabrowser.babbrowser.fetch.FetchDestinatation;
@@ -21,6 +20,7 @@ import net.buildabrowser.babbrowser.fetch.FetchResponse;
 import net.buildabrowser.babbrowser.fetch.HeaderList;
 import net.buildabrowser.babbrowser.fetch.imp.DataURLProcessor.DataURL;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchResponse;
+import net.buildabrowser.babbrowser.network.ExtensionUtil;
 import net.buildabrowser.babbrowser.stream.ReadableByteStreamController;
 import net.buildabrowser.babbrowser.stream.ReadableStream;
 import net.buildabrowser.babbrowser.stream.ReadableStreamBYOBRequest;

@@ -9,14 +9,14 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import net.buildabrowser.babbrowser.browser.chrome.WindowSetGUI;
 import net.buildabrowser.babbrowser.browser.net.imp.FetchBackendImp;
-import net.buildabrowser.babbrowser.browser.render.RenderingEngine;
-import net.buildabrowser.babbrowser.browser.render.paint.Painter;
-import net.buildabrowser.babbrowser.browser.render.paint.java2d.Java2DPainter;
-import net.buildabrowser.babbrowser.browser.render.paint.skija.SkijaPainter;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
+import net.buildabrowser.babbrowser.render.RenderingEngine;
+import net.buildabrowser.babbrowser.render.paint.Painter;
+import net.buildabrowser.babbrowser.render.paint.java2d.Java2DPainter;
+import net.buildabrowser.babbrowser.render.paint.skija.SkijaPainter;
 
 public class Main {
   

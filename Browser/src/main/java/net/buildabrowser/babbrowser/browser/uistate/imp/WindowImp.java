@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
-import net.buildabrowser.babbrowser.browser.render.uistate.event.BrowserEventDispatcher;
 import net.buildabrowser.babbrowser.browser.uistate.Tab;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListener;
 import net.buildabrowser.babbrowser.browser.uistate.event.WindowMutationEventListener;
+import net.buildabrowser.babbrowser.render.uistate.event.BrowserEventDispatcher;
 
 public class WindowImp implements Window {
 
