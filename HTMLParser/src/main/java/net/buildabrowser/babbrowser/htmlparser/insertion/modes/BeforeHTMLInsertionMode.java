@@ -1,7 +1,8 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
-import net.buildabrowser.babbrowser.dom.Namespace;
 import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.dom.Namespace;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseCommentUtil;
@@ -63,7 +64,7 @@ public class BeforeHTMLInsertionMode implements InsertionMode {
   }
 
   private boolean handleAnythingElse(ParseContext parseContext) {
-    Element element = Element.create("html", parseContext.document());
+    Element element = HTMLElement.create("html", parseContext.document());
     parseContext.document().appendChild(element);
     parseContext.openElementStack().pushNode(element);
 

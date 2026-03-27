@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property;
 
 import java.util.List;
 
+import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
 import net.buildabrowser.babbrowser.cssbase.property.align.GapValue;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue.SRGBAColor;
@@ -29,8 +30,8 @@ import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollap
 
 public enum CSSProperty {
   
-  COLOR(nextId(), true, SRGBAColor.create(0, 0, 0, 255)),
-  BACKGROUND_COLOR(nextId(), false, SRGBAColor.create(0, 0, 0, 0)),
+  COLOR(nextId(), true, InvalidationLevel.PAINT, SRGBAColor.create(0, 0, 0, 255)),
+  BACKGROUND_COLOR(nextId(), false, InvalidationLevel.PAINT, SRGBAColor.create(0, 0, 0, 0)),
   BACKGROUND(new CSSProperty[] { BACKGROUND_COLOR }),
 
   WIDTH(nextId(), false, CSSValue.AUTO),
@@ -42,7 +43,7 @@ public enum CSSProperty {
   MAX_HEIGHT(nextId(), false, CSSValue.NONE),
   
   BOX_SIZING(nextId(), false, BoxSizingValue.CONTENT_BOX),
-  DISPLAY(nextId(), false, DisplayValue.create(OuterDisplayValue.INLINE, InnerDisplayValue.FLOW)),
+  DISPLAY(nextId(), false, InvalidationLevel.BOX, DisplayValue.create(OuterDisplayValue.INLINE, InnerDisplayValue.FLOW)),
   FLOAT(nextId(), false, CSSValue.NONE),
   CLEAR(nextId(), false, CSSValue.NONE),
   WHITE_SPACE_COLLAPSE(nextId(), true, WhitespaceCollapseValue.COLLAPSE),
@@ -69,12 +70,13 @@ public enum CSSProperty {
   BORDER_WIDTH(new CSSProperty[] { BORDER_TOP_WIDTH, BORDER_BOTTOM_WIDTH, BORDER_LEFT_WIDTH, BORDER_RIGHT_WIDTH }),
 
   // Use NONE, but then resolve the real value in code, for the default case
-  BORDER_TOP_COLOR(nextId(), false, CSSValue.NONE),
-  BORDER_BOTTOM_COLOR(nextId(), false, CSSValue.NONE),
-  BORDER_LEFT_COLOR(nextId(), false, CSSValue.NONE),
-  BORDER_RIGHT_COLOR(nextId(), false, CSSValue.NONE),
+  BORDER_TOP_COLOR(nextId(), false, InvalidationLevel.PAINT, CSSValue.NONE),
+  BORDER_BOTTOM_COLOR(nextId(), false, InvalidationLevel.PAINT, CSSValue.NONE),
+  BORDER_LEFT_COLOR(nextId(), false, InvalidationLevel.PAINT, CSSValue.NONE),
+  BORDER_RIGHT_COLOR(nextId(), false, InvalidationLevel.PAINT, CSSValue.NONE),
   BORDER_COLOR(new CSSProperty[] { BORDER_TOP_COLOR, BORDER_BOTTOM_COLOR, BORDER_LEFT_COLOR, BORDER_RIGHT_COLOR }),
 
+  // TODO: A value of NONE affects layout vs other values... maybe add a way to conditionally give a level
   BORDER_TOP_STYLE(nextId(), false, CSSValue.NONE),
   BORDER_BOTTOM_STYLE(nextId(), false, CSSValue.NONE),
   BORDER_LEFT_STYLE(nextId(), false, CSSValue.NONE),
@@ -100,6 +102,7 @@ public enum CSSProperty {
   
   POSITION(nextId(), false, PositionValue.STATIC),
   
+  // Can determine what elements get a layer
   Z_INDEX(nextId(), false, CSSValue.AUTO),
   
   ORDER(nextId(), false, OrderValue.create(0)),
@@ -128,12 +131,18 @@ public enum CSSProperty {
   private final boolean inherited;
   private final CSSValue initial;
   private final CSSProperty[] expansions;
+  private final InvalidationLevel invalidationLevel;
 
-  private CSSProperty(int id, boolean inherited, CSSValue initial) {
+  private CSSProperty(int id, boolean inherited, InvalidationLevel invalidationLevel, CSSValue initial) {
     this.id = id;
     this.inherited = inherited;
     this.initial = initial;
     this.expansions = null;
+    this.invalidationLevel = invalidationLevel;
+  }
+
+  private CSSProperty(int id, boolean inherited, CSSValue initial) {
+    this(id, inherited, InvalidationLevel.LAYOUT, initial);
   }
 
   private CSSProperty(CSSProperty[] expansions) {
@@ -141,6 +150,8 @@ public enum CSSProperty {
     this.inherited = false;
     this.initial = null;
     this.expansions = expansions;
+    // Shorthand invalidation levels are not used
+    this.invalidationLevel = InvalidationLevel.NONE;
   }
 
   public int id() {
@@ -161,6 +172,10 @@ public enum CSSProperty {
 
   public CSSProperty[] getExpansions() {
     return this.expansions;
+  }
+
+  public InvalidationLevel invalidationLevel() {
+    return this.invalidationLevel;
   }
 
   // Because propertyId keeps getting reset to 0

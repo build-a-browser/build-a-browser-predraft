@@ -18,7 +18,10 @@ public final class ActiveStylesGenerator {
   
   private ActiveStylesGenerator() {}
 
-  public static ActiveStyles generateActiveStyles(Collection<WeightedStyleRule> styleRules, ActiveStyles parentStyles) {
+  public static ActiveStyles generateActiveStyles(
+    Collection<WeightedStyleRule> styleRules,
+    ActiveStyles parentStyles
+  ) {
     ActiveStyles activeStyles = ActiveStyles.create(parentStyles);
     for (WeightedStyleRule styleRule: styleRules) {
       addToActiveStyles(activeStyles, styleRule.rule());

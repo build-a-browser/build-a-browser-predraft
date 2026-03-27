@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.render.box.imp;
 import java.util.Comparator;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
-import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
@@ -37,18 +37,13 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   }
 
   @Override
-  public Element element() {
+  public HTMLElement element() {
     throw new UnsupportedOperationException("Anonymous box is not associated with an element!");
   }
 
   @Override
   public Box parentBox() {
     return this.parentBox;
-  }
-
-  @Override
-  public void invalidate(InvalidationLevel invalidationLevel) {
-    parentBox.invalidate(invalidationLevel);
   }
 
   @Override

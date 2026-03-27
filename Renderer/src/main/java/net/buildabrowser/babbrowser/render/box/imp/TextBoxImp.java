@@ -17,11 +17,6 @@ public class TextBoxImp extends AbstractBoxImp implements TextBox {
   }
 
   @Override
-  public void invalidate(InvalidationLevel invalidationLevel) {
-    // TODO: Implement
-  }
-
-  @Override
   public String text() {
     return textNode.data();
   }

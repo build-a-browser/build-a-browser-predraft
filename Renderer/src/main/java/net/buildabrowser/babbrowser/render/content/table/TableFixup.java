@@ -9,9 +9,9 @@ import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerD
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.render.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.render.box.TextBox;
-import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
 
 public final class TableFixup {
 

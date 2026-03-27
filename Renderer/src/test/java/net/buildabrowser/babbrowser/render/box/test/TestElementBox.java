@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
-import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
@@ -35,13 +35,8 @@ public class TestElementBox extends AbstractElementBoxImp {
   }
 
   @Override
-  public Element element() {
+  public HTMLElement element() {
     throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void invalidate(InvalidationLevel invalidationLevel) {
-    // No-op
   }
 
   @Override

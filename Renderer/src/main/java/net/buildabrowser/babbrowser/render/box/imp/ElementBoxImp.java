@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.render.box.imp;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
-import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.content.ImageContent;
@@ -13,13 +13,13 @@ import net.buildabrowser.babbrowser.render.context.ElementContext;
 
 public class ElementBoxImp extends AbstractElementBoxImp {
 
-  private final Element element;
+  private final HTMLElement element;
   
   private BoxContent content;
   // TODO: Avoid this extra field
   private InnerDisplayValue prevDisplayValue;
 
-  public ElementBoxImp(Element element, Box parentBox, BoxLevel boxLevel) {
+  public ElementBoxImp(HTMLElement element, Box parentBox, BoxLevel boxLevel) {
     super(parentBox, boxLevel);
     this.element = element;
     update();
@@ -36,7 +36,7 @@ public class ElementBoxImp extends AbstractElementBoxImp {
   }
 
   @Override
-  public Element element() {
+  public HTMLElement element() {
     return this.element;
   }
   

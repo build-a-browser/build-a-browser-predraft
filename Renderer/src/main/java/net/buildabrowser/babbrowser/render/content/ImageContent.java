@@ -4,14 +4,17 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 
+import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.fetch.FetchParameters;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
+import net.buildabrowser.babbrowser.html.events.EventLoop;
+import net.buildabrowser.babbrowser.html.events.TaskSource;
+import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
 import net.buildabrowser.babbrowser.network.URLUtil;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.render.box.Box.InvalidationLevel;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.layout.GlobalLayoutContext;
@@ -122,7 +125,8 @@ public class ImageContent implements BoxContent, BoxPainter {
       fetchParameters.request = fetchRequest;
       fetchParameters.processResponseConsumeBody = (response, success, bytes) -> {
         if (success) {
-          loadBufferedImage(layoutContext, bytes);
+          GlobalObject globalObject = layoutContext.scriptingContext().environmentSettingsObject().globalObject();
+          EventLoop.queueGlobalTask(TaskSource.DOM, globalObject, () -> loadBufferedImage(layoutContext, bytes));
         }
       };
 
@@ -134,7 +138,7 @@ public class ImageContent implements BoxContent, BoxPainter {
     try {
       // TODO: Also need to handle SVG
       this.image = layoutContext.resourceLoader().loadImage(new ByteArrayInputStream(bytes));
-      box.invalidate(InvalidationLevel.LAYOUT);
+      box.element().invalidate(InvalidationLevel.LAYOUT);
     } catch (IOException | IllegalArgumentException e) {
       e.printStackTrace();
       this.image = null;

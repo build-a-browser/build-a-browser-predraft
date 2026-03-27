@@ -67,6 +67,8 @@ public class EventLoopImp implements EventLoop {
         
         currentlyRunningTask = null;
         // TODO: Run microtasks
+      } else {
+        System.gc();
       }
 
       runLoopSpecificTask();

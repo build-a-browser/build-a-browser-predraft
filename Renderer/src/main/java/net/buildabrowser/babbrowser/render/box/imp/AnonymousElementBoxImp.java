@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.render.box.imp;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
-import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.flow.FlowRootContent;
@@ -28,7 +28,7 @@ public class AnonymousElementBoxImp extends AbstractElementBoxImp {
   }
 
   @Override
-  public Element element() {
+  public HTMLElement element() {
     throw new UnsupportedOperationException("Anonymous box is not associated with an element!");
   }
 

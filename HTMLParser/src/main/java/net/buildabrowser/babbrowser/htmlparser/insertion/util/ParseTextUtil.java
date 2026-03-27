@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.htmlparser.insertion.util;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.Text;
+import net.buildabrowser.babbrowser.html.html.HTMLText;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 
 public final class ParseTextUtil {
@@ -16,7 +17,7 @@ public final class ParseTextUtil {
     if (adjustedInsertionLocation.lastChild() instanceof Text text) {
       text.appendCharacter(ch);
     } else {
-      Text text = Text.create("");
+      Text text = HTMLText.create("");
       adjustedInsertionLocation.appendChild(text);
       text.appendCharacter(ch);
     }

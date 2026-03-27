@@ -1,11 +1,23 @@
 package net.buildabrowser.babbrowser.render.box.imp;
 
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.render.box.DocumentBox;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 
-public abstract class DocumentBoxImp extends AbstractBoxImp implements DocumentBox {
+public class DocumentBoxImp extends AbstractBoxImp implements DocumentBox {
+
+  private final HTMLDocument document;
 
   private ElementBox childBox;
+
+  public DocumentBoxImp(HTMLDocument document) {
+    this.document = document;
+  }
+
+  @Override
+  public HTMLDocument document() {
+    return this.document;
+  }
 
   @Override
   public ElementBox htmlBox() {

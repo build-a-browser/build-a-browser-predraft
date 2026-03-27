@@ -8,13 +8,15 @@ import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesGenerator;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
+import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule.RuleSource;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
-import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.context.ElementContext;
 
 public class ElementContextImp implements ElementContext {
@@ -23,12 +25,12 @@ public class ElementContextImp implements ElementContext {
 
   // TreeSet has a ton of overhead, sort on access instead
   private final List<WeightedStyleRule> styleRules = new LinkedList<>();
-  private final Element element;
+  private final HTMLElement element;
 
   private ActiveStyles activeStyles = null;
   private WeightedStyleRule internalStyleRule = null;
 
-  public ElementContextImp(Element element) {
+  public ElementContextImp(HTMLElement element) {
     this.element = element;
     updateStyle(element.attributes().get("style"));
   }
@@ -57,15 +59,32 @@ public class ElementContextImp implements ElementContext {
   }
 
   @Override
-  public ActiveStyles activeStyles() {
-    if (this.activeStyles == null) {
-      ActiveStyles parentStyles = element.parentNode() instanceof Element element ?
-        ((ElementContext) element.getContext()).activeStyles() :
-        null;
-      styleRules.sort(WeightedStyleRule::compare);
-      this.activeStyles = ActiveStylesGenerator.generateActiveStyles(styleRules, parentStyles);
-    }
+  public void regenerateStyles() {
+    ActiveStyles oldStyles = this.activeStyles;
+    ActiveStyles parentStyles = element.parentNode() instanceof HTMLElement parent ?
+      ((ElementContext) parent.getContext()).activeStyles() :
+      null;
+    styleRules.sort(WeightedStyleRule::compare);
+    this.activeStyles = ActiveStylesGenerator.generateActiveStyles(styleRules, parentStyles);
 
+    if (oldStyles == null) {
+      element.invalidate(InvalidationLevel.BOX);
+    } else {
+      // TODO: This is an inefficient way to do this, but we can't put a change listener on the
+      //   ActiveStyles since it is regenerated from scratch (to make sure selector specificity,
+      //   vars, etc. are respected each render)
+      for (CSSProperty property : CSSProperty.values()) {
+        if (property.hasExpansion()) continue;
+        if (!activeStyles.getProperty(property).equals(oldStyles.getProperty(property))) {
+          element.invalidate(property.invalidationLevel());
+        }
+      }
+    }
+  }
+
+  @Override
+  public ActiveStyles activeStyles() {
+    assert this.activeStyles != null;
     return this.activeStyles;
   }
 

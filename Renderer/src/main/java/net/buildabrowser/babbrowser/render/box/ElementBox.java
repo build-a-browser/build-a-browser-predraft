@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.render.box;
 import java.util.Comparator;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
-import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.box.imp.AnonymousElementBoxImp;
 import net.buildabrowser.babbrowser.render.box.imp.ElementBoxImp;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
@@ -19,7 +19,7 @@ public interface ElementBox extends Box {
   
   BoxContent content();
 
-  Element element();
+  HTMLElement element();
 
   Box parentBox();
 
@@ -58,7 +58,7 @@ public interface ElementBox extends Box {
     return content().isReplaced();
   }
  
-  public static ElementBox create(Element element, Box parentBox, BoxLevel boxLevel) {
+  public static ElementBox create(HTMLElement element, Box parentBox, BoxLevel boxLevel) {
     return new ElementBoxImp(element, parentBox, boxLevel);
   }
 

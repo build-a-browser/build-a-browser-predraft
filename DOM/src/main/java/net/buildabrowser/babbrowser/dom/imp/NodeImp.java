@@ -14,9 +14,6 @@ public abstract class NodeImp implements Node {
   private NodeImp previousSibling;
   private NodeImp nextSibling;
 
-  private Object context;
-  private Object box;
-
   @Override
   public Document nodeDocument() {
     return parentNode.nodeDocument();
@@ -68,26 +65,6 @@ public abstract class NodeImp implements Node {
 
     nodeDocument().changeListener().onNodeAdded(node); // Custom addition
     return node;
-  }
-
-  @Override
-  public Object getContext() {
-    return this.context;
-  }
-
-  @Override
-  public void setContext(Object context) {
-    this.context = context;
-  }
-  
-  @Override
-  public Object getBox() {
-    return this.box;
-  }
-
-  @Override
-  public void setBox(Object box) {
-    this.box = box;
   }
 
 }

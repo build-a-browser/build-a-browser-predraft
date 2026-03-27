@@ -3,12 +3,13 @@ package net.buildabrowser.babbrowser.render.box.imp;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.dom.Comment;
-import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.NodeList;
-import net.buildabrowser.babbrowser.dom.Text;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
+import net.buildabrowser.babbrowser.html.html.HTMLText;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxGenerator;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
@@ -21,21 +22,21 @@ public class BoxGeneratorImp implements BoxGenerator {
   @Override
   public List<Box> box(Box parentBox, Node node) {
     return switch (node) {
-      case Text text -> List.of(createTextBox(text));
-      case Element element -> createElementBoxes(parentBox, element);
+      case HTMLText text -> List.of(createTextBox(text));
+      case HTMLElement element -> createElementBoxes(parentBox, element);
       case Comment _ -> List.of();
       default -> throw new UnsupportedOperationException("Unsupported Box Type");
     };
   }
 
-  private TextBox createTextBox(Text text) {
+  private TextBox createTextBox(HTMLText text) {
     if (text.getBox() == null) {
       text.setBox(TextBox.create(text));
     }
     return (TextBox) text.getBox();
   }
 
-  private List<Box> createElementBoxes(Box parentBox, Element element) {
+  private List<Box> createElementBoxes(Box parentBox, HTMLElement element) {
     ElementContext context = (ElementContext) element.getContext();
     OuterDisplayValue outerDisplayValue = context.activeStyles().outerDisplayValue();
 
@@ -55,13 +56,18 @@ public class BoxGeneratorImp implements BoxGenerator {
     }
   }
 
-  private List<Box> createElementBox(Box parentBox, Element element, BoxLevel boxLevel) {
+  private List<Box> createElementBox(Box parentBox, HTMLElement element, BoxLevel boxLevel) {
     ElementBox elementBox;
     if (
-      element.getBox() != null
+      element.getBox() instanceof ElementBox elementBox2
+      && element.invalidationLevel().ordinal() > InvalidationLevel.BOX.ordinal()
+    ) {
+      return List.of(elementBox2);
+    } else if (
+      element.getBox() instanceof ElementBox elementBox2
       && ((ElementBox) element.getBox()).boxLevel().equals(boxLevel)
     ) {
-      elementBox = (ElementBox) element.getBox();
+      elementBox = elementBox2;
       elementBox.clearChildren();
       elementBox.update();
     } else {

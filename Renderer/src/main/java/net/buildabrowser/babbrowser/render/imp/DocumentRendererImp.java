@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
+import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
@@ -35,8 +36,6 @@ import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxGenerator;
 import net.buildabrowser.babbrowser.render.box.DocumentBox;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.render.box.Box.InvalidationLevel;
-import net.buildabrowser.babbrowser.render.box.imp.DocumentBoxImp;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.position.PositionLayout;
@@ -49,10 +48,11 @@ import net.buildabrowser.babbrowser.render.layout.LayoutContextGenerator;
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.render.layout.StackingContextGenerator;
 import net.buildabrowser.babbrowser.render.paint.FontLoader;
+import net.buildabrowser.babbrowser.render.paint.FontLoader.FontOptions;
+import net.buildabrowser.babbrowser.render.style.StyleGenerator;
 import net.buildabrowser.babbrowser.render.paint.LoadedFont;
 import net.buildabrowser.babbrowser.render.paint.Painter;
 import net.buildabrowser.babbrowser.render.paint.ResourceLoader;
-import net.buildabrowser.babbrowser.render.paint.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.stream.ReadRequest;
 import net.buildabrowser.babbrowser.stream.ReadableStream.ReadableStreamGetReaderOptions;
 import net.buildabrowser.babbrowser.stream.imp.ReadableStreamDefaultReaderImp;
@@ -73,8 +73,7 @@ public class DocumentRendererImp implements DocumentRenderer {
   private final DocumentBox documentBox;
   private final ScriptingContext scriptingContext;
 
-  private boolean needsLayout = true;
-  private boolean needsPaint = true;
+  private InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
   private CompositeLayer rootLayer;
   private LoadedFont rootFont;
 
@@ -102,10 +101,17 @@ public class DocumentRendererImp implements DocumentRenderer {
       cssMatcher.documentChangeListener());
     DocumentChangeListener changeListener = new LinkDocumentChangeListener(
       fetchEngine, innerChangeListener);
-    UAHTMLDocumentOptions documentOptions = new UAHTMLDocumentOptions(changeListener, this);
+    UAHTMLDocumentOptions documentOptions = new UAHTMLDocumentOptions(
+      changeListener, this,
+      newInvalidationLevel -> {
+        if (newInvalidationLevel.ordinal() < invalidationLevel.ordinal()) {
+          invalidationLevel = newInvalidationLevel;
+        }
+      });
 
     BrowsingContext browsingContext = BrowsingContext.create(documentOptions);
     this.document = browsingContext.activeDocument();
+    this.documentBox = DocumentBox.create(document);
     WindowEventLoop eventLoop = browsingContext.activeWindow().agent().eventLoop();
     eventLoop.addNavigable(Navigable.create(
       SessionHistoryEntry.create(DocumentState.create(document))));
@@ -116,10 +122,6 @@ public class DocumentRendererImp implements DocumentRenderer {
     this.scriptingContext = ScriptingContext.create(
       fetchEngine,
       browsingContext.realm().hostDefined());
-
-    this.documentBox = createDocumentBox();
-
-    documentBox.invalidate(InvalidationLevel.LAYOUT);
   }
 
   @Override
@@ -147,10 +149,7 @@ public class DocumentRendererImp implements DocumentRenderer {
         @Override
         public void chunk(ByteBuffer chunk) {
           EventLoop.queueGlobalTask(TaskSource.DOM, window,
-            () -> {
-              htmlParser.parse(chunk);
-              documentBox.invalidate(InvalidationLevel.LAYOUT);
-            });
+            () -> htmlParser.parse(chunk));
           reader.read(this);
         }
 
@@ -179,63 +178,33 @@ public class DocumentRendererImp implements DocumentRenderer {
 
   @Override
   public boolean shouldRender() {
-    return this.needsLayout || this.needsPaint;
+    return !invalidationLevel.equals(InvalidationLevel.NONE) || this.resizeCount > 0;
   }
 
   @Override
   public void recalculateStyles() {
     cssMatcher.applyStylesheets(document, uaStyleSheets);
+    StyleGenerator.style(document);
   }
 
   @Override
   public void updateLayout() {
-    if (!needsLayout) return;
-
-    // TODO: Check if boxing is needed
-    Node firstNode = document.childNodes().item(0);
-    if (firstNode == null) return;
-    Box child = boxGenerator.box(documentBox, document.childNodes().item(0)).get(0);
-    documentBox.setChild((ElementBox) child);
-
-    ResourceLoader resourceLoader = painter.resourceLoader();
-    FontLoader fontLoader = resourceLoader.fontLoader();
-    FontCache fontCache = FontCache.create(fontLoader);
-    this.rootFont = fontCache.load(
-      new FontOptions(List.of(fontLoader.sansSerif()), 16, 400));
-
-    ElementBox rootBox = documentBox.htmlBox();
-
-    Object cacheKey = new Object();
-    GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
-      url, painter.resourceLoader(), rootFont.metrics(), fontCache,
-      scriptingContext, cacheKey);
-
-    LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
-    LayoutContextGenerator.generateLayoutContexts(rootBox, layoutContext);
-    ArrayDeque<ElementBox> deferredLayout = new ArrayDeque<>();
-
-    UnmanagedBoxFragment fragment = rootBox.layout(
-      LayoutConstraint.of(width),
-      LayoutConstraint.of(height));
-    fragment.setPos(0, 0);
-    StackingContextGenerator.generateStackingContextsRoot(rootBox, deferredLayout);
-    rootBox.stackingContext().addFragment(0, 0, fragment);
-    rootBox.content().positionLayers(0, 0);
-    
-    while (!deferredLayout.isEmpty()) {
-      ElementBox itemBox = deferredLayout.pop();
-      layoutAbsolute(deferredLayout, itemBox);
+    if (invalidationLevel.ordinal() <= InvalidationLevel.BOX.ordinal()) {
+      recomputeBoxes();
     }
-    
-    this.rootLayer = rootBox.stackingContext().createLayer();
-    System.gc();
-
-    this.needsLayout = false;
-    this.needsPaint = true;
+    if (
+      invalidationLevel.ordinal() <= InvalidationLevel.LAYOUT.ordinal()
+      // We can miss the invalidation if our own thread calls validate after
+      // the other thread calls resize
+      || this.resizeCount == 2
+    ) {
+      recomputeLayout();
+    }
   }
 
   @Override
   public void updateRendering() {
+    boolean needsPaint = invalidationLevel.ordinal() <= InvalidationLevel.PAINT.ordinal();
     if (
       !needsPaint
       || rootLayer == null
@@ -261,7 +230,8 @@ public class DocumentRendererImp implements DocumentRenderer {
     
     g.dispose();
 
-    this.needsPaint = false;
+    document.validate();
+    this.invalidationLevel = InvalidationLevel.NONE;
 
     // TODO: Avoid synchronization block
     synchronized (readyImageLock) {
@@ -280,16 +250,46 @@ public class DocumentRendererImp implements DocumentRenderer {
     }
   }
 
-  private DocumentBoxImp createDocumentBox() {
-    return new DocumentBoxImp() {
-      @Override
-      public void invalidate(InvalidationLevel invalidationLevel) {
-        switch (invalidationLevel) {
-          case LAYOUT -> needsLayout = true;
-          case PAINT -> needsPaint = true;
-        }
-      }
-    };
+  private void recomputeBoxes() {
+    Node firstNode = document.childNodes().item(0);
+    if (firstNode == null) return;
+    Box child = boxGenerator.box(documentBox, document.childNodes().item(0)).get(0);
+    documentBox.setChild((ElementBox) child);
+  }
+
+  private void recomputeLayout() {
+    ResourceLoader resourceLoader = painter.resourceLoader();
+    FontLoader fontLoader = resourceLoader.fontLoader();
+    FontCache fontCache = FontCache.create(fontLoader);
+    this.rootFont = fontCache.load(
+      new FontOptions(List.of(fontLoader.sansSerif()), 16, 400));
+
+    ElementBox rootBox = documentBox.htmlBox();
+    if (rootBox == null) return;
+
+    Object cacheKey = new Object();
+    GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
+      url, painter.resourceLoader(), rootFont.metrics(), fontCache,
+      scriptingContext, cacheKey);
+
+    LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
+    LayoutContextGenerator.generateLayoutContexts(rootBox, layoutContext);
+    ArrayDeque<ElementBox> deferredLayout = new ArrayDeque<>();
+
+    UnmanagedBoxFragment fragment = rootBox.layout(
+      LayoutConstraint.of(width),
+      LayoutConstraint.of(height));
+    fragment.setPos(0, 0);
+    StackingContextGenerator.generateStackingContextsRoot(rootBox, deferredLayout);
+    rootBox.stackingContext().addFragment(0, 0, fragment);
+    rootBox.content().positionLayers(0, 0);
+    
+    while (!deferredLayout.isEmpty()) {
+      ElementBox itemBox = deferredLayout.pop();
+      layoutAbsolute(deferredLayout, itemBox);
+    }
+    
+    this.rootLayer = rootBox.stackingContext().createLayer();
   }
 
   private void layoutAbsolute(
@@ -324,7 +324,9 @@ public class DocumentRendererImp implements DocumentRenderer {
       this.width = width;
       this.height = height;
       this.resizeCount = 2;
-      this.needsLayout = true;
+      if (this.invalidationLevel.ordinal() > InvalidationLevel.LAYOUT.ordinal()) {
+        this.invalidationLevel = InvalidationLevel.LAYOUT;
+      }
     }
   }
   

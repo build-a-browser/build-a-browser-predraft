@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.render.context;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
-import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.context.imp.ElementContextImp;
 
 public interface ElementContext {
@@ -13,9 +13,11 @@ public interface ElementContext {
 
   void onAttributeValueChanged(String attrName, String oldValue, String newValue);
 
+  void regenerateStyles();
+
   ActiveStyles activeStyles();
 
-  static ElementContext create(Element element) {
+  static ElementContext create(HTMLElement element) {
     return new ElementContextImp(element);
   }
 

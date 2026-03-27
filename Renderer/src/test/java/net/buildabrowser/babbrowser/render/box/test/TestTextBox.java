@@ -13,11 +13,6 @@ public class TestTextBox extends AbstractBoxImp implements TextBox {
   }
 
   @Override
-  public void invalidate(InvalidationLevel invalidationLevel) {
-    
-  }
-
-  @Override
   public String text() {
     return this.text;
   }
