@@ -47,6 +47,7 @@ import net.buildabrowser.babbrowser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutContextGenerator;
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.render.layout.StackingContextGenerator;
+import net.buildabrowser.babbrowser.render.logging.PerfLogging;
 import net.buildabrowser.babbrowser.render.paint.FontLoader;
 import net.buildabrowser.babbrowser.render.paint.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.render.style.StyleGenerator;
@@ -82,6 +83,8 @@ public class DocumentRendererImp implements DocumentRenderer {
 
   private BufferedImage readyImage;
   private BufferedImage activeImage;
+
+  private long parseTime;
 
   public DocumentRendererImp(
     URI url,
@@ -135,7 +138,7 @@ public class DocumentRendererImp implements DocumentRenderer {
     fetchRequest.setURL(url);
     fetchRequest.setClient(scriptingContext.environmentSettingsObject());
 
-    long time = System.currentTimeMillis();
+    long downloadStartTime = System.currentTimeMillis();
     HTMLParser htmlParser = HTMLParser.create(document, StandardCharsets.UTF_8);
 
     FetchParameters fetchParameters = new FetchParameters();
@@ -149,15 +152,23 @@ public class DocumentRendererImp implements DocumentRenderer {
         @Override
         public void chunk(ByteBuffer chunk) {
           EventLoop.queueGlobalTask(TaskSource.DOM, window,
-            () -> htmlParser.parse(chunk));
+            () -> {
+              long parseChunkStartTime = System.currentTimeMillis();
+              htmlParser.parse(chunk);
+              parseTime += System.currentTimeMillis() - parseChunkStartTime;
+            });
           reader.read(this);
         }
 
         @Override
         public void close() {
-          EventLoop.queueGlobalTask(TaskSource.DOM, window, htmlParser::done);
-          long elapsed = System.currentTimeMillis() - time;
-          System.out.println("Num millis elapsed: " + elapsed);
+          PerfLogging.logDownloadTime(downloadStartTime, url);
+          EventLoop.queueGlobalTask(TaskSource.DOM, window, () -> {
+            long parseChunkStartTime = System.currentTimeMillis();
+            htmlParser.done();
+            parseTime += System.currentTimeMillis() - parseChunkStartTime;
+            PerfLogging.logParseTime(parseTime, url);
+          });
         }
 
         @Override
@@ -183,14 +194,18 @@ public class DocumentRendererImp implements DocumentRenderer {
 
   @Override
   public void recalculateStyles() {
+    long styleStartTime = System.currentTimeMillis();
     cssMatcher.applyStylesheets(document, uaStyleSheets);
     StyleGenerator.style(document);
+    PerfLogging.logStyleTime(styleStartTime);
   }
 
   @Override
   public void updateLayout() {
     if (invalidationLevel.ordinal() <= InvalidationLevel.BOX.ordinal()) {
+      long boxStartTime = System.currentTimeMillis();
       recomputeBoxes();
+      PerfLogging.logBoxTime(boxStartTime);
     }
     if (
       invalidationLevel.ordinal() <= InvalidationLevel.LAYOUT.ordinal()
@@ -198,7 +213,9 @@ public class DocumentRendererImp implements DocumentRenderer {
       // the other thread calls resize
       || this.resizeCount == 2
     ) {
+      long layoutStartTime = System.currentTimeMillis();
       recomputeLayout();
+      PerfLogging.logLayoutTime(layoutStartTime);
     }
   }
 
@@ -211,6 +228,7 @@ public class DocumentRendererImp implements DocumentRenderer {
       || (this.activeImage == null && this.resizeCount == 0)
     ) return;
 
+    long paintStartTime = System.currentTimeMillis();
     // TODO: Avoid synchronization block
     synchronized (resizeLock) {
       if (this.resizeCount > 0) {
@@ -240,6 +258,8 @@ public class DocumentRendererImp implements DocumentRenderer {
       this.activeImage = prevImage;
     }
     postRepaint.run();
+
+    PerfLogging.logPaintTime(paintStartTime);
   }
 
   @Override
