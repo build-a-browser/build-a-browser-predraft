@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.htmlparser.shared;
 
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
+import net.buildabrowser.babbrowser.dom.Document;
+import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.OpenElementStack;
 import net.buildabrowser.babbrowser.htmlparser.shared.imp.ParseContextImp;
@@ -34,14 +34,14 @@ public interface ParseContext {
 
   OpenElementStack openElementStack();
 
-  MutableDocument document();
+  Document document();
 
   // TODO: Accept enum type
   void parseError();
 
-  void setTheHeadElementPointer(MutableElement element);
+  void setTheHeadElementPointer(Element element);
 
-  MutableElement headElementPointer();
+  Element headElementPointer();
 
   void setFramesetOk(boolean b);
 
@@ -49,7 +49,7 @@ public interface ParseContext {
 
   TokenizeContext tokenizeContext();
 
-  public static ParseContext create(MutableDocument document, TokenizeContext tokenizeContext) {
+  public static ParseContext create(Document document, TokenizeContext tokenizeContext) {
     return new ParseContextImp(document, tokenizeContext);
   }
   

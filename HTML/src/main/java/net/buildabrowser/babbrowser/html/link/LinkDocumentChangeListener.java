@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.html.link;
 
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.mutable.AbstractDocumentChangeListener;
-import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
+import net.buildabrowser.babbrowser.dom.listener.AbstractDocumentChangeListener;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.LinkElement;
 

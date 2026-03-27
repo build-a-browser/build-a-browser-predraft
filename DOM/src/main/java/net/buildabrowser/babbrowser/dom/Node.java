@@ -18,4 +18,16 @@ public interface Node {
 
   Node appendChild(Node node);
 
+  // Extensions
+
+  // There's not type information accessible from here, so use Object
+
+  Object getContext();
+
+  void setContext(Object context);
+  
+  Object getBox();
+
+  void setBox(Object box);
+
 }

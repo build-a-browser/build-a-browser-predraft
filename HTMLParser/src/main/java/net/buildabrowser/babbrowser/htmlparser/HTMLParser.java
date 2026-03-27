@@ -6,9 +6,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.htmlparser.imp.HTMLParserImp;
 
 public interface HTMLParser {
@@ -19,8 +19,8 @@ public interface HTMLParser {
 
   void done();
 
-  public static MutableDocument parse(Reader streamReader) throws IOException {
-    MutableDocument document = MutableDocument.create(new DocumentChangeListener() {
+  public static Document parse(Reader streamReader) throws IOException {
+    Document document = Document.create(new DocumentChangeListener() {
       @Override public void onNodeAdded(Node node) {}
       @Override public void onNodeRemoved(Node node) {}
     });
@@ -36,7 +36,7 @@ public interface HTMLParser {
   }
 
   // The spec has the parser create the document, but we need some parameters, so it is easier to pass in
-  public static HTMLParser create(MutableDocument document, Charset charset) {
+  public static HTMLParser create(Document document, Charset charset) {
     return new HTMLParserImp(document, charset);
   }
 

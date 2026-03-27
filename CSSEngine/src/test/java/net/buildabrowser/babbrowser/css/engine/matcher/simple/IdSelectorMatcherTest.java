@@ -8,8 +8,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
+import net.buildabrowser.babbrowser.dom.Document;
+import net.buildabrowser.babbrowser.dom.Element;
 
 public class IdSelectorMatcherTest {
   
@@ -24,7 +24,7 @@ public class IdSelectorMatcherTest {
   @DisplayName("Can match valid IDs")
   @SuppressWarnings("deprecation")
   public void canMatchValidIds() {
-    MutableElement element = MutableElement.create("b", MutableDocument.createForTesting(matcher));
+    Element element = Element.create("b", Document.create(matcher));
     IdSelector selector = IdSelector.create("a");
     matcher.addSelectorReference(selector);
     element.addAttribute("id", "a");
@@ -36,7 +36,7 @@ public class IdSelectorMatcherTest {
   @DisplayName("Can not match invalid IDs")
   @SuppressWarnings("deprecation")
   public void canNotMatchInvalidIds() {
-    MutableElement element = MutableElement.create("b", MutableDocument.createForTesting(matcher));
+    Element element = Element.create("b", Document.create(matcher));
     IdSelector selector = IdSelector.create("c");
     matcher.addSelectorReference(selector);
     element.addAttribute("id", "a");

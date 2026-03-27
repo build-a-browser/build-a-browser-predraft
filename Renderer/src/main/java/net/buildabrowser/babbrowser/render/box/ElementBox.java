@@ -4,7 +4,6 @@ import java.util.Comparator;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.dom.Element;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
 import net.buildabrowser.babbrowser.render.box.imp.AnonymousElementBoxImp;
 import net.buildabrowser.babbrowser.render.box.imp.ElementBoxImp;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
@@ -57,7 +56,7 @@ public interface ElementBox extends Box {
     return content().isReplaced();
   }
  
-  public static ElementBox create(MutableElement element, Box parentBox, BoxLevel boxLevel) {
+  public static ElementBox create(Element element, Box parentBox, BoxLevel boxLevel) {
     return new ElementBoxImp(element, parentBox, boxLevel);
   }
 

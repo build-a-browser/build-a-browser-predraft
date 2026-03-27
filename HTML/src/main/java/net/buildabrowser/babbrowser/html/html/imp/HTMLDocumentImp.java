@@ -2,14 +2,14 @@ package net.buildabrowser.babbrowser.html.html.imp;
 
 import java.net.URI;
 
-import net.buildabrowser.babbrowser.dom.mutable.imp.MutableDocumentImp;
+import net.buildabrowser.babbrowser.dom.imp.DocumentImp;
 import net.buildabrowser.babbrowser.fetch.FetchClient;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.UAHTMLDocumentOptions;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 
-public class HTMLDocumentImp extends MutableDocumentImp implements HTMLDocument {
+public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
 
   private final BrowsingContext browsingContext;
   private final DocumentRenderer renderer;

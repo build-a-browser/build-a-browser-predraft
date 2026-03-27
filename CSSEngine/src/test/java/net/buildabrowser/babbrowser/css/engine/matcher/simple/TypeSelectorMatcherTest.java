@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
+import net.buildabrowser.babbrowser.dom.Document;
+import net.buildabrowser.babbrowser.dom.Element;
 
 public class TypeSelectorMatcherTest {
   
@@ -27,7 +27,7 @@ public class TypeSelectorMatcherTest {
   @DisplayName("Can match valid types")
   @SuppressWarnings("deprecation")
   public void canMatchValidTypes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
+    Element element = Element.create("a", Document.create(matcher));
     elementSet.add(element);
     TypeSelector selector = TypeSelector.create("a");
     matcher.onNodeAdded(element);
@@ -39,7 +39,7 @@ public class TypeSelectorMatcherTest {
   @DisplayName("Can not match invalid types")
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidValidTypes() {
-    MutableElement element = MutableElement.create("b", MutableDocument.createForTesting(matcher));
+    Element element = Element.create("b", Document.create(matcher));
     elementSet.add(element);
     TypeSelector selector = TypeSelector.create("a");
     matcher.onNodeAdded(element);

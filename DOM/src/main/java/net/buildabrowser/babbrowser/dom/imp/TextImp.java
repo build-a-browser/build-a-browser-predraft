@@ -1,12 +1,12 @@
-package net.buildabrowser.babbrowser.dom.mutable.imp;
+package net.buildabrowser.babbrowser.dom.imp;
 
-import net.buildabrowser.babbrowser.dom.mutable.MutableText;
+import net.buildabrowser.babbrowser.dom.Text;
 
-public class MutableTextImp extends MutableNodeImp implements MutableText {
+public class TextImp extends NodeImp implements Text {
 
   private final StringBuilder data;
 
-  public MutableTextImp(String text) {
+  public TextImp(String text) {
     this.data = new StringBuilder(text);
   }
 

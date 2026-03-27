@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.fetch.FetchParameters;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;

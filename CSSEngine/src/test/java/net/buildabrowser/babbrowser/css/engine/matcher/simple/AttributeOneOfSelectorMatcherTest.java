@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
+import net.buildabrowser.babbrowser.dom.Document;
+import net.buildabrowser.babbrowser.dom.Element;
 
 public class AttributeOneOfSelectorMatcherTest {
   
@@ -28,7 +28,7 @@ public class AttributeOneOfSelectorMatcherTest {
   @DisplayName("Can match valid attributes")
   @SuppressWarnings("deprecation")
   public void canMatchValidAttributes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.createForTesting(matcher));
+    Element element = Element.create("a", Document.create(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "class", "john", AttributeType.ONE_OF);
@@ -42,7 +42,7 @@ public class AttributeOneOfSelectorMatcherTest {
   @DisplayName("Can not match invalid attributes")
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidValidAttributes() {
-    MutableElement element = MutableElement.create("b", MutableDocument.createForTesting(matcher));
+    Element element = Element.create("b", Document.create(matcher));
     elementSet.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "class", "john", AttributeType.ONE_OF);

@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.dom.mutable;
+package net.buildabrowser.babbrowser.dom.listener;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.dom.Element;

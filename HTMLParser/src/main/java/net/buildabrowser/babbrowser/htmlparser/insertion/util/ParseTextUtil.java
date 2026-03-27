@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.util;
 
 import net.buildabrowser.babbrowser.dom.Document;
-import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
-import net.buildabrowser.babbrowser.dom.mutable.MutableText;
+import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 
 public final class ParseTextUtil {
@@ -10,13 +10,13 @@ public final class ParseTextUtil {
   private ParseTextUtil() {}
 
   public static void insertACharacter(ParseContext parseContext, int ch) {
-    MutableNode adjustedInsertionLocation = ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, null);
+    Node adjustedInsertionLocation = ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, null);
     if (adjustedInsertionLocation instanceof Document) return;
 
-    if (adjustedInsertionLocation.lastChild() instanceof MutableText text) {
+    if (adjustedInsertionLocation.lastChild() instanceof Text text) {
       text.appendCharacter(ch);
     } else {
-      MutableText text = MutableText.create("");
+      Text text = Text.create("");
       adjustedInsertionLocation.appendChild(text);
       text.appendCharacter(ch);
     }

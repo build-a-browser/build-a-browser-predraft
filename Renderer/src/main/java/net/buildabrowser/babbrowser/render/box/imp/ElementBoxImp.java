@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.render.box.imp;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.dom.Element;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.content.ImageContent;
@@ -14,10 +13,10 @@ import net.buildabrowser.babbrowser.render.context.ElementContext;
 
 public class ElementBoxImp extends AbstractElementBoxImp {
 
-  private final MutableElement element;
+  private final Element element;
   private final BoxContent content;
 
-  public ElementBoxImp(MutableElement element, Box parentBox, BoxLevel boxLevel) {
+  public ElementBoxImp(Element element, Box parentBox, BoxLevel boxLevel) {
     super(parentBox, boxLevel);
     this.element = element;
     this.content = createContent();

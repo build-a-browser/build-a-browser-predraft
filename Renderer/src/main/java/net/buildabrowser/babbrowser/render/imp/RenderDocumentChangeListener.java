@@ -3,8 +3,7 @@ package net.buildabrowser.babbrowser.render.imp;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.render.context.ElementContext;
 
 public class RenderDocumentChangeListener implements DocumentChangeListener {
@@ -17,7 +16,7 @@ public class RenderDocumentChangeListener implements DocumentChangeListener {
 
   @Override
   public void onNodeAdded(Node node) {
-    if (node instanceof MutableElement element) {
+    if (node instanceof Element element) {
       element.setContext(ElementContext.create(element));
     }
     styleDocumentChangeListener.onNodeAdded(node);
@@ -32,8 +31,8 @@ public class RenderDocumentChangeListener implements DocumentChangeListener {
   public void onAttributeChanged(Element element, String attrName, String prevValue, String newValue) {
     styleDocumentChangeListener.onAttributeChanged(element, attrName, prevValue, newValue);
     if (
-      element instanceof MutableElement mutableElement
-      && mutableElement.getContext() instanceof ElementContext elementContext
+      element instanceof Element Element
+      && Element.getContext() instanceof ElementContext elementContext
     ) {
       elementContext.onAttributeValueChanged(attrName, prevValue, newValue);
     }

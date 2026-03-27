@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
-import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
+import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
 import net.buildabrowser.babbrowser.htmlparser.insertion.OpenElementStack;
@@ -92,7 +92,7 @@ public class InBodyInsertionMode implements InsertionMode {
   private boolean handleOtherEndTagToken(ParseContext parseContext, TagToken tagToken) {
     OpenElementStack stack = parseContext.openElementStack();
     for (int i = 0; i < stack.size(); i++) {
-      MutableNode node = stack.peek(i);
+      Node node = stack.peek(i);
       if (ParseElementUtil.isHTMLElementWithName(node, tagToken.name())) {
         // TODO: Generate implied end tags
         if (node != stack.peek()) {

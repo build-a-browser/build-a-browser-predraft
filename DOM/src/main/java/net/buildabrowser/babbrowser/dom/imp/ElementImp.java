@@ -1,20 +1,19 @@
-package net.buildabrowser.babbrowser.dom.mutable.imp;
+package net.buildabrowser.babbrowser.dom.imp;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
-import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
 
-public class MutableElementImp extends MutableNodeImp implements MutableElement {
+public class ElementImp extends NodeImp implements Element {
 
   private final Map<String, String> attributes = new HashMap<>(2);
 
   private final String name;
   private final String namespace;
 
-  public MutableElementImp(String name, String namespace, MutableNode parentNode) {
+  public ElementImp(String name, String namespace, Node parentNode) {
     this.name = name;
     this.namespace = namespace;
     this.parentNode = parentNode;

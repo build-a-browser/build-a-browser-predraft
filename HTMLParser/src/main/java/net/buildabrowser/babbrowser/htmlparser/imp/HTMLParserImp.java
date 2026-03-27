@@ -8,7 +8,7 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
+import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.MatchTrie;
@@ -29,7 +29,7 @@ public class HTMLParserImp implements HTMLParser {
   private int[] pushbackBuffer = new int[16];
   private int pushbackPos = -1;
 
-  public HTMLParserImp(MutableDocument document, Charset charset) {
+  public HTMLParserImp(Document document, Charset charset) {
     this.tokenizeContext = TokenizeContext.create(this::pushback);
     this.parseContext = ParseContext.create(document, tokenizeContext);
     this.tokenizeBuffer = TokenizeBuffer.create();

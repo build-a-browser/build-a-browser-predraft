@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
-import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
+import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
 import net.buildabrowser.babbrowser.htmlparser.insertion.OpenElementStack;
@@ -25,7 +25,7 @@ public class AfterBodyInsertionMode implements InsertionMode {
   @Override
   public boolean emitCommentToken(ParseContext parseContext, CommentToken commentToken) {
     OpenElementStack stack = parseContext.openElementStack();
-    MutableNode firstItem = stack.peek(stack.size() - 1);
+    Node firstItem = stack.peek(stack.size() - 1);
     ParseCommentUtil.insertAComment(parseContext, commentToken, firstItem);
     return false;
   }

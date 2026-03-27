@@ -14,7 +14,7 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
+import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.render.context.ElementContext;
 
 public class ElementContextImp implements ElementContext {
@@ -23,12 +23,12 @@ public class ElementContextImp implements ElementContext {
 
   // TreeSet has a ton of overhead, sort on access instead
   private final List<WeightedStyleRule> styleRules = new LinkedList<>();
-  private final MutableElement element;
+  private final Element element;
 
   private ActiveStyles activeStyles = null;
   private WeightedStyleRule internalStyleRule = null;
 
-  public ElementContextImp(MutableElement element) {
+  public ElementContextImp(Element element) {
     this.element = element;
     updateStyle(element.attributes().get("style"));
   }
@@ -59,7 +59,7 @@ public class ElementContextImp implements ElementContext {
   @Override
   public ActiveStyles activeStyles() {
     if (this.activeStyles == null) {
-      ActiveStyles parentStyles = element.parentNode() instanceof MutableElement element ?
+      ActiveStyles parentStyles = element.parentNode() instanceof Element element ?
         ((ElementContext) element.getContext()).activeStyles() :
         null;
       styleRules.sort(WeightedStyleRule::compare);

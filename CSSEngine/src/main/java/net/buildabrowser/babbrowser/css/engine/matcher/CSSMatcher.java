@@ -5,7 +5,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
 public interface CSSMatcher {
   

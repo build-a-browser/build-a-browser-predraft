@@ -26,7 +26,7 @@ import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
 public class CSSMatcherImp implements CSSMatcher {
 

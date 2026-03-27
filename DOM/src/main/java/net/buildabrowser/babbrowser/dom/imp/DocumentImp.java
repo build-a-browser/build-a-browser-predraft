@@ -1,32 +1,32 @@
-package net.buildabrowser.babbrowser.dom.mutable.imp;
+package net.buildabrowser.babbrowser.dom.imp;
 
 import java.net.URI;
 
-import net.buildabrowser.babbrowser.cssbase.cssom.mutable.MutableStyleSheetList;
+import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
+import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
-public class MutableDocumentImp extends MutableNodeImp implements MutableDocument {
+public class DocumentImp extends NodeImp implements Document {
 
-  private final MutableStyleSheetList styleSheets;
+  private final StyleSheetList styleSheets;
   private final DocumentChangeListener changeListener;
   
   private URI url;
 
-  public MutableDocumentImp(DocumentChangeListener changeListener) {
+  public DocumentImp(DocumentChangeListener changeListener) {
     this.changeListener = changeListener;
-    this.styleSheets = MutableStyleSheetList.create(
+    this.styleSheets = StyleSheetList.create(
       styleSheet -> changeListener.onStylesheetAdded(styleSheet));
   }
 
   @Override
-  public MutableDocument nodeDocument() {
+  public Document nodeDocument() {
     return this;
   }
 
   @Override
-  public MutableStyleSheetList styleSheets() {
+  public StyleSheetList styleSheets() {
     return this.styleSheets;
   }
 

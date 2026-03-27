@@ -7,7 +7,6 @@ import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.fetch.FetchResponse;
 import net.buildabrowser.babbrowser.html.html.LinkElement;
@@ -26,7 +25,7 @@ public class StyleSheetLinkProcessor extends DefaultLinkProcessor {
   ) {
     // TODO: Sniff, check if still attached
     if (el.sheet() != null) {
-      ((MutableDocument) el.nodeDocument()).styleSheets().removeStylesheet(el.sheet());
+      el.nodeDocument().styleSheets().removeStylesheet(el.sheet());
       el.setSheet(null);
       // TODO: Proper way to remove
     }
@@ -39,7 +38,7 @@ public class StyleSheetLinkProcessor extends DefaultLinkProcessor {
       CSSStyleSheet styleSheet = CommonUtil.rethrow(() ->
         CSSParser.create().parseAStyleSheet(tokenizerStream));
       // TODO: Proper way to add
-      ((MutableDocument) el.nodeDocument()).styleSheets().addStylesheet(styleSheet);
+      el.nodeDocument().styleSheets().addStylesheet(styleSheet);
       el.setSheet(styleSheet);
     }
 
