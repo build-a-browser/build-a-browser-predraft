@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.context.ElementContext;
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesGenerator;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
@@ -15,7 +16,6 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
 import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
-import net.buildabrowser.babbrowser.dom.utils.CommonUtils;
 
 public class ElementContextImp implements ElementContext {
 
@@ -81,7 +81,7 @@ public class ElementContextImp implements ElementContext {
       // Also, how will !important factor into the below??
       CSSTokenizerInput tokenizerInput = CSSTokenizerInput.fromString(styleStr);
       CSSTokenStream tokenizerStream = CSSTokenStream.create(tokenizerInput);
-      List<Declaration> declarations = CommonUtils.rethrow(() -> CSSParser.create().parseAStyleBlocksContents(tokenizerStream));
+      List<Declaration> declarations = CommonUtil.rethrow(() -> CSSParser.create().parseAStyleBlocksContents(tokenizerStream));
       // Need to do some dumb constructors to convert it to a WeightedStyleRule, maybe improve this later...
       StyleRule styleRule = StyleRule.create(List.of(), declarations);
       // also why wasn't there a .create anyways?

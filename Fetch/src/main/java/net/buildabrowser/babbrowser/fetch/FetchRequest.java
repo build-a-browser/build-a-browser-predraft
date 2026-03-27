@@ -3,8 +3,7 @@ package net.buildabrowser.babbrowser.fetch;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.fetch.imp.MutableFetchRequestImp;
-import net.buildabrowser.babbrowser.html.scripting.EnvironmentSettingsObject;
-import net.buildabrowser.babbrowser.mutable.MutableFetchRequest;
+import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
 
 public interface FetchRequest {
 
@@ -12,7 +11,7 @@ public interface FetchRequest {
   
   URI url();
 
-  EnvironmentSettingsObject client();
+  FetchClient client();
 
   URI currentURL();
 

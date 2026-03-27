@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.dom.mutable.imp;
 
+import java.net.URI;
+
 import net.buildabrowser.babbrowser.cssbase.cssom.mutable.MutableStyleSheetList;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
@@ -9,6 +11,8 @@ public class MutableDocumentImp extends MutableNodeImp implements MutableDocumen
 
   private final MutableStyleSheetList styleSheets;
   private final DocumentChangeListener changeListener;
+  
+  private URI url;
 
   public MutableDocumentImp(DocumentChangeListener changeListener) {
     this.changeListener = changeListener;
@@ -17,7 +21,7 @@ public class MutableDocumentImp extends MutableNodeImp implements MutableDocumen
   }
 
   @Override
-  public MutableDocument ownerDocument() {
+  public MutableDocument nodeDocument() {
     return this;
   }
 
@@ -31,6 +35,16 @@ public class MutableDocumentImp extends MutableNodeImp implements MutableDocumen
   @Override
   public DocumentChangeListener changeListener() {
     return this.changeListener;
+  }
+
+  @Override
+  public URI url() {
+    return this.url;
+  }
+
+  @Override
+  public void setURL(URI url) {
+    this.url = url;
   }
   
   @Override

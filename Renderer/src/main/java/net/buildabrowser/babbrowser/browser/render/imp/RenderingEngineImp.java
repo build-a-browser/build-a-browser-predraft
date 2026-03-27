@@ -8,7 +8,7 @@ import net.buildabrowser.babbrowser.browser.render.Renderer;
 import net.buildabrowser.babbrowser.browser.render.RenderingEngine;
 import net.buildabrowser.babbrowser.browser.render.paint.Painter;
 import net.buildabrowser.babbrowser.browser.render.uistate.Frame;
-import net.buildabrowser.babbrowser.dom.utils.CommonUtils;
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 
 public class RenderingEngineImp implements RenderingEngine {
@@ -30,7 +30,7 @@ public class RenderingEngineImp implements RenderingEngine {
   public Renderer createBlankRenderer() {
     return Renderer.create(
       fetchEngine,
-      CommonUtils.rethrow(() -> URLUtil.createURL("about:blank")),
+      CommonUtil.rethrow(() -> URLUtil.createURL("about:blank")),
       painter);
   }
 

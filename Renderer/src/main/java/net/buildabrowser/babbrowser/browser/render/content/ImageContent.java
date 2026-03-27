@@ -21,7 +21,7 @@ import net.buildabrowser.babbrowser.browser.render.paint.LoadedImage;
 import net.buildabrowser.babbrowser.browser.render.paint.PaintCanvas;
 import net.buildabrowser.babbrowser.fetch.FetchParameters;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
-import net.buildabrowser.babbrowser.mutable.MutableFetchRequest;
+import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
 
 public class ImageContent implements BoxContent, BoxPainter {
 

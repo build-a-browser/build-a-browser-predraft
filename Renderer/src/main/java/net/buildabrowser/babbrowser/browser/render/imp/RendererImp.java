@@ -13,12 +13,12 @@ import javax.swing.JPanel;
 
 import net.buildabrowser.babbrowser.browser.render.Renderer;
 import net.buildabrowser.babbrowser.browser.render.paint.Painter;
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
-import net.buildabrowser.babbrowser.dom.utils.CommonUtils;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 
 public class RendererImp implements Renderer {
@@ -75,7 +75,7 @@ public class RendererImp implements Renderer {
       CSSTokenizerInput tokenizerInput = CSSTokenizerInput.fromReader(reader);
       CSSTokenStream tokenizerStream = CSSTokenStream.create(tokenizerInput);
       
-      CSSStyleSheet styleSheet = CommonUtils.rethrow(() -> CSSParser.create().parseAStyleSheet(tokenizerStream));
+      CSSStyleSheet styleSheet = CommonUtil.rethrow(() -> CSSParser.create().parseAStyleSheet(tokenizerStream));
       return StyleSheetList.create(List.of(styleSheet));
     }
   }

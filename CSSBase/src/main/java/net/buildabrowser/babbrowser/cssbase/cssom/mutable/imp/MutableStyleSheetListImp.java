@@ -40,5 +40,11 @@ public class MutableStyleSheetListImp implements MutableStyleSheetList {
     styleSheets.add(styleSheet);
     styleSheetListener.accept(styleSheet);
   }
+
+  @Override
+  public void removeStylesheet(CSSStyleSheet styleSheet) {
+    styleSheets.remove(styleSheet);
+    // TODO: Fire a listener to remove
+  }
   
 }

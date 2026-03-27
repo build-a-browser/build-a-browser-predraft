@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.htmlparser.insertion.util;
 import net.buildabrowser.babbrowser.dom.Namespace;
 import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
 import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
+import net.buildabrowser.babbrowser.html.html.LinkElement;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
@@ -17,7 +18,10 @@ public final class ParseElementUtil {
     String localName = token.name();
 
     // TODO: Proper DOM create an element
-    MutableElement element = MutableElement.create(localName, intendedParent);
+    MutableElement element = switch (token.name()) {
+      case "link" -> LinkElement.create(localName, intendedParent);
+      default -> MutableElement.create(localName, intendedParent);
+    };
 
     token.attributes().forEach((k, v) -> element.addAttribute(k, v));
 

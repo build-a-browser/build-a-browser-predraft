@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
-import net.buildabrowser.babbrowser.mutable.MutableFetchResponse;
+import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchResponse;
 
 public class FetchBackendImp implements FetchBackend {
 

@@ -19,8 +19,8 @@ public abstract class MutableNodeImp implements MutableNode {
   private Object box;
 
   @Override
-  public MutableDocument ownerDocument() {
-    return parentNode.ownerDocument();
+  public MutableDocument nodeDocument() {
+    return parentNode.nodeDocument();
   }
 
   @Override
@@ -67,7 +67,7 @@ public abstract class MutableNodeImp implements MutableNode {
     }
     mutableNode.parentNode = this;
 
-    ownerDocument().changeListener().onNodeAdded(node); // Custom addition
+    nodeDocument().changeListener().onNodeAdded(node); // Custom addition
     return node;
   }
 

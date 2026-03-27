@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import net.buildabrowser.babbrowser.browser.network.ExtensionUtil;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchBody;
+import net.buildabrowser.babbrowser.fetch.FetchDestinatation;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.fetch.FetchParameters;
 import net.buildabrowser.babbrowser.fetch.FetchParameters.ProcessResponse;
@@ -19,10 +20,7 @@ import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.fetch.FetchResponse;
 import net.buildabrowser.babbrowser.fetch.HeaderList;
 import net.buildabrowser.babbrowser.fetch.imp.DataURLProcessor.DataURL;
-import net.buildabrowser.babbrowser.html.events.EventLoop;
-import net.buildabrowser.babbrowser.html.events.TaskSource;
-import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
-import net.buildabrowser.babbrowser.mutable.MutableFetchResponse;
+import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchResponse;
 import net.buildabrowser.babbrowser.stream.ReadableByteStreamController;
 import net.buildabrowser.babbrowser.stream.ReadableStream;
 import net.buildabrowser.babbrowser.stream.ReadableStreamBYOBRequest;
@@ -42,9 +40,9 @@ public class FetchEngineImp implements FetchEngine {
   public void fetch(FetchParameters fetchParameters) {
     // TODO: A ton of random stuff
     FetchRequest request = fetchParameters.request;
-    GlobalObject taskDestination = null;
+    FetchDestinatation taskDestination = null;
     if (request.client() != null) {
-      taskDestination = request.client().globalObject();
+      taskDestination = request.client().fetchDestinatation();
     }
     FetchParams fetchParams = new FetchParams(
       request,
@@ -223,13 +221,13 @@ public class FetchEngineImp implements FetchEngine {
     // TODO: Other stuff
     ProcessResponse processResponse = fetchParams.processResponse();
     if (processResponse != null) {
-      queueFetchTask(() -> processResponse.run(response), fetchParams.taskDestination());
+      fetchParams.taskDestination().queueFetchTask(() -> processResponse.run(response));
     }
 
     ProcessResponseConsumeBody consumeBody = fetchParams.processResponseConsumeBody();
     if (fetchParams.processResponseConsumeBody() != null) {
       if (response.body() == null) {
-        queueFetchTask(() -> consumeBody.run(response, true, null), fetchParams.taskDestination());
+        fetchParams.taskDestination().queueFetchTask(() -> consumeBody.run(response, true, null));
       } else {
         fullyRead(
           response.body(),
@@ -241,17 +239,13 @@ public class FetchEngineImp implements FetchEngine {
   }
 
   private void fullyRead(
-    FetchBody body, Consumer<byte[]> processBody, Runnable processBodyError, GlobalObject taskDestination
+    FetchBody body, Consumer<byte[]> processBody, Runnable processBodyError, FetchDestinatation taskDestination
   ) {
     ReadableStreamDefaultReader reader = (ReadableStreamDefaultReader)
       body.stream().getReader(null);
       reader.readAllBytes(
-        bytes -> queueFetchTask(() -> processBody.accept(bytes), taskDestination),
-        bytes -> queueFetchTask(() -> processBodyError.run(), taskDestination));
-  }
-
-  private void queueFetchTask(Runnable task, GlobalObject taskDestination) {
-    EventLoop.queueGlobalTask(TaskSource.NETWORKING, taskDestination, task);
+        bytes -> taskDestination.queueFetchTask(() -> processBody.accept(bytes)),
+        bytes -> taskDestination.queueFetchTask(() -> processBodyError.run()));
   }
 
   private static enum OverrideFetchType {

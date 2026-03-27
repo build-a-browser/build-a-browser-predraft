@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.dom;
 
 public interface Node {
   
-  Document ownerDocument();
+  Document nodeDocument();
 
   Node parentNode();
 

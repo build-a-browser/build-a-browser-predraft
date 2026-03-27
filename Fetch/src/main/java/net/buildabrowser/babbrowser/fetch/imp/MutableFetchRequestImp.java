@@ -2,13 +2,13 @@ package net.buildabrowser.babbrowser.fetch.imp;
 
 import java.net.URI;
 
-import net.buildabrowser.babbrowser.html.scripting.EnvironmentSettingsObject;
-import net.buildabrowser.babbrowser.mutable.MutableFetchRequest;
+import net.buildabrowser.babbrowser.fetch.FetchClient;
+import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
 
 public class MutableFetchRequestImp implements MutableFetchRequest {
 
   private String method;
-  private EnvironmentSettingsObject client;
+  private FetchClient client;
   private URI url;
 
   @Override
@@ -32,12 +32,12 @@ public class MutableFetchRequestImp implements MutableFetchRequest {
   }
 
   @Override
-  public EnvironmentSettingsObject client() {
+  public FetchClient client() {
     return this.client;
   }
 
   @Override
-  public void setClient(EnvironmentSettingsObject client) {
+  public void setClient(FetchClient client) {
     this.client = client;
   }
 

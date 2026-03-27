@@ -55,7 +55,11 @@ public class EventLoopImp implements EventLoop {
 
         // Include some extra non-spec timing code for scheduling heuristics
         long taskStart = System.currentTimeMillis();
-        oldestTask.steps().run();
+        try {
+          oldestTask.steps().run();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
         if (oldestTask.source().equals(TaskSource.RENDERING)) {
           this.lastRenderTime = taskStart;
           this.lastRenderDuration = System.currentTimeMillis() - lastRenderTime;
@@ -91,7 +95,7 @@ public class EventLoopImp implements EventLoop {
     threadGroup.submit(() -> {
       try {
         runnable.run();
-      } catch (Exception e) {
+      } catch (Throwable e) {
         e.printStackTrace();
       }
   });

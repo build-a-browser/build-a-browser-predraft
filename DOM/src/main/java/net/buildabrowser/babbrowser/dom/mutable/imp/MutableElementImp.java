@@ -38,7 +38,7 @@ public class MutableElementImp extends MutableNodeImp implements MutableElement 
   @Override
   public void addAttribute(String name, String value) {
     String prevValue = attributes.put(name, value);
-    ownerDocument().changeListener().onAttributeChanged(this, name, prevValue, value);
+    nodeDocument().changeListener().onAttributeChanged(this, name, prevValue, value);
   }
   
   @Override

@@ -4,7 +4,7 @@ import net.buildabrowser.babbrowser.dom.Node;
 
 public interface MutableNode extends Node {
 
-  MutableDocument ownerDocument();
+  MutableDocument nodeDocument();
 
   MutableNode firstChild();
 

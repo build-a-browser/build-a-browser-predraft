@@ -159,4 +159,20 @@ public interface IntrusiveList<T extends IntrusiveList<T>> {
     return calcSize;
   }
 
+  public static boolean _ensureNoLoops(IntrusiveList<?> list) {
+    return true;
+
+    /*List<IntrusiveList<?>> seenNodes = new ArrayList<>();
+    IntrusiveList<?> curNode = list;
+    while (curNode != null) {
+      if (seenNodes.contains(curNode)) {
+        return false;
+      }
+      seenNodes.add(curNode);
+      curNode = curNode.next();
+    }
+
+    return true;*/
+  }
+
 }

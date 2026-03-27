@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.dom.mutable;
 
+import java.net.URI;
+
 import net.buildabrowser.babbrowser.cssbase.cssom.mutable.MutableDocumentOrShadowRoot;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.mutable.imp.MutableDocumentImp;
@@ -8,6 +10,8 @@ import net.buildabrowser.babbrowser.dom.mutable.imp.MutableDocumentImp;
 public interface MutableDocument extends Document, MutableDocumentOrShadowRoot, MutableNode {
 
   DocumentChangeListener changeListener();
+
+  void setURL(URI url);
 
   static MutableDocument create(
     DocumentChangeListener changeListener

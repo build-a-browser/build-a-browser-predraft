@@ -1,15 +1,15 @@
-package net.buildabrowser.babbrowser.mutable;
+package net.buildabrowser.babbrowser.fetch.mutable;
 
 import java.net.URI;
 
+import net.buildabrowser.babbrowser.fetch.FetchClient;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
-import net.buildabrowser.babbrowser.html.scripting.EnvironmentSettingsObject;
 
 public interface MutableFetchRequest extends FetchRequest {
 
   void setMethod(String method);
 
-  void setClient(EnvironmentSettingsObject client);
+  void setClient(FetchClient client);
   
   void setURL(URI url);
   

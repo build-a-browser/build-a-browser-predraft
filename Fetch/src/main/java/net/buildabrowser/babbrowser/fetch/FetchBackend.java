@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.fetch;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import net.buildabrowser.babbrowser.mutable.MutableFetchResponse;
+import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchResponse;
 
 public interface FetchBackend {
   

@@ -39,11 +39,13 @@ import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.fetch.FetchParameters;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
+import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.UAHTMLDocumentOptions;
+import net.buildabrowser.babbrowser.html.link.LinkDocumentChangeListener;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.DocumentState;
@@ -51,7 +53,6 @@ import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.SessionHistoryEntry;
 import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
-import net.buildabrowser.babbrowser.mutable.MutableFetchRequest;
 import net.buildabrowser.babbrowser.stream.ReadRequest;
 import net.buildabrowser.babbrowser.stream.ReadableStream.ReadableStreamGetReaderOptions;
 import net.buildabrowser.babbrowser.stream.imp.ReadableStreamDefaultReaderImp;
@@ -97,7 +98,10 @@ public class DocumentRendererImp implements DocumentRenderer {
 
     this.cssMatcher = CSSMatcher.create(new RenderCSSMatcherContext());
 
-    DocumentChangeListener changeListener = new RenderDocumentChangeListener(cssMatcher.documentChangeListener());
+    DocumentChangeListener innerChangeListener = new RenderDocumentChangeListener(
+      cssMatcher.documentChangeListener());
+    DocumentChangeListener changeListener = new LinkDocumentChangeListener(
+      fetchEngine, innerChangeListener);
     UAHTMLDocumentOptions documentOptions = new UAHTMLDocumentOptions(changeListener, this);
 
     BrowsingContext browsingContext = BrowsingContext.create(documentOptions);
@@ -105,7 +109,9 @@ public class DocumentRendererImp implements DocumentRenderer {
     WindowEventLoop eventLoop = browsingContext.activeWindow().agent().eventLoop();
     eventLoop.addNavigable(Navigable.create(
       SessionHistoryEntry.create(DocumentState.create(document))));
-    
+
+    // TODO: Proper navigation
+    document.setURL(url);
     
     this.scriptingContext = ScriptingContext.create(
       fetchEngine,

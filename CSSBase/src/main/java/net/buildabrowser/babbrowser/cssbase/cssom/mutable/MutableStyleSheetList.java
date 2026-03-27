@@ -10,6 +10,8 @@ public interface MutableStyleSheetList extends StyleSheetList {
   
   void addStylesheet(CSSStyleSheet styleSheet);
 
+  void removeStylesheet(CSSStyleSheet styleSheet);
+
   static MutableStyleSheetList create(Consumer<CSSStyleSheet> styleSheetListener) {
     return new MutableStyleSheetListImp(styleSheetListener);
   }

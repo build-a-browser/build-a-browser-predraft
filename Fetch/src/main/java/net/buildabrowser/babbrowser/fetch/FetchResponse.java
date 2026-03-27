@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.fetch;
 
 import net.buildabrowser.babbrowser.fetch.imp.MutableFetchResponseImp;
-import net.buildabrowser.babbrowser.mutable.MutableFetchResponse;
+import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchResponse;
 
 public interface FetchResponse {
 

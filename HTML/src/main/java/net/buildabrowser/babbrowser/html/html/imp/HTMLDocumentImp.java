@@ -1,6 +1,9 @@
 package net.buildabrowser.babbrowser.html.html.imp;
 
+import java.net.URI;
+
 import net.buildabrowser.babbrowser.dom.mutable.imp.MutableDocumentImp;
+import net.buildabrowser.babbrowser.fetch.FetchClient;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.UAHTMLDocumentOptions;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
@@ -28,6 +31,23 @@ public class HTMLDocumentImp extends MutableDocumentImp implements HTMLDocument 
   @Override
   public DocumentRenderer renderer() {
     return this.renderer;
+  }
+
+  @Override
+  public URI fallbackURL() {
+    // TODO: Implement
+    return url();
+  }
+
+  @Override
+  public URI baseURL() {
+    // TODO: Implement
+    return fallbackURL();
+  }
+
+  @Override
+  public FetchClient relevantSettingsObject() {
+    return browsingContext.realm().hostDefined();
   }
   
 }

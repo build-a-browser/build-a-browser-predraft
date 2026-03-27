@@ -7,8 +7,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
-import net.buildabrowser.babbrowser.dom.utils.CommonUtils;
 import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.MatchTrie;
@@ -41,7 +41,7 @@ public class HTMLParserImp implements HTMLParser {
   @Override
   public void parse(ByteBuffer buffer) {
     this.didUseCharsetDecoder = true;
-    CharBuffer chars = CommonUtils.rethrow(() -> charsetDecoder.decode(buffer));
+    CharBuffer chars = CommonUtil.rethrow(() -> charsetDecoder.decode(buffer));
     parseCharBuffer(chars);
   }
 
@@ -75,7 +75,7 @@ public class HTMLParserImp implements HTMLParser {
     while (lastResult.equals(CoderResult.OVERFLOW) && didUseCharsetDecoder) {
       // Should really only run once, so the allocation should be fine
       CharBuffer chars = CharBuffer.allocate(16);
-      lastResult = CommonUtils.rethrow(() -> charsetDecoder.flush(chars));
+      lastResult = CommonUtil.rethrow(() -> charsetDecoder.flush(chars));
       chars.flip();
       parseCharBuffer(chars);
     }

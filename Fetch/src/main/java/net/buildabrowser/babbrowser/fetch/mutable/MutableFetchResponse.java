@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.mutable;
+package net.buildabrowser.babbrowser.fetch.mutable;
 
 import net.buildabrowser.babbrowser.fetch.FetchBody;
 import net.buildabrowser.babbrowser.fetch.FetchResponse;

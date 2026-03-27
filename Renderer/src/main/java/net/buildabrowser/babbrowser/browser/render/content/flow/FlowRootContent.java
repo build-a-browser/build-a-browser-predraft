@@ -13,6 +13,7 @@ import net.buildabrowser.babbrowser.browser.render.content.flow.floatbox.FloatTr
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.browser.render.layout.StackingContext;
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 
 public class FlowRootContent implements BoxContent {
 
@@ -88,42 +89,65 @@ public class FlowRootContent implements BoxContent {
       case PosRefBoxFragment posRef -> {
         posRef.box().dimensions().setStaticPosition(layerX, layerY);
       }
-      case LineBoxFragment lineBoxFragment -> {
-        LayoutFragment child = lineBoxFragment.fragments();
-        while (child != null) {
-          recursePositionLayers(
-            layerX + child.borderX(),
-            layerY + child.borderY(),
-            child, refContext);
-          child = child.next();
-        }
-      }
-      case ManagedBoxFragment boxFragment -> {
-        if (boxFragment.box().stackingContext() != refContext) {
-          refContext = boxFragment.box().stackingContext();
-          refContext.addFragment(layerX, layerY, boxFragment);
-        }
-        
-        LayoutFragment child = boxFragment.fragments();
-        float offsetX = layerX + (fragment.contentX() - fragment.borderX());
-        float offsetY = layerY + (fragment.contentY() - fragment.borderY());
-        while (child != null) {
-          recursePositionLayers(
-            offsetX + child.borderX(),
-            offsetY + child.borderY(),
-            child, refContext);
-          child = child.next();
-        }
-      }
-      case UnmanagedBoxFragment boxFragment -> {
-        if (boxFragment.box().stackingContext() != refContext) {
-          refContext = boxFragment.box().stackingContext();
-          refContext.addFragment(layerX, layerY, boxFragment);
-        }
-        boxFragment.box().content().positionLayers(layerX, layerY);
-      }
+      case LineBoxFragment lineBoxFragment -> recursePositionLineBoxFragment(
+        layerX, layerY, refContext, lineBoxFragment);
+      case ManagedBoxFragment boxFragment -> recursePositionManagedBoxFragment(
+        layerX, layerY, fragment, refContext, boxFragment);
+      case UnmanagedBoxFragment boxFragment -> recursePositionUnmanagedBoxFragment(
+        layerX, layerY, refContext, boxFragment);
+
       default -> throw new UnsupportedOperationException("Don't recognize fragment type!");
     }
+  }
+
+  private void recursePositionLineBoxFragment(
+    float layerX, float layerY, StackingContext refContext, LineBoxFragment lineBoxFragment
+  ) {
+    assert IntrusiveList._ensureNoLoops(lineBoxFragment.fragments());
+    LayoutFragment child = lineBoxFragment.fragments();
+    while (child != null) {
+      if (child instanceof TextFragment t && t.text().equals("Local")) {
+        new Exception().printStackTrace();
+        System.err.flush();
+      }
+      recursePositionLayers(
+        layerX + child.borderX(),
+        layerY + child.borderY(),
+        child, refContext);
+      child = child.next();
+    }
+  }
+
+  private void recursePositionManagedBoxFragment(
+    float layerX, float layerY, LayoutFragment fragment, StackingContext refContext,
+    ManagedBoxFragment boxFragment
+  ) {
+    assert IntrusiveList._ensureNoLoops(boxFragment.fragments());
+    if (boxFragment.box().stackingContext() != refContext) {
+      refContext = boxFragment.box().stackingContext();
+      refContext.addFragment(layerX, layerY, boxFragment);
+    }
+    
+    LayoutFragment child = boxFragment.fragments();
+    float offsetX = layerX + (fragment.contentX() - fragment.borderX());
+    float offsetY = layerY + (fragment.contentY() - fragment.borderY());
+    while (child != null) {
+      recursePositionLayers(
+        offsetX + child.borderX(),
+        offsetY + child.borderY(),
+        child, refContext);
+      child = child.next();
+    }
+  }
+
+  private void recursePositionUnmanagedBoxFragment(
+    float layerX, float layerY, StackingContext refContext, UnmanagedBoxFragment boxFragment
+  ) {
+    if (boxFragment.box().stackingContext() != refContext) {
+      refContext = boxFragment.box().stackingContext();
+      refContext.addFragment(layerX, layerY, boxFragment);
+    }
+    boxFragment.box().content().positionLayers(layerX, layerY);
   }
 
   // For testing

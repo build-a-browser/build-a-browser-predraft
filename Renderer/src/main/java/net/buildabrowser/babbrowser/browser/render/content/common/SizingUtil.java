@@ -193,24 +193,29 @@ public final class SizingUtil {
     LayoutConstraint parentConstraint, ElementBox refBox,
     LayoutConstraint constraint
   ) {
-    return clampConstraint(
-      parentConstraint, refBox, constraint,
-      CSSProperty.MIN_WIDTH, CSSProperty.MAX_WIDTH);
+    if (!constraint.isBounded()) return constraint;
+
+    float adjustedConstraint = constraint.value();
+
+    LayoutConstraint maxConstraint = evaluateAdjustedWidthSize(
+      parentConstraint, refBox,
+      refBox.activeStyles().getProperty(CSSProperty.MAX_WIDTH));
+    if (maxConstraint.isBounded()) {
+      adjustedConstraint = Math.min(adjustedConstraint, maxConstraint.value());
+    }
+
+    LayoutConstraint minConstraint = evaluateAdjustedWidthSize(
+      parentConstraint, refBox,
+      refBox.activeStyles().getProperty(CSSProperty.MIN_WIDTH));
+    assert minConstraint.isBounded();
+    adjustedConstraint = Math.max(adjustedConstraint, minConstraint.value());
+
+    return LayoutConstraint.of(adjustedConstraint);
   }
 
   public static LayoutConstraint clampHeight(
     LayoutConstraint parentConstraint, ElementBox refBox,
     LayoutConstraint constraint
-  ) {
-    return clampConstraint(
-      parentConstraint, refBox, constraint,
-      CSSProperty.MIN_HEIGHT, CSSProperty.MAX_HEIGHT);
-  }
-
-  private static LayoutConstraint clampConstraint(
-    LayoutConstraint parentConstraint, ElementBox refBox,
-    LayoutConstraint constraint,
-    CSSProperty minConstraintProp, CSSProperty maxConstraintProp
   ) {
     if (!constraint.isBounded()) return constraint;
 
@@ -218,14 +223,14 @@ public final class SizingUtil {
 
     LayoutConstraint maxConstraint = evaluateAdjustedHeightSize(
       parentConstraint, refBox,
-      refBox.activeStyles().getProperty(maxConstraintProp));
+      refBox.activeStyles().getProperty(CSSProperty.MAX_HEIGHT));
     if (maxConstraint.isBounded()) {
       adjustedConstraint = Math.min(adjustedConstraint, maxConstraint.value());
     }
 
     LayoutConstraint minConstraint = evaluateAdjustedHeightSize(
       parentConstraint, refBox,
-      refBox.activeStyles().getProperty(minConstraintProp));
+      refBox.activeStyles().getProperty(CSSProperty.MIN_HEIGHT));
     assert minConstraint.isBounded();
     adjustedConstraint = Math.max(adjustedConstraint, minConstraint.value());
 
