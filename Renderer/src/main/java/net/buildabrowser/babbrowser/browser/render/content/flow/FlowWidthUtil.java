@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.browser.render.content.flow;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
@@ -16,11 +17,11 @@ public final class FlowWidthUtil {
     LayoutConstraint parentConstraint, ElementBox childBox
   ) {
     computeHorizontalMarginsOrZero(parentConstraint, childBox);
-    LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(
+    LayoutConstraint baseWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
       parentConstraint, childBox);
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
-      return SizingUtil.clampWidth(parentConstraint, childBox, baseWidth);
+      return SizingWidthUtil.clampWidth(parentConstraint, childBox, baseWidth);
     }
 
     if (parentConstraint.isPreLayoutConstraint()) {
@@ -52,13 +53,13 @@ public final class FlowWidthUtil {
       chosenConstraint = LayoutConstraint.of(300);
     }
 
-    return SizingUtil.clampWidth(parentConstraint, childBox, chosenConstraint);
+    return SizingWidthUtil.clampWidth(parentConstraint, childBox, chosenConstraint);
   }
 
   public static LayoutConstraint evaluateNonReplacedBlockWidthAndMargins(
     LayoutConstraint parentConstraint, ElementBox childBox
   ) {
-    LayoutConstraint determinedConstraint = SizingUtil.evaluateAdjustedWidthSize(
+    LayoutConstraint determinedConstraint = SizingWidthUtil.evaluateAdjustedWidthSize(
       parentConstraint, childBox);
     LayoutConstraint marginLeftConstraint = SizingUtil.evaluateBaseSize(
       childBox.layoutContext(), parentConstraint,
@@ -81,7 +82,7 @@ public final class FlowWidthUtil {
       childBox.dimensions().setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
       LayoutConstraint usedConstraint = determinedConstraint.type().equals(LayoutConstraintType.AUTO) ?
         parentConstraint : determinedConstraint;
-      return SizingUtil.clampWidth(parentConstraint, childBox, usedConstraint);
+      return SizingWidthUtil.clampWidth(parentConstraint, childBox, usedConstraint);
     }    
 
     float[] border = childBox.dimensions().getComputedBorder();
@@ -94,7 +95,7 @@ public final class FlowWidthUtil {
       determinedConstraint.isBounded() ?
         determinedConstraint.value() : parentMinusSurroundingsWidth);
 
-    LayoutConstraint clampedWidth = SizingUtil.clampWidth(
+    LayoutConstraint clampedWidth = SizingWidthUtil.clampWidth(
       parentConstraint, childBox, LayoutConstraint.of(preclampWidth));
     float adjustedWidth = clampedWidth.value();
     
@@ -124,10 +125,10 @@ public final class FlowWidthUtil {
     LayoutConstraint parentConstraint, ElementBox childBox
   ) {
     computeHorizontalMarginsOrZero(parentConstraint, childBox);
-    LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(parentConstraint, childBox);
+    LayoutConstraint baseWidth = SizingWidthUtil.evaluateAdjustedWidthSize(parentConstraint, childBox);
     
     if (baseWidth.isBounded()) {
-      return SizingUtil.clampWidth(parentConstraint, childBox, baseWidth);
+      return SizingWidthUtil.clampWidth(parentConstraint, childBox, baseWidth);
     }
 
     if (parentConstraint.isPreLayoutConstraint()) {
@@ -143,7 +144,7 @@ public final class FlowWidthUtil {
       LayoutConstraint.of(preferredWidth) :
       LayoutConstraint.of(Math.min(Math.max(preferredMinWidth, availableWidth), preferredWidth));
 
-    return SizingUtil.clampWidth(parentConstraint, childBox, usedConstraint);
+    return SizingWidthUtil.clampWidth(parentConstraint, childBox, usedConstraint);
   }
 
   public static LayoutConstraint determineFloatNonReplacedWidthAndMargins(
@@ -151,10 +152,10 @@ public final class FlowWidthUtil {
   ) {
     computeHorizontalMarginsOrZero(parentConstraint, childBox);
 
-    LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(parentConstraint, childBox);
+    LayoutConstraint baseWidth = SizingWidthUtil.evaluateAdjustedWidthSize(parentConstraint, childBox);
     
     if (baseWidth.isBounded()) {
-      return SizingUtil.clampWidth(parentConstraint, childBox, baseWidth);
+      return SizingWidthUtil.clampWidth(parentConstraint, childBox, baseWidth);
     }
 
     if (parentConstraint.isPreLayoutConstraint()) {
@@ -166,7 +167,7 @@ public final class FlowWidthUtil {
       // TODO: Account for margins
       Math.max(boxDimensions.preferredMinWidthConstraint(), parentConstraint.value()),
       boxDimensions.preferredWidthConstraint()));
-    return SizingUtil.clampWidth(parentConstraint, childBox, usedConstraint);
+    return SizingWidthUtil.clampWidth(parentConstraint, childBox, usedConstraint);
   }
 
   public static void computeHorizontalMarginsOrZero(

@@ -1,7 +1,8 @@
 package net.buildabrowser.babbrowser.browser.render.content.flexbox;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingHeightUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
@@ -44,8 +45,8 @@ public class FlexItem {
       activeStyles.getProperty(CSSProperty.MIN_HEIGHT) :
       activeStyles.getProperty(CSSProperty.MIN_WIDTH);
     LayoutConstraint minMainSizeC = isVertical ?
-      SizingUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, minSizeValue) :
-      SizingUtil.evaluateAdjustedWidthSize(refMainSize, itemBox, minSizeValue);
+      SizingHeightUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, minSizeValue) :
+      SizingWidthUtil.evaluateAdjustedWidthSize(refMainSize, itemBox, minSizeValue);
     if (minMainSizeC.isBounded()) {
       this.minMainSize = minMainSizeC.value();
     }
@@ -54,8 +55,8 @@ public class FlexItem {
       activeStyles.getProperty(CSSProperty.MAX_HEIGHT) :
       activeStyles.getProperty(CSSProperty.MAX_WIDTH);
     LayoutConstraint maxMainSizeC = isVertical ?
-      SizingUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, maxSizeValue) :
-      SizingUtil.evaluateAdjustedWidthSize(refMainSize, itemBox, maxSizeValue);
+      SizingHeightUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, maxSizeValue) :
+      SizingWidthUtil.evaluateAdjustedWidthSize(refMainSize, itemBox, maxSizeValue);
     if (maxMainSizeC.isBounded()) {
       this.maxMainSize = maxMainSizeC.value();
     }

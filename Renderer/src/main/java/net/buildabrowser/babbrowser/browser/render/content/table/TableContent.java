@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
@@ -79,7 +79,7 @@ public class TableContent implements BoxContent {
             LayoutConstraint.of(columnWidths[x]), LayoutConstraint.AUTO);
           cell.setRelatedFragment(fragment);
 
-          LayoutConstraint fragmentHeight = SizingUtil.evaluateAdjustedHeightSize(
+          LayoutConstraint fragmentHeight = SizingHeightUtil.evaluateAdjustedHeightSize(
             LayoutConstraint.AUTO, cell.cellBox());
 
           float usedHeight = fragmentHeight.isBounded() ?

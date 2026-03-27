@@ -1,7 +1,8 @@
 package net.buildabrowser.babbrowser.browser.render.content.flow;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingHeightUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
@@ -135,10 +136,10 @@ public class BlockFormattingContext {
     // definite it should have already resolved anyways. Note that this will not resolve child percentages
     // if the original clamp was not definite, that is intentional.
     // However, we must preserve the prelayout state
-    float usedWidth = SizingUtil.clampWidth(
+    float usedWidth = SizingWidthUtil.clampWidth(
       widthConstraint.isBounded() ? LayoutConstraint.AUTO : widthConstraint,
       elementBox, LayoutConstraint.of(preclampWidth)).value();
-    float usedHeight = SizingUtil.clampHeight(
+    float usedHeight = SizingHeightUtil.clampHeight(
       heightConstraint.isBounded() ? LayoutConstraint.AUTO : heightConstraint,
       elementBox, LayoutConstraint.of(preclampHeight)).value();
 

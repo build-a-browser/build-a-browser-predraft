@@ -2,7 +2,8 @@ package net.buildabrowser.babbrowser.browser.render.content.common.position;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingHeightUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
@@ -32,9 +33,9 @@ public final class PositionLayout {
     float containingWidth = refWidth - insets[2] - insets[3];
     float containingHeight = refHeight - insets[0] - insets[1];
 
-    LayoutConstraint baseWidth = SizingUtil.evaluateAdjustedWidthSize(
+    LayoutConstraint baseWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
       LayoutConstraint.of(containingWidth), refBox);
-    LayoutConstraint baseHeight = SizingUtil.evaluateAdjustedHeightSize(
+    LayoutConstraint baseHeight = SizingHeightUtil.evaluateAdjustedHeightSize(
       LayoutConstraint.of(containingHeight), refBox);
 
     // TODO: Handle sizes other than fit-content
@@ -46,11 +47,11 @@ public final class PositionLayout {
     float usedWidth = baseWidth.type().equals(LayoutConstraintType.AUTO) ?
       fitContentWidth :
       baseWidth.value();
-    LayoutConstraint usedWidthConstraint = SizingUtil.clampHeight(
+    LayoutConstraint usedWidthConstraint = SizingHeightUtil.clampHeight(
       LayoutConstraint.of(containingWidth), refBox, LayoutConstraint.of(usedWidth));
     
     // TODO: Actually determine a height to use
-    LayoutConstraint usedHeightConstraint = SizingUtil.clampHeight(
+    LayoutConstraint usedHeightConstraint = SizingHeightUtil.clampHeight(
       LayoutConstraint.of(containingHeight), refBox, baseHeight);
 
     UnmanagedBoxFragment itemFragment = refBox.layout(

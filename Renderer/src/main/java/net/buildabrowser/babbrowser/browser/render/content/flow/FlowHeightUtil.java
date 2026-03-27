@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.browser.render.content.flow;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.browser.render.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint.LayoutConstraintType;
@@ -25,7 +26,7 @@ public final class FlowHeightUtil {
       return parentHeightConstraint;
     }
 
-    LayoutConstraint determinedHeightConstraint = SizingUtil.evaluateAdjustedHeightSize(
+    LayoutConstraint determinedHeightConstraint = SizingHeightUtil.evaluateAdjustedHeightSize(
       parentHeightConstraint, childBox);
     
     boolean isHeightAuto = determinedHeightConstraint.type().equals(LayoutConstraintType.AUTO);
@@ -46,7 +47,7 @@ public final class FlowHeightUtil {
       chosenConstraint = LayoutConstraint.of(Math.min(childWidthConstraint.value() / 2, 150));
     }
 
-    return SizingUtil.clampHeight(parentHeightConstraint, childBox, chosenConstraint);
+    return SizingHeightUtil.clampHeight(parentHeightConstraint, childBox, chosenConstraint);
   }
 
   public static LayoutConstraint evaluateNonReplacedBlockHeightAndMargins(
@@ -57,10 +58,10 @@ public final class FlowHeightUtil {
     computeVerticalMarginsOrZero(childBox, parentWidthConstraint);
 
     // TODO: An actual proper implementation
-    LayoutConstraint determinedConstraint = SizingUtil.evaluateAdjustedHeightSize(
+    LayoutConstraint determinedConstraint = SizingHeightUtil.evaluateAdjustedHeightSize(
       parentHeightConstraint, childBox);
 
-    return SizingUtil.clampHeight(parentHeightConstraint, childBox, determinedConstraint);
+    return SizingHeightUtil.clampHeight(parentHeightConstraint, childBox, determinedConstraint);
   }
 
   public static void computeVerticalMarginsOrZero(

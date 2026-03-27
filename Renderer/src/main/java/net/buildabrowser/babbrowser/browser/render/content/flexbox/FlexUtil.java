@@ -1,7 +1,8 @@
 package net.buildabrowser.babbrowser.browser.render.content.flexbox;
 
 import net.buildabrowser.babbrowser.browser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingHeightUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 
@@ -16,10 +17,10 @@ public final class FlexUtil {
     boolean isVertical
   ) {
     if (isVertical) {
-      return SizingUtil.evaluateAdjustedHeightSize(
+      return SizingHeightUtil.evaluateAdjustedHeightSize(
         parentMainSize, box, flexBasis);
     } else {
-      return SizingUtil.evaluateAdjustedWidthSize(
+      return SizingWidthUtil.evaluateAdjustedWidthSize(
         parentMainSize, box, flexBasis);
     }
   }
@@ -30,11 +31,11 @@ public final class FlexUtil {
     boolean isVertical
   ) {
     if (isVertical) {
-      LayoutConstraint crossSize = SizingUtil.evaluateAdjustedWidthSize(parentCrossSize, box);
-      return SizingUtil.clampWidth(parentCrossSize, box, crossSize);
+      LayoutConstraint crossSize = SizingWidthUtil.evaluateAdjustedWidthSize(parentCrossSize, box);
+      return SizingWidthUtil.clampWidth(parentCrossSize, box, crossSize);
     } else {
-      LayoutConstraint crossSize = SizingUtil.evaluateAdjustedHeightSize(parentCrossSize, box);
-      return SizingUtil.clampHeight(parentCrossSize, box, crossSize);
+      LayoutConstraint crossSize = SizingHeightUtil.evaluateAdjustedHeightSize(parentCrossSize, box);
+      return SizingHeightUtil.clampHeight(parentCrossSize, box, crossSize);
     }
   }
   

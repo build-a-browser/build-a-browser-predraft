@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.browser.render.content.table;
 
-import net.buildabrowser.babbrowser.browser.render.content.common.SizingUtil;
+import net.buildabrowser.babbrowser.browser.render.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.browser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.browser.render.layout.LayoutConstraint;
 
@@ -17,8 +17,8 @@ public final class TableFixedLayout {
       // TODO: Check column widths
       Cell cell = table.getCell(i, 0, 0);
       LayoutConstraint itemWidth = cell == null ? null :
-        SizingUtil.clampWidth(widthConstraint, cell.cellBox(),
-          SizingUtil.evaluateAdjustedWidthSize(
+        SizingWidthUtil.clampWidth(widthConstraint, cell.cellBox(),
+          SizingWidthUtil.evaluateAdjustedWidthSize(
             widthConstraint, cell.cellBox()));
 
       int cellWidth = cell == null ? 1 : cell.width();
