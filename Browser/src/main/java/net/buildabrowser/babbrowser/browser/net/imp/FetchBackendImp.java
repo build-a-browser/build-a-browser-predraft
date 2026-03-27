@@ -26,7 +26,7 @@ public class FetchBackendImp implements FetchBackend {
       .setHeader("User-Agent", "BABBrowser/0.1.0 Firefox/147.0 (Not actually Firefox)")
       // HTTP 2 seems broken on http
       .version(
-        request.url().getScheme().equals("https") ? HttpClient.Version.HTTP_2 :
+        //request.url().getScheme().equals("https") ? HttpClient.Version.HTTP_2 :
         HttpClient.Version.HTTP_1_1)
       .timeout(Duration.ofSeconds(5))
       .build();

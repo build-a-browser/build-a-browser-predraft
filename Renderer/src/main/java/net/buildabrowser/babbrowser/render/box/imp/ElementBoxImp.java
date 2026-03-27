@@ -14,12 +14,15 @@ import net.buildabrowser.babbrowser.render.context.ElementContext;
 public class ElementBoxImp extends AbstractElementBoxImp {
 
   private final Element element;
-  private final BoxContent content;
+  
+  private BoxContent content;
+  // TODO: Avoid this extra field
+  private InnerDisplayValue prevDisplayValue;
 
   public ElementBoxImp(Element element, Box parentBox, BoxLevel boxLevel) {
     super(parentBox, boxLevel);
     this.element = element;
-    this.content = createContent();
+    update();
   }
 
   @Override
@@ -36,13 +39,21 @@ public class ElementBoxImp extends AbstractElementBoxImp {
   public Element element() {
     return this.element;
   }
+  
+  @Override
+  public void update() {
+    InnerDisplayValue innerDisplay = activeStyles().innerDisplayValue();
+    if (!innerDisplay.equals(prevDisplayValue)) {
+      this.prevDisplayValue = innerDisplay;
+      this.content = createContent(innerDisplay);
+    }
+  }
 
-  private BoxContent createContent() {
+  private BoxContent createContent(InnerDisplayValue innerDisplay) {
     if (element.name().equals("img")) {
       return new ImageContent(this);
     }
-    
-    InnerDisplayValue innerDisplay = activeStyles().innerDisplayValue();
+  
     return switch (innerDisplay) {
       case TABLE -> new TableContent(this);
       case FLEX -> new FlexBoxContent(this);

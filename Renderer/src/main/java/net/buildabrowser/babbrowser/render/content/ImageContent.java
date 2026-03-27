@@ -41,8 +41,17 @@ public class ImageContent implements BoxContent, BoxPainter {
 
     ElementBoxDimensions dimensions = box.dimensions();
     if (image != null) {
-      dimensions.setIntrinsicWidth(image.width());
-      dimensions.setInstrinsicHeight(image.height());
+      // TODO: Do this the proper way
+      float width = image.width();
+      String widthAttr = box.element().attributes().get("width");
+      if (widthAttr != null) width = Integer.valueOf(widthAttr);
+
+      float height = image.height();
+      String heightAttr = box.element().attributes().get("height");
+      if (heightAttr != null) height = Integer.valueOf(heightAttr);
+
+      dimensions.setIntrinsicWidth(width);
+      dimensions.setInstrinsicHeight(height);
       dimensions.setIntrinsicRatio((float) image.width() / (float) image.height());
       return;
     }
@@ -99,6 +108,7 @@ public class ImageContent implements BoxContent, BoxPainter {
 
   private void loadImage(GlobalLayoutContext layoutContext) {
     URI imageSource = getImageSource(layoutContext.refURL());
+    if (imageSource == null) return;
     if (loadingImageURL == null || !loadingImageURL.equals(imageSource)) {
       image = null;
       loadingImageURL = imageSource;

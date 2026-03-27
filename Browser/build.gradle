@@ -17,5 +17,5 @@ application {
 }
 
 run {
-    enableAssertions = true
+    // enableAssertions = true
 }

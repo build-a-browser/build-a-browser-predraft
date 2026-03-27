@@ -160,9 +160,7 @@ public interface IntrusiveList<T extends IntrusiveList<T>> {
   }
 
   public static boolean _ensureNoLoops(IntrusiveList<?> list) {
-    return true;
-
-    /*List<IntrusiveList<?>> seenNodes = new ArrayList<>();
+    List<IntrusiveList<?>> seenNodes = new ArrayList<>();
     IntrusiveList<?> curNode = list;
     while (curNode != null) {
       if (seenNodes.contains(curNode)) {
@@ -172,7 +170,7 @@ public interface IntrusiveList<T extends IntrusiveList<T>> {
       curNode = curNode.next();
     }
 
-    return true;*/
+    return true;
   }
 
 }

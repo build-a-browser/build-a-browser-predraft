@@ -36,5 +36,8 @@ public class AnonymousElementBoxImp extends AbstractElementBoxImp {
   public boolean isReplaced() {
     return false;
   }
+
+  @Override
+  public void update() {}
   
 }

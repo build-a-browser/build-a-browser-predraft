@@ -135,10 +135,11 @@ public final class FlowRootContentPainter {
     PaintCanvas canvas, LayoutFragment fragment, BoxFragment refFragment
   ) {
     switch (fragment) {
+      case PosRefBoxFragment _ -> {}
       case ManagedBoxFragment boxFragment -> paintInlineManagedBoxFragment(canvas, boxFragment, refFragment);
       case UnmanagedBoxFragment boxFragment -> paintInlineUnmanagedBoxFragment(canvas, boxFragment);
       case TextFragment textFragment -> paintTextFragment(canvas, textFragment);
-      default -> throw new UnsupportedOperationException("Unrecognized Fragment Type!");
+      default -> throw new UnsupportedOperationException("Unrecognized Fragment Type! " + fragment.getClass());
     }
   }
 

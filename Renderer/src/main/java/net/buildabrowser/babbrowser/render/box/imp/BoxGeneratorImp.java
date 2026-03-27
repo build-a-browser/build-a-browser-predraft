@@ -57,9 +57,13 @@ public class BoxGeneratorImp implements BoxGenerator {
 
   private List<Box> createElementBox(Box parentBox, Element element, BoxLevel boxLevel) {
     ElementBox elementBox;
-    if (element.getBox() != null) {
+    if (
+      element.getBox() != null
+      && ((ElementBox) element.getBox()).boxLevel().equals(boxLevel)
+    ) {
       elementBox = (ElementBox) element.getBox();
       elementBox.clearChildren();
+      elementBox.update();
     } else {
       elementBox = ElementBox.create(element, parentBox, boxLevel);
       element.setBox(elementBox);

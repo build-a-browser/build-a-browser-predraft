@@ -43,5 +43,10 @@ public class TestElementBox extends AbstractElementBoxImp {
   public void invalidate(InvalidationLevel invalidationLevel) {
     // No-op
   }
+
+  @Override
+  public void update() {
+    // No-op
+  }
   
 }

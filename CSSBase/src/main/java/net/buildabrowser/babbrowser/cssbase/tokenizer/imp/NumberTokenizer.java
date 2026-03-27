@@ -76,7 +76,7 @@ public class NumberTokenizer {
       }
     }
 
-    Number value = isInteger && repr.toString().indexOf('e') == -1?
+    Number value = isInteger && repr.toString().toLowerCase().indexOf('e') == -1 ?
       Integer.valueOf(repr.toString()) :
       Double.valueOf(repr.toString());
 

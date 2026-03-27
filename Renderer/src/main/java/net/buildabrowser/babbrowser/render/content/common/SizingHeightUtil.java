@@ -91,9 +91,8 @@ public final class SizingHeightUtil {
     LayoutConstraint minConstraint = evaluateAdjustedHeightSize(
       parentConstraint, refBox,
       refBox.activeStyles().getProperty(CSSProperty.MIN_HEIGHT));
-    
 
-    assert minConstraint.isBounded() || parentConstraint.isPreLayoutConstraint();
+    assert minConstraint.isBounded() || !parentConstraint.isBounded();
     if (minConstraint.isBounded()) {
       adjustedConstraint = Math.max(adjustedConstraint, minConstraint.value());
     }

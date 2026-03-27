@@ -102,6 +102,7 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
       && cachedFragment instanceof UnmanagedBoxFragment umCachedFragment
       && cache.applies(widthConstraint, heightConstraint)
     ) {
+      umCachedFragment.setNext(null);
       return umCachedFragment;
     }
     if (cache == null) {

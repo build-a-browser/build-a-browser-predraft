@@ -36,8 +36,13 @@ public class FlexFlowParser implements PropertyValueParser {
 
   @Override
   public void updateProperty(CSSValue result, PropertyContainer propertySetter) {
-    propertySetter.setProperty(CSSProperty.FLEX_DIRECTION, ((FlexFlowValue) result).direction());
-    propertySetter.setProperty(CSSProperty.FLEX_WRAP, ((FlexFlowValue) result).wrap());
+    FlexFlowValue flexFlow = (FlexFlowValue) result;
+    if (flexFlow.direction() != null) {
+      propertySetter.setProperty(CSSProperty.FLEX_DIRECTION, flexFlow.direction());
+    }
+    if (flexFlow.wrap() != null) {
+      propertySetter.setProperty(CSSProperty.FLEX_WRAP, flexFlow.wrap());
+    }
   }
   
 }

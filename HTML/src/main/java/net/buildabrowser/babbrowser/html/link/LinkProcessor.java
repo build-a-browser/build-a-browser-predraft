@@ -18,10 +18,12 @@ public interface LinkProcessor {
   static void processLink(LinkElement element, FetchEngine fetchEngine) {
     String rel = element.attributes().get("rel");
     if (rel == null) return;
-    LinkProcessor processor = PROCESSORS.get(rel);
-    if (processor == null) return;
+    for (String processorName: rel.split(" ")) {
+      LinkProcessor processor = PROCESSORS.get(processorName);
+      if (processor == null) continue;
 
-    processor.fetchAndProcessLinkedResource(element, fetchEngine);
+      processor.fetchAndProcessLinkedResource(element, fetchEngine);
+    }
   }
 
 }

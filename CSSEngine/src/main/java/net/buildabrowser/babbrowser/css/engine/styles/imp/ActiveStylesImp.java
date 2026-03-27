@@ -179,6 +179,7 @@ public class ActiveStylesImp implements ActiveStyles {
   }
   
   private void addEntry(int id, CSSValue value) {
+    assert value != null;
     boolean wasPresent = hasOwnValues.get(id);
     int listPos = getPropertyPos(id);
 

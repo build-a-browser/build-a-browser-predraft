@@ -1,6 +1,5 @@
 package net.buildabrowser.babbrowser.render.content.flow;
 
-import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
@@ -103,13 +102,8 @@ public class FlowRootContent implements BoxContent {
   private void recursePositionLineBoxFragment(
     float layerX, float layerY, StackingContext refContext, LineBoxFragment lineBoxFragment
   ) {
-    assert IntrusiveList._ensureNoLoops(lineBoxFragment.fragments());
     LayoutFragment child = lineBoxFragment.fragments();
     while (child != null) {
-      if (child instanceof TextFragment t && t.text().equals("Local")) {
-        new Exception().printStackTrace();
-        System.err.flush();
-      }
       recursePositionLayers(
         layerX + child.borderX(),
         layerY + child.borderY(),
@@ -122,7 +116,6 @@ public class FlowRootContent implements BoxContent {
     float layerX, float layerY, LayoutFragment fragment, StackingContext refContext,
     ManagedBoxFragment boxFragment
   ) {
-    assert IntrusiveList._ensureNoLoops(boxFragment.fragments());
     if (boxFragment.box().stackingContext() != refContext) {
       refContext = boxFragment.box().stackingContext();
       refContext.addFragment(layerX, layerY, boxFragment);

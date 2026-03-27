@@ -19,6 +19,8 @@ public abstract class DefaultLinkProcessor implements LinkProcessor {
   @Override
   public void fetchAndProcessLinkedResource(LinkElement el, FetchEngine fetchEngine) {
     LinkProcessingOptions options = createLinkOptions(el);
+    // TODO: Spec says link without href or source set, but where is the right place to reject it?
+    if (options.href() == null) return;
     FetchRequest request = createALinkRequest(options);
     if (request == null) return;
     // TODO: Synchronous flag

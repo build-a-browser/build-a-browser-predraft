@@ -52,6 +52,8 @@ public interface ElementBox extends Box {
 
   void setStackingContext(StackingContext stackingContext);
 
+  void update();
+
   default boolean isReplaced() {
     return content().isReplaced();
   }

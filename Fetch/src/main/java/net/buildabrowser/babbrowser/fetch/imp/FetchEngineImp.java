@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchBody;
 import net.buildabrowser.babbrowser.fetch.FetchDestinatation;
@@ -128,8 +129,8 @@ public class FetchEngineImp implements FetchEngine {
   private FetchResponse fetchFile(FetchRequest request) {
     // The spec does not say how to implement file
     // TODO: Improve security
-    File file = new File(request.url());
-    if (!file.exists() || file.isDirectory()) {
+    File file = CommonUtil.tryOrNull(() -> new File(request.url()));
+    if (file == null || !file.exists() || file.isDirectory()) {
       return FetchResponse.createNetworkError();
     }
     

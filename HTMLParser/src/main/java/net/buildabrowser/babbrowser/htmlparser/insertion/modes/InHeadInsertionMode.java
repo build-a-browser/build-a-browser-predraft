@@ -81,7 +81,7 @@ public class InHeadInsertionMode implements InsertionMode {
         adjustedInsertionLocation.appendChild(newEl);
         parseContext.openElementStack().pushNode(newEl);
         parseContext.tokenizeContext().setTokenizeState(TokenizeStates.scriptDataState);
-        parseContext.setOriginalInsertionMode(this);
+        parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());
         parseContext.setInsertionMode(InsertionModes.textInsertionMode);
         return false;
       case "head":

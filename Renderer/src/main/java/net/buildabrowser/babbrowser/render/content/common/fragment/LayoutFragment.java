@@ -8,8 +8,8 @@ public abstract class LayoutFragment implements IntrusiveList<LayoutFragment> {
   private final float height;
 
   private LayoutFragment nextFragment;
-  private float posX = -1;
-  private float posY = -1;
+  private float posX = Float.NaN;
+  private float posY = Float.NaN;
 
   public LayoutFragment(float width, float height) {
     this.width = width;
@@ -24,6 +24,7 @@ public abstract class LayoutFragment implements IntrusiveList<LayoutFragment> {
   @Override
   public void setNext(LayoutFragment nextFragment) {
     this.nextFragment = nextFragment;
+    assert IntrusiveList._ensureNoLoops(nextFragment);
   }
 
   public void setPos(float x, float y) {
@@ -32,22 +33,22 @@ public abstract class LayoutFragment implements IntrusiveList<LayoutFragment> {
   }
 
   public float marginX() {
-    assert this.posX != -1 : "Attempt to get unset X position!";
+    assert this.posX != Float.NaN : "Attempt to get unset X position!";
     return this.posX;
   }
 
   public float marginY() {
-    assert this.posY != -1 : "Attempt to get unset Y position!";
+    assert this.posY != Float.NaN : "Attempt to get unset Y position!";
     return this.posY;
   }
 
   public float borderX() {
-    assert this.posX != -1 : "Attempt to get unset X position!";
+    assert this.posX != Float.NaN : "Attempt to get unset X position!";
     return this.posX;
   }
 
   public float borderY() {
-    assert this.posY != -1 : "Attempt to get unset Y position!";
+    assert this.posY != Float.NaN : "Attempt to get unset Y position!";
     return this.posY;
   }
 
