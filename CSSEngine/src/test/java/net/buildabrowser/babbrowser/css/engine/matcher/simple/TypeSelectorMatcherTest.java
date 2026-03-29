@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.dom.Document;
@@ -14,13 +15,13 @@ import net.buildabrowser.babbrowser.dom.Element;
 
 public class TypeSelectorMatcherTest {
   
-  private ElementSet elementSet;
+  private ElementRootSet allElements;
   private TypeSelectorMatcher matcher;
 
   @BeforeEach
   public void beforeEach() {
-    this.elementSet = ElementSet.create();
-    this.matcher = new TypeSelectorMatcher(elementSet);
+    this.allElements = ElementSet.createRoot();
+    this.matcher = new TypeSelectorMatcher(allElements);
   }
 
   @Test
@@ -28,11 +29,11 @@ public class TypeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void canMatchValidTypes() {
     Element element = Element.create("a", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     TypeSelector selector = TypeSelector.create("a");
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
-    Assertions.assertEquals(Set.of(element), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(element), matcher.match(selector).asSet());
   }
 
   @Test
@@ -40,11 +41,11 @@ public class TypeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidValidTypes() {
     Element element = Element.create("b", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     TypeSelector selector = TypeSelector.create("a");
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
-    Assertions.assertEquals(Set.of(), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(), matcher.match(selector).asSet());
   }
 
 }

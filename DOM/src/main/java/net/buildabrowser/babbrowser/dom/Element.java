@@ -14,6 +14,12 @@ public interface Element extends Node {
 
   void addAttribute(String name, String value);
 
+  // Extensions
+
+  int getId();
+
+  void setId(int id);
+
   public static Element create(
     String name, Node parentNode
   ) {

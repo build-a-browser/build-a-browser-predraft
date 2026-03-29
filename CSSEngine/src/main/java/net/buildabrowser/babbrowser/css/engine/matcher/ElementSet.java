@@ -1,9 +1,10 @@
 package net.buildabrowser.babbrowser.css.engine.matcher;
 
+import java.util.BitSet;
 import java.util.List;
 import java.util.Set;
 
-import net.buildabrowser.babbrowser.css.engine.matcher.imp.ElementSetImp;
+import net.buildabrowser.babbrowser.css.engine.matcher.imp.ElementRootSetImp;
 import net.buildabrowser.babbrowser.dom.Element;
 
 public interface ElementSet extends Iterable<Element> {
@@ -20,11 +21,18 @@ public interface ElementSet extends Iterable<Element> {
 
   void union(ElementSet other);
 
-  @Deprecated
-  Set<Element> raw();
+  ElementRootSet root();
 
-  static ElementSet create() {
-    return new ElementSetImp();
+  void resize(int size);
+
+  @Deprecated
+  BitSet raw();
+
+  @Deprecated
+  Set<Element> asSet();
+
+  static ElementRootSet createRoot() {
+    return new ElementRootSetImp();
   }
 
   static ElementSet unionMany(List<ElementSet> sets) {

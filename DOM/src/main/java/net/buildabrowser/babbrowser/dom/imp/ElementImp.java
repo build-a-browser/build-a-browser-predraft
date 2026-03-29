@@ -13,6 +13,8 @@ public class ElementImp extends NodeImp implements Element {
   private final String name;
   private final String namespace;
 
+  private int id = -1;
+
   public ElementImp(String name, String namespace, Node parentNode) {
     this.name = name;
     this.namespace = namespace;
@@ -61,6 +63,16 @@ public class ElementImp extends NodeImp implements Element {
       .append(">");
     
     return builder.toString();
+  }
+
+  @Override
+  public int getId() {
+    return this.id;
+  }
+
+  @Override
+  public void setId(int id) {
+    this.id = id;
   }
 
 }

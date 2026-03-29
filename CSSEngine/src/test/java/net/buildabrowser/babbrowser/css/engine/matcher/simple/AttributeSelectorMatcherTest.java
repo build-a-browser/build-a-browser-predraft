@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
@@ -15,13 +16,13 @@ import net.buildabrowser.babbrowser.dom.Element;
 
 public class AttributeSelectorMatcherTest {
   
-  private ElementSet elementSet;
+  private ElementRootSet allElements;
   private AttributeSelectorMatcher matcher;
 
   @BeforeEach
   public void beforeEach() {
-    this.elementSet = ElementSet.create();
-    this.matcher = new AttributeSelectorMatcher(elementSet);
+    this.allElements = ElementSet.createRoot();
+    this.matcher = new AttributeSelectorMatcher(allElements);
   }
 
   @Test
@@ -29,13 +30,13 @@ public class AttributeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void canMatchValidHasAttrAttributes() {
     Element element = Element.create("a", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "", AttributeType.HAS_ATTR);
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     element.addAttribute("text", "");
-    Assertions.assertEquals(Set.of(element), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(element), matcher.match(selector).asSet());
   }
 
   @Test
@@ -43,12 +44,12 @@ public class AttributeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidValidHasAttrAttributes() {
     Element element = Element.create("a", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "", AttributeType.HAS_ATTR);
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
-    Assertions.assertEquals(Set.of(), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(), matcher.match(selector).asSet());
   }
 
   @Test
@@ -56,13 +57,13 @@ public class AttributeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void canMatchValidExactlyAttributes() {
     Element element = Element.create("a", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "mytext", AttributeType.EXACTLY);
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     element.addAttribute("text", "mytext");
-    Assertions.assertEquals(Set.of(element), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(element), matcher.match(selector).asSet());
   }
 
   @Test
@@ -70,13 +71,13 @@ public class AttributeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidExactlyAttributes() {
     Element element = Element.create("a", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "mytext", AttributeType.EXACTLY);
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     element.addAttribute("text", "mytexts");
-    Assertions.assertEquals(Set.of(), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(), matcher.match(selector).asSet());
   }
 
   @Test
@@ -84,13 +85,13 @@ public class AttributeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void canMatchValidPrefixAttributes() {
     Element element = Element.create("a", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "jordan", AttributeType.PREFIX);
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     element.addAttribute("text", "jordan-jon");
-    Assertions.assertEquals(Set.of(element), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(element), matcher.match(selector).asSet());
   }
 
   @Test
@@ -98,13 +99,13 @@ public class AttributeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidPrefixAttributes() {
     Element element = Element.create("a", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "jordan", AttributeType.PREFIX);
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     element.addAttribute("text", "jordanjon");
-    Assertions.assertEquals(Set.of(), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(), matcher.match(selector).asSet());
   }
 
   @Test
@@ -112,13 +113,13 @@ public class AttributeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void canMatchValidStartsWithAttributes() {
     Element element = Element.create("a", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "jordan", AttributeType.STARTS_WITH);
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     element.addAttribute("text", "jordanjon");
-    Assertions.assertEquals(Set.of(element), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(element), matcher.match(selector).asSet());
   }
 
   @Test
@@ -126,13 +127,13 @@ public class AttributeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidStartsWithAttributes() {
     Element element = Element.create("a", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "jordan", AttributeType.STARTS_WITH);
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     element.addAttribute("text", "ordanjon");
-    Assertions.assertEquals(Set.of(), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(), matcher.match(selector).asSet());
   }
 
   @Test
@@ -140,13 +141,13 @@ public class AttributeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void canMatchValidEndsWithAttributes() {
     Element element = Element.create("a", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "jon", AttributeType.ENDS_WITH);
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     element.addAttribute("text", "jordanjon");
-    Assertions.assertEquals(Set.of(element), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(element), matcher.match(selector).asSet());
   }
 
   @Test
@@ -154,13 +155,13 @@ public class AttributeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidEndsWithAttributes() {
     Element element = Element.create("a", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "jon", AttributeType.ENDS_WITH);
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     element.addAttribute("text", "jordanjo");
-    Assertions.assertEquals(Set.of(), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(), matcher.match(selector).asSet());
   }
 
   @Test
@@ -168,13 +169,13 @@ public class AttributeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void canMatchValidContainsAttributes() {
     Element element = Element.create("a", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "onati", AttributeType.CONTAINS);
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     element.addAttribute("text", "onceuponatime");
-    Assertions.assertEquals(Set.of(element), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(element), matcher.match(selector).asSet());
   }
 
   @Test
@@ -182,13 +183,13 @@ public class AttributeSelectorMatcherTest {
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidContainsAttributes() {
     Element element = Element.create("a", Document.create(matcher));
-    elementSet.add(element);
+    allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
       "text", "onati", AttributeType.CONTAINS);
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     element.addAttribute("text", "onceuponabadtime");
-    Assertions.assertEquals(Set.of(), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(), matcher.match(selector).asSet());
   }
 
 }

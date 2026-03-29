@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.css.engine.matcher.simple;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.dom.Element;
@@ -10,7 +11,12 @@ import net.buildabrowser.babbrowser.dom.Node;
 
 public class IdSelectorMatcher implements SimpleSelectorMatcher<IdSelector> {
 
+  private final ElementRootSet allElements;
   private final Map<String, Element> idElements = new HashMap<>();
+
+  public IdSelectorMatcher(ElementRootSet allElements) {
+    this.allElements = allElements;
+  }
 
   @Override
   public void addSelectorReference(IdSelector ref) {}
@@ -36,7 +42,7 @@ public class IdSelectorMatcher implements SimpleSelectorMatcher<IdSelector> {
 
   @Override
   public ElementSet match(IdSelector selector) {
-    ElementSet matches = ElementSet.create();
+    ElementSet matches = allElements.createTemporaryChild();
     Element match = idElements.get(selector.id());
     if (match != null) {
       matches.add(match);

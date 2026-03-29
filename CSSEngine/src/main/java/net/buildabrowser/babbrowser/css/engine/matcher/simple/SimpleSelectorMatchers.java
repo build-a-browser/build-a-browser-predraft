@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.css.engine.matcher.simple;
 
 import java.util.List;
 
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
@@ -16,9 +17,9 @@ import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
 public class SimpleSelectorMatchers implements DocumentChangeListener {
   
-  private final ElementSet allElements = ElementSet.create();
+  private final ElementRootSet allElements = ElementSet.createRoot();
   private final TypeSelectorMatcher typeSelectorMatcher = new TypeSelectorMatcher(allElements);
-  private final IdSelectorMatcher idSelectorMatcher = new IdSelectorMatcher();
+  private final IdSelectorMatcher idSelectorMatcher = new IdSelectorMatcher(allElements);
   private final AttributeSelectorMatcher attributePresentSelectorMatcher = new AttributeSelectorMatcher(allElements);
   private final AttributeOneOfSelectorMatcher attributeOneOfSelectorMatcher = new AttributeOneOfSelectorMatcher(allElements);
 
@@ -50,6 +51,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
   }
 
   public void onAttributeChanged(Element element, String attrName, String prevValue, String newValue) {
+    allElements.add(element);
     for (SimpleSelectorMatcher<?> matcher: allMatchers) {
       matcher.onAttributeChanged(element, attrName, prevValue, newValue);
     }

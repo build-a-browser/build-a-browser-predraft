@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.css.engine.matcher.simple;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.util.RefCounted;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
@@ -13,16 +14,16 @@ public class TypeSelectorMatcher implements SimpleSelectorMatcher<TypeSelector> 
 
   private final Map<TypeSelector, RefCounted<ElementSet>> matchingElements = new HashMap<>();
 
-  private final ElementSet allElements;
+  private final ElementRootSet allElements;
 
-  public TypeSelectorMatcher(ElementSet allElements) {
+  public TypeSelectorMatcher(ElementRootSet allElements) {
     this.allElements = allElements;
   }
 
   @Override
   public void addSelectorReference(TypeSelector ref) {
     RefCounted<ElementSet> setRef = matchingElements
-      .computeIfAbsent(ref, _ -> RefCounted.create(ElementSet.create()));
+      .computeIfAbsent(ref, _ -> RefCounted.create(allElements.createChild()));
     boolean didExist = setRef.isReferenced();
     setRef.incRefCount();
 
@@ -65,7 +66,7 @@ public class TypeSelectorMatcher implements SimpleSelectorMatcher<TypeSelector> 
   @Override
   public ElementSet match(TypeSelector selector) {
     RefCounted<ElementSet> set = matchingElements.get(selector);
-    if (set == null) return ElementSet.create();
+    if (set == null) return allElements.createTemporaryChild();
     return set.object();
   }
 

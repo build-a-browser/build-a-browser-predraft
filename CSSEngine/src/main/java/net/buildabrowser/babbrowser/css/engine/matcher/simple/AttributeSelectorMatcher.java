@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.util.RefCounted;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
@@ -15,10 +16,10 @@ public class AttributeSelectorMatcher implements SimpleSelectorMatcher<Attribute
 
   private final Map<String, Map<AttributeSelector, RefCounted<ElementSet>>> matchingElements = new HashMap<>(1);
 
-  private final ElementSet allElements;
+  private final ElementRootSet allElements;
 
   public AttributeSelectorMatcher(
-    ElementSet allElements
+    ElementRootSet allElements
   ) {
     this.allElements = allElements;
   }
@@ -29,7 +30,7 @@ public class AttributeSelectorMatcher implements SimpleSelectorMatcher<Attribute
 
     RefCounted<ElementSet> setRef = matchingElements
       .computeIfAbsent(ref.attrName(), _ -> new HashMap<>(1))
-      .computeIfAbsent(ref, _ -> RefCounted.create(ElementSet.create()));
+      .computeIfAbsent(ref, _ -> RefCounted.create(allElements.createChild()));
     boolean didExist = setRef.isReferenced();
     setRef.incRefCount();
 
@@ -88,7 +89,7 @@ public class AttributeSelectorMatcher implements SimpleSelectorMatcher<Attribute
   @Override
   public ElementSet match(AttributeSelector selector) {
     RefCounted<ElementSet> setRef = matchRef(selector);
-    if (setRef == null) return ElementSet.create();
+    if (setRef == null) return allElements.createTemporaryChild();
 
     return setRef.object();
   }

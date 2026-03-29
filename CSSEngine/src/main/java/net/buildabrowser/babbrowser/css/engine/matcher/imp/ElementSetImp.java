@@ -1,66 +1,102 @@
 package net.buildabrowser.babbrowser.css.engine.matcher.imp;
 
+import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.dom.Element;
 
 public class ElementSetImp implements ElementSet {
 
-  private final Set<Element> rawSet;
+  private final ElementRootSet root;
 
-  public ElementSetImp() {
-    this.rawSet = new HashSet<>();
+  protected final List<Element> elementList;
+
+  protected BitSet rawSet;
+
+  public ElementSetImp(
+    ElementRootSet root, List<Element> elementList, int numElements
+  ) {
+    this.root = root;
+    this.elementList = elementList;
+    this.rawSet = new BitSet(numElements);
   }
 
-  private ElementSetImp(Set<Element> set) {
-    this.rawSet = set;
+  // Not updated on DOM update, as it is only used in intermediate calculations
+  public ElementSetImp(ElementRootSet root, List<Element> elementList, BitSet rawSet) {
+    this.root = root;
+    this.elementList = elementList;
+    this.rawSet = rawSet;
   }
 
   @Override
   public Iterator<Element> iterator() {
-    return rawSet.iterator();
+    return new ElementSetIteratorImp(elementList, rawSet);
   }
 
   @Override
   public void add(Element element) {
-    rawSet.add(element);
+    rawSet.set(element.getId(), true);
   }
 
   @Override
   public void remove(Element element) {
-    rawSet.remove(element);
+    rawSet.set(element.getId(), false);
   }
 
   @Override
   public boolean contains(Element element) {
-    return rawSet.contains(element);
+    return rawSet.get(element.getId());
   };
 
   @Override
   @SuppressWarnings("deprecation")
   public void intersect(ElementSet other) {
-    rawSet.retainAll(other.raw());
+    rawSet.and(other.raw());
   }
 
   @Override
   @SuppressWarnings("deprecation")
   public void union(ElementSet other) {
-    rawSet.addAll(other.raw());
+    rawSet.or(other.raw());
   }
 
   @Override
-  public Set<Element> raw() {
+  public ElementRootSet root() {
+    return this.root;
+  }
+
+  @Override
+  public void resize(int size) {
+    BitSet newSet = new BitSet(size);
+    newSet.or(rawSet);
+    this.rawSet = newSet;
+  }
+
+  @Override
+  public BitSet raw() {
     return rawSet;
   }
 
   @Override
+  public Set<Element> asSet() {
+    Iterator<Element> it = iterator();
+    Set<Element> set = new HashSet<>();
+    while (it.hasNext()) {
+      set.add(it.next());
+    }
+
+    return set;
+  }
+
+  @Override
   public ElementSet copy() {
-    Set<Element> newSet = new HashSet<>();
-    newSet.addAll(rawSet);
-    return new ElementSetImp(newSet);
+    BitSet newSet = (BitSet) rawSet.clone();
+    return new ElementSetImp(root, elementList, newSet);
   }
   
 }

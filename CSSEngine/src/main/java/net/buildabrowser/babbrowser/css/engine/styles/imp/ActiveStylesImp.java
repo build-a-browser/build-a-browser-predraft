@@ -201,12 +201,10 @@ public class ActiveStylesImp implements ActiveStyles {
 
   private int getPropertyPos(int id) {
     int listPos = 0;
-    int currentId = 0;
-    while (currentId < id) {
-      if (hasOwnValues.get(currentId)) {
-        listPos++;
-      }
-      currentId++;
+    int currentId = hasOwnValues.nextSetBit(0);
+    while (currentId < id && currentId != -1) {
+      listPos++;
+      currentId = hasOwnValues.nextSetBit(currentId + 1);
     }
     return listPos;
   }

@@ -13,7 +13,7 @@ public final class CombinatorMatchers {
   private CombinatorMatchers() {}
 
   public static ElementSet matchDescendants(ElementSet priorMatches, ElementSet nextMatches) {
-    ElementSet newMatches = ElementSet.create();
+    ElementSet newMatches = priorMatches.root().createTemporaryChild();
     for (Element matchedElement: nextMatches) {
       Node parent = matchedElement.parentNode();
       while (parent != null) {
@@ -32,7 +32,7 @@ public final class CombinatorMatchers {
   }
 
   public static ElementSet matchChild(ElementSet priorMatches, ElementSet nextMatches) {
-    ElementSet newMatches = ElementSet.create();
+    ElementSet newMatches = priorMatches.root().createTemporaryChild();
     for (Element matchedElement: nextMatches) {
       Node parent = matchedElement.parentNode();
       if (
@@ -47,7 +47,7 @@ public final class CombinatorMatchers {
   }
 
   public static ElementSet matchNextSibling(ElementSet priorMatches, ElementSet nextMatches) {
-    ElementSet newMatches = ElementSet.create();
+    ElementSet newMatches = priorMatches.root().createTemporaryChild();
     for (Element matchedElement: nextMatches) {
       Node prevNode = matchedElement.previousSibling();
       while (
@@ -69,7 +69,7 @@ public final class CombinatorMatchers {
   }
 
   public static ElementSet matchSubsequentSibling(ElementSet priorMatches, ElementSet nextMatches) {
-    ElementSet newMatches = ElementSet.create();
+    ElementSet newMatches = priorMatches.root().createTemporaryChild();
     for (Element matchedElement: nextMatches) {
       Node prevNode = matchedElement.previousSibling();
       while (prevNode != null) {
