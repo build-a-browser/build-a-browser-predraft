@@ -49,12 +49,7 @@ public class CompositeLayerImp implements CompositeLayer {
 
   @Override
   public void paint(PaintCanvas canvas) {
-    if (!sorted) {
-      // Ideally, we would use a set that stays sorted (like a TreeSet) but is stable (like LinkedHashSet).
-      // Unfortunately, that does not exist in the standard libraries.
-      Collections.sort(childLayers, (a, b) -> Integer.compare(a.zIndex(), b.zIndex()));
-      sorted = true;
-    }
+    ensureLayersSorted();
 
     forEachFragment(fragment -> fragment.painter().paintBackground(fragment, canvas), canvas);
     for (CompositeLayer layer: childLayers) {
@@ -70,20 +65,6 @@ public class CompositeLayerImp implements CompositeLayer {
     for (CompositeLayer layer: childLayers) {
       if (layer.zIndex() < 0) continue;
       paintChildLayer(canvas, layer);
-    }
-  }
-
-  private void forEachFragment(Consumer<BoxFragment> func, PaintCanvas canvas) {
-    CompositeLayerEntry nextEntry = entries;
-    while (nextEntry != null) {
-      canvas.pushPaint();
-      CompositeLayerEntry currentEntry = nextEntry;
-      nextEntry = nextEntry.next();
-      // TODO: Figure out why pre-layout fragments are making it into composite layers
-      if (currentEntry.fragment().painter() == null) continue;
-      canvas.alterPaint(p -> p.incOffset(currentEntry.offsetX(), currentEntry.offsetY()));
-      func.accept(currentEntry.fragment());
-      canvas.popPaint();
     }
   }
 
@@ -105,6 +86,41 @@ public class CompositeLayerImp implements CompositeLayer {
   @Override
   public int zIndex() {
     return this.zIndex;
+  }
+
+  @Override
+  public List<CompositeLayer> childLayers() {
+    ensureLayersSorted();
+
+    return this.childLayers;
+  }
+
+  @Override
+  public CompositeLayerEntry entries() {
+    return this.entries;
+  }
+
+  private void ensureLayersSorted() {
+    if (!sorted) {
+      // Ideally, we would use a set that stays sorted (like a TreeSet) but is stable (like LinkedHashSet).
+      // Unfortunately, that does not exist in the standard libraries.
+      Collections.sort(childLayers, (a, b) -> Integer.compare(a.zIndex(), b.zIndex()));
+      sorted = true;
+    }
+  }
+
+  private void forEachFragment(Consumer<BoxFragment> func, PaintCanvas canvas) {
+    CompositeLayerEntry nextEntry = entries;
+    while (nextEntry != null) {
+      canvas.pushPaint();
+      CompositeLayerEntry currentEntry = nextEntry;
+      nextEntry = nextEntry.next();
+      // TODO: Figure out why pre-layout fragments are making it into composite layers
+      if (currentEntry.fragment().painter() == null) continue;
+      canvas.alterPaint(p -> p.incOffset(currentEntry.offsetX(), currentEntry.offsetY()));
+      func.accept(currentEntry.fragment());
+      canvas.popPaint();
+    }
   }
 
   private void paintChildLayer(PaintCanvas canvas, CompositeLayer layer) {

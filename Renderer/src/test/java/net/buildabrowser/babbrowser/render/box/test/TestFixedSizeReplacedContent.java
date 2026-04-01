@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.render.box.test;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.render.layout.LayoutUtil;
 
@@ -36,6 +37,11 @@ public class TestFixedSizeReplacedContent implements BoxContent {
   @Override
   public void positionLayers(float layerX, float layerY) {
     
+  }
+
+  @Override
+  public EventHandler eventHandler() {
+    return null;
   }
   
 }

@@ -10,11 +10,14 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.flow.FlowRootContentPainter.FlowRootBoxPainter;
 import net.buildabrowser.babbrowser.render.content.flow.floatbox.FloatTracker;
+import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
 
 public class FlowRootContent implements BoxContent {
+
+  private static final EventHandler EVENT_HANDLER = new FlowRootEventHandler();
 
   private final ElementBox rootBox;
 
@@ -66,6 +69,11 @@ public class FlowRootContent implements BoxContent {
         offsetY + floatFragment.borderY(),
         floatFragment, rootBox.stackingContext());
     }
+  }
+
+  @Override
+  public EventHandler eventHandler() {
+    return EVENT_HANDLER;
   }
 
   FlowBlockLayout blockLayout() {

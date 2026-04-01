@@ -17,6 +17,7 @@ import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.render.layout.LayoutContext;
@@ -27,6 +28,8 @@ import net.buildabrowser.babbrowser.render.paint.LoadedImage;
 import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
 
 public class ImageContent implements BoxContent, BoxPainter {
+
+  private static final EventHandler EVENT_HANDLER = new ImageEventHandler();
 
   private final ElementBox box;
 
@@ -169,6 +172,11 @@ public class ImageContent implements BoxContent, BoxPainter {
   @Override
   public void positionLayers(float layerX, float layerY) {
     // No-op
+  }
+
+  @Override
+  public EventHandler eventHandler() {
+    return EVENT_HANDLER;
   }
   
 }

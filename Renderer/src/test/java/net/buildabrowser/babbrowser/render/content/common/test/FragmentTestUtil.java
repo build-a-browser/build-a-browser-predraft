@@ -6,6 +6,7 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
+import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
@@ -35,6 +36,11 @@ public final class FragmentTestUtil {
     for (int i = 0; i < expected.size(); i++) {
       assertFragmentEquals(expected.get(i), actual.get(i));
     }
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public static void assertFragmentListEqualsC(List<LayoutFragment> expected, List<BoxFragment> actual) {
+    assertFragmentListEquals(expected, (List<LayoutFragment>) (List) actual);
   }
 
   public static void assertFragmentListEquals(List<LayoutFragment> expected, LayoutFragment actual) {

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.swing.JPanel;
+import javax.swing.event.MouseInputAdapter;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
@@ -19,6 +20,9 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.render.Renderer;
+import net.buildabrowser.babbrowser.render.event.EventForwardingTarget;
+import net.buildabrowser.babbrowser.render.event.EventHandler.MouseEvent;
+import net.buildabrowser.babbrowser.render.event.EventHandler.MouseEvent.MouseEventType;
 import net.buildabrowser.babbrowser.render.paint.Painter;
 
 public class RendererImp implements Renderer {
@@ -45,7 +49,7 @@ public class RendererImp implements Renderer {
     
     documentRenderer.start();
 
-    return this.jpanel = new JPanel() {
+    this.jpanel = new JPanel() {
       @Override
       public void doLayout() {
         documentRenderer.resize(getWidth(), getHeight());
@@ -57,6 +61,18 @@ public class RendererImp implements Renderer {
         documentRenderer.withImage(image -> g.drawImage(image, 0, 0, null));
       }
     };
+
+    jpanel.addMouseListener(new MouseInputAdapter() {
+      public void mouseClicked(java.awt.event.MouseEvent e) {
+        // TODO: Translate button
+        MouseEvent mouseEvent = new MouseEvent(e.getX(), e.getY(), e.getButton(), MouseEventType.CLICK);
+        if (documentRenderer instanceof EventForwardingTarget target) {
+          target.forwardEvent(mouseEvent);
+        }
+      }
+    });
+
+    return this.jpanel;
   }
 
   @Override

@@ -36,10 +36,13 @@ import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxGenerator;
 import net.buildabrowser.babbrowser.render.box.DocumentBox;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.composite.CompositeEventsDispatcher;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.render.context.ScriptingContext;
+import net.buildabrowser.babbrowser.render.event.EventForwardingTarget;
+import net.buildabrowser.babbrowser.render.event.EventHandler.MouseEvent;
 import net.buildabrowser.babbrowser.render.layout.FontCache;
 import net.buildabrowser.babbrowser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
@@ -50,15 +53,15 @@ import net.buildabrowser.babbrowser.render.layout.StackingContextGenerator;
 import net.buildabrowser.babbrowser.render.logging.PerfLogging;
 import net.buildabrowser.babbrowser.render.paint.FontLoader;
 import net.buildabrowser.babbrowser.render.paint.FontLoader.FontOptions;
-import net.buildabrowser.babbrowser.render.style.StyleGenerator;
 import net.buildabrowser.babbrowser.render.paint.LoadedFont;
 import net.buildabrowser.babbrowser.render.paint.Painter;
 import net.buildabrowser.babbrowser.render.paint.ResourceLoader;
+import net.buildabrowser.babbrowser.render.style.StyleGenerator;
 import net.buildabrowser.babbrowser.stream.ReadRequest;
 import net.buildabrowser.babbrowser.stream.ReadableStream.ReadableStreamGetReaderOptions;
 import net.buildabrowser.babbrowser.stream.imp.ReadableStreamDefaultReaderImp;
 
-public class DocumentRendererImp implements DocumentRenderer {
+public class DocumentRendererImp implements DocumentRenderer, EventForwardingTarget {
 
   private static final BoxGenerator boxGenerator = BoxGenerator.create();
 
@@ -270,6 +273,27 @@ public class DocumentRendererImp implements DocumentRenderer {
     }
   }
 
+  @Override
+  public void resize(int width, int height) {
+    synchronized (resizeLock) {
+      if (
+        this.width == width
+        && this.height == height
+      ) return;
+      this.width = width;
+      this.height = height;
+      this.resizeCount = 2;
+      if (this.invalidationLevel.ordinal() > InvalidationLevel.LAYOUT.ordinal()) {
+        this.invalidationLevel = InvalidationLevel.LAYOUT;
+      }
+    }
+  }
+
+  @Override
+  public void forwardEvent(MouseEvent mouseEvent) {
+    CompositeEventsDispatcher.handleMouseEvent(rootLayer, mouseEvent, mouseEvent.winX(), mouseEvent.winY());
+  }
+
   private void recomputeBoxes() {
     Node firstNode = document.childNodes().item(0);
     if (firstNode == null) return;
@@ -332,22 +356,6 @@ public class DocumentRendererImp implements DocumentRenderer {
       parentContext.posY() + position[1],
       itemFragment);
     itemBox.content().positionLayers(0, 0);
-  }
-
-  @Override
-  public void resize(int width, int height) {
-    synchronized (resizeLock) {
-      if (
-        this.width == width
-        && this.height == height
-      ) return;
-      this.width = width;
-      this.height = height;
-      this.resizeCount = 2;
-      if (this.invalidationLevel.ordinal() > InvalidationLevel.LAYOUT.ordinal()) {
-        this.invalidationLevel = InvalidationLevel.LAYOUT;
-      }
-    }
   }
   
 }

@@ -16,9 +16,9 @@ import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.render.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.render.box.TextBox;
-import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.render.content.common.MarginUtil;
 import net.buildabrowser.babbrowser.render.content.common.PaddingUtil;
@@ -29,12 +29,15 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxF
 import net.buildabrowser.babbrowser.render.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.render.content.flexbox.FlexCrossAlignment.CrossAlignmentContext;
 import net.buildabrowser.babbrowser.render.content.flexbox.FlexMainAlignment.MainAlignmentContext;
+import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
-import net.buildabrowser.babbrowser.render.layout.LayoutConstraint.LayoutConstraintType;
 
 public class FlexBoxContent implements BoxContent {
+
+  private static final EventHandler EVENT_HANDLER = new FlexBoxEventHandler();
 
   private final FlexBoxContentPainter painter = new FlexBoxContentPainter(this);
 
@@ -92,6 +95,11 @@ public class FlexBoxContent implements BoxContent {
     // TODO: Also support gap
     List<FlexItem> flexItems = collectFlexItems();
     return layoutItems(flexItems, widthConstraint, heightConstraint);
+  }
+
+  @Override
+  public EventHandler eventHandler() {
+    return EVENT_HANDLER;
   }
 
   public UnmanagedBoxFragment fragments() {

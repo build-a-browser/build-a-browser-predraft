@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.render.content.flow.BlockFormattingContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
@@ -28,7 +27,7 @@ public interface FloatTracker {
 
   void reset();
 
-  List<LayoutFragment> allFloats();
+  List<BoxFragment> allFloats();
 
   // Exists to min-bound the containing block
   float contentHeight();

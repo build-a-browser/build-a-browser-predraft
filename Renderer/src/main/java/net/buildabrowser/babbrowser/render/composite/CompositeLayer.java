@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.render.composite;
 
+import java.util.List;
+
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.render.composite.imp.CompositeLayerImp;
 import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
@@ -21,6 +23,10 @@ public interface CompositeLayer {
   float posY();
 
   int zIndex();
+
+  List<CompositeLayer> childLayers();
+
+  CompositeLayerEntry entries();
 
   static CompositeLayer create(
     PositionValue positioning,

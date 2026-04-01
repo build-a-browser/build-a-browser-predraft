@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.render.content.flow.BlockFormattingContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
@@ -137,10 +136,9 @@ public class FloatTrackerImp implements FloatTracker {
   }
 
   @Override
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public List<LayoutFragment> allFloats() {
+  public List<BoxFragment> allFloats() {
     if (allFloats == null) return List.of(); // Java caches this
-    return (List<LayoutFragment>) (List) this.allFloats;
+    return this.allFloats;
   }
 
   @Override

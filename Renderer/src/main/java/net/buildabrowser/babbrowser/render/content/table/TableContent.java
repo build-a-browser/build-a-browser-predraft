@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.table.Table.Cell;
+import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.render.layout.LayoutUtil;
 
@@ -15,6 +16,7 @@ public class TableContent implements BoxContent {
 
   // TODO: Don't forget to handle out-of-flow items
 
+  private static final EventHandler EVENT_HANDLER = new TableEventHandler();
 
   private final TableContentPainter painter = new TableContentPainter(this);
 
@@ -62,6 +64,11 @@ public class TableContent implements BoxContent {
       LayoutUtil.constraintOrDim(widthConstraint, totalWidth),
       LayoutUtil.constraintOrDim(heightConstraint, sumWidths(rowHeights)),
       rootBox, painter);
+  }
+
+  @Override
+  public EventHandler eventHandler() {
+    return EVENT_HANDLER;
   }
 
   public SizedTable sizedTable() {
