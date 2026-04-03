@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.render.event;
 
+import net.buildabrowser.babbrowser.dom.events.EventDispatcher;
+import net.buildabrowser.babbrowser.dom.events.PointerEvent;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
@@ -21,7 +23,9 @@ public final class EventUtil {
   public static void forwardElementEvent(
     MouseEvent mouseEvent, BoxFragment fragment, float posX, float posY
   ) {
-    System.out.println("Event triggered on " + fragment.box().element() + " at (" + posX + ", " + posY + ").");
+    // TODO: Will need replaced with a proper MouseEvent
+    System.out.println(fragment.box().element());
+    EventDispatcher.dispatch((PointerEvent) () -> "click", fragment.box().element());
   }
 
   public static void forwardElementEvent(
