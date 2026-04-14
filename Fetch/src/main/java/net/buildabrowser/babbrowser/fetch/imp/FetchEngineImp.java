@@ -54,10 +54,15 @@ public class FetchEngineImp implements FetchEngine {
   }
 
   private void mainFetch(FetchParams fetchParams) {
+    FetchRequest request = fetchParams.request();
     FetchResponse response = null;
     // TODO: A ton of random stuff
     if (response == null) {
       response = mainFetchChain(fetchParams);
+    }
+
+    if(response.urlList().isEmpty()) {
+      response.urlList().addAll(request.urlList());
     }
 
     fetchResponseHandover(fetchParams, response);
@@ -67,9 +72,9 @@ public class FetchEngineImp implements FetchEngine {
     FetchRequest request = fetchParams.request();
     // TODO: More cases
     if (
-      // TODO: Right now I'm special-casing file, but it should instead do scheme upon some-origin or no-cors
-      request.currentURL().getScheme().equals("file")
-      || request.currentURL().getScheme().equals("data")
+      // TODO: Right now I'm special-casing these, but it should instead do scheme upon some-origin or no-cors
+      !request.currentURL().getScheme().equals("http")
+      && !request.currentURL().getScheme().equals("https")
     ) {
       // TODO: Response tainting, also more options in the if
       return overrideFetch(OverrideFetchType.SCHEME_FETCH, fetchParams);
@@ -96,10 +101,10 @@ public class FetchEngineImp implements FetchEngine {
     FetchRequest request = fetchParams.request();
     switch (request.url().getScheme()) {
       case "about":
-        if (request.currentURL().getPath().equals("blank")) {
+        if ("blank".equals(request.currentURL().getSchemeSpecificPart())) {
           return FetchResponse.create(
             "OK", HeaderList.create("Content-Type", "text/html;charset=utf-8"),
-            FetchUtil.getBytesAsABody(new byte[0]));
+            FetchImpUtil.getBytesAsABody(new byte[0]));
         }
         break;
       case "blob":
@@ -123,7 +128,7 @@ public class FetchEngineImp implements FetchEngine {
     return FetchResponse.create(
       "OK",
       HeaderList.create("Content-Type", mimeType),
-      FetchUtil.getBytesAsABody(dataURL.body()));
+      FetchImpUtil.getBytesAsABody(dataURL.body()));
   }
 
   private FetchResponse fetchFile(FetchRequest request) {
@@ -143,7 +148,7 @@ public class FetchEngineImp implements FetchEngine {
       return FetchResponse.create(
         "OK",
         HeaderList.create("Content-Type", mimeType),
-        FetchUtil.getBytesAsABody(bytes));
+        FetchImpUtil.getBytesAsABody(bytes));
     } catch (IOException e) {
       return FetchResponse.createNetworkError();
     }

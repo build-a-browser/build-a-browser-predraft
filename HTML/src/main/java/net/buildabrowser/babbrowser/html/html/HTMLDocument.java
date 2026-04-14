@@ -15,15 +15,14 @@ public interface HTMLDocument extends Document, Invalidatable, PlatformObject {
 
   DocumentRenderer renderer();
 
+  void attachRenderer(DocumentRenderer renderer);
+
   URI fallbackURL();
 
   URI baseURL();
 
-  static HTMLDocument create(
-    BrowsingContext browsingContext,
-    UAHTMLDocumentOptions documentOptions
-  ) {
-    return new HTMLDocumentImp(browsingContext, documentOptions);
+  static HTMLDocument create(BrowsingContext browsingContext) {
+    return new HTMLDocumentImp(browsingContext);
   }
 
 }

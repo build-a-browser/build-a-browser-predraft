@@ -9,15 +9,13 @@ import net.buildabrowser.babbrowser.render.uistate.imp.FrameImp;
 
 public interface Frame {
 
-  Renderer getCurrentRenderer();
+  Renderer getRenderer();
 
   String getName();
 
   URI getURL();
 
   void navigate(URI url);
-  
-  boolean redirect(URI url);
 
   void reload();
 

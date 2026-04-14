@@ -2,25 +2,30 @@ package net.buildabrowser.babbrowser.render.uistate.imp;
 
 import java.net.URI;
 
+import net.buildabrowser.babbrowser.html.navigation.Navigable;
+import net.buildabrowser.babbrowser.html.navigation.NavigateParameters;
+import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
 import net.buildabrowser.babbrowser.network.URLUtil;
 import net.buildabrowser.babbrowser.network.exception.BadURLException;
 import net.buildabrowser.babbrowser.render.Renderer;
 import net.buildabrowser.babbrowser.render.RenderingEngine;
+import net.buildabrowser.babbrowser.render.RenderingEngine.NavigableRendererPair;
 import net.buildabrowser.babbrowser.render.uistate.Frame;
 import net.buildabrowser.babbrowser.render.uistate.event.BrowserEventDispatcher;
 import net.buildabrowser.babbrowser.render.uistate.event.FrameEventListener;
 
 public class FrameImp implements Frame {
 
-  private final RenderingEngine renderingEngine;
   private final BrowserEventDispatcher<FrameEventListener> eventDispatcher = BrowserEventDispatcher.create();
-  
-  private URI url;
-  private Renderer currentRenderer;
+
+  private final Navigable navigable;
+  private final Renderer renderer;
 
   public FrameImp(RenderingEngine renderingEngine) {
-    this.renderingEngine = renderingEngine;
-    this.currentRenderer = renderingEngine.createBlankRenderer();
+    NavigableRendererPair navigableRendererPair = renderingEngine.createNavigable();
+    this.navigable = navigableRendererPair.navigable();
+    this.renderer = navigableRendererPair.renderer();
+
     try {
       navigate(URLUtil.createURL("about:blank"));
     } catch (BadURLException e) {
@@ -30,46 +35,36 @@ public class FrameImp implements Frame {
   }
 
   @Override
-  public Renderer getCurrentRenderer() {
-    return this.currentRenderer;
+  public Renderer getRenderer() {
+    return this.renderer;
   }
 
   @Override
   public String getName() {
-    return currentRenderer
+    return renderer
       .getTitle()
       .orElse("Untitled Document");
   }
 
   @Override
   public URI getURL() {
-    return this.url;
+    return navigable.activeDocument().url();
   }
 
   @Override
   public void navigate(URI url) {
-    this.url = url;
+    NavigateParameters parameters = new NavigateParameters();
+    parameters.userInvolvement = UserNavigationInvolvement.BROWSER_UI;
+    parameters.sourceDocument = navigable.activeDocument();
+    // TODO: I think the above should be null, but fetch currently crashes if no client is present.
+    navigable.navigate(url, parameters);
+    // TODO: The listener needs to be on the navigable itself...
     eventDispatcher.fire(listener -> listener.onURLChange(url));
-    renderingEngine.openRenderer(url, this, renderer -> {
-      if (this.currentRenderer != null) {
-        currentRenderer.close();
-      }
-      this.currentRenderer = renderer;
-      eventDispatcher.fire(listener -> listener.onRendererChange(renderer));
-    });
-  }
-  
-  @Override
-  public boolean redirect(URI url) {
-    this.url = url;
-    eventDispatcher.fire(listener -> listener.onURLChange(url));
-    
-    return true;
   }
 
   @Override
   public void close() {
-    currentRenderer.close();
+    renderer.close();
   }
 
   @Override
@@ -91,8 +86,7 @@ public class FrameImp implements Frame {
   public void addEventListener(FrameEventListener listener, boolean sync) {
     eventDispatcher.addListener(listener);
     if (sync) {
-      listener.onURLChange(url);
-      listener.onRendererChange(currentRenderer);
+      listener.onURLChange(navigable.activeDocument().url());
     }
   }
 

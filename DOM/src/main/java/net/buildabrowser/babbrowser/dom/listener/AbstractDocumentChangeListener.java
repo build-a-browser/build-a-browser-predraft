@@ -4,7 +4,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 
-public class AbstractDocumentChangeListener implements DocumentChangeListener {
+public abstract class AbstractDocumentChangeListener implements DocumentChangeListener {
  
   private final DocumentChangeListener nextListener;
 

@@ -8,9 +8,9 @@ import net.buildabrowser.babbrowser.stream.ReadableStream;
 import net.buildabrowser.babbrowser.stream.UnderlyingSource;
 import net.buildabrowser.babbrowser.stream.UnderlyingSource.ReadableStreamType;
 
-public final class FetchUtil {
+public final class FetchImpUtil {
   
-  private FetchUtil() {}
+  private FetchImpUtil() {}
 
   public static FetchBody getBytesAsABody(byte[] bytes) {
     return safelyExtractABodyWithType(bytes).body();
@@ -45,7 +45,9 @@ public final class FetchUtil {
         // Just do this here to avoid an extra if.
         // The spec is worded a bit confusingly, and since
         // byte[] is fixed I dunno why it needs to be in parallel
-        ReadableStream.enqueue(stream, ByteBuffer.wrap(bytes));
+        if (bytes.length > 0) {
+          ReadableStream.enqueue(stream, ByteBuffer.wrap(bytes));
+        }
         ReadableStream.close(stream);
         length = bytes.length;
       }

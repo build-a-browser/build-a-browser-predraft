@@ -27,6 +27,8 @@ public class EventLoopImp implements EventLoop {
   @SuppressWarnings("unused")
   private Task currentlyRunningTask;
 
+  private int numTasks = 0;
+
   private float lastRenderDuration = 16;
   private long lastRenderTime = 0;
 
@@ -76,7 +78,8 @@ public class EventLoopImp implements EventLoop {
       // TODO: Properly start an idle period
 
       synchronized (tasks) {
-        if (taskQueue == null) {
+        if (numTasks > 0) numTasks--;
+        if (numTasks == 0) {
           try {
             tasks.wait();
           } catch (InterruptedException e) {}
@@ -111,6 +114,7 @@ public class EventLoopImp implements EventLoop {
         _ -> new TaskQueue(new LinkedHashSet<>()));
       queue.tasks().add(task);
       taskOrder.add(source);
+      numTasks++;
       tasks.notifyAll();
     }
   }

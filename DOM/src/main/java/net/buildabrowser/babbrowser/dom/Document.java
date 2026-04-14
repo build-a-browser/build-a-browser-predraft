@@ -16,8 +16,12 @@ public interface Document extends Node, DocumentOrShadowRoot {
 
   DocumentChangeListener changeListener();
 
-  static Document create(DocumentChangeListener documentChangeListener) {
-    return new DocumentImp(documentChangeListener);
+  static Document create() {
+    return new DocumentImp();
+  }
+
+  static Document create(DocumentChangeListener changeListener) {
+    return new DocumentImp(changeListener);
   }
 
 }

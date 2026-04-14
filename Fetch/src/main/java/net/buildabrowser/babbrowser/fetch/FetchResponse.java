@@ -1,9 +1,16 @@
 package net.buildabrowser.babbrowser.fetch;
 
+import java.net.URI;
+import java.util.List;
+
 import net.buildabrowser.babbrowser.fetch.imp.MutableFetchResponseImp;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchResponse;
 
 public interface FetchResponse {
+
+  URI url();
+
+  List<URI> urlList();
 
   FetchBody body();
 

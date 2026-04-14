@@ -3,35 +3,19 @@ package net.buildabrowser.babbrowser.render.imp;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.net.URI;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
-import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
-import net.buildabrowser.babbrowser.fetch.FetchParameters;
-import net.buildabrowser.babbrowser.fetch.FetchRequest;
-import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
-import net.buildabrowser.babbrowser.html.events.EventLoop;
-import net.buildabrowser.babbrowser.html.events.TaskSource;
-import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
-import net.buildabrowser.babbrowser.html.html.UAHTMLDocumentOptions;
 import net.buildabrowser.babbrowser.html.link.LinkDocumentChangeListener;
-import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
-import net.buildabrowser.babbrowser.html.navigation.DocumentState;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
-import net.buildabrowser.babbrowser.html.navigation.SessionHistoryEntry;
-import net.buildabrowser.babbrowser.html.scripting.Window;
-import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxGenerator;
 import net.buildabrowser.babbrowser.render.box.DocumentBox;
@@ -57,25 +41,22 @@ import net.buildabrowser.babbrowser.render.paint.LoadedFont;
 import net.buildabrowser.babbrowser.render.paint.Painter;
 import net.buildabrowser.babbrowser.render.paint.ResourceLoader;
 import net.buildabrowser.babbrowser.render.style.StyleGenerator;
-import net.buildabrowser.babbrowser.stream.ReadRequest;
-import net.buildabrowser.babbrowser.stream.ReadableStream.ReadableStreamGetReaderOptions;
-import net.buildabrowser.babbrowser.stream.imp.ReadableStreamDefaultReaderImp;
 
-public class DocumentRendererImp implements DocumentRenderer, EventForwardingTarget {
+public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardingTarget {
 
   private static final BoxGenerator boxGenerator = BoxGenerator.create();
 
   private final Object resizeLock = new Object();
   private final Object readyImageLock = new Object();
 
-  private final URI url;
-  private final Painter painter;
-  private final StyleSheetList uaStyleSheets;
-  private final Runnable postRepaint;
-  private final CSSMatcher cssMatcher;
   private final HTMLDocument document;
+  private final Navigable navigable;
+  private final Painter painter;
+
+  private final CSSMatcher cssMatcher;
   private final DocumentBox documentBox;
   private final ScriptingContext scriptingContext;
+  private final DocumentChangeListener changeListener;
 
   private InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
   private CompositeLayer rootLayer;
@@ -87,107 +68,28 @@ public class DocumentRendererImp implements DocumentRenderer, EventForwardingTar
   private BufferedImage readyImage;
   private BufferedImage activeImage;
 
-  private long parseTime;
-
-  public DocumentRendererImp(
-    URI url,
-    Painter painter,
-    FetchEngine fetchEngine,
-    StyleSheetList uaStyleSheets,
-    Runnable postRepaint
+  public HTMLDocumentRendererImp(
+    HTMLDocument document,
+    Navigable navigable,
+    Painter painter
   ) {
-    this.url = url;
+    this.document = document;
+    this.navigable = navigable;
     this.painter = painter;
-    this.uaStyleSheets = uaStyleSheets;
-    this.postRepaint = postRepaint;
 
     this.cssMatcher = CSSMatcher.create(new RenderCSSMatcherContext());
+    this.documentBox = DocumentBox.create(document);
+
+    FetchEngine fetchEngine = navigable.uaNavigableOptions().fetchEngine();
 
     DocumentChangeListener innerChangeListener = new RenderDocumentChangeListener(
       cssMatcher.documentChangeListener());
-    DocumentChangeListener changeListener = new LinkDocumentChangeListener(
+    this.changeListener = new LinkDocumentChangeListener(
       fetchEngine, innerChangeListener);
-    UAHTMLDocumentOptions documentOptions = new UAHTMLDocumentOptions(
-      changeListener, this,
-      newInvalidationLevel -> {
-        if (newInvalidationLevel.ordinal() < invalidationLevel.ordinal()) {
-          invalidationLevel = newInvalidationLevel;
-        }
-      });
-
-    BrowsingContext browsingContext = BrowsingContext.create(documentOptions);
-    this.document = browsingContext.activeDocument();
-    this.documentBox = DocumentBox.create(document);
-    WindowEventLoop eventLoop = browsingContext.activeWindow().agent().eventLoop();
-    eventLoop.addNavigable(Navigable.create(
-      SessionHistoryEntry.create(DocumentState.create(document))));
-
-    // TODO: Proper navigation
-    document.setURL(url);
     
     this.scriptingContext = ScriptingContext.create(
       fetchEngine,
-      browsingContext.realm().hostDefined());
-  }
-
-  @Override
-  public void start() {
-    Window window = document.browsingContext().activeWindow();
-    WindowEventLoop eventLoop = window.agent().eventLoop();
-    eventLoop.runInParallel(() -> eventLoop.start());
-
-    MutableFetchRequest fetchRequest = FetchRequest.createMutable();
-    fetchRequest.setMethod("GET");
-    fetchRequest.setURL(url);
-    fetchRequest.setClient(scriptingContext.environmentSettingsObject());
-
-    long downloadStartTime = System.currentTimeMillis();
-    HTMLParser htmlParser = HTMLParser.create(document, StandardCharsets.UTF_8);
-
-    FetchParameters fetchParameters = new FetchParameters();
-    fetchParameters.request = fetchRequest;
-    fetchParameters.processResponse = (response) -> {
-      ReadableStreamGetReaderOptions options = new ReadableStreamGetReaderOptions();
-      ReadableStreamDefaultReaderImp reader = (ReadableStreamDefaultReaderImp) response.body().stream().getReader(options);
-      // TODO: Use the normal reader's exposed methods instead, once implemented
-      reader.read(new ReadRequest() {
-
-        @Override
-        public void chunk(ByteBuffer chunk) {
-          EventLoop.queueGlobalTask(TaskSource.DOM, window,
-            () -> {
-              long parseChunkStartTime = System.currentTimeMillis();
-              htmlParser.parse(chunk);
-              parseTime += System.currentTimeMillis() - parseChunkStartTime;
-            });
-          reader.read(this);
-        }
-
-        @Override
-        public void close() {
-          PerfLogging.logDownloadTime(downloadStartTime, url);
-          EventLoop.queueGlobalTask(TaskSource.DOM, window, () -> {
-            long parseChunkStartTime = System.currentTimeMillis();
-            htmlParser.done();
-            parseTime += System.currentTimeMillis() - parseChunkStartTime;
-            PerfLogging.logParseTime(parseTime, url);
-          });
-        }
-
-        @Override
-        public void error(Object e) {
-          ((Throwable) e).printStackTrace();
-        }
-        
-      });
-    };
-
-    scriptingContext.fetchEngine().fetch(fetchParameters);
-  }
-
-  @Override
-  public void shutdown() {
-    scriptingContext.globalObject().agent().eventLoop().shutdown();
+      document.browsingContext().realm().hostDefined());
   }
 
   @Override
@@ -198,7 +100,7 @@ public class DocumentRendererImp implements DocumentRenderer, EventForwardingTar
   @Override
   public void recalculateStyles() {
     long styleStartTime = System.currentTimeMillis();
-    cssMatcher.applyStylesheets(document, uaStyleSheets);
+    cssMatcher.applyStylesheets(document, navigable.uaNavigableOptions().uaStyleSheets());
     StyleGenerator.style(document);
     PerfLogging.logStyleTime(styleStartTime);
   }
@@ -260,7 +162,7 @@ public class DocumentRendererImp implements DocumentRenderer, EventForwardingTar
       this.readyImage = this.activeImage;
       this.activeImage = prevImage;
     }
-    postRepaint.run();
+    navigable.uaNavigableOptions().requestRepaint();
 
     PerfLogging.logPaintTime(paintStartTime);
   }
@@ -294,6 +196,18 @@ public class DocumentRendererImp implements DocumentRenderer, EventForwardingTar
     CompositeEventsDispatcher.handleMouseEvent(rootLayer, mouseEvent, mouseEvent.winX(), mouseEvent.winY());
   }
 
+  @Override
+  public DocumentChangeListener changeListener() {
+    return this.changeListener;
+  }
+
+  @Override
+  public void onDocumentInvalidated(InvalidationLevel invalidationLevel) {
+    if (invalidationLevel.ordinal() < this.invalidationLevel.ordinal()) {
+      this.invalidationLevel = invalidationLevel;
+    }
+  }
+
   private void recomputeBoxes() {
     Node firstNode = document.childNodes().item(0);
     if (firstNode == null) return;
@@ -313,7 +227,7 @@ public class DocumentRendererImp implements DocumentRenderer, EventForwardingTar
 
     Object cacheKey = new Object();
     GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
-      url, painter.resourceLoader(), rootFont.metrics(), fontCache,
+      painter.resourceLoader(), rootFont.metrics(), fontCache,
       scriptingContext, cacheKey);
 
     LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);

@@ -2,9 +2,13 @@ package net.buildabrowser.babbrowser.html.html.imp;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.Invalidatable;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
+import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.imp.ElementImp;
+import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
+import net.buildabrowser.babbrowser.html.navigation.Navigable;
 
 public class HTMLElementImp extends ElementImp implements HTMLElement {
 
@@ -75,6 +79,18 @@ public class HTMLElementImp extends ElementImp implements HTMLElement {
   @Override
   public void setBox(Object box) {
     this.box = box;
+  }
+
+  @Override
+  public Navigable nodeNavigable() {
+    Document document = nodeDocument();
+    if (
+      document == null
+      || !(document instanceof HTMLDocument htmlDocument)
+    ) return null;
+    WindowEventLoop eventLoop = htmlDocument.browsingContext().activeWindow()
+      .agent().eventLoop();
+    return eventLoop.getNavigable(htmlDocument);
   }
 
 }

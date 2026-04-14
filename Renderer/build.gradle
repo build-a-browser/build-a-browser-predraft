@@ -20,6 +20,7 @@ switch (OperatingSystem.current()) {
 dependencies {
     api project(':Network')
     api project(':Fetch')
+    api project(':CSSBase')
     implementation project(':HTML')
     implementation project(':HTMLParser')
     implementation project(':CSSEngine')

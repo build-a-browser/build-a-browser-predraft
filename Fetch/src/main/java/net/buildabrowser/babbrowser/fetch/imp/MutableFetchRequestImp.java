@@ -1,15 +1,18 @@
 package net.buildabrowser.babbrowser.fetch.imp;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.buildabrowser.babbrowser.fetch.FetchClient;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
 
 public class MutableFetchRequestImp implements MutableFetchRequest {
 
+  private List<URI> urlList = new ArrayList<>(4);
+
   private String method;
   private FetchClient client;
-  private URI url;
 
   @Override
   public String method() {
@@ -23,12 +26,12 @@ public class MutableFetchRequestImp implements MutableFetchRequest {
   
   @Override
   public URI url() {
-    return this.url;
+    return urlList.getFirst();
   }
 
   @Override
   public void setURL(URI url) {
-    this.url = url;
+    urlList.add(url);
   }
 
   @Override
@@ -42,8 +45,13 @@ public class MutableFetchRequestImp implements MutableFetchRequest {
   }
 
   @Override
+  public List<URI> urlList() {
+    return this.urlList;
+  }
+
+  @Override
   public URI currentURL() {
-    return this.url;
+    return urlList.getLast();
   }
 
 }

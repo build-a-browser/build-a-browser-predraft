@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Namespace;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.imp.HTMLElementImp;
+import net.buildabrowser.babbrowser.html.navigation.Navigable;
 
 public interface HTMLElement extends Element, Invalidatable {
 
@@ -21,6 +22,8 @@ public interface HTMLElement extends Element, Invalidatable {
   void setBox(Object box);
 
   InvalidationLevel invalidationLevel();
+
+  Navigable nodeNavigable();
 
   public static HTMLElement create(
     String name, Node parentNode

@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.html.navigation.imp;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
-import net.buildabrowser.babbrowser.html.html.UAHTMLDocumentOptions;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.scripting.Realm;
 import net.buildabrowser.babbrowser.html.scripting.RealmExecutionContext;
@@ -15,13 +14,13 @@ public class BrowsingContextImp implements BrowsingContext {
   private Window activeWindow;
   private Realm realm;
 
-  public BrowsingContextImp(UAHTMLDocumentOptions documentOptions) {
+  public BrowsingContextImp() {
     // TODO: A ton of spec steps
     SimilarOriginWindowAgent agent = obtainSimilarOriginWindowAgent();
     
     // I moved this above some of the other steps because I need a document to
     // create a window
-    HTMLDocument document = HTMLDocument.create(this, documentOptions);
+    HTMLDocument document = HTMLDocument.create(this);
     // TODO: Proper way to obtain a realm.
     Window window = Window.create(() -> agent.eventLoop(), document);
     Realm realm = Realm.create(window);

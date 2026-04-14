@@ -24,7 +24,6 @@ public final class EventUtil {
     MouseEvent mouseEvent, BoxFragment fragment, float posX, float posY
   ) {
     // TODO: Will need replaced with a proper MouseEvent
-    System.out.println(fragment.box().element());
     EventDispatcher.dispatch((PointerEvent) () -> "click", fragment.box().element());
   }
 

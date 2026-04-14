@@ -26,7 +26,7 @@ public class TabGUI extends JPanel implements TabMutationEventListener {
   public void onNavigate(Tab tab, URI url) {
     try {
       this.removeAll();
-      Component renderedContent = tab.getFrame().getCurrentRenderer().render();
+      Component renderedContent = tab.getFrame().getRenderer().render();
 
       this.add(renderedContent);
     } catch (IOException e) {

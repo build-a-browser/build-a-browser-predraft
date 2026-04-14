@@ -45,6 +45,17 @@ public class WindowEventLoopImp extends EventLoopImp implements WindowEventLoop 
     super.start();
   }
 
+  @Override
+  public Navigable getNavigable(Document relatedDocument) {
+    for (Navigable navigable: relatedNavigables) {
+      if (navigable.activeDocument() == relatedDocument) {
+        return navigable;
+      }
+    }
+
+    return null;
+  }
+
   private void updateRenderingLoop(GlobalObject globalObject) {
     while (isLooping.get() && !isClosing.get()) {
       long taskStart = System.currentTimeMillis();
@@ -80,7 +91,7 @@ public class WindowEventLoopImp extends EventLoopImp implements WindowEventLoop 
       Document doc = navigable.activeDocument();
       // TODO: A number of conditions
       DocumentRenderer renderer = ((HTMLDocument) doc).renderer();
-      if (!renderer.shouldRender()) continue;
+      if (renderer == null || !renderer.shouldRender()) continue;
       docs.add(doc);
     }
     

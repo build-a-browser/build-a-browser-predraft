@@ -1,6 +1,8 @@
 package net.buildabrowser.babbrowser.browser;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -12,8 +14,11 @@ import net.buildabrowser.babbrowser.browser.net.imp.FetchBackendImp;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
+import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.render.RenderingEngine;
+import net.buildabrowser.babbrowser.render.loader.DocumentLoaderRegistry;
+import net.buildabrowser.babbrowser.render.loader.loaders.HTMLDocumentLoader;
 import net.buildabrowser.babbrowser.render.paint.Painter;
 import net.buildabrowser.babbrowser.render.paint.java2d.Java2DPainter;
 import net.buildabrowser.babbrowser.render.paint.skija.SkijaPainter;
@@ -33,8 +38,14 @@ public class Main {
       new Java2DPainter() :
       new SkijaPainter();
 
+    DocumentLoaderRegistry loaderRegistry = DocumentLoaderRegistry.create();
+    loaderRegistry.register("text/html", new HTMLDocumentLoader());
+
     FetchEngine fetchEngine = FetchEngine.create(new FetchBackendImp());
-    RenderingEngine renderingEngine = RenderingEngine.create(fetchEngine, painter);
+    StyleSheetList uaStyleSheets = loadUAStyleSheets();
+
+    RenderingEngine renderingEngine = RenderingEngine.create(
+      fetchEngine, painter, loaderRegistry, uaStyleSheets);
     BrowserInstance browserInstance = BrowserInstance.create(renderingEngine);
   
     WindowSet windowSet = WindowSet.create(browserInstance);
@@ -53,6 +64,15 @@ public class Main {
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private static StyleSheetList loadUAStyleSheets() throws IOException {
+    try (
+      Reader reader = new InputStreamReader(
+        ClassLoader.getSystemClassLoader().getResourceAsStream("ua/ua.css"))
+    ) {
+      return StyleSheetList.createFromReader(reader);
     }
   }
 

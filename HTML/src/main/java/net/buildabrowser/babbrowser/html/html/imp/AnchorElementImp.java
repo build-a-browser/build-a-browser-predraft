@@ -4,6 +4,8 @@ import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.algo.ActivationTarget;
 import net.buildabrowser.babbrowser.dom.events.PointerEvent;
 import net.buildabrowser.babbrowser.html.html.AnchorElement;
+import net.buildabrowser.babbrowser.html.html.util.NavUtil;
+import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
 
 public class AnchorElementImp extends HTMLElementImp implements AnchorElement, ActivationTarget {
 
@@ -13,7 +15,12 @@ public class AnchorElementImp extends HTMLElementImp implements AnchorElement, A
 
   @Override
   public void activate(PointerEvent event) {
-    System.out.println("Activated an anchor whose href is " + attributes().get("href"));
+    if (!attributes().containsKey("href")) return;
+    String hyperlinkSuffix = null;
+    // TODO: Other stuff
+    UserNavigationInvolvement userInvolvement = UserNavigationInvolvement.ACTIVATION; // TODO: Proper way to get this
+    // TODO: Downloads
+    NavUtil.followHyperlink(this, hyperlinkSuffix, userInvolvement);
   }
   
 }

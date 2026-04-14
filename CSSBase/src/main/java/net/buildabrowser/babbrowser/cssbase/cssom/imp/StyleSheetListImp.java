@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.cssbase.cssom.imp;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -45,6 +46,11 @@ public class StyleSheetListImp implements StyleSheetList {
   public void removeStylesheet(CSSStyleSheet styleSheet) {
     styleSheets.remove(styleSheet);
     // TODO: Fire a listener to remove
+  }
+
+  @Override
+  public Iterator<CSSStyleSheet> iterator() {
+    return styleSheets.iterator();
   }
   
 }

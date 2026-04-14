@@ -1,32 +1,26 @@
 package net.buildabrowser.babbrowser.html.html.imp;
 
 import java.net.URI;
-import java.util.function.Consumer;
 
+import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.Invalidatable;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.imp.DocumentImp;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchClient;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
-import net.buildabrowser.babbrowser.html.html.UAHTMLDocumentOptions;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 
 public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
 
   private final BrowsingContext browsingContext;
-  private final DocumentRenderer renderer;
-  private final Consumer<InvalidationLevel> onInvalidate;
 
-  public HTMLDocumentImp(
-    BrowsingContext browsingContext,
-    UAHTMLDocumentOptions documentOptions
-  ) {
-    super(documentOptions.changeListener());
+  private DocumentRenderer renderer;
+
+  public HTMLDocumentImp(BrowsingContext browsingContext) {
     this.browsingContext = browsingContext;
-    this.renderer = documentOptions.renderer();
-    this.onInvalidate = documentOptions.onInvalidate();
   }
 
   @Override
@@ -52,6 +46,16 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
   }
 
   @Override
+  public void attachRenderer(DocumentRenderer renderer) {
+    // TODO: Might be good for Renderer to be an intrusive list in the future
+    // (say we need a web renderer and PDF renderer)
+    this.renderer = renderer;
+
+    syncStylesheets(renderer.changeListener());
+    syncNodes(renderer.changeListener(), this);
+  }
+
+  @Override
   public URI fallbackURL() {
     // TODO: Implement
     return url();
@@ -70,7 +74,9 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
 
   @Override
   public void invalidate(InvalidationLevel invalidationLevel) {
-    onInvalidate.accept(invalidationLevel);
+    if (renderer != null) {
+      renderer.onDocumentInvalidated(invalidationLevel);
+    }
   }
 
   @Override
@@ -81,6 +87,28 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
         invalidatable.validate();
       }
       currentNode = currentNode.nextSibling();
+    }
+  }
+
+  @Override
+  public DocumentChangeListener changeListener() {
+    if (renderer == null) {
+      return super.changeListener();
+    } else {
+      return renderer.changeListener();
+    }
+  }
+
+  private void syncStylesheets(DocumentChangeListener changeListener) {
+    for (CSSStyleSheet styleSheet: styleSheets()) {
+      changeListener.onStylesheetAdded(styleSheet);
+    }
+  }
+
+  private void syncNodes(DocumentChangeListener changeListener, Node node) {
+    changeListener.onNodeAdded(this);
+    for (Node childNode: node.childNodes()) {
+      syncNodes(changeListener, childNode);
     }
   }
   

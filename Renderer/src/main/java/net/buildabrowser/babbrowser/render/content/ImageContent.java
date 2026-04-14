@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
+import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.fetch.FetchParameters;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
 import net.buildabrowser.babbrowser.network.URLUtil;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
@@ -113,7 +115,11 @@ public class ImageContent implements BoxContent, BoxPainter {
   };
 
   private void loadImage(GlobalLayoutContext layoutContext) {
-    URI imageSource = getImageSource(layoutContext.refURL());
+    Document nodeDocument = box.element().nodeDocument();
+    URI baseURL = nodeDocument instanceof HTMLDocument htmlDocument ?
+      htmlDocument.baseURL() :
+      nodeDocument.url();
+    URI imageSource = getImageSource(baseURL);
     if (imageSource == null) return;
     if (loadingImageURL == null || !loadingImageURL.equals(imageSource)) {
       image = null;
