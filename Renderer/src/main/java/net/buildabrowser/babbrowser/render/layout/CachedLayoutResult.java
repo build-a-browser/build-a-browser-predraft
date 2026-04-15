@@ -1,26 +1,24 @@
 package net.buildabrowser.babbrowser.render.layout;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
+import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 
 public class CachedLayoutResult implements IntrusiveList<CachedLayoutResult> {
   
   private final LayoutConstraint widthConstraint;
   private final LayoutConstraint heightConstraint;
-  private final float widthResult;
-  private final float heightResult;
+  private final UnmanagedBoxFragment layoutFragment;
 
   private CachedLayoutResult next;
 
   public CachedLayoutResult(
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint,
-    float widthResult,
-    float heightResult
+    UnmanagedBoxFragment layoutFragment
   ) {
     this.widthConstraint = widthConstraint;
     this.heightConstraint = heightConstraint;
-    this.widthResult = widthResult;
-    this.heightResult = heightResult;
+    this.layoutFragment = layoutFragment;
   }
 
   @Override
@@ -34,11 +32,15 @@ public class CachedLayoutResult implements IntrusiveList<CachedLayoutResult> {
   }
 
   public float width() {
-    return this.widthResult;
+    return layoutFragment.contentWidth();
   }
 
   public float height() {
-    return this.heightResult;
+    return layoutFragment.contentHeight();
+  }
+
+  public UnmanagedBoxFragment fragment() {
+    return this.layoutFragment;
   }
 
   public boolean applies(
@@ -52,11 +54,10 @@ public class CachedLayoutResult implements IntrusiveList<CachedLayoutResult> {
   public static CachedLayoutResult create(
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint,
-    float widthResult,
-    float heightResult,
+    UnmanagedBoxFragment layoutFragment,
     CachedLayoutResult next
   ) {
-    CachedLayoutResult result = new CachedLayoutResult(widthConstraint, heightConstraint, widthResult, heightResult);
+    CachedLayoutResult result = new CachedLayoutResult(widthConstraint, heightConstraint, layoutFragment);
     result.setNext(next);
     return result;
   }

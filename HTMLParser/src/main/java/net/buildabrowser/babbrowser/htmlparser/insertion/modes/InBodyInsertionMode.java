@@ -72,6 +72,13 @@ public class InBodyInsertionMode implements InsertionMode {
         // TODO: Acknowledge self-closing flag
         parseContext.setFramesetOk(false);
         return false;
+      case "input":
+        // TODO: Check additional scopes
+        ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
+        parseContext.openElementStack().popNode();
+        // TODO: Acknowledge self-closing flag
+        parseContext.setFramesetOk(false);
+        return false;
       default:
         ParseTextUtil.reconstructTheActiveFormattingElements(parseContext);
         ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);

@@ -84,12 +84,12 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
 
   @Override
   public float preferredMinWidthConstraint() {
-    return box.cachedLayout(LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).width();
+    return box.layout(LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).contentWidth();
   }
 
   @Override
   public float preferredWidthConstraint() {
-    return box.cachedLayout(LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).width();
+    return box.layout(LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).contentWidth();
   }
 
   @Override

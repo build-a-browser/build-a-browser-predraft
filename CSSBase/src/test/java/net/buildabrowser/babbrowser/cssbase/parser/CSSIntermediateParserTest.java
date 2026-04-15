@@ -10,11 +10,13 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
+import net.buildabrowser.babbrowser.cssbase.intermediate.AtRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.CSSIntermediateParserImp;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.tokens.AtKeywordToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
@@ -45,8 +47,8 @@ public class CSSIntermediateParserTest {
   }
 
   @Test
-  @DisplayName("Can parse a CSS stylesheet with empty qualified rule")
-  public void canParseACSSStyleSheetWithEmptyQualifiedRule() throws IOException {
+  @DisplayName("Can parse a CSS stylesheet with an empty qualified rule")
+  public void canParseACSSStyleSheetWithAnEmptyQualifiedRule() throws IOException {
     List<CSSRule> rules = parseTokens(
       IdentToken.create("p"), LCBracketToken.create(), RCBracketToken.create(),
       EOFToken.create()
@@ -58,8 +60,8 @@ public class CSSIntermediateParserTest {
   }
 
   @Test
-  @DisplayName("Can parse a CSS stylesheet with qualified rule with tokens")
-  public void canParseACSSStyleSheetWithQualifiedRuleWithTokens() throws IOException {
+  @DisplayName("Can parse a CSS stylesheet with a qualified rule with tokens")
+  public void canParseACSSStyleSheetWithAQualifiedRuleWithTokens() throws IOException {
     List<CSSRule> rules = parseTokens(
       IdentToken.create("p"), LCBracketToken.create(), IdentToken.create("color"),
       ColonToken.create(), IdentToken.create("red"), RCBracketToken.create(),
@@ -74,8 +76,8 @@ public class CSSIntermediateParserTest {
   }
 
   @Test
-  @DisplayName("Can parse a CSS stylesheet with qualified rule with whitespace")
-  public void canParseACSSStyleSheetWithQualifiedRuleWithWhitespace() throws IOException {
+  @DisplayName("Can parse a CSS stylesheet with a qualified rule with whitespace")
+  public void canParseACSSStyleSheetWithAQualifiedRuleWithWhitespace() throws IOException {
     List<CSSRule> rules = parseTokens(
       WhitespaceToken.create(), IdentToken.create("p"), WhitespaceToken.create(),
       LCBracketToken.create(), WhitespaceToken.create(), RCBracketToken.create(),
@@ -86,6 +88,20 @@ public class CSSIntermediateParserTest {
       new SimpleBlock(new LCBracketToken(), List.of(
         WhitespaceToken.create()
       ))
+    )), rules);
+  }
+
+  @Test
+  @DisplayName("Can parse a CSS stylesheet with an empty at rule")
+  public void canParseACSSStyleSheetWithAnEmptyAtRule() throws IOException {
+    List<CSSRule> rules = parseTokens(
+      AtKeywordToken.create("media"), IdentToken.create("screen"), LCBracketToken.create(),
+      RCBracketToken.create(), EOFToken.create()
+    );
+    Assertions.assertEquals(List.of(new AtRule(
+      AtKeywordToken.create("media"),
+      List.of(new IdentToken("screen")),
+      new SimpleBlock(new LCBracketToken(), List.of())
     )), rules);
   }
 

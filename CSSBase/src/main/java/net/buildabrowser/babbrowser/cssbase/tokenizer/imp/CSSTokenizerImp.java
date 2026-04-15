@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.common.util.ASCIIUtil;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizer;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
+import net.buildabrowser.babbrowser.cssbase.tokens.AtKeywordToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.BadStringToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
@@ -45,6 +46,7 @@ public class CSSTokenizerImp implements CSSTokenizer {
       case '.' -> consumeFullStop(stream);
       case ':' -> ColonToken.create();
       case ';' -> SemicolonToken.create();
+      case '@' -> consumeCommercialAt(stream);
       case '[' -> LSBracketToken.create();
       case '\\' -> consumeReverseSolidus(stream);
       case ']' -> RSBracketToken.create();
@@ -167,6 +169,15 @@ public class CSSTokenizerImp implements CSSTokenizer {
     }
 
     return new DelimToken('.');
+  }
+
+  private Token consumeCommercialAt(CSSTokenizerInput stream) throws IOException {
+    if (TokenizerUtil.wouldStartAnIdentSequence(stream)) {
+      String value = identTokenizer.consumeIdentSequence(stream);
+      return AtKeywordToken.create(value);
+    }
+
+    return new DelimToken('@');
   }
 
   private Token consumeReverseSolidus(CSSTokenizerInput stream) throws IOException {

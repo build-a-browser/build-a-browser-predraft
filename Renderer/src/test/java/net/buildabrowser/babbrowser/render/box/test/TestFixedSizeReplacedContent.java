@@ -26,7 +26,7 @@ public class TestFixedSizeReplacedContent implements BoxContent {
     float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, width);
     float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, height);
     
-    return new UnmanagedBoxFragment(usedWidth, usedHeight, box, null);
+    return new UnmanagedBoxFragment(usedWidth, usedHeight, box);
   }
 
   @Override

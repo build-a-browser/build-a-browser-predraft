@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.render.content.common.fragment;
 
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
+import net.buildabrowser.babbrowser.render.paint.UnreachableBoxPainter;
 
 public class BoxFragment extends LayoutFragment {
   
@@ -15,7 +16,15 @@ public class BoxFragment extends LayoutFragment {
     super(width, height);
     this.box = box;
     this.painter = painter;
-    box.updateFragment(this);
+  }
+
+  public BoxFragment(
+    float width, float height,
+    ElementBox box
+  ) {
+    super(width, height);
+    this.box = box;
+    this.painter = new UnreachableBoxPainter();
   }
 
   public ElementBox box() {

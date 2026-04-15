@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.render.content.common.fragment;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.paint.UnreachableBoxPainter;
 
 // This exists to keep the fragment in-tree for proper ordering when scanning for positioned
 // fragments, but also provide a target that can be ignored during standard layout operations
@@ -10,7 +11,7 @@ import net.buildabrowser.babbrowser.render.box.ElementBox;
 public class PosRefBoxFragment extends BoxFragment {
 
   public PosRefBoxFragment(ElementBox refBox) {
-    super(0, 0, refBox, null);
+    super(0, 0, refBox, new UnreachableBoxPainter());
   }
 
   public PositionValue position() {

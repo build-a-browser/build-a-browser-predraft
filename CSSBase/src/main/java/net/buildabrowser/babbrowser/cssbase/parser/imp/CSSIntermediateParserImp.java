@@ -6,17 +6,22 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
+import net.buildabrowser.babbrowser.cssbase.intermediate.AtRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.tokens.AtKeywordToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.FunctionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LCBracketToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.LParenToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.LSBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RCBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RParenToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.RSBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.SemicolonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
@@ -34,12 +39,47 @@ public class CSSIntermediateParserImp {
           continue;
         case EOFToken _:
           return rules;
+        case AtKeywordToken _:
+          stream.unread(token);
+          CSSRule atRule = consumeAnAtRule(stream);
+          rules.add(atRule);
+          break;
         default:
           stream.unread(token);
-          CSSRule rule = consumeAQualifiedRule(stream);
-          if (rule != null) {
-            rules.add(rule);
+          CSSRule qualifiedRule = consumeAQualifiedRule(stream);
+          if (qualifiedRule != null) {
+            rules.add(qualifiedRule);
           }
+          break;
+      }
+    }
+  }
+
+  private CSSRule consumeAnAtRule(CSSTokenStream stream) throws IOException {
+    Token name = stream.read();
+    List<Token> prelude = new ArrayList<>(4);
+
+    while (true) {
+      Token token = stream.read();
+      switch (token) {
+        case SemicolonToken _:
+          return new AtRule(name, prelude, null);
+        case EOFToken _:
+          // TODO: Report parse error
+          return new AtRule(name, prelude, null);
+        case LCBracketToken _: {
+          SimpleBlock simpleBlock = consumeASimpleBlock(stream, token);
+          return new AtRule(name, prelude, simpleBlock);
+        }
+        case SimpleBlock simpleBlock:
+          if (simpleBlock.type() instanceof LCBracketToken) {
+            return new AtRule(name, prelude, simpleBlock);
+          }
+          // Fall-through
+        default:
+          stream.unread(token);
+          Token componentValue = consumeAComponentValue(stream);
+          prelude.add(componentValue);
           break;
       }
     }
@@ -55,9 +95,15 @@ public class CSSIntermediateParserImp {
         case EOFToken _:
           // TODO: Report parse error
           return null;
-        case LCBracketToken _:
+        case LCBracketToken _: {
           SimpleBlock simpleBlock = consumeASimpleBlock(stream, token);
           return new QualifiedRule(prelude, simpleBlock);
+        }
+        case SimpleBlock simpleBlock:
+          if (simpleBlock.type() instanceof LCBracketToken) {
+            return new QualifiedRule(prelude, simpleBlock);
+          }
+          // Fall-through
         default:
           stream.unread(token);
           Token componentValue = consumeAComponentValue(stream);
@@ -126,22 +172,33 @@ public class CSSIntermediateParserImp {
   }
 
   private Token consumeAComponentValue(CSSTokenStream stream) throws IOException {
-    // TODO: Other cases
     Token token = stream.read();
-    if (token instanceof FunctionToken functionToken) {
+    if (
+      token instanceof LCBracketToken
+      || token instanceof LSBracketToken
+      || token instanceof LParenToken
+    ) {
+      return consumeASimpleBlock(stream, token);
+    } else if (token instanceof FunctionToken functionToken) {
       return consumeAFunction(stream, functionToken);
+    } else {
+      return token;
     }
-
-    return token;
   }
 
   private SimpleBlock consumeASimpleBlock(CSSTokenStream stream, Token associatedToken) throws IOException {
     List<Token> value = new ArrayList<>();
 
-    //TODO: Other cases
     while (true) {
       Token token = stream.read();
-      if (associatedToken instanceof LCBracketToken && token instanceof RCBracketToken) {
+      if (
+        (associatedToken instanceof LCBracketToken && token instanceof RCBracketToken)
+        || (associatedToken instanceof LSBracketToken && token instanceof RSBracketToken)
+        || (associatedToken instanceof LParenToken && token instanceof RParenToken)
+      ) {
+        return new SimpleBlock(associatedToken, value);
+      } else if (associatedToken instanceof EOFToken) {
+        // TODO: Report parse error
         return new SimpleBlock(associatedToken, value);
       } else {
           stream.unread(token);

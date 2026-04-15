@@ -185,7 +185,7 @@ public class FlowBlockLayout {
       new UnmanagedBoxFragment(
         FlowUtil.constraintWidth(childBox.dimensions(), childWidthConstraint),
         FlowUtil.constraintHeight(childBox.dimensions(), childHeightConstraint),
-        childBox, null) :
+        childBox) :
       childBox.layout(childWidthConstraint, childHeightConstraint);
 
     activeContext.recordMargin(margin[1]);

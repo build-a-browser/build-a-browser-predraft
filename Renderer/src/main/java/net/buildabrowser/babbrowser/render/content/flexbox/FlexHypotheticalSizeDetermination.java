@@ -58,7 +58,7 @@ public final class FlexHypotheticalSizeDetermination {
       ) {
         item.setBaseSize(mainSize.type().equals(LayoutConstraintType.MAX_CONTENT) ?
           itemDimensions.preferredWidthConstraint() :
-        itemDimensions.preferredMinWidthConstraint());
+          itemDimensions.preferredMinWidthConstraint());
         continue;
       }
 

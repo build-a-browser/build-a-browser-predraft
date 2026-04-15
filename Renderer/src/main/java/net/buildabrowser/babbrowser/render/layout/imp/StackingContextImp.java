@@ -184,11 +184,11 @@ public class StackingContextImp implements StackingContext {
     }
     if (!(refBox instanceof ElementBox elementBox)) return new float[4];
 
-    if (elementBox.lastCachedFragment() == null) {
+    if (elementBox.positioningFragment() == null) {
       // TODO: Remove this check once every content properly handles positions
       return new float[4];
     }
-    BoxFragment refFragment = elementBox.lastCachedFragment();
+    BoxFragment refFragment = elementBox.positioningFragment();
     return PositionUtil.computeRelativeInsets(
       refFragment.contentWidth(), refFragment.contentHeight(), relatedBox);
   }

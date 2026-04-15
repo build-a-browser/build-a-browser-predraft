@@ -2,9 +2,11 @@ package net.buildabrowser.babbrowser.render.uistate.imp;
 
 import java.net.URI;
 
+import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.NavigateParameters;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
+import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.network.URLUtil;
 import net.buildabrowser.babbrowser.network.exception.BadURLException;
 import net.buildabrowser.babbrowser.render.Renderer;
@@ -65,6 +67,10 @@ public class FrameImp implements Frame {
   @Override
   public void close() {
     renderer.close();
+
+    Window window = navigable.activeDocument().browsingContext().activeWindow();
+    WindowEventLoop eventLoop = window.agent().eventLoop();
+    eventLoop.shutdown();
   }
 
   @Override

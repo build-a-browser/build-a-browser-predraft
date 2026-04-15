@@ -8,7 +8,6 @@ import net.buildabrowser.babbrowser.render.box.imp.AnonymousElementBoxImp;
 import net.buildabrowser.babbrowser.render.box.imp.ElementBoxImp;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.render.layout.CachedLayoutResult;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
@@ -38,11 +37,9 @@ public interface ElementBox extends Box {
 
   UnmanagedBoxFragment layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
 
-  CachedLayoutResult cachedLayout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
+  void updatePositioningFragment(BoxFragment boxFragment);
 
-  void updateFragment(BoxFragment boxFragment);
-
-  BoxFragment lastCachedFragment();
+  BoxFragment positioningFragment();
 
   LayoutContext layoutContext();
 

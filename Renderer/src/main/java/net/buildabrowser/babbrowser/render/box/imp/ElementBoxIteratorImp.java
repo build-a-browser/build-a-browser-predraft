@@ -76,6 +76,7 @@ public class ElementBoxIteratorImp implements ElementBoxIterator {
     }
     if (prevPrevBox == null) {
       elementBox.childBoxes = nextBox;
+      prevBox.setNext(null);
       prevBox = null;
     } else {
       IntrusiveList.remove(prevPrevBox, 1);

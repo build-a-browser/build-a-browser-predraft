@@ -96,7 +96,7 @@ public class ElementSetImp implements ElementSet {
   @Override
   public ElementSet copy() {
     BitSet newSet = (BitSet) rawSet.clone();
-    return new ElementSetImp(root, elementList, newSet);
+    return new ElementSetImp(root(), elementList, newSet);
   }
   
 }

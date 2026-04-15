@@ -2,6 +2,8 @@ package net.buildabrowser.babbrowser.render.content.flow;
 
 import static net.buildabrowser.babbrowser.render.layout.StackingContext.startsStackingContext;
 
+import java.util.List;
+
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
@@ -11,33 +13,26 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.PosRefBoxFrag
 import net.buildabrowser.babbrowser.render.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.paint.ElementBackgroundPainter;
-import net.buildabrowser.babbrowser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.render.paint.PaintCanvas;;
 
 public final class FlowRootContentPainter {
 
+  public static BoxPainter FLOW_ROOT_PAINTER = new FlowRootBoxPainter();
   public static BoxPainter FLOW_BLOCK_PAINTER = new FlowBlockPainter();
   public static BoxPainter FLOW_INLINE_PAINTER = new FlowInlinePainter();
  
   private FlowRootContentPainter() {}
 
   public static class FlowRootBoxPainter implements BoxPainter {
-  
-    private final FlowRootContent rootContent;
-
-    public FlowRootBoxPainter(FlowRootContent rootContent) {
-      this.rootContent = rootContent;
-    }
 
     @Override
     public void paint(BoxFragment fragment, PaintCanvas canvas) {
-      ManagedBoxFragment baseFragment = fragment instanceof ManagedBoxFragment managedFragment ?
-        managedFragment :
-        rootContent.rootFragment();
+      FlowRootBoxFragment wrapperFragment = (FlowRootBoxFragment) fragment;
+      ManagedBoxFragment baseFragment = wrapperFragment.rootFragment();
       canvas.pushPaint();
       paintBlockLevelBackgrounds(canvas, baseFragment, baseFragment);
-      paintFloats(canvas, rootContent.floatTracker(), baseFragment);
+      paintFloats(canvas, wrapperFragment.floats(), baseFragment);
       paintFragment(canvas, baseFragment, baseFragment);
       canvas.popPaint();
     }
@@ -48,8 +43,8 @@ public final class FlowRootContentPainter {
       paintBackgroundAndAdvance(canvas, fragment);
     }
 
-    public static void paintFloats(PaintCanvas canvas, FloatTracker floatTracker, BoxFragment refFragment) {
-      for (LayoutFragment childFragment: floatTracker.allFloats()) {
+    public static void paintFloats(PaintCanvas canvas, List<BoxFragment> floats, BoxFragment refFragment) {
+      for (BoxFragment childFragment: floats) {
         if (startsStackingContext(childFragment, refFragment)) continue;
 
         canvas.pushPaint();

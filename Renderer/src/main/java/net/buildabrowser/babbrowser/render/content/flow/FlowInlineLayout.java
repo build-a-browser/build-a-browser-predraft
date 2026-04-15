@@ -10,8 +10,8 @@ import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.render.box.TextBox;
 import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
+import net.buildabrowser.babbrowser.render.box.TextBox;
 import net.buildabrowser.babbrowser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
@@ -37,6 +37,10 @@ public class FlowInlineLayout {
 
   public FlowInlineLayout(FlowRootContent rootContent) {
     this.rootContent = rootContent;
+  }
+
+  public void reset() {
+    inlineStack.clear();
   }
 
   public void stopInline(
@@ -167,7 +171,7 @@ public class FlowInlineLayout {
       new UnmanagedBoxFragment(
         FlowUtil.constraintWidth(childBox.dimensions(), parentWidthConstraint),
         FlowUtil.constraintHeight(childBox.dimensions(), parentHeightConstraint),
-        childBox, null) :
+        childBox) :
       childBox.layout(childWidthConstraint, childHeightContraint);
 
     InlineFormattingContext parentContext = inlineStack.peek();

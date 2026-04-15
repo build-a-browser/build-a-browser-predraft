@@ -68,7 +68,9 @@ public interface IntrusiveList<T extends IntrusiveList<T>> {
     for (int j = 0; j < i - 1; j++) {
       curNode = curNode.next();
     }
+    T oldNode = curNode.next();
     curNode.setNext(curNode.next().next());
+    oldNode.setNext(null);
 
     return list;
   }
@@ -142,8 +144,10 @@ public interface IntrusiveList<T extends IntrusiveList<T>> {
     T curNode = asList;
 
     while (it.hasNext()) {
-      curNode.setNext(it.next());
-      curNode = curNode.next();
+      T nextNode = it.next();
+      nextNode.setNext(null);
+      curNode.setNext(nextNode);
+      curNode = nextNode;
     }
     curNode.setNext(null);
 

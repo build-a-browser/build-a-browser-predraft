@@ -34,7 +34,7 @@ public final class FloatLayout {
       return childBox.layout(childWidthConstraint, childHeightContraint);
     }
 
-    return new UnmanagedBoxFragment(0, 0, childBox, null);
+    return new UnmanagedBoxFragment(0, 0, childBox);
   }
 
   public static boolean addFloat(

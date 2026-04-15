@@ -5,6 +5,7 @@ import java.util.List;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
+import net.buildabrowser.babbrowser.render.paint.UnreachableBoxPainter;
 
 public class ManagedBoxFragment extends BoxFragment {
 
@@ -24,7 +25,7 @@ public class ManagedBoxFragment extends BoxFragment {
     float x, float y, float width, float height, ElementBox box,
     List<LayoutFragment> fragments
   ) {
-    super(width, height, box, null);
+    super(width, height, box, new UnreachableBoxPainter());
     this.fragments = IntrusiveList.fromList(fragments);
     setPos(x, y);
   }

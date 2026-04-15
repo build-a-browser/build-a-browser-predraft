@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
@@ -23,7 +24,6 @@ import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.HashToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LSBracketToken;
-import net.buildabrowser.babbrowser.cssbase.tokens.RSBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.StringToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
@@ -96,7 +96,7 @@ public final class ComplexSelectorParser {
           isInvalid = true;
         }
       }
-      case LSBracketToken _ -> isInvalid |= parseAttributeSelector(tokenStream, parts);
+      case SimpleBlock simpleBlock -> isInvalid |= parseAttributeSelector(simpleBlock, parts);
       case WhitespaceToken _ -> {}
       default -> isInvalid = true;
     }
@@ -128,7 +128,10 @@ public final class ComplexSelectorParser {
     return isInvalid;
   }
 
-  private static boolean parseAttributeSelector(CSSTokenStream tokenStream, List<SelectorPart> parts) throws IOException {
+  private static boolean parseAttributeSelector(SimpleBlock simpleBlock, List<SelectorPart> parts) throws IOException {
+    if (!(simpleBlock.type() instanceof LSBracketToken)) return true;
+
+    CSSTokenStream tokenStream = ListCSSTokenStream.create(simpleBlock.value());
     ignoreWhitespace(tokenStream);
     String attrName = parseIdentOrString(tokenStream);
     if (attrName == null) return true;
@@ -167,7 +170,7 @@ public final class ComplexSelectorParser {
     }
 
     ignoreWhitespace(tokenStream);
-    if (!(tokenStream.read() instanceof RSBracketToken)) return true;
+    if (!(tokenStream.read() instanceof EOFToken)) return true;
 
     parts.add(new AttributeSelector(attrName, attrValue, attrType));
     return false;

@@ -20,6 +20,7 @@ public final class PositionLayout {
     ElementBox box
   ) {
     PosRefBoxFragment refFragment = new PosRefBoxFragment(box);
+    box.updatePositioningFragment(refFragment);
     return refFragment;
   }
 

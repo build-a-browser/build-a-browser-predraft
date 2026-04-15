@@ -8,7 +8,6 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFra
 import net.buildabrowser.babbrowser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.render.content.flow.FlowRootContentPainter.FlowRootBoxPainter;
 import net.buildabrowser.babbrowser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
@@ -41,6 +40,8 @@ public class FlowRootContent implements BoxContent {
     floatTracker.reset();
 
     blockLayout.reset(rootBox, widthConstraint, heightConstraint);
+    inlineLayout.reset();
+    
     blockLayout.addChildrenToBlock(rootBox, widthConstraint, heightConstraint);
 
     this.rootFragment = blockLayout.close(widthConstraint, heightConstraint);
@@ -50,9 +51,9 @@ public class FlowRootContent implements BoxContent {
     float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, rootFragment.contentWidth());
     float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, desiredHeight);
     
-    UnmanagedBoxFragment wrapperFragment = new UnmanagedBoxFragment(usedWidth, usedHeight, rootBox, new FlowRootBoxPainter(this));
-
-    return wrapperFragment;
+    return new FlowRootBoxFragment(
+      usedWidth, usedHeight, rootBox,
+      rootFragment, floatTracker.allFloats());
   }
 
   @Override

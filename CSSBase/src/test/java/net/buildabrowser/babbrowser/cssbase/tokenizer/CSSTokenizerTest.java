@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import net.buildabrowser.babbrowser.cssbase.tokens.AtKeywordToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.BadStringToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
@@ -119,6 +120,13 @@ public class CSSTokenizerTest {
   public void canTokenizeAnIdentToken() throws IOException {
     Token token = cssTokenizer.consumeAToken(stringInput("color"));
     Assertions.assertEquals(IdentToken.create("color"), token);
+  }
+
+  @Test
+  @DisplayName("Can tokenize an at-keyword token")
+  public void canTokenizeAnAtKeywordToken() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("@media"));
+    Assertions.assertEquals(AtKeywordToken.create("media"), token);
   }
 
   @Test

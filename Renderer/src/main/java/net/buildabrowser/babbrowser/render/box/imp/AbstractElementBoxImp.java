@@ -22,7 +22,7 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   private final BoxLevel boxLevel;
 
   private CachedLayoutResult cache;
-  private BoxFragment cachedFragment;
+  private BoxFragment positioningFragment;
 
   private LayoutContext layoutContext;
   private StackingContext stackingContext;
@@ -92,14 +92,14 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   public UnmanagedBoxFragment layout(
     LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
-    if (
-      cache != null
-      && cachedFragment instanceof UnmanagedBoxFragment umCachedFragment
-      && cache.applies(widthConstraint, heightConstraint)
-    ) {
-      umCachedFragment.setNext(null);
-      return umCachedFragment;
+    CachedLayoutResult current = cache;
+    while (current != null) {
+      if (current.applies(widthConstraint, heightConstraint)) {
+        return current.fragment();
+      }
+      current = current.next();
     }
+
     if (cache == null) {
       content().computeIntrinsics();
     }
@@ -107,35 +107,19 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
     // TODO: Is it worth scanning for and removing the old cache result?
     UnmanagedBoxFragment layoutResult = content().layout(widthConstraint, heightConstraint);
     this.cache = CachedLayoutResult.create(
-      widthConstraint, heightConstraint, layoutResult.contentWidth(), layoutResult.contentHeight(), cache);
-    this.cachedFragment = layoutResult;
+      widthConstraint, heightConstraint, layoutResult, cache);
     return layoutResult;
   }
 
+  // TODO: This is rather unreliable, find an alternative way
   @Override
-  public CachedLayoutResult cachedLayout(
-    LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
-  ) {
-    CachedLayoutResult current = cache;
-    while (current != null) {
-      if (current.applies(widthConstraint, heightConstraint)) {
-        return current;
-      }
-      current = current.next();
-    }
-
-    layout(widthConstraint, heightConstraint);
-    return cache;
+  public void updatePositioningFragment(BoxFragment boxFragment) {
+    this.positioningFragment = boxFragment;
   }
 
   @Override
-  public void updateFragment(BoxFragment boxFragment) {
-    this.cachedFragment = boxFragment;
-  }
-
-  @Override
-  public BoxFragment lastCachedFragment() {
-    return this.cachedFragment;
+  public BoxFragment positioningFragment() {
+    return this.positioningFragment;
   }
 
   @Override
@@ -147,7 +131,7 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   public void setLayoutContext(LayoutContext layoutContext) {
     this.layoutContext = layoutContext;
     this.cache = null;
-    this.cachedFragment = null;
+    this.positioningFragment = null;
     this.stackingContext = null;
     // Hopefully this is properly called before other methods that rely on cache
   }

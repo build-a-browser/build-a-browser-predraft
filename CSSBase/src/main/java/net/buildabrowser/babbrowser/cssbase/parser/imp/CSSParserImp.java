@@ -9,6 +9,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleList;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
+import net.buildabrowser.babbrowser.cssbase.intermediate.AtRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
@@ -38,7 +39,9 @@ public class CSSParserImp implements CSSParser {
     List<CSSRule> rawRules = intermediateParser.consumeAListOfRules(stream, topLevel);
     List<CSSRule> mappedRules = new ArrayList<>(rawRules.size());
     for (CSSRule rawRule: rawRules) {
-      mappedRules.add(remapRule(rawRule));
+      CSSRule remappedRule = remapRule(rawRule);
+      if (remappedRule == null) continue;
+      mappedRules.add(remappedRule);
     }
     
     return CSSRuleList.create(mappedRules);
@@ -48,6 +51,9 @@ public class CSSParserImp implements CSSParser {
     switch (rule) {
       case QualifiedRule qualifiedRule:
         return createStyleRule(qualifiedRule);
+      case AtRule _:
+        // TODO
+        return null;
       default:
         throw new UnsupportedOperationException("Unrecognized rule type!");
     }
