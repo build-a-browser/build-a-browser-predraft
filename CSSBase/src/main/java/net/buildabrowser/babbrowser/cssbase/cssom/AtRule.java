@@ -1,8 +1,8 @@
-package net.buildabrowser.babbrowser.cssbase.intermediate;
+package net.buildabrowser.babbrowser.cssbase.cssom;
 
 import java.util.List;
 
-import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
+import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
 public record AtRule(

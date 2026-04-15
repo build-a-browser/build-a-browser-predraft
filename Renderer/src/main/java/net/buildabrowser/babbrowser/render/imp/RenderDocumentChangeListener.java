@@ -1,18 +1,16 @@
 package net.buildabrowser.babbrowser.render.imp;
 
-import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.listener.AbstractDocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.context.ElementContext;
 
-public class RenderDocumentChangeListener implements DocumentChangeListener {
-  
-  private final DocumentChangeListener styleDocumentChangeListener;
+public class RenderDocumentChangeListener extends AbstractDocumentChangeListener {
 
-  public RenderDocumentChangeListener(DocumentChangeListener styleDocumentChangeListener) {
-    this.styleDocumentChangeListener = styleDocumentChangeListener;
+  public RenderDocumentChangeListener(DocumentChangeListener innerListener) {
+    super(innerListener);
   }
 
   @Override
@@ -20,17 +18,12 @@ public class RenderDocumentChangeListener implements DocumentChangeListener {
     if (node instanceof HTMLElement element) {
       element.setContext(ElementContext.create(element));
     }
-    styleDocumentChangeListener.onNodeAdded(node);
-  }
-
-  @Override
-  public void onNodeRemoved(Node node) {
-    styleDocumentChangeListener.onNodeRemoved(node);
+    super.onNodeAdded(node);
   }
 
   @Override
   public void onAttributeChanged(Element element, String attrName, String prevValue, String newValue) {
-    styleDocumentChangeListener.onAttributeChanged(element, attrName, prevValue, newValue);
+    super.onAttributeChanged(element, attrName, prevValue, newValue);
     if (
       element instanceof HTMLElement Element
       && Element.getContext() instanceof ElementContext elementContext
@@ -38,10 +31,5 @@ public class RenderDocumentChangeListener implements DocumentChangeListener {
       elementContext.onAttributeValueChanged(attrName, prevValue, newValue);
     }
   }
-
-  @Override
-  public void onStylesheetAdded(CSSStyleSheet styleSheet) {
-    styleDocumentChangeListener.onStylesheetAdded(styleSheet);
-  };
 
 }

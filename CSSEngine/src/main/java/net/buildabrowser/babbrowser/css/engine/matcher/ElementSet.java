@@ -23,6 +23,8 @@ public interface ElementSet extends Iterable<Element> {
 
   ElementRootSet root();
 
+  void markChanged();
+
   void resize(int size);
 
   @Deprecated

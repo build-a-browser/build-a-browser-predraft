@@ -38,9 +38,7 @@ public class ElementContextImp implements ElementContext {
   @Override
   public void onCSSRuleMatched(WeightedStyleRule styleRule) {
     // TODO: Could cause exponential growth as the list grows large..
-    if (!styleRules.contains(styleRule)) {
-      styleRules.add(styleRule);
-    }
+    styleRules.add(styleRule);
     this.activeStyles = null;
   }
 
@@ -102,7 +100,7 @@ public class ElementContextImp implements ElementContext {
       CSSTokenStream tokenizerStream = CSSTokenStream.create(tokenizerInput);
       List<Declaration> declarations = CommonUtil.rethrow(() -> CSSParser.create().parseAStyleBlocksContents(tokenizerStream));
       // Need to do some dumb constructors to convert it to a WeightedStyleRule, maybe improve this later...
-      StyleRule styleRule = StyleRule.create(List.of(), declarations);
+      StyleRule styleRule = new StyleRule(List.of(), declarations);
       // also why wasn't there a .create anyways?
       WeightedStyleRule weightedStyleRule = new WeightedStyleRule(styleRule, ATTR_SPECIFICITY, RuleSource.AUTHOR, 0, 0);
       onCSSRuleMatched(weightedStyleRule);

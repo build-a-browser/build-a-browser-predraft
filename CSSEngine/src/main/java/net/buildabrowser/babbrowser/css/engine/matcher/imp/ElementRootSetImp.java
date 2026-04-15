@@ -16,6 +16,7 @@ public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
   // TODO: Periodically remove old entries
   private final LinkedList<WeakReference<ElementSet>> childSets = new LinkedList<>();
 
+  private Runnable onChange;
   private int nextId = 0;
 
   public ElementRootSetImp() {
@@ -33,8 +34,21 @@ public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
   }
 
   @Override
+  public ElementSet createUntrackedChild() {
+    ElementSet set = new ElementSetImp(this, elementList, rawSet.size()) {
+      @Override
+      public void markChanged() {}
+    };
+    childSets.add(new WeakReference<>(set));
+    return set;
+  }
+
+  @Override
   public ElementSet createTemporaryChild() {
-    return new ElementSetImp(this, elementList, rawSet.size());
+    return new ElementSetImp(this, elementList, rawSet.size()) {
+      @Override
+      public void markChanged() {}
+    };
   }
 
   @Override
@@ -48,6 +62,17 @@ public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
   @Override
   public ElementRootSet root() {
     return this;
+  }
+
+  @Override
+  public void markChanged() {
+    if (this.onChange == null) return;
+    this.onChange.run();
+  }
+
+  @Override
+  public void attachChangeListener(Runnable changeListener) {
+    this.onChange = changeListener;
   }
 
   private void resizeChildrenIfNeeded() {

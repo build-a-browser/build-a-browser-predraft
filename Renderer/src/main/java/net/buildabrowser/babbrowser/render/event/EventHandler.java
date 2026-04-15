@@ -11,7 +11,7 @@ public interface EventHandler {
     int button, MouseEventType event
   ) {
     public static enum MouseEventType {
-      CLICK
+      CLICK, MOVE
     }
   }
 

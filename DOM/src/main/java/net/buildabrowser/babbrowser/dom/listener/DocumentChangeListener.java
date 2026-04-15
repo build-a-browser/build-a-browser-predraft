@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.dom.listener;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.events.Event;
 
 public interface DocumentChangeListener {
   
@@ -12,6 +13,8 @@ public interface DocumentChangeListener {
 
   default void onAttributeChanged(Element element, String attrName, String prevValue, String newValue) {}
 
-  default void onStylesheetAdded(CSSStyleSheet styleSheet) {};
+  default void onStylesheetAdded(CSSStyleSheet styleSheet) {}
+
+  default void onElementEvent(Element element, Event event) {}
 
 }

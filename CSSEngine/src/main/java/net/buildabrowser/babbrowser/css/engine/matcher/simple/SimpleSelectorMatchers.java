@@ -5,6 +5,7 @@ import java.util.Map;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
+import net.buildabrowser.babbrowser.css.engine.matcher.psuedo.HoverSelectorMatcher;
 import net.buildabrowser.babbrowser.css.engine.matcher.psuedo.RootSelectorMatcher;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
@@ -16,6 +17,7 @@ import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.events.Event;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
 public class SimpleSelectorMatchers implements DocumentChangeListener {
@@ -28,12 +30,12 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
 
   // Psuedo
   private final RootSelectorMatcher rootSelectorMatcher = new RootSelectorMatcher(allElements);
+  private final HoverSelectorMatcher hoverSelectorMatcher = new HoverSelectorMatcher(allElements);
 
   private final Map<SimplePsuedoSelector, SimpleSelectorMatcher<SimplePsuedoSelector>> simplePsuedoSelectors = Map.of(
-    SimplePsuedoSelector.ROOT, rootSelectorMatcher
+    SimplePsuedoSelector.ROOT, rootSelectorMatcher,
+    SimplePsuedoSelector.HOVER, hoverSelectorMatcher
   );
-
-  //
 
   private final List<SimpleSelectorMatcher<?>> allMatchers = List.of(
     typeSelectorMatcher,
@@ -42,9 +44,15 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
     attributeOneOfSelectorMatcher,
 
     // Psuedo
-    rootSelectorMatcher
+    rootSelectorMatcher,
+    hoverSelectorMatcher
   );
 
+  public SimpleSelectorMatchers(Runnable onChange) {
+    allElements.attachChangeListener(onChange);
+  }
+
+  @Override
   public void onNodeAdded(Node node) {
     if (node instanceof Element element) {
       allElements.add(element);
@@ -55,6 +63,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
     }
   }
 
+  @Override
   public void onNodeRemoved(Node node) {
     if (node instanceof Element element) {
       allElements.remove(element);
@@ -65,10 +74,18 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
     }
   }
 
+  @Override
   public void onAttributeChanged(Element element, String attrName, String prevValue, String newValue) {
     allElements.add(element);
     for (SimpleSelectorMatcher<?> matcher: allMatchers) {
       matcher.onAttributeChanged(element, attrName, prevValue, newValue);
+    }
+  }
+
+  @Override
+  public void onElementEvent(Element element, Event event) {
+    for (SimpleSelectorMatcher<?> matcher: allMatchers) {
+      matcher.onElementEvent(element, event);
     }
   }
 

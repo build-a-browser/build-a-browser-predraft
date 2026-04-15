@@ -45,7 +45,7 @@ public class CSSParserTest {
       ColonToken.create(), IdentToken.create("red"), RCBracketToken.create()
     );
     Assertions.assertEquals(CSSStyleSheet.create(CSSRuleList.create(List.of(
-      StyleRule.create(
+      new StyleRule(
         List.of(
           ComplexSelector.create(List.of(TypeSelector.create("p")))
         ),

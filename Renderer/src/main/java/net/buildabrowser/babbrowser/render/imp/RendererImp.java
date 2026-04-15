@@ -6,14 +6,10 @@ import java.io.IOException;
 import java.util.Optional;
 
 import javax.swing.JPanel;
-import javax.swing.event.MouseInputAdapter;
 
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.render.Renderer;
-import net.buildabrowser.babbrowser.render.event.EventForwardingTarget;
-import net.buildabrowser.babbrowser.render.event.EventHandler.MouseEvent;
-import net.buildabrowser.babbrowser.render.event.EventHandler.MouseEvent.MouseEventType;
 import net.buildabrowser.babbrowser.render.paint.Painter;
 
 public class RendererImp implements Renderer {
@@ -57,15 +53,9 @@ public class RendererImp implements Renderer {
       }
     };
 
-    jpanel.addMouseListener(new MouseInputAdapter() {
-      public void mouseClicked(java.awt.event.MouseEvent e) {
-        // TODO: Translate button
-        MouseEvent mouseEvent = new MouseEvent(e.getX(), e.getY(), e.getButton(), MouseEventType.CLICK);
-        if (activeDocumentRenderer instanceof EventForwardingTarget target) {
-          target.forwardEvent(mouseEvent);
-        }
-      }
-    });
+    RendererMouseInputAdapter inputHandler = new RendererMouseInputAdapter(() -> activeDocumentRenderer);
+    jpanel.addMouseListener(inputHandler);
+    jpanel.addMouseMotionListener(inputHandler);
 
     return this.jpanel;
   }

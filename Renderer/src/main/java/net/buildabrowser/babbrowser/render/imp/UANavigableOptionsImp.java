@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.render.imp;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.dom.Document;
@@ -16,18 +17,18 @@ public class UANavigableOptionsImp implements UANavigableOptions {
   private final List<Runnable> repaintListeners = new LinkedList<>();
 
   private final FetchEngine fetchEngine;
-  private final StyleSheetList uaStyleSheets;
+  private final Supplier<StyleSheetList> uaStyleSheetsSupplier;
   private final DocumentLoaderRegistry documentLoaderRegistry;
   private final Painter painter;
 
   public UANavigableOptionsImp(
     FetchEngine fetchEngine,
-    StyleSheetList uaStyleSheets,
+    Supplier<StyleSheetList> uaStyleSheetsSupplier,
     DocumentLoaderRegistry documentLoaderRegistry,
     Painter painter
   ) {
     this.fetchEngine = fetchEngine;
-    this.uaStyleSheets = uaStyleSheets;
+    this.uaStyleSheetsSupplier = uaStyleSheetsSupplier;
     this.documentLoaderRegistry = documentLoaderRegistry;
     this.painter = painter;
   }
@@ -48,7 +49,7 @@ public class UANavigableOptionsImp implements UANavigableOptions {
 
   @Override
   public StyleSheetList uaStyleSheets() {
-    return this.uaStyleSheets;
+    return this.uaStyleSheetsSupplier.get();
   }
 
   @Override

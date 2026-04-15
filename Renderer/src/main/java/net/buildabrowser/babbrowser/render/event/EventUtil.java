@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.render.event;
 
+import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.events.EventDispatcher;
 import net.buildabrowser.babbrowser.dom.events.PointerEvent;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
@@ -23,8 +24,17 @@ public final class EventUtil {
   public static void forwardElementEvent(
     MouseEvent mouseEvent, BoxFragment fragment, float posX, float posY
   ) {
+    Element element = fragment.box().element();
+    String eventName = switch (mouseEvent.event()) {
+      case CLICK -> "click";
+      case MOVE -> "mousemove";
+      default -> null;
+    };
+    if (eventName == null) return;
     // TODO: Will need replaced with a proper MouseEvent
-    EventDispatcher.dispatch((PointerEvent) () -> "click", fragment.box().element());
+    PointerEvent pointerEvent = (PointerEvent) () -> eventName;
+    element.nodeDocument().changeListener().onElementEvent(element, pointerEvent);
+    EventDispatcher.dispatch(pointerEvent, element);
   }
 
   public static void forwardElementEvent(

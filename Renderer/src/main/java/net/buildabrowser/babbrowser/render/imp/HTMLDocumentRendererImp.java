@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
+import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
@@ -53,6 +54,7 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
   private final Navigable navigable;
   private final Painter painter;
 
+  private final StyleSheetList uaStyleSheets;
   private final CSSMatcher cssMatcher;
   private final DocumentBox documentBox;
   private final ScriptingContext scriptingContext;
@@ -77,6 +79,7 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
     this.navigable = navigable;
     this.painter = painter;
 
+    this.uaStyleSheets = navigable.uaNavigableOptions().uaStyleSheets();
     this.cssMatcher = CSSMatcher.create(new RenderCSSMatcherContext());
     this.documentBox = DocumentBox.create(document);
 
@@ -94,13 +97,16 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
 
   @Override
   public boolean shouldRender() {
-    return !invalidationLevel.equals(InvalidationLevel.NONE) || this.resizeCount > 0;
+    return
+      !invalidationLevel.equals(InvalidationLevel.NONE)
+      || this.resizeCount > 0
+      || cssMatcher.changed();
   }
 
   @Override
   public void recalculateStyles() {
     long styleStartTime = System.currentTimeMillis();
-    cssMatcher.applyStylesheets(document, navigable.uaNavigableOptions().uaStyleSheets());
+    cssMatcher.applyStylesheets(document, uaStyleSheets);
     StyleGenerator.style(document);
     PerfLogging.logStyleTime(styleStartTime);
   }

@@ -80,8 +80,10 @@ public class FlowRootEventHandler implements EventHandler {
     float relX, float relY,
     float contentRelX, float contentRelY
   ) {
+    // TODO: Why is the stacking context sometimes null?
     if (
-      !parentFragment.box().stackingContext().equals(fragment.box().stackingContext())
+      parentFragment.box().stackingContext() == null
+      || !parentFragment.box().stackingContext().equals(fragment.box().stackingContext())
     ) return false;
 
     return handleManagedInnerMouseEvent(

@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.function.Supplier;
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -14,6 +15,7 @@ import net.buildabrowser.babbrowser.browser.net.imp.FetchBackendImp;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.render.RenderingEngine;
@@ -42,10 +44,10 @@ public class Main {
     loaderRegistry.register("text/html", new HTMLDocumentLoader());
 
     FetchEngine fetchEngine = FetchEngine.create(new FetchBackendImp());
-    StyleSheetList uaStyleSheets = loadUAStyleSheets();
+    Supplier<StyleSheetList> uaStyleSheetsSupplier = () -> CommonUtil.rethrow(() -> loadUAStyleSheets());
 
     RenderingEngine renderingEngine = RenderingEngine.create(
-      fetchEngine, painter, loaderRegistry, uaStyleSheets);
+      fetchEngine, painter, loaderRegistry, uaStyleSheetsSupplier);
     BrowserInstance browserInstance = BrowserInstance.create(renderingEngine);
   
     WindowSet windowSet = WindowSet.create(browserInstance);

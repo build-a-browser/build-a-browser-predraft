@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.render.imp;
 
+import java.util.function.Supplier;
+
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
@@ -17,18 +19,18 @@ public class RenderingEngineImp implements RenderingEngine {
   private final FetchEngine fetchEngine;
   private final Painter painter;
   private final DocumentLoaderRegistry documentLoaderRegistry;
-  private final StyleSheetList uaStyleSheets;
+  private final Supplier<StyleSheetList> uaStyleSheetsSupplier;
 
   public RenderingEngineImp(
     FetchEngine fetchEngine,
     Painter painter,
     DocumentLoaderRegistry documentLoaderRegistry,
-    StyleSheetList uaStyleSheets
+    Supplier<StyleSheetList> uaStyleSheetsSupplier
   ) {
     this.fetchEngine = fetchEngine;
     this.painter = painter;
     this.documentLoaderRegistry = documentLoaderRegistry;
-    this.uaStyleSheets = uaStyleSheets;
+    this.uaStyleSheetsSupplier = uaStyleSheetsSupplier;
   }
 
   @Override
@@ -39,7 +41,7 @@ public class RenderingEngineImp implements RenderingEngine {
   @Override
   public NavigableRendererPair createNavigable() {
     Navigable navigable = TraversableUtil.createNewTopLevelTraversable(new UANavigableOptionsImp(
-      fetchEngine, uaStyleSheets, documentLoaderRegistry, painter));
+      fetchEngine, uaStyleSheetsSupplier, documentLoaderRegistry, painter));
     Renderer renderer = Renderer.create(navigable, painter);
 
     // TODO: Where does this code actually go?

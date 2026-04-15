@@ -40,12 +40,18 @@ public class ElementSetImp implements ElementSet {
 
   @Override
   public void add(Element element) {
-    rawSet.set(element.getId(), true);
+    if (!rawSet.get(element.getId())) {
+      rawSet.set(element.getId(), true);
+      markChanged();
+    }
   }
 
   @Override
   public void remove(Element element) {
-    rawSet.set(element.getId(), false);
+    if (rawSet.get(element.getId())) {
+      markChanged();
+      rawSet.set(element.getId(), false);
+    }
   }
 
   @Override
@@ -68,6 +74,11 @@ public class ElementSetImp implements ElementSet {
   @Override
   public ElementRootSet root() {
     return this.root;
+  }
+
+  @Override
+  public void markChanged() {
+    root().markChanged();
   }
 
   @Override

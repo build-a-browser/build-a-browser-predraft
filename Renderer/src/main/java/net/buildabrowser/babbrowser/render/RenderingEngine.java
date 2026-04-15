@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.render;
 
+import java.util.function.Supplier;
+
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
@@ -18,10 +20,10 @@ public interface RenderingEngine {
     FetchEngine fetchEngine,
     Painter painter,
     DocumentLoaderRegistry documentLoaderRegistry,
-    StyleSheetList uaStyleSheets
+    Supplier<StyleSheetList> uaStyleSheetsSupplier
   ) {
     return new RenderingEngineImp(
-      fetchEngine, painter, documentLoaderRegistry, uaStyleSheets);
+      fetchEngine, painter, documentLoaderRegistry, uaStyleSheetsSupplier);
   }
 
   static record NavigableRendererPair(Navigable navigable, Renderer renderer) {}

@@ -13,6 +13,8 @@ public interface CSSMatcher {
 
   void applyStylesheets(Document document, StyleSheetList uaStyleSheets);
 
+  boolean changed();
+
   interface CSSMatcherContext {
     
     void onMatched(Node node, WeightedStyleRule matchedRule);

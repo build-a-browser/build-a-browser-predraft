@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.buildabrowser.babbrowser.cssbase.cssom.AtRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleList;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
-import net.buildabrowser.babbrowser.cssbase.intermediate.AtRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
@@ -66,7 +66,7 @@ public class CSSParserImp implements CSSParser {
 
     List<ComplexSelector> selectors = ComplexSelectorParser.parseComplexSelectors(qualifiedRule.prelude());
 
-    return StyleRule.create(selectors, declarations);
+    return new StyleRule(selectors, declarations);
   }
   
 }
