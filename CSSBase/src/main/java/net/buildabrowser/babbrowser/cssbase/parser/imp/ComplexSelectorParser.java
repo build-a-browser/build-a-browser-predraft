@@ -15,9 +15,11 @@ import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.NextSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
+import net.buildabrowser.babbrowser.cssbase.selector.SimplePsuedoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SubsequentSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
+import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
@@ -96,6 +98,7 @@ public final class ComplexSelectorParser {
           isInvalid = true;
         }
       }
+      case ColonToken _ -> isInvalid |= parsePsuedoSelector(tokenStream, parts);
       case SimpleBlock simpleBlock -> isInvalid |= parseAttributeSelector(simpleBlock, parts);
       case WhitespaceToken _ -> {}
       default -> isInvalid = true;
@@ -173,6 +176,19 @@ public final class ComplexSelectorParser {
     if (!(tokenStream.read() instanceof EOFToken)) return true;
 
     parts.add(new AttributeSelector(attrName, attrValue, attrType));
+    return false;
+  }
+
+  private static boolean parsePsuedoSelector(
+    CSSTokenStream tokenStream, List<SelectorPart> parts
+  ) throws IOException {
+    Token nextToken = tokenStream.read();
+    // TODO: Another : means psuedo-class
+    if (!(nextToken instanceof IdentToken identToken)) return true;
+    String selectorName = identToken.value();
+    SimplePsuedoSelector matchingSimplePsuedoSelector = SimplePsuedoSelector.lookupType(selectorName);
+    if (matchingSimplePsuedoSelector == null) return true;
+    parts.add(matchingSimplePsuedoSelector);
     return false;
   }
 
