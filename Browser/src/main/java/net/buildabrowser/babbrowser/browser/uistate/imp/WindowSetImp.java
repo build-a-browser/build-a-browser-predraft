@@ -25,7 +25,7 @@ public class WindowSetImp implements WindowSet {
   
   @Override
   public void close() {
-    for (Window window: windows) {
+    for (Window window: List.copyOf(windows)) {
       window.close();
     }
     mutationEventDispatcher.fire(listener -> listener.onClose(this));
@@ -43,7 +43,7 @@ public class WindowSetImp implements WindowSet {
 
   @Override
   public Window openWindow(WindowOptions options) {
-    Window window = Window.create(browserInstance, options);
+    Window window = Window.create(browserInstance, this, options);
     window.addWindowMutationEventListener(new WindowCleanupListener(), false);
     windows.add(window);
     mutationEventDispatcher.fire(listener -> listener.onWindowAdded(this, window));

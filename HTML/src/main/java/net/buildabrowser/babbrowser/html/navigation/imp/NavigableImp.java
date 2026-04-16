@@ -73,6 +73,7 @@ public class NavigableImp implements Navigable {
         () -> {
           activeSessionHistory = historyEntry; // TODO: Proper way
         });
+      uaNavigableOptions.onNavigate(historyEntry.url());
     });
   }
 

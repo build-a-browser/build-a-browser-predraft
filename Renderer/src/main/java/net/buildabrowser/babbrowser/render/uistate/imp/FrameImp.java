@@ -24,7 +24,8 @@ public class FrameImp implements Frame {
   private final Renderer renderer;
 
   public FrameImp(RenderingEngine renderingEngine) {
-    NavigableRendererPair navigableRendererPair = renderingEngine.createNavigable();
+    NavigableRendererPair navigableRendererPair = renderingEngine.createNavigable(
+      url -> eventDispatcher.fire(l -> l.onURLChange(url)));
     this.navigable = navigableRendererPair.navigable();
     this.renderer = navigableRendererPair.renderer();
 

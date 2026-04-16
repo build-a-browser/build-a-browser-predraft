@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.render;
 
+import java.net.URI;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
@@ -14,7 +16,7 @@ public interface RenderingEngine {
 
   Frame createFrame();
 
-  NavigableRendererPair createNavigable();
+  NavigableRendererPair createNavigable(Consumer<URI> onNavigate);
 
   static RenderingEngine create(
     FetchEngine fetchEngine,

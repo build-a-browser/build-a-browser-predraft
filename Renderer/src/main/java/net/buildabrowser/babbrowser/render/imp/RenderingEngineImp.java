@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.render.imp;
 
+import java.net.URI;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
@@ -39,9 +41,11 @@ public class RenderingEngineImp implements RenderingEngine {
   }
 
   @Override
-  public NavigableRendererPair createNavigable() {
-    Navigable navigable = TraversableUtil.createNewTopLevelTraversable(new UANavigableOptionsImp(
-      fetchEngine, uaStyleSheetsSupplier, documentLoaderRegistry, painter));
+  public NavigableRendererPair createNavigable(Consumer<URI> onNavigate) {
+    Navigable navigable = TraversableUtil.createNewTopLevelTraversable(
+      new UANavigableOptionsImp(
+        fetchEngine, uaStyleSheetsSupplier, documentLoaderRegistry,
+        painter, onNavigate));
     Renderer renderer = Renderer.create(navigable, painter);
 
     // TODO: Where does this code actually go?

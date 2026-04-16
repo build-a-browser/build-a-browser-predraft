@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.browser.uistate.Tab;
 import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListener;
 import net.buildabrowser.babbrowser.render.uistate.Frame;
 import net.buildabrowser.babbrowser.render.uistate.event.BrowserEventDispatcher;
+import net.buildabrowser.babbrowser.render.uistate.event.FrameEventListener;
 
 public class TabImp implements Tab {
   
@@ -16,11 +17,21 @@ public class TabImp implements Tab {
 
   public TabImp(BrowserInstance browserInstance) {
     this.frame = browserInstance.getRenderingEngine().createFrame();
+
+    frame.addEventListener(
+      new FrameEventListener() {
+        @Override
+        public void onURLChange(URI url) {
+          mutationEventDispatcher.fire(l -> l.onNavigate(TabImp.this, url));
+        }
+      },
+      true);
   }
 
   @Override
   public void close() {
     this.frame.close();
+    mutationEventDispatcher.fire(l -> l.onClose(this));
   }
   
   @Override
@@ -45,7 +56,6 @@ public class TabImp implements Tab {
   @Override
   public void navigate(URI url) {
     frame.navigate(url);
-    mutationEventDispatcher.fire(l -> l.onNavigate(this, url));
   }
 
   @Override
