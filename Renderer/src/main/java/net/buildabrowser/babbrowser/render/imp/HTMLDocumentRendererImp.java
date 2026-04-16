@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
+import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
@@ -199,6 +200,7 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
 
   @Override
   public void forwardEvent(MouseEvent mouseEvent) {
+    if (rootLayer == null) return;
     CompositeEventsDispatcher.handleMouseEvent(rootLayer, mouseEvent, mouseEvent.winX(), mouseEvent.winY());
   }
 
@@ -215,9 +217,12 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
   }
 
   private void recomputeBoxes() {
-    Node firstNode = document.childNodes().item(0);
-    if (firstNode == null) return;
-    Box child = boxGenerator.box(documentBox, document.childNodes().item(0)).get(0);
+    Box child = null;
+    for (Node childNode: document.childNodes()) {
+      if (!(childNode instanceof Element)) continue;
+      child = boxGenerator.box(documentBox, childNode).get(0);
+    }
+    if (child == null) return;
     documentBox.setChild((ElementBox) child);
   }
 

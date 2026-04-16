@@ -23,11 +23,13 @@ public class FetchBackendImp implements FetchBackend {
   ) {
     // TODO: Include the headers
     HttpRequest httpRequest = HttpRequest.newBuilder(request.url())
-      .setHeader("User-Agent", "BABBrowser/0.1.0 Firefox/147.0 (Not actually Firefox)")
+      .setHeader("User-Agent", chooseUserAgent(request))
+      .setHeader("Accept", "text/html, text/css, image/png, image/jpeg, */*")
       // HTTP 2 seems broken on http
       .version(
-        //request.url().getScheme().equals("https") ? HttpClient.Version.HTTP_2 :
-        HttpClient.Version.HTTP_1_1)
+        request.url().getScheme().equals("https") ?
+          HttpClient.Version.HTTP_2 :
+          HttpClient.Version.HTTP_1_1)
       .timeout(Duration.ofSeconds(5))
       .build();
     httpClient.sendAsync(httpRequest, responseInfo -> {
@@ -37,6 +39,18 @@ public class FetchBackendImp implements FetchBackend {
       return BodyHandlers.ofByteArrayConsumer(byteConsumer).apply(responseInfo);
     }).exceptionally(e -> { e.printStackTrace(); return null; });
     // TODO: Proper exception handling
+  }
+
+  // Unfortunately DDG captchas the user with the default UA (and captchas would require JS)
+  private String chooseUserAgent(FetchRequest request) {
+    // TODO: Report correct OS
+    return switch (request.url().getHost()) {
+      case "html.duckduckgo.com" -> "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 BABBrowser/0.1.0";
+      case "www.whatismybrowser.com" -> "BABBrowser/0.1.0 (X11; Linux x86_64)";
+      default -> "Mozilla/5.0 (X11; Linux x86_64) BABBrowser/0.1.0 Firefox/149.0 (Not actually Firefox)";
+    };
+      
+      
   }
   
 }

@@ -66,7 +66,8 @@ public class FlowRootEventHandler implements EventHandler {
     float contentRelX, float contentRelY
   ) {
     if (
-      !parentFragment.box().stackingContext().equals(fragment.box().stackingContext())
+      parentFragment.box().stackingContext() != null // TODO: Why is this sometimes null?
+      && !parentFragment.box().stackingContext().equals(fragment.box().stackingContext())
     ) return false;
 
     return fragment.box().content().eventHandler().handleMouseEvent(
@@ -82,8 +83,8 @@ public class FlowRootEventHandler implements EventHandler {
   ) {
     // TODO: Why is the stacking context sometimes null?
     if (
-      parentFragment.box().stackingContext() == null
-      || !parentFragment.box().stackingContext().equals(fragment.box().stackingContext())
+      parentFragment.box().stackingContext() != null
+      && !parentFragment.box().stackingContext().equals(fragment.box().stackingContext())
     ) return false;
 
     return handleManagedInnerMouseEvent(
@@ -118,6 +119,7 @@ public class FlowRootEventHandler implements EventHandler {
 
       if (
         nextFragment instanceof BoxFragment boxFragment
+        && boxFragment.box().stackingContext() != null
         && !boxFragment.box().stackingContext().equals(parentFragment.box().stackingContext())
       ) continue;
 

@@ -3,6 +3,9 @@ package net.buildabrowser.babbrowser.render.event;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.events.EventDispatcher;
 import net.buildabrowser.babbrowser.dom.events.PointerEvent;
+import net.buildabrowser.babbrowser.render.box.Box;
+import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.box.imp.AnonymousElementBoxImp;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
@@ -24,7 +27,12 @@ public final class EventUtil {
   public static void forwardElementEvent(
     MouseEvent mouseEvent, BoxFragment fragment, float posX, float posY
   ) {
-    Element element = fragment.box().element();
+    Box relatedBox = fragment.box();
+    while (
+      relatedBox instanceof AnonymousElementBoxImp anonBox
+    ) relatedBox = anonBox.parentBox();
+    if (!(relatedBox instanceof ElementBox elementBox)) return;
+    Element element = elementBox.element();
     String eventName = switch (mouseEvent.event()) {
       case CLICK -> "click";
       case MOVE -> "mousemove";

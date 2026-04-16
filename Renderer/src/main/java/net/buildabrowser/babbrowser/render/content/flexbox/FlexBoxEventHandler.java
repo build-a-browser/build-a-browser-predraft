@@ -38,7 +38,8 @@ public class FlexBoxEventHandler implements EventHandler {
       nextFragment = (UnmanagedBoxFragment) nextFragment.next();
 
       if (
-        !currentFragment.box().stackingContext().equals(parentFragment.box().stackingContext())
+        currentFragment.box().stackingContext() != null // TODO: Why is this sometimes null?
+        && !currentFragment.box().stackingContext().equals(parentFragment.box().stackingContext())
       ) continue;
 
       float boxRelX = contentRelX - currentFragment.borderX();
