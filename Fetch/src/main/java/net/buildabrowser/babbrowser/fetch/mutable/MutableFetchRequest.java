@@ -10,7 +10,13 @@ public interface MutableFetchRequest extends FetchRequest {
   void setMethod(String method);
 
   void setClient(FetchClient client);
-  
-  void setURL(URI url);
+
+  void setMode(RequestMode mode);
+
+  void setRedirectMode(RedirectMode redirectMode);
+
+  void appendURL(URI url);
+
+  void increaseRedirectCount();
   
 }

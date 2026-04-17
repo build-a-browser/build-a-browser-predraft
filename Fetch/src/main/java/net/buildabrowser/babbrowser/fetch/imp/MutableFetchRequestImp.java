@@ -13,6 +13,9 @@ public class MutableFetchRequestImp implements MutableFetchRequest {
 
   private String method;
   private FetchClient client;
+  private RequestMode mode = RequestMode.NO_CORS;
+  private RedirectMode redirectMode = RedirectMode.FOLLOW;
+  private int redirectCount = 0;
 
   @Override
   public String method() {
@@ -30,7 +33,7 @@ public class MutableFetchRequestImp implements MutableFetchRequest {
   }
 
   @Override
-  public void setURL(URI url) {
+  public void appendURL(URI url) {
     urlList.add(url);
   }
 
@@ -45,6 +48,26 @@ public class MutableFetchRequestImp implements MutableFetchRequest {
   }
 
   @Override
+  public RequestMode mode() {
+    return this.mode;
+  }
+
+  @Override
+  public void setMode(RequestMode mode) {
+    this.mode = mode;
+  }
+
+  @Override
+  public RedirectMode redirectMode() {
+    return this.redirectMode;
+  }
+
+  @Override
+  public void setRedirectMode(RedirectMode redirectMode) {
+    this.redirectMode = redirectMode;
+  }
+
+  @Override
   public List<URI> urlList() {
     return this.urlList;
   }
@@ -52,6 +75,16 @@ public class MutableFetchRequestImp implements MutableFetchRequest {
   @Override
   public URI currentURL() {
     return urlList.getLast();
+  }
+
+  @Override
+  public int redirectCount() {
+    return this.redirectCount;
+  }
+
+  @Override
+  public void increaseRedirectCount() {
+    this.redirectCount++;
   }
 
 }

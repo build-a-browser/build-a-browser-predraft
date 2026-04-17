@@ -14,12 +14,26 @@ public interface FetchRequest {
 
   FetchClient client();
 
+  RequestMode mode();
+
+  RedirectMode redirectMode();
+
   List<URI> urlList();
 
   URI currentURL();
 
+  int redirectCount();
+
   static MutableFetchRequest createMutable() {
     return new MutableFetchRequestImp();
+  }
+
+  static enum RequestMode {
+    SAME_ORIGIN, CORS, NO_CORS, NAVIGATE, WEBSOCKET, WEBTRANSPORT;
+  }
+
+  static enum RedirectMode {
+    FOLLOW, ERROR, MANUAL;
   }
 
 }

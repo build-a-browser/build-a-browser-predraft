@@ -5,6 +5,8 @@ import net.buildabrowser.babbrowser.fetch.FetchResponse;
 
 public interface MutableFetchResponse extends FetchResponse {
 
+  void setStatus(int status);
+
   void setBody(FetchBody fetchBody);
   
 }

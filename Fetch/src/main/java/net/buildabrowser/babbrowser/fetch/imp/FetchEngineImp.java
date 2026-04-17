@@ -2,6 +2,8 @@ package net.buildabrowser.babbrowser.fetch.imp;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.concurrent.CompletableFuture;
@@ -10,16 +12,21 @@ import java.util.function.Consumer;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchBody;
+import net.buildabrowser.babbrowser.fetch.FetchController;
 import net.buildabrowser.babbrowser.fetch.FetchDestinatation;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.fetch.FetchParameters;
 import net.buildabrowser.babbrowser.fetch.FetchParameters.ProcessResponse;
 import net.buildabrowser.babbrowser.fetch.FetchParameters.ProcessResponseConsumeBody;
+import net.buildabrowser.babbrowser.fetch.FetchRequest.RedirectMode;
+import net.buildabrowser.babbrowser.fetch.FetchRequest.RequestMode;
 import net.buildabrowser.babbrowser.fetch.FetchParams;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.fetch.FetchResponse;
+import net.buildabrowser.babbrowser.fetch.FetchUtil;
 import net.buildabrowser.babbrowser.fetch.HeaderList;
 import net.buildabrowser.babbrowser.fetch.imp.DataURLProcessor.DataURL;
+import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchResponse;
 import net.buildabrowser.babbrowser.network.ExtensionUtil;
 import net.buildabrowser.babbrowser.stream.ReadableByteStreamController;
@@ -38,7 +45,7 @@ public class FetchEngineImp implements FetchEngine {
   }
 
   @Override
-  public void fetch(FetchParameters fetchParameters) {
+  public FetchController fetch(FetchParameters fetchParameters) {
     // TODO: A ton of random stuff
     FetchRequest request = fetchParameters.request;
     FetchDestinatation taskDestination = null;
@@ -49,23 +56,37 @@ public class FetchEngineImp implements FetchEngine {
       request,
       fetchParameters.processResponse,
       fetchParameters.processResponseConsumeBody,
-      taskDestination);
-    mainFetch(fetchParams);
+      taskDestination, new FetchController());
+    mainFetch(fetchParams, false);
+
+    return fetchParams.controller();
   }
 
-  private void mainFetch(FetchParams fetchParams) {
+  private FetchResponse mainFetch(FetchParams fetchParams, boolean recursive) {
+    if (!recursive) {
+      fetchParams.request().client().fetchDestinatation().runInParallel(
+        () -> mainFetchParallel(fetchParams, recursive));
+      return null;
+    } else {
+      return mainFetchParallel(fetchParams, recursive);
+    }
+  }
+  
+  private FetchResponse mainFetchParallel(FetchParams fetchParams, boolean recursive) {
     FetchRequest request = fetchParams.request();
     FetchResponse response = null;
     // TODO: A ton of random stuff
     if (response == null) {
       response = mainFetchChain(fetchParams);
     }
+    if (recursive) return response;
 
     if(response.urlList().isEmpty()) {
       response.urlList().addAll(request.urlList());
     }
 
     fetchResponseHandover(fetchParams, response);
+    return null;
   }
 
   private FetchResponse mainFetchChain(FetchParams fetchParams) {
@@ -156,7 +177,56 @@ public class FetchEngineImp implements FetchEngine {
 
   private FetchResponse httpFetch(FetchParams fetchParams, boolean makeCORSPreflight) {
     // TODO: A ton of stuff
-    return httpNetworkOrCacheFetch(fetchParams, false, false);
+    FetchRequest request = fetchParams.request();
+    FetchResponse internalResponse = httpNetworkOrCacheFetch(fetchParams, false, false);
+    FetchResponse response = internalResponse;
+    if (FetchUtil.isRedirectStatus(internalResponse.status())) {
+      switch (request.redirectMode()) {
+        case ERROR -> response = FetchResponse.createNetworkError();
+        case MANUAL -> {
+          if (request.mode().equals(RequestMode.NAVIGATE)) {
+            // internalResponse should be the same as response
+            fetchParams.controller().nextManualRedirectSteps = () -> httpRedirectFetch(fetchParams, internalResponse);
+          }
+          // TODO: Fallback
+        }
+        case FOLLOW -> response = httpRedirectFetch(fetchParams, response);
+      }
+    }
+
+    return response;
+  }
+
+  private FetchResponse httpRedirectFetch(FetchParams fetchParams, FetchResponse response) {
+    MutableFetchRequest request = (MutableFetchRequest) fetchParams.request();
+    URI locationURL;
+    try {
+      locationURL = response.locationURL(request.currentURL().getFragment());
+      if (locationURL == null) return response;
+    } catch (URISyntaxException e) {
+      return FetchResponse.createNetworkError();
+    }
+
+    if (!FetchUtil.isHTTPScheme(locationURL.getScheme())) {
+      return FetchResponse.createNetworkError();
+    }
+
+    // Spec says == 20, but using >= 20 just in case
+    if (request.redirectCount() >= 20) {
+      return FetchResponse.createNetworkError();
+    }
+    request.increaseRedirectCount();
+
+    // TODO: A ton of stuff
+
+    request.appendURL(locationURL);
+
+    boolean recursive = true;
+    if (request.redirectMode().equals(RedirectMode.MANUAL)) {
+      assert request.mode().equals(RequestMode.NAVIGATE);
+      recursive = false;
+    }
+    return mainFetch(fetchParams, recursive);
   }
 
   private FetchResponse httpNetworkOrCacheFetch(
@@ -176,6 +246,8 @@ public class FetchEngineImp implements FetchEngine {
     // Doing things a bit out-of-order
     MutableFetchResponse response = FetchResponse.createMutable();
 
+    CompletableFuture<Void> receivedResponse = new CompletableFuture<>();
+
     FutureHolder pullPromise = new FutureHolder();
     UnderlyingSource underlyingSource = new UnderlyingSource();
     underlyingSource.type = ReadableStreamType.BYTES;
@@ -183,6 +255,7 @@ public class FetchEngineImp implements FetchEngine {
       // TODO: The spec defines the stream as a pull source, but it's easier to implement as a push source for now
       // Come back to this later and correct it.
       fetchBackend.makeRequest(response, request, bytesOpt -> {
+        receivedResponse.complete(null);
         // TODO: Though HttpClient handles content-coding for us, this is where it should be handled.
         ReadableByteStreamController bsController = (ReadableByteStreamController) controller;
         if (bytesOpt.isEmpty()) {
@@ -219,6 +292,9 @@ public class FetchEngineImp implements FetchEngine {
 
     ReadableStream stream = ReadableStream.create(underlyingSource);
     response.setBody(new FetchBody(stream, null, 0));
+
+    // TODO: Need to handle 1xx
+    CommonUtil.rethrowV(() -> receivedResponse.get());
 
     return response;
   }

@@ -16,4 +16,15 @@ public final class FetchUtil {
     };
   }
 
+  public static boolean isHTTPScheme(String scheme) {
+    return scheme.equals("http") || scheme.equals("https");
+  }
+
+  public static boolean isRedirectStatus(int status) {
+    return switch (status) {
+      case 301, 302, 303, 307, 308 -> true;
+      default -> false;
+    };
+  }
+
 }

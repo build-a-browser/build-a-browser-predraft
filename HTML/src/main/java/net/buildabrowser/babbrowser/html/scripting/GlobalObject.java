@@ -13,4 +13,8 @@ public interface GlobalObject extends FetchDestinatation {
     EventLoop.queueGlobalTask(TaskSource.NETWORKING, this, task);
   }
 
+  default void runInParallel(Runnable task) {
+    this.agent().eventLoop().runInParallel(task);
+  }
+
 }

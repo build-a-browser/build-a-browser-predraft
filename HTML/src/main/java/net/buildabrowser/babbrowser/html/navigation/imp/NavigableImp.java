@@ -72,6 +72,7 @@ public class NavigableImp implements Navigable {
         navigationParams,
         () -> {
           activeSessionHistory = historyEntry; // TODO: Proper way
+          uaNavigableOptions.onNavigate(activeDocument().url());
         });
       uaNavigableOptions.onNavigate(historyEntry.url());
     });

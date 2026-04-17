@@ -11,7 +11,7 @@ public final class HTMLFetchUtil {
 
 	public static MutableFetchRequest createPotentialCORSRequest(URI url) {
 		MutableFetchRequest request = FetchRequest.createMutable();
-		request.setURL(url);
+		request.appendURL(url);
 		return request;
 	}
 

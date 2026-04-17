@@ -7,7 +7,8 @@ public record FetchParams(
   FetchRequest request,
   ProcessResponse processResponse,
   ProcessResponseConsumeBody processResponseConsumeBody,
-  FetchDestinatation taskDestination
+  FetchDestinatation taskDestination,
+  FetchController controller
 ) {
   
 }
