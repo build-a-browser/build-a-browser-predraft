@@ -29,7 +29,7 @@ public class AnonymousElementBoxImp extends AbstractElementBoxImp {
 
   @Override
   public HTMLElement element() {
-    throw new UnsupportedOperationException("Anonymous box is not associated with an element!");
+    return null;
   }
 
   @Override

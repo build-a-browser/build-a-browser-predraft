@@ -77,7 +77,7 @@ public class FlowInlineLayout {
         stagingArea.pushStagedElement(new StagedUnmanagedBox(elementBox));
       } else if (FlowUtil.isFloat(elementBox)) {
         stagingArea.pushStagedElement(new StagedFloatBox(elementBox));
-      } else if (elementBox.element().name().equals("br")) {
+      } else if (elementBox.element() != null && elementBox.element().name().equals("br")) {
         // TODO: The spec says br is display-outside: newline, but that is not a valid display mode
         stagingArea.pushStagedElement(new StagedLineBreak(elementBox.layoutContext()));
       } else if (elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)) {

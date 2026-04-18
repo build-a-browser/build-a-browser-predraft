@@ -36,7 +36,7 @@ public class TestElementBox extends AbstractElementBoxImp {
 
   @Override
   public HTMLElement element() {
-    throw new UnsupportedOperationException();
+    return null;
   }
 
   @Override
