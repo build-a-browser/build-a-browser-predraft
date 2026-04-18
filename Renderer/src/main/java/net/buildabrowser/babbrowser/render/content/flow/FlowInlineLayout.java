@@ -25,6 +25,7 @@ import net.buildabrowser.babbrowser.render.content.flow.InlineStagingArea.Manage
 import net.buildabrowser.babbrowser.render.content.flow.InlineStagingArea.ManagedBoxExitMarker;
 import net.buildabrowser.babbrowser.render.content.flow.InlineStagingArea.StagedBlockLevelBox;
 import net.buildabrowser.babbrowser.render.content.flow.InlineStagingArea.StagedFloatBox;
+import net.buildabrowser.babbrowser.render.content.flow.InlineStagingArea.StagedLineBreak;
 import net.buildabrowser.babbrowser.render.content.flow.InlineStagingArea.StagedText;
 import net.buildabrowser.babbrowser.render.content.flow.InlineStagingArea.StagedUnmanagedBox;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
@@ -71,10 +72,14 @@ public class FlowInlineLayout {
       BorderUtil.computeBorder(elementBox, widthConstraint);
       PaddingUtil.computePadding(elementBox, widthConstraint);
       
+      
       if (!PositionUtil.affectsLayout(elementBox)) {
         stagingArea.pushStagedElement(new StagedUnmanagedBox(elementBox));
       } else if (FlowUtil.isFloat(elementBox)) {
         stagingArea.pushStagedElement(new StagedFloatBox(elementBox));
+      } else if (elementBox.element().name().equals("br")) {
+        // TODO: The spec says br is display-outside: newline, but that is not a valid display mode
+        stagingArea.pushStagedElement(new StagedLineBreak(elementBox.layoutContext()));
       } else if (elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)) {
         stagingArea.pushStagedElement(new StagedBlockLevelBox(elementBox));
       } else if (!FlowUtil.isInFlow(elementBox)) {
@@ -100,6 +105,7 @@ public class FlowInlineLayout {
     while (!stagingArea.done()) {
       switch (stagingArea.next()) {
         case StagedText stagedText -> addTextToInline(stagedText.layoutContext(), parentStyles, stagedText);
+        case StagedLineBreak stagedBreak -> addBreakToInline(stagedBreak.layoutContext());
         case StagedFloatBox stagedFloat -> addFloatAroundInline(
           stagedFloat.elementBox(), widthConstraint, heightConstraint);
         case StagedUnmanagedBox stagedUnmanagedBox -> {
@@ -188,6 +194,14 @@ public class FlowInlineLayout {
 
     boolean autoWrap = parentStyles.getProperty(CSSProperty.TEXT_WRAP_MODE).equals(TextWrapModeValue.WRAP);
     FlowTextLayout.layoutText(layoutContext, stagedText, inlineStack.peek(), autoWrap);
+  }
+
+  private void addBreakToInline(LayoutContext layoutContext) {
+    InlineFormattingContext inlineContext = inlineStack.peek();
+    if (inlineContext.lineBox().totalHeight() == 0) {
+      inlineContext.lineBox().appendText("\u200B", 0, layoutContext.font().metrics().height());
+    }
+    inlineContext.nextLine();
   }
 
   // #region Positioning

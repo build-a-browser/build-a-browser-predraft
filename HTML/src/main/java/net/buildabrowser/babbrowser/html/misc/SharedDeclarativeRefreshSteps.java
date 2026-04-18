@@ -44,7 +44,6 @@ public final class SharedDeclarativeRefreshSteps {
 
     if (position[0] < input.length()) {
       urlRecord = ignoreURL(document, input, position);
-      System.out.println(urlRecord);
       if (urlRecord == null) return;
     }
 
