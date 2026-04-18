@@ -16,6 +16,7 @@ import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.link.LinkDocumentChangeListener;
+import net.buildabrowser.babbrowser.html.misc.MetaDocumentChangeListener;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.render.box.Box;
@@ -88,8 +89,9 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
 
     DocumentChangeListener innerChangeListener = new RenderDocumentChangeListener(
       cssMatcher.documentChangeListener());
-    this.changeListener = new LinkDocumentChangeListener(
+    innerChangeListener = new LinkDocumentChangeListener(
       fetchEngine, innerChangeListener);
+    this.changeListener = new MetaDocumentChangeListener(innerChangeListener);
     
     this.scriptingContext = ScriptingContext.create(
       fetchEngine,

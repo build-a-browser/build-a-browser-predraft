@@ -11,7 +11,7 @@ public class LinkDocumentChangeListener extends AbstractDocumentChangeListener {
  
   private final FetchEngine fetchEngine;
 
-    public LinkDocumentChangeListener(
+  public LinkDocumentChangeListener(
     FetchEngine fetchEngine,
     DocumentChangeListener nextListener
   ) {

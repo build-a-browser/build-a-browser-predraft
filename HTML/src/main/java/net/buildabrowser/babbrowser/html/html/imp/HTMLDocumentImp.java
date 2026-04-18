@@ -12,12 +12,14 @@ import net.buildabrowser.babbrowser.fetch.FetchClient;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
+import net.buildabrowser.babbrowser.html.navigation.Navigable;
 
 public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
 
   private final BrowsingContext browsingContext;
 
   private DocumentRenderer renderer;
+  private boolean willDeclarativelyRefresh;
 
   public HTMLDocumentImp(BrowsingContext browsingContext) {
     this.browsingContext = browsingContext;
@@ -70,6 +72,21 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
   @Override
   public FetchClient relevantSettingsObject() {
     return browsingContext.realm().hostDefined();
+  }
+
+  @Override
+  public Navigable nodeNavigable() {
+    return browsingContext().activeWindow().agent().eventLoop().getNavigable(this);
+  }
+
+  @Override
+  public boolean willDeclarativelyRefresh() {
+    return this.willDeclarativelyRefresh;
+  }
+
+  @Override
+  public void setWillDeclarativelyRefresh(boolean willDeclarativelyRefresh) {
+    this.willDeclarativelyRefresh = willDeclarativelyRefresh;
   }
 
   @Override

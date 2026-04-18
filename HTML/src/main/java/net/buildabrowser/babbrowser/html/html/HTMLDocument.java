@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.html.html.imp.HTMLDocumentImp;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
+import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.scripting.PlatformObject;
 
 public interface HTMLDocument extends Document, Invalidatable, PlatformObject {
@@ -17,9 +18,15 @@ public interface HTMLDocument extends Document, Invalidatable, PlatformObject {
 
   void attachRenderer(DocumentRenderer renderer);
 
+  Navigable nodeNavigable();
+
   URI fallbackURL();
 
   URI baseURL();
+
+  boolean willDeclarativelyRefresh();
+
+  void setWillDeclarativelyRefresh(boolean willDeclarativelyRefresh);
 
   static HTMLDocument create(BrowsingContext browsingContext) {
     return new HTMLDocumentImp(browsingContext);

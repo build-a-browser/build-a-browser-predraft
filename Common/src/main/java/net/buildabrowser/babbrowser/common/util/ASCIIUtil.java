@@ -58,4 +58,11 @@ public final class ASCIIUtil {
     return -1;
   }
 
+  public static boolean isWhitespace(int ch) {
+    return switch (ch) {
+      case '\t', '\n', '\f', '\r', ' ' -> true;
+      default -> false;
+    };
+  }
+
 }

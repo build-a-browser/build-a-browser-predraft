@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.infra;
 
+import net.buildabrowser.babbrowser.common.util.ASCIIUtil;
+
 public final class StringUtil {
   
   private StringUtil() {}
@@ -14,6 +16,10 @@ public final class StringUtil {
     }
 
     return result.toString();
+  }
+
+  public static void skipASCIIWhitespace(String input, int[] position) {
+    collectCodePoints(input, ch -> ASCIIUtil.isWhitespace(ch), position);
   }
 
   public static interface Condition {
