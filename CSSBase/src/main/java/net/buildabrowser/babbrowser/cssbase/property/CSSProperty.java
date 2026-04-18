@@ -20,6 +20,7 @@ import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontNameValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontNamedSizeValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightValue;
+import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
@@ -123,7 +124,12 @@ public enum CSSProperty {
 
   ROW_GAP(nextId(), false, GapValue.NORMAL),
   COLUMN_GAP(nextId(), false, GapValue.NORMAL),
-  GAP(new CSSProperty[] { CSSProperty.ROW_GAP, CSSProperty.COLUMN_GAP });
+  GAP(new CSSProperty[] { CSSProperty.ROW_GAP, CSSProperty.COLUMN_GAP }),
+  
+  OVERFLOW_X(nextId(), false, OverflowValue.VISIBLE),
+  OVERFLOW_Y(nextId(), false, OverflowValue.VISIBLE),
+  // TODO: OVERFLOW_INLINE, OVERFLOW_BLOCK
+  OVERFLOW(new CSSProperty[] { CSSProperty.OVERFLOW_X, CSSProperty.OVERFLOW_Y });
 
   private static int propertyId = 0;
 
