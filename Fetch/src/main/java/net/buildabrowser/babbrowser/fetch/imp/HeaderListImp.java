@@ -38,4 +38,12 @@ public class HeaderListImp implements HeaderList {
     return null;
   }
 
+  @Override
+  public List<String> extractHeaderListValues(String name) {
+    // TODO: Properly implement the spec
+    String value = get(name);
+    if (value == null) return List.of();
+    return List.of(value.split(",")).stream().map(s -> s.strip()).toList();
+  }
+
 }

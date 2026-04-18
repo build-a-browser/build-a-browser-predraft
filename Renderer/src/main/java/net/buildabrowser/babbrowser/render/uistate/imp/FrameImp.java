@@ -7,8 +7,6 @@ import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.NavigateParameters;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
 import net.buildabrowser.babbrowser.html.scripting.Window;
-import net.buildabrowser.babbrowser.network.URLUtil;
-import net.buildabrowser.babbrowser.network.exception.BadURLException;
 import net.buildabrowser.babbrowser.render.Renderer;
 import net.buildabrowser.babbrowser.render.RenderingEngine;
 import net.buildabrowser.babbrowser.render.RenderingEngine.NavigableRendererPair;
@@ -28,13 +26,6 @@ public class FrameImp implements Frame {
       url -> eventDispatcher.fire(l -> l.onURLChange(url)));
     this.navigable = navigableRendererPair.navigable();
     this.renderer = navigableRendererPair.renderer();
-
-    try {
-      navigate(URLUtil.createURL("about:blank"));
-    } catch (BadURLException e) {
-      // TODO: Handle this better
-      e.printStackTrace();
-    }
   }
 
   @Override

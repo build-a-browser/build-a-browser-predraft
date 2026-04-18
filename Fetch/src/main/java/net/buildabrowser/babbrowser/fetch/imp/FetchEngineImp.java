@@ -256,7 +256,6 @@ public class FetchEngineImp implements FetchEngine {
       // Come back to this later and correct it.
       fetchBackend.makeRequest(response, request, bytesOpt -> {
         receivedResponse.complete(null);
-        // TODO: Though HttpClient handles content-coding for us, this is where it should be handled.
         ReadableByteStreamController bsController = (ReadableByteStreamController) controller;
         if (bytesOpt.isEmpty()) {
           bsController.close();

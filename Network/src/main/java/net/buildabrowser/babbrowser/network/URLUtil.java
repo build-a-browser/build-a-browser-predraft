@@ -1,14 +1,13 @@
 package net.buildabrowser.babbrowser.network;
 
 import java.net.URI;
-
-import net.buildabrowser.babbrowser.network.exception.BadURLException;
+import java.net.URISyntaxException;
 
 public final class URLUtil {
   
   private URLUtil() {}
 
-  public static URI createURL(String url) throws BadURLException {
+  public static URI createURL(String url) throws URISyntaxException {
     return URI.create(url);
   }
 

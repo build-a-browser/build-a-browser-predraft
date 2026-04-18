@@ -1,6 +1,112 @@
+import org.gradle.nativeplatform.internal.DefaultTargetMachineFactory
+
 rootProject.name = 'buildabrowser'
 include(
   ':Common', ':Infra',
   ':CSSBase', ':CSSEngine', ':Renderer',
   ':DOM', ':HTML', ':HTMLParser',':Browser', ':Network',
   ':Stream', ':Fetch')
+
+// Copied from Brotli4J website (https://github.com/hyperxpro/Brotli4j/blob/main/LICENSE)
+// But with proj -> added since it was broken by default
+
+gradle.beforeProject { proj ->
+    def host = new DefaultTargetMachineFactory(proj.objects).host()
+
+    // This tells gradle that we want an artifact with the correct OperatingSystemFamily and MachineArchitecture
+    // Gradle will then attempt to find the artifact with the best matching value, or if one cannot be found,
+    // fall back to the default (i.e. in the case of any dependency other than brotli4j)
+    proj.configurations.configureEach {
+        // if the configuration is being published, don't set the attributes
+        if (canBeConsumed)
+            return
+
+        attributes {
+            if (OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE !in keySet())
+                attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, host.operatingSystemFamily)
+            if (MachineArchitecture.ARCHITECTURE_ATTRIBUTE !in keySet())
+                attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, host.architecture)
+        }
+    }
+
+    // can be removed if not using shadow plugin
+    pluginManager.withPlugin("com.gradleup.shadow") {
+        configurations.register("shaded") {
+            extendsFrom(configurations.runtimeClasspath)
+
+            canBeConsumed = false
+            canBeResolved = true
+            canBeDeclared = true
+
+            attributes {
+                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+                attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
+                attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.JAR))
+
+                attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named(OperatingSystemFamily, "all"))
+                attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, "all"))
+            }
+        }
+    }
+}
+
+dependencyResolutionManagement {
+    components {
+        withModule("com.aayushatharva.brotli4j:natives", Brotli4JRule)
+    }
+}
+
+@CacheableRule
+abstract class Brotli4JRule implements ComponentMetadataRule {
+    @Inject
+    abstract ObjectFactory getObjects()
+
+    void execute(ComponentMetadataContext context) {
+        for (base in ["compile", "runtime"]) {
+            addVariant(context, base)
+        }
+    }
+
+    void addVariant(ComponentMetadataContext context, String base) {
+        def nativeVariants = [
+            [ os: OperatingSystemFamily.WINDOWS, arch: "aarch64", classifier: "windows-aarch64" ],
+            [ os: OperatingSystemFamily.WINDOWS, arch: "x86-64",  classifier: "windows-x86_64"  ],
+            [ os: OperatingSystemFamily.MACOS,   arch: "x86-64",  classifier: "osx-x86_64"      ],
+            [ os: OperatingSystemFamily.MACOS,   arch: "aarch64", classifier: "osx-aarch64"     ],
+            [ os: OperatingSystemFamily.LINUX,   arch: "x86-64",  classifier: "linux-x86_64"    ],
+            [ os: OperatingSystemFamily.LINUX,   arch: "aarch64", classifier: "linux-aarch64"   ],
+            [ os: OperatingSystemFamily.LINUX,   arch: "arm-v7",  classifier: "linux-armv7"     ],
+            [ os: OperatingSystemFamily.LINUX,   arch: "s390x",   classifier: "linux-s390x"     ],
+            [ os: OperatingSystemFamily.LINUX,   arch: "riscv64", classifier: "linux-riscv64"   ],
+            [ os: OperatingSystemFamily.LINUX,   arch: "ppc64le", classifier: "linux-ppc64le"   ],
+        ]
+
+        def version = context.details.id.version
+
+        nativeVariants.forEach { variant ->
+            context.details.addVariant("${variant.classifier}-${base}", base) {
+                attributes {
+                    attributes.attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named(OperatingSystemFamily, variant.os))
+                    attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, variant.arch))
+                }
+
+                withDependencies {
+                    add("com.aayushatharva.brotli4j:native-${variant.classifier}:${version}")
+                }
+            }
+        }
+
+        context.details.addVariant("all-${base}", base) {
+            attributes {
+                attributes.attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named(OperatingSystemFamily, "all"))
+                attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, "all"))
+            }
+
+            withDependencies {
+                nativeVariants.forEach { variant ->
+                    add("com.aayushatharva.brotli4j:native-${variant.classifier}:${version}")
+                }
+            }
+        }
+    }
+}

@@ -18,6 +18,7 @@ import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
+import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
 import net.buildabrowser.babbrowser.render.RenderingEngine;
 import net.buildabrowser.babbrowser.render.loader.DocumentLoaderRegistry;
 import net.buildabrowser.babbrowser.render.loader.loaders.HTMLDocumentLoader;
@@ -43,7 +44,8 @@ public class Main {
     DocumentLoaderRegistry loaderRegistry = DocumentLoaderRegistry.create();
     loaderRegistry.register("text/html", new HTMLDocumentLoader());
 
-    FetchEngine fetchEngine = FetchEngine.create(new FetchBackendImp());
+    ContentEncodingRegistry registry = ContentEncodingRegistry.createDefault();
+    FetchEngine fetchEngine = FetchEngine.create(new FetchBackendImp(registry));
     Supplier<StyleSheetList> uaStyleSheetsSupplier = () -> CommonUtil.rethrow(() -> loadUAStyleSheets());
 
     RenderingEngine renderingEngine = RenderingEngine.create(

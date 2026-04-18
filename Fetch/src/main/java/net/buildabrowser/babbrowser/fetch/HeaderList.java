@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.fetch;
 
+import java.util.List;
+
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.fetch.imp.HeaderListImp;
 
@@ -8,6 +10,8 @@ public interface HeaderList {
   void append(String name, String value);
 
   String get(String name);
+
+  List<String> extractHeaderListValues(String name);
   
   static interface Header extends IntrusiveList<Header> {
 

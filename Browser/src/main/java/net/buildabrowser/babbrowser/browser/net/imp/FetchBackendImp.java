@@ -4,20 +4,30 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.net.http.HttpResponse.ResponseInfo;
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.fetch.HeaderList;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchResponse;
+import net.buildabrowser.babbrowser.network.encoding.ContentDecoder;
+import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
 
 public class FetchBackendImp implements FetchBackend {
 
   private final HttpClient httpClient = HttpClient.newHttpClient();
+
+  private final ContentEncodingRegistry encodingRegistry;
+
+  public FetchBackendImp(ContentEncodingRegistry encodingRegistry) {
+    this.encodingRegistry = encodingRegistry;
+  }
 
   @Override
   public void makeRequest(
@@ -29,6 +39,7 @@ public class FetchBackendImp implements FetchBackend {
     HttpRequest httpRequest = HttpRequest.newBuilder(request.currentURL())
       .setHeader("User-Agent", chooseUserAgent(request))
       .setHeader("Accept", "text/html, text/css, image/png, image/jpeg, */*")
+      .setHeader("Accept-Encoding", String.join(", ", encodingRegistry.acceptedEncodings()))
       // HTTP 2 seems broken on http
       .version(
         request.currentURL().getScheme().equals("https") ?
@@ -41,8 +52,28 @@ public class FetchBackendImp implements FetchBackend {
       response.urlList().add(request.currentURL()); // TODO: Is this handled elsewhere, for recursive requests?
       response.setStatus(responseInfo.statusCode());
       appendResponseHeaders(response, responseInfo);
+
+      List<String> codings = response.headerList().extractHeaderListValues("Content-Encoding");
+      ContentDecoder decoder = CommonUtil.rethrow(() -> encodingRegistry.createChainDecoder(codings, buffer -> {
+        if (buffer.hasArray()) {
+          byteConsumer.accept(Optional.of(buffer.array()));
+        } else {
+          byte[] bytes = new byte[buffer.remaining()];
+          buffer.get(bytes);
+          byteConsumer.accept(Optional.of(bytes));
+        }
+      }));
+      // TODO: Other parts of Fetch, maybe move this to the Fetch module
       
-      return BodyHandlers.ofByteArrayConsumer(byteConsumer).apply(responseInfo);
+      return BodyHandlers.ofByteArrayConsumer(bytesOpt -> CommonUtil.rethrowV(() -> {
+        if (bytesOpt.isPresent()) {
+          decoder.push(ByteBuffer.wrap(bytesOpt.get()));
+        } else {
+          decoder.done();
+          decoder.close();
+          byteConsumer.accept(bytesOpt);
+        }
+      })).apply(responseInfo);
     }).exceptionally(e -> { e.printStackTrace(); return null; });
     // TODO: Proper exception handling
   }
