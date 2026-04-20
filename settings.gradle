@@ -8,17 +8,13 @@ include(
   ':Stream', ':Fetch')
 
 // Copied from Brotli4J website (https://github.com/hyperxpro/Brotli4j/blob/main/LICENSE)
-// But with proj -> added since it was broken by default
+// With modifications to resolve broken things
 
 gradle.beforeProject { proj ->
     def host = new DefaultTargetMachineFactory(proj.objects).host()
 
-    // This tells gradle that we want an artifact with the correct OperatingSystemFamily and MachineArchitecture
-    // Gradle will then attempt to find the artifact with the best matching value, or if one cannot be found,
-    // fall back to the default (i.e. in the case of any dependency other than brotli4j)
     proj.configurations.configureEach {
-        // if the configuration is being published, don't set the attributes
-        if (canBeConsumed)
+        if (!canBeResolved || canBeConsumed)
             return
 
         attributes {
@@ -29,7 +25,6 @@ gradle.beforeProject { proj ->
         }
     }
 
-    // can be removed if not using shadow plugin
     pluginManager.withPlugin("com.gradleup.shadow") {
         configurations.register("shaded") {
             extendsFrom(configurations.runtimeClasspath)
