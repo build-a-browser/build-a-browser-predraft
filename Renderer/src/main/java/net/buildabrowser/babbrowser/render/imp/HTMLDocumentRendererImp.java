@@ -268,17 +268,18 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
     ElementBox itemBox
   ) {
     // TODO: Need to use proper layout context for item
-    StackingContext parentContext = itemBox.stackingContext().parentContext();
-    float[] insets = itemBox.stackingContext().computeInsets();
-    float refWidth = parentContext.computeWidth();
-    float refHeight = parentContext.computeHeight();
+    StackingContext ownContext = itemBox.stackingContext();
+    StackingContext parentContext = ownContext.parentContext();
+    float[] insets = ownContext.computeInsets();
+    float refWidth = parentContext.innerWidth();
+    float refHeight = parentContext.innerHeight();
     UnmanagedBoxFragment itemFragment = PositionLayout.actuallyLayoutAbsolute(
       itemBox, refWidth, refHeight, insets);
     float[] position = PositionLayout.positionAbsolute(
       insets, itemFragment, refWidth, refHeight);
     
     StackingContextGenerator.generateStackingContextsDeferred(itemBox, deferredLayout);
-    itemBox.stackingContext().addFragment(
+    ownContext.addFragment(
       parentContext.posX() + position[0],
       parentContext.posY() + position[1],
       itemFragment);

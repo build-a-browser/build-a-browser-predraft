@@ -2,12 +2,14 @@ package net.buildabrowser.babbrowser.render.layout;
 
 import java.util.Deque;
 
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxIterator;
+import net.buildabrowser.babbrowser.render.composite.CompositeLayerUtil;
 
 public final class StackingContextGenerator {
   
@@ -42,15 +44,23 @@ public final class StackingContextGenerator {
     Box box, StackingContext parentContext, Deque<ElementBox> deferredBoxes
   ) {
     if (!(box instanceof ElementBox elementBox)) return;
-    CSSValue positioning = elementBox.activeStyles().getProperty(CSSProperty.POSITION);
-    if (positioning.equals(PositionValue.RELATIVE)) {
-      parentContext = parentContext.createChild(elementBox);
-      parentContext.computeInsets();
-    } else if (positioning.equals(PositionValue.ABSOLUTE)) {
+
+    ActiveStyles activeStyles = elementBox.activeStyles();
+    CSSValue positioning = activeStyles.getProperty(CSSProperty.POSITION);
+    boolean isScrollable = CompositeLayerUtil.hasScrollContent(elementBox);
+
+    if (positioning.equals(PositionValue.ABSOLUTE)) {
       parentContext = parentContext.createChild(elementBox);
       deferredBoxes.add(elementBox);
+    } else if (
+      positioning.equals(PositionValue.RELATIVE)
+      || isScrollable
+    ) {
+      parentContext = parentContext.createChild(elementBox);
+      parentContext.computeInsets();
     } // TODO: Other positions
     elementBox.setStackingContext(parentContext);
+
     ElementBoxIterator childIt = elementBox.childBoxes();
     if (!positioning.equals(PositionValue.ABSOLUTE)) {
       while (childIt.hasNext()) {

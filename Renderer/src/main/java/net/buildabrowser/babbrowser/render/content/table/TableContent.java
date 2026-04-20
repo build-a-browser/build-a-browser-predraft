@@ -42,6 +42,7 @@ public class TableContent implements BoxContent {
       return new UnmanagedBoxFragment(
         LayoutUtil.constraintOrDim(widthConstraint, 0),
         LayoutUtil.constraintOrDim(heightConstraint, 0),
+        0, 0,
         rootBox, painter);
     }
 
@@ -51,7 +52,8 @@ public class TableContent implements BoxContent {
       return new UnmanagedBoxFragment(
         LayoutUtil.constraintOrDim(widthConstraint, totalWidth),
         LayoutUtil.constraintOrDim(heightConstraint, 0),
-        rootBox, painter);  
+        totalWidth, 0,
+        rootBox, painter);
     }
 
     float[] rowHeights = new float[table.height()];
@@ -60,9 +62,11 @@ public class TableContent implements BoxContent {
     positionCells(table, columnWidths, rowHeights);
 
     this.sizedTable = new SizedTable(table, columnWidths, rowHeights);
+    float totalHeight = sumWidths(rowHeights);
     return new UnmanagedBoxFragment(
       LayoutUtil.constraintOrDim(widthConstraint, totalWidth),
-      LayoutUtil.constraintOrDim(heightConstraint, sumWidths(rowHeights)),
+      LayoutUtil.constraintOrDim(heightConstraint, totalHeight),
+      totalWidth, totalHeight,
       rootBox, painter);
   }
 

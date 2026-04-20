@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.render.paint.java2d;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -16,6 +17,7 @@ import net.buildabrowser.babbrowser.render.paint.FontLoader.FontOptions;
 public class J2DPaintCanvas implements PaintCanvas {
 
   private final Deque<J2DPaint> paintStack = new ArrayDeque<>();
+  private final Deque<Shape> clipStack = new ArrayDeque<>();
   private final Graphics2D graphics;
 
   private float currentTranslateX, currentTranslateY;
@@ -65,13 +67,28 @@ public class J2DPaintCanvas implements PaintCanvas {
   }
 
   @Override
-  public void drawImage(float x, float y, float width, float height, LoadedImage image) {
-    graphics.drawImage(((J2DLoadedImage) image).image(), (int) x, (int) y, (int) width, (int) height, null);
+  public void drawImage(float x, float y, float w, float h, LoadedImage image) {
+    graphics.drawImage(((J2DLoadedImage) image).image(), (int) x, (int) y, (int) w, (int) h, null);
   }
 
   @Override
   public FontMetrics fontMetrics() {
     return new J2DFontMetrics(graphics.getFontMetrics(), new FontOptions(List.of(), 0, 0));
+  }
+
+  @Override
+  public void clip(float x, float y, float w, float h) {
+    if (graphics.getClip() != null) {
+      clipStack.add(graphics.getClip());
+    }
+    graphics.clipRect((int) x, (int) y, (int) w, (int) h);
+  }
+
+  @Override
+  public void unclip() {
+    if (!clipStack.isEmpty()) {
+      graphics.setClip(clipStack.pop());
+    }
   }
 
   private void postPaintUpdate() {

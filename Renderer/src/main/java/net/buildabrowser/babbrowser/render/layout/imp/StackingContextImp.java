@@ -15,7 +15,9 @@ import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayerEntry;
+import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
 
@@ -44,6 +46,9 @@ public class StackingContextImp implements StackingContext {
 
   @Override
   public void addFragment(float posX, float posY, BoxFragment fragment) {
+    if (this.entries != null && fragment instanceof ScrollBoxFragment) {
+      throw new RuntimeException();
+    }
     entries = IntrusiveList.add(entries, new CompositeLayerEntry(posX, posY, fragment));
   }
   
@@ -57,9 +62,10 @@ public class StackingContextImp implements StackingContext {
   @Override
   public float[] computeInsets() {
     CSSValue position = relatedBox.activeStyles().getProperty(CSSProperty.POSITION);
-    return this.insets = position.equals(PositionValue.RELATIVE) ?
-      determineRelativeInsets() :
-      determineAbsoluteInsets();
+    return this.insets =
+      position.equals(PositionValue.RELATIVE) ? determineRelativeInsets() :
+      position.equals(PositionValue.ABSOLUTE) ? determineAbsoluteInsets() :
+      new float[4];
   }
 
   @Override
@@ -137,16 +143,13 @@ public class StackingContextImp implements StackingContext {
   }
 
   @Override
-  public float computeWidth() {
+  public float innerWidth() {
     float minX = Integer.MAX_VALUE;
     float maxX = Integer.MIN_VALUE;
     CompositeLayerEntry currentEntry = entries;
     while (currentEntry != null) {
       BoxFragment fragment = currentEntry.fragment();
-      ElementBoxDimensions dimensions = fragment.box().dimensions();
-      float adjustedWidth = fragment.contentWidth()
-        + dimensions.getComputedPadding()[2]
-        + dimensions.getComputedPadding()[3];
+      float adjustedWidth = fragment.width(Measurement.PADDING);
       minX = Math.min(minX, currentEntry.offsetX());
       maxX = Math.max(maxX, currentEntry.offsetX() + adjustedWidth);
       currentEntry = currentEntry.next();
@@ -156,16 +159,13 @@ public class StackingContextImp implements StackingContext {
   }
 
   @Override
-  public float computeHeight() {
+  public float innerHeight() {
     float minY = Integer.MAX_VALUE;
     float maxY = Integer.MIN_VALUE;
     CompositeLayerEntry currentEntry = entries;
     while (currentEntry != null) {
       BoxFragment fragment = currentEntry.fragment();
-      ElementBoxDimensions dimensions = fragment.box().dimensions();
-      float adjustedHeight = fragment.contentHeight()
-        + dimensions.getComputedPadding()[0]
-        + dimensions.getComputedPadding()[1];
+      float adjustedHeight = fragment.height(Measurement.PADDING);
       minY = Math.min(minY, currentEntry.offsetY());
       maxY = Math.max(maxY, currentEntry.offsetY() + adjustedHeight);
       currentEntry = currentEntry.next();
@@ -195,8 +195,8 @@ public class StackingContextImp implements StackingContext {
 
   private float[] determineAbsoluteInsets() {
     if (parentContext == null) return new float[4];
-    float refWidth = parentContext.computeWidth();
-    float refHeight = parentContext.computeHeight();
+    float refWidth = parentContext.innerWidth();
+    float refHeight = parentContext.innerHeight();
     return PositionUtil.computeAbsoluteInsets(
       relatedBox, refWidth, refHeight);
   }

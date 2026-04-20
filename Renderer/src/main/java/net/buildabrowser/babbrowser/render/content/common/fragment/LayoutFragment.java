@@ -84,4 +84,24 @@ public abstract class LayoutFragment implements IntrusiveList<LayoutFragment> {
     return this.height;
   }
 
+  public float width(Measurement type) {
+    return this.width;
+  }
+
+  public float inkWidth(Measurement type) {
+    return this.width;
+  }
+
+  public float height(Measurement type) {
+    return this.height;
+  }
+
+  public float inkHeight(Measurement type) {
+    return this.height;
+  }
+
+  public static enum Measurement {
+    MARGIN, BORDER, PADDING, CONTENT
+  }
+
 }

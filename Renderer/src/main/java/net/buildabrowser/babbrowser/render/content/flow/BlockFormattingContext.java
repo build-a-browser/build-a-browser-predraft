@@ -21,6 +21,9 @@ public class BlockFormattingContext {
   private float width;
   private float y;
 
+  private float inkWidth;
+  private float inkY;
+
   private BlockFormattingContext parentContext;
   private BlockFormattingContext collapseContext;
   private float maxMargin = 0;
@@ -44,7 +47,8 @@ public class BlockFormattingContext {
     return this.y;
   }
 
-  public void increaseY(float yInc) {
+  public void increaseY(float yInc, float yInkInc) {
+    this.inkY = Math.max(inkY, y + yInkInc);
     this.y += yInc;
   }
 
@@ -69,8 +73,9 @@ public class BlockFormattingContext {
     }
   }
 
-  public void minWidth(float minWidth) {
+  public void minWidth(float minWidth, float inkWidth) {
     this.width = Math.max(width, minWidth);
+    this.inkWidth = Math.max(this.inkWidth, inkWidth);
   }
 
   public void recordMargin(float margin) {
@@ -94,7 +99,7 @@ public class BlockFormattingContext {
     }
 
     float amount = maxMargin + minMargin;
-    increaseY(amount);
+    increaseY(amount, amount);
     this.maxMargin = 0;
     this.minMargin = 0;
   }
@@ -144,7 +149,9 @@ public class BlockFormattingContext {
       elementBox, LayoutConstraint.of(preclampHeight)).value();
 
     return new ManagedBoxFragment(
-      usedWidth, usedHeight, elementBox,
+      usedWidth, usedHeight,
+      inkWidth, inkY,
+      elementBox,
       FlowRootContentPainter.FLOW_BLOCK_PAINTER, fragments);
   }
 

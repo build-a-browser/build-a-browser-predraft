@@ -8,6 +8,8 @@ import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.box.ElementBoxIterator;
+import net.buildabrowser.babbrowser.render.composite.CompositeLayerUtil;
+import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollLayoutUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.layout.CachedLayoutResult;
@@ -70,6 +72,8 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
     }
 
     nextBox = newBox;
+
+    assert IntrusiveList._ensureNoLoops(childBoxes);
   }
 
   @Override
@@ -95,7 +99,8 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
     CachedLayoutResult current = cache;
     while (current != null) {
       if (current.applies(widthConstraint, heightConstraint)) {
-        return current.fragment();
+        UnmanagedBoxFragment fragment = current.fragment();
+        fragment.setNext(null);
       }
       current = current.next();
     }
@@ -104,8 +109,9 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
       content().computeIntrinsics();
     }
 
-    // TODO: Is it worth scanning for and removing the old cache result?
-    UnmanagedBoxFragment layoutResult = content().layout(widthConstraint, heightConstraint);
+    UnmanagedBoxFragment layoutResult = CompositeLayerUtil.hasScrollContent(this) ?
+      ScrollLayoutUtil.layoutScrollable(widthConstraint, heightConstraint, this) :
+      content().layout(widthConstraint, heightConstraint);
     this.cache = CachedLayoutResult.create(
       widthConstraint, heightConstraint, layoutResult, cache);
     return layoutResult;

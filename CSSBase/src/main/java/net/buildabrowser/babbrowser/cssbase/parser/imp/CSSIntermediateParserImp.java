@@ -168,7 +168,7 @@ public class CSSIntermediateParserImp {
       declValue.removeLast();
     }
 
-    return new Declaration(nameToken.value(), declValue, false);
+    return Declaration.create(nameToken.value(), declValue, false);
   }
 
   private Token consumeAComponentValue(CSSTokenStream stream) throws IOException {

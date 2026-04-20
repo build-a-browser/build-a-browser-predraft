@@ -11,6 +11,7 @@ import net.buildabrowser.babbrowser.render.box.TextBox;
 import net.buildabrowser.babbrowser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.position.PositionLayout;
@@ -209,8 +210,12 @@ public class FlowBlockLayout {
   public void addFinishedFragment(LayoutFragment newFragment, float posX) {
     BlockFormattingContext parentContext = activeContext;
     newFragment.setPos(posX, parentContext.currentY());
-    parentContext.increaseY(newFragment.borderHeight());
-    parentContext.minWidth(newFragment.marginX() + newFragment.marginWidth());
+    parentContext.increaseY(
+      newFragment.borderHeight(),
+      newFragment.inkHeight(Measurement.BORDER));
+    parentContext.minWidth(
+      newFragment.marginX() + newFragment.marginWidth(),
+      newFragment.marginX() + newFragment.inkWidth(Measurement.MARGIN));
     parentContext.addFragment(newFragment);
   }
 
@@ -220,7 +225,7 @@ public class FlowBlockLayout {
     float leftClear = clearValue.equals(ClearValue.RIGHT) ? 0 : rootContent.floatTracker().clearedLineStartPosition();
     float rightClear = clearValue.equals(ClearValue.LEFT) ? 0 : rootContent.floatTracker().clearedLineEndPosition();
     float totalClear = Math.max(leftClear, rightClear);
-    activeContext.increaseY(totalClear);
+    activeContext.increaseY(totalClear, totalClear);
   }
 
   private boolean needsCollapsed(ElementBox box, int refIndex) {

@@ -12,20 +12,25 @@ public class ManagedBoxFragment extends BoxFragment {
   private final LayoutFragment fragments;
 
   public ManagedBoxFragment(
-    float width, float height, ElementBox box,
-    BoxPainter painter,
+    float width, float height,
+    float inkWidth, float inkHeight,
+    ElementBox box, BoxPainter painter,
     LayoutFragment fragments
   ) {
-    super(width, height, box, painter);
+    super(
+      width, height,
+      inkWidth, inkHeight,
+      box, painter);
     this.fragments = fragments;
   }
 
   // Constructor used by tests, don't use in normal code
   public ManagedBoxFragment(
-    float x, float y, float width, float height, ElementBox box,
-    List<LayoutFragment> fragments
+    float x, float y,
+    float width, float height,
+    ElementBox box, List<LayoutFragment> fragments
   ) {
-    super(width, height, box, new UnreachableBoxPainter());
+    super(width, height, width, height, box, new UnreachableBoxPainter());
     this.fragments = IntrusiveList.fromList(fragments);
     setPos(x, y);
   }

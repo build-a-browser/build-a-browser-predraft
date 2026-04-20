@@ -26,9 +26,9 @@ public interface StackingContext {
 
   float posY();
 
-  float computeWidth();
+  float innerWidth();
 
-  float computeHeight();
+  float innerHeight();
 
   static StackingContext createRoot(ElementBox relatedBox) {
     return new StackingContextImp(null, relatedBox);

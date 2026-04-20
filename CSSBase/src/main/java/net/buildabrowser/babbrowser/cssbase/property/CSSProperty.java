@@ -126,8 +126,8 @@ public enum CSSProperty {
   COLUMN_GAP(nextId(), false, GapValue.NORMAL),
   GAP(new CSSProperty[] { CSSProperty.ROW_GAP, CSSProperty.COLUMN_GAP }),
   
-  OVERFLOW_X(nextId(), false, OverflowValue.VISIBLE),
-  OVERFLOW_Y(nextId(), false, OverflowValue.VISIBLE),
+  OVERFLOW_X(nextId(), false, InvalidationLevel.BOX, OverflowValue.VISIBLE),
+  OVERFLOW_Y(nextId(), false, InvalidationLevel.BOX, OverflowValue.VISIBLE),
   // TODO: OVERFLOW_INLINE, OVERFLOW_BLOCK
   OVERFLOW(new CSSProperty[] { CSSProperty.OVERFLOW_X, CSSProperty.OVERFLOW_Y });
 

@@ -14,10 +14,13 @@ public class FlowRootBoxFragment extends UnmanagedBoxFragment {
 
   public FlowRootBoxFragment(
     float usedWidth, float usedHeight,
+    float inkWidth, float inkHeight,
     ElementBox rootBox, ManagedBoxFragment rootFragment,
     List<BoxFragment> floats
   ) {
-    super(usedWidth, usedHeight, rootBox, FlowRootContentPainter.FLOW_ROOT_PAINTER);
+    super(
+      usedWidth, usedHeight, inkWidth, inkHeight, rootBox,
+      FlowRootContentPainter.FLOW_ROOT_PAINTER);
     this.rootFragment = rootFragment;
     this.floats = floats;
   }

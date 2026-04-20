@@ -39,6 +39,8 @@ import net.buildabrowser.babbrowser.cssbase.property.font.FontFamilyParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontSizeParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightParser;
+import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowParser;
+import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionParser;
 import net.buildabrowser.babbrowser.cssbase.property.position.ZIndexParser;
 import net.buildabrowser.babbrowser.cssbase.property.shared.ManySideShorthandParser;
@@ -154,7 +156,14 @@ public final class DeclarationParser {
 
     "row-gap", new GapParser(CSSProperty.ROW_GAP),
     "column-gap", new GapParser(CSSProperty.COLUMN_GAP),
-    "gap", new GapShorthandParser()
+    "gap", new GapShorthandParser(),
+
+    "overflow-x", new OverflowParser(CSSProperty.OVERFLOW_X),
+    "overflow-y", new OverflowParser(CSSProperty.OVERFLOW_Y),
+    // TODO: Proper implementation
+    "overflow-block", new OverflowParser(CSSProperty.OVERFLOW_X),
+    "overflow-inline", new OverflowParser(CSSProperty.OVERFLOW_Y),
+    "overflow", new OverflowShorthandParser()
   );
 
   public static boolean isKnownDeclarationName(String declName) {

@@ -54,6 +54,7 @@ public class LineBox {
     LineSegment lineSegment = lineSegments.pop();
     ManagedBoxFragment managedBoxFragment = new ManagedBoxFragment(
       lineSegment.width(), lineSegment.height(),
+      lineSegment.inkWidth(), lineSegment.inkHeight(),
       lineSegment.box(), FlowRootContentPainter.FLOW_INLINE_PAINTER,
       lineSegment.fragments());
     lineSegments.peek().addFragment(managedBoxFragment);

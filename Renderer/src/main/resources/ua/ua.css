@@ -38,6 +38,11 @@ center {
   text-align: center;
 }
 
+option {
+  /* TODO: Select is not supported yet */
+  display: none;
+}
+
 /* For content after this line, see licenses/WHATWG.txt for license information. */
 article, aside, h1, h2, h3, h4, h5, h6, hgroup, nav, section {
   display: block;

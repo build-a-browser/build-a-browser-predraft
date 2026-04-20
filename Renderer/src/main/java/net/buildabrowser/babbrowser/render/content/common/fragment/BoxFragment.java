@@ -9,13 +9,19 @@ public class BoxFragment extends LayoutFragment {
   private final ElementBox box;
   private final BoxPainter painter;
 
+  private final float inkWidth;
+  private final float inkHeight;
+
   public BoxFragment(
     float width, float height,
+    float inkWidth, float inkHeight,
     ElementBox box, BoxPainter painter
   ) {
     super(width, height);
     this.box = box;
     this.painter = painter;
+    this.inkWidth = inkWidth;
+    this.inkHeight = inkHeight;
   }
 
   public BoxFragment(
@@ -25,6 +31,8 @@ public class BoxFragment extends LayoutFragment {
     super(width, height);
     this.box = box;
     this.painter = new UnreachableBoxPainter();
+    this.inkWidth = width;
+    this.inkHeight = height;
   }
 
   public ElementBox box() {
@@ -88,6 +96,60 @@ public class BoxFragment extends LayoutFragment {
   public float marginHeight() {
     float[] margin = box.dimensions().getComputedMargin();
     return borderHeight() + margin[0] + margin[1];
+  }
+
+  @Override
+  public float width(Measurement type) {
+    return adjustNormal(super.width(Measurement.CONTENT), 2, type);
+  }
+
+  @Override
+  public float inkWidth(Measurement type) {
+    return adjustInk(width(type), inkWidth, 2, type);
+  }
+
+  @Override
+  public float height(Measurement type) {
+    return adjustNormal(super.height(Measurement.CONTENT), 0, type);
+  }
+
+  @Override
+  public float inkHeight(Measurement type) {
+    return adjustInk(height(type), inkHeight, 0, type);
+  }
+
+  private float adjustNormal(float size, int i, Measurement type) {
+    if (type.ordinal() <= Measurement.MARGIN.ordinal()) {
+      float[] margin = box.dimensions().getComputedMargin();
+      size += margin[i] + margin[i + 1];
+    }
+    if (type.ordinal() <= Measurement.BORDER.ordinal()) {
+      float[] border = box.dimensions().getComputedBorder();
+      size += border[i] + border[i + 1];
+    }
+    if (type.ordinal() <= Measurement.PADDING.ordinal()) {
+      float[] padding = box.dimensions().getComputedPadding();
+      size += padding[i] + padding[i + 1];
+    }
+
+    return size;
+  }
+
+  private float adjustInk(float normalSize, float inkSize, int i, Measurement type) {
+    if (type.ordinal() <= Measurement.MARGIN.ordinal()) {
+      float[] margin = box.dimensions().getComputedMargin();
+      inkSize += margin[i];
+    }
+    if (type.ordinal() <= Measurement.BORDER.ordinal()) {
+      float[] border = box.dimensions().getComputedBorder();
+      inkSize += border[i];
+    }
+    if (type.ordinal() <= Measurement.PADDING.ordinal()) {
+      float[] padding = box.dimensions().getComputedPadding();
+      inkSize += padding[i];
+    }
+
+    return Math.max(normalSize, inkSize);
   }
 
 }

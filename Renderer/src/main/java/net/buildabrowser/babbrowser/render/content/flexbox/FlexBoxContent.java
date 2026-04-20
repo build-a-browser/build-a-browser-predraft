@@ -262,7 +262,10 @@ public class FlexBoxContent implements BoxContent {
     float resolvedCross = LayoutUtil.constraintOrDim(crossSize, totalLineCross);
     return new UnmanagedBoxFragment(
       isVertical ? resolvedCross : resolvedMain,
-      isVertical ? resolvedMain : resolvedCross, rootBox, painter);
+      isVertical ? resolvedMain : resolvedCross,
+      isVertical ? totalLineCross : largestLineMain,
+      isVertical ? largestLineMain : totalLineCross,
+      rootBox, painter);
   }
 
   @Override

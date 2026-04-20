@@ -5,6 +5,7 @@ import java.util.Deque;
 import java.util.function.Consumer;
 
 import io.github.humbleui.skija.Canvas;
+import io.github.humbleui.skija.Matrix44;
 import io.github.humbleui.types.Rect;
 import net.buildabrowser.babbrowser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.render.paint.LoadedImage;
@@ -52,7 +53,7 @@ public class SkijaPaintCanvas implements PaintCanvas {
 
   @Override
   public void drawBox(float x, float y, float w, float h) {
-    canvas.drawRect(new Rect(x, y, x + w, y + h), rawPaint);
+    canvas.drawRect(Rect.makeXYWH(x, y, w, h), rawPaint);
   }
 
   @Override
@@ -66,8 +67,8 @@ public class SkijaPaintCanvas implements PaintCanvas {
   }
 
   @Override
-  public void drawImage(float x, float y, float width, float height, LoadedImage image) {
-    Rect rect = Rect.makeXYWH(x, y, width, height);
+  public void drawImage(float x, float y, float w, float h, LoadedImage image) {
+    Rect rect = Rect.makeXYWH(x, y, w, h);
     canvas.drawImageRect(((SkijaLoadedImage) image).image(), rect, rawPaint);
   }
 
@@ -87,6 +88,19 @@ public class SkijaPaintCanvas implements PaintCanvas {
     currentTranslateY = paint.offsetY();
 
     this.currentFont = paint.getFont();
+  }
+
+  @Override
+  public void clip(float x, float y, float w, float h) {
+    canvas.save();
+    canvas.clipRect(Rect.makeXYWH(x, y, w, h));
+  }
+
+  @Override
+  public void unclip() {
+    Matrix44 matrix = canvas.getLocalToDevice();
+    canvas.restore();
+    canvas.setMatrix(matrix);
   }
   
 }

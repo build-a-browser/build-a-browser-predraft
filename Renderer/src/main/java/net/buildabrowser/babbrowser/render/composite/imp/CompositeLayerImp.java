@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayerEntry;
+import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollBoxFragment;
+import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollContentPainter;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
 
@@ -49,6 +51,12 @@ public class CompositeLayerImp implements CompositeLayer {
 
   @Override
   public void paint(PaintCanvas canvas) {
+    // TODO: Having to do this is not great
+    if (entries != null && entries.next() == null) {
+      paintSingle(canvas);
+      return;
+    }
+
     ensureLayersSorted();
 
     forEachFragment(fragment -> fragment.painter().paintBackground(fragment, canvas), canvas);
@@ -100,6 +108,48 @@ public class CompositeLayerImp implements CompositeLayer {
     return this.entries;
   }
 
+  private void paintSingle(PaintCanvas canvas) {
+    BoxFragment fragment = entries.fragment();
+    ScrollBoxFragment scrollBox = fragment instanceof ScrollBoxFragment scrollBox2 ? scrollBox2 : null;
+
+    canvas.pushPaint();
+    canvas.alterPaint(p -> p.incOffset(entries.offsetX(), entries.offsetY()));
+    if (scrollBox == null) {
+      fragment.painter().paintBackground(fragment, canvas);
+    } else {
+      ScrollContentPainter.paintBackground(scrollBox, canvas);
+    }
+    canvas.popPaint();
+
+    for (CompositeLayer layer: childLayers) {
+      if (layer.zIndex() >= 0) continue;
+      paintChildLayer(canvas, layer);
+    }
+
+    canvas.pushPaint();
+    canvas.alterPaint(p -> p.incOffset(
+      entries.offsetX() + fragment.contentX() - fragment.borderX(),
+      entries.offsetY() + fragment.contentY() - fragment.borderY()));
+    if (scrollBox == null) {
+      fragment.painter().paint(fragment, canvas);
+    } else {
+      ScrollContentPainter.paintForeground(scrollBox, canvas);
+    }
+    canvas.popPaint();
+    
+    for (CompositeLayer layer: childLayers) {
+      if (layer.zIndex() < 0) continue;
+      paintChildLayer(canvas, layer);
+    }
+
+    if (scrollBox != null) {
+      canvas.pushPaint();
+      canvas.alterPaint(p -> p.incOffset(entries.offsetX(), entries.offsetY()));
+      ScrollContentPainter.paint(scrollBox, canvas);
+      canvas.popPaint();
+    }
+  }
+
   private void ensureLayersSorted() {
     if (!sorted) {
       // Ideally, we would use a set that stays sorted (like a TreeSet) but is stable (like LinkedHashSet).
@@ -112,11 +162,12 @@ public class CompositeLayerImp implements CompositeLayer {
   private void forEachFragment(Consumer<BoxFragment> func, PaintCanvas canvas) {
     CompositeLayerEntry nextEntry = entries;
     while (nextEntry != null) {
-      canvas.pushPaint();
       CompositeLayerEntry currentEntry = nextEntry;
       nextEntry = nextEntry.next();
+      canvas.pushPaint();
       // TODO: Figure out why pre-layout fragments are making it into composite layers
-      if (currentEntry.fragment().painter() == null) continue;
+      assert !(currentEntry.fragment() instanceof ScrollBoxFragment);
+      if (currentEntry.fragment().painter() == null) return;
       canvas.alterPaint(p -> p.incOffset(currentEntry.offsetX(), currentEntry.offsetY()));
       func.accept(currentEntry.fragment());
       canvas.popPaint();

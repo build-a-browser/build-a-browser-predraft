@@ -81,7 +81,7 @@ public class ImageContent implements BoxContent, BoxPainter {
     float realWidth = LayoutUtil.constraintOrDim(widthConstraint, dimensions.intrinsicWidth());
     float realHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.intrinsicHeight());
     
-    return new UnmanagedBoxFragment(realWidth, realHeight, box, this);
+    return new UnmanagedBoxFragment(realWidth, realHeight, realWidth, realHeight, box, this);
   }
 
   @Override

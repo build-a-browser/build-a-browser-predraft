@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.box.TextBox;
 import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
+import net.buildabrowser.babbrowser.render.composite.CompositeLayerUtil;
 import net.buildabrowser.babbrowser.render.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
@@ -49,7 +50,8 @@ public final class FlowUtil {
     return
       elementBox.activeStyles().innerDisplayValue().equals(InnerDisplayValue.FLOW)
       && !elementBox.isReplaced()
-      && PositionUtil.affectsLayout(elementBox);
+      && PositionUtil.affectsLayout(elementBox)
+      && !CompositeLayerUtil.hasScrollContent(elementBox);
   }
 
   public static boolean isFloat(ElementBox elementBox) {
