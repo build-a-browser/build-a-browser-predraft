@@ -211,7 +211,7 @@ public class FlowInlineLayout {
     LayoutConstraint inlineConstraint,
     ActiveStyles lineStyles
   ) {
-    positionFragmentElements(fragment.fragments());
+    positionFragmentElements(fragment.fragments(), inlineConstraint);
     float startPos = rootContent.floatTracker().lineStartPos();
     float inlineOffset = inlineConstraint.isBounded() ?
       alignFragment(
@@ -219,10 +219,14 @@ public class FlowInlineLayout {
         rootContent.floatTracker().lineEndPos(inlineConstraint),
         fragment.contentWidth()) :
       startPos;
-    rootContent.blockLayout().addFinishedFragment(fragment, inlineOffset);
+    rootContent.blockLayout().addFinishedFragment(
+      fragment, inlineOffset, inlineConstraint);
   }
 
-  private void positionFragmentElements(LayoutFragment fragments) {
+  private void positionFragmentElements(
+    LayoutFragment fragments,
+    LayoutConstraint relatedConstraint
+  ) {
     float x = 0;
 
     LayoutFragment nextChild = fragments;
@@ -239,7 +243,7 @@ public class FlowInlineLayout {
       if (!PositionUtil.affectsLayout(child)) continue;
       x += child.marginWidth();
       if (child instanceof ManagedBoxFragment managedBoxFragment) {
-        positionFragmentElements(managedBoxFragment.fragments());
+        positionFragmentElements(managedBoxFragment.fragments(), relatedConstraint);
       }
     }
   }

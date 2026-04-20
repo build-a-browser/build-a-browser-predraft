@@ -10,6 +10,7 @@ import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.box.TextBox;
 import net.buildabrowser.babbrowser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.render.content.common.PaddingUtil;
+import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
@@ -152,7 +153,7 @@ public class FlowBlockLayout {
     ManagedBoxFragment newFragment = childContext.close(childWidthConstraint, childHeightConstraint);
     activeContext = parentContext;
     
-    addFinishedFragment(newFragment, margin[2]);
+    addFinishedFragment(newFragment, margin[2], parentWidthConstraint);
     
     if (!collapseAfter) {
       parentContext.recordMargin(childContext.currentMaxMargin());
@@ -191,7 +192,7 @@ public class FlowBlockLayout {
 
     activeContext.recordMargin(margin[1]);
 
-    addFinishedFragment(newFragment, margin[2]);
+    addFinishedFragment(newFragment, margin[2], parentWidthConstraint);
   }
 
   private void addPositionedToBlock(ElementBox childBox) {
@@ -207,7 +208,9 @@ public class FlowBlockLayout {
     newFragment.setPos(margin[2], margin[0] + estimatedAboveMargin + parentContext.currentY());
   }
 
-  public void addFinishedFragment(LayoutFragment newFragment, float posX) {
+  public void addFinishedFragment(
+    LayoutFragment newFragment, float posX, LayoutConstraint relatedConstraint
+  ) {
     BlockFormattingContext parentContext = activeContext;
     newFragment.setPos(posX, parentContext.currentY());
     parentContext.increaseY(
@@ -217,6 +220,12 @@ public class FlowBlockLayout {
       newFragment.marginX() + newFragment.marginWidth(),
       newFragment.marginX() + newFragment.inkWidth(Measurement.MARGIN));
     parentContext.addFragment(newFragment);
+    if (
+      !relatedConstraint.isPreLayoutConstraint()
+      && newFragment instanceof BoxFragment boxFragment
+    ) {
+      boxFragment.box().updatePositioningFragment(boxFragment);
+    }
   }
 
   private void ackFloatClear(ElementBox elementBox) {
