@@ -182,8 +182,6 @@ public class FlowInlineLayout {
 
     InlineFormattingContext parentContext = inlineStack.peek();
     parentContext.addFragment(newFragment);
-
-    // TODO: Handle overflow
   }
 
   private void addTextToInline(

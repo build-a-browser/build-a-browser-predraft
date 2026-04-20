@@ -17,6 +17,7 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFra
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.render.content.common.position.PositionUtil;
+import net.buildabrowser.babbrowser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
 public class FlowBlockLayout {
@@ -126,7 +127,7 @@ public class FlowBlockLayout {
   ) {
     BlockFormattingContext parentContext = activeContext;
     LayoutConstraint childWidthConstraint = FlowWidthUtil.evaluateNonReplacedBlockWidthAndMargins(
-      parentWidthConstraint, childBox);
+      parentWidthConstraint, childBox, 0, 0);
     LayoutConstraint childHeightConstraint = FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
       parentHeightConstraint, parentWidthConstraint, childBox);
 
@@ -162,17 +163,27 @@ public class FlowBlockLayout {
     parentContext.recordMargin(margin[1]);
   }
 
-  // TODO: Handle the edge case where an unmanaged block interacts with a float
+  // TODO: Clean this up some
   private void addUnmanagedBlockToBlock(
     ElementBox childBox,
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint
   ) {
+    FloatTracker floatTracker = rootContent.floatTracker();
+    float leftContent = floatTracker.lineStartPos();
+    float rightContent = parentWidthConstraint.isBounded() ?
+      floatTracker.lineEndPos(parentWidthConstraint) : 0;
+    float rightExtraMargin = parentWidthConstraint.isBounded() ?
+      parentWidthConstraint.value() - rightContent : 0;
+    boolean adjustForFloats = parentWidthConstraint.isBounded()
+      && (leftContent > 0 || rightContent != parentWidthConstraint.value());
+
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
       FlowWidthUtil.determineBlockReplacedWidthAndMargins(
         parentWidthConstraint, childBox) :
       FlowWidthUtil.evaluateNonReplacedBlockWidthAndMargins(
-        parentWidthConstraint, childBox);
+        parentWidthConstraint, childBox,
+        leftContent, rightExtraMargin);
     LayoutConstraint childHeightConstraint = childBox.isReplaced() ?
       FlowHeightUtil.evaluateReplacedBlockHeightAndMargins(
         parentHeightConstraint, parentWidthConstraint,
@@ -180,8 +191,26 @@ public class FlowBlockLayout {
       FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
         parentHeightConstraint, parentWidthConstraint, childBox);
 
+    float minClear = 0;
+    if (
+      adjustForFloats
+      && childWidthConstraint.isBounded()
+      && childWidthConstraint.value() > rightContent - leftContent
+    ) {
+      minClear = Math.max(
+        floatTracker.clearedLineStartPosition(),
+        floatTracker.clearedLineEndPosition());
+      leftContent = 0;
+      childWidthConstraint = childBox.isReplaced() ?
+        FlowWidthUtil.determineBlockReplacedWidthAndMargins(
+          parentWidthConstraint, childBox) :
+        FlowWidthUtil.evaluateNonReplacedBlockWidthAndMargins(
+          parentWidthConstraint, childBox,
+          leftContent, rightExtraMargin);
+    }
+
     float[] margin = childBox.dimensions().getComputedMargin();
-    activeContext.recordMargin(margin[0]);
+    activeContext.recordMargin(Math.max(margin[0], minClear));
     activeContext.collapse();
     UnmanagedBoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
       new UnmanagedBoxFragment(
@@ -192,7 +221,7 @@ public class FlowBlockLayout {
 
     activeContext.recordMargin(margin[1]);
 
-    addFinishedFragment(newFragment, margin[2], parentWidthConstraint);
+    addFinishedFragment(newFragment, Math.max(margin[2], leftContent), parentWidthConstraint);
   }
 
   private void addPositionedToBlock(ElementBox childBox) {

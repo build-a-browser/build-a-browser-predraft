@@ -51,7 +51,9 @@ public final class FlowUtil {
       elementBox.activeStyles().innerDisplayValue().equals(InnerDisplayValue.FLOW)
       && !elementBox.isReplaced()
       && PositionUtil.affectsLayout(elementBox)
-      && !CompositeLayerUtil.hasScrollContent(elementBox);
+      && !(
+        CompositeLayerUtil.hasScrollContent(elementBox)
+        && elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL));
   }
 
   public static boolean isFloat(ElementBox elementBox) {

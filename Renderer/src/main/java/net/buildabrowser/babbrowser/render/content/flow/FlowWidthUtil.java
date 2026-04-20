@@ -57,7 +57,8 @@ public final class FlowWidthUtil {
   }
 
   public static LayoutConstraint evaluateNonReplacedBlockWidthAndMargins(
-    LayoutConstraint parentConstraint, ElementBox childBox
+    LayoutConstraint parentConstraint, ElementBox childBox,
+    float extraLeftMargin, float extraRightMargin
   ) {
     LayoutConstraint determinedConstraint = SizingWidthUtil.evaluateAdjustedWidthSize(
       parentConstraint, childBox);
@@ -71,7 +72,9 @@ public final class FlowWidthUtil {
     boolean isLeftMarginSet = marginLeftConstraint.isBounded();
     boolean isRightMarginSet = marginRightConstraint.isBounded();
     float usedLeftMargin = isLeftMarginSet ? marginLeftConstraint.value() : 0;
+    usedLeftMargin = Math.max(usedLeftMargin, extraLeftMargin);
     float usedRightMargin = isRightMarginSet ? marginRightConstraint.value() : 0;
+    usedRightMargin = Math.max(usedRightMargin, extraRightMargin);
 
     if (determinedConstraint.isPreLayoutConstraint()) {
       childBox.dimensions().setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
