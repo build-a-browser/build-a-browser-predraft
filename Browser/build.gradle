@@ -20,7 +20,7 @@ application {
 }
 
 run {
-    // enableAssertions = true
+    enableAssertions = true
     if (project.hasProperty('debug')) {
         systemProperty "babbrowser.debug", project.getProperty('debug')
     }

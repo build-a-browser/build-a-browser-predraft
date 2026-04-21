@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.render.composite.imp.scroll;
 
+import static net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollContentPainter.GUTTER_WIDTH;
+
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowValue;
@@ -12,8 +14,6 @@ import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.render.layout.LayoutUtil;
 
 public final class ScrollLayoutUtil {
-
-  public static final int GUTTER_WIDTH = 16;
 
   private ScrollLayoutUtil() {}
 

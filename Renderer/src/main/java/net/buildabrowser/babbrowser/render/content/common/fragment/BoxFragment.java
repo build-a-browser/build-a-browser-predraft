@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.render.content.common.fragment;
 
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.render.paint.UnreachableBoxPainter;
 
@@ -116,6 +117,10 @@ public class BoxFragment extends LayoutFragment {
   @Override
   public float inkHeight(Measurement type) {
     return adjustInk(height(type), inkHeight, 0, type);
+  }
+  
+  public EventHandler eventHandler() {
+    return box().content().eventHandler();
   }
 
   private float adjustNormal(float size, int i, Measurement type) {

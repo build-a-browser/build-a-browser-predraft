@@ -1,17 +1,17 @@
 package net.buildabrowser.babbrowser.render.event;
 
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent;
 
 public interface EventHandler {
   
-  boolean handleMouseEvent(MouseEvent mouseEvent, BoxFragment fragment, float relX, float relY);
+  EventHandlerResponse handleMouseEvent(RendererMouseEvent mouseEvent, BoxFragment fragment, float relX, float relY);
 
-  record MouseEvent(
-    float winX, float winY,
-    int button, MouseEventType event
-  ) {
-    public static enum MouseEventType {
-      CLICK, MOVE
+  static enum EventHandlerResponse {
+    UNHANDLED, HANDLED, PERFORM_DEFAULT;
+
+    public boolean isUnhandled() {
+      return this.equals(UNHANDLED);
     }
   }
 

@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.render.event;
 
 import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.dom.events.Event;
 import net.buildabrowser.babbrowser.dom.events.EventDispatcher;
 import net.buildabrowser.babbrowser.dom.events.PointerEvent;
 import net.buildabrowser.babbrowser.render.box.Box;
@@ -10,7 +11,8 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.TextFragment;
-import net.buildabrowser.babbrowser.render.event.EventHandler.MouseEvent;
+import net.buildabrowser.babbrowser.render.event.EventHandler.EventHandlerResponse;
+import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent;
 
 public final class EventUtil {
   
@@ -24,32 +26,33 @@ public final class EventUtil {
       && posY < fragment.borderHeight();
   }
 
-  public static void forwardElementEvent(
-    MouseEvent mouseEvent, BoxFragment fragment, float posX, float posY
+  public static EventHandlerResponse forwardElementEvent(
+    RendererMouseEvent mouseEvent, BoxFragment fragment, float posX, float posY
   ) {
     Box relatedBox = fragment.box();
     while (
       relatedBox instanceof AnonymousElementBoxImp anonBox
     ) relatedBox = anonBox.parentBox();
-    if (!(relatedBox instanceof ElementBox elementBox)) return;
+    if (!(relatedBox instanceof ElementBox elementBox)) return EventHandlerResponse.UNHANDLED;
     Element element = elementBox.element();
-    String eventName = switch (mouseEvent.event()) {
-      case CLICK -> "click";
-      case MOVE -> "mousemove";
+    Event event = switch (mouseEvent.event()) {
+      case CLICK -> (PointerEvent) () -> "click";
+      case MOVE -> (PointerEvent) () -> "mousemove";
       default -> null;
     };
-    if (eventName == null) return;
+    if (event == null) return EventHandlerResponse.UNHANDLED;
     // TODO: Will need replaced with a proper MouseEvent
-    PointerEvent pointerEvent = (PointerEvent) () -> eventName;
-    element.nodeDocument().changeListener().onElementEvent(element, pointerEvent);
-    EventDispatcher.dispatch(pointerEvent, element);
+    element.nodeDocument().changeListener().onElementEvent(element, event);
+    EventDispatcher.dispatch(event, element);
+
+    return EventHandlerResponse.PERFORM_DEFAULT;
   }
 
-  public static void forwardElementEvent(
-    MouseEvent mouseEvent, ManagedBoxFragment fragment, TextFragment textFragment, float relX, float relY
+  public static EventHandlerResponse forwardElementEvent(
+    RendererMouseEvent mouseEvent, ManagedBoxFragment fragment, TextFragment textFragment, float relX, float relY
   ) {
     // TODO: Handle things like text selection
-    forwardElementEvent(mouseEvent, fragment, relX, relY);
+    return forwardElementEvent(mouseEvent, fragment, relX, relY);
   }
 
 }

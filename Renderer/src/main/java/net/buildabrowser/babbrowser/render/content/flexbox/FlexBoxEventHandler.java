@@ -4,28 +4,26 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.event.EventUtil;
+import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent;
 
 public class FlexBoxEventHandler implements EventHandler {
 
   @Override
-  public boolean handleMouseEvent(MouseEvent mouseEvent, BoxFragment fragment, float relX, float relY) {
-    if (!EventUtil.aabbZeroAdjusted(fragment, relX, relY)) return false;
-    
+  public EventHandlerResponse handleMouseEvent(RendererMouseEvent mouseEvent, BoxFragment fragment, float relX, float relY) {
     float contentRelX = relX - fragment.contentX() + fragment.borderX();
     float contentRelY = relY - fragment.contentY() + fragment.borderY();
 
     FlexBoxContent content = (FlexBoxContent) fragment.box().content();
     UnmanagedBoxFragment nextFragment = content.fragments();
 
-    boolean childHandledEvent = handleChildMouseEvent(mouseEvent, fragment, nextFragment, relX, relY, contentRelX, contentRelY);
-    if (childHandledEvent) return true;
+    EventHandlerResponse childHandledEvent = handleChildMouseEvent(mouseEvent, fragment, nextFragment, relX, relY, contentRelX, contentRelY);
+    if (!childHandledEvent.isUnhandled()) return childHandledEvent;
 
-    EventUtil.forwardElementEvent(mouseEvent, fragment, relX, relY);
-    return true;
+    return EventUtil.forwardElementEvent(mouseEvent, fragment, relX, relY);
   }
 
-  private boolean handleChildMouseEvent(
-    MouseEvent mouseEvent,
+  private EventHandlerResponse handleChildMouseEvent(
+    RendererMouseEvent mouseEvent,
     BoxFragment parentFragment,
     UnmanagedBoxFragment nextFragment,
     float relX, float relY,
@@ -57,7 +55,7 @@ public class FlexBoxEventHandler implements EventHandler {
         mouseEvent, selectedFragment, boxRelX, boxRelY);
     }
 
-    return false;
+    return EventHandlerResponse.UNHANDLED;
   }
   
 }

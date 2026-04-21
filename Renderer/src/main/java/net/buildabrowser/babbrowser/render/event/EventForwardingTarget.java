@@ -1,9 +1,9 @@
 package net.buildabrowser.babbrowser.render.event;
 
-import net.buildabrowser.babbrowser.render.event.EventHandler.MouseEvent;
+import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent;
 
 public interface EventForwardingTarget {
   
-  void forwardEvent(MouseEvent mouseEvent);
+  void forwardEvent(RendererMouseEvent mouseEvent);
 
 }

@@ -14,6 +14,8 @@ import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
+import net.buildabrowser.babbrowser.html.events.EventLoop;
+import net.buildabrowser.babbrowser.html.events.TaskSource;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.link.LinkDocumentChangeListener;
 import net.buildabrowser.babbrowser.html.misc.MetaDocumentChangeListener;
@@ -29,7 +31,7 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxF
 import net.buildabrowser.babbrowser.render.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.render.context.ScriptingContext;
 import net.buildabrowser.babbrowser.render.event.EventForwardingTarget;
-import net.buildabrowser.babbrowser.render.event.EventHandler.MouseEvent;
+import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.render.layout.FontCache;
 import net.buildabrowser.babbrowser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
@@ -201,9 +203,12 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
   }
 
   @Override
-  public void forwardEvent(MouseEvent mouseEvent) {
+  public void forwardEvent(RendererMouseEvent mouseEvent) {
     if (rootLayer == null) return;
-    CompositeEventsDispatcher.handleMouseEvent(rootLayer, mouseEvent, mouseEvent.winX(), mouseEvent.winY());
+    EventLoop.queueGlobalTask(
+      TaskSource.USER_INTERACTION,
+      document.nodeNavigable().activeWindow(),
+      () -> CompositeEventsDispatcher.handleMouseEvent(rootLayer, mouseEvent, mouseEvent.winX(), mouseEvent.winY()));
   }
 
   @Override

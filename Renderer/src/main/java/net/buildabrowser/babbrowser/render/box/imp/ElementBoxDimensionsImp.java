@@ -19,6 +19,9 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   private float intrinsicHeight = -1;
   private float intrinsicRatio = -1;
 
+  private int scrollX = 0;
+  private int scrollY = 0;
+
   public ElementBoxDimensionsImp(ElementBox box) {
     this.box = box;
   }
@@ -130,6 +133,22 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   @Override
   public float decorHeight() {
     return computedBorder[0] + computedBorder[1] + computedPadding[0] + computedPadding[1];
+  }
+
+  @Override
+  public int scrollX() {
+    return this.scrollX;
+  }
+
+  @Override
+  public int scrollY() {
+    return this.scrollY;
+  }
+
+  @Override
+  public void setScroll(int scrollX, int scrollY) {
+    this.scrollX = scrollX;
+    this.scrollY = scrollY;
   }
   
 }

@@ -52,8 +52,12 @@ public class CompositeLayerImp implements CompositeLayer {
   @Override
   public void paint(PaintCanvas canvas) {
     // TODO: Having to do this is not great
-    if (entries != null && entries.next() == null) {
-      paintSingle(canvas);
+    if (
+      entries != null
+      && entries.next() == null
+      && entries.fragment() instanceof ScrollBoxFragment scrollBox
+    ) {
+      paintScrollable(canvas, scrollBox);
       return;
     }
 
@@ -108,17 +112,15 @@ public class CompositeLayerImp implements CompositeLayer {
     return this.entries;
   }
 
-  private void paintSingle(PaintCanvas canvas) {
-    BoxFragment fragment = entries.fragment();
-    ScrollBoxFragment scrollBox = fragment instanceof ScrollBoxFragment scrollBox2 ? scrollBox2 : null;
+  private void paintScrollable(PaintCanvas canvas, ScrollBoxFragment scrollBox) {
+    canvas.pushPaint();
+    // TODO: This might not work well when proper layers are added, or when fixed/sticky are added
+    canvas.alterPaint(p -> p.incOffset(
+      -scrollBox.scrollX(), -scrollBox.scrollY()));
 
     canvas.pushPaint();
     canvas.alterPaint(p -> p.incOffset(entries.offsetX(), entries.offsetY()));
-    if (scrollBox == null) {
-      fragment.painter().paintBackground(fragment, canvas);
-    } else {
-      ScrollContentPainter.paintBackground(scrollBox, canvas);
-    }
+    ScrollContentPainter.paintBackground(scrollBox, canvas);
     canvas.popPaint();
 
     for (CompositeLayer layer: childLayers) {
@@ -127,27 +129,21 @@ public class CompositeLayerImp implements CompositeLayer {
     }
 
     canvas.pushPaint();
-    canvas.alterPaint(p -> p.incOffset(
-      entries.offsetX() + fragment.contentX() - fragment.borderX(),
-      entries.offsetY() + fragment.contentY() - fragment.borderY()));
-    if (scrollBox == null) {
-      fragment.painter().paint(fragment, canvas);
-    } else {
-      ScrollContentPainter.paintForeground(scrollBox, canvas);
-    }
+    canvas.alterPaint(p -> p.incOffset(entries.offsetX(), entries.offsetY()));
+    ScrollContentPainter.paintForeground(scrollBox, canvas);
     canvas.popPaint();
     
     for (CompositeLayer layer: childLayers) {
       if (layer.zIndex() < 0) continue;
       paintChildLayer(canvas, layer);
     }
+    
+    canvas.popPaint();
 
-    if (scrollBox != null) {
-      canvas.pushPaint();
-      canvas.alterPaint(p -> p.incOffset(entries.offsetX(), entries.offsetY()));
-      ScrollContentPainter.paint(scrollBox, canvas);
-      canvas.popPaint();
-    }
+    canvas.pushPaint();
+    canvas.alterPaint(p -> p.incOffset(entries.offsetX(), entries.offsetY()));
+    ScrollContentPainter.paint(scrollBox, canvas);
+    canvas.popPaint();
   }
 
   private void ensureLayersSorted() {

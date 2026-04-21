@@ -56,6 +56,7 @@ public class RendererImp implements Renderer {
     RendererMouseInputAdapter inputHandler = new RendererMouseInputAdapter(() -> activeDocumentRenderer);
     jpanel.addMouseListener(inputHandler);
     jpanel.addMouseMotionListener(inputHandler);
+    jpanel.addMouseWheelListener(inputHandler);
 
     return this.jpanel;
   }
