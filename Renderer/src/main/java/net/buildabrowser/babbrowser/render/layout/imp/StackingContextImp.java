@@ -11,7 +11,6 @@ import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.ZIndexValue;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayerEntry;
@@ -21,6 +20,7 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragmen
 import net.buildabrowser.babbrowser.render.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
 
+// TODO: Some of the positioning code here is quite hacky
 public class StackingContextImp implements StackingContext {
 
   private final StackingContext parentContext;
@@ -33,6 +33,9 @@ public class StackingContextImp implements StackingContext {
   private SinglyLinkedList<StackingContext> childContexts;
   private SinglyLinkedList<StackingContext> lastContext;
   private CompositeLayerEntry entries;
+
+  private float normalizedX = 0;
+  private float normalizedY = 0;
 
   public StackingContextImp(StackingContext parentContext, ElementBox relatedBox) {
     ActiveStyles activeStyles = relatedBox.activeStyles();
@@ -49,7 +52,21 @@ public class StackingContextImp implements StackingContext {
     if (this.entries != null && fragment instanceof ScrollBoxFragment) {
       throw new RuntimeException();
     }
-    entries = IntrusiveList.add(entries, new CompositeLayerEntry(posX, posY, fragment));
+
+    // Relative/Static layers are initially added with positions preserved since the fragment might be split
+    // and each fragment has a different pos (and it is difficult to normalize ahead of time)
+    if (
+      this.entries == null &&
+      (
+        positioning.equals(PositionValue.RELATIVE)
+        || positioning.equals(PositionValue.STATIC))
+    ) {
+      normalizedX = posX;
+      normalizedY = posY;
+    }
+        
+    entries = IntrusiveList.add(entries, new CompositeLayerEntry(
+      posX - normalizedX, posY - normalizedY, fragment));
   }
   
   @Override
@@ -71,7 +88,7 @@ public class StackingContextImp implements StackingContext {
   @Override
   public CompositeLayer createLayer() {
     assert insets != null;
-    CompositeLayer layer = createLayer(0, 0);
+    CompositeLayer layer = createLayer(normalizedX, normalizedY);
     SinglyLinkedList<StackingContext> childContext = childContexts;
     while (childContext != null) {
       childContext.item().addLayer(layer::addChild, 0, 0);
@@ -84,18 +101,25 @@ public class StackingContextImp implements StackingContext {
   @Override
   public void addLayer(Consumer<CompositeLayer> addFunc, float offsetX, float offsetY) {
     assert insets != null;
-    // TODO: Need to normalize
+
     boolean useInsets = positioning.equals(PositionValue.RELATIVE);
-    float myOffsetX = offsetX + (useInsets ? insets[2] : 0);
-    float myOffsetY = offsetY + (useInsets ? insets[0] : 0);
+    float myOffsetX = offsetX + (useInsets ? insets[2] : 0) + normalizedX;
+    float myOffsetY = offsetY + (useInsets ? insets[0] : 0) + normalizedY;
+    
+    float[] border = relatedBox.dimensions().getComputedBorder();
+    
     CompositeLayer ownLayer = createLayer(myOffsetX, myOffsetY);
     addFunc.accept(ownLayer);
     SinglyLinkedList<StackingContext> childContext = childContexts;
     while (childContext != null) {
+      // Absolutely positioned layers need to be inside the border box
+      boolean useAbsOffset = childContext.item().positioning().equals(PositionValue.ABSOLUTE);
+      float absOffsetX = useAbsOffset ? border[2] : 0;
+      float absOffsetY = useAbsOffset ? border[0] : 0;
       if (isPassthrough) {
-        childContext.item().addLayer(addFunc, myOffsetX, myOffsetY);
+        childContext.item().addLayer(addFunc, myOffsetX + absOffsetX, myOffsetY + absOffsetY);
       } else {
-        childContext.item().addLayer(ownLayer::addChild, 0, 0);
+        childContext.item().addLayer(ownLayer::addChild, absOffsetX, absOffsetY);
       }
       childContext = childContext.next();
     }
@@ -105,7 +129,6 @@ public class StackingContextImp implements StackingContext {
     CompositeLayer layer = CompositeLayer.create(
       positioning, offsetX, offsetY, zIndexOrder);
     layer.addEntries(entries);
-
     return layer;
   }
 
@@ -115,31 +138,8 @@ public class StackingContextImp implements StackingContext {
   }
 
   @Override
-  public float posX() {
-    if (entries == null) return 0;
-    float posX = Float.MAX_VALUE;
-    CompositeLayerEntry currentEntry = entries;
-    while (currentEntry != null) {
-      ElementBoxDimensions dimensions = currentEntry.fragment().box().dimensions();
-      float borderOffset = dimensions.getComputedBorder()[2];
-      posX = Math.min(posX, currentEntry.offsetX() + borderOffset);
-      currentEntry = currentEntry.next();
-    }
-    return posX;
-  }
-
-  @Override
-  public float posY() {
-    if (entries == null) return 0;
-    float posY = Float.MAX_VALUE;
-    CompositeLayerEntry currentEntry = entries;
-    while (currentEntry != null) {
-      ElementBoxDimensions dimensions = currentEntry.fragment().box().dimensions();
-      float borderOffset = dimensions.getComputedBorder()[0];
-      posY = Math.min(posY, currentEntry.offsetY() + borderOffset);
-      currentEntry = currentEntry.next();
-    }
-    return posY;
+  public PositionValue positioning() {
+    return this.positioning;
   }
 
   @Override

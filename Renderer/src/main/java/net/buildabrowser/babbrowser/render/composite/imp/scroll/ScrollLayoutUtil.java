@@ -66,13 +66,15 @@ public final class ScrollLayoutUtil {
     float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, outerHeight);
 
     innerLayout.setPos(0, 0);
-    return new ScrollBoxFragment(
+    ScrollBoxFragment scrollBox = new ScrollBoxFragment(
       usedWidth, usedHeight,
       outerWidth, outerHeight,
       addedHorizontalScrollbars,
       addedVerticalScrollbars,
       innerLayout.box(),
       innerLayout);
+    scrollBox.setLayerPos(0, 0);
+    return scrollBox;
   }
 
   private static LayoutConstraint subtractGutterWidth(LayoutConstraint origConstraint) {

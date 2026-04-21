@@ -10,9 +10,8 @@ import net.buildabrowser.babbrowser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.render.layout.LayoutContext;
-import net.buildabrowser.babbrowser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint.LayoutConstraintType;
+import net.buildabrowser.babbrowser.render.layout.LayoutContext;
 
 public final class PositionUtil {
 
@@ -88,11 +87,8 @@ public final class PositionUtil {
     float[] adjustedConstraints = new float[4];
 
     ElementBoxDimensions boxDimensions = box.dimensions();
-    StackingContext parentContext = box.stackingContext().parentContext();
-    adjustAbsoluteConstraints(adjustedConstraints, initConstraints, 2,
-      boxDimensions.staticX() - parentContext.posX()); // TODO: Having to check the parentContext pos isn't great, make less confusing logic
-    adjustAbsoluteConstraints(adjustedConstraints, initConstraints, 0,
-      boxDimensions.staticY() - parentContext.posY());
+    adjustAbsoluteConstraints(adjustedConstraints, initConstraints, 2, boxDimensions.staticX());
+    adjustAbsoluteConstraints(adjustedConstraints, initConstraints, 0, boxDimensions.staticY());
       
     return adjustedConstraints;
   }

@@ -13,6 +13,9 @@ public class BoxFragment extends LayoutFragment {
   private final float inkWidth;
   private final float inkHeight;
 
+  private float layerX = Float.NaN;
+  private float layerY = Float.NaN;
+
   public BoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
@@ -101,7 +104,7 @@ public class BoxFragment extends LayoutFragment {
 
   @Override
   public float width(Measurement type) {
-    return adjustNormal(super.width(Measurement.CONTENT), 2, type);
+    return adjustSize(super.width(Measurement.CONTENT), 2, type);
   }
 
   @Override
@@ -111,19 +114,34 @@ public class BoxFragment extends LayoutFragment {
 
   @Override
   public float height(Measurement type) {
-    return adjustNormal(super.height(Measurement.CONTENT), 0, type);
+    return adjustSize(super.height(Measurement.CONTENT), 0, type);
   }
 
   @Override
   public float inkHeight(Measurement type) {
     return adjustInk(height(type), inkHeight, 0, type);
   }
+
+  public float layerX(Measurement type) {
+    assert !Float.isNaN(this.layerX);
+    return adjustCoord(this.layerX, 2, type);
+  }
+
+  public float layerY(Measurement type) {
+    assert !Float.isNaN(this.layerY);
+    return adjustCoord(this.layerY, 0, type);
+  }
+
+  public void setLayerPos(float docX, float docY) {
+    this.layerX = docX;
+    this.layerY = docY;
+  }
   
   public EventHandler eventHandler() {
     return box().content().eventHandler();
   }
 
-  private float adjustNormal(float size, int i, Measurement type) {
+  private float adjustSize(float size, int i, Measurement type) {
     if (type.ordinal() <= Measurement.MARGIN.ordinal()) {
       float[] margin = box.dimensions().getComputedMargin();
       size += margin[i] + margin[i + 1];
@@ -155,6 +173,23 @@ public class BoxFragment extends LayoutFragment {
     }
 
     return Math.max(normalSize, inkSize);
+  }
+
+  private float adjustCoord(float pos, int i, Measurement type) {
+    if (type.ordinal() <= Measurement.MARGIN.ordinal()) {
+      float[] margin = box.dimensions().getComputedMargin();
+      pos -= margin[i];
+    }
+    if (type.ordinal() > Measurement.BORDER.ordinal()) {
+      float[] border = box.dimensions().getComputedBorder();
+      pos += border[i];
+    }
+    if (type.ordinal() > Measurement.PADDING.ordinal()) {
+      float[] padding = box.dimensions().getComputedPadding();
+      pos += padding[i];
+    }
+
+    return pos;
   }
 
 }

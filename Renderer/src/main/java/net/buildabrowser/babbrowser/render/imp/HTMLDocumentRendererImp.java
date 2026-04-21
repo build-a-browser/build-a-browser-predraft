@@ -256,8 +256,10 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
       LayoutConstraint.of(width),
       LayoutConstraint.of(height));
     fragment.setPos(0, 0);
+
     StackingContextGenerator.generateStackingContextsRoot(rootBox, deferredLayout);
     rootBox.stackingContext().addFragment(0, 0, fragment);
+    fragment.setLayerPos(0, 0);
     rootBox.content().positionLayers(0, 0);
     
     while (!deferredLayout.isEmpty()) {
@@ -284,11 +286,9 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
       insets, itemFragment, refWidth, refHeight);
     
     StackingContextGenerator.generateStackingContextsDeferred(itemBox, deferredLayout);
-    ownContext.addFragment(
-      parentContext.posX() + position[0],
-      parentContext.posY() + position[1],
-      itemFragment);
-    itemBox.content().positionLayers(0, 0);
+    itemFragment.setLayerPos(position[0], position[1]);
+    itemBox.content().positionLayers(position[0], position[1]);
+    ownContext.addFragment(position[0], position[1], itemFragment);
   }
   
 }

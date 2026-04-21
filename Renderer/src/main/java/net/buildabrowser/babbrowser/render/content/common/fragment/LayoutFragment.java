@@ -33,22 +33,22 @@ public abstract class LayoutFragment implements IntrusiveList<LayoutFragment> {
   }
 
   public float marginX() {
-    assert this.posX != Float.NaN : "Attempt to get unset X position!";
+    assert !Float.isNaN(this.posX) : "Attempt to get unset X position!";
     return this.posX;
   }
 
   public float marginY() {
-    assert this.posY != Float.NaN : "Attempt to get unset Y position!";
+    assert !Float.isNaN(this.posY) : "Attempt to get unset Y position!";
     return this.posY;
   }
 
   public float borderX() {
-    assert this.posX != Float.NaN : "Attempt to get unset X position!";
+    assert !Float.isNaN(this.posX) : "Attempt to get unset X position!";
     return this.posX;
   }
 
   public float borderY() {
-    assert this.posY != Float.NaN : "Attempt to get unset Y position!";
+    assert !Float.isNaN(this.posY) : "Attempt to get unset Y position!";
     return this.posY;
   }
 
@@ -82,6 +82,16 @@ public abstract class LayoutFragment implements IntrusiveList<LayoutFragment> {
 
   public float contentHeight() {
     return this.height;
+  }
+
+  public float posX(Measurement type) {
+    assert !Float.isNaN(this.posX);
+    return this.posX;
+  }
+
+  public float posY(Measurement type) {
+    assert !Float.isNaN(this.posX);
+    return this.posY;
   }
 
   public float width(Measurement type) {

@@ -9,7 +9,9 @@ import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.imp.AnonymousElementBoxImp;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.render.event.EventHandler.EventHandlerResponse;
 import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent;
@@ -18,12 +20,30 @@ public final class EventUtil {
   
   private EventUtil() {}
 
-  public static boolean aabbZeroAdjusted(LayoutFragment fragment, float posX, float posY) {
+  public static boolean aabb(BoxFragment fragment, float posX, float posY) {
+    if (fragment instanceof PosRefBoxFragment) return false;
+
+    float layerX = fragment.layerX(Measurement.BORDER);
+    float layerY = fragment.layerY(Measurement.BORDER);
     return
-      posX >= 0
-      && posX < fragment.borderWidth()
-      && posY >= 0
-      && posY < fragment.borderHeight();
+      posX >= layerX
+      && posX < layerX + fragment.width(Measurement.BORDER)
+      && posY >= layerY
+      && posY < layerY + fragment.height(Measurement.BORDER);
+  }
+
+  public static boolean aabb(BoxFragment parentFragment, LayoutFragment thisFragment, float posX, float posY) {
+    if (thisFragment instanceof BoxFragment boxFragment) {
+      return aabb(boxFragment, posX, posY);
+    }
+
+    float docX = parentFragment.layerX(Measurement.CONTENT) + thisFragment.posX(Measurement.BORDER);
+    float docY = parentFragment.layerY(Measurement.CONTENT) + thisFragment.posY(Measurement.BORDER);
+    return
+      posX >= docX
+      && posX < docX + thisFragment.width(Measurement.BORDER)
+      && posY >= docY
+      && posY < docY + thisFragment.height(Measurement.BORDER);
   }
 
   public static EventHandlerResponse forwardElementEvent(

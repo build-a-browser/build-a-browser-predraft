@@ -10,13 +10,10 @@ public class FlexBoxEventHandler implements EventHandler {
 
   @Override
   public EventHandlerResponse handleMouseEvent(RendererMouseEvent mouseEvent, BoxFragment fragment, float relX, float relY) {
-    float contentRelX = relX - fragment.contentX() + fragment.borderX();
-    float contentRelY = relY - fragment.contentY() + fragment.borderY();
-
     FlexBoxContent content = (FlexBoxContent) fragment.box().content();
     UnmanagedBoxFragment nextFragment = content.fragments();
 
-    EventHandlerResponse childHandledEvent = handleChildMouseEvent(mouseEvent, fragment, nextFragment, relX, relY, contentRelX, contentRelY);
+    EventHandlerResponse childHandledEvent = handleChildMouseEvent(mouseEvent, fragment, nextFragment, relX, relY);
     if (!childHandledEvent.isUnhandled()) return childHandledEvent;
 
     return EventUtil.forwardElementEvent(mouseEvent, fragment, relX, relY);
@@ -26,8 +23,7 @@ public class FlexBoxEventHandler implements EventHandler {
     RendererMouseEvent mouseEvent,
     BoxFragment parentFragment,
     UnmanagedBoxFragment nextFragment,
-    float relX, float relY,
-    float contentRelX, float contentRelY
+    float relX, float relY
   ) {
     UnmanagedBoxFragment selectedFragment = null;
     // Relies on items not overlapping (relative is handled by stacking contexts)
@@ -40,19 +36,14 @@ public class FlexBoxEventHandler implements EventHandler {
         && !currentFragment.box().stackingContext().equals(parentFragment.box().stackingContext())
       ) continue;
 
-      float boxRelX = contentRelX - currentFragment.borderX();
-      float boxRelY = contentRelY - currentFragment.borderY();
-      if (EventUtil.aabbZeroAdjusted(currentFragment, boxRelX, boxRelY)) {
+      if (EventUtil.aabb(currentFragment, relX, relY)) {
         selectedFragment = currentFragment;
       }
     }
 
     if (selectedFragment != null) {
-      float boxRelX = contentRelX - selectedFragment.borderX();
-      float boxRelY = contentRelY - selectedFragment.borderY();
-
       return selectedFragment.box().content().eventHandler().handleMouseEvent(
-        mouseEvent, selectedFragment, boxRelX, boxRelY);
+        mouseEvent, selectedFragment, relX, relY);
     }
 
     return EventHandlerResponse.UNHANDLED;

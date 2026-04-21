@@ -23,7 +23,7 @@ import net.buildabrowser.babbrowser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.render.content.common.MarginUtil;
 import net.buildabrowser.babbrowser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.render.content.common.SizingUtil;
-import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.render.content.flexbox.FlexCrossAlignment.CrossAlignmentContext;
@@ -270,8 +270,11 @@ public class FlexBoxContent implements BoxContent {
 
   @Override
   public void positionLayers(float layerX, float layerY) {
-    LayoutFragment rootFragment = rootBox.positioningFragment();
+    BoxFragment rootFragment = rootBox.positioningFragment();
+    rootFragment.setLayerPos(layerX, layerY);
+
     StackingContext refContext = rootBox.stackingContext();
+
     float offsetX = layerX + (rootFragment.contentX() - rootFragment.borderX());
     float offsetY = layerY + (rootFragment.contentY() - rootFragment.borderY());
 
@@ -293,7 +296,10 @@ public class FlexBoxContent implements BoxContent {
       if (childBox.stackingContext() != refContext) {
         refContext = childBox.stackingContext();
         refContext.addFragment(childX, childY, childFragment);
+        childX = 0;
+        childY = 0;
       }
+      childFragment.setLayerPos(childX, childY);
       childBox.content().positionLayers(childX, childY);
       childFragment = (UnmanagedBoxFragment) childFragment.next();
     }

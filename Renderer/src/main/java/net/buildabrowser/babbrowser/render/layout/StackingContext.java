@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.render.layout;
 
 import java.util.function.Consumer;
 
+import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
@@ -22,9 +23,7 @@ public interface StackingContext {
 
   StackingContext parentContext();
 
-  float posX();
-
-  float posY();
+  PositionValue positioning();
 
   float innerWidth();
 

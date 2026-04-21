@@ -79,13 +79,11 @@ public final class CompositeEventsDispatcher {
     while (childIt.hasPrevious()) {
       CompositeLayerEntry entry = childIt.previous();
       BoxFragment fragment = entry.fragment();
-      float childRelX = relX - entry.offsetX();
-      float childRelY = relY - entry.offsetY();
-      if (!EventUtil.aabbZeroAdjusted(fragment, childRelX, childRelY)) continue;
+      if (!EventUtil.aabb(fragment, relX, relY)) continue;
 
       EventHandler eventHandler = fragment.eventHandler();
       EventHandlerResponse mouseEventResponse = eventHandler.handleMouseEvent(
-        mouseEvent, fragment, childRelX, childRelY);
+        mouseEvent, fragment, relX, relY);
       if (!mouseEventResponse.isUnhandled()) return mouseEventResponse;
     }
 
