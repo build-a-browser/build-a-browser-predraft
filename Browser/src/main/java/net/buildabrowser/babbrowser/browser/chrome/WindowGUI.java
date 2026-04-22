@@ -57,7 +57,7 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
   @Override
   public void onTabAdded(Window window, Tab tab) {
     TabGUI tabGUI = TabGUI.create(tab);
-    tabbedPane.addTab(tab.getName(), tabGUI);
+    tabbedPane.addTab(tab.getTitle(), tabGUI);
 
     int tabIndex = tabbedPane.indexOfComponent(tabGUI);
     assert tabIndex != -1;

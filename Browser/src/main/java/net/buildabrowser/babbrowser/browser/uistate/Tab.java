@@ -11,7 +11,7 @@ public interface Tab {
   
   void close();
   
-  String getName();
+  String getTitle();
   
   Frame getFrame();
   

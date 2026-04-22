@@ -1,11 +1,10 @@
 package net.buildabrowser.babbrowser.render;
 
-import java.net.URI;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
+import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.render.imp.RenderingEngineImp;
 import net.buildabrowser.babbrowser.render.loader.DocumentLoaderRegistry;
@@ -16,7 +15,9 @@ public interface RenderingEngine {
 
   Frame createFrame();
 
-  NavigableRendererPair createNavigable(Consumer<URI> onNavigate);
+  NavigableRendererPair createNavigable(
+    DocumentRendererEventListener eventListener
+  );
 
   static RenderingEngine create(
     FetchEngine fetchEngine,

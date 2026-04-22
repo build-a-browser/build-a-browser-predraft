@@ -3,15 +3,16 @@ package net.buildabrowser.babbrowser.css.engine.matcher;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.imp.ElementRootSetImp;
 import net.buildabrowser.babbrowser.dom.Element;
 
 public interface ElementSet extends Iterable<Element> {
   
-  void add(Element element);
+  boolean add(Element element);
 
-  void remove(Element element);
+  boolean remove(Element element);
 
   boolean contains(Element element);
 
@@ -23,9 +24,13 @@ public interface ElementSet extends Iterable<Element> {
 
   ElementRootSet root();
 
-  void markChanged();
+  void markChanged(Element element);
 
   void resize(int size);
+
+  boolean isEmpty();
+
+  void removeAll();
 
   @Deprecated
   BitSet raw();
@@ -34,7 +39,11 @@ public interface ElementSet extends Iterable<Element> {
   Set<Element> asSet();
 
   static ElementRootSet createRoot() {
-    return new ElementRootSetImp();
+    return new ElementRootSetImp(e -> {});
+  }
+
+  static ElementRootSet createRoot(Consumer<Element> changeListener) {
+    return new ElementRootSetImp(changeListener);
   }
 
   static ElementSet unionMany(List<ElementSet> sets) {

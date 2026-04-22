@@ -6,10 +6,12 @@ import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.Invalidatable;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.dom.imp.DocumentImp;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchClient;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
@@ -20,9 +22,26 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
 
   private DocumentRenderer renderer;
   private boolean willDeclarativelyRefresh;
+  private HTMLElement titleElement;
 
   public HTMLDocumentImp(BrowsingContext browsingContext) {
     this.browsingContext = browsingContext;
+  }
+
+  @Override
+  public String title() {
+    if (titleElement == null) return "";
+    // TODO: Proper way to get title text
+    if (titleElement.firstChild() instanceof Text text) {
+      return text.data().strip();
+    }
+
+    return "";
+  }
+
+  @Override
+  public void setTitleElement(HTMLElement titleElement) {
+    this.titleElement = titleElement;
   }
 
   @Override

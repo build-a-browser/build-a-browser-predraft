@@ -3,9 +3,12 @@ package net.buildabrowser.babbrowser.htmlparser.insertion.imp;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.buildabrowser.babbrowser.dom.algo.StyleAlgos;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.algo.StyleAlgos;
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
+import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.htmlparser.insertion.OpenElementStack;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseElementUtil;
 
@@ -33,6 +36,8 @@ public class OpenElementStackImp implements OpenElementStack {
     Node node = stack.removeFirst();
     if (ParseElementUtil.isHTMLElementWithName(node, "style")) {
       StyleAlgos.updateAStyleBlock((Element) node);
+    } else if (ParseElementUtil.isHTMLElementWithName(node, "title")) {
+      emitTitleElement(node);
     }
     return node;
   }
@@ -45,6 +50,16 @@ public class OpenElementStackImp implements OpenElementStack {
   @Override
   public int size() {
     return stack.size();
+  }
+
+  // TODO: Not really the best place to do this
+  private void emitTitleElement(Node node) {
+    HTMLDocument document = (HTMLDocument) node.nodeDocument();
+    document.setTitleElement((HTMLElement) node);
+    DocumentRendererEventListener eventListener = document.renderer().eventListener();
+    if (eventListener != null) {
+      eventListener.onTitleChanged(document.title());
+    }
   }
   
 }

@@ -11,7 +11,7 @@ public interface Frame {
 
   Renderer getRenderer();
 
-  String getName();
+  String getTitle();
 
   URI getURL();
 

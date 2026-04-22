@@ -21,7 +21,7 @@ public class TypeSelectorMatcherTest {
   @BeforeEach
   public void beforeEach() {
     this.allElements = ElementSet.createRoot();
-    this.matcher = new TypeSelectorMatcher(allElements);
+    this.matcher = new TypeSelectorMatcher(allElements, _ -> {});
   }
 
   @Test

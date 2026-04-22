@@ -2,13 +2,15 @@ package net.buildabrowser.babbrowser.css.engine.matcher.simple;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.util.RefCounted;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
+import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 
@@ -17,11 +19,14 @@ public class AttributeSelectorMatcher implements SimpleSelectorMatcher<Attribute
   private final Map<String, Map<AttributeSelector, RefCounted<ElementSet>>> matchingElements = new HashMap<>(1);
 
   private final ElementRootSet allElements;
+  private final Consumer<SelectorPart> onSelectorChanged;
 
   public AttributeSelectorMatcher(
-    ElementRootSet allElements
+    ElementRootSet allElements,
+    Consumer<SelectorPart> onSelectorChanged
   ) {
     this.allElements = allElements;
+    this.onSelectorChanged = onSelectorChanged;
   }
 
   @Override
@@ -64,7 +69,7 @@ public class AttributeSelectorMatcher implements SimpleSelectorMatcher<Attribute
   @Override
   public void onNodeAdded(Node node) {
     nodeAction(node, (s, el) -> s.add(el));
-  };
+  }
 
   @Override
   public void onNodeRemoved(Node node) {
@@ -78,10 +83,11 @@ public class AttributeSelectorMatcher implements SimpleSelectorMatcher<Attribute
     
     for (Map.Entry<AttributeSelector, RefCounted<ElementSet>> entry: map.entrySet()) {
       RefCounted<ElementSet> set = entry.getValue();
-      if (matches(element, entry.getKey())) {
-        set.object().add(element);
-      } else {
+      boolean changed = matches(element, entry.getKey()) ?
+        set.object().add(element) :
         set.object().remove(element);
+      if (changed) {
+        onSelectorChanged.accept(entry.getKey());
       }
     }
   }
@@ -94,7 +100,7 @@ public class AttributeSelectorMatcher implements SimpleSelectorMatcher<Attribute
     return setRef.object();
   }
 
-  private void nodeAction(Node node, BiConsumer<ElementSet, Element> action) {
+  private void nodeAction(Node node, BiFunction<ElementSet, Element, Boolean> action) {
     if (!(node instanceof Element element)) return;
 
     for (Map.Entry<String, Map<AttributeSelector, RefCounted<ElementSet>>> attrAndMap: matchingElements.entrySet()) {
@@ -104,7 +110,10 @@ public class AttributeSelectorMatcher implements SimpleSelectorMatcher<Attribute
       for (Map.Entry<AttributeSelector, RefCounted<ElementSet>> entry: attrAndMap.getValue().entrySet()) {
         RefCounted<ElementSet> set = entry.getValue();
         if (matches(element, entry.getKey())) {
-          action.accept(set.object(), element);
+          boolean changed = action.apply(set.object(), element);
+          if (changed) {
+            onSelectorChanged.accept(entry.getKey());
+          }
         }
       }
     }

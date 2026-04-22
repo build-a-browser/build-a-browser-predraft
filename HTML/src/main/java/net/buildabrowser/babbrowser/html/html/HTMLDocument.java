@@ -11,6 +11,10 @@ import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.scripting.PlatformObject;
 
 public interface HTMLDocument extends Document, Invalidatable, PlatformObject {
+
+  String title();
+
+  void setTitleElement(HTMLElement titleElement);
   
   BrowsingContext browsingContext();
 

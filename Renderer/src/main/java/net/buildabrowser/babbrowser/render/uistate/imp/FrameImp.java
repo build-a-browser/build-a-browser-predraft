@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.render.uistate.imp;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
+import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.NavigateParameters;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
@@ -23,7 +24,21 @@ public class FrameImp implements Frame {
 
   public FrameImp(RenderingEngine renderingEngine) {
     NavigableRendererPair navigableRendererPair = renderingEngine.createNavigable(
-      url -> eventDispatcher.fire(l -> l.onURLChange(url)));
+      new DocumentRendererEventListener() {
+
+        @Override
+        public void onNavigate(URI url) {
+          eventDispatcher.fire(l -> l.onURLChange(url));
+          eventDispatcher.fire(listener -> listener.onTitleChange(getTitle()));
+        }
+
+        @Override
+        public void onTitleChanged(String title) {
+          eventDispatcher.fire(listener -> listener.onTitleChange(getTitle()));
+        }
+        
+      });
+      
     this.navigable = navigableRendererPair.navigable();
     this.renderer = navigableRendererPair.renderer();
   }
@@ -34,10 +49,10 @@ public class FrameImp implements Frame {
   }
 
   @Override
-  public String getName() {
+  public String getTitle() {
     return renderer
       .getTitle()
-      .orElse("Untitled Document");
+      .orElse(navigable.activeDocument().url().toString());
   }
 
   @Override
@@ -52,8 +67,6 @@ public class FrameImp implements Frame {
     parameters.sourceDocument = navigable.activeDocument();
     // TODO: I think the above should be null, but fetch currently crashes if no client is present.
     navigable.navigate(url, parameters);
-    // TODO: The listener needs to be on the navigable itself...
-    eventDispatcher.fire(listener -> listener.onURLChange(url));
   }
 
   @Override
@@ -84,6 +97,7 @@ public class FrameImp implements Frame {
   public void addEventListener(FrameEventListener listener, boolean sync) {
     eventDispatcher.addListener(listener);
     if (sync) {
+      listener.onTitleChange(navigable.activeDocument().title());
       listener.onURLChange(navigable.activeDocument().url());
     }
   }

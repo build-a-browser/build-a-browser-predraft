@@ -22,11 +22,13 @@ public class GzipContentDecoder extends DeflateContentDecoder {
   public void push(ByteBuffer buffer) throws IOException {
     if (!headerProcessed) {
       appendRemaining(buffer);
-      if (!skipGZIPHeader(remainingData)) {
-        super.push(ByteBuffer.wrap(new byte[0]));
-        return;
-      }
+      if (
+        !skipGZIPHeader(remainingData)
+      ) return;
+
       headerProcessed = true;
+      super.push(ByteBuffer.wrap(new byte[0]));
+      return;
     }
     
     super.push(buffer);

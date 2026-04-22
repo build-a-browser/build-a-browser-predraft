@@ -1,12 +1,11 @@
 package net.buildabrowser.babbrowser.render.imp;
 
-import java.net.URI;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
+import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.util.TraversableUtil;
 import net.buildabrowser.babbrowser.html.scripting.Window;
@@ -41,12 +40,14 @@ public class RenderingEngineImp implements RenderingEngine {
   }
 
   @Override
-  public NavigableRendererPair createNavigable(Consumer<URI> onNavigate) {
+  public NavigableRendererPair createNavigable(
+    DocumentRendererEventListener eventListener
+  ) {
     Navigable navigable = TraversableUtil.createNewTopLevelTraversable(
       new UANavigableOptionsImp(
         fetchEngine, uaStyleSheetsSupplier, documentLoaderRegistry,
-        painter, onNavigate));
-    Renderer renderer = Renderer.create(navigable, painter);
+        painter, eventListener::onNavigate));
+    Renderer renderer = Renderer.create(navigable, painter, eventListener);
 
     // TODO: Where does this code actually go?
     Window window = navigable.activeDocument().browsingContext().activeWindow();
