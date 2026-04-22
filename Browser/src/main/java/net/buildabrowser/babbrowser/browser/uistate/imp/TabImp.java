@@ -24,6 +24,11 @@ public class TabImp implements Tab {
         public void onURLChange(URI url) {
           mutationEventDispatcher.fire(l -> l.onNavigate(TabImp.this, url));
         }
+
+        @Override
+        public void onTitleChange(String title) {
+          mutationEventDispatcher.fire(l -> l.onTitleChange(TabImp.this, title));
+        }
       },
       true);
   }
@@ -40,12 +45,12 @@ public class TabImp implements Tab {
   }
 
   @Override
-  public String getName() {
-    String frameName = frame.getName();
+  public String getTitle() {
+    String frameName = frame.getTitle();
     if (frameName == null || frameName.isEmpty()) {
       return frame.getURL().toString();
     }
-    return frame.getName();
+    return frameName;
   }
 
   @Override

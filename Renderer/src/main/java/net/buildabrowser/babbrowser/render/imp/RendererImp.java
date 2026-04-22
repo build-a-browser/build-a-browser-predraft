@@ -7,7 +7,9 @@ import java.util.Optional;
 
 import javax.swing.JPanel;
 
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
+import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.render.Renderer;
 import net.buildabrowser.babbrowser.render.paint.Painter;
@@ -15,12 +17,14 @@ import net.buildabrowser.babbrowser.render.paint.Painter;
 public class RendererImp implements Renderer {
   
   private final Navigable navigable;
+  private final DocumentRendererEventListener eventListener;
 
   private DocumentRenderer activeDocumentRenderer;
   private JPanel jpanel;
 
   public RendererImp(
-    Navigable navigable, Painter painter
+    Navigable navigable, Painter painter,
+    DocumentRendererEventListener eventListener
   ) {
     this.navigable = navigable;
     navigable.uaNavigableOptions().addRepaintListener(() -> {
@@ -28,6 +32,8 @@ public class RendererImp implements Renderer {
       jpanel.revalidate();
       jpanel.repaint();
     });
+
+    this.eventListener = eventListener;
   }
 
   public Component render() throws IOException {
@@ -42,6 +48,7 @@ public class RendererImp implements Renderer {
         activeDocumentRenderer = documentRenderer;
         if (documentRenderer == null) return;
 
+        documentRenderer.setEventListener(eventListener);
         documentRenderer.resize(getWidth(), getHeight());
         super.doLayout();
       }
@@ -62,7 +69,13 @@ public class RendererImp implements Renderer {
 
   @Override
   public Optional<String> getTitle() {
-    // TODO: Implement
+    if (navigable.activeDocument() instanceof HTMLDocument document) {
+      String title = document.title();
+      if (!title.isEmpty()) {
+        return Optional.of(title);
+      }
+    }
+
     return Optional.empty();
   }
 

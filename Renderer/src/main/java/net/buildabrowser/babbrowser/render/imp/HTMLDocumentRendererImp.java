@@ -63,6 +63,8 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
   private final ScriptingContext scriptingContext;
   private final DocumentChangeListener changeListener;
 
+  private DocumentRendererEventListener eventListener;
+
   private InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
   private CompositeLayer rootLayer;
   private LoadedFont rootFont;
@@ -225,6 +227,16 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
     if (invalidationLevel.ordinal() < this.invalidationLevel.ordinal()) {
       this.invalidationLevel = invalidationLevel;
     }
+  }
+
+  @Override
+  public void setEventListener(DocumentRendererEventListener eventListener) {
+    this.eventListener = eventListener;
+  }
+
+  @Override
+  public DocumentRendererEventListener eventListener() {
+    return this.eventListener;
   }
 
   private void recomputeBoxes() {

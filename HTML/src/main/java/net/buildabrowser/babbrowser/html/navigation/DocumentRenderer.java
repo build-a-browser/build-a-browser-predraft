@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.html.navigation;
 
 import java.awt.image.BufferedImage;
+import java.net.URI;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
@@ -23,5 +24,17 @@ public interface DocumentRenderer {
   DocumentChangeListener changeListener();
   
   void onDocumentInvalidated(InvalidationLevel invalidationLevel);
+
+  void setEventListener(DocumentRendererEventListener eventListener);
+
+  DocumentRendererEventListener eventListener();
+
+  interface DocumentRendererEventListener {
+
+    void onNavigate(URI url);
+
+    void onTitleChanged(String title);
+
+  }
 
 }
