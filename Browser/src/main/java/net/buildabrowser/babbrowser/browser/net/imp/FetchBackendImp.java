@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
+import net.buildabrowser.babbrowser.fetch.FetchDestinatation;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.fetch.HeaderList;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchResponse;
@@ -65,15 +66,25 @@ public class FetchBackendImp implements FetchBackend {
       }));
       // TODO: Other parts of Fetch, maybe move this to the Fetch module
       
-      return BodyHandlers.ofByteArrayConsumer(bytesOpt -> CommonUtil.rethrowV(() -> {
+      // TODO: I don't think I'm really supposed to put it on the fetch queue until it's actually inside fetch
+      // But otherwise decompression takes too long, and HTTP client fires another packet, causing a race condition
+      // So the fetch queue makes sure things are called in order
+      FetchDestinatation destination = request.client().fetchDestinatation();
+      return BodyHandlers.ofByteArrayConsumer(bytesOpt -> {
         if (bytesOpt.isPresent()) {
-          decoder.push(ByteBuffer.wrap(bytesOpt.get()));
+          // TODO: Also this copy sucks
+          byte[] clone = new byte[bytesOpt.get().length];
+          System.arraycopy(bytesOpt.get(), 0, clone, 0, clone.length);
+          destination.queueFetchTask(() -> CommonUtil.rethrowV(() ->
+            decoder.push(ByteBuffer.wrap(clone))));
         } else {
-          decoder.done();
-          decoder.close();
-          byteConsumer.accept(bytesOpt);
+          destination.queueFetchTask(() -> CommonUtil.rethrowV(() -> {
+            decoder.done();
+            decoder.close();
+            byteConsumer.accept(bytesOpt);
+          }));
         }
-      })).apply(responseInfo);
+      }).apply(responseInfo);
     }).exceptionally(e -> { e.printStackTrace(); return null; });
     // TODO: Proper exception handling
   }

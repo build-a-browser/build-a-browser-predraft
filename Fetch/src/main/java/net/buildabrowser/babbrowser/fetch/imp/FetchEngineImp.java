@@ -322,11 +322,14 @@ public class FetchEngineImp implements FetchEngine {
   private void fullyRead(
     FetchBody body, Consumer<byte[]> processBody, Runnable processBodyError, FetchDestinatation taskDestination
   ) {
-    ReadableStreamDefaultReader reader = (ReadableStreamDefaultReader)
-      body.stream().getReader(null);
+    // TODO: Obtaining the reader itself is not meant to be in the fetch queue, but I get race conditions because
+    // the code is running in parallel at this point
+    taskDestination.queueFetchTask(() -> {
+      ReadableStreamDefaultReader reader = (ReadableStreamDefaultReader) body.stream().getReader(null);
       reader.readAllBytes(
         bytes -> taskDestination.queueFetchTask(() -> processBody.accept(bytes)),
         bytes -> taskDestination.queueFetchTask(() -> processBodyError.run()));
+    });
   }
 
   private static enum OverrideFetchType {
