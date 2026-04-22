@@ -2,10 +2,12 @@ package net.buildabrowser.babbrowser.css.engine.matcher.psuedo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.simple.SimpleSelectorMatcher;
+import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.SimplePsuedoSelector;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
@@ -15,10 +17,15 @@ public class HoverSelectorMatcher implements SimpleSelectorMatcher<SimplePsuedoS
 
   private final ElementSet allElements;
   private final ElementSet matchingElements;
+  private final Consumer<SelectorPart> onSelectorChanged;
 
-  public HoverSelectorMatcher(ElementRootSet allElements) {
+  public HoverSelectorMatcher(
+    ElementRootSet allElements,
+    Consumer<SelectorPart> onSelectorChanged
+  ) {
     this.allElements = allElements;
     this.matchingElements = allElements.createChild();
+    this.onSelectorChanged = onSelectorChanged;
   }
 
   @Override
@@ -30,8 +37,11 @@ public class HoverSelectorMatcher implements SimpleSelectorMatcher<SimplePsuedoS
   @Override
   public void onNodeRemoved(Node node) {
     if (!(node instanceof Element element)) return;
-    matchingElements.remove(element);
-  };
+    boolean changed = matchingElements.remove(element);
+    if (changed) {
+      onSelectorChanged.accept(SimplePsuedoSelector.HOVER);
+    }
+  }
 
   @Override
   public void onElementEvent(Element element, Event event) {
@@ -46,14 +56,19 @@ public class HoverSelectorMatcher implements SimpleSelectorMatcher<SimplePsuedoS
       currentNode = currentNode.parentNode();
     }
 
+    boolean changed = false;
     for (Element oldElement: matchingElements) {
       if (!matchedElements.contains(oldElement)) {
-        matchingElements.remove(oldElement);
+        changed |= matchingElements.remove(oldElement);
       }
     }
 
     for (Element newElement: matchedElements) {
-      matchingElements.add(newElement);
+      changed |= matchingElements.add(newElement);
+    }
+
+    if (changed) {
+      onSelectorChanged.accept(SimplePsuedoSelector.HOVER);
     }
   }
 

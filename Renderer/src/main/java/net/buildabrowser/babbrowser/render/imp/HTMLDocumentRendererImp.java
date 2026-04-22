@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.Element;
@@ -82,7 +83,7 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
     this.painter = painter;
 
     this.uaStyleSheets = navigable.uaNavigableOptions().uaStyleSheets();
-    this.cssMatcher = CSSMatcher.create(new RenderCSSMatcherContext());
+    this.cssMatcher = CSSMatcher.create(new RenderCSSMatcherContext(), uaStyleSheets);
     this.documentBox = DocumentBox.create(document);
 
     FetchEngine fetchEngine = navigable.uaNavigableOptions().fetchEngine();
@@ -108,15 +109,23 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
 
   @Override
   public void recalculateStyles() {
-    long styleStartTime = System.currentTimeMillis();
-    cssMatcher.applyStylesheets(document, uaStyleSheets);
-    StyleGenerator.style(document);
-    PerfLogging.logStyleTime(styleStartTime);
+    if (
+      cssMatcher.changed()
+      // If level is box, either a box was inserted or a property changed to cause that,
+      // so restyle is needed regardless
+      || invalidationLevel.ordinal() <= InvalidationLevel.BOX.ordinal()
+    ) {
+      long styleStartTime = System.currentTimeMillis();
+      cssMatcher.applyStylesheets(document);
+      ElementSet changedElements = cssMatcher.changedElements();
+      StyleGenerator.style(document, changedElements);
+      PerfLogging.logStyleTime(styleStartTime);
+    }
   }
 
   @Override
   public void updateLayout() {
-    if (invalidationLevel.ordinal() <= InvalidationLevel.BOX.ordinal()) {
+  if (invalidationLevel.ordinal() <= InvalidationLevel.BOX.ordinal()) {
       long boxStartTime = System.currentTimeMillis();
       recomputeBoxes();
       PerfLogging.logBoxTime(boxStartTime);

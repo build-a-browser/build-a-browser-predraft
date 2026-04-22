@@ -8,6 +8,4 @@ public interface ElementRootSet extends ElementSet {
 
   ElementSet createUntrackedChild();
 
-  void attachChangeListener(Runnable changeListener);
-
 }

@@ -1,8 +1,11 @@
 package net.buildabrowser.babbrowser.css.engine.matcher.imp;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.simple.SimpleSelectorMatchers;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
@@ -25,47 +28,74 @@ import net.buildabrowser.babbrowser.cssbase.selector.SubsequentSiblingCombinator
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.AbstractDocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
 public class CSSMatcherImp implements CSSMatcher {
 
-  private final SimpleSelectorMatchers matchers = new SimpleSelectorMatchers(
-    () -> this.changed = true);
+  private final ElementRootSet allElements;
+  private final ElementSet changedElements;
+  private final Set<SelectorPart> changedSelectors;
+  private final SimpleSelectorMatchers matchers;
   
   private final CSSMatcherContext context;
+  private final StyleSheetList uaStyleSheets;
 
-  private boolean changed = false;
-
-  public CSSMatcherImp(CSSMatcherContext context) {
+  public CSSMatcherImp(CSSMatcherContext context, StyleSheetList uaStyleSheets) {
     this.context = context;
+    this.uaStyleSheets = uaStyleSheets;
+    this.allElements = ElementSet.createRoot();
+    this.changedElements = allElements.createUntrackedChild();
+    this.changedSelectors = new HashSet<>();
+    this.matchers = new SimpleSelectorMatchers(allElements, s -> changedSelectors.add(s));
+
+    for (CSSStyleSheet styleSheet: uaStyleSheets) {
+      onStylesheetAdded(styleSheet);
+    }
   }
 
   @Override
-  public void applyStylesheets(Document document, StyleSheetList uaStyleSheets) {
+  public void applyStylesheets(Document document) {
     applyStylesheets(uaStyleSheets, RuleSource.USER_AGENT);
     applyStylesheets(document.styleSheets(), RuleSource.AUTHOR);
-    this.changed = false;
+    changedSelectors.clear();
   }
 
   @Override
   public DocumentChangeListener documentChangeListener() {
     return new AbstractDocumentChangeListener(matchers) {
-
       @Override
       public void onStylesheetAdded(CSSStyleSheet styleSheet) {
-        CSSRuleList ruleList = styleSheet.cssRules();
-        for (int j = 0; j < ruleList.length(); j++) {
-          registerRule(ruleList.item(j));
+        CSSMatcherImp.this.onStylesheetAdded(styleSheet);
+      }
+
+      public void onNodeAdded(Node node) {
+        super.onNodeAdded(node);
+        if (node instanceof Element element) {
+          changedElements.add(element);
         }
       }
-      
-    };    
+    };
   }
 
   @Override
   public boolean changed() {
-    return this.changed;
+    return !changedSelectors.isEmpty();
+  }
+
+  @Override
+  public ElementSet changedElements() {
+    ElementSet changed = this.changedElements.copy();
+    this.changedElements.removeAll();
+    return changed;
+  }
+
+  private void onStylesheetAdded(CSSStyleSheet styleSheet) {
+    CSSRuleList ruleList = styleSheet.cssRules();
+    for (int j = 0; j < ruleList.length(); j++) {
+      registerRule(ruleList.item(j));
+    }
   }
 
   private void registerRule(CSSRule cssRule) {
@@ -83,7 +113,6 @@ public class CSSMatcherImp implements CSSMatcher {
       CSSStyleSheet styleSheet = stylesheets.item(i);
       CSSRuleList ruleList = styleSheet.cssRules();
       for (int j = 0; j < ruleList.length(); j++) {
-        registerRule(ruleList.item(j));
         applyRule(ruleList.item(j), source, i, j);
       }
     }
@@ -98,14 +127,18 @@ public class CSSMatcherImp implements CSSMatcher {
     if (!(cssRule instanceof StyleRule styleRule)) return;
     
     for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
+      boolean needsMatched = needsMatched(complexSelector);
+      if (!needsMatched) continue;
+
       SelectorSpecificity specificity = computeSpecificity(complexSelector);
       WeightedStyleRule weightedRule = new WeightedStyleRule(
         styleRule, specificity, ruleSource, sheetOrdering, ruleOrdering);
-      
+
       ElementSet matchedElements = matchElements(complexSelector);
       if (matchedElements == null) {
         if (complexSelector.dataSlot() != null) {
           for (Element element: (ElementSet) complexSelector.dataSlot()) {
+            changedElements.add(element);
             context.onUnmatched(element, weightedRule);
           }
         }
@@ -119,6 +152,7 @@ public class CSSMatcherImp implements CSSMatcher {
       ElementSet matchNotes = (ElementSet) complexSelector.dataSlot();
       for (Element element: matchNotes) {
         if (!(matchedElements.contains(element))) {
+          changedElements.add(element);
           context.onUnmatched(element, weightedRule);
           matchNotes.remove(element);
         }
@@ -126,10 +160,21 @@ public class CSSMatcherImp implements CSSMatcher {
 
       for (Element element: matchedElements) {
         if (matchNotes.contains(element)) continue;
+        changedElements.add(element);
         context.onMatched(element, weightedRule);
         matchNotes.add(element);
       }
     }
+  }
+
+  private boolean needsMatched(ComplexSelector complexSelector) {
+    for (SelectorPart selectorPart: complexSelector.parts()) {
+      if (changedSelectors.contains(selectorPart)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private SelectorSpecificity computeSpecificity(ComplexSelector selector) {

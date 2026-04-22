@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.LinkedList;
+import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
@@ -16,14 +17,15 @@ public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
   // TODO: Periodically remove old entries
   private final LinkedList<WeakReference<ElementSet>> childSets = new LinkedList<>();
 
-  private Runnable onChange;
+  private Consumer<Element> onChange;
   private int nextId = 0;
 
-  public ElementRootSetImp() {
+  public ElementRootSetImp(Consumer<Element> changeListener) {
     super(
       null,
       new ArrayList<>(NUM_INITIAL_ELEMENTS),
       new BitSet(NUM_INITIAL_ELEMENTS));
+    this.onChange = changeListener;
   }
 
   @Override
@@ -37,7 +39,7 @@ public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
   public ElementSet createUntrackedChild() {
     ElementSet set = new ElementSetImp(this, elementList, rawSet.size()) {
       @Override
-      public void markChanged() {}
+      public void markChanged(Element element) {}
     };
     childSets.add(new WeakReference<>(set));
     return set;
@@ -47,16 +49,18 @@ public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
   public ElementSet createTemporaryChild() {
     return new ElementSetImp(this, elementList, rawSet.size()) {
       @Override
-      public void markChanged() {}
+      public void markChanged(Element element) {}
     };
   }
 
   @Override
-  public void add(Element element) {
+  public boolean add(Element element) {
     resizeChildrenIfNeeded();
     assignElementId(element);
     
+    boolean oldValue = rawSet.get(element.getId());
     rawSet.set(element.getId(), true);
+    return !oldValue;
   }
 
   @Override
@@ -65,14 +69,9 @@ public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
   }
 
   @Override
-  public void markChanged() {
+  public void markChanged(Element element) {
     if (this.onChange == null) return;
-    this.onChange.run();
-  }
-
-  @Override
-  public void attachChangeListener(Runnable changeListener) {
-    this.onChange = changeListener;
+    this.onChange.accept(element);
   }
 
   private void resizeChildrenIfNeeded() {

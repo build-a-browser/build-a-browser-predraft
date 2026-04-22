@@ -11,7 +11,9 @@ public interface CSSMatcher {
   
   DocumentChangeListener documentChangeListener();
 
-  void applyStylesheets(Document document, StyleSheetList uaStyleSheets);
+  void applyStylesheets(Document document);
+
+  ElementSet changedElements();
 
   boolean changed();
 
@@ -23,8 +25,8 @@ public interface CSSMatcher {
 
   }
 
-  static CSSMatcher create(CSSMatcherContext context) {
-    return new CSSMatcherImp(context);
+  static CSSMatcher create(CSSMatcherContext context, StyleSheetList uaStyleSheets) {
+    return new CSSMatcherImp(context, uaStyleSheets);
   }
 
 }

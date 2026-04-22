@@ -39,25 +39,29 @@ public class ElementSetImp implements ElementSet {
   }
 
   @Override
-  public void add(Element element) {
+  public boolean add(Element element) {
     if (!rawSet.get(element.getId())) {
       rawSet.set(element.getId(), true);
-      markChanged();
+      markChanged(element);
+      return true;
     }
+    return false;
   }
 
   @Override
-  public void remove(Element element) {
+  public boolean remove(Element element) {
     if (rawSet.get(element.getId())) {
-      markChanged();
+      markChanged(element);
       rawSet.set(element.getId(), false);
+      return true;
     }
+    return false;
   }
 
   @Override
   public boolean contains(Element element) {
     return rawSet.get(element.getId());
-  };
+  }
 
   @Override
   @SuppressWarnings("deprecation")
@@ -77,8 +81,8 @@ public class ElementSetImp implements ElementSet {
   }
 
   @Override
-  public void markChanged() {
-    root().markChanged();
+  public void markChanged(Element element) {
+    root().markChanged(element);
   }
 
   @Override
@@ -86,6 +90,16 @@ public class ElementSetImp implements ElementSet {
     BitSet newSet = new BitSet(size);
     newSet.or(rawSet);
     this.rawSet = newSet;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return rawSet.isEmpty();
+  }
+
+  @Override
+  public void removeAll() {
+    rawSet.clear();
   }
 
   @Override

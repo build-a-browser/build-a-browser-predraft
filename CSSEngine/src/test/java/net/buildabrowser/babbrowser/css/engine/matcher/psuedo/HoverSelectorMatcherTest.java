@@ -22,7 +22,7 @@ public class HoverSelectorMatcherTest {
   @BeforeEach
   public void beforeEach() {
     this.allElements = ElementSet.createRoot();
-    this.matcher = new HoverSelectorMatcher(allElements);
+    this.matcher = new HoverSelectorMatcher(allElements, _ -> {});
   }
 
   @Test

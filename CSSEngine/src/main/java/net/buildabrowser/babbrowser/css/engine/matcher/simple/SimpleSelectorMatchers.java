@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.css.engine.matcher.simple;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
@@ -22,40 +23,59 @@ import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
 public class SimpleSelectorMatchers implements DocumentChangeListener {
   
-  private final ElementRootSet allElements = ElementSet.createRoot();
-  private final TypeSelectorMatcher typeSelectorMatcher = new TypeSelectorMatcher(allElements);
-  private final IdSelectorMatcher idSelectorMatcher = new IdSelectorMatcher(allElements);
-  private final AttributeSelectorMatcher attributePresentSelectorMatcher = new AttributeSelectorMatcher(allElements);
-  private final AttributeOneOfSelectorMatcher attributeOneOfSelectorMatcher = new AttributeOneOfSelectorMatcher(allElements);
+  private final ElementRootSet allElements;
+  private final TypeSelectorMatcher typeSelectorMatcher;
+  private final IdSelectorMatcher idSelectorMatcher;
+  private final AttributeSelectorMatcher attributePresentSelectorMatcher;
+  private final AttributeOneOfSelectorMatcher attributeOneOfSelectorMatcher;
 
   // Psuedo
-  private final RootSelectorMatcher rootSelectorMatcher = new RootSelectorMatcher(allElements);
-  private final HoverSelectorMatcher hoverSelectorMatcher = new HoverSelectorMatcher(allElements);
+  private final RootSelectorMatcher rootSelectorMatcher;
+  private final HoverSelectorMatcher hoverSelectorMatcher;
 
-  private final Map<SimplePsuedoSelector, SimpleSelectorMatcher<SimplePsuedoSelector>> simplePsuedoSelectors = Map.of(
-    SimplePsuedoSelector.ROOT, rootSelectorMatcher,
-    SimplePsuedoSelector.HOVER, hoverSelectorMatcher
-  );
+  private final Map<SimplePsuedoSelector, SimpleSelectorMatcher<SimplePsuedoSelector>> simplePsuedoSelectors;
 
-  private final List<SimpleSelectorMatcher<?>> allMatchers = List.of(
-    typeSelectorMatcher,
-    idSelectorMatcher,
-    attributePresentSelectorMatcher,
-    attributeOneOfSelectorMatcher,
+  private final List<SimpleSelectorMatcher<?>> allMatchers;
+  private final Consumer<SelectorPart> onSelectorChanged;
 
-    // Psuedo
-    rootSelectorMatcher,
-    hoverSelectorMatcher
-  );
+  public SimpleSelectorMatchers(
+    ElementRootSet allElements,
+    Consumer<SelectorPart> onSelectorChanged
+  ) {
+    this.allElements = allElements;
+    this.onSelectorChanged = onSelectorChanged;
 
-  public SimpleSelectorMatchers(Runnable onChange) {
-    allElements.attachChangeListener(onChange);
+    this.typeSelectorMatcher = new TypeSelectorMatcher(allElements, onSelectorChanged);
+    this.idSelectorMatcher = new IdSelectorMatcher(allElements, onSelectorChanged);
+    this.attributePresentSelectorMatcher = new AttributeSelectorMatcher(allElements, onSelectorChanged);
+    this.attributeOneOfSelectorMatcher = new AttributeOneOfSelectorMatcher(allElements, onSelectorChanged);
+
+    // TODO: Move these to a PsuedoSelectorMatchers?
+    this.rootSelectorMatcher = new RootSelectorMatcher(allElements, onSelectorChanged);
+    this.hoverSelectorMatcher = new HoverSelectorMatcher(allElements, onSelectorChanged);
+
+    this.simplePsuedoSelectors = Map.of(
+      SimplePsuedoSelector.ROOT, rootSelectorMatcher,
+      SimplePsuedoSelector.HOVER, hoverSelectorMatcher
+    );
+    
+    this.allMatchers = List.of(
+      typeSelectorMatcher,
+      idSelectorMatcher,
+      attributePresentSelectorMatcher,
+      attributeOneOfSelectorMatcher,
+
+      // Psuedo
+      rootSelectorMatcher,
+      hoverSelectorMatcher
+    );
   }
 
   @Override
   public void onNodeAdded(Node node) {
     if (node instanceof Element element) {
       allElements.add(element);
+      onSelectorChanged.accept(UniversalSelector.create());
     }
 
     for (SimpleSelectorMatcher<?> matcher: allMatchers) {
@@ -67,6 +87,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
   public void onNodeRemoved(Node node) {
     if (node instanceof Element element) {
       allElements.remove(element);
+      onSelectorChanged.accept(UniversalSelector.create());
     }
 
     for (SimpleSelectorMatcher<?> matcher: allMatchers) {
@@ -104,6 +125,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
   }
 
   public void addSelectorReference(SelectorPart selectorPart) {
+    onSelectorChanged.accept(selectorPart);
     switch (selectorPart) {
       case IdSelector idSelector -> idSelectorMatcher.addSelectorReference(idSelector);
       case TypeSelector typeSelector -> typeSelectorMatcher.addSelectorReference(typeSelector);
@@ -117,6 +139,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
   }
 
   public void removeSelectorReference(SelectorPart selectorPart) {
+    onSelectorChanged.accept(selectorPart);
     switch (selectorPart) {
       case IdSelector idSelector -> idSelectorMatcher.removeSelectorReference(idSelector);
       case TypeSelector typeSelector -> typeSelectorMatcher.removeSelectorReference(typeSelector);

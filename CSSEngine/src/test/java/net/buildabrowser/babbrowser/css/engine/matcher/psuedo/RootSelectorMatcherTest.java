@@ -21,7 +21,7 @@ public class RootSelectorMatcherTest {
   @BeforeEach
   public void beforeEach() {
     this.allElements = ElementSet.createRoot();
-    this.matcher = new RootSelectorMatcher(allElements);
+    this.matcher = new RootSelectorMatcher(allElements, _ -> {});
   }
 
   @Test

@@ -39,13 +39,11 @@ public class ElementContextImp implements ElementContext {
   public void onCSSRuleMatched(WeightedStyleRule styleRule) {
     // TODO: Could cause exponential growth as the list grows large..
     styleRules.add(styleRule);
-    this.activeStyles = null;
   }
 
   @Override
   public void onCSSRuleUnmatched(WeightedStyleRule styleRule) {
     styleRules.remove(styleRule);
-    this.activeStyles = null;
   }
 
   // TODO: Use a qualified name instead
