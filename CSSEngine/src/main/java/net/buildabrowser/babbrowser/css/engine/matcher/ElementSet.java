@@ -1,9 +1,10 @@
 package net.buildabrowser.babbrowser.css.engine.matcher;
 
-import java.util.BitSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+
+import com.zaxxer.sparsebits.SparseBitSet;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.imp.ElementRootSetImp;
 import net.buildabrowser.babbrowser.dom.Element;
@@ -33,7 +34,7 @@ public interface ElementSet extends Iterable<Element> {
   void removeAll();
 
   @Deprecated
-  BitSet raw();
+  SparseBitSet raw();
 
   @Deprecated
   Set<Element> asSet();

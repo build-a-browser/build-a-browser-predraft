@@ -2,9 +2,10 @@ package net.buildabrowser.babbrowser.css.engine.matcher.imp;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.function.Consumer;
+
+import com.zaxxer.sparsebits.SparseBitSet;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
@@ -24,7 +25,7 @@ public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
     super(
       null,
       new ArrayList<>(NUM_INITIAL_ELEMENTS),
-      new BitSet(NUM_INITIAL_ELEMENTS));
+      new SparseBitSet(NUM_INITIAL_ELEMENTS));
     this.onChange = changeListener;
   }
 

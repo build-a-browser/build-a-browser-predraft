@@ -1,10 +1,11 @@
 package net.buildabrowser.babbrowser.css.engine.matcher.imp;
 
-import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import com.zaxxer.sparsebits.SparseBitSet;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
@@ -16,18 +17,18 @@ public class ElementSetImp implements ElementSet {
 
   protected final List<Element> elementList;
 
-  protected BitSet rawSet;
+  protected SparseBitSet rawSet;
 
   public ElementSetImp(
     ElementRootSet root, List<Element> elementList, int numElements
   ) {
     this.root = root;
     this.elementList = elementList;
-    this.rawSet = new BitSet(numElements);
+    this.rawSet = new SparseBitSet(numElements);
   }
 
   // Not updated on DOM update, as it is only used in intermediate calculations
-  public ElementSetImp(ElementRootSet root, List<Element> elementList, BitSet rawSet) {
+  public ElementSetImp(ElementRootSet root, List<Element> elementList, SparseBitSet rawSet) {
     this.root = root;
     this.elementList = elementList;
     this.rawSet = rawSet;
@@ -87,9 +88,7 @@ public class ElementSetImp implements ElementSet {
 
   @Override
   public void resize(int size) {
-    BitSet newSet = new BitSet(size);
-    newSet.or(rawSet);
-    this.rawSet = newSet;
+    // SparseBitSet library does this automatically
   }
 
   @Override
@@ -103,7 +102,7 @@ public class ElementSetImp implements ElementSet {
   }
 
   @Override
-  public BitSet raw() {
+  public SparseBitSet raw() {
     return rawSet;
   }
 
@@ -120,7 +119,7 @@ public class ElementSetImp implements ElementSet {
 
   @Override
   public ElementSet copy() {
-    BitSet newSet = (BitSet) rawSet.clone();
+    SparseBitSet newSet = (SparseBitSet) rawSet.clone();
     return new ElementSetImp(root(), elementList, newSet);
   }
   

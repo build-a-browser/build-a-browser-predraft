@@ -1,21 +1,22 @@
 package net.buildabrowser.babbrowser.css.engine.matcher.imp;
 
-import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
+
+import com.zaxxer.sparsebits.SparseBitSet;
 
 import net.buildabrowser.babbrowser.dom.Element;
 
 public class ElementSetIteratorImp implements Iterator<Element> {
 
   private final List<Element> elementList;
-  private final BitSet rawList;
+  private final SparseBitSet rawList;
 
   private int nextIndex = 0;
 
   public ElementSetIteratorImp(
     List<Element> elementList,
-    BitSet rawList
+    SparseBitSet rawList
   ) {
     this.elementList = elementList;
     this.rawList = rawList;
