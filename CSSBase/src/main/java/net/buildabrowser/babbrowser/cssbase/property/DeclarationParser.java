@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
@@ -55,6 +58,8 @@ import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
 public final class DeclarationParser {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DeclarationParser.class);
 
   // TODO: A number of these need CalcParser added. Things handled by SizeParser get this free.
   private final static Map<String, PropertyValueParser> PROPERTY_PARSERS = mapOf(
@@ -207,7 +212,7 @@ public final class DeclarationParser {
         return result;
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("Could not parse the declaration!", e);
     }
 
     return CSSValue.SpecialCSSValue.INVALID;
@@ -238,7 +243,7 @@ public final class DeclarationParser {
         return result;
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("Could not parse the declaration!", e);
     }
 
     return CSSValue.SpecialCSSValue.INVALID;

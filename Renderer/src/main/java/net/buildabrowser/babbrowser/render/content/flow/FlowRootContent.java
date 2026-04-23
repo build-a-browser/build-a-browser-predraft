@@ -43,8 +43,8 @@ public class FlowRootContent implements BoxContent {
     this.rootFragment = blockLayout.close(widthConstraint, heightConstraint);
     rootFragment.setPos(0, 0);
 
-    float desiredWidth = rootFragment.contentWidth();
-    float desiredHeight = Math.max(rootFragment.contentHeight(), floatTracker.contentHeight());
+    float desiredWidth = rootFragment.width(Measurement.CONTENT);
+    float desiredHeight = Math.max(rootFragment.height(Measurement.CONTENT), floatTracker.contentHeight());
     float inkWidth = rootFragment.inkWidth(Measurement.CONTENT);
     float inkHeight = Math.max(
       rootFragment.inkHeight(Measurement.CONTENT),
@@ -67,6 +67,11 @@ public class FlowRootContent implements BoxContent {
   @Override
   public EventHandler eventHandler() {
     return EVENT_HANDLER;
+  }
+
+  @Override
+  public ElementBox rootBox() {
+    return this.rootBox;
   }
 
   FlowBlockLayout blockLayout() {

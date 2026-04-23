@@ -1,9 +1,10 @@
-package net.buildabrowser.babbrowser.render.composite.imp.scroll;
+package net.buildabrowser.babbrowser.render.content.scroll;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
+import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.imp.ElementBoxImp;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 
@@ -13,6 +14,9 @@ public class ScrollBox extends ElementBoxImp {
 
   private final ScrollBarState horizontalScrollState;
   private final ScrollBarState verticalScrollState;
+
+  private int scrollX = 0;
+  private int scrollY = 0;
 
   public ScrollBox(HTMLElement element, Box parentBox, BoxLevel boxLevel) {
     super(element, parentBox, boxLevel);
@@ -25,26 +29,29 @@ public class ScrollBox extends ElementBoxImp {
     return SCROLL_BOX_CONTENT;
   }
 
+  @Override
+  public boolean sharesContent(ElementBox elementBox) {
+    return false;
+  }
+
   public void scroll(int scrollX, int scrollY) {
-    setScrollX(dimensions().scrollX() + scrollX);
-    setScrollY(dimensions().scrollY() + scrollY);
+    setScrollX(this.scrollX + scrollX);
+    setScrollY(this.scrollY + scrollY);
   }
 
   public void setScrollX(float newScrollX) {
     if (scrollFragment() == null) return;
-    int newScrollYBounded = (int) Math.ceil(Math.clamp(
+    this.scrollX = (int) Math.ceil(Math.clamp(
       newScrollX,
       0, scrollFragment().inkWidth(Measurement.CONTENT) - scrollFragment().width(Measurement.CONTENT)));
-    dimensions().setScroll(newScrollYBounded, dimensions().scrollY());
     element().invalidate(InvalidationLevel.PAINT);
   }
 
   public void setScrollY(float newScrollY) {
     if (scrollFragment() == null) return;
-    int newScrollYBounded = (int) Math.ceil(Math.clamp(
+    this.scrollY = (int) Math.ceil(Math.clamp(
       newScrollY,
       0, scrollFragment().inkHeight(Measurement.CONTENT) - scrollFragment().height(Measurement.CONTENT)));
-    dimensions().setScroll(dimensions().scrollX(), newScrollYBounded);
     element().invalidate(InvalidationLevel.PAINT);
   }
 
@@ -52,7 +59,7 @@ public class ScrollBox extends ElementBoxImp {
     if (scrollFragment() == null) return 0;
     if (!scrollFragment().hasHorizontalScroll()) return 0;
     return (int) Math.min(
-      dimensions().scrollX(),
+      this.scrollX,
       scrollFragment().inkWidth(Measurement.CONTENT) - scrollFragment().width(Measurement.CONTENT));
   }
 
@@ -60,7 +67,7 @@ public class ScrollBox extends ElementBoxImp {
     if (scrollFragment() == null) return 0;
     if (!scrollFragment().hasVerticalScroll()) return 0;
     return (int) Math.min(
-      dimensions().scrollY(),
+      this.scrollY,
       scrollFragment().inkHeight(Measurement.CONTENT) - scrollFragment().height(Measurement.CONTENT));
   }
   

@@ -2,15 +2,18 @@ package net.buildabrowser.babbrowser.render.box.imp;
 
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
 public class ElementBoxDimensionsImp implements ElementBoxDimensions {
 
+  private static final float[] ZERO_SIZE = new float[4];
+
   private final ElementBox box;
 
-  private final float[] computedBorder = new float[] { 0, 0, 0, 0 };
-  private final float[] computedPadding = new float[] { 0, 0, 0, 0 };
-  private final float[] computedMargin = new float[] { 0, 0, 0, 0 };
+  private float[] computedBorder;
+  private float[] computedPadding;
+  private float[] computedMargin;
 
   private float staticX = 0;
   private float staticY = 0;
@@ -19,15 +22,19 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   private float intrinsicHeight = -1;
   private float intrinsicRatio = -1;
 
-  private int scrollX = 0;
-  private int scrollY = 0;
-
   public ElementBoxDimensionsImp(ElementBox box) {
     this.box = box;
   }
 
   @Override
   public void setComputedBorder(float t, float b, float l, float r) {
+    if (computedBorder == null) {
+      if (
+        t == 0 && b == 0 && l == 0 && r == 0
+      ) return;
+      computedBorder = new float[4];
+    }
+
     computedBorder[0] = t;
     computedBorder[1] = b;
     computedBorder[2] = l;
@@ -36,11 +43,19 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
 
   @Override
   public float[] getComputedBorder() {
+    if (computedBorder == null) return ZERO_SIZE;
     return computedBorder;
   }
 
   @Override
   public void setComputedPadding(float t, float b, float l, float r) {
+    if (computedPadding == null) {
+      if (
+        t == 0 && b == 0 && l == 0 && r == 0
+      ) return;
+      computedPadding = new float[4];
+    }
+
     computedPadding[0] = t;
     computedPadding[1] = b;
     computedPadding[2] = l;
@@ -49,23 +64,35 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
 
   @Override
   public float[] getComputedPadding() {
+    if (computedPadding == null) return ZERO_SIZE;
     return computedPadding;
   }
 
   @Override
   public void setComputedVerticalMargin(float t, float b) {
+    if (computedMargin == null) {
+      if (t == 0 && b == 0) return;
+      computedMargin = new float[4];
+    }
+
     computedMargin[0] = t;
     computedMargin[1] = b;
   }
 
   @Override
   public void setComputedHorizontalMargin(float l , float r) {
+    if (computedMargin == null) {
+      if (l == 0 && r == 0) return;
+      computedMargin = new float[4];
+    }
+    
     computedMargin[2] = l;
     computedMargin[3] = r;
   }
 
   @Override
   public float[] getComputedMargin() {
+    if (computedMargin == null) return ZERO_SIZE;
     return this.computedMargin;
   }
 
@@ -87,12 +114,12 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
 
   @Override
   public float preferredMinWidthConstraint() {
-    return box.layout(LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).contentWidth();
+    return box.layout(LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).width(Measurement.CONTENT);
   }
 
   @Override
   public float preferredWidthConstraint() {
-    return box.layout(LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).contentWidth();
+    return box.layout(LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).width(Measurement.CONTENT);
   }
 
   @Override
@@ -127,28 +154,16 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
 
   @Override
   public float decorWidth() {
-    return computedBorder[2] + computedBorder[3] + computedPadding[2] + computedPadding[3];
+    float border = computedBorder == null ? 0 : computedBorder[2] + computedBorder[3];
+    float padding = computedPadding == null ? 0 : computedPadding[2] + computedPadding[3];
+    return border + padding;
   }
 
   @Override
   public float decorHeight() {
-    return computedBorder[0] + computedBorder[1] + computedPadding[0] + computedPadding[1];
-  }
-
-  @Override
-  public int scrollX() {
-    return this.scrollX;
-  }
-
-  @Override
-  public int scrollY() {
-    return this.scrollY;
-  }
-
-  @Override
-  public void setScroll(int scrollX, int scrollY) {
-    this.scrollX = scrollX;
-    this.scrollY = scrollY;
+    float border = computedBorder == null ? 0 : computedBorder[0] + computedBorder[1];
+    float padding = computedPadding == null ? 0 : computedPadding[0] + computedPadding[1];
+    return border + padding;
   }
   
 }

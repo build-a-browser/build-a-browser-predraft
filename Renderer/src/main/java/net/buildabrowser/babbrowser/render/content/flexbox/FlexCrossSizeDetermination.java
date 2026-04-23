@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
@@ -46,8 +47,8 @@ public final class FlexCrossSizeDetermination {
     item.setFragment(boxFragment);
 
     item.setHypotheticalCrossSize(isVertical ?
-      boxFragment.marginWidth() :
-      boxFragment.marginHeight());
+      boxFragment.width(Measurement.MARGIN) :
+      boxFragment.height(Measurement.MARGIN));
   }
 
   private static void calculateLineCrossSize(

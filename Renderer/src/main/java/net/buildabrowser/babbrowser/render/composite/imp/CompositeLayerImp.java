@@ -8,9 +8,10 @@ import java.util.function.Consumer;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayerEntry;
-import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollBoxFragment;
-import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollContentPainter;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.render.content.scroll.ScrollBoxFragment;
+import net.buildabrowser.babbrowser.render.content.scroll.ScrollContentPainter;
 import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
 
 public class CompositeLayerImp implements CompositeLayer {
@@ -70,8 +71,8 @@ public class CompositeLayerImp implements CompositeLayer {
     }
     forEachFragment(fragment -> {
       canvas.alterPaint(p -> p.incOffset(
-        fragment.contentX() - fragment.borderX(),
-        fragment.contentY() - fragment.borderY()));
+        fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER),
+        fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER)));
       fragment.painter().paint(fragment, canvas);
     }, canvas);
     for (CompositeLayer layer: childLayers) {

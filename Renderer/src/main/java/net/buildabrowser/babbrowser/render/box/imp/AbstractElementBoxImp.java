@@ -3,13 +3,18 @@ package net.buildabrowser.babbrowser.render.box.imp;
 import java.util.Comparator;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
+import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.box.ElementBoxIterator;
+import net.buildabrowser.babbrowser.render.composite.CompositeLayerUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.render.content.flow.FlowRootContent;
+import net.buildabrowser.babbrowser.render.content.flow.FlowUtil;
 import net.buildabrowser.babbrowser.render.layout.CachedLayoutResult;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.render.layout.LayoutContext;
@@ -99,6 +104,7 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
       if (current.applies(widthConstraint, heightConstraint)) {
         UnmanagedBoxFragment fragment = current.fragment();
         fragment.setNext(null);
+        return fragment;
       }
       current = current.next();
     }
@@ -147,6 +153,19 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   @Override
   public void setStackingContext(StackingContext stackingContext) {
     this.stackingContext = stackingContext;
+  }
+
+  @Override
+  public boolean sharesContent(ElementBox elementBox) {
+    // TODO: Can't use FlowUtil.isInFlow here because isReplaced() requires content
+    InnerDisplayValue otherInnerDisplay = ActiveStylesUtil.innerDisplayValue(elementBox.activeStyles());
+    boolean canShareFlow =
+      content() instanceof FlowRootContent
+      && otherInnerDisplay.equals(InnerDisplayValue.FLOW)
+      && !FlowUtil.isFloat(elementBox)
+      && !CompositeLayerUtil.hasScrollContent(this); // If a flow box is nested in a scrollbox
+
+    return canShareFlow;
   }
 
 }

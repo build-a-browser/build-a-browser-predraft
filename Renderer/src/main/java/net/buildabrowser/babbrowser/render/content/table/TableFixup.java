@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.render.content.table;
 import java.util.ListIterator;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
@@ -24,7 +25,7 @@ public final class TableFixup {
   }
 
   private static void removeIrrelevantBoxes(ElementBox elementBox) {
-    InnerDisplayValue displayValue = elementBox.activeStyles().innerDisplayValue();
+    InnerDisplayValue displayValue = ActiveStylesUtil.innerDisplayValue(elementBox.activeStyles());
     if (displayValue.equals(InnerDisplayValue.TABLE_COLUMN)) {
       elementBox.clearChildren();
     } else if (displayValue.equals(InnerDisplayValue.TABLE_COLUMN_GROUP)) {
@@ -41,7 +42,7 @@ public final class TableFixup {
       Box childBox = childIt.next();
       if (
         childBox instanceof ElementBox childElementBox
-        && childElementBox.activeStyles().innerDisplayValue()
+        && ActiveStylesUtil.innerDisplayValue(childElementBox.activeStyles())
           .equals(InnerDisplayValue.TABLE_COLUMN)
       ) {
         removeIrrelevantBoxes(childElementBox);

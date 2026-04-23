@@ -38,7 +38,7 @@ public class LineSegment {
 
     LayoutFragment curNode = fragments;
     while (curNode != null) {
-      height = Math.max(height, curNode.borderHeight());
+      height = Math.max(height, curNode.height(Measurement.BORDER));
       curNode = curNode.next();
     }
 

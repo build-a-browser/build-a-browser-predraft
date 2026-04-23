@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.render.layout;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 
 public class CachedLayoutResult implements IntrusiveList<CachedLayoutResult> {
@@ -32,11 +33,11 @@ public class CachedLayoutResult implements IntrusiveList<CachedLayoutResult> {
   }
 
   public float width() {
-    return layoutFragment.contentWidth();
+    return layoutFragment.width(Measurement.CONTENT);
   }
 
   public float height() {
-    return layoutFragment.contentHeight();
+    return layoutFragment.height(Measurement.CONTENT);
   }
 
   public UnmanagedBoxFragment fragment() {

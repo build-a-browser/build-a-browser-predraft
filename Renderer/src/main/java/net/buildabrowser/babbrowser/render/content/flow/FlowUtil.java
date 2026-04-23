@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.render.content.flow;
 
+import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
@@ -48,7 +49,7 @@ public final class FlowUtil {
 
   public static boolean isInFlow(ElementBox elementBox) {
     return
-      elementBox.activeStyles().innerDisplayValue().equals(InnerDisplayValue.FLOW)
+      ActiveStylesUtil.innerDisplayValue(elementBox.activeStyles()).equals(InnerDisplayValue.FLOW)
       && !elementBox.isReplaced()
       && PositionUtil.affectsLayout(elementBox)
       && !CompositeLayerUtil.hasScrollContent(elementBox);

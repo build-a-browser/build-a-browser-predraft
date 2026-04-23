@@ -47,8 +47,8 @@ public abstract class DefaultLinkProcessor implements LinkProcessor {
   private LinkProcessingOptions createLinkOptions(LinkElement el) {
     // TODO: More options to collect
     HTMLDocument document = (HTMLDocument) el.nodeDocument();
-    String href = el.attributes().get("href");
-    String type = el.attributes().get("type");
+    String href = el.getAttribute("href");
+    String type = el.getAttribute("type");
     return new LinkProcessingOptions(
       href,
       type,

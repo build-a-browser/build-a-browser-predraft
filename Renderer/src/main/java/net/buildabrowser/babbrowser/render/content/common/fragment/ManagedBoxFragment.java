@@ -30,7 +30,7 @@ public class ManagedBoxFragment extends BoxFragment {
     float width, float height,
     ElementBox box, List<LayoutFragment> fragments
   ) {
-    super(width, height, width, height, box, new UnreachableBoxPainter());
+    super(width, height, width, height, box, UnreachableBoxPainter.create(box.element()));
     this.fragments = IntrusiveList.fromList(fragments);
     setPos(x, y);
   }
@@ -42,7 +42,7 @@ public class ManagedBoxFragment extends BoxFragment {
   @Override
   public String toString() {
     StringBuilder textBuilder = new StringBuilder();
-    textBuilder.append("[ManagedBoxFragment pos=[" + borderX() + ", " + borderY() + "] size=[" + contentWidth() + "x" + contentHeight() + "]]");
+    textBuilder.append("[ManagedBoxFragment pos=[" + posX(Measurement.BORDER) + ", " + posY(Measurement.BORDER) + "] size=[" + width(Measurement.CONTENT) + "x" + height(Measurement.CONTENT) + "]]");
 
     IntrusiveList<LayoutFragment> curNode = fragments;
     while (curNode != null) {

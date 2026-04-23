@@ -1,12 +1,12 @@
-package net.buildabrowser.babbrowser.render.composite.imp.scroll;
+package net.buildabrowser.babbrowser.render.content.scroll;
 
-import static net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollContentPainter.GUTTER_WIDTH;
+import static net.buildabrowser.babbrowser.render.content.scroll.ScrollContentPainter.GUTTER_WIDTH;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
-import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollMath.ScrollMathResult;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.render.content.scroll.ScrollMath.ScrollMathResult;
 import net.buildabrowser.babbrowser.render.event.EventContext;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent;
@@ -25,7 +25,8 @@ public class ScrollEventHandler implements EventHandler {
     EventContext eventContext, RendererMouseEvent mouseEvent,
     BoxFragment fragment, float relX, float relY
   ) {
-    ScrollBoxFragment scrollBoxFragment = (ScrollBoxFragment) fragment;
+    ScrollBoxFragment scrollBoxFragment = scrollBox.scrollFragment();
+    if (scrollBoxFragment == null) return EventHandlerResponse.UNHANDLED;
     UnmanagedBoxFragment innerFragment = scrollBoxFragment.innerFragment();
     EventHandlerResponse innerMouseEventResponse = innerFragment.eventHandler().handleMouseEvent(
       eventContext, mouseEvent,

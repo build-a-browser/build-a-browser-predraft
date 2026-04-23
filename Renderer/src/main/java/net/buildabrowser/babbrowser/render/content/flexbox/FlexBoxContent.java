@@ -24,6 +24,7 @@ import net.buildabrowser.babbrowser.render.content.common.MarginUtil;
 import net.buildabrowser.babbrowser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.render.content.flexbox.FlexCrossAlignment.CrossAlignmentContext;
@@ -87,12 +88,10 @@ public class FlexBoxContent implements BoxContent {
   }
 
   // TODO: Test how well this code handles positioned items..
-
   @Override
   public UnmanagedBoxFragment layout(
     LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
-    // TODO: Also support gap
     List<FlexItem> flexItems = collectFlexItems();
     return layoutItems(flexItems, widthConstraint, heightConstraint);
   }
@@ -274,8 +273,8 @@ public class FlexBoxContent implements BoxContent {
 
     StackingContext refContext = rootBox.stackingContext();
 
-    float offsetX = layerX + (rootFragment.contentX() - rootFragment.borderX());
-    float offsetY = layerY + (rootFragment.contentY() - rootFragment.borderY());
+    float offsetX = layerX + (rootFragment.posX(Measurement.CONTENT) - rootFragment.posX(Measurement.BORDER));
+    float offsetY = layerY + (rootFragment.posY(Measurement.CONTENT) - rootFragment.posY(Measurement.BORDER));
 
     ElementBoxIterator childIt = rootBox.childBoxes();
     while (childIt.hasNext()) {
@@ -290,8 +289,8 @@ public class FlexBoxContent implements BoxContent {
     UnmanagedBoxFragment childFragment = fragments;
     while (childFragment != null) {
       ElementBox childBox = childFragment.box();
-      float childX = offsetX + childFragment.borderX();
-      float childY = offsetY + childFragment.borderY();
+      float childX = offsetX + childFragment.posX(Measurement.BORDER);
+      float childY = offsetY + childFragment.posY(Measurement.BORDER);
       if (childBox.stackingContext() != refContext) {
         refContext = childBox.stackingContext();
         refContext.addFragment(childX, childY, childFragment);
@@ -302,6 +301,11 @@ public class FlexBoxContent implements BoxContent {
       childBox.content().positionLayers(childX, childY);
       childFragment = (UnmanagedBoxFragment) childFragment.next();
     }
+  }
+
+  @Override
+  public ElementBox rootBox() {
+    return this.rootBox;
   }
   
 }

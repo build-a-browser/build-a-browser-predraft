@@ -1,6 +1,8 @@
 package net.buildabrowser.babbrowser.render.content.table;
 
+import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
@@ -18,8 +20,8 @@ public class TableContentPainter implements BoxPainter {
 
   @Override
   public void paint(BoxFragment fragment, PaintCanvas canvas) {
-    canvas.alterPaint(p -> p.setColor(fragment.box().activeStyles().backgroundColor()));
-    canvas.drawBox(0, 0, fragment.contentWidth(), fragment.contentHeight());
+    canvas.alterPaint(p -> p.setColor(ActiveStylesUtil.backgroundColor(fragment.box().activeStyles())));
+    canvas.drawBox(0, 0, fragment.width(Measurement.CONTENT), fragment.height(Measurement.CONTENT));
 
     Table table = content.sizedTable().table();
     for (int y = 0; y < table.height(); y++) {
@@ -31,8 +33,8 @@ public class TableContentPainter implements BoxPainter {
           if (cell.cellX() != x || cell.cellY() != y) continue;
 
           canvas.pushPaint();
-          canvas.alterPaint(p -> p.incOffset(childFragment.contentX(), childFragment.contentY()));
-          canvas.alterPaint(p -> p.setColor(childFragment.box().activeStyles().backgroundColor()));
+          canvas.alterPaint(p -> p.incOffset(childFragment.posX(Measurement.CONTENT), childFragment.posY(Measurement.CONTENT)));
+          canvas.alterPaint(p -> p.setColor(ActiveStylesUtil.backgroundColor(childFragment.box().activeStyles())));
           canvas.drawBox(0, 0,
             content.sizedTable().columnWidths()[x],
             content.sizedTable().columnHeights()[y]);

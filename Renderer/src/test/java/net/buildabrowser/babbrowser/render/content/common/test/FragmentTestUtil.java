@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.TextFragment;
@@ -18,10 +19,10 @@ public final class FragmentTestUtil {
   private FragmentTestUtil() {}
 
   public static void assertFragmentEquals(LayoutFragment expected, LayoutFragment actual) {
-    Assertions.assertEquals(expected.borderX(), actual.borderX());
-    Assertions.assertEquals(expected.borderY(), actual.borderY());
-    Assertions.assertEquals(expected.contentWidth(), actual.contentWidth());
-    Assertions.assertEquals(expected.contentHeight(), actual.contentHeight());
+    Assertions.assertEquals(expected.posX(Measurement.BORDER), actual.posX(Measurement.BORDER));
+    Assertions.assertEquals(expected.posY(Measurement.BORDER), actual.posY(Measurement.BORDER));
+    Assertions.assertEquals(expected.width(Measurement.CONTENT), actual.width(Measurement.CONTENT));
+    Assertions.assertEquals(expected.height(Measurement.CONTENT), actual.height(Measurement.CONTENT));
     switch (expected) {
       case ManagedBoxFragment fragment -> assertFragmentEquals(fragment, actual);
       case UnmanagedBoxFragment fragment -> assertFragmentEquals(fragment, actual);
@@ -77,8 +78,8 @@ public final class FragmentTestUtil {
   private static void assertFragmentEquals(UnmanagedBoxFragment expected, LayoutFragment actual) {
     Assertions.assertInstanceOf(UnmanagedBoxFragment.class, actual);
     UnmanagedBoxFragment actualFragment = (UnmanagedBoxFragment) actual;
-    Assertions.assertEquals(expected.contentWidth(), actualFragment.contentWidth());
-    Assertions.assertEquals(expected.contentHeight(), actualFragment.contentHeight());
+    Assertions.assertEquals(expected.width(Measurement.CONTENT), actualFragment.width(Measurement.CONTENT));
+    Assertions.assertEquals(expected.height(Measurement.CONTENT), actualFragment.height(Measurement.CONTENT));
     Assertions.assertEquals(expected.box(), actualFragment.box());
   }
 

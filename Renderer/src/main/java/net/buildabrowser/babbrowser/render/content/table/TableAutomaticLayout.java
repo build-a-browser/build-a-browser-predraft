@@ -24,7 +24,7 @@ public final class TableAutomaticLayout {
 
   private static float[] computeColumnMinContentWidths(Table table, LayoutConstraint widthConstraint) {
     // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'computeColumnMinContentWidths'");
+    throw new UnsupportedOperationException("Unimplemented method 'computeColumnMinwidth(Measurement.CONTENT)s'");
   }
 
 }

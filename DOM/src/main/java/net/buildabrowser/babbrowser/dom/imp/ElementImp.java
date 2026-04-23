@@ -1,19 +1,18 @@
 package net.buildabrowser.babbrowser.dom.imp;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 
 public class ElementImp extends NodeImp implements Element {
 
-  private final Map<String, String> attributes = new HashMap<>(2);
-
   private final String name;
   private final String namespace;
 
   private int id = -1;
+  private AttributeList attributes;
 
   public ElementImp(String name, String namespace, Node parentNode) {
     this.name = name;
@@ -32,13 +31,54 @@ public class ElementImp extends NodeImp implements Element {
   }
 
   @Override
-  public Map<String, String> attributes() {
-    return this.attributes;
+  public List<String> getAttributeNames() {
+    List<String> names = new ArrayList<>();
+    AttributeList currentAttribute = attributes;
+    while (currentAttribute != null) {
+      names.add(currentAttribute.name());
+      currentAttribute = currentAttribute.next();
+    }
+
+    return names;
+  }
+
+  @Override
+  public String getAttribute(String name) {
+    AttributeList currentAttribute = attributes;
+    while (currentAttribute != null) {
+      if (currentAttribute.name().equals(name)) {
+        return currentAttribute.value();
+      }
+      currentAttribute = currentAttribute.next();
+    }
+
+    return null;
+  }
+
+  @Override
+  public boolean hasAttribute(String name) {
+    return getAttribute(name) != null;
   }
 
   @Override
   public void addAttribute(String name, String value) {
-    String prevValue = attributes.put(name, value);
+    AttributeList currentAttribute = attributes;
+    String prevValue = null;
+    while (currentAttribute != null) {
+      if (currentAttribute.name().equals(name)) {
+        prevValue = currentAttribute.value();
+        currentAttribute.setValue(value);
+        break;
+      }
+      currentAttribute = currentAttribute.next();
+    }
+
+    if (prevValue == null) {
+      AttributeList attribute = new AttributeList(name, value);
+      attribute.setNext(attributes);
+      this.attributes = attribute;
+    }
+
     nodeDocument().changeListener().onAttributeChanged(this, name, prevValue, value);
   }
   
@@ -46,12 +86,15 @@ public class ElementImp extends NodeImp implements Element {
   public String toString() {
     StringBuilder builder = new StringBuilder("<");
     builder.append(name);
-    for (Map.Entry<String, String> attributePairs: attributes.entrySet()) {
+
+    AttributeList currentAttribute = attributes;
+    while (currentAttribute != null) {
       builder.append(' ');
-      builder.append(attributePairs.getKey());
+      builder.append(currentAttribute.name());
       builder.append("=\"");
-      builder.append(attributePairs.getValue());
+      builder.append(currentAttribute.value());
       builder.append('"');
+      currentAttribute = currentAttribute.next();
     }
     builder.append(">");
     for (Node child: childNodes()) {

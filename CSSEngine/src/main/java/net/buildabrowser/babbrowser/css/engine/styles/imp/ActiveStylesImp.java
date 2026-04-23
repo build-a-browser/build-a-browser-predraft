@@ -1,6 +1,5 @@
 package net.buildabrowser.babbrowser.css.engine.styles.imp;
 
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,16 +9,22 @@ import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
-import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue;
-import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
-import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
-import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 
 public class ActiveStylesImp implements ActiveStyles {
 
+  static {
+    if (CSSProperty.idCount() > 63) {
+      throw new RuntimeException(
+        "Property count greater than available bits: Please optimize");
+    }
+  }
+
   private final ActiveStyles parentStyles;
-  private final BitSet inheritValues;
-  private final BitSet hasOwnValues;
+
+  // A BitSet has a header and long array. Even with a lazy initialization attempt
+  // that took a lot of memory. Use longs instead
+  private long inheritValues;
+  private long hasOwnValues;
 
   // TODO: Switch to an IntrusiveList?
   private SinglyLinkedList<CSSValue> activeProperties;
@@ -27,8 +32,6 @@ public class ActiveStylesImp implements ActiveStyles {
 
   public ActiveStylesImp(ActiveStyles parentStyles) {
     this.parentStyles = parentStyles;
-    this.inheritValues = new BitSet(CSSProperty.idCount());
-    this.hasOwnValues = new BitSet(CSSProperty.idCount());
   }
 
   @Override
@@ -43,7 +46,7 @@ public class ActiveStylesImp implements ActiveStyles {
     }
 
     addEntry(property.id(), value);
-    inheritValues.set(property.id(), false);
+    setInheritValue(property.id(), false);
   }
 
   @Override
@@ -61,7 +64,7 @@ public class ActiveStylesImp implements ActiveStyles {
       }
     } else {
       removeEntry(property.id());
-      inheritValues.set(property.id(), true);
+      setInheritValue(property.id(), true);
     }
   }
 
@@ -85,7 +88,7 @@ public class ActiveStylesImp implements ActiveStyles {
   @Override
   public void unsetProperty(CSSProperty property) {
     removeEntry(property.id());
-    inheritValues.set(property.id(), false);
+    setInheritValue(property.id(), false);
   }
 
   @Override
@@ -95,11 +98,11 @@ public class ActiveStylesImp implements ActiveStyles {
     }
 
     int id = property.id();
-    if (hasOwnValues.get(id)) {
+    if (getHasOwnValue(id)) {
       return scanValue(id);
     }
 
-    return parentStyles != null && (property.inherited() || inheritValues.get(id)) ?
+    return parentStyles != null && (property.inherited() || getInheritValue(id)) ?
       parentStyles.getProperty(property) :
       property.initial();
   }
@@ -120,67 +123,19 @@ public class ActiveStylesImp implements ActiveStyles {
   public boolean wasInherited(CSSProperty property) {
     return
       parentStyles != null
-      && (property.inherited() || inheritValues.get(property.id()))
-      && !hasOwnValues.get(property.id());
-  }
-
-  @Override
-  public int textColor() {
-    return ((ColorValue) getProperty(CSSProperty.COLOR)).asSARGB();
-  }
-
-  @Override
-  public int backgroundColor() {
-    return ((ColorValue) getProperty(CSSProperty.BACKGROUND_COLOR)).asSARGB();
-  }
-
-  @Override
-  public int borderTopColor() {
-    CSSValue property = getProperty(CSSProperty.BORDER_TOP_COLOR);
-    if (property.equals(CSSValue.NONE)) return textColor();
-    return ((ColorValue) property).asSARGB();
-  }
-
-  @Override
-  public int borderBottomColor() {
-    CSSValue property = getProperty(CSSProperty.BORDER_BOTTOM_COLOR);
-    if (property.equals(CSSValue.NONE)) return textColor();
-    return ((ColorValue) property).asSARGB();
-  }
-
-  @Override
-  public int borderLeftColor() {
-    CSSValue property = getProperty(CSSProperty.BORDER_LEFT_COLOR);
-    if (property.equals(CSSValue.NONE)) return textColor();
-    return ((ColorValue) property).asSARGB();
-  }
-
-  @Override
-  public int borderRightColor() {
-    CSSValue property = getProperty(CSSProperty.BORDER_RIGHT_COLOR);
-    if (property.equals(CSSValue.NONE)) return textColor();
-    return ((ColorValue) property).asSARGB();
-  }
-
-  @Override
-  public OuterDisplayValue outerDisplayValue() {
-    return ((DisplayValue) getProperty(CSSProperty.DISPLAY)).outerDisplayValue();
-  }
-
-  @Override
-  public InnerDisplayValue innerDisplayValue() {
-    return ((DisplayValue) getProperty(CSSProperty.DISPLAY)).innerDisplayValue();
+      && (property.inherited() || getInheritValue(property.id()))
+      && !getHasOwnValue(property.id());
   }
 
   private CSSValue scanValue(int id) {
-    if (!hasOwnValues.get(id)) return null;
+    if (!getHasOwnValue(id)) return null;
     int listPos = getPropertyPos(id);
     return IntrusiveList.get(activeProperties, listPos).item();
   }
   
   private void addEntry(int id, CSSValue value) {
     assert value != null;
-    boolean wasPresent = hasOwnValues.get(id);
+    boolean wasPresent = getHasOwnValue(id);
     int listPos = getPropertyPos(id);
 
     if (wasPresent) {
@@ -188,12 +143,12 @@ public class ActiveStylesImp implements ActiveStyles {
     } else {
       activeProperties = IntrusiveList.insert(activeProperties, listPos, new SinglyLinkedList<>(value));
     }
-    hasOwnValues.set(id, true);
+    setHasOwnValue(id, true);
   }
 
   private void removeEntry(int id) {
-    if (!hasOwnValues.get(id)) return;
-    hasOwnValues.set(id, false);
+    if (!getHasOwnValue(id)) return;
+    setHasOwnValue(id, false);
 
     int listPos = getPropertyPos(id);
     activeProperties = IntrusiveList.remove(activeProperties, listPos);
@@ -201,10 +156,10 @@ public class ActiveStylesImp implements ActiveStyles {
 
   private int getPropertyPos(int id) {
     int listPos = 0;
-    int currentId = hasOwnValues.nextSetBit(0);
+    int currentId = hasOwnValuesNextSetBit(0);
     while (currentId < id && currentId != -1) {
       listPos++;
-      currentId = hasOwnValues.nextSetBit(currentId + 1);
+      currentId = hasOwnValuesNextSetBit(currentId + 1);
     }
     return listPos;
   }
@@ -213,6 +168,36 @@ public class ActiveStylesImp implements ActiveStyles {
     if (customProperties == null) {
       this.customProperties = new HashMap<>(4);
     }
+  }
+
+  private void setInheritValue(int id, boolean b) {
+    if (b) {
+      inheritValues |= (1L << id);
+    } else {
+      inheritValues &= ~(1L << id);
+    }
+  }
+
+  private boolean getInheritValue(int id) {
+    return (inheritValues & (1L << id)) != 0;
+  }
+
+  private void setHasOwnValue(int id, boolean b) {
+    if (b) {
+      hasOwnValues |= (1L << id);
+    } else {
+      hasOwnValues &= ~(1L << id);
+    }
+  }
+
+  private boolean getHasOwnValue(int id) {
+    return (hasOwnValues & (1L << id)) != 0;
+  }
+
+  private int hasOwnValuesNextSetBit(int fromIndex) {
+    long word = hasOwnValues & (-1L << fromIndex);
+    if (word == 0) return -1;
+    return Long.numberOfTrailingZeros(word);
   }
   
 }

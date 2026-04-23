@@ -21,7 +21,7 @@ public class TextFragment extends LayoutFragment {
 
   @Override
   public String toString() {
-    return "[TextFragment pos=[" + borderX() + ", " + borderY() + "] size=[" + contentWidth() + "x" + contentHeight() + "] text=[" + text() + "]]";
+    return "[TextFragment pos=[" + posX(Measurement.BORDER) + ", " + posY(Measurement.BORDER) + "] size=[" + width(Measurement.CONTENT) + "x" + height(Measurement.CONTENT) + "] text=[" + text() + "]]";
   }
 
 }

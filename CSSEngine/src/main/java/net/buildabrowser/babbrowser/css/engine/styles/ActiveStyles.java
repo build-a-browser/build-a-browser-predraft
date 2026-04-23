@@ -3,8 +3,6 @@ package net.buildabrowser.babbrowser.css.engine.styles;
 import net.buildabrowser.babbrowser.css.engine.styles.imp.ActiveStylesImp;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
-import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
-import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 
 public interface ActiveStyles extends PropertyContainer {
 
@@ -19,22 +17,6 @@ public interface ActiveStyles extends PropertyContainer {
   void unsetProperty(CSSProperty property);
 
   boolean wasInherited(CSSProperty property);
-
-  int textColor();
-
-  int backgroundColor();
-
-  int borderTopColor();
-  
-  int borderBottomColor();
-
-  int borderLeftColor();
-
-  int borderRightColor();
-
-  OuterDisplayValue outerDisplayValue();
-
-  InnerDisplayValue innerDisplayValue();
 
   static ActiveStyles create() {
     return new ActiveStylesImp(null);

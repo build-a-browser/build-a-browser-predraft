@@ -44,12 +44,6 @@ public interface ElementBoxDimensions {
 
   float decorHeight();
 
-  int scrollX();
-
-  int scrollY();
-
-  void setScroll(int scrollX, int scrollY);
-
   static ElementBoxDimensions create(ElementBox box) {
     return new ElementBoxDimensionsImp(box);
   }

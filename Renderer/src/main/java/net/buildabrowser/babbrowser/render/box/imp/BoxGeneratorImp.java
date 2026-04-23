@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.render.box.imp;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.dom.Comment;
@@ -14,9 +15,10 @@ import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxGenerator;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
+import net.buildabrowser.babbrowser.render.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.render.box.TextBox;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayerUtil;
-import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollBox;
+import net.buildabrowser.babbrowser.render.content.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.render.context.ElementContext;
 
 public class BoxGeneratorImp implements BoxGenerator {
@@ -31,6 +33,24 @@ public class BoxGeneratorImp implements BoxGenerator {
     };
   }
 
+
+  @Override
+  public void fixup(Box box) {
+    if (box instanceof ElementBox elementBox) {
+      if (!(
+        elementBox.parentBox() instanceof ElementBox elParentBox
+        && elementBox.content() == elParentBox.content()
+      )) {
+        elementBox.content().fixupChildren();
+      }
+
+      ElementBoxIterator childIt = elementBox.childBoxes();
+      while (childIt.hasNext()) {
+        fixup(childIt.next());
+      }
+    }
+  }
+
   private TextBox createTextBox(HTMLText text) {
     if (text.getBox() == null) {
       text.setBox(TextBox.create(text));
@@ -40,7 +60,7 @@ public class BoxGeneratorImp implements BoxGenerator {
 
   private List<Box> createElementBoxes(Box parentBox, HTMLElement element) {
     ElementContext context = (ElementContext) element.getContext();
-    OuterDisplayValue outerDisplayValue = context.activeStyles().outerDisplayValue();
+    OuterDisplayValue outerDisplayValue = ActiveStylesUtil.outerDisplayValue(context.activeStyles());
 
     switch (outerDisplayValue) {
       case BLOCK:
@@ -70,6 +90,7 @@ public class BoxGeneratorImp implements BoxGenerator {
       element.getBox() instanceof ElementBox elementBox2
       && element.invalidationLevel().ordinal() > InvalidationLevel.BOX.ordinal()
     ) {
+      elementBox2.update();
       return List.of(elementBox2);
     } else if (
       element.getBox() instanceof ElementBox elementBox2
@@ -85,7 +106,6 @@ public class BoxGeneratorImp implements BoxGenerator {
     for (Box childBox: createChildBoxes(elementBox, element.childNodes())) {
       elementBox.addChild(childBox);
     }
-    elementBox.content().fixupChildren();
 
     if (scrollBox != null) {
       scrollBox.addChild(elementBox);

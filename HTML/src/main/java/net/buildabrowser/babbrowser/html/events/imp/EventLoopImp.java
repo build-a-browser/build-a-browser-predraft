@@ -8,12 +8,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.Task;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
 
 public class EventLoopImp implements EventLoop {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(EventLoopImp.class);
 
   private static final int LONG_RENDER_DURATION = 32;
 
@@ -60,7 +65,7 @@ public class EventLoopImp implements EventLoop {
         try {
           oldestTask.steps().run();
         } catch (Exception e) {
-          e.printStackTrace();
+          LOGGER.error("Task running in main event loop thread failed!", e);
         }
         if (oldestTask.source().equals(TaskSource.RENDERING)) {
           this.lastRenderTime = taskStart;
@@ -101,7 +106,7 @@ public class EventLoopImp implements EventLoop {
       try {
         runnable.run();
       } catch (Throwable e) {
-        e.printStackTrace();
+        LOGGER.error("Task running in parallel failed!", e);
       }
   });
   }

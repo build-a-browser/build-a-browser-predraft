@@ -9,7 +9,7 @@ import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxIterator;
-import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollBox;
+import net.buildabrowser.babbrowser.render.content.scroll.ScrollBox;
 
 public final class StackingContextGenerator {
   

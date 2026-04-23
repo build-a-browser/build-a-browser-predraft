@@ -14,6 +14,8 @@ public interface BoxContent {
 
   void positionLayers(float layerX, float layerY);
 
+  ElementBox rootBox();
+
   EventHandler eventHandler();
 
   default boolean isReplaced() {

@@ -15,7 +15,7 @@ public class AnchorElementImp extends HTMLElementImp implements AnchorElement, A
 
   @Override
   public void activate(PointerEvent event) {
-    if (!attributes().containsKey("href")) return;
+    if (!hasAttribute("href")) return;
     String hyperlinkSuffix = null;
     // TODO: Other stuff
     UserNavigationInvolvement userInvolvement = UserNavigationInvolvement.ACTIVATION; // TODO: Proper way to get this

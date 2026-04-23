@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.render.content.flexbox;
 
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.paint.ElementBackgroundPainter;
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
@@ -25,12 +26,12 @@ public class FlexBoxContentPainter implements BoxPainter {
       if (child.box().stackingContext() != refContext) continue;
       
       canvas.pushPaint();
-      canvas.alterPaint(p -> p.incOffset(child.borderX(), child.borderY()));
+      canvas.alterPaint(p -> p.incOffset(child.posX(Measurement.BORDER), child.posY(Measurement.BORDER)));
       child.painter().paintBackground(child, canvas);
       canvas.popPaint();
 
       canvas.pushPaint();
-      canvas.alterPaint(p -> p.incOffset(child.contentX(), child.contentY()));
+      canvas.alterPaint(p -> p.incOffset(child.posX(Measurement.CONTENT), child.posY(Measurement.CONTENT)));
       child.painter().paint(child, canvas);
       canvas.popPaint();
     }

@@ -23,12 +23,13 @@ import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
+import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.test.TestTextBox;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.flexbox.test.FlexLayoutUtil.FlexTestLayoutResult;
-import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
 
 public class FlexContentTest {
 
@@ -314,12 +315,12 @@ public class FlexContentTest {
     assertFragmentListEquals(expectedFragments, actualFragments);
 
     // Some additional checks (actualFragments represents the first item here)
-    Assertions.assertEquals(21, actualFragments.contentX());
-    Assertions.assertEquals(16, actualFragments.contentY());
-    Assertions.assertEquals(37, actualFragments.borderWidth());
-    Assertions.assertEquals(22, actualFragments.borderHeight());
+    Assertions.assertEquals(21, actualFragments.posX(Measurement.CONTENT));
+    Assertions.assertEquals(16, actualFragments.posY(Measurement.CONTENT));
+    Assertions.assertEquals(37, actualFragments.width(Measurement.BORDER));
+    Assertions.assertEquals(22, actualFragments.height(Measurement.BORDER));
 
-    Assertions.assertEquals(16 + 10 + 16, layoutResult.dimensionFrag().contentHeight());
+    Assertions.assertEquals(16 + 10 + 16, layoutResult.dimensionFrag().height(Measurement.CONTENT));
   }
 
   @Test

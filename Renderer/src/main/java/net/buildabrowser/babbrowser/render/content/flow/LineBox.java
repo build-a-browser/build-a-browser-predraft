@@ -6,6 +6,7 @@ import java.util.LinkedList;
 
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.position.PositionUtil;
@@ -30,7 +31,7 @@ public class LineBox {
   public void addFragment(LayoutFragment fragment) {
     commitText();
     if (PositionUtil.affectsLayout(fragment)) {
-      this.totalWidth += fragment.marginWidth();
+      this.totalWidth += fragment.width(Measurement.MARGIN);
     }
     lineSegments.peek().addFragment(fragment);
   }

@@ -243,11 +243,11 @@ public class FlowBlockLayout {
     BlockFormattingContext parentContext = activeContext;
     newFragment.setPos(posX, parentContext.currentY());
     parentContext.increaseY(
-      newFragment.borderHeight(),
+      newFragment.height(Measurement.BORDER),
       newFragment.inkHeight(Measurement.BORDER));
     parentContext.minWidth(
-      newFragment.marginX() + newFragment.marginWidth(),
-      newFragment.marginX() + newFragment.inkWidth(Measurement.MARGIN));
+      newFragment.posX(Measurement.MARGIN) + newFragment.width(Measurement.MARGIN),
+      newFragment.posX(Measurement.MARGIN) + newFragment.inkWidth(Measurement.MARGIN));
     parentContext.addFragment(newFragment);
     if (
       !relatedConstraint.isPreLayoutConstraint()

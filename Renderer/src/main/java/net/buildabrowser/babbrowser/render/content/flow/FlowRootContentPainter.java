@@ -4,9 +4,11 @@ import static net.buildabrowser.babbrowser.render.layout.StackingContext.startsS
 
 import java.util.List;
 
+import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.PosRefBoxFragment;
@@ -49,8 +51,8 @@ public final class FlowRootContentPainter {
 
         canvas.pushPaint();
         canvas.alterPaint(paint -> paint.incOffset(
-          childFragment.borderX(),
-          childFragment.borderY()));
+          childFragment.posX(Measurement.BORDER),
+          childFragment.posY(Measurement.BORDER)));
         paintBackgroundAndAdvance(canvas, (BoxFragment) childFragment);
         paintFragment(canvas, childFragment, refFragment);
         canvas.popPaint();
@@ -113,12 +115,12 @@ public final class FlowRootContentPainter {
 
       canvas.pushPaint();
       canvas.alterPaint(paint -> {
-        paint.incOffset(childFragment.contentX(), childFragment.contentY());
+        paint.incOffset(childFragment.posX(Measurement.CONTENT), childFragment.posY(Measurement.CONTENT));
         if (parentBox.layoutContext() != null) {
           // TODO: Remove this if once I move some stuff to fixupChildren
           paint.setFont(parentBox.layoutContext().font());
         }
-        paint.setColor(parentBox.activeStyles().textColor());
+        paint.setColor(ActiveStylesUtil.textColor(parentBox.activeStyles()));
       });
       paintFragment(canvas, childFragment, refFragment);
       canvas.popPaint();
@@ -152,9 +154,9 @@ public final class FlowRootContentPainter {
 
       canvas.pushPaint();
       canvas.alterPaint(paint -> {
-        paint.incOffset(childFragment.borderX(), childFragment.borderY());
+        paint.incOffset(childFragment.posX(Measurement.BORDER), childFragment.posY(Measurement.BORDER));
         paint.setFont(parentBox.layoutContext().font());
-        paint.setColor(parentBox.activeStyles().textColor());
+        paint.setColor(ActiveStylesUtil.textColor(parentBox.activeStyles()));
       });
       paintInlineFragment(canvas, childFragment, refFragment);
       canvas.popPaint();
@@ -180,7 +182,7 @@ public final class FlowRootContentPainter {
       if (startsStackingContext(childFragment, refFragment)) continue;
 
       canvas.pushPaint();
-      canvas.alterPaint(paint -> paint.incOffset(childFragment.borderX(), childFragment.borderY()));
+      canvas.alterPaint(paint -> paint.incOffset(childFragment.posX(Measurement.BORDER), childFragment.posY(Measurement.BORDER)));
       paintInlineFragment(canvas, childFragment, refFragment);
       canvas.popPaint();
     }
@@ -194,7 +196,7 @@ public final class FlowRootContentPainter {
       if (startsStackingContext(childFragment, refFragment)) continue;
 
       canvas.pushPaint();
-      canvas.alterPaint(paint -> paint.incOffset(childFragment.borderX(), childFragment.borderY()));
+      canvas.alterPaint(paint -> paint.incOffset(childFragment.posX(Measurement.BORDER), childFragment.posY(Measurement.BORDER)));
       switch (childFragment) {
         case ManagedBoxFragment managedFragment:
           paintBackgroundAndAdvance(canvas, managedFragment);
@@ -214,8 +216,8 @@ public final class FlowRootContentPainter {
     ElementBackgroundPainter.paintBackground(canvas, fragment);
 
     canvas.alterPaint(paint -> paint.incOffset(
-      fragment.contentX() - fragment.borderX(),
-      fragment.contentY() - fragment.borderY()));
+      fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER),
+      fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER)));
   }
 
 }

@@ -22,6 +22,7 @@ import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.test.TestTextBox;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.TextFragment;
@@ -49,8 +50,8 @@ public class FlowFloatTest {
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
-    Assertions.assertEquals(80, layoutResult.dimensionFrag().contentWidth());
-    Assertions.assertEquals(10, layoutResult.dimensionFrag().contentHeight());
+    Assertions.assertEquals(80, layoutResult.dimensionFrag().width(Measurement.CONTENT));
+    Assertions.assertEquals(10, layoutResult.dimensionFrag().height(Measurement.CONTENT));
 
     List<LayoutFragment> expectedFloatFragments = List.of(
       new UnmanagedBoxFragment(0, 0, 25, 10, childBox)
@@ -75,8 +76,8 @@ public class FlowFloatTest {
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
-    Assertions.assertEquals(80, layoutResult.dimensionFrag().contentWidth());
-    Assertions.assertEquals(10, layoutResult.dimensionFrag().contentHeight());
+    Assertions.assertEquals(80, layoutResult.dimensionFrag().width(Measurement.CONTENT));
+    Assertions.assertEquals(10, layoutResult.dimensionFrag().height(Measurement.CONTENT));
 
     List<LayoutFragment> expectedFloatFragments = List.of(
       new UnmanagedBoxFragment(55, 0, 25, 10, childBox)
@@ -112,8 +113,8 @@ public class FlowFloatTest {
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
-    Assertions.assertEquals(80, layoutResult.dimensionFrag().contentWidth());
-    Assertions.assertEquals(30, layoutResult.dimensionFrag().contentHeight());
+    Assertions.assertEquals(80, layoutResult.dimensionFrag().width(Measurement.CONTENT));
+    Assertions.assertEquals(30, layoutResult.dimensionFrag().height(Measurement.CONTENT));
 
     List<LayoutFragment> expectedFloatFragments = List.of(
       new UnmanagedBoxFragment(0, 10, 25, 10, childBox2)
@@ -146,8 +147,8 @@ public class FlowFloatTest {
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
-    Assertions.assertEquals(80, layoutResult.dimensionFrag().contentWidth());
-    Assertions.assertEquals(30, layoutResult.dimensionFrag().contentHeight());
+    Assertions.assertEquals(80, layoutResult.dimensionFrag().width(Measurement.CONTENT));
+    Assertions.assertEquals(30, layoutResult.dimensionFrag().height(Measurement.CONTENT));
 
     List<LayoutFragment> expectedFloatFragments = List.of(
       new UnmanagedBoxFragment(55, 10, 25, 10, childBox2)
@@ -173,8 +174,8 @@ public class FlowFloatTest {
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
-    Assertions.assertEquals(80, layoutResult.dimensionFrag().contentWidth());
-    Assertions.assertEquals(15, layoutResult.dimensionFrag().contentHeight());
+    Assertions.assertEquals(80, layoutResult.dimensionFrag().width(Measurement.CONTENT));
+    Assertions.assertEquals(15, layoutResult.dimensionFrag().height(Measurement.CONTENT));
 
     List<LayoutFragment> expectedFloatFragments = List.of(
       new UnmanagedBoxFragment(0, 0, 5, 15, childBox)
@@ -208,8 +209,8 @@ public class FlowFloatTest {
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
-    Assertions.assertEquals(80, layoutResult.dimensionFrag().contentWidth());
-    Assertions.assertEquals(15, layoutResult.dimensionFrag().contentHeight());
+    Assertions.assertEquals(80, layoutResult.dimensionFrag().width(Measurement.CONTENT));
+    Assertions.assertEquals(15, layoutResult.dimensionFrag().height(Measurement.CONTENT));
 
     List<LayoutFragment> expectedFloatFragments = List.of(
       new UnmanagedBoxFragment(0, 0, 5, 15, childBox1),
@@ -246,8 +247,8 @@ public class FlowFloatTest {
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
-    Assertions.assertEquals(80, layoutResult.dimensionFrag().contentWidth());
-    Assertions.assertEquals(30, layoutResult.dimensionFrag().contentHeight());
+    Assertions.assertEquals(80, layoutResult.dimensionFrag().width(Measurement.CONTENT));
+    Assertions.assertEquals(30, layoutResult.dimensionFrag().height(Measurement.CONTENT));
 
     List<LayoutFragment> expectedFloatFragments = List.of(
       new UnmanagedBoxFragment(0, 0, 25, 15, childBox1),
@@ -290,8 +291,8 @@ public class FlowFloatTest {
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
-    Assertions.assertEquals(80, layoutResult.dimensionFrag().contentWidth());
-    Assertions.assertEquals(30, layoutResult.dimensionFrag().contentHeight());
+    Assertions.assertEquals(80, layoutResult.dimensionFrag().width(Measurement.CONTENT));
+    Assertions.assertEquals(30, layoutResult.dimensionFrag().height(Measurement.CONTENT));
 
     List<LayoutFragment> expectedFloatFragments = List.of(
       new UnmanagedBoxFragment(0, 0, 15, 15, childBox1)
@@ -324,8 +325,8 @@ public class FlowFloatTest {
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
-    Assertions.assertEquals(80, layoutResult.dimensionFrag().contentWidth());
-    Assertions.assertEquals(30, layoutResult.dimensionFrag().contentHeight());
+    Assertions.assertEquals(80, layoutResult.dimensionFrag().width(Measurement.CONTENT));
+    Assertions.assertEquals(30, layoutResult.dimensionFrag().height(Measurement.CONTENT));
 
     List<LayoutFragment> expectedFloatFragments = List.of(
       new UnmanagedBoxFragment(65, 0, 15, 15, childBox1)

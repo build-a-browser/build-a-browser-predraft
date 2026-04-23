@@ -1,8 +1,6 @@
 package net.buildabrowser.babbrowser.render.content.flow;
 
-import java.util.Deque;
-import java.util.LinkedList;
-
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignValue;
@@ -16,6 +14,7 @@ import net.buildabrowser.babbrowser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
@@ -33,15 +32,17 @@ import net.buildabrowser.babbrowser.render.layout.LayoutContext;
 
 public class FlowInlineLayout {
 
-  private final Deque<InlineFormattingContext> inlineStack = new LinkedList<>();
   private final FlowRootContent rootContent;
+
+  // Is a stack
+  private InlineFormattingContext activeInlineContext;
 
   public FlowInlineLayout(FlowRootContent rootContent) {
     this.rootContent = rootContent;
   }
 
   public void reset() {
-    inlineStack.clear();
+    this.activeInlineContext = null;
   }
 
   public void stopInline(
@@ -50,20 +51,23 @@ public class FlowInlineLayout {
     ActiveStyles parentStyles
   ) {
     LineWhitespaceCollapser.collapseWhitespace(
-      inlineStack.peek().stagingArea(),
+      activeInlineContext.stagingArea(),
       (WhitespaceCollapseValue) parentStyles.getProperty(CSSProperty.WHITE_SPACE_COLLAPSE));
     addStagedElements(widthConstraint, heightConstraint);
-    inlineStack.pop().closeLine();
+    activeInlineContext.closeLine();
+    activeInlineContext = activeInlineContext.next();
   }
 
   public void startInline(ActiveStyles parentStyles, LayoutConstraint widthConstraint) {
-    inlineStack.push(new InlineFormattingContext(rootContent, widthConstraint, parentStyles));
+    activeInlineContext = IntrusiveList.push(
+      activeInlineContext,
+      new InlineFormattingContext(rootContent, widthConstraint, parentStyles));
   }
 
   // #region Staging
 
   public void stageInline(LayoutContext parentContext, Box box) {
-    InlineStagingArea stagingArea = inlineStack.peek().stagingArea();
+    InlineStagingArea stagingArea = activeInlineContext.stagingArea();
     if (box instanceof TextBox textBox) {
       stagingArea.pushStagedElement(new StagedText(parentContext, textBox, textBox.text()));
     } else if (box instanceof ElementBox elementBox) {
@@ -99,9 +103,9 @@ public class FlowInlineLayout {
 
   // TODO: Handle float clear?
   private void addStagedElements(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
-    InlineStagingArea stagingArea = inlineStack.peek().stagingArea();
+    InlineStagingArea stagingArea = activeInlineContext.stagingArea();
     stagingArea.resetCursor();
-    ActiveStyles parentStyles = inlineStack.peek().activeStyles();
+    ActiveStyles parentStyles = activeInlineContext.activeStyles();
     while (!stagingArea.done()) {
       switch (stagingArea.next()) {
         case StagedText stagedText -> addTextToInline(stagedText.layoutContext(), parentStyles, stagedText);
@@ -114,14 +118,13 @@ public class FlowInlineLayout {
               stagedUnmanagedBox.elementBox(), widthConstraint, heightConstraint);
           } else {
             LayoutFragment newFragment = PositionLayout.layout(stagedUnmanagedBox.elementBox());
-            InlineFormattingContext parentContext = inlineStack.peek();
-            parentContext.addFragment(newFragment);
+            activeInlineContext.addFragment(newFragment);
           }
         }
         case StagedBlockLevelBox stagedBlockLevelBox -> addBlockLevelToInline(
           stagedBlockLevelBox.elementBox(), widthConstraint, heightConstraint);
-        case ManagedBoxEntryMarker marker -> inlineStack.peek().pushElement(marker.elementBox());
-        case ManagedBoxExitMarker _ -> inlineStack.peek().popElement();
+        case ManagedBoxEntryMarker marker -> activeInlineContext.pushElement(marker.elementBox());
+        case ManagedBoxExitMarker _ -> activeInlineContext.popElement();
         default -> throw new UnsupportedOperationException("Unknown staging element type");
       }
     }
@@ -134,14 +137,13 @@ public class FlowInlineLayout {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    InlineFormattingContext inlineContext = inlineStack.peek();
     UnmanagedBoxFragment floatFragment = FloatLayout.renderFloat(
       elementBox, widthConstraint, heightConstraint);
     boolean fitsInLine = FloatLayout.addFloat(
-      rootContent, floatFragment, widthConstraint, heightConstraint, inlineContext.lineBox().totalWidth());
+      rootContent, floatFragment, widthConstraint, heightConstraint, activeInlineContext.lineBox().totalWidth());
     if (fitsInLine) return;
 
-    inlineContext.nextLine();
+    activeInlineContext.nextLine();
     FloatLayout.addFloat(rootContent, floatFragment, widthConstraint, heightConstraint, 0);
   }
 
@@ -150,7 +152,7 @@ public class FlowInlineLayout {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    inlineStack.peek().nextLine();
+    activeInlineContext.nextLine();
     rootContent.blockLayout().addToBlock(
       elementBox, widthConstraint, heightConstraint);
     rootContent.blockLayout().activeContext().collapse();
@@ -180,11 +182,10 @@ public class FlowInlineLayout {
         childBox) :
       childBox.layout(childWidthConstraint, childHeightContraint);
 
-    InlineFormattingContext parentContext = inlineStack.peek();
-    if (!parentContext.fits(newFragment.marginWidth(), true)) {
-      parentContext.nextLine();
+    if (!activeInlineContext.fits(newFragment.width(Measurement.MARGIN), true)) {
+      activeInlineContext.nextLine();
     }
-    parentContext.addFragment(newFragment);
+    activeInlineContext.addFragment(newFragment);
   }
 
   private void addTextToInline(
@@ -194,11 +195,11 @@ public class FlowInlineLayout {
     if (text.isEmpty()) return;
 
     boolean autoWrap = parentStyles.getProperty(CSSProperty.TEXT_WRAP_MODE).equals(TextWrapModeValue.WRAP);
-    FlowTextLayout.layoutText(layoutContext, stagedText, inlineStack.peek(), autoWrap);
+    FlowTextLayout.layoutText(layoutContext, stagedText, activeInlineContext, autoWrap);
   }
 
   private void addBreakToInline(LayoutContext layoutContext) {
-    InlineFormattingContext inlineContext = inlineStack.peek();
+    InlineFormattingContext inlineContext = activeInlineContext;
     if (inlineContext.lineBox().totalHeight() == 0) {
       inlineContext.lineBox().appendText("\u200B", 0, layoutContext.font().metrics().height());
     }
@@ -218,7 +219,7 @@ public class FlowInlineLayout {
       alignFragment(
         lineStyles, startPos,
         rootContent.floatTracker().lineEndPos(inlineConstraint),
-        fragment.contentWidth()) :
+        fragment.width(Measurement.CONTENT)) :
       startPos;
     rootContent.blockLayout().addFinishedFragment(
       fragment, inlineOffset, inlineConstraint);
@@ -236,13 +237,13 @@ public class FlowInlineLayout {
       nextChild = nextChild.next();
 
       child.setPos(0, 0); // Cheat to disable unset X assertions for next line
-      float marginX = child.borderX() - child.marginX();
+      float marginX = child.posX(Measurement.BORDER) - child.posX(Measurement.MARGIN);
       // TODO: Is this the correct way to compute vertical positioning?
-      float marginY = child.borderY() - child.marginY();
+      float marginY = child.posY(Measurement.BORDER) - child.posY(Measurement.MARGIN);
       child.setPos(x + marginX, marginY);
 
       if (!PositionUtil.affectsLayout(child)) continue;
-      x += child.marginWidth();
+      x += child.width(Measurement.MARGIN);
       if (child instanceof ManagedBoxFragment managedBoxFragment) {
         positionFragmentElements(managedBoxFragment.fragments(), relatedConstraint);
       }

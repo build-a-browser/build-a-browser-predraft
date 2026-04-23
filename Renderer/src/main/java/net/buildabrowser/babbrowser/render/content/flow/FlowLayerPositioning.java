@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.render.content.flow;
 
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.PosRefBoxFragment;
@@ -26,13 +27,13 @@ public final class FlowLayerPositioning {
       layerX, layerY,
       rootFragment, rootBox.stackingContext());
 
-    float offsetX = layerX + (rootFragment.contentX() - rootFragment.borderX());
-    float offsetY = layerY + (rootFragment.contentY() - rootFragment.borderY());
+    float offsetX = layerX + (rootFragment.posX(Measurement.CONTENT) - rootFragment.posX(Measurement.BORDER));
+    float offsetY = layerY + (rootFragment.posY(Measurement.CONTENT) - rootFragment.posY(Measurement.BORDER));
 
     for (LayoutFragment floatFragment: floatTracker.allFloats()) {
       recursePositionLayers(
-        offsetX + floatFragment.borderX(),
-        offsetY + floatFragment.borderY(),
+        offsetX + floatFragment.posX(Measurement.BORDER),
+        offsetY + floatFragment.posY(Measurement.BORDER),
         floatFragment, rootBox.stackingContext());
     }
   }
@@ -62,8 +63,8 @@ public final class FlowLayerPositioning {
     LayoutFragment child = lineBoxFragment.fragments();
     while (child != null) {
       recursePositionLayers(
-        layerX + child.borderX(),
-        layerY + child.borderY(),
+        layerX + child.posX(Measurement.BORDER),
+        layerY + child.posY(Measurement.BORDER),
         child, refContext);
       child = child.next();
     }
@@ -81,14 +82,14 @@ public final class FlowLayerPositioning {
     }
     boxFragment.setLayerPos(layerX, layerY);
 
-    float offsetX = layerX + (fragment.contentX() - fragment.borderX());
-    float offsetY = layerY + (fragment.contentY() - fragment.borderY());
+    float offsetX = layerX + (fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER));
+    float offsetY = layerY + (fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER));
     
     LayoutFragment child = boxFragment.fragments();
     while (child != null) {
       recursePositionLayers(
-        offsetX + child.borderX(),
-        offsetY + child.borderY(),
+        offsetX + child.posX(Measurement.BORDER),
+        offsetY + child.posY(Measurement.BORDER),
         child, refContext);
       child = child.next();
     }

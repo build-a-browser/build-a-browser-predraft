@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.render.content.flexbox;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
 public class FlexCrossAlignment {
@@ -88,11 +89,11 @@ public class FlexCrossAlignment {
       // TODO: Handle auto margin
       float[] margin = item.box().dimensions().getComputedMargin();
       if (isVertical) {
-        float newX = item.fragment().borderX() + startPos;
-        item.fragment().setPos(newX + margin[2], item.fragment().borderY());
+        float newX = item.fragment().posX(Measurement.BORDER) + startPos;
+        item.fragment().setPos(newX + margin[2], item.fragment().posY(Measurement.BORDER));
       } else {
-        float newY = item.fragment().borderY() + startPos;
-        item.fragment().setPos(item.fragment().borderX(), newY + margin[0]);
+        float newY = item.fragment().posY(Measurement.BORDER) + startPos;
+        item.fragment().setPos(item.fragment().posX(Measurement.BORDER), newY + margin[0]);
       }
     }
   }

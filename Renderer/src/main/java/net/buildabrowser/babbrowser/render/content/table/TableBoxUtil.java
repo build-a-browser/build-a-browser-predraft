@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.render.content.table;
 
+import static net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil.outerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
@@ -14,14 +15,14 @@ public final class TableBoxUtil {
   public static boolean isTableNonRoot(ElementBox elementBox) {
     return
       isProperTableChild(elementBox)
-      || elementBox.activeStyles().outerDisplayValue().equals(OuterDisplayValue.TABLE_CELL);
+      || outerDisplayValue(elementBox.activeStyles()).equals(OuterDisplayValue.TABLE_CELL);
   }
 
   public static boolean isProperTableChild(ElementBox elementBox) {
     return
       isTableTrackGroup(elementBox)
       || isTableTrack(elementBox)
-      || elementBox.activeStyles().outerDisplayValue()
+      || outerDisplayValue(elementBox.activeStyles())
         .equals(OuterDisplayValue.TABLE_CAPTION);
   }
 
@@ -32,40 +33,40 @@ public final class TableBoxUtil {
 
   public static boolean isColumnGroup(Box currentElement) {
     if (!(currentElement instanceof ElementBox elementBox)) return false;
-    OuterDisplayValue displayValue = elementBox.activeStyles().outerDisplayValue();
+    OuterDisplayValue displayValue = outerDisplayValue(elementBox.activeStyles());
     return displayValue.equals(OuterDisplayValue.TABLE_COLUMN_GROUP);
   }
 
   public static boolean isTableRow(Box currentElement) {
     if (!(currentElement instanceof ElementBox elementBox)) return false;
-    OuterDisplayValue displayValue = elementBox.activeStyles().outerDisplayValue();
+    OuterDisplayValue displayValue = outerDisplayValue(elementBox.activeStyles());
     return displayValue.equals(OuterDisplayValue.TABLE_ROW);
   }
 
   public static boolean isTableCell(Box currentElement) {
     if (!(currentElement instanceof ElementBox elementBox)) return false;
-    OuterDisplayValue displayValue = elementBox.activeStyles().outerDisplayValue();
+    OuterDisplayValue displayValue = outerDisplayValue(elementBox.activeStyles());
     return displayValue.equals(OuterDisplayValue.TABLE_CELL);
   }
 
   public static boolean isTableRowGroup(Box currentElement) {
     if (!(currentElement instanceof ElementBox elementBox)) return false;
-    OuterDisplayValue displayValue = elementBox.activeStyles().outerDisplayValue();
+    OuterDisplayValue displayValue = outerDisplayValue(elementBox.activeStyles());
     return displayValue.equals(OuterDisplayValue.TABLE_ROW_GROUP);
   }
 
   private static boolean isTableTrack(ElementBox elementBox) {
-    OuterDisplayValue outerDisplayValue = elementBox.activeStyles().outerDisplayValue();
+    OuterDisplayValue displayValue = outerDisplayValue(elementBox.activeStyles());
     return
-      outerDisplayValue.equals(OuterDisplayValue.TABLE_ROW)
-      || outerDisplayValue.equals(OuterDisplayValue.TABLE_COLUMN);
+      displayValue.equals(OuterDisplayValue.TABLE_ROW)
+      || displayValue.equals(OuterDisplayValue.TABLE_COLUMN);
   }
 
   private static boolean isTableTrackGroup(ElementBox elementBox) {
-    OuterDisplayValue outerDisplayValue = elementBox.activeStyles().outerDisplayValue();
+    OuterDisplayValue displayValue = outerDisplayValue(elementBox.activeStyles());
     return
-      outerDisplayValue.equals(OuterDisplayValue.TABLE_ROW_GROUP)
-      || outerDisplayValue.equals(OuterDisplayValue.TABLE_COLUMN_GROUP);
+      displayValue.equals(OuterDisplayValue.TABLE_ROW_GROUP)
+      || displayValue.equals(OuterDisplayValue.TABLE_COLUMN_GROUP);
   }
 
 }

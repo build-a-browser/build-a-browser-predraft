@@ -16,6 +16,7 @@ import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFragment;
 
 public class FlowPositionTest {
@@ -36,10 +37,10 @@ public class FlowPositionTest {
     LayoutFragment actualFragment = doLayout(parentBox);
 
     LayoutFragment innerFragment = ((ManagedBoxFragment) actualFragment).fragments().get(0);
-    Assertions.assertEquals(25, innerFragment.contentWidth());
-    Assertions.assertEquals(25, innerFragment.contentHeight());
-    Assertions.assertEquals(0, innerFragment.contentX());
-    Assertions.assertEquals(0, innerFragment.contentY());
+    Assertions.assertEquals(25, innerFragment.width(Measurement.CONTENT));
+    Assertions.assertEquals(25, innerFragment.height(Measurement.CONTENT));
+    Assertions.assertEquals(0, innerFragment.posX(Measurement.CONTENT));
+    Assertions.assertEquals(0, innerFragment.posY(Measurement.CONTENT));
     // TODO: Test the generated layer pos?
     // Assertions.assertEquals(15, innerFragment.paintOffsetX());
     // Assertions.assertEquals(10, innerFragment.paintOffsetY());

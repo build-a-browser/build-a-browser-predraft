@@ -111,7 +111,7 @@ public class AttributeOneOfSelectorMatcher implements SimpleSelectorMatcher<Attr
     if (!(node instanceof Element element)) return;
 
     for (Map.Entry<String, Map<String, RefCounted<ElementSet>>> attrAndMap: matchingElements.entrySet()) {
-      String attrValue = element.attributes().get(attrAndMap.getKey());
+      String attrValue = element.getAttribute(attrAndMap.getKey());
       if (attrValue == null) continue;
 
       for (String value: attrValue.split(" ")) {
@@ -137,7 +137,7 @@ public class AttributeOneOfSelectorMatcher implements SimpleSelectorMatcher<Attr
 
   private boolean matches(Element element, AttributeSelector ref) {
     if (!ref.type().equals(AttributeType.ONE_OF)) return false;
-    String attrValue = element.attributes().get(ref.attrName());
+    String attrValue = element.getAttribute(ref.attrName());
     if (attrValue == null) return false;
     
     return contains(attrValue.split(" "), ref.attrValue());

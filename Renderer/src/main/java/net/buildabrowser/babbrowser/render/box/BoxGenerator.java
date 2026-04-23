@@ -9,8 +9,10 @@ public interface BoxGenerator {
   
   List<Box> box(Box parentBox, Node node);
 
+  void fixup(Box box);
+
   static BoxGenerator create() {
     return new BoxGeneratorImp();
-  };
+  }
 
 }

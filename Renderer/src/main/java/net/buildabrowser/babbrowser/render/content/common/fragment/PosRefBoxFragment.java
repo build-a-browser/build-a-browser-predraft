@@ -11,7 +11,7 @@ import net.buildabrowser.babbrowser.render.paint.UnreachableBoxPainter;
 public class PosRefBoxFragment extends BoxFragment {
 
   public PosRefBoxFragment(ElementBox refBox) {
-    super(0, 0, 0, 0, refBox, new UnreachableBoxPainter());
+    super(0, 0, 0, 0, refBox, UnreachableBoxPainter.create(refBox.element()));
   }
 
   public PositionValue position() {
@@ -20,7 +20,7 @@ public class PosRefBoxFragment extends BoxFragment {
 
   @Override
   public String toString() {
-    return "[PosRefBoxFragment size=[" + contentWidth() + "x" + contentHeight() + "]]";
+    return "[PosRefBoxFragment size=[" + width(Measurement.CONTENT) + "x" + height(Measurement.CONTENT) + "]]";
   }
 
 }

@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.render.composite.imp.scroll;
+package net.buildabrowser.babbrowser.render.content.scroll;
 
 public class ScrollBarState {
 

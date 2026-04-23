@@ -16,7 +16,7 @@ public interface LinkProcessor {
   void fetchAndProcessLinkedResource(LinkElement element, FetchEngine fetchEngine);
 
   static void processLink(LinkElement element, FetchEngine fetchEngine) {
-    String rel = element.attributes().get("rel");
+    String rel = element.getAttribute("rel");
     if (rel == null) return;
     for (String processorName: rel.split(" ")) {
       LinkProcessor processor = PROCESSORS.get(processorName);

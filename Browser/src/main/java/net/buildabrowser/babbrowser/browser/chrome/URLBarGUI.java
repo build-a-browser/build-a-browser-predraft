@@ -70,7 +70,16 @@ public class URLBarGUI extends JPanel implements TabMutationEventListener {
     URI uri = CommonUtil.tryOrNull(() -> URLUtil.createURL(
       // Some websites don't support https, so use http and hope we get redirected
       urlText.contains(":") ? urlText : "http://" + urlText));
-    if (uri == null || !urlText.contains(".") || urlText.contains(" ")) {
+    
+    boolean couldBeDataURL =
+      urlText.startsWith("data:")
+      && urlText.indexOf('/') < urlText.indexOf(',')
+      && urlText.indexOf('/') != -1;
+    if (
+      uri == null
+      || !(urlText.contains(".") || couldBeDataURL)
+      || urlText.contains(" ")
+    ) {
       String searchQuery = URLEncoder.encode(urlText, StandardCharsets.UTF_8);
       String searchURL = String.format(SEARCH_QUERY, searchQuery);
       uri = CommonUtil.rethrow(() -> URLUtil.createURL(searchURL));

@@ -31,7 +31,7 @@ public class UnmanagedBoxFragment extends BoxFragment {
   @Override
   public String toString() {
     return "[UnmanagedBoxFragment pos=["
-      + borderX() + ", " + borderY() + "] size=["
+      + posX(Measurement.BORDER) + ", " + posY(Measurement.BORDER) + "] size=["
       + width(Measurement.CONTENT) + "x" + height(Measurement.CONTENT) + "] inkSize=["
       + inkWidth(Measurement.CONTENT) + "x" + inkHeight(Measurement.CONTENT) + "]]";
   }

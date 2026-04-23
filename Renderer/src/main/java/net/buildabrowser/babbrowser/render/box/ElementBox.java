@@ -51,6 +51,8 @@ public interface ElementBox extends Box {
 
   void update();
 
+  boolean sharesContent(ElementBox elementBox);
+
   default boolean isReplaced() {
     return content().isReplaced();
   }

@@ -3,7 +3,9 @@ package net.buildabrowser.babbrowser.htmlparser.util.tree;
 import static net.buildabrowser.babbrowser.htmlparser.util.tree.TestDocument.testDocument;
 import static net.buildabrowser.babbrowser.htmlparser.util.tree.TestElement.testElement;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 
@@ -64,7 +66,7 @@ public final class TestUtil {
         element.name()));
     }
 
-    Assertions.assertEquals(refElement.attributes(), element.attributes());
+    assertAttributesListMatches(refElement.attributes(), element);
     assertNodeListMatches(refElement.children(), element.childNodes());
   }
 
@@ -84,6 +86,15 @@ public final class TestUtil {
     }
 
     Assertions.assertEquals(refComment.data(), comment.data());
+  }
+
+  private static void assertAttributesListMatches(Map<String, String> attributes, Element element) {
+    Map<String, String> elAttributes = new HashMap<>();
+    for (String attrName: element.getAttributeNames()) {
+      elAttributes.put(attrName, element.getAttribute(attrName));
+    }
+
+    Assertions.assertEquals(attributes, elAttributes);
   }
 
   private static void assertNodeListMatches(List<TestNode> children, NodeList childNodes) {

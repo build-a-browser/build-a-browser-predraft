@@ -43,5 +43,10 @@ public class TestFixedSizeReplacedContent implements BoxContent {
   public EventHandler eventHandler() {
     return null;
   }
+
+  @Override
+  public ElementBox rootBox() {
+    return this.box;
+  }
   
 }

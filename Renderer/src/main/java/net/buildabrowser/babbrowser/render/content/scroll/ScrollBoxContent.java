@@ -1,6 +1,6 @@
-package net.buildabrowser.babbrowser.render.composite.imp.scroll;
+package net.buildabrowser.babbrowser.render.content.scroll;
 
-import static net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollContentPainter.GUTTER_WIDTH;
+import static net.buildabrowser.babbrowser.render.content.scroll.ScrollContentPainter.GUTTER_WIDTH;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -122,6 +122,11 @@ public class ScrollBoxContent implements BoxContent {
     if (!adjustedHeightConstraint.isBounded()) return false;
     if (!overflowY.equals(OverflowValue.AUTO)) return false;
     return adjustedHeightConstraint.value() < innerLayout.inkHeight(Measurement.CONTENT);
+  }
+
+  @Override
+  public ElementBox rootBox() {
+    return this.box;
   }
   
 }

@@ -28,7 +28,8 @@ public class CompositeLayerUtil {
 
   public static boolean hasScrollContent(ElementBox elementBox) {
     return
-      hasScrollContent(elementBox.element())
+      elementBox.element() != null
+      && hasScrollContent(elementBox.element())
       && elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL);
   }
 

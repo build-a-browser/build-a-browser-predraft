@@ -32,7 +32,7 @@ public class ElementContextImp implements ElementContext {
 
   public ElementContextImp(HTMLElement element) {
     this.element = element;
-    updateStyle(element.attributes().get("style"));
+    updateStyle(element.getAttribute("style"));
   }
   
   @Override

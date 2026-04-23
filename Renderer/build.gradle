@@ -26,5 +26,4 @@ dependencies {
     implementation project(':CSSEngine')
 
     implementation "io.github.humbleui:${skijaNatives}:${skijaVersion}"
-    implementation "org.slf4j:slf4j-api:1.7.36"
 }

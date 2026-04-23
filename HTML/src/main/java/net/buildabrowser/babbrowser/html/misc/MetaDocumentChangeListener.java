@@ -22,7 +22,7 @@ public class MetaDocumentChangeListener extends AbstractDocumentChangeListener {
       node instanceof HTMLElement element
       && element.name().equals("meta")
     ) {
-      String httpEquiv = element.attributes().get("http-equiv");
+      String httpEquiv = element.getAttribute("http-equiv");
       if (httpEquiv == null) return;
       switch (httpEquiv) {
         case "refresh" -> handleMetaRefresh(element);
@@ -32,7 +32,7 @@ public class MetaDocumentChangeListener extends AbstractDocumentChangeListener {
   }
 
   private void handleMetaRefresh(HTMLElement element) {
-    String input = element.attributes().get("content");
+    String input = element.getAttribute("content");
     if (input == null || input.isEmpty()) return;
     
     SharedDeclarativeRefreshSteps.run((HTMLDocument) element.nodeDocument(), input);

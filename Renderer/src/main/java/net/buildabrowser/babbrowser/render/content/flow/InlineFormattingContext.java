@@ -3,18 +3,21 @@ package net.buildabrowser.babbrowser.render.content.flow;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.render.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
-public class InlineFormattingContext {
+public class InlineFormattingContext implements IntrusiveList<InlineFormattingContext> {
  
   private final FlowRootContent rootContent;
   private final LayoutConstraint inlineConstraint;
   private final InlineStagingArea stagingArea;
   private final Deque<ActiveStyles> stylesStack;
+
+  private InlineFormattingContext next;
   private LineBox activeLineBox;
 
   public InlineFormattingContext(
@@ -89,6 +92,16 @@ public class InlineFormattingContext {
 
   public ActiveStyles activeStyles() {
     return stylesStack.peek();
+  }
+
+  @Override
+  public InlineFormattingContext next() {
+    return this.next;
+  }
+
+  @Override
+  public void setNext(InlineFormattingContext nextNode) {
+    this.next = nextNode;
   }
 
 }

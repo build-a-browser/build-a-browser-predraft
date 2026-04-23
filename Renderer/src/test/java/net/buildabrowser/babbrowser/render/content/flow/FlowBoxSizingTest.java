@@ -17,6 +17,7 @@ import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 
 public class FlowBoxSizingTest {
  
@@ -36,8 +37,8 @@ public class FlowBoxSizingTest {
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
     LayoutFragment actualFragment = doLayout(parentBox);
-    Assertions.assertEquals(40, actualFragment.contentWidth());
-    Assertions.assertEquals(35, actualFragment.contentHeight());
+    Assertions.assertEquals(40, actualFragment.width(Measurement.CONTENT));
+    Assertions.assertEquals(35, actualFragment.height(Measurement.CONTENT));
   }
  
   @Test
@@ -56,8 +57,8 @@ public class FlowBoxSizingTest {
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
     LayoutFragment actualFragment = doLayout(parentBox);
-    Assertions.assertEquals(25, actualFragment.contentWidth());
-    Assertions.assertEquals(25, actualFragment.contentHeight());
+    Assertions.assertEquals(25, actualFragment.width(Measurement.CONTENT));
+    Assertions.assertEquals(25, actualFragment.height(Measurement.CONTENT));
   }
 
   private void setBorderStyles(ActiveStyles childStyles, BorderStyleValue style) {

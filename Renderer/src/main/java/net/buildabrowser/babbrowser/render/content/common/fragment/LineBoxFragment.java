@@ -30,7 +30,7 @@ public class LineBoxFragment extends LayoutFragment {
   @Override
   public String toString() {
     StringBuilder textBuilder = new StringBuilder();
-    textBuilder.append("[LineBoxFragment pos=[" + borderX() + ", " + borderY() + "] size=[" + contentWidth() + "x" + contentHeight() + "]]");
+    textBuilder.append("[LineBoxFragment pos=[" + posX(Measurement.BORDER) + ", " + posY(Measurement.BORDER) + "] size=[" + width(Measurement.CONTENT) + "x" + height(Measurement.CONTENT) + "]]");
     
     IntrusiveList<LayoutFragment> curNode = fragments;
     while (curNode != null) {

@@ -5,10 +5,10 @@ import java.util.ListIterator;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollBox;
-import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.render.content.scroll.ScrollBox;
+import net.buildabrowser.babbrowser.render.content.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.render.event.EventContext;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.event.EventHandler.EventHandlerResponse;

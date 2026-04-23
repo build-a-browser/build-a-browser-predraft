@@ -1,8 +1,8 @@
-package net.buildabrowser.babbrowser.render.composite.imp.scroll;
+package net.buildabrowser.babbrowser.render.content.scroll;
 
 
-import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollMath.ScrollMathResult;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.render.content.scroll.ScrollMath.ScrollMathResult;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
 
 public class ScrollBoxFragment extends UnmanagedBoxFragment {
@@ -53,7 +53,7 @@ public class ScrollBoxFragment extends UnmanagedBoxFragment {
   @Override
   public String toString() {
     return "[ScrollBoxFragment pos=["
-      + borderX() + ", " + borderY() + "] size=["
+      + posX(Measurement.BORDER) + ", " + posY(Measurement.BORDER) + "] size=["
       + width(Measurement.CONTENT) + "x" + height(Measurement.CONTENT) + "] inkSize=["
       + inkWidth(Measurement.CONTENT) + "x" + inkHeight(Measurement.CONTENT) + "] innerFragment=["
       + innerFragment + "]]";

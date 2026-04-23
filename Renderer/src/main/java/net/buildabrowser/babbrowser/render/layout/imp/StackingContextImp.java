@@ -14,10 +14,10 @@ import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayerEntry;
-import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.position.PositionUtil;
+import net.buildabrowser.babbrowser.render.content.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
 
 // TODO: Some of the positioning code here is quite hacky
@@ -190,7 +190,7 @@ public class StackingContextImp implements StackingContext {
     }
     BoxFragment refFragment = elementBox.positioningFragment();
     return PositionUtil.computeRelativeInsets(
-      refFragment.contentWidth(), refFragment.contentHeight(), relatedBox);
+      refFragment.width(Measurement.CONTENT), refFragment.height(Measurement.CONTENT), relatedBox);
   }
 
   private float[] determineAbsoluteInsets() {

@@ -6,6 +6,7 @@ import java.util.List;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.SizingHeightUtil;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
@@ -75,6 +76,11 @@ public class TableContent implements BoxContent {
     return EVENT_HANDLER;
   }
 
+  @Override
+  public ElementBox rootBox() {
+    return this.rootBox;
+  }
+
   public SizedTable sizedTable() {
     return this.sizedTable;
   }
@@ -95,7 +101,7 @@ public class TableContent implements BoxContent {
 
           float usedHeight = fragmentHeight.isBounded() ?
             fragmentHeight.value() :
-            cell.getRelatedFragment().contentHeight();
+            cell.getRelatedFragment().height(Measurement.CONTENT);
           // cell.height() > 1 is technically unspecified behaviour
           float itemHeight = usedHeight / cell.height();
           rowHeights[y] = Math.max(rowHeights[y], itemHeight);

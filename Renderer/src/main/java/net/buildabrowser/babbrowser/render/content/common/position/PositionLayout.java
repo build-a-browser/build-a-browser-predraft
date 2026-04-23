@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.render.content.common.SizingWidthUtil;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
@@ -77,10 +78,10 @@ public final class PositionLayout {
 
     float leftPos = positionAbsoluteAxis(
       leftInsetIsAuto, rightInsetIsAuto, insets, 2,
-      computedFragment.borderWidth(), refWidth);
+      computedFragment.width(Measurement.BORDER), refWidth);
     float topPos = positionAbsoluteAxis(
       topInsetIsAuto, bottomInsetIsAuto, insets, 0,
-      computedFragment.borderHeight(), refHeight);
+      computedFragment.height(Measurement.BORDER), refHeight);
 
     return new float[] { leftPos, topPos };
   }

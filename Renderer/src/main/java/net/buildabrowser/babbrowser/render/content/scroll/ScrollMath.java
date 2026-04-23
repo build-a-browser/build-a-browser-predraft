@@ -1,9 +1,10 @@
-package net.buildabrowser.babbrowser.render.composite.imp.scroll;
-
-import static net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollContentPainter.GUTTER_WIDTH;
-import static net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollContentPainter.MIN_SCROLLBAR_HEIGHT;
+package net.buildabrowser.babbrowser.render.content.scroll;
 
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
+
+import static net.buildabrowser.babbrowser.render.content.scroll.ScrollContentPainter.GUTTER_WIDTH;
+import static net.buildabrowser.babbrowser.render.content.scroll.ScrollContentPainter.MIN_SCROLLBAR_HEIGHT;
+
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 
 public final class ScrollMath {
@@ -16,8 +17,8 @@ public final class ScrollMath {
 
     float trackHeightReduction = scrollBoxFragment.hasHorizontalScroll() && scrollBoxFragment.hasVerticalScroll() ? 16 : 0;
     float trackSize = scrollBoxFragment.width(Measurement.CONTENT) - trackHeightReduction;
-    float trackX = scrollBoxFragment.contentX();
-    float trackY = scrollBoxFragment.contentY() + scrollBoxFragment.height(Measurement.CONTENT) - GUTTER_WIDTH;
+    float trackX = scrollBoxFragment.posX(Measurement.CONTENT);
+    float trackY = scrollBoxFragment.posY(Measurement.CONTENT) + scrollBoxFragment.height(Measurement.CONTENT) - GUTTER_WIDTH;
     float scrollerSize = trackSize / innerFragment.inkWidth(Measurement.CONTENT) * trackSize;
 
     float reducedTrackHeight = trackSize;
@@ -40,8 +41,8 @@ public final class ScrollMath {
 
     float trackHeightReduction = scrollBoxFragment.hasHorizontalScroll() && scrollBoxFragment.hasVerticalScroll() ? 16 : 0;
     float trackSize = scrollBoxFragment.height(Measurement.CONTENT) - trackHeightReduction;
-    float trackX = scrollBoxFragment.contentX() + scrollBoxFragment.width(Measurement.CONTENT) - GUTTER_WIDTH;
-    float trackY = scrollBoxFragment.contentY();
+    float trackX = scrollBoxFragment.posX(Measurement.CONTENT) + scrollBoxFragment.width(Measurement.CONTENT) - GUTTER_WIDTH;
+    float trackY = scrollBoxFragment.posY(Measurement.CONTENT);
     float scrollerSize = trackSize / innerFragment.inkHeight(Measurement.CONTENT) * trackSize;
 
     float reducedTrackHeight = trackSize;

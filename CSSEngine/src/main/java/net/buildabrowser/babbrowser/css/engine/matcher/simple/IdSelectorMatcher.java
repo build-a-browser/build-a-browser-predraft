@@ -34,7 +34,7 @@ public class IdSelectorMatcher implements SimpleSelectorMatcher<IdSelector> {
   @Override
   public void onNodeAdded(Node node) {
     if (!(node instanceof Element element)) return;
-    String id = element.attributes().get("id");
+    String id = element.getAttribute("id");
     if (id == null) return;
     Element newElement = idElements.put(id, element);
     if (newElement != element) {
@@ -45,7 +45,7 @@ public class IdSelectorMatcher implements SimpleSelectorMatcher<IdSelector> {
   @Override
   public void onNodeRemoved(Node node) {
     if (!(node instanceof Element element)) return;
-    String id = element.attributes().get("id");
+    String id = element.getAttribute("id");
     if (id == null) return;
     Element oldEntry = idElements.remove(id);
     if (oldEntry != null) {

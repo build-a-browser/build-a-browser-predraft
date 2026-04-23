@@ -254,6 +254,7 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
     for (Node childNode: document.childNodes()) {
       if (!(childNode instanceof Element)) continue;
       child = boxGenerator.box(documentBox, childNode).get(0);
+      boxGenerator.fixup(child);
     }
     if (child == null) return;
     documentBox.setChild((ElementBox) child);

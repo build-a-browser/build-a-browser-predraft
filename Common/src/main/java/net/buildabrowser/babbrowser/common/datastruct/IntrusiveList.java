@@ -40,6 +40,11 @@ public interface IntrusiveList<T extends IntrusiveList<T>> {
     return list;
   }
 
+  public static <T extends IntrusiveList<T>> T push(T list, T item) {
+    item.setNext(list);
+    return item;
+  }
+
   // TODO: Return
   public static <T extends IntrusiveList<T>> T replace(T list, int i, T item) {
     if (i == 0) {

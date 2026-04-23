@@ -22,7 +22,7 @@ public final class NavUtil {
 
     // TODO: Proper way to parse a URL
     URI urlRecord = CommonUtil.tryOrNull(() -> subject.nodeDocument().url().resolve(
-      subject.attributes().get("href")));
+      subject.getAttribute("href")));
     if (urlRecord == null) return;
     
     // TODO: Noopener
