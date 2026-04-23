@@ -34,7 +34,7 @@ public class FetchBackendImp implements FetchBackend {
   public void makeRequest(
     MutableFetchResponse response,
     FetchRequest request,
-    Consumer<Optional<byte[]>> byteConsumer
+    Consumer<Optional<ByteBuffer>> byteConsumer
   ) {
     // TODO: Include the headers
     HttpRequest httpRequest = HttpRequest.newBuilder(request.currentURL())
@@ -55,15 +55,8 @@ public class FetchBackendImp implements FetchBackend {
       appendResponseHeaders(response, responseInfo);
 
       List<String> codings = response.headerList().extractHeaderListValues("Content-Encoding");
-      ContentDecoder decoder = CommonUtil.rethrow(() -> encodingRegistry.createChainDecoder(codings, buffer -> {
-        if (buffer.hasArray()) {
-          byteConsumer.accept(Optional.of(buffer.array()));
-        } else {
-          byte[] bytes = new byte[buffer.remaining()];
-          buffer.get(bytes);
-          byteConsumer.accept(Optional.of(bytes));
-        }
-      }));
+      ContentDecoder decoder = CommonUtil.rethrow(() -> encodingRegistry.createChainDecoder(codings,
+        buffer -> byteConsumer.accept(Optional.of(buffer))));
       // TODO: Other parts of Fetch, maybe move this to the Fetch module
       
       // TODO: I don't think I'm really supposed to put it on the fetch queue until it's actually inside fetch
@@ -81,7 +74,7 @@ public class FetchBackendImp implements FetchBackend {
           destination.queueFetchTask(() -> CommonUtil.rethrowV(() -> {
             decoder.done();
             decoder.close();
-            byteConsumer.accept(bytesOpt);
+            byteConsumer.accept(Optional.empty());
           }));
         }
       }).apply(responseInfo);

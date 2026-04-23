@@ -54,7 +54,7 @@ public class OpenElementStackImp implements OpenElementStack {
 
   // TODO: Not really the best place to do this
   private void emitTitleElement(Node node) {
-    HTMLDocument document = (HTMLDocument) node.nodeDocument();
+    if (!(node.nodeDocument() instanceof HTMLDocument document)) return;
     document.setTitleElement((HTMLElement) node);
     DocumentRendererEventListener eventListener = document.renderer().eventListener();
     if (eventListener != null) {

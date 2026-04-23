@@ -171,11 +171,10 @@ public class FlexBoxContent implements BoxContent {
     } else {
       float lineSize = 0;
       for (FlexItem item: flexItems) {
-        // TODO: Must borders be added for the outer size?
         if (
           !activeLine.isEmpty()
           && !mainConstraint.type().equals(LayoutConstraintType.MAX_CONTENT)
-          && lineSize + item.hypotheticalMainSize() > mainConstraint.value()
+          && lineSize + item.outerSize(item.hypotheticalMainSize()) > mainConstraint.value()
         ) {
           lines.add(activeLine);
           lineSize = 0;
@@ -183,7 +182,7 @@ public class FlexBoxContent implements BoxContent {
         }
 
         activeLine.addItem(item);
-        lineSize += item.hypotheticalMainSize() + mainGap;
+        lineSize += item.outerSize(item.hypotheticalMainSize()) + mainGap;
       }
     }
 
@@ -253,7 +252,7 @@ public class FlexBoxContent implements BoxContent {
     float largestLineMain = 0;
     float totalLineCross = 0;
     for (FlexLine line: lines) {
-      largestLineMain = Math.max(line.sumHypotheticalMainSizes(mainGap), totalLineCross);
+      largestLineMain = Math.max(line.sumHypotheticalMainSizes(mainGap), largestLineMain);
       totalLineCross += line.crossSize();
     }
     totalLineCross += crossGap * (lines.size() - 1);

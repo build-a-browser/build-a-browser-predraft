@@ -78,7 +78,7 @@ public class CSSTokenizerImp implements CSSTokenizer {
       ch1 = stream.read();
       // TODO: Will this error if ch1 was -1?
       ch2 = stream.peek();
-      while (ch1 != '*' && ch2 != '/') {
+      while (!(ch1 == '*' && ch2 == '/')) {
         if (ch2 == -1) {
           // TODO: Parse error
           return;

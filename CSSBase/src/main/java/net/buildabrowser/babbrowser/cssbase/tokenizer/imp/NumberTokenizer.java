@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.tokenizer.imp;
 
 import java.io.IOException;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
@@ -77,8 +78,12 @@ public class NumberTokenizer {
     }
 
     Number value = isInteger && repr.toString().toLowerCase().indexOf('e') == -1 ?
-      Integer.valueOf(repr.toString()) :
+      CommonUtil.tryOrNull(() -> Integer.valueOf(repr.toString())) :
       Double.valueOf(repr.toString());
+    if (value == null) {
+      // TODO: Maybe use BigInteger or something
+      value = Double.valueOf(repr.toString());
+    }
 
     return NumberToken.create(value, isInteger);
   }

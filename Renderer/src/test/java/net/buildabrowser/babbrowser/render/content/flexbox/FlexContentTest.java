@@ -309,7 +309,7 @@ public class FlexContentTest {
       new UnmanagedBoxFragment(21 + 15 + 21 + 21 + 25 + 21 + 10, 10, 20, 10, child3)
     );
 
-    FlexTestLayoutResult layoutResult = doLayoutSized(parentBox, 100);
+    FlexTestLayoutResult layoutResult = doLayoutSized(parentBox, 200);
     LayoutFragment actualFragments = layoutResult.childFragments();
     assertFragmentListEquals(expectedFragments, actualFragments);
 

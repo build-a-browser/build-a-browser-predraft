@@ -181,6 +181,9 @@ public class FlowInlineLayout {
       childBox.layout(childWidthConstraint, childHeightContraint);
 
     InlineFormattingContext parentContext = inlineStack.peek();
+    if (!parentContext.fits(newFragment.marginWidth(), true)) {
+      parentContext.nextLine();
+    }
     parentContext.addFragment(newFragment);
   }
 

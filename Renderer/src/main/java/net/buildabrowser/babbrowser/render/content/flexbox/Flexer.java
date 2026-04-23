@@ -17,13 +17,15 @@ public final class Flexer {
     if (!mainSize.isBounded()) return;
     boolean isGrow = flexLine.sumHypotheticalMainSizes(mainGap) < mainSize.value();
     if (isGrow) {
-      growItems(mainSize, flexLine);
+      growItems(mainSize, flexLine, mainGap);
     } else {
-      shrinkItems(mainSize, flexLine);
+      shrinkItems(mainSize, flexLine, mainGap);
     }
   }
 
-  private static void growItems(LayoutConstraint mainSize, FlexLine flexLine) {
+  private static void growItems(
+    LayoutConstraint mainSize, FlexLine flexLine, float mainGap
+  ) {
     for (FlexItem item: flexLine.items()) {
       if (
         item.growFactor() == 0
@@ -34,16 +36,16 @@ public final class Flexer {
       }
     }
 
-    float initialFreeSpace = calculateInitialFreeSpace(mainSize, flexLine);
+    float initialFreeSpace = calculateInitialFreeSpace(mainSize, flexLine, mainGap);
     boolean didFreezeItems;
     do {
-      float remainingGrowFactor = computeRemainingGrowFactor(flexLine);
+      float remainingGrowFactor = computeRemainingFactor(flexLine, true);
       float remainingFreeSpace = calculateRemainingFreeSpace(
-        mainSize, flexLine, initialFreeSpace, remainingGrowFactor);
+        mainSize, flexLine, initialFreeSpace, remainingGrowFactor, mainGap);
       if (remainingFreeSpace != 0) {
         for (FlexItem item: flexLine.items()) {
           if (item.isFrozen()) continue;
-          item.setHypotheticalMainSize(
+          item.setTargetMainSize(
             item.baseSize() + remainingFreeSpace * item.growFactor() / remainingGrowFactor);
         }
       }
@@ -52,7 +54,9 @@ public final class Flexer {
     } while (didFreezeItems);
   }
 
-  private static void shrinkItems(LayoutConstraint mainSize, FlexLine flexLine) {
+  private static void shrinkItems(
+    LayoutConstraint mainSize, FlexLine flexLine, float mainGap
+  ) {
     for (FlexItem item: flexLine.items()) {
       if (
         item.shrinkFactor() == 0
@@ -63,13 +67,13 @@ public final class Flexer {
       }
     }
 
-    float initialFreeSpace = calculateInitialFreeSpace(mainSize, flexLine);
+    float initialFreeSpace = calculateInitialFreeSpace(mainSize, flexLine, mainGap);
 
     boolean didFreezeItems;
     do {
-      float remainingGrowFactor = computeRemainingGrowFactor(flexLine);
+      float remainingShrinkFactor = computeRemainingFactor(flexLine, false);
       float remainingFreeSpace = calculateRemainingFreeSpace(
-        mainSize, flexLine, initialFreeSpace, remainingGrowFactor);
+        mainSize, flexLine, initialFreeSpace, remainingShrinkFactor, mainGap);
       if (remainingFreeSpace != 0) {
         float scaledShrinkFactorSum = 0;
         for (FlexItem item: flexLine.items()) {
@@ -79,7 +83,7 @@ public final class Flexer {
         for (FlexItem item: flexLine.items()) {
           if (item.isFrozen()) continue;
           float scaledShrinkFactor = item.shrinkFactor() * item.baseSize();
-          item.setHypotheticalMainSize(item.baseSize()
+          item.setTargetMainSize(item.baseSize()
             - scaledShrinkFactor / scaledShrinkFactorSum * Math.abs(remainingFreeSpace));
         }
       }
@@ -89,7 +93,6 @@ public final class Flexer {
   }
 
   private static boolean correctViolations(List<FlexItem> items) {
-    // TODO: Actually find and correct violations
     float totalViolation = 0;
     for (FlexItem item: items) {
       if (item.mainSize() < item.minMainSize()) {
@@ -109,7 +112,7 @@ public final class Flexer {
 
       if (item.mainSize() < item.minMainSize()) {
         item.setTargetMainSize(item.minMainSize());
-        if (totalViolation < 0) {
+        if (totalViolation > 0) {
           item.freeze();
         }
       } else if (
@@ -117,7 +120,7 @@ public final class Flexer {
         item.mainSize() > item.maxMainSize()
       ) {
         item.setTargetMainSize(item.maxMainSize());
-        if (totalViolation > 0) {
+        if (totalViolation < 0) {
           item.freeze();
         }
       }
@@ -130,34 +133,38 @@ public final class Flexer {
     return didFreezeItems;
   }
 
-  private static float calculateInitialFreeSpace(LayoutConstraint mainSize, FlexLine flexLine) {
+  private static float calculateInitialFreeSpace(LayoutConstraint mainSize, FlexLine flexLine, float mainGap) {
     float remainingSpace = mainSize.value();
     for (FlexItem item: flexLine.items()) {
       remainingSpace -= item.isFrozen() ?
-        item.mainSize() :
-        item.baseSize();
+        item.outerSize(item.mainSize()) :
+        item.outerSize(item.baseSize());
     }
+    remainingSpace -= mainGap * (flexLine.items().size() - 1);
     
     return remainingSpace;
   }
 
   private static float calculateRemainingFreeSpace(
-    LayoutConstraint mainSize, FlexLine flexLine, float initialSpace, float flexFactorSum
+    LayoutConstraint mainSize, FlexLine flexLine, float initialSpace, float flexFactorSum,
+    float mainGap
   ) {
-    float remainingSpace = calculateInitialFreeSpace(mainSize, flexLine);
+    float remainingSpace = calculateInitialFreeSpace(mainSize, flexLine, mainGap);
 
     if (flexFactorSum >= 1) return remainingSpace;
     return Math.min(remainingSpace, initialSpace * flexFactorSum);
   }
 
-  private static float computeRemainingGrowFactor(FlexLine flexLine) {
-    float remainingGrowFactor = 0;
+  private static float computeRemainingFactor(FlexLine flexLine, boolean isGrow) {
+    float remainingFactor = 0;
     for (FlexItem item: flexLine.items()) {
       if (item.isFrozen()) continue;
-      remainingGrowFactor += item.growFactor();
+      remainingFactor += isGrow ?
+        item.growFactor() :
+        item.shrinkFactor();
     }
 
-    return remainingGrowFactor;
+    return remainingFactor;
   }
 
 }

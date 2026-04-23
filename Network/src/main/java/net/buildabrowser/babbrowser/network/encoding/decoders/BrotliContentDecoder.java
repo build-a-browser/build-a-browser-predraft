@@ -28,20 +28,23 @@ public class BrotliContentDecoder implements ContentDecoder {
 
   @Override
   public void push(ByteBuffer buffer) throws IOException {
-    if (buffer.limit() < BUFFER_SIZE && buffer.hasArray()) {
+    if (buffer.remaining() < BUFFER_SIZE) {
+      int remaining = buffer.remaining();
       decoder.getInputBuffer().clear();
-      decoder.getInputBuffer().put(buffer.array());
-      decoder.push(buffer.limit());
+      decoder.getInputBuffer().put(buffer);
+      decoder.getInputBuffer().flip();
+      decoder.push(remaining);
       emitOutput();
     } else {
-      while (buffer.position() < buffer.limit()) {
-        decoder.getInputBuffer().clear();
+      while (buffer.remaining() > 0) {
         int toPush = Math.min(BUFFER_SIZE, buffer.remaining());
         ByteBuffer subBuffer = buffer.slice(buffer.position(), toPush);
+        buffer.position(buffer.position() + toPush);
+        decoder.getInputBuffer().clear();
         decoder.getInputBuffer().put(subBuffer);
+        decoder.getInputBuffer().flip();
         decoder.push(toPush);
         emitOutput();
-        buffer.position(buffer.position() + toPush);
       }
     }
   }
@@ -65,7 +68,11 @@ public class BrotliContentDecoder implements ContentDecoder {
       || decoder.getStatus().equals(Status.OK)
     ) {
       if (decoder.getStatus().equals(Status.NEEDS_MORE_OUTPUT)) {
-        onChunk.push(decoder.pull());
+        // Yet another point the buffer needs copied. I guess zero-copy buffers just aren't a thing.
+        ByteBuffer result = decoder.pull();
+        ByteBuffer copy = ByteBuffer.allocate(result.limit()).put(result);
+        copy.flip();
+        onChunk.push(copy);
       } else {
         decoder.push(0);
       }

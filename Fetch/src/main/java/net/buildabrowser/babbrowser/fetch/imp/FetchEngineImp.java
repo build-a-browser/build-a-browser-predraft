@@ -261,19 +261,22 @@ public class FetchEngineImp implements FetchEngine {
           bsController.close();
           return;
         }
-        byte[] bytes = bytesOpt.get();
+        ByteBuffer bytes = bytesOpt.get();
 
-        int readPos = 0;
+        int readLen = 0;
         if (bsController.byobRequest() != null) {
           ReadableStreamBYOBRequest byobRequest = bsController.byobRequest();
           ByteBuffer view = byobRequest.view();
-          readPos = Math.min(bytes.length, view.limit());
-          view.put(bytes, 0, readPos);
-          bsController.byobRequest().respond(readPos);
+          readLen = Math.min(bytes.remaining(), view.remaining());
+          view.put(bytes.slice(bytes.position(), readLen));
+          view.flip();
+          bytes.position(bytes.position() + readLen);
+          bsController.byobRequest().respond(readLen);
         }
 
-        if (readPos < bytes.length) {
-          bsController.enqueue(ByteBuffer.wrap(bytes, readPos, bytes.length - readPos));
+        if (bytes.remaining() > 0) {
+          bsController.enqueue(bytes.slice(bytes.position(), bytes.remaining()));
+          bytes.position(bytes.limit());
         }
 
         if (pullPromise.item != null) {

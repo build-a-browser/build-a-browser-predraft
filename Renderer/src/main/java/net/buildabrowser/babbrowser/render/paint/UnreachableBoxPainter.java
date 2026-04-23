@@ -1,10 +1,15 @@
 package net.buildabrowser.babbrowser.render.paint;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 
 public class UnreachableBoxPainter implements BoxPainter {
   
+  private static Logger LOGGER = LoggerFactory.getLogger(UnreachableBoxPainter.class);
+
   private Exception reachException;
 
   public UnreachableBoxPainter() {
@@ -17,12 +22,17 @@ public class UnreachableBoxPainter implements BoxPainter {
 
   @Override
   public void paint(BoxFragment fragment, PaintCanvas canvas) {
-    throw new IllegalStateException("This method should be unreachable!", reachException);
+    assert false : "This method should be unreachable!";
+    if (this.reachException != null) {
+      LOGGER.error("This method should be unreachable!", new Exception());
+      LOGGER.error("Unreachable Painter Source", reachException);
+      this.reachException = null;
+    }
   }
 
   @Override
   public void paintBackground(BoxFragment fragment, PaintCanvas canvas) {
-    throw new IllegalStateException("This method should be unreachable!", reachException);
+    paint(fragment, canvas);
   }
   
 }

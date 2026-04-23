@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexGrowValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexShrinkValue;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.render.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
@@ -26,6 +27,7 @@ public class FlexItem {
   private Float maxMainSize;
   private float usedCrossSize;
   private boolean isFrozen;
+  private boolean isVertical;
 
   public FlexItem(ElementBox itemBox) {
     this.itemBox = itemBox;
@@ -40,6 +42,8 @@ public class FlexItem {
   }
 
   public void computeMinMaxSizes(LayoutConstraint refMainSize, boolean isVertical) {
+    this.isVertical = isVertical;
+
     ActiveStyles activeStyles = itemBox.activeStyles();
     CSSValue minSizeValue = isVertical ?
       activeStyles.getProperty(CSSProperty.MIN_HEIGHT) :
@@ -117,7 +121,6 @@ public class FlexItem {
 
   public void freeze() {
     this.isFrozen = true;
-    this.mainSize = hypotheticalMainSize;
   }
   
   public boolean isFrozen() {
@@ -138,6 +141,16 @@ public class FlexItem {
 
   public UnmanagedBoxFragment fragment() {
     return this.boxFragment;
+  }
+
+  public float outerSize(float innerSize) {
+    ElementBoxDimensions dimensions = itemBox.dimensions();
+    float[] margin = dimensions.getComputedMargin();
+    float[] border = dimensions.getComputedBorder();
+    float[] padding = dimensions.getComputedPadding();
+    return isVertical ?
+      innerSize + margin[0] + margin[1] + border[0] + border[1] + padding[0] + padding[1] :
+      innerSize + margin[2] + margin[3] + border[2] + border[3] + padding[2] + padding[3];
   }
 
 }

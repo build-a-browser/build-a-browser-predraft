@@ -24,7 +24,7 @@ public class FlexLine {
   public float sumHypotheticalMainSizes(float mainGap) {
     float hypotheticalSum = 0;
     for (FlexItem item: items) {
-      hypotheticalSum += item.hypotheticalMainSize();
+      hypotheticalSum += item.outerSize(item.hypotheticalMainSize());
     }
     hypotheticalSum += mainGap * (items.size() - 1);
     return hypotheticalSum;
