@@ -8,21 +8,28 @@ import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowValue;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.render.context.ElementContext;
 
 public class CompositeLayerUtil {
   
   private CompositeLayerUtil() {}
 
-  public static boolean hasScrollContent(ElementBox box) {
-    ActiveStyles activeStyles = box.activeStyles();
+  public static boolean hasScrollContent(HTMLElement element) {
+    ActiveStyles activeStyles = ((ElementContext) element.getContext()).activeStyles();
     CSSValue overflowX = activeStyles.getProperty(CSSProperty.OVERFLOW_X);
     CSSValue overflowY = activeStyles.getProperty(CSSProperty.OVERFLOW_Y);
 
-    overflowX = adjustOverflowValueIfHTML(box.element(), overflowX, CSSProperty.OVERFLOW_X);
-    overflowY = adjustOverflowValueIfHTML(box.element(), overflowY, CSSProperty.OVERFLOW_Y);
+    overflowX = adjustOverflowValueIfHTML(element, overflowX, CSSProperty.OVERFLOW_X);
+    overflowY = adjustOverflowValueIfHTML(element, overflowY, CSSProperty.OVERFLOW_Y);
 
     return causesScrollContent(overflowX) || causesScrollContent(overflowY);
+  }
+
+  public static boolean hasScrollContent(ElementBox elementBox) {
+    return
+      hasScrollContent(elementBox.element())
+      && elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL);
   }
 
   public static boolean causesScrollContent(CSSValue scrollValue) {

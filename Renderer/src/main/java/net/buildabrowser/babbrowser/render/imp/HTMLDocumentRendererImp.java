@@ -31,6 +31,7 @@ import net.buildabrowser.babbrowser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.render.context.ScriptingContext;
+import net.buildabrowser.babbrowser.render.event.EventContext;
 import net.buildabrowser.babbrowser.render.event.EventForwardingTarget;
 import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.render.layout.FontCache;
@@ -54,6 +55,8 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
 
   private final Object resizeLock = new Object();
   private final Object readyImageLock = new Object();
+
+  private final EventContext eventContext = EventContext.create();
 
   private final HTMLDocument document;
   private final Navigable navigable;
@@ -219,7 +222,9 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
     EventLoop.queueGlobalTask(
       TaskSource.USER_INTERACTION,
       document.nodeNavigable().activeWindow(),
-      () -> CompositeEventsDispatcher.handleMouseEvent(rootLayer, mouseEvent, mouseEvent.winX(), mouseEvent.winY()));
+      () -> CompositeEventsDispatcher.dispatchMouseEvent(
+        eventContext, rootLayer, mouseEvent,
+        mouseEvent.winX(), mouseEvent.winY()));
   }
 
   @Override

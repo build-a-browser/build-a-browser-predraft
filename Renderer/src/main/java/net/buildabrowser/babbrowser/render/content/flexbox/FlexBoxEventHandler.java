@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.render.content.flexbox;
 
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.render.event.EventContext;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.event.EventUtil;
 import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent;
@@ -9,17 +10,22 @@ import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent;
 public class FlexBoxEventHandler implements EventHandler {
 
   @Override
-  public EventHandlerResponse handleMouseEvent(RendererMouseEvent mouseEvent, BoxFragment fragment, float relX, float relY) {
+  public EventHandlerResponse handleMouseEvent(
+    EventContext eventContext, RendererMouseEvent mouseEvent,
+    BoxFragment fragment, float relX, float relY
+  ) {
     FlexBoxContent content = (FlexBoxContent) fragment.box().content();
     UnmanagedBoxFragment nextFragment = content.fragments();
 
-    EventHandlerResponse childHandledEvent = handleChildMouseEvent(mouseEvent, fragment, nextFragment, relX, relY);
+    EventHandlerResponse childHandledEvent = handleChildMouseEvent(
+      eventContext, mouseEvent, fragment, nextFragment, relX, relY);
     if (!childHandledEvent.isUnhandled()) return childHandledEvent;
 
     return EventUtil.forwardElementEvent(mouseEvent, fragment, relX, relY);
   }
 
   private EventHandlerResponse handleChildMouseEvent(
+    EventContext eventContext, 
     RendererMouseEvent mouseEvent,
     BoxFragment parentFragment,
     UnmanagedBoxFragment nextFragment,
@@ -43,7 +49,7 @@ public class FlexBoxEventHandler implements EventHandler {
 
     if (selectedFragment != null) {
       return selectedFragment.box().content().eventHandler().handleMouseEvent(
-        mouseEvent, selectedFragment, relX, relY);
+        eventContext, mouseEvent, selectedFragment, relX, relY);
     }
 
     return EventHandlerResponse.UNHANDLED;

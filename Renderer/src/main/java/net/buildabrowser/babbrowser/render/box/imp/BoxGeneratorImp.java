@@ -15,6 +15,8 @@ import net.buildabrowser.babbrowser.render.box.BoxGenerator;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.render.box.TextBox;
+import net.buildabrowser.babbrowser.render.composite.CompositeLayerUtil;
+import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.render.context.ElementContext;
 
 public class BoxGeneratorImp implements BoxGenerator {
@@ -57,6 +59,12 @@ public class BoxGeneratorImp implements BoxGenerator {
   }
 
   private List<Box> createElementBox(Box parentBox, HTMLElement element, BoxLevel boxLevel) {
+    Box adjustedParentBox = parentBox;
+    ElementBox scrollBox = null;
+    if (CompositeLayerUtil.hasScrollContent(element)) {
+      adjustedParentBox = scrollBox = new ScrollBox(element, parentBox, boxLevel);
+    }
+
     ElementBox elementBox;
     if (
       element.getBox() instanceof ElementBox elementBox2
@@ -71,7 +79,7 @@ public class BoxGeneratorImp implements BoxGenerator {
       elementBox.clearChildren();
       elementBox.update();
     } else {
-      elementBox = ElementBox.create(element, parentBox, boxLevel);
+      elementBox = ElementBox.create(element, adjustedParentBox, boxLevel);
       element.setBox(elementBox);
     }
     for (Box childBox: createChildBoxes(elementBox, element.childNodes())) {
@@ -79,7 +87,10 @@ public class BoxGeneratorImp implements BoxGenerator {
     }
     elementBox.content().fixupChildren();
 
-    return List.of(elementBox);
+    if (scrollBox != null) {
+      scrollBox.addChild(elementBox);
+    }
+    return List.of(scrollBox == null ? elementBox : scrollBox);
   }
 
   private List<Box> createChildBoxes(Box parentBox, NodeList children) {

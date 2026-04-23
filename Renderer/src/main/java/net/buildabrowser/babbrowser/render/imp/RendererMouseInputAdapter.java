@@ -15,28 +15,42 @@ public class RendererMouseInputAdapter extends MouseInputAdapter {
 
   private final Supplier<DocumentRenderer> rendererSupplier;
 
+  // TODO: Should store each button
+  private boolean mouseDown = false;
+
   public RendererMouseInputAdapter(Supplier<DocumentRenderer> rendererSupplier) {
     this.rendererSupplier = rendererSupplier;
   }
   
   @Override
   public void mouseClicked(MouseEvent e) {
-    // TODO: Translate button
-    e.consume();
-    RendererMouseEvent mouseEvent = RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), MouseEventType.CLICK);
-    if (rendererSupplier.get() instanceof EventForwardingTarget target) {
-      target.forwardEvent(mouseEvent);
-    }
+    handleGeneric(e, MouseEventType.CLICK);
   }
 
   @Override
   public void mouseMoved(MouseEvent e) {
-    // TODO: Translate button
-    e.consume();
-    RendererMouseEvent mouseEvent = RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), MouseEventType.MOVE);
-    if (rendererSupplier.get() instanceof EventForwardingTarget target) {
-      target.forwardEvent(mouseEvent);
+    if (mouseDown) {
+      mouseReleased(e);
     }
+    handleGeneric(e, MouseEventType.MOVE);
+  }
+
+  @Override
+  public void mouseDragged(MouseEvent e) {
+    this.mouseDown = true;
+    handleGeneric(e, MouseEventType.MOVE);
+  }
+
+  @Override
+  public void mousePressed(MouseEvent e) {
+    this.mouseDown = true;
+    handleGeneric(e, MouseEventType.DOWN);
+  }
+
+  @Override
+  public void mouseReleased(MouseEvent e) {
+    this.mouseDown = false;
+    handleGeneric(e, MouseEventType.UP);
   }
 
   public void mouseWheelMoved(MouseWheelEvent e) {
@@ -45,6 +59,15 @@ public class RendererMouseInputAdapter extends MouseInputAdapter {
     RendererMouseEvent mouseEvent = e.isShiftDown() ?
       RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), MouseEventType.SCROLL, e.getUnitsToScroll() * 10, 0) :
       RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), MouseEventType.SCROLL, 0, e.getUnitsToScroll() * 10);
+    if (rendererSupplier.get() instanceof EventForwardingTarget target) {
+      target.forwardEvent(mouseEvent);
+    }
+  }
+
+  private void handleGeneric(MouseEvent e, MouseEventType type) {
+    // TODO: Translate button
+    e.consume();
+    RendererMouseEvent mouseEvent = RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), type);
     if (rendererSupplier.get() instanceof EventForwardingTarget target) {
       target.forwardEvent(mouseEvent);
     }

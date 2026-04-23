@@ -10,6 +10,7 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.ManagedBoxFra
 import net.buildabrowser.babbrowser.render.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.render.event.EventContext;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.event.EventUtil;
 import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent;
@@ -18,6 +19,7 @@ public class FlowRootEventHandler implements EventHandler {
 
   @Override
   public EventHandlerResponse handleMouseEvent(
+    EventContext eventContext, 
     RendererMouseEvent mouseEvent,
     BoxFragment fragment,
     float relX, float relY
@@ -32,16 +34,18 @@ public class FlowRootEventHandler implements EventHandler {
       UnmanagedBoxFragment floatFragment = (UnmanagedBoxFragment) floatIt.previous();
       if (EventUtil.aabb(floatFragment, relX, relY)) {
         EventHandlerResponse eventHandled = handleInnerMouseEvent(
-          mouseEvent, rootFragment, floatFragment, relX, relY);
+          eventContext, mouseEvent, rootFragment, floatFragment, relX, relY);
       
         if (!eventHandled.isUnhandled()) return eventHandled;
       }
     }
 
-    return handleInnerMouseEvent(mouseEvent, rootFragment, rootFragment, relX, relY);
+    return handleInnerMouseEvent(
+      eventContext, mouseEvent, rootFragment, rootFragment, relX, relY);
   }
 
   private EventHandlerResponse handleInnerMouseEvent(
+    EventContext eventContext,
     RendererMouseEvent mouseEvent,
     ManagedBoxFragment parentFragment,
     LayoutFragment fragment,
@@ -51,16 +55,17 @@ public class FlowRootEventHandler implements EventHandler {
     return switch (fragment) {
       case PosRefBoxFragment _ -> EventHandlerResponse.UNHANDLED;
       case ManagedBoxFragment managedFragment -> handleInnerMouseEvent(
-        mouseEvent, parentFragment, managedFragment, relX, relY);
+        eventContext, mouseEvent, parentFragment, managedFragment, relX, relY);
       case UnmanagedBoxFragment unmanagedFragment -> handleInnerMouseEvent(
-        mouseEvent, parentFragment, unmanagedFragment, relX, relY);
+        eventContext, mouseEvent, parentFragment, unmanagedFragment, relX, relY);
       case LineBoxFragment lineBoxFragment -> handleInnerMouseEvent(
-        mouseEvent, parentFragment, lineBoxFragment, relX, relY);
+        eventContext, mouseEvent, parentFragment, lineBoxFragment, relX, relY);
       default -> throw new UnsupportedOperationException();
     };
   }
 
   private EventHandlerResponse handleInnerMouseEvent(
+    EventContext eventContext, 
     RendererMouseEvent mouseEvent,
     ManagedBoxFragment parentFragment,
     UnmanagedBoxFragment fragment,
@@ -72,10 +77,11 @@ public class FlowRootEventHandler implements EventHandler {
     ) return EventHandlerResponse.UNHANDLED;
 
     return fragment.box().content().eventHandler().handleMouseEvent(
-      mouseEvent, fragment, relX, relY);
+      eventContext, mouseEvent, fragment, relX, relY);
   }
 
   private EventHandlerResponse handleInnerMouseEvent(
+    EventContext eventContext, 
     RendererMouseEvent mouseEvent,
     ManagedBoxFragment parentFragment,
     ManagedBoxFragment fragment,
@@ -88,22 +94,24 @@ public class FlowRootEventHandler implements EventHandler {
     ) return EventHandlerResponse.UNHANDLED;
 
     return handleManagedInnerMouseEvent(
-      mouseEvent, fragment, fragment.fragments(),
+      eventContext, mouseEvent, fragment, fragment.fragments(),
       relX, relY);
   }
 
   private EventHandlerResponse handleInnerMouseEvent(
+    EventContext eventContext, 
     RendererMouseEvent mouseEvent,
     ManagedBoxFragment parentFragment,
     LineBoxFragment fragment,
     float relX, float relY
   ) {
     return handleManagedInnerMouseEvent(
-      mouseEvent, parentFragment, fragment.fragments(),
+      eventContext, mouseEvent, parentFragment, fragment.fragments(),
       relX, relY);
   }
 
   private EventHandlerResponse handleManagedInnerMouseEvent(
+    EventContext eventContext, 
     RendererMouseEvent mouseEvent,
     ManagedBoxFragment parentFragment,
     LayoutFragment nextFragment,
@@ -131,7 +139,7 @@ public class FlowRootEventHandler implements EventHandler {
       childHandledEvent = EventUtil.forwardElementEvent(mouseEvent, parentFragment, textFragment, relX, relY);
     } else if (selectedFragment != null) {
       childHandledEvent = handleInnerMouseEvent(
-        mouseEvent, parentFragment, selectedFragment, relX, relY);
+        eventContext, mouseEvent, parentFragment, selectedFragment, relX, relY);
     }
 
     if (childHandledEvent.isUnhandled()) {

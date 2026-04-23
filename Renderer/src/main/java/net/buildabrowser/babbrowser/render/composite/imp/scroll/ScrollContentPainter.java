@@ -1,93 +1,83 @@
 package net.buildabrowser.babbrowser.render.composite.imp.scroll;
 
+import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollMath.ScrollMathResult;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
 
-public class ScrollContentPainter {
+public class ScrollContentPainter implements BoxPainter {
 
   public static final int GUTTER_WIDTH = 16;
+  public static final int MIN_SCROLLBAR_HEIGHT = 16;
 
   private static final int GUTTER_BG_COLOR = 0xFFFFFFFF;
   private static final int GUTTER_FG_COLOR = 0xFF888888;
-  private static final int MIN_SCROLLBAR_HEIGHT = 16;
+  private static final int GUTTER_FG_COLOR_HOVERED = 0xFF666666;
+  private static final int GUTTER_FG_COLOR_ACTIVE = 0xFF444444;
 
-  public static void paint(ScrollBoxFragment scrollContext, PaintCanvas canvas) {
-    UnmanagedBoxFragment outerFragment = scrollContext.outerFragment();
-
-    if (
-      scrollContext.hasHorizontalScroll()
-      && scrollContext.hasVerticalScroll()
-    ) {
-      paintHorizontalScroller(scrollContext, canvas, Math.max(0, outerFragment.width(Measurement.CONTENT) - GUTTER_WIDTH));
-      paintVerticalScroller(scrollContext, canvas, Math.max(0, outerFragment.height(Measurement.CONTENT) - GUTTER_WIDTH));
-    } else if (scrollContext.hasHorizontalScroll()) {
-      paintHorizontalScroller(scrollContext, canvas, outerFragment.width(Measurement.CONTENT));
-    } else if (scrollContext.hasVerticalScroll()) {
-      paintVerticalScroller(scrollContext, canvas, outerFragment.height(Measurement.CONTENT));
+  @Override
+  public void paint(BoxFragment fragment, PaintCanvas canvas) {
+    ScrollBoxFragment scrollBox = (ScrollBoxFragment) fragment;
+    if (scrollBox.hasHorizontalScroll()) {
+      paintHorizontalScroller(scrollBox, canvas);
+    }
+    if (scrollBox.hasVerticalScroll()) {
+      paintVerticalScroller(scrollBox, canvas);
     }
   }
 
-  private static void paintHorizontalScroller(ScrollBoxFragment scrollContext, PaintCanvas canvas, float scrollerSpace) {
-    UnmanagedBoxFragment outerFragment = scrollContext.outerFragment();
-    UnmanagedBoxFragment innerFragment = scrollContext.innerFragment();
-    float startY = outerFragment.contentY() + outerFragment.height(Measurement.CONTENT) - GUTTER_WIDTH;
-    float startX = outerFragment.contentX();
-    float scrollerWidth = scrollerSpace / innerFragment.inkWidth(Measurement.CONTENT) * scrollerSpace;
-    if (
-      scrollerWidth < MIN_SCROLLBAR_HEIGHT
-      && MIN_SCROLLBAR_HEIGHT < scrollerSpace
-    ) {
-      float extraWidth = MIN_SCROLLBAR_HEIGHT - scrollerWidth;
-      scrollerWidth += extraWidth;
-      scrollerSpace -= extraWidth;
-    }
-    float scrollerStart = scrollContext.scrollX() / innerFragment.inkWidth(Measurement.CONTENT) * scrollerSpace;
+  @Override
+  public void paintBackground(BoxFragment fragment, PaintCanvas canvas) {
+    
+  }
+
+  private static void paintHorizontalScroller(ScrollBoxFragment scrollBoxFragment, PaintCanvas canvas) {
+    ScrollMathResult scrollInfo = scrollBoxFragment.horizontalScrollInfo();
+    ScrollBarState scrollState = scrollBoxFragment.box().horizontalScrollState();
     canvas.alterPaint(c -> c.setColor(GUTTER_BG_COLOR));
-    canvas.drawBox(startX, startY, outerFragment.width(Measurement.CONTENT), GUTTER_WIDTH);
-    canvas.alterPaint(c -> c.setColor(GUTTER_FG_COLOR));
-    canvas.drawBox(startX, startY + scrollerStart, scrollerWidth, GUTTER_WIDTH);
+    canvas.drawBox(scrollInfo.trackX(), scrollInfo.trackY(), scrollInfo.trackSize(), GUTTER_WIDTH);
+    int scrollerColor = determineScrollColor(scrollState);
+    canvas.alterPaint(c -> c.setColor(scrollerColor));
+    canvas.drawBox(scrollInfo.trackX(), scrollInfo.trackY() + scrollInfo.scrollerPos(),
+    scrollInfo.scrollerSize(), GUTTER_WIDTH);
   }
 
-  private static void paintVerticalScroller(ScrollBoxFragment scrollContext, PaintCanvas canvas, float scrollerSpace) {
-    UnmanagedBoxFragment outerFragment = scrollContext.outerFragment();
-    UnmanagedBoxFragment innerFragment = scrollContext.innerFragment();
-    float startX = outerFragment.contentX() + outerFragment.width(Measurement.CONTENT) - GUTTER_WIDTH;
-    float startY = outerFragment.contentY();
-    float scrollerHeight = scrollerSpace / innerFragment.inkHeight(Measurement.CONTENT) * scrollerSpace;
-    if (
-      scrollerHeight < MIN_SCROLLBAR_HEIGHT
-      && MIN_SCROLLBAR_HEIGHT < scrollerSpace
-    ) {
-      float extraHeight = MIN_SCROLLBAR_HEIGHT - scrollerHeight;
-      scrollerHeight += extraHeight;
-      scrollerSpace -= extraHeight;
-    }
-    float scrollerStart = scrollContext.scrollY() / innerFragment.inkHeight(Measurement.CONTENT) * scrollerSpace;
+  private static void paintVerticalScroller(ScrollBoxFragment scrollBoxFragment, PaintCanvas canvas) {
+    ScrollMathResult scrollInfo = scrollBoxFragment.verticalScrollInfo();
+    ScrollBarState scrollState = scrollBoxFragment.box().verticalScrollState();
     canvas.alterPaint(c -> c.setColor(GUTTER_BG_COLOR));
-    canvas.drawBox(startX, startY, GUTTER_WIDTH, outerFragment.height(Measurement.CONTENT));
-    canvas.alterPaint(c -> c.setColor(GUTTER_FG_COLOR));
-    canvas.drawBox(startX, startY + scrollerStart, GUTTER_WIDTH, scrollerHeight);
+    canvas.drawBox(scrollInfo.trackX(), scrollInfo.trackY(), GUTTER_WIDTH, scrollInfo.trackSize());
+    int scrollerColor = determineScrollColor(scrollState);
+    canvas.alterPaint(c -> c.setColor(scrollerColor));
+    canvas.drawBox(
+      scrollInfo.trackX(), scrollInfo.trackY() + scrollInfo.scrollerPos(),
+      GUTTER_WIDTH, scrollInfo.scrollerSize());
   }
 
-  public static void paintBackground(ScrollBoxFragment scrollBox, PaintCanvas canvas) {
+  public static void paintBackground(ScrollBoxFragment scrollBoxFragment, PaintCanvas canvas) {
     // TODO: Proper background painting
-    BoxFragment innerFragment = scrollBox.innerFragment();
+    BoxFragment innerFragment = scrollBoxFragment.innerFragment();
     canvas.clip(
-      scrollBox.scrollX(), scrollBox.scrollY(),
+      scrollBoxFragment.box().scrollX(), scrollBoxFragment.box().scrollY(),
       innerFragment.width(Measurement.CONTENT), innerFragment.height(Measurement.CONTENT));
     innerFragment.painter().paintBackground(innerFragment, canvas);
     canvas.unclip();
   }
 
-  public static void paintForeground(ScrollBoxFragment scrollBox, PaintCanvas canvas) {
-    BoxFragment innerFragment = scrollBox.innerFragment();
+  public static void paintForeground(ScrollBoxFragment scrollBoxFragment, PaintCanvas canvas) {
+    BoxFragment innerFragment = scrollBoxFragment.innerFragment();
     canvas.clip(
-      scrollBox.scrollX(), scrollBox.scrollY(),
+      scrollBoxFragment.box().scrollX(), scrollBoxFragment.box().scrollY(),
       innerFragment.width(Measurement.CONTENT), innerFragment.height(Measurement.CONTENT));
     innerFragment.painter().paint(innerFragment, canvas);
     canvas.unclip();
+  }
+
+  private static int determineScrollColor(ScrollBarState scrollState) {
+    return
+      scrollState.active() ? GUTTER_FG_COLOR_ACTIVE :
+      scrollState.hovered() ? GUTTER_FG_COLOR_HOVERED : GUTTER_FG_COLOR;
   }
   
 }

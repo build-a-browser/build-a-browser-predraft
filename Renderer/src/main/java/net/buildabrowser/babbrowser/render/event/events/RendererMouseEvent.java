@@ -24,6 +24,6 @@ public record RendererMouseEvent(
   }
 
   public static enum MouseEventType {
-    CLICK, MOVE, SCROLL
+    CLICK, MOVE, SCROLL, DOWN, UP
   }
 }

@@ -8,8 +8,6 @@ import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.box.ElementBoxIterator;
-import net.buildabrowser.babbrowser.render.composite.CompositeLayerUtil;
-import net.buildabrowser.babbrowser.render.composite.imp.scroll.ScrollLayoutUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.layout.CachedLayoutResult;
@@ -109,9 +107,8 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
       content().computeIntrinsics();
     }
 
-    UnmanagedBoxFragment layoutResult = CompositeLayerUtil.hasScrollContent(this) ?
-      ScrollLayoutUtil.layoutScrollable(widthConstraint, heightConstraint, this) :
-      content().layout(widthConstraint, heightConstraint);
+    UnmanagedBoxFragment layoutResult = content().layout(widthConstraint, heightConstraint);
+    
     this.cache = CachedLayoutResult.create(
       widthConstraint, heightConstraint, layoutResult, cache);
     return layoutResult;

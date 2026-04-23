@@ -112,15 +112,15 @@ public class CompositeLayerImp implements CompositeLayer {
     return this.entries;
   }
 
-  private void paintScrollable(PaintCanvas canvas, ScrollBoxFragment scrollBox) {
+  private void paintScrollable(PaintCanvas canvas, ScrollBoxFragment scrollBoxFragment) {
     canvas.pushPaint();
     // TODO: This might not work well when proper layers are added, or when fixed/sticky are added
     canvas.alterPaint(p -> p.incOffset(
-      -scrollBox.scrollX(), -scrollBox.scrollY()));
+      -scrollBoxFragment.box().scrollX(), -scrollBoxFragment.box().scrollY()));
 
     canvas.pushPaint();
     canvas.alterPaint(p -> p.incOffset(entries.offsetX(), entries.offsetY()));
-    ScrollContentPainter.paintBackground(scrollBox, canvas);
+    ScrollContentPainter.paintBackground(scrollBoxFragment, canvas);
     canvas.popPaint();
 
     for (CompositeLayer layer: childLayers) {
@@ -130,7 +130,7 @@ public class CompositeLayerImp implements CompositeLayer {
 
     canvas.pushPaint();
     canvas.alterPaint(p -> p.incOffset(entries.offsetX(), entries.offsetY()));
-    ScrollContentPainter.paintForeground(scrollBox, canvas);
+    ScrollContentPainter.paintForeground(scrollBoxFragment, canvas);
     canvas.popPaint();
     
     for (CompositeLayer layer: childLayers) {
@@ -142,7 +142,7 @@ public class CompositeLayerImp implements CompositeLayer {
 
     canvas.pushPaint();
     canvas.alterPaint(p -> p.incOffset(entries.offsetX(), entries.offsetY()));
-    ScrollContentPainter.paint(scrollBox, canvas);
+    entries.fragment().painter().paint(scrollBoxFragment, canvas);
     canvas.popPaint();
   }
 
