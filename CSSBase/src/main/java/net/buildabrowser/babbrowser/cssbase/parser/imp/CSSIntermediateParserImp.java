@@ -197,13 +197,12 @@ public class CSSIntermediateParserImp {
         || (associatedToken instanceof LParenToken && token instanceof RParenToken)
       ) {
         return new SimpleBlock(associatedToken, value);
-      } else if (associatedToken instanceof EOFToken) {
-        // TODO: Report parse error
+      } else if (token instanceof EOFToken) {
         return new SimpleBlock(associatedToken, value);
       } else {
-          stream.unread(token);
-          Token componentValue = consumeAComponentValue(stream);
-          value.add(componentValue);
+        stream.unread(token);
+        Token componentValue = consumeAComponentValue(stream);
+        value.add(componentValue);
       }
     }
   }

@@ -59,11 +59,15 @@ public class ImageContent implements BoxContent, BoxPainter {
       // TODO: Do this the proper way
       float width = image.width();
       String widthAttr = box.element().getAttribute("width");
-      if (widthAttr != null) width = Integer.valueOf(widthAttr);
+      try {
+        if (widthAttr != null) width = Integer.valueOf(widthAttr);
+      } catch (NumberFormatException e) {}
 
       float height = image.height();
       String heightAttr = box.element().getAttribute("height");
-      if (heightAttr != null) height = Integer.valueOf(heightAttr);
+      try {
+        if (heightAttr != null) height = Integer.valueOf(heightAttr);
+      } catch (NumberFormatException e) {}
 
       dimensions.setIntrinsicWidth(width);
       dimensions.setInstrinsicHeight(height);

@@ -76,13 +76,7 @@ public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
   }
 
   private void resizeChildrenIfNeeded() {
-    if (nextId > rawSet.size()) {
-      int newSize = rawSet.size() * 2;
-      for (WeakReference<ElementSet> childSet: childSets) {
-        childSet.get().resize(newSize);
-      }
-      resize(newSize);
-    }
+    // Not needed with SparseBitSet
   }
 
   private void assignElementId(Element element) {

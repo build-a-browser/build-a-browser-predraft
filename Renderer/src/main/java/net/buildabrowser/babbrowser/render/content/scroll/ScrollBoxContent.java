@@ -79,6 +79,9 @@ public class ScrollBoxContent implements BoxContent {
       addedVerticalScrollbars,
       box, innerLayout);
     scrollBoxFragment.setLayerPos(0, 0);
+    box.setScrollFragment(scrollBoxFragment);
+    // TODO: I believe this gets replaced by a PosRefBox on one site, I don't recall which
+    // Does that break things?
     box.updatePositioningFragment(scrollBoxFragment);
     return scrollBoxFragment;
   }

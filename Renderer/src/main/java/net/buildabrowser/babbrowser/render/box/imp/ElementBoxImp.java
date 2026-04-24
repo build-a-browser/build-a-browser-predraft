@@ -52,7 +52,8 @@ public class ElementBoxImp extends AbstractElementBoxImp {
   public void update() {
     InnerDisplayValue innerDisplay = ActiveStylesUtil.innerDisplayValue(activeStyles());
     if (
-      !innerDisplay.equals(prevDisplayValue)
+      this.content == null
+      || !innerDisplay.equals(prevDisplayValue)
       || content.rootBox() != this
     ) {
       this.prevDisplayValue = innerDisplay;
@@ -67,6 +68,14 @@ public class ElementBoxImp extends AbstractElementBoxImp {
         this.content = createContent(innerDisplay);
       }
     }
+  }
+
+  @Override
+  public void updateDetails(Box parentBox, BoxLevel boxLevel) {
+    this.content = null;
+    this.prevDisplayValue = null;
+    setNext(null);
+    super.updateDetails(parentBox, boxLevel);
   }
 
   private BoxContent createContent(InnerDisplayValue innerDisplay) {

@@ -28,7 +28,7 @@ import net.buildabrowser.babbrowser.render.paint.skija.SkijaPainter;
 
 public class Main {
   
-  public static void main(String[] args) throws IOException, URISyntaxException {
+  public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
     setLookAndFeel();
 
     // TODO: Use a proper argument parser

@@ -52,6 +52,8 @@ public class CompositeLayerImp implements CompositeLayer {
 
   @Override
   public void paint(PaintCanvas canvas) {
+    ensureLayersSorted();
+
     // TODO: Having to do this is not great
     if (
       entries != null
@@ -61,8 +63,6 @@ public class CompositeLayerImp implements CompositeLayer {
       paintScrollable(canvas, scrollBox);
       return;
     }
-
-    ensureLayersSorted();
 
     forEachFragment(fragment -> fragment.painter().paintBackground(fragment, canvas), canvas);
     for (CompositeLayer layer: childLayers) {

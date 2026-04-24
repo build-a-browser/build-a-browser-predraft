@@ -37,8 +37,7 @@ public final class FlexLayoutUtil {
     ResourceLoader resourceLoader = new TestResourceLoader(() -> testMetrics);
     LayoutContext layoutContext = new LayoutContext(
       new GlobalLayoutContext(
-        resourceLoader, testMetrics, resourceLoader.fontLoader()::load,
-        null, new Object()),
+        resourceLoader, testMetrics, resourceLoader.fontLoader()::load, null),
       () -> testMetrics);
     LayoutContextGenerator.generateLayoutContexts(parentBox, layoutContext);
     FlexBoxContent content = (FlexBoxContent) parentBox.content();

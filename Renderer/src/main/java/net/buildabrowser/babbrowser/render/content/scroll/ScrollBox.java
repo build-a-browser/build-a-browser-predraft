@@ -15,6 +15,8 @@ public class ScrollBox extends ElementBoxImp {
   private final ScrollBarState horizontalScrollState;
   private final ScrollBarState verticalScrollState;
 
+  private ScrollBoxFragment scrollFragment;
+
   private int scrollX = 0;
   private int scrollY = 0;
 
@@ -40,35 +42,35 @@ public class ScrollBox extends ElementBoxImp {
   }
 
   public void setScrollX(float newScrollX) {
-    if (scrollFragment() == null) return;
+    if (scrollFragment == null) return;
     this.scrollX = (int) Math.ceil(Math.clamp(
       newScrollX,
-      0, scrollFragment().inkWidth(Measurement.CONTENT) - scrollFragment().width(Measurement.CONTENT)));
+      0, scrollFragment.inkWidth(Measurement.CONTENT) - scrollFragment.width(Measurement.CONTENT)));
     element().invalidate(InvalidationLevel.PAINT);
   }
 
   public void setScrollY(float newScrollY) {
-    if (scrollFragment() == null) return;
+    if (scrollFragment == null) return;
     this.scrollY = (int) Math.ceil(Math.clamp(
       newScrollY,
-      0, scrollFragment().inkHeight(Measurement.CONTENT) - scrollFragment().height(Measurement.CONTENT)));
+      0, scrollFragment.inkHeight(Measurement.CONTENT) - scrollFragment.height(Measurement.CONTENT)));
     element().invalidate(InvalidationLevel.PAINT);
   }
 
   public int scrollX() {
-    if (scrollFragment() == null) return 0;
-    if (!scrollFragment().hasHorizontalScroll()) return 0;
+    if (scrollFragment == null) return 0;
+    if (!scrollFragment.hasHorizontalScroll()) return 0;
     return (int) Math.min(
       this.scrollX,
-      scrollFragment().inkWidth(Measurement.CONTENT) - scrollFragment().width(Measurement.CONTENT));
+      scrollFragment.inkWidth(Measurement.CONTENT) - scrollFragment.width(Measurement.CONTENT));
   }
 
   public int scrollY() {
-    if (scrollFragment() == null) return 0;
-    if (!scrollFragment().hasVerticalScroll()) return 0;
+    if (scrollFragment == null) return 0;
+    if (!scrollFragment.hasVerticalScroll()) return 0;
     return (int) Math.min(
       this.scrollY,
-      scrollFragment().inkHeight(Measurement.CONTENT) - scrollFragment().height(Measurement.CONTENT));
+      scrollFragment.inkHeight(Measurement.CONTENT) - scrollFragment.height(Measurement.CONTENT));
   }
   
   public ScrollBarState horizontalScrollState() {
@@ -80,7 +82,11 @@ public class ScrollBox extends ElementBoxImp {
   }
 
   ScrollBoxFragment scrollFragment() {
-    return (ScrollBoxFragment) positioningFragment();
+    return this.scrollFragment;
+  }
+
+  void setScrollFragment(ScrollBoxFragment scrollFragment) {
+    this.scrollFragment = scrollFragment;
   }
   
 }

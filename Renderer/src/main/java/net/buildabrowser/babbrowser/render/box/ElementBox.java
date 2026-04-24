@@ -35,6 +35,8 @@ public interface ElementBox extends Box {
 
   BoxLevel boxLevel();
 
+  void updateDetails(Box parentBox, BoxLevel boxLevel);
+
   UnmanagedBoxFragment layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
 
   void updatePositioningFragment(BoxFragment boxFragment);

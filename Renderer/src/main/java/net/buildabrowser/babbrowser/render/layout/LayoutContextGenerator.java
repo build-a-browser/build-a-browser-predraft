@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.render.layout;
 
+import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.render.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.render.layout.FontDetermination.FontDeterminationContext;
 
 public final class LayoutContextGenerator {
@@ -28,9 +28,8 @@ public final class LayoutContextGenerator {
 
     box.setLayoutContext(childContext);
 
-    ElementBoxIterator childIt = box.childBoxes();
-    while (childIt.hasNext()) {
-      if (childIt.next() instanceof ElementBox elementBox) {
+    for (Box child: box.childBoxes()) {
+      if (child instanceof ElementBox elementBox) {
         generateLayoutContexts(elementBox, childContext, childFontInfo);
       }
     }

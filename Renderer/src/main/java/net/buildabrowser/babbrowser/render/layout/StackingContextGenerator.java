@@ -33,10 +33,10 @@ public final class StackingContextGenerator {
   ) {
     // TODO: Need to track font
     StackingContext deferredContext = deferredBox.stackingContext();
+    assert deferredContext != null;
 
-    ElementBoxIterator childIt = deferredBox.childBoxes();
-    while (childIt.hasNext()) {
-      generateStackingContexts(childIt.next(), deferredContext, deferredBoxes);
+    for (Box box: deferredBox.childBoxes()) {
+      generateStackingContexts(box, deferredContext, deferredBoxes);
     }
   }
 

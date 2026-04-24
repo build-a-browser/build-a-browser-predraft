@@ -270,10 +270,8 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
     ElementBox rootBox = documentBox.htmlBox();
     if (rootBox == null) return;
 
-    Object cacheKey = new Object();
     GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
-      painter.resourceLoader(), rootFont.metrics(), fontCache,
-      scriptingContext, cacheKey);
+      painter.resourceLoader(), rootFont.metrics(), fontCache, scriptingContext);
 
     LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
     LayoutContextGenerator.generateLayoutContexts(rootBox, layoutContext);

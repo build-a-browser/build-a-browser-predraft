@@ -8,8 +8,7 @@ public record GlobalLayoutContext(
   ResourceLoader resourceLoader,
   FontMetrics rootMetrics,
   FontCache fontCache,
-  ScriptingContext scriptingContext,
-  Object cacheKey
+  ScriptingContext scriptingContext
 ) {
   
 }

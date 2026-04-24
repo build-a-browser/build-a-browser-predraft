@@ -23,8 +23,9 @@ import net.buildabrowser.babbrowser.render.layout.StackingContext;
 public abstract class AbstractElementBoxImp extends AbstractBoxImp implements ElementBox {
 
   private final ElementBoxDimensions dimensions;
-  private final Box parentBox;
-  private final BoxLevel boxLevel;
+
+  private Box parentBox;
+  private BoxLevel boxLevel;
 
   private CachedLayoutResult cache;
   private BoxFragment positioningFragment;
@@ -93,6 +94,14 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   @Override
   public BoxLevel boxLevel() {
     return this.boxLevel;
+  }
+
+  @Override
+  public void updateDetails(Box parentBox, BoxLevel boxLevel) {
+    this.parentBox = parentBox;
+    this.boxLevel = boxLevel;
+
+    setLayoutContext(null);
   }
 
   @Override
