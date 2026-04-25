@@ -11,12 +11,15 @@ import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.composite.CompositeLayerUtil;
+import net.buildabrowser.babbrowser.render.content.ReEntrantContent;
+import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.flexbox.FlexBoxContent;
 import net.buildabrowser.babbrowser.render.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.render.content.image.ImageContent;
 import net.buildabrowser.babbrowser.render.content.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.render.content.table.TableContent;
 import net.buildabrowser.babbrowser.render.context.ElementContext;
+import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
 public class ElementBoxImp extends AbstractElementBoxImp {
 
@@ -45,6 +48,17 @@ public class ElementBoxImp extends AbstractElementBoxImp {
   @Override
   public HTMLElement element() {
     return this.element;
+  }
+
+  @Override
+  public UnmanagedBoxFragment layout(
+    LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+  ) {
+    BoxContent realContent = content();
+    this.content = ReEntrantContent.instance();
+    UnmanagedBoxFragment fragment = layoutWithContent(widthConstraint, heightConstraint, realContent);
+    this.content = realContent;
+    return fragment;
   }
   
   // As of writing, children are cleared before the update, so don't worry about that yet

@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.box.Box;
+import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.box.ElementBoxIterator;
@@ -108,6 +109,13 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   public UnmanagedBoxFragment layout(
     LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
+    return layoutWithContent(widthConstraint, heightConstraint, content());
+  }
+
+  protected UnmanagedBoxFragment layoutWithContent(
+    LayoutConstraint widthConstraint, LayoutConstraint heightConstraint,
+    BoxContent content
+  ) {
     CachedLayoutResult current = cache;
     while (current != null) {
       if (current.applies(widthConstraint, heightConstraint)) {
@@ -119,10 +127,10 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
     }
 
     if (cache == null) {
-      content().computeIntrinsics();
+      content.computeIntrinsics();
     }
 
-    UnmanagedBoxFragment layoutResult = content().layout(widthConstraint, heightConstraint);
+    UnmanagedBoxFragment layoutResult = content.layout(widthConstraint, heightConstraint);
     
     this.cache = CachedLayoutResult.create(
       widthConstraint, heightConstraint, layoutResult, cache);
