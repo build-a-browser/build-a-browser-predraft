@@ -18,6 +18,7 @@ import io.github.humbleui.skija.Image;
 import io.github.humbleui.skija.ImageInfo;
 import io.github.humbleui.skija.Pixmap;
 import io.github.humbleui.skija.Surface;
+import net.buildabrowser.babbrowser.render.paint.PaintBitMap;
 import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
 import net.buildabrowser.babbrowser.render.paint.Painter;
 import net.buildabrowser.babbrowser.render.paint.ResourceLoader;
@@ -29,6 +30,13 @@ public class SkijaPainter implements Painter {
   @Override
   public ResourceLoader resourceLoader() {
     return this.resourceLoader;
+  }
+
+  @Override
+  public PaintBitMap createPaintBitMap(int width, int height) {
+    Surface surface = Surface.makeRaster(
+      ImageInfo.makeN32Premul(width, height));
+    return new SkijaBitMap(surface);
   }
 
   @Override

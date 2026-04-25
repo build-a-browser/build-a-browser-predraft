@@ -2,10 +2,8 @@ package net.buildabrowser.babbrowser.render.imp;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
 import java.util.List;
-import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
@@ -15,8 +13,6 @@ import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
-import net.buildabrowser.babbrowser.html.events.EventLoop;
-import net.buildabrowser.babbrowser.html.events.TaskSource;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.link.LinkDocumentChangeListener;
 import net.buildabrowser.babbrowser.html.misc.MetaDocumentChangeListener;
@@ -53,9 +49,6 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
 
   private static final BoxGenerator boxGenerator = BoxGenerator.create();
 
-  private final Object resizeLock = new Object();
-  private final Object readyImageLock = new Object();
-
   private final EventContext eventContext = EventContext.create();
 
   private final HTMLDocument document;
@@ -70,15 +63,12 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
 
   private DocumentRendererEventListener eventListener;
 
-  private InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
+  private volatile InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
   private CompositeLayer rootLayer;
   private LoadedFont rootFont;
 
-  private short resizeCount;
+  // TODO: Switch to AtomicInteger? Synchronize?
   private int width, height;
-
-  private BufferedImage readyImage;
-  private BufferedImage activeImage;
 
   public HTMLDocumentRendererImp(
     HTMLDocument document,
@@ -110,7 +100,6 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
   public boolean shouldRender() {
     return
       !invalidationLevel.equals(InvalidationLevel.NONE)
-      || this.resizeCount > 0
       || cssMatcher.changed();
   }
 
@@ -132,17 +121,12 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
 
   @Override
   public void updateLayout() {
-  if (invalidationLevel.ordinal() <= InvalidationLevel.BOX.ordinal()) {
+    if (invalidationLevel.ordinal() <= InvalidationLevel.BOX.ordinal()) {
       long boxStartTime = System.currentTimeMillis();
       recomputeBoxes();
       PerfLogging.logBoxTime(boxStartTime);
     }
-    if (
-      invalidationLevel.ordinal() <= InvalidationLevel.LAYOUT.ordinal()
-      // We can miss the invalidation if our own thread calls validate after
-      // the other thread calls resize
-      || this.resizeCount == 2
-    ) {
+    if (invalidationLevel.ordinal() <= InvalidationLevel.LAYOUT.ordinal()) {
       long layoutStartTime = System.currentTimeMillis();
       recomputeLayout();
       PerfLogging.logLayoutTime(layoutStartTime);
@@ -155,76 +139,60 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
     if (
       !needsPaint
       || rootLayer == null
-      || (this.activeImage == null && this.resizeCount == 0)
+      || width <= 0 || height <= 0
     ) return;
 
     long paintStartTime = System.currentTimeMillis();
-    // TODO: Avoid synchronization block
-    synchronized (resizeLock) {
-      if (this.resizeCount > 0) {
-        this.resizeCount--;
-        this.activeImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-      }
-    }
-
-    Graphics g = activeImage.getGraphics();
-    g.setColor(new Color(0xFFFFFF, false));
-    g.fillRect(0, 0, width, height);
-    
-    painter.withCanvas(g, width, height, canvas -> {
-      canvas.alterPaint(p -> p.setFont(rootFont));
-      rootLayer.paint(canvas);
-    });
-    
-    g.dispose();
+    int[] viewport = new int[] { 0, 0, width, height };
+    rootLayer.repaint(viewport);
 
     document.validate();
     this.invalidationLevel = InvalidationLevel.NONE;
-
-    // TODO: Avoid synchronization block
-    synchronized (readyImageLock) {
-      BufferedImage prevImage = this.readyImage;
-      this.readyImage = this.activeImage;
-      this.activeImage = prevImage;
-    }
+    
     navigable.uaNavigableOptions().requestRepaint();
 
     PerfLogging.logPaintTime(paintStartTime);
   }
 
   @Override
-  public void withImage(Consumer<BufferedImage> func) {
-    if (this.readyImage == null) return;
-    synchronized (readyImageLock) {
-      func.accept(readyImage);
-    }
+  public void draw(Graphics g) {
+    if (
+      this.rootLayer == null
+      || this.width <= 0
+      || this.height <= 0
+    ) return;
+
+    long windowPaintStartTime = System.currentTimeMillis();
+    g.setColor(new Color(0xFFFFFF, false));
+    g.fillRect(0, 0, width, height);
+    // TODO: What if the root layer is updating internally while painting? (sync)
+    painter.withCanvas(g, width, height, rootLayer::draw);
+    PerfLogging.logWindowPaintTime(windowPaintStartTime);
   }
 
   @Override
   public void resize(int width, int height) {
-    synchronized (resizeLock) {
-      if (
-        this.width == width
-        && this.height == height
-      ) return;
-      this.width = width;
-      this.height = height;
-      this.resizeCount = 2;
-      if (this.invalidationLevel.ordinal() > InvalidationLevel.LAYOUT.ordinal()) {
-        this.invalidationLevel = InvalidationLevel.LAYOUT;
-      }
+    if (
+      this.width == width
+      && this.height == height
+    ) return;
+    this.width = width;
+    this.height = height;
+    if (this.invalidationLevel.ordinal() > InvalidationLevel.LAYOUT.ordinal()) {
+      this.invalidationLevel = InvalidationLevel.LAYOUT;
     }
   }
 
   @Override
   public void forwardEvent(RendererMouseEvent mouseEvent) {
     if (rootLayer == null) return;
-    EventLoop.queueGlobalTask(
-      TaskSource.USER_INTERACTION,
-      document.nodeNavigable().activeWindow(),
-      () -> CompositeEventsDispatcher.dispatchMouseEvent(
-        eventContext, rootLayer, mouseEvent,
-        mouseEvent.winX(), mouseEvent.winY()));
+    // I'm not putting this on the event loop until the spec's dispatcher runs, because
+    // scroll bars need to remain responsive even while something like layout is running
+    // TODO: There *was* a race condition being caused by this, but I can't consistently
+    // reproduce it, so I can't debug it
+    CompositeEventsDispatcher.dispatchMouseEvent(
+      eventContext, rootLayer, mouseEvent,
+      mouseEvent.winX(), mouseEvent.winY());
   }
 
   @Override
@@ -292,7 +260,7 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
       layoutAbsolute(deferredLayout, itemBox);
     }
     
-    this.rootLayer = rootBox.stackingContext().createLayer();
+    this.rootLayer = rootBox.stackingContext().createLayer(painter);
   }
 
   private void layoutAbsolute(

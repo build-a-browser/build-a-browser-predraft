@@ -56,7 +56,7 @@ public class RendererImp implements Renderer {
       @Override
       protected void paintComponent(Graphics g) {
         if (activeDocumentRenderer == null) return;
-        activeDocumentRenderer.withImage(image -> g.drawImage(image, 0, 0, null));
+        activeDocumentRenderer.draw(g);
       }
     };
 

@@ -3,9 +3,13 @@ package net.buildabrowser.babbrowser.render.content.scroll;
 import static net.buildabrowser.babbrowser.render.content.scroll.ScrollContentPainter.GUTTER_WIDTH;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
+import net.buildabrowser.babbrowser.html.events.EventLoop;
+import net.buildabrowser.babbrowser.html.events.TaskSource;
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
+import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.scroll.ScrollMath.ScrollMathResult;
 import net.buildabrowser.babbrowser.render.event.EventContext;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
@@ -43,6 +47,7 @@ public class ScrollEventHandler implements EventHandler {
         || (scrollBoxFragment.hasVerticalScroll() && mouseEvent.scrollY() != 0))
     ) {
       scrollBox.scroll(mouseEvent.scrollX(), mouseEvent.scrollY());
+      immediateRepaint();
       return EventHandlerResponse.HANDLED;
     }
 
@@ -106,7 +111,7 @@ public class ScrollEventHandler implements EventHandler {
       verticalScrollState.hovered() != wasVerticalHovered
       || horizontalScrollState.hovered() != wasHorizontalHovered
     ) {
-      scrollBox.element().invalidate(InvalidationLevel.PAINT);
+      immediateRepaint();
     }
   }
 
@@ -126,7 +131,7 @@ public class ScrollEventHandler implements EventHandler {
       verticalScrollState.active() != wasVerticalActive
       || horizontalScrollState.active() != wasHorizontalActive
     ) {
-      scrollBox.element().invalidate(InvalidationLevel.PAINT);
+      immediateRepaint();
     }
   }
 
@@ -139,7 +144,7 @@ public class ScrollEventHandler implements EventHandler {
       verticalScrollState.active()
       || horizontalScrollState.active()
     ) {
-      scrollBox.element().invalidate(InvalidationLevel.PAINT);
+      immediateRepaint();
     }
     verticalScrollState.deactivate();
     horizontalScrollState.deactivate();
@@ -159,7 +164,7 @@ public class ScrollEventHandler implements EventHandler {
       float newScroll = verticalScrollState.scrollStart() + diffScroll;
       scrollBox.setScrollY(newScroll);
 
-      scrollBox.element().invalidate(InvalidationLevel.PAINT);
+      immediateRepaint();
     }
 
     ScrollBarState horizontalScrollState = scrollBox.horizontalScrollState();
@@ -171,7 +176,7 @@ public class ScrollEventHandler implements EventHandler {
       float newScroll = horizontalScrollState.scrollStart() + diffScroll;
       scrollBox.setScrollX(newScroll);
 
-      scrollBox.element().invalidate(InvalidationLevel.PAINT);
+      immediateRepaint();
     }
   }
 
@@ -191,7 +196,7 @@ public class ScrollEventHandler implements EventHandler {
       horizontalScrollState.hovered()
       || verticalScrollState.hovered()
     ) {
-      scrollBox.element().invalidate(InvalidationLevel.PAINT);
+      immediateRepaint();
     }
 
     horizontalScrollState.setHovered(false);
@@ -220,6 +225,14 @@ public class ScrollEventHandler implements EventHandler {
       && relX < verticalScrollInfo.trackX() + GUTTER_WIDTH
       && relY >= verticalScrollInfo.trackY() + verticalScrollInfo.scrollerPos()
       && relY < verticalScrollInfo.trackY() + verticalScrollInfo.scrollerPos() + verticalScrollInfo.scrollerSize();
+  }
+
+  private void immediateRepaint() {
+    HTMLDocument document = (HTMLDocument) scrollBox.element().nodeDocument();
+    Navigable navigable = document.nodeNavigable();
+    navigable.uaNavigableOptions().requestRepaint();
+    EventLoop.queueGlobalTask(TaskSource.USER_INTERACTION, navigable.activeWindow(),
+      () -> scrollBox.element().invalidate(InvalidationLevel.PAINT));
   }
 
 }

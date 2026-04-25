@@ -4,6 +4,9 @@ import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.events.Event;
 import net.buildabrowser.babbrowser.dom.events.EventDispatcher;
 import net.buildabrowser.babbrowser.dom.events.PointerEvent;
+import net.buildabrowser.babbrowser.html.events.EventLoop;
+import net.buildabrowser.babbrowser.html.events.TaskSource;
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.imp.AnonymousElementBoxImp;
@@ -62,8 +65,14 @@ public final class EventUtil {
     };
     if (event == null) return EventHandlerResponse.UNHANDLED;
     // TODO: Will need replaced with a proper MouseEvent
-    element.nodeDocument().changeListener().onElementEvent(element, event);
-    EventDispatcher.dispatch(event, element);
+    HTMLDocument document = (HTMLDocument) element.nodeDocument();
+    EventLoop.queueGlobalTask(
+      TaskSource.USER_INTERACTION,
+      document.nodeNavigable().activeWindow(),
+      () -> {
+        element.nodeDocument().changeListener().onElementEvent(element, event);
+        EventDispatcher.dispatch(event, element);
+      });
 
     return EventHandlerResponse.PERFORM_DEFAULT;
   }

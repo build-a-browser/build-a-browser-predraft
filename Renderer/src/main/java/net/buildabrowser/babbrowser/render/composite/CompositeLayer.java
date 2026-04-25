@@ -5,8 +5,8 @@ import java.util.List;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.render.composite.imp.CompositeLayerImp;
 import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
+import net.buildabrowser.babbrowser.render.paint.Painter;
 
-// Despite the name, CompositeLayer does not support compositing at this time
 public interface CompositeLayer {
 
   void addChild(CompositeLayer childLayer);
@@ -14,7 +14,9 @@ public interface CompositeLayer {
   // TODO: Currently replaces entries instead of adding them - is this good?
   void addEntries(CompositeLayerEntry entries);
 
-  void paint(PaintCanvas canvas);
+  void repaint(int[] viewport);
+
+  void draw(PaintCanvas canvas);
 
   PositionValue positioning();
 
@@ -29,11 +31,13 @@ public interface CompositeLayer {
   CompositeLayerEntry entries();
 
   static CompositeLayer create(
+    Painter painter,
     PositionValue positioning,
     float offsetX, float offsetY,
     int zIndex
   ) {
-    return new CompositeLayerImp(positioning, offsetX, offsetY, zIndex);
+    return new CompositeLayerImp(
+      painter, positioning, offsetX, offsetY, zIndex);
   }
 
 }

@@ -18,6 +18,8 @@ public interface PaintCanvas {
 
   void drawImage(float x, float y, float w, float h, LoadedImage image);
 
+  void drawBitMap(int x, int y, PaintBitMap bitMap);
+
   void clip(float x, float y, float w, float h);
 
   void unclip();

@@ -1,8 +1,7 @@
 package net.buildabrowser.babbrowser.html.navigation;
 
-import java.awt.image.BufferedImage;
+import java.awt.Graphics;
 import java.net.URI;
-import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
@@ -19,7 +18,7 @@ public interface DocumentRenderer {
 
   void resize(int width, int height);
 
-  void withImage(Consumer<BufferedImage> func);
+  void draw(Graphics g);
 
   DocumentChangeListener changeListener();
   

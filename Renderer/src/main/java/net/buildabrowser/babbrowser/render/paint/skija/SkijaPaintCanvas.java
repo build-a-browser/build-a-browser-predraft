@@ -10,6 +10,7 @@ import io.github.humbleui.types.Rect;
 import net.buildabrowser.babbrowser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.render.paint.LoadedImage;
 import net.buildabrowser.babbrowser.render.paint.Paint;
+import net.buildabrowser.babbrowser.render.paint.PaintBitMap;
 import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
 
 public class SkijaPaintCanvas implements PaintCanvas {
@@ -70,6 +71,11 @@ public class SkijaPaintCanvas implements PaintCanvas {
   public void drawImage(float x, float y, float w, float h, LoadedImage image) {
     Rect rect = Rect.makeXYWH(x, y, w, h);
     canvas.drawImageRect(((SkijaLoadedImage) image).image(), rect, rawPaint);
+  }
+
+  @Override
+  public void drawBitMap(int x, int y, PaintBitMap bitMap) {
+    ((SkijaBitMap) bitMap).draw(canvas, null, x, y);
   }
 
   @Override

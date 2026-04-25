@@ -19,6 +19,7 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragmen
 import net.buildabrowser.babbrowser.render.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.render.content.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
+import net.buildabrowser.babbrowser.render.paint.Painter;
 
 // TODO: Some of the positioning code here is quite hacky
 public class StackingContextImp implements StackingContext {
@@ -86,12 +87,12 @@ public class StackingContextImp implements StackingContext {
   }
 
   @Override
-  public CompositeLayer createLayer() {
+  public CompositeLayer createLayer(Painter painter) {
     assert insets != null;
-    CompositeLayer layer = createLayer(normalizedX, normalizedY);
+    CompositeLayer layer = createLayer(painter, normalizedX, normalizedY);
     SinglyLinkedList<StackingContext> childContext = childContexts;
     while (childContext != null) {
-      childContext.item().addLayer(layer::addChild, 0, 0);
+      childContext.item().addLayer(layer::addChild, painter, 0, 0);
       childContext = childContext.next();
     }
 
@@ -99,7 +100,11 @@ public class StackingContextImp implements StackingContext {
   }
 
   @Override
-  public void addLayer(Consumer<CompositeLayer> addFunc, float offsetX, float offsetY) {
+  public void addLayer(
+    Consumer<CompositeLayer> addFunc,
+    Painter painter,
+    float offsetX, float offsetY
+  ) {
     assert insets != null;
 
     boolean useInsets = positioning.equals(PositionValue.RELATIVE);
@@ -108,7 +113,7 @@ public class StackingContextImp implements StackingContext {
     
     float[] border = relatedBox.dimensions().getComputedBorder();
     
-    CompositeLayer ownLayer = createLayer(myOffsetX, myOffsetY);
+    CompositeLayer ownLayer = createLayer(painter, myOffsetX, myOffsetY);
     addFunc.accept(ownLayer);
     SinglyLinkedList<StackingContext> childContext = childContexts;
     while (childContext != null) {
@@ -117,16 +122,17 @@ public class StackingContextImp implements StackingContext {
       float absOffsetX = useAbsOffset ? border[2] : 0;
       float absOffsetY = useAbsOffset ? border[0] : 0;
       if (isPassthrough) {
-        childContext.item().addLayer(addFunc, myOffsetX + absOffsetX, myOffsetY + absOffsetY);
+        childContext.item().addLayer(addFunc, painter, myOffsetX + absOffsetX, myOffsetY + absOffsetY);
       } else {
-        childContext.item().addLayer(ownLayer::addChild, absOffsetX, absOffsetY);
+        childContext.item().addLayer(ownLayer::addChild, painter, absOffsetX, absOffsetY);
       }
       childContext = childContext.next();
     }
   }
 
-  private CompositeLayer createLayer(float offsetX, float offsetY) {
+  private CompositeLayer createLayer(Painter painter, float offsetX, float offsetY) {
     CompositeLayer layer = CompositeLayer.create(
+      painter,
       positioning, offsetX, offsetY, zIndexOrder);
     layer.addEntries(entries);
     return layer;

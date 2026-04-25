@@ -39,7 +39,7 @@ public class ScrollContentPainter implements BoxPainter {
     canvas.drawBox(scrollInfo.trackX(), scrollInfo.trackY(), scrollInfo.trackSize(), GUTTER_WIDTH);
     int scrollerColor = determineScrollColor(scrollState);
     canvas.alterPaint(c -> c.setColor(scrollerColor));
-    canvas.drawBox(scrollInfo.trackX(), scrollInfo.trackY() + scrollInfo.scrollerPos(),
+    canvas.drawBox(scrollInfo.trackX() + scrollInfo.scrollerPos(), scrollInfo.trackY(),
     scrollInfo.scrollerSize(), GUTTER_WIDTH);
   }
 
@@ -67,11 +67,7 @@ public class ScrollContentPainter implements BoxPainter {
 
   public static void paintForeground(ScrollBoxFragment scrollBoxFragment, PaintCanvas canvas) {
     BoxFragment innerFragment = scrollBoxFragment.innerFragment();
-    canvas.clip(
-      scrollBoxFragment.box().scrollX(), scrollBoxFragment.box().scrollY(),
-      innerFragment.width(Measurement.CONTENT), innerFragment.height(Measurement.CONTENT));
     innerFragment.painter().paint(innerFragment, canvas);
-    canvas.unclip();
   }
 
   private static int determineScrollColor(ScrollBarState scrollState) {

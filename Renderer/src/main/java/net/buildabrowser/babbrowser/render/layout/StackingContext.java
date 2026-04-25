@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.render.layout.imp.StackingContextImp;
+import net.buildabrowser.babbrowser.render.paint.Painter;
 
 public interface StackingContext {
 
@@ -17,9 +18,13 @@ public interface StackingContext {
 
   void addFragment(float posX, float posY, BoxFragment fragment);
 
-  CompositeLayer createLayer();
+  CompositeLayer createLayer(Painter painter);
 
-  void addLayer(Consumer<CompositeLayer> addFunc, float offsetX, float offsetY);
+  void addLayer(
+    Consumer<CompositeLayer> addFunc,
+    Painter painter,
+    float offsetX, float offsetY
+  );
 
   StackingContext parentContext();
 

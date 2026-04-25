@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.render.paint.java2d;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.function.Consumer;
 import net.buildabrowser.babbrowser.render.paint.FontMetrics;
 import net.buildabrowser.babbrowser.render.paint.LoadedImage;
 import net.buildabrowser.babbrowser.render.paint.Paint;
+import net.buildabrowser.babbrowser.render.paint.PaintBitMap;
 import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
 import net.buildabrowser.babbrowser.render.paint.FontLoader.FontOptions;
 
@@ -69,6 +71,12 @@ public class J2DPaintCanvas implements PaintCanvas {
   @Override
   public void drawImage(float x, float y, float w, float h, LoadedImage image) {
     graphics.drawImage(((J2DLoadedImage) image).image(), (int) x, (int) y, (int) w, (int) h, null);
+  }
+
+  @Override
+  public void drawBitMap(int x, int y, PaintBitMap bitMap) {
+    BufferedImage image = ((J2DBitMap) bitMap).image();
+    graphics.drawImage(image, x, y, (int) image.getWidth(), image.getHeight(), null);
   }
 
   @Override

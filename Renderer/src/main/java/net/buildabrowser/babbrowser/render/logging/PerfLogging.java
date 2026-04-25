@@ -11,6 +11,7 @@ public final class PerfLogging {
   private static final long LONG_STYLE_TIME = 100;
   private static final long LONG_LAYOUT_TIME = 100;
   private static final long LONG_PAINT_TIME = 100;
+  private static final long LONG_WINDOW_PAINT_TIME = 16;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PerfLogging.class);
   
@@ -55,9 +56,18 @@ public final class PerfLogging {
   public static void logPaintTime(long longTime) {
     long elapsedTime = System.currentTimeMillis() - longTime;
     if (elapsedTime > LONG_PAINT_TIME) {
-      LOGGER.warn("Long paint cycle took {} ms", elapsedTime);
+      LOGGER.warn("Long document paint cycle took {} ms", elapsedTime);
     } else {
-      LOGGER.trace("Paint cycle took {} ms", elapsedTime);
+      LOGGER.trace("Document paint cycle took {} ms", elapsedTime);
+    }
+  }
+
+  public static void logWindowPaintTime(long longTime) {
+    long elapsedTime = System.currentTimeMillis() - longTime;
+    if (elapsedTime > LONG_WINDOW_PAINT_TIME) {
+      LOGGER.warn("Long window paint cycle took {} ms", elapsedTime);
+    } else {
+      LOGGER.trace("Window paint cycle took {} ms", elapsedTime);
     }
   }
 
