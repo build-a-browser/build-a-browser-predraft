@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxF
 import net.buildabrowser.babbrowser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
+import net.buildabrowser.babbrowser.render.paint.PaintUtil;
 
 public class TableContentPainter implements BoxPainter {
 
@@ -19,7 +20,7 @@ public class TableContentPainter implements BoxPainter {
   // TODO: Real implementations, these are stubs
 
   @Override
-  public void paint(BoxFragment fragment, PaintCanvas canvas) {
+  public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
     canvas.alterPaint(p -> p.setColor(ActiveStylesUtil.backgroundColor(fragment.box().activeStyles())));
     canvas.drawBox(0, 0, fragment.width(Measurement.CONTENT), fragment.height(Measurement.CONTENT));
 
@@ -39,7 +40,9 @@ public class TableContentPainter implements BoxPainter {
             content.sizedTable().columnWidths()[x],
             content.sizedTable().columnHeights()[y]);
           // TODO: Call paintBackground?
-          childFragment.painter().paint(childFragment, canvas);
+          PaintUtil.maybePaintFragment(
+            childFragment, canvas, vpIntersection,
+            childFragment.painter()::paint);
           canvas.popPaint();
         }
       }
@@ -47,7 +50,7 @@ public class TableContentPainter implements BoxPainter {
   }
 
   @Override
-  public void paintBackground(BoxFragment fragment, PaintCanvas canvas) {
+  public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
     
   }
   

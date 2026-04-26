@@ -16,7 +16,7 @@ public interface CompositeLayer {
 
   void repaint(int[] viewport);
 
-  void draw(PaintCanvas canvas);
+  void draw(PaintCanvas canvas, int[] viewport);
 
   PositionValue positioning();
 

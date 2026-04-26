@@ -96,7 +96,7 @@ public class ImageContent implements BoxContent, BoxPainter {
   }
 
   @Override
-  public void paint(BoxFragment fragment, PaintCanvas canvas) {
+  public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
     canvas.alterPaint(paint -> paint.setColor(ActiveStylesUtil.backgroundColor(box.activeStyles())));
     float width = fragment.width(Measurement.CONTENT);
     float height = fragment.height(Measurement.CONTENT);
@@ -116,7 +116,7 @@ public class ImageContent implements BoxContent, BoxPainter {
   }
 
   @Override
-  public void paintBackground(BoxFragment fragment, PaintCanvas canvas) {
+  public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
     // TODO: Implement
   }
 

@@ -24,6 +24,11 @@ public class ScrollBoxFragment extends UnmanagedBoxFragment {
     this.hasVerticalScroll = hasVerticalScroll;
     this.innerFragment = innerFragment;
   }
+  
+  @Override
+  public ScrollContentPainter painter() {
+    return (ScrollContentPainter) super.painter();
+  }
 
   public boolean hasHorizontalScroll() {
     return this.hasHorizontalScroll;

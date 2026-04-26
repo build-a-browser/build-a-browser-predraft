@@ -25,15 +25,15 @@ public class UnreachableBoxPainter implements BoxPainter {
   }
 
   @Override
-  public void paint(BoxFragment fragment, PaintCanvas canvas) {
+  public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
     LOGGER.error("Unreachable Painter Source", reachException);
 
     assert false : "This method should be unreachable!";
   }
 
   @Override
-  public void paintBackground(BoxFragment fragment, PaintCanvas canvas) {
-    paint(fragment, canvas);
+  public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+    paint(fragment, canvas, vpIntersection);
   }
 
   public static BoxPainter create() {
@@ -55,12 +55,12 @@ public class UnreachableBoxPainter implements BoxPainter {
   private static class UnreachableBoxPainterNoTrace implements BoxPainter {
 
     @Override
-    public void paint(BoxFragment fragment, PaintCanvas canvas) {
+    public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
       LOGGER.warn("Reached UnreachableBoxPainterNoTrace#paint - this should not happen!");
     }
 
     @Override
-    public void paintBackground(BoxFragment fragment, PaintCanvas canvas) {
+    public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
       LOGGER.warn("Reached UnreachableBoxPainterNoTrace#paintBackground - this should not happen!");
     }
 

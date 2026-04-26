@@ -166,7 +166,9 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
     g.setColor(new Color(0xFFFFFF, false));
     g.fillRect(0, 0, width, height);
     // TODO: What if the root layer is updating internally while painting? (sync)
-    painter.withCanvas(g, width, height, rootLayer::draw);
+    int[] viewport = new int[] { 0, 0, width, height };
+    painter.withCanvas(g, width, height,
+      canvas -> rootLayer.draw(canvas, viewport));
     PerfLogging.logWindowPaintTime(windowPaintStartTime);
   }
 

@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.render.content.common.paint.ElementBackgroun
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
+import net.buildabrowser.babbrowser.render.paint.PaintUtil;
 
 public class FlexBoxContentPainter implements BoxPainter {
 
@@ -16,30 +17,33 @@ public class FlexBoxContentPainter implements BoxPainter {
   }
 
   @Override
-  public void paint(BoxFragment fragment, PaintCanvas canvas) {
+  public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
     StackingContext refContext = fragment.box().stackingContext();
     BoxFragment nextChild = content.fragments();
     while (nextChild != null) {
-      BoxFragment child = nextChild;
+      PaintUtil.maybePaintFragment(nextChild, canvas, vpIntersection,
+        (f, c, vpi) -> paintChild(f, c, vpi, refContext));
       nextChild = (BoxFragment) nextChild.next();
-
-      if (child.box().stackingContext() != refContext) continue;
-      
-      canvas.pushPaint();
-      canvas.alterPaint(p -> p.incOffset(child.posX(Measurement.BORDER), child.posY(Measurement.BORDER)));
-      child.painter().paintBackground(child, canvas);
-      canvas.popPaint();
-
-      canvas.pushPaint();
-      canvas.alterPaint(p -> p.incOffset(child.posX(Measurement.CONTENT), child.posY(Measurement.CONTENT)));
-      child.painter().paint(child, canvas);
-      canvas.popPaint();
     }
   }
 
   @Override
-  public void paintBackground(BoxFragment fragment, PaintCanvas canvas) {
+  public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
     ElementBackgroundPainter.paintBackground(canvas, fragment);
+  }
+
+  private void paintChild(BoxFragment child, PaintCanvas canvas, int[] vpIntersection, StackingContext refContext) {
+    if (child.box().stackingContext() != refContext) return;
+      
+    canvas.pushPaint();
+    canvas.alterPaint(p -> p.incOffset(child.posX(Measurement.BORDER), child.posY(Measurement.BORDER)));
+    child.painter().paintBackground(child, canvas, vpIntersection);
+    canvas.popPaint();
+
+    canvas.pushPaint();
+    canvas.alterPaint(p -> p.incOffset(child.posX(Measurement.CONTENT), child.posY(Measurement.CONTENT)));
+    child.painter().paint(child, canvas, vpIntersection);
+    canvas.popPaint();
   }
 
 }
