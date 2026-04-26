@@ -33,13 +33,15 @@ public class Main {
 
     // TODO: Use a proper argument parser
     boolean useJava2d = false;
+    boolean isSoftwareRendered = false;
     for (String arg: args) {
       useJava2d = useJava2d || arg.equals("--use-java2d");
+      isSoftwareRendered = isSoftwareRendered || arg.equals("--use-software-rendering");
     }
 
     Painter painter = useJava2d ?
       new Java2DPainter() :
-      new SkijaPainter();
+      new SkijaPainter(isSoftwareRendered, false);
 
     DocumentLoaderRegistry loaderRegistry = DocumentLoaderRegistry.create();
     loaderRegistry.register("text/html", new HTMLDocumentLoader());

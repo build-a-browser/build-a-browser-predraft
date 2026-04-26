@@ -1,12 +1,14 @@
 package net.buildabrowser.babbrowser.render.paint.java2d;
 
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.util.function.Consumer;
 
+import javax.swing.JPanel;
+
+import net.buildabrowser.babbrowser.render.paint.CanvasCallbacks;
 import net.buildabrowser.babbrowser.render.paint.PaintBitMap;
-import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
 import net.buildabrowser.babbrowser.render.paint.Painter;
 import net.buildabrowser.babbrowser.render.paint.ResourceLoader;
 
@@ -26,8 +28,19 @@ public class Java2DPainter implements Painter {
   }
 
   @Override
-  public void withCanvas(Graphics g, int width, int height, Consumer<PaintCanvas> paintFunc) {
-    paintFunc.accept(new J2DPaintCanvas((Graphics2D) g));
+  public Component createComponent(CanvasCallbacks callbacks) {
+    return new JPanel() {
+      @Override
+      public void doLayout() {
+        callbacks.layout();
+        super.doLayout();
+      }
+
+      @Override
+      public void paint(Graphics g) {
+        callbacks.paint(new J2DPaintCanvas((Graphics2D) g));
+      }
+    };
   }
 
 }

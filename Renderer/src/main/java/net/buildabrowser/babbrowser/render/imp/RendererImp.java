@@ -1,71 +1,73 @@
 package net.buildabrowser.babbrowser.render.imp;
 
 import java.awt.Component;
-import java.awt.Graphics;
 import java.io.IOException;
 import java.util.Optional;
-
-import javax.swing.JPanel;
 
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.render.Renderer;
+import net.buildabrowser.babbrowser.render.paint.CanvasCallbacks;
+import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
 import net.buildabrowser.babbrowser.render.paint.Painter;
 
 public class RendererImp implements Renderer {
   
   private final Navigable navigable;
+  private final Painter painter;
   private final DocumentRendererEventListener eventListener;
 
   private DocumentRenderer activeDocumentRenderer;
-  private JPanel jpanel;
+  private Component panel;
 
   public RendererImp(
     Navigable navigable, Painter painter,
     DocumentRendererEventListener eventListener
   ) {
     this.navigable = navigable;
+    this.painter = painter;
     navigable.uaNavigableOptions().addRepaintListener(() -> {
-      if (jpanel == null) return;
-      jpanel.revalidate();
-      jpanel.repaint();
+      if (panel == null) return;
+      panel.revalidate();
+      panel.repaint();
     });
 
     this.eventListener = eventListener;
   }
 
   public Component render() throws IOException {
-    if (this.jpanel != null) {
-      return this.jpanel;
+    if (this.panel != null) {
+      return this.panel;
     }
 
-    this.jpanel = new JPanel() {
+    this.panel = painter.createComponent(new CanvasCallbacks() {
+
       @Override
-      public void doLayout() {
+      public void layout() {
         DocumentRenderer documentRenderer = navigable.activeDocument().renderer();
         activeDocumentRenderer = documentRenderer;
         if (documentRenderer == null) return;
 
         documentRenderer.setEventListener(eventListener);
-        documentRenderer.resize(getWidth(), getHeight());
-        super.doLayout();
+        documentRenderer.resize(panel.getWidth(), panel.getHeight());
       }
 
       @Override
-      protected void paintComponent(Graphics g) {
+      public void paint(PaintCanvas canvas) {
         if (activeDocumentRenderer == null) return;
-        activeDocumentRenderer.draw(g);
+        activeDocumentRenderer.draw(canvas);
       }
-    };
+      
+    });
 
     RendererMouseInputAdapter inputHandler = new RendererMouseInputAdapter(() -> activeDocumentRenderer);
-    jpanel.addMouseListener(inputHandler);
-    jpanel.addMouseMotionListener(inputHandler);
-    jpanel.addMouseWheelListener(inputHandler);
+    panel.addMouseListener(inputHandler);
+    panel.addMouseMotionListener(inputHandler);
+    panel.addMouseWheelListener(inputHandler);
 
-    return this.jpanel;
+    return this.panel;
   }
 
   @Override

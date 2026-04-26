@@ -13,6 +13,8 @@ import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent.Mouse
 
 public class RendererMouseInputAdapter extends MouseInputAdapter {
 
+  private static final int SCROLL_AMOUNT = 20;
+
   private final Supplier<DocumentRenderer> rendererSupplier;
 
   // TODO: Should store each button
@@ -57,8 +59,8 @@ public class RendererMouseInputAdapter extends MouseInputAdapter {
     e.consume();
     // TODO: Some mice (not mine) have horizontal scroll wheels, how to detect that?
     RendererMouseEvent mouseEvent = e.isShiftDown() ?
-      RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), MouseEventType.SCROLL, e.getUnitsToScroll() * 10, 0) :
-      RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), MouseEventType.SCROLL, 0, e.getUnitsToScroll() * 10);
+      RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), MouseEventType.SCROLL, e.getUnitsToScroll() * SCROLL_AMOUNT, 0) :
+      RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), MouseEventType.SCROLL, 0, e.getUnitsToScroll() * SCROLL_AMOUNT);
     if (rendererSupplier.get() instanceof EventForwardingTarget target) {
       target.forwardEvent(mouseEvent);
     }

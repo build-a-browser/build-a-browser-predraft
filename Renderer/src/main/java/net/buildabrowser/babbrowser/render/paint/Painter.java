@@ -1,7 +1,6 @@
 package net.buildabrowser.babbrowser.render.paint;
 
-import java.awt.Graphics;
-import java.util.function.Consumer;
+import java.awt.Component;
 
 public interface Painter {
   
@@ -9,6 +8,6 @@ public interface Painter {
 
   PaintBitMap createPaintBitMap(int width, int height);
 
-  void withCanvas(Graphics g, int width, int height, Consumer<PaintCanvas> paintFunc);
+  Component createComponent(CanvasCallbacks callbacks);
 
 }

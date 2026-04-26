@@ -1,7 +1,5 @@
 package net.buildabrowser.babbrowser.render.imp;
 
-import java.awt.Color;
-import java.awt.Graphics;
 import java.util.ArrayDeque;
 import java.util.List;
 
@@ -41,6 +39,7 @@ import net.buildabrowser.babbrowser.render.logging.PerfLogging;
 import net.buildabrowser.babbrowser.render.paint.FontLoader;
 import net.buildabrowser.babbrowser.render.paint.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.render.paint.LoadedFont;
+import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
 import net.buildabrowser.babbrowser.render.paint.Painter;
 import net.buildabrowser.babbrowser.render.paint.ResourceLoader;
 import net.buildabrowser.babbrowser.render.style.StyleGenerator;
@@ -155,20 +154,20 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
   }
 
   @Override
-  public void draw(Graphics g) {
+  public void draw(Object context) {
     if (
       this.rootLayer == null
       || this.width <= 0
       || this.height <= 0
+      || !(context instanceof PaintCanvas canvas)
     ) return;
 
     long windowPaintStartTime = System.currentTimeMillis();
-    g.setColor(new Color(0xFFFFFF, false));
-    g.fillRect(0, 0, width, height);
+    canvas.alterPaint(p -> p.setColor(0xFFFFFFFF));
+    canvas.drawBox(0, 0, width, height);
     // TODO: What if the root layer is updating internally while painting? (sync)
     int[] viewport = new int[] { 0, 0, width, height };
-    painter.withCanvas(g, width, height,
-      canvas -> rootLayer.draw(canvas, viewport));
+    rootLayer.draw(canvas, viewport);
     PerfLogging.logWindowPaintTime(windowPaintStartTime);
   }
 

@@ -1,6 +1,5 @@
 package net.buildabrowser.babbrowser.html.navigation;
 
-import java.awt.Graphics;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
@@ -18,7 +17,7 @@ public interface DocumentRenderer {
 
   void resize(int width, int height);
 
-  void draw(Graphics g);
+  void draw(Object context);
 
   DocumentChangeListener changeListener();
   

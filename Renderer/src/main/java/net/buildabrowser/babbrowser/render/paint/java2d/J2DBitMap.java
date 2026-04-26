@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.render.paint.java2d;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.function.Consumer;
 
@@ -16,7 +18,10 @@ public class J2DBitMap implements PaintBitMap {
 
   @Override
   public void withCanvas(Consumer<PaintCanvas> paintFunc) {
-    J2DPaintCanvas canvas = new J2DPaintCanvas(bitMapImage.createGraphics());
+    Graphics2D graphics = bitMapImage.createGraphics();
+    graphics.setBackground(new Color(0, 0, 0, 0));
+    graphics.clearRect(0, 0, bitMapImage.getWidth(), bitMapImage.getHeight());
+    J2DPaintCanvas canvas = new J2DPaintCanvas(graphics);
     paintFunc.accept(canvas);
   }
 

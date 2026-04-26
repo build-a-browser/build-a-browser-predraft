@@ -75,7 +75,7 @@ public class SkijaPaintCanvas implements PaintCanvas {
 
   @Override
   public void drawBitMap(int x, int y, PaintBitMap bitMap) {
-    ((SkijaBitMap) bitMap).draw(canvas, null, x, y);
+    ((SkijaPaintBitMap) bitMap).draw(canvas, null, x, y);
   }
 
   @Override

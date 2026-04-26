@@ -5,10 +5,9 @@ import java.util.function.Consumer;
 import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.Paint;
 import io.github.humbleui.skija.Surface;
-import net.buildabrowser.babbrowser.render.paint.PaintBitMap;
 import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
 
-public class SkijaBitMap implements PaintBitMap {
+public class SkijaBitMap implements SkijaPaintBitMap {
 
   private final Surface surface;
 
@@ -26,6 +25,7 @@ public class SkijaBitMap implements PaintBitMap {
     rawCanvas.restore();
   }
 
+  @Override
   public void draw(Canvas canvas, Paint paint, int x, int y) {
     surface.draw(canvas, x, y, paint);
   }

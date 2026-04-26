@@ -124,6 +124,10 @@ public final class CompositeEventsDispatcher {
         translatedRel.relY() : translatedRel.childRelY();
       // TODO: Position fragment is not reliable
       BoxFragment observerFragment = observerBox.positioningFragment();
+      // TODO: This can happen if an event is handled mid-layout (it is racey)
+      // But we can't sync, the whole point of not being on the event loop is to handle
+      // things like scrollbars while the event loop is busy
+      if (observerFragment == null) return;
       childRelX -= observerFragment.layerX(Measurement.BORDER);
       childRelY -= observerFragment.layerY(Measurement.BORDER);
 
