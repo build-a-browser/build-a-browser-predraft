@@ -8,7 +8,7 @@ import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRen
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.render.imp.RenderingEngineImp;
 import net.buildabrowser.babbrowser.render.loader.DocumentLoaderRegistry;
-import net.buildabrowser.babbrowser.render.paint.Painter;
+import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 import net.buildabrowser.babbrowser.render.uistate.Frame;
 
 public interface RenderingEngine {

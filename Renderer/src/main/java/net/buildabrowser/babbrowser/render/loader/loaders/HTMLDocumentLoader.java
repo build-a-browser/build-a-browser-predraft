@@ -17,7 +17,7 @@ import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
 import net.buildabrowser.babbrowser.render.imp.HTMLDocumentRendererImp;
 import net.buildabrowser.babbrowser.render.loader.DocumentLoader;
 import net.buildabrowser.babbrowser.render.logging.PerfLogging;
-import net.buildabrowser.babbrowser.render.paint.Painter;
+import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 import net.buildabrowser.babbrowser.stream.ReadRequest;
 import net.buildabrowser.babbrowser.stream.ReadableStream.ReadableStreamGetReaderOptions;
 import net.buildabrowser.babbrowser.stream.imp.ReadableStreamDefaultReaderImp;

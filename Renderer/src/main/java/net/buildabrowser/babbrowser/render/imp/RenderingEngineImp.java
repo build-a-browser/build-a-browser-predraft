@@ -12,7 +12,7 @@ import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.render.Renderer;
 import net.buildabrowser.babbrowser.render.RenderingEngine;
 import net.buildabrowser.babbrowser.render.loader.DocumentLoaderRegistry;
-import net.buildabrowser.babbrowser.render.paint.Painter;
+import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 import net.buildabrowser.babbrowser.render.uistate.Frame;
 
 public class RenderingEngineImp implements RenderingEngine {

@@ -8,8 +8,8 @@ import net.buildabrowser.babbrowser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutContextGenerator;
-import net.buildabrowser.babbrowser.render.paint.FontMetrics;
-import net.buildabrowser.babbrowser.render.paint.ResourceLoader;
+import net.buildabrowser.babbrowser.render.paint.backend.FontMetrics;
+import net.buildabrowser.babbrowser.render.paint.backend.ResourceLoader;
 import net.buildabrowser.babbrowser.render.paint.test.TestFontMetrics;
 import net.buildabrowser.babbrowser.render.paint.test.TestResourceLoader;
 

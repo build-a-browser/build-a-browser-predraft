@@ -7,7 +7,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
 
 public final class ElementBackgroundPainter {
 

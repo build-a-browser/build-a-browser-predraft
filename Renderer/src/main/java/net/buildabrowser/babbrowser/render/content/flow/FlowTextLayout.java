@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.render.content.flow;
 
 import net.buildabrowser.babbrowser.render.content.flow.InlineStagingArea.StagedText;
 import net.buildabrowser.babbrowser.render.layout.LayoutContext;
-import net.buildabrowser.babbrowser.render.paint.FontMetrics;
+import net.buildabrowser.babbrowser.render.paint.backend.FontMetrics;
 
 public final class FlowTextLayout {
   

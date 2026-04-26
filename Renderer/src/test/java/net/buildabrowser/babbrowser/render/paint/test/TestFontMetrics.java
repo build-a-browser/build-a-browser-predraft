@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.render.paint.test;
 
-import net.buildabrowser.babbrowser.render.paint.FontMetrics;
+import net.buildabrowser.babbrowser.render.paint.backend.FontMetrics;
 
 public record TestFontMetrics(float height, float charWidth) implements FontMetrics {
 

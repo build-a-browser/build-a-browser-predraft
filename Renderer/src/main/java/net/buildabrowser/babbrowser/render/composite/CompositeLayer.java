@@ -4,8 +4,8 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.render.composite.imp.CompositeLayerImp;
-import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
-import net.buildabrowser.babbrowser.render.paint.Painter;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
+import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 
 public interface CompositeLayer {
 

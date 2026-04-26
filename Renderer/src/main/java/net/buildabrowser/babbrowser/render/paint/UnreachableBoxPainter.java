@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
 
 public class UnreachableBoxPainter implements BoxPainter {
   

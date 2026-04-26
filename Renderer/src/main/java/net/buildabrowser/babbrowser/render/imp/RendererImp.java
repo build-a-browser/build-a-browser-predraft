@@ -9,9 +9,9 @@ import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.render.Renderer;
-import net.buildabrowser.babbrowser.render.paint.CanvasCallbacks;
-import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
-import net.buildabrowser.babbrowser.render.paint.Painter;
+import net.buildabrowser.babbrowser.render.paint.backend.CanvasCallbacks;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
+import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 
 public class RendererImp implements Renderer {
   

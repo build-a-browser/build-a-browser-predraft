@@ -8,7 +8,7 @@ import net.buildabrowser.babbrowser.render.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.render.layout.imp.StackingContextImp;
-import net.buildabrowser.babbrowser.render.paint.Painter;
+import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 
 public interface StackingContext {
 

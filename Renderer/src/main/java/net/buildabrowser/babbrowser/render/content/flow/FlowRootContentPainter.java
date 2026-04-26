@@ -16,8 +16,8 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.paint.ElementBackgroundPainter;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
-import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
-import net.buildabrowser.babbrowser.render.paint.PaintUtil;;
+import net.buildabrowser.babbrowser.render.paint.PaintUtil;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;;
 
 public final class FlowRootContentPainter {
 

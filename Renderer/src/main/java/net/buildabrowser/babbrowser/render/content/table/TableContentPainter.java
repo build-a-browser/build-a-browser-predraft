@@ -6,8 +6,8 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragmen
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
-import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
 import net.buildabrowser.babbrowser.render.paint.PaintUtil;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
 
 public class TableContentPainter implements BoxPainter {
 

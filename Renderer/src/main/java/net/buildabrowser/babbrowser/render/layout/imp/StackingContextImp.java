@@ -19,7 +19,7 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragmen
 import net.buildabrowser.babbrowser.render.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.render.content.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
-import net.buildabrowser.babbrowser.render.paint.Painter;
+import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 
 // TODO: Some of the positioning code here is quite hacky
 public class StackingContextImp implements StackingContext {

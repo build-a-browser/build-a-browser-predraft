@@ -22,9 +22,9 @@ import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
 import net.buildabrowser.babbrowser.render.RenderingEngine;
 import net.buildabrowser.babbrowser.render.loader.DocumentLoaderRegistry;
 import net.buildabrowser.babbrowser.render.loader.loaders.HTMLDocumentLoader;
-import net.buildabrowser.babbrowser.render.paint.Painter;
-import net.buildabrowser.babbrowser.render.paint.java2d.Java2DPainter;
-import net.buildabrowser.babbrowser.render.paint.skija.SkijaPainter;
+import net.buildabrowser.babbrowser.render.paint.backend.Painter;
+import net.buildabrowser.babbrowser.render.paint.backend.java2d.Java2DPainter;
+import net.buildabrowser.babbrowser.render.paint.backend.skija.SkijaPainter;
 
 public class Main {
   

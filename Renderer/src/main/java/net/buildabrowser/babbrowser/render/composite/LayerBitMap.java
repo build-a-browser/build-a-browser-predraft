@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.render.composite;
 
 import java.util.function.Consumer;
 
-import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
 
 public interface LayerBitMap {
   

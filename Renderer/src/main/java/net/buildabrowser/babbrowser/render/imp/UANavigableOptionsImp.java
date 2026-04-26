@@ -12,7 +12,7 @@ import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.navigation.NavigationParams;
 import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.render.loader.DocumentLoaderRegistry;
-import net.buildabrowser.babbrowser.render.paint.Painter;
+import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 
 public class UANavigableOptionsImp implements UANavigableOptions {
 

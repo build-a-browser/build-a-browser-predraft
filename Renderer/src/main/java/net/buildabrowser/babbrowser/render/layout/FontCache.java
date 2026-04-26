@@ -1,9 +1,9 @@
 package net.buildabrowser.babbrowser.render.layout;
 
 import net.buildabrowser.babbrowser.render.layout.imp.FontCacheImp;
-import net.buildabrowser.babbrowser.render.paint.FontLoader;
-import net.buildabrowser.babbrowser.render.paint.LoadedFont;
-import net.buildabrowser.babbrowser.render.paint.FontLoader.FontOptions;
+import net.buildabrowser.babbrowser.render.paint.backend.FontLoader;
+import net.buildabrowser.babbrowser.render.paint.backend.LoadedFont;
+import net.buildabrowser.babbrowser.render.paint.backend.FontLoader.FontOptions;
 
 public interface FontCache {
 

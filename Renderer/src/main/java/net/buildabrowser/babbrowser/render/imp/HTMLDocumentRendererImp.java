@@ -36,12 +36,12 @@ import net.buildabrowser.babbrowser.render.layout.LayoutContextGenerator;
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.render.layout.StackingContextGenerator;
 import net.buildabrowser.babbrowser.render.logging.PerfLogging;
-import net.buildabrowser.babbrowser.render.paint.FontLoader;
-import net.buildabrowser.babbrowser.render.paint.FontLoader.FontOptions;
-import net.buildabrowser.babbrowser.render.paint.LoadedFont;
-import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
-import net.buildabrowser.babbrowser.render.paint.Painter;
-import net.buildabrowser.babbrowser.render.paint.ResourceLoader;
+import net.buildabrowser.babbrowser.render.paint.backend.FontLoader;
+import net.buildabrowser.babbrowser.render.paint.backend.LoadedFont;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
+import net.buildabrowser.babbrowser.render.paint.backend.Painter;
+import net.buildabrowser.babbrowser.render.paint.backend.ResourceLoader;
+import net.buildabrowser.babbrowser.render.paint.backend.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.render.style.StyleGenerator;
 
 public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardingTarget {

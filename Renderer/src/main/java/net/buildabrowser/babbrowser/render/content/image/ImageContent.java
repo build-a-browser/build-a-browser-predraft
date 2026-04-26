@@ -30,9 +30,9 @@ import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
-import net.buildabrowser.babbrowser.render.paint.FontMetrics;
-import net.buildabrowser.babbrowser.render.paint.LoadedImage;
-import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
+import net.buildabrowser.babbrowser.render.paint.backend.FontMetrics;
+import net.buildabrowser.babbrowser.render.paint.backend.LoadedImage;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
 
 public class ImageContent implements BoxContent, BoxPainter {
 

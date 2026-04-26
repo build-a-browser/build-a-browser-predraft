@@ -3,9 +3,9 @@ package net.buildabrowser.babbrowser.render.composite.imp;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.render.composite.LayerBitMap;
-import net.buildabrowser.babbrowser.render.paint.PaintBitMap;
-import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
-import net.buildabrowser.babbrowser.render.paint.Painter;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintBitMap;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
+import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 
 public class LayerBitMapImp implements LayerBitMap {
 

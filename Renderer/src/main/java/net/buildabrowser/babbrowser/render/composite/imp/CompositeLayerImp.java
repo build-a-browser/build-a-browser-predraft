@@ -12,8 +12,8 @@ import net.buildabrowser.babbrowser.render.composite.LayerBitMap;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.scroll.ScrollBoxFragment;
-import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
-import net.buildabrowser.babbrowser.render.paint.Painter;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
+import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 
 public class CompositeLayerImp implements CompositeLayer {
 

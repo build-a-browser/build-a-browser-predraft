@@ -1,9 +1,10 @@
 package net.buildabrowser.babbrowser.render.content.scroll;
 
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.scroll.ScrollMath.ScrollMathResult;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
-import net.buildabrowser.babbrowser.render.paint.PaintCanvas;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
 
 public class ScrollContentPainter implements BoxPainter {
 
@@ -27,6 +28,10 @@ public class ScrollContentPainter implements BoxPainter {
   public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
     // TOD: I think border and stuff might be outside the scrollbox (haven't checked),
     // in which case this method should be changed accordingly
+    canvas.alterPaint(p -> p.incOffset(
+      fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER),
+      fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER)));
+
     ScrollBoxFragment scrollBoxFragment = (ScrollBoxFragment) fragment;
     BoxFragment innerFragment = scrollBoxFragment.innerFragment();
     innerFragment.painter().paintBackground(innerFragment, canvas, vpIntersection);
