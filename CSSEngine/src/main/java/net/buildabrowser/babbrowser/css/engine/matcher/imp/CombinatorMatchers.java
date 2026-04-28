@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.css.engine.matcher.imp;
 
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
@@ -7,46 +8,47 @@ import net.buildabrowser.babbrowser.dom.Node;
 public final class CombinatorMatchers {
   
   // TODO: Better way to obtain new ElementSet
-  // TODO: More performant way to match combinators
-  //   (eg assign nodes a range, and do integer range math)
 
-  private CombinatorMatchers() {}
+  private final ElementIdTreeListener idTree;
 
-  public static ElementSet matchDescendants(ElementSet priorMatches, ElementSet nextMatches) {
+  public CombinatorMatchers(ElementRootSet allElements) {
+    this.idTree = new ElementIdTreeListener(allElements);
+    allElements.addListener(idTree);
+    idTree.resync();
+  }
+
+  public ElementSet matchDescendants(ElementSet priorMatches, ElementSet nextMatches) {
     ElementSet newMatches = priorMatches.root().createTemporaryChild();
-    for (Element matchedElement: nextMatches) {
-      Node parent = matchedElement.parentNode();
-      while (parent != null) {
-        if (
-          parent instanceof Element element
-          && priorMatches.contains(element)
-        ) {
-          newMatches.add(matchedElement);
+    nextMatches.forEachElementId(elementId -> {
+      int parentId = idTree.getElementParentId(elementId);
+      while (parentId != -1) {
+        if (priorMatches.containsById(parentId)) {
+          newMatches.addById(elementId);
           break;
         }
-        parent = parent.parentNode();
+        parentId = idTree.getElementParentId(parentId);
       }
-    }
+    });
 
     return newMatches;
   }
 
-  public static ElementSet matchChild(ElementSet priorMatches, ElementSet nextMatches) {
+  public ElementSet matchChild(ElementSet priorMatches, ElementSet nextMatches) {
     ElementSet newMatches = priorMatches.root().createTemporaryChild();
-    for (Element matchedElement: nextMatches) {
-      Node parent = matchedElement.parentNode();
+    nextMatches.forEachElementId(elementId -> {
+      int parentId = idTree.getElementParentId(elementId);
       if (
-        parent instanceof Element element
-        && priorMatches.contains(element)
+        parentId != -1
+        && priorMatches.containsById(parentId)
       ) {
-        newMatches.add(matchedElement);
+        newMatches.addById(elementId);
       }
-    }
+    });
 
     return newMatches;
   }
 
-  public static ElementSet matchNextSibling(ElementSet priorMatches, ElementSet nextMatches) {
+  public ElementSet matchNextSibling(ElementSet priorMatches, ElementSet nextMatches) {
     ElementSet newMatches = priorMatches.root().createTemporaryChild();
     for (Element matchedElement: nextMatches) {
       Node prevNode = matchedElement.previousSibling();
@@ -68,7 +70,7 @@ public final class CombinatorMatchers {
     return newMatches;
   }
 
-  public static ElementSet matchSubsequentSibling(ElementSet priorMatches, ElementSet nextMatches) {
+  public ElementSet matchSubsequentSibling(ElementSet priorMatches, ElementSet nextMatches) {
     ElementSet newMatches = priorMatches.root().createTemporaryChild();
     for (Element matchedElement: nextMatches) {
       Node prevNode = matchedElement.previousSibling();

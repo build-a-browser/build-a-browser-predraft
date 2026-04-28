@@ -7,8 +7,10 @@ import java.util.function.Consumer;
 
 import com.zaxxer.sparsebits.SparseBitSet;
 
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementSetListener;
 import net.buildabrowser.babbrowser.dom.Element;
 
 public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
@@ -18,15 +20,15 @@ public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
   // TODO: Periodically remove old entries
   private final LinkedList<WeakReference<ElementSet>> childSets = new LinkedList<>();
 
-  private Consumer<Element> onChange;
   private int nextId = 0;
+  private int broadcastedSize = NUM_INITIAL_ELEMENTS;
+  private ElementSetListener listeners;
 
   public ElementRootSetImp(Consumer<Element> changeListener) {
     super(
       null,
       new ArrayList<>(NUM_INITIAL_ELEMENTS),
       new SparseBitSet(NUM_INITIAL_ELEMENTS));
-    this.onChange = changeListener;
   }
 
   @Override
@@ -37,21 +39,14 @@ public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
   }
 
   @Override
-  public ElementSet createUntrackedChild() {
-    ElementSet set = new ElementSetImp(this, elementList, rawSet.size()) {
-      @Override
-      public void markChanged(Element element) {}
-    };
-    childSets.add(new WeakReference<>(set));
-    return set;
+  public ElementSet createTemporaryChild() {
+    return new ElementSetImp(this, elementList, rawSet.size());
   }
 
   @Override
-  public ElementSet createTemporaryChild() {
-    return new ElementSetImp(this, elementList, rawSet.size()) {
-      @Override
-      public void markChanged(Element element) {}
-    };
+  public void addListener(ElementSetListener listener) {
+    this.listeners = IntrusiveList.add(listeners, listener);
+    listener.onResize(broadcastedSize);
   }
 
   @Override
@@ -61,6 +56,9 @@ public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
     
     boolean oldValue = rawSet.get(element.getId());
     rawSet.set(element.getId(), true);
+
+    IntrusiveList.forEach(listeners, l -> l.onElementAdded(element));
+
     return !oldValue;
   }
 
@@ -69,14 +67,13 @@ public class ElementRootSetImp extends ElementSetImp implements ElementRootSet {
     return this;
   }
 
-  @Override
-  public void markChanged(Element element) {
-    if (this.onChange == null) return;
-    this.onChange.accept(element);
-  }
-
   private void resizeChildrenIfNeeded() {
-    // Not needed with SparseBitSet
+    // Don't need to resize children with SparseBitSet
+    // but do need to make sure listeners are resized
+    if (nextId >= broadcastedSize) {
+      this.broadcastedSize = (int) (this.broadcastedSize * 1.5f);
+      IntrusiveList.forEach(listeners, l -> l.onResize(broadcastedSize));
+    }
   }
 
   private void assignElementId(Element element) {

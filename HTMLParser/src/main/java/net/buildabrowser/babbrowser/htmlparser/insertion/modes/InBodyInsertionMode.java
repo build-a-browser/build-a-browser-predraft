@@ -33,6 +33,14 @@ public class InBodyInsertionMode implements InsertionMode {
   }
 
   @Override
+  public boolean emitOptimizedString(ParseContext parseContext, String data) {
+    ParseTextUtil.reconstructTheActiveFormattingElements(parseContext);
+    ParseTextUtil.insertAString(parseContext, data);
+    parseContext.setFramesetOk(false);
+    return false;
+  }
+
+  @Override
   public boolean emitCommentToken(ParseContext parseContext, CommentToken commentToken) {
     ParseCommentUtil.insertAComment(parseContext, commentToken);
     return false;

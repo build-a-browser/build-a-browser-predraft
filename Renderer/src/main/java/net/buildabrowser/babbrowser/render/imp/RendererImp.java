@@ -4,6 +4,8 @@ import java.awt.Component;
 import java.io.IOException;
 import java.util.Optional;
 
+import javax.swing.SwingUtilities;
+
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
@@ -29,9 +31,11 @@ public class RendererImp implements Renderer {
     this.navigable = navigable;
     this.painter = painter;
     navigable.uaNavigableOptions().addRepaintListener(() -> {
-      if (panel == null) return;
-      panel.revalidate();
-      panel.repaint();
+      SwingUtilities.invokeLater(() -> {
+        if (panel == null) return;
+        panel.revalidate();
+        panel.repaint();
+      });
     });
 
     this.eventListener = eventListener;

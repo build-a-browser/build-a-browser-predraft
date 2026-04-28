@@ -23,6 +23,19 @@ public final class ParseTextUtil {
     }
   }
 
+  public static void insertAString(ParseContext parseContext, String data) {
+    Node adjustedInsertionLocation = ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, null);
+    if (adjustedInsertionLocation instanceof Document) return;
+
+    if (adjustedInsertionLocation.lastChild() instanceof Text text) {
+      text.appendString(data);
+    } else {
+      Text text = HTMLText.create("");
+      adjustedInsertionLocation.appendChild(text);
+      text.appendString(data);
+    }
+  }
+
   public static void reconstructTheActiveFormattingElements(ParseContext parseContext) {
     // TODO: Implement the algorithm
   }

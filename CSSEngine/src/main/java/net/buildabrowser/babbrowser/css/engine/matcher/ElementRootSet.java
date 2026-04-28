@@ -6,6 +6,6 @@ public interface ElementRootSet extends ElementSet {
 
   ElementSet createTemporaryChild();
 
-  ElementSet createUntrackedChild();
+  void addListener(ElementSetListener listener);
 
 }

@@ -155,13 +155,8 @@ public class ActiveStylesImp implements ActiveStyles {
   }
 
   private int getPropertyPos(int id) {
-    int listPos = 0;
-    int currentId = hasOwnValuesNextSetBit(0);
-    while (currentId < id && currentId != -1) {
-      listPos++;
-      currentId = hasOwnValuesNextSetBit(currentId + 1);
-    }
-    return listPos;
+    long mask = (1L << id) - 1;
+    return Long.bitCount(hasOwnValues & mask);
   }
 
   private void lazilyInitCustomProperties() {
@@ -192,12 +187,6 @@ public class ActiveStylesImp implements ActiveStyles {
 
   private boolean getHasOwnValue(int id) {
     return (hasOwnValues & (1L << id)) != 0;
-  }
-
-  private int hasOwnValuesNextSetBit(int fromIndex) {
-    long word = hasOwnValues & (-1L << fromIndex);
-    if (word == 0) return -1;
-    return Long.numberOfTrailingZeros(word);
   }
   
 }

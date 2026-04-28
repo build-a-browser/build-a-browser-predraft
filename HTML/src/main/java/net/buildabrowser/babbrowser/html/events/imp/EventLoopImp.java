@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.buildabrowser.babbrowser.common.util.GCUtil;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.Task;
@@ -75,16 +74,11 @@ public class EventLoopImp implements EventLoop {
         
         currentlyRunningTask = null;
         // TODO: Run microtasks
-        GCUtil.fastGC();
       }
 
       runLoopSpecificTask();
     
       // TODO: Properly start an idle period
-
-      if (numTasks <= 1) {
-        GCUtil.slowGC();
-      }
       synchronized (tasks) {
         if (numTasks > 0) numTasks--;
         if (numTasks == 0) {
@@ -101,6 +95,9 @@ public class EventLoopImp implements EventLoop {
     // TODO: Check spec for proper way to shutdown
     isClosing.set(true);
     threadGroup.shutdown();
+    synchronized (tasks) {
+      tasks.notify();
+    }
   }
 
   @Override

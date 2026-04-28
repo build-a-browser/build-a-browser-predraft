@@ -1,19 +1,18 @@
 package net.buildabrowser.babbrowser.htmlparser.token.imp;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
+import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.dom.imp.AttributeList;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
 
 public class TagTokenImp implements TagToken {
 
   private final StringBuilder nameBuilder = new StringBuilder();
-  private final List<AttributePair> attributes = new LinkedList<>();
   private final StringBuilder attributeNameBuilder = new StringBuilder();
   private final StringBuilder attributeValueBuilder = new StringBuilder();
 
+  private AttributeList attributes;
+  private AttributeList lastAttribute;
   private boolean isStartTag;
   private boolean isSelfClosing;
 
@@ -57,9 +56,15 @@ public class TagTokenImp implements TagToken {
   @Override
   public void startNewAttribute() {
     if (attributeNameBuilder.length() != 0) {
-      attributes.add(new AttributePair(
+      AttributeList newAttribute = new AttributeList(
         attributeNameBuilder.toString(),
-        attributeValueBuilder.toString()));
+        attributeValueBuilder.toString());
+      if (this.attributes == null) {
+        this.attributes = newAttribute;
+      } else {
+        IntrusiveList.add(lastAttribute, newAttribute);
+      }
+      this.lastAttribute = newAttribute;
     }
 
     attributeNameBuilder.setLength(0);
@@ -77,30 +82,29 @@ public class TagTokenImp implements TagToken {
   }
 
   @Override
-  public Map<String, String> attributes() {
-    Map<String, String> attributesMap = new HashMap<>(2);
-    for (AttributePair attrPair: attributes) {
-      attributesMap.put(attrPair.name, attrPair.value());
+  public void copyAttributesTo(Element element) {
+    AttributeList currentAttribute = this.attributes;
+    while (currentAttribute != null) {
+      element.addAttribute(
+        currentAttribute.name(),
+        currentAttribute.value());
+      currentAttribute = currentAttribute.next();
     }
 
-    if (attributeNameBuilder.length() != 0) {
-      attributesMap.put(
+    if (!attributeNameBuilder.isEmpty()) {
+      element.addAttribute(
         attributeNameBuilder.toString(),
-        attributeValueBuilder.toString());
+      attributeValueBuilder.toString());
     }
-
-    return attributesMap;
   }
 
   public void reinit(boolean isStartTag) {
     this.isStartTag = isStartTag;
     this.isSelfClosing = false;
     this.nameBuilder.setLength(0);
-    attributes.clear();
+    this.attributes = this.lastAttribute = null;
     attributeNameBuilder.setLength(0);
     attributeValueBuilder.setLength(0);
   }
-
-  private static record AttributePair(String name, String value) {}
   
 }

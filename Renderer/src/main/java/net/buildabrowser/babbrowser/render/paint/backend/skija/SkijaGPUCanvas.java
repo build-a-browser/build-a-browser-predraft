@@ -60,6 +60,7 @@ public class SkijaGPUCanvas extends AWTGLCanvas {
     }
 
     Canvas rawCanvas = surface.getCanvas();
+    rawCanvas.resetMatrix();
     PaintCanvas canvas = new SkijaPaintCanvas(rawCanvas);
     callbacks.paint(canvas);
     context.flush();

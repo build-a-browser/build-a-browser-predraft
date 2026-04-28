@@ -37,6 +37,11 @@ public class BeforeHTMLInsertionMode implements InsertionMode {
   }
 
   @Override
+  public boolean emitOptimizedString(ParseContext parseContext, String data) {
+    return handleAnythingElse(parseContext);
+  }
+
+  @Override
   public boolean emitEOFToken(ParseContext parseContext) {
     return handleAnythingElse(parseContext);
   }

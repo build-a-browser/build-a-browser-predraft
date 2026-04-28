@@ -27,6 +27,11 @@ public class AfterAfterBodyInsertionMode implements InsertionMode {
   }
 
   @Override
+  public boolean emitOptimizedString(ParseContext parseContext, String data) {
+    return handleAnythingElse(parseContext);
+  }
+
+  @Override
   public boolean emitDoctypeToken(ParseContext parseContext, DoctypeToken doctypeToken) {
     InsertionModes.inBodyInsertionMode.emitDoctypeToken(parseContext, doctypeToken);
     return false;

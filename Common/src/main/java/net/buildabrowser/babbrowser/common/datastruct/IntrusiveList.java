@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 // Lighter than a linked list due to no wrapper and no prev pointer
 public interface IntrusiveList<T extends IntrusiveList<T>> {
@@ -123,16 +123,20 @@ public interface IntrusiveList<T extends IntrusiveList<T>> {
     return list;
   }
 
-  static AtomicInteger v = new AtomicInteger();
   public static <T extends IntrusiveList<T>> T sort(T list, Comparator<? super T> comparator) {
     if (list == null) return null;
     // TODO: This is the easy way to do things, but look into sorting without a copy
     List<T> toSort = toList(list);
     toSort.sort(comparator);
-    if (toSort.size() > v.intValue()) {
-      v.set(toSort.size());
-    }
     return fromList(toSort);
+  }
+
+  public static <T extends IntrusiveList<T>> void forEach(T item, Consumer<T> func) {
+    T nextItem = item;
+    while (nextItem != null) {
+      func.accept(nextItem);
+      nextItem = nextItem.next();
+    }
   }
 
   static <T extends IntrusiveList<T>> List<T> toList(T list) {

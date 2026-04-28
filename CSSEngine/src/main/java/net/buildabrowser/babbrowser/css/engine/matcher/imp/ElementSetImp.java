@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.IntConsumer;
 
 import com.zaxxer.sparsebits.SparseBitSet;
 
@@ -41,9 +42,13 @@ public class ElementSetImp implements ElementSet {
 
   @Override
   public boolean add(Element element) {
-    if (!rawSet.get(element.getId())) {
-      rawSet.set(element.getId(), true);
-      markChanged(element);
+    return addById(element.getId());
+  }
+
+  @Override
+  public boolean addById(int elementId) {
+    if (!rawSet.get(elementId)) {
+      rawSet.set(elementId, true);
       return true;
     }
     return false;
@@ -52,7 +57,6 @@ public class ElementSetImp implements ElementSet {
   @Override
   public boolean remove(Element element) {
     if (rawSet.get(element.getId())) {
-      markChanged(element);
       rawSet.set(element.getId(), false);
       return true;
     }
@@ -62,6 +66,11 @@ public class ElementSetImp implements ElementSet {
   @Override
   public boolean contains(Element element) {
     return rawSet.get(element.getId());
+  }
+
+  @Override
+  public boolean containsById(int elementId) {
+    return rawSet.get(elementId);
   }
 
   @Override
@@ -77,13 +86,19 @@ public class ElementSetImp implements ElementSet {
   }
 
   @Override
-  public ElementRootSet root() {
-    return this.root;
+  public void forEachElementId(IntConsumer iterator) {
+    for(
+      int i = rawSet.nextSetBit(0);
+      i >= 0 && i < elementList.size();
+      i = rawSet.nextSetBit(i + 1)
+    ) {
+      iterator.accept(i);
+    }
   }
 
   @Override
-  public void markChanged(Element element) {
-    root().markChanged(element);
+  public ElementRootSet root() {
+    return this.root;
   }
 
   @Override

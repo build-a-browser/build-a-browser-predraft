@@ -16,6 +16,12 @@ public class TextInsertionMode implements InsertionMode {
   }
 
   @Override
+  public boolean emitOptimizedString(ParseContext parseContext, String data) {
+    ParseTextUtil.insertAString(parseContext, data);
+    return false;
+  }
+
+  @Override
   public boolean emitCommentToken(ParseContext parseContext, CommentToken commentToken) {
     throw new IllegalStateException("Unexpected Comment");
   }

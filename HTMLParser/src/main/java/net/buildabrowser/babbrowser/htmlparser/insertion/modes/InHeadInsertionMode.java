@@ -28,6 +28,11 @@ public class InHeadInsertionMode implements InsertionMode {
   }
 
   @Override
+  public boolean emitOptimizedString(ParseContext parseContext, String data) {
+    return handleAnythingElse(parseContext);
+  }
+
+  @Override
   public boolean emitCommentToken(ParseContext parseContext, CommentToken commentToken) {
     ParseCommentUtil.insertAComment(parseContext, commentToken);
     return false;

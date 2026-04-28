@@ -38,6 +38,7 @@ public class CSSMatcherImp implements CSSMatcher {
   private final ElementSet changedElements;
   private final Set<SelectorPart> changedSelectors;
   private final SimpleSelectorMatchers matchers;
+  private final CombinatorMatchers combinatorMatchers;
   
   private final CSSMatcherContext context;
   private final StyleSheetList uaStyleSheets;
@@ -46,9 +47,10 @@ public class CSSMatcherImp implements CSSMatcher {
     this.context = context;
     this.uaStyleSheets = uaStyleSheets;
     this.allElements = ElementSet.createRoot();
-    this.changedElements = allElements.createUntrackedChild();
+    this.changedElements = allElements.createChild();
     this.changedSelectors = new HashSet<>();
     this.matchers = new SimpleSelectorMatchers(allElements, s -> changedSelectors.add(s));
+    this.combinatorMatchers = new CombinatorMatchers(allElements);
 
     for (CSSStyleSheet styleSheet: uaStyleSheets) {
       onStylesheetAdded(styleSheet);
@@ -146,7 +148,7 @@ public class CSSMatcherImp implements CSSMatcher {
       }
 
       if (complexSelector.dataSlot() == null) {
-        complexSelector.setDataSlot(matchedElements.root().createUntrackedChild());
+        complexSelector.setDataSlot(matchedElements.root().createChild());
       }
 
       ElementSet matchNotes = (ElementSet) complexSelector.dataSlot();
@@ -212,10 +214,10 @@ public class CSSMatcherImp implements CSSMatcher {
 
   private ElementSet matchCombinator(Combinator combinator, ElementSet currentMatched, ElementSet nextMatched) {
     return switch (combinator) {
-      case DescendantCombinator _ -> CombinatorMatchers.matchDescendants(currentMatched, nextMatched);
-      case ChildCombinator _ -> CombinatorMatchers.matchChild(currentMatched, nextMatched);
-      case NextSiblingCombinator _ -> CombinatorMatchers.matchNextSibling(currentMatched, nextMatched);
-      case SubsequentSiblingCombinator _ -> CombinatorMatchers.matchSubsequentSibling(currentMatched, nextMatched);
+      case DescendantCombinator _ -> combinatorMatchers.matchDescendants(currentMatched, nextMatched);
+      case ChildCombinator _ -> combinatorMatchers.matchChild(currentMatched, nextMatched);
+      case NextSiblingCombinator _ -> combinatorMatchers.matchNextSibling(currentMatched, nextMatched);
+      case SubsequentSiblingCombinator _ -> combinatorMatchers.matchSubsequentSibling(currentMatched, nextMatched);
       default -> throw new IllegalArgumentException();
     };
   }

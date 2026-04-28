@@ -10,6 +10,8 @@ public interface Text extends Node {
 
   void appendCharacter(int ch);
 
+  void appendString(String data);
+
   static Text create(String text) {
     return new TextImp(text);
   }

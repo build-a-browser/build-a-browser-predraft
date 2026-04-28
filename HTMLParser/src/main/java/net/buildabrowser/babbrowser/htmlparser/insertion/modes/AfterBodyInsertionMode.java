@@ -21,6 +21,11 @@ public class AfterBodyInsertionMode implements InsertionMode {
         return handleAnythingElse(parseContext);
     }
   }
+
+  @Override
+  public boolean emitOptimizedString(ParseContext parseContext, String data) {
+    return handleAnythingElse(parseContext);
+  }
   
   @Override
   public boolean emitCommentToken(ParseContext parseContext, CommentToken commentToken) {

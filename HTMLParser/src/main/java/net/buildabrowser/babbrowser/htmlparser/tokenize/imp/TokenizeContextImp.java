@@ -13,6 +13,7 @@ public class TokenizeContextImp implements TokenizeContext {
 
   private final Pushback pushback;
   private final TemporaryBuffer temporaryBuffer = new TemporaryBufferImp();
+  private final TemporaryBuffer dataBuffer = new TemporaryBufferImp();
   private final TagTokenImp tagToken = new TagTokenImp();
   private final DoctypeToken doctypeToken = DoctypeToken.create();
   private final CommentToken commentToken = CommentToken.create();
@@ -54,6 +55,11 @@ public class TokenizeContextImp implements TokenizeContext {
   @Override
   public TemporaryBuffer temporaryBuffer() {
     return temporaryBuffer;
+  }
+
+  @Override
+  public TemporaryBuffer dataBuffer() {
+    return dataBuffer;
   }
 
   @Override

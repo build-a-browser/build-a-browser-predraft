@@ -24,5 +24,10 @@ public class TextImp extends NodeImp implements Text {
   public void appendCharacter(int ch) {
     data.appendCodePoint(ch);
   }
+
+  @Override
+  public void appendString(String data) {
+    this.data.append(data);
+  }
   
 }

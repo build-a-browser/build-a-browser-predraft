@@ -53,8 +53,7 @@ public class WindowImp implements Window {
   @Override
   public Tab openTab() {
     Tab tab = Tab.create(browserInstance);
-    tabs.add(tab);
-    mutationEventDispatcher.fire(l -> l.onTabAdded(this, tab));
+    addTab(tab);
     
     return tab;
   }

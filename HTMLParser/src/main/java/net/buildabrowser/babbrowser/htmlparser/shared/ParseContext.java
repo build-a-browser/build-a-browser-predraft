@@ -14,6 +14,8 @@ public interface ParseContext {
 
   void emitCharacterToken(int ch);
 
+  void emitOptimizedString(String data);
+
   void emitEOFToken();
 
   void emitTagToken(TagToken tagToken);

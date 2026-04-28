@@ -22,6 +22,8 @@ public interface TokenizeContext {
   
   TemporaryBuffer temporaryBuffer();
 
+  TemporaryBuffer dataBuffer();
+
   TagToken beginTagToken(boolean isStartTag);
 
   TagToken currentTagToken();

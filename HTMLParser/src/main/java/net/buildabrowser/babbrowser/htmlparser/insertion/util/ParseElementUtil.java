@@ -26,7 +26,7 @@ public final class ParseElementUtil {
       default -> HTMLElement.create(localName, intendedParent);
     };
 
-    token.attributes().forEach((k, v) -> element.addAttribute(k, v));
+    token.copyAttributesTo(element);
 
     return element;
   }

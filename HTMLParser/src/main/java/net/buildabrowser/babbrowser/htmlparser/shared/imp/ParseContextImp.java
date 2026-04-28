@@ -39,6 +39,14 @@ public class ParseContextImp implements ParseContext {
   }
 
   @Override
+  public void emitOptimizedString(String data) {
+    boolean shouldReprocess;
+    do {
+      shouldReprocess = currentInsertionMode.emitOptimizedString(this, data);
+    } while (shouldReprocess);
+  }
+
+  @Override
   public void emitEOFToken() {
     boolean shouldReprocess;
     do {
