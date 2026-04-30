@@ -29,6 +29,10 @@ public final class TokenizerUtil {
     return ch >= 0x80;
   }
 
+  public static boolean isWhiteSpace(int ch) {
+    return ch == '\n' || ch == '\t' || ch == ' ';
+  }
+
   public static boolean isIdentStartCodePoint(int ch) {
     return isLetter(ch) || isNonAsciiCodePoint(ch) || ch == '_';
   }

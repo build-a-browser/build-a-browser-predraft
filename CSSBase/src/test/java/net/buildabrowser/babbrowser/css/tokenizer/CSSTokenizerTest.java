@@ -23,7 +23,9 @@ import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RCBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RParenToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.SemicolonToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.StringToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
+import net.buildabrowser.babbrowser.cssbase.tokens.URLToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
 
 public class CSSTokenizerTest {
@@ -159,6 +161,32 @@ public class CSSTokenizerTest {
   public void canIgnoreComments() throws IOException {
     Token token = cssTokenizer.consumeAToken(stringInput("/*Gorillas*/;"));
     Assertions.assertEquals(SemicolonToken.create(), token);
+  }
+
+  @Test
+  @DisplayName("Can tokenize a string token")
+  public void canTokenizeAStringToken() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("\"5\""));
+    Assertions.assertEquals(StringToken.create("5"), token);
+  }
+
+  @Test
+  @DisplayName("Can tokenize a URL token")
+  public void canTokenizeAURLToken() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("url(index.css)"));
+    Assertions.assertEquals(URLToken.create("index.css"), token);
+
+    token = cssTokenizer.consumeAToken(stringInput("url( index.css )"));
+    Assertions.assertEquals(URLToken.create("index.css"), token);
+  }
+
+  @Test
+  @DisplayName("Can tokenize a URL function")
+  public void canTokenizeAURLFunction() throws IOException {
+    Token token = cssTokenizer.consumeAToken(stringInput("url(\"index.css\")"));
+    Assertions.assertEquals(new FunctionToken("url"), token);
+    token = cssTokenizer.consumeAToken(stringInput("url( \"index.css\" )"));
+    Assertions.assertEquals(new FunctionToken("url"), token);
   }
   
   private static CSSTokenizerInput stringInput(String input) {

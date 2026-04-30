@@ -29,7 +29,7 @@ public class BackgroundRepeatParser implements PropertyValueParser {
 
   @Override
   public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
-    return PropertyValueParserUtil.parseCommaRepeat(stream, this::parseRepeatStyle);
+    return PropertyValueParserUtil.parseCommaRepeat(stream, this::parseInternal);
   }
 
   @Override
@@ -37,7 +37,7 @@ public class BackgroundRepeatParser implements PropertyValueParser {
     return CSSProperty.BACKGROUND_REPEAT;
   }
 
-  private CSSValue parseRepeatStyle(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parseInternal(SeekableCSSTokenStream stream) throws IOException {
     return PropertyValueParserUtil.parseLongest(stream,
       stream1 -> PropertyValueParserUtil.parseIdentMap(stream1, OUTER_VALUES),
       this::parseInnerValues);

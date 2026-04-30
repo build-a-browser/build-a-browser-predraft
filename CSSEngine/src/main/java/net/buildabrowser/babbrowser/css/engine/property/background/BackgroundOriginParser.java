@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
+import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.css.engine.property.box.VisualBoxParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
 
@@ -14,7 +15,7 @@ public class BackgroundOriginParser implements PropertyValueParser {
 
   @Override
   public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
-    return visualBoxParser.parse(stream);
+    return PropertyValueParserUtil.parseCommaRepeat(stream, visualBoxParser);
   }
 
   @Override

@@ -1,6 +1,9 @@
 package net.buildabrowser.babbrowser.css.engine.property;
 
+import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParserUtil.ListResult;
 import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundAttachmentValue;
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundPositionValue;
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundPositionValue.BackgroundPositionSide;
 import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundRepeatValue;
 import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundRepeatValue.BackgroundAxisRepeatValue;
 import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundSizeValue.SizedBackgroundSizeValue;
@@ -19,6 +22,7 @@ import net.buildabrowser.babbrowser.css.engine.property.flex.FlexWrapValue;
 import net.buildabrowser.babbrowser.css.engine.property.flex.JustifyContentValue;
 import net.buildabrowser.babbrowser.css.engine.property.position.PositionValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.LengthValue;
+import net.buildabrowser.babbrowser.css.engine.property.size.PercentageValue;
 import net.buildabrowser.babbrowser.css.engine.property.text.TextWrapModeValue;
 import net.buildabrowser.babbrowser.css.engine.property.whitespace.WhitespaceCollapseValue;
 
@@ -27,13 +31,20 @@ public enum CSSProperty {
   COLOR(nextId(), true, SRGBAColor.create(0, 0, 0, 255)),
 
   BACKGROUND_COLOR(nextId(), false, SRGBAColor.create(0, 0, 0, 0)),
-  BACKGROUND_REPEAT(nextId(), false, BackgroundRepeatValue.create(
-    BackgroundAxisRepeatValue.REPEAT, BackgroundAxisRepeatValue.REPEAT)),
-  BACKGROUND_ATTACHMENT(nextId(), false, BackgroundAttachmentValue.SCROLL),
-  BACKGROUND_CLIP(nextId(), false, VisualBoxValue.BORDER_BOX),
-  BACKGROUND_ORIGIN(nextId(), false, VisualBoxValue.PADDING_BOX),
-  BACKGROUND_SIZE(nextId(), false, SizedBackgroundSizeValue.create(CSSValue.AUTO, CSSValue.AUTO)),
-  BACKGROUND(new CSSProperty[] { BACKGROUND_COLOR }),
+  BACKGROUND_IMAGE(nextId(), false, ListResult.create(CSSValue.NONE)),
+  BACKGROUND_REPEAT(nextId(), false, ListResult.create(BackgroundRepeatValue.create(
+    BackgroundAxisRepeatValue.REPEAT, BackgroundAxisRepeatValue.REPEAT))),
+  BACKGROUND_ATTACHMENT(nextId(), false, ListResult.create(BackgroundAttachmentValue.SCROLL)),
+  BACKGROUND_POSITION(nextId(), false, ListResult.create(BackgroundPositionValue.create(
+    BackgroundPositionSide.LEFT, PercentageValue.create(0),
+    BackgroundPositionSide.TOP, PercentageValue.create(0)))),
+  BACKGROUND_CLIP(nextId(), false, ListResult.create(VisualBoxValue.BORDER_BOX)),
+  BACKGROUND_ORIGIN(nextId(), false, ListResult.create(VisualBoxValue.PADDING_BOX)),
+  BACKGROUND_SIZE(nextId(), false, ListResult.create(
+    SizedBackgroundSizeValue.create(CSSValue.AUTO, CSSValue.AUTO))),
+  BACKGROUND(new CSSProperty[] {
+    BACKGROUND_COLOR, BACKGROUND_IMAGE, BACKGROUND_REPEAT, BACKGROUND_ATTACHMENT,
+    BACKGROUND_POSITION, BACKGROUND_CLIP, BACKGROUND_ORIGIN, BACKGROUND_SIZE }),
 
   WIDTH(nextId(), false, CSSValue.AUTO),
   HEIGHT(nextId(), false, CSSValue.AUTO),

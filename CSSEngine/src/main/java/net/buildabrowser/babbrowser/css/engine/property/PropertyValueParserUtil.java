@@ -96,6 +96,10 @@ public final class PropertyValueParserUtil {
 
   public static record ListResult(List<CSSValue> values) implements CSSValue {
     
+    public static ListResult create(CSSValue... values) {
+      return new ListResult(List.of(values));
+    }
+
   }
 
 }

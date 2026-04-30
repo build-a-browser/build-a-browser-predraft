@@ -9,18 +9,43 @@ import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
 public class IdentTokenizer {
 
+  private final URLTokenizer urlTokenizer = new URLTokenizer(this);
   private final StringBuilder strBuilder = new StringBuilder();
 
   public Token consumeAnIdentLikeToken(CSSTokenizerInput stream) throws IOException {
-    String result = consumeIdentSequence(stream);
+    String string = consumeIdentSequence(stream);
 
     // TODO: Handle URL
-    if (stream.peek() == '(') {
+    if (
+      string.equalsIgnoreCase("url")
+      && stream.peek() == '('
+    ) {
       stream.read();
-      return FunctionToken.create(result);
+      int ch1 = stream.read();
+      int ch2 = stream.peek();
+      while (
+        TokenizerUtil.isWhiteSpace(ch1)
+        && TokenizerUtil.isWhiteSpace(ch2)
+      ) {
+       stream.read(); 
+      }
+      stream.unread(ch1);
+      if (
+        ch1 == '"' || ch1 == '\''
+        || (
+          TokenizerUtil.isWhiteSpace(ch1)
+          && (ch2 == '"' || ch2 == '\''))
+      ) {
+        return FunctionToken.create(string);
+      } else {
+        return urlTokenizer.consumeURLToken(stream);
+      }
+    } else if (stream.peek() == '(') {
+      stream.read();
+      return FunctionToken.create(string);
     }
 
-    return IdentToken.create(result);
+    return IdentToken.create(string);
   }
 
   public String consumeIdentSequence(CSSTokenizerInput stream) throws IOException {
@@ -41,7 +66,7 @@ public class IdentTokenizer {
     return strBuilder.toString();
   }
 
-  private int consumeAnEscapedCodepoint(CSSTokenizerInput stream) throws IOException {
+  public int consumeAnEscapedCodepoint(CSSTokenizerInput stream) throws IOException {
     int ch = stream.read();
     if (hexValue(ch) != -1) {
       int wholeValue = hexValue(ch);

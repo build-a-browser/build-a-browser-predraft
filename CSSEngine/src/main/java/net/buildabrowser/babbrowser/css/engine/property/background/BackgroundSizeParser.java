@@ -9,10 +9,7 @@ import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundSizeValue.SizedBackgroundSizeValue;
 import net.buildabrowser.babbrowser.css.engine.property.size.SizeParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
-import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
-import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
-import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
 public class BackgroundSizeParser implements PropertyValueParser {
 
@@ -20,10 +17,10 @@ public class BackgroundSizeParser implements PropertyValueParser {
 
   @Override
   public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
-    return PropertyValueParserUtil.parseCommaRepeat(stream, this::parseInner);
+    return PropertyValueParserUtil.parseCommaRepeat(stream, this::parseInternal);
   }
   
-  private CSSValue parseInner(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parseInternal(SeekableCSSTokenStream stream) throws IOException {
     if (
       stream.peek() instanceof IdentToken identToken
       && identToken.value().equals("cover")
@@ -41,16 +38,12 @@ public class BackgroundSizeParser implements PropertyValueParser {
     CSSValue firstValue = bgSizeParser.parse(stream);
     if (firstValue.isFailure()) return firstValue;
 
-    Token nextToken = stream.peek();
-    if (
-      nextToken instanceof EOFToken
-      || nextToken instanceof CommaToken
-    ) {
+    CSSValue secondValue = bgSizeParser.parse(stream);
+    int position = stream.position();
+    if (secondValue.isFailure()) {
+      stream.seek(position);
       return SizedBackgroundSizeValue.create(firstValue, CSSValue.AUTO);
     }
-
-    CSSValue secondValue = bgSizeParser.parse(stream);
-    if (secondValue.isFailure()) return secondValue;
 
     return SizedBackgroundSizeValue.create(firstValue, secondValue);
   }

@@ -8,7 +8,14 @@ import java.util.Set;
 import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
 import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
 import net.buildabrowser.babbrowser.css.engine.property.PropertyValueParser;
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundAttachmentParser;
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundClipParser;
 import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundColorParser;
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundImageParser;
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundOriginParser;
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundPositionParser;
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundRepeatParser;
+import net.buildabrowser.babbrowser.css.engine.property.background.BackgroundSizeParser;
 import net.buildabrowser.babbrowser.css.engine.property.border.BorderColorParser;
 import net.buildabrowser.babbrowser.css.engine.property.border.BorderShorthandParser;
 import net.buildabrowser.babbrowser.css.engine.property.border.BorderSideShorthandParser;
@@ -38,8 +45,16 @@ public final class ActiveStylesGenerator {
 
   private final static Map<String, PropertyValueParser> PROPERTY_PARSERS = mapOf(
     "color", new ColorParser(),
-    "background", new BackgroundColorParser(),
     "background-color", new BackgroundColorParser(),
+    "background-image", new BackgroundImageParser(),
+    "background-repeat", new BackgroundRepeatParser(),
+    "background-attachment", new BackgroundAttachmentParser(),
+    "background-position", new BackgroundPositionParser(),
+    "background-clip", new BackgroundClipParser(),
+    "background-origin", new BackgroundOriginParser(),
+    "background-size", new BackgroundSizeParser(),
+    "background", new BackgroundColorParser(),
+
     "clear", new ClearParser(),
     "float", new FloatParser(),
 
