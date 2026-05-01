@@ -20,6 +20,7 @@ import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundClipPa
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundColorParser;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundImageParser;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundOriginParser;
+import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundParser;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundPositionParser;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundRepeatParser;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundSizeParser;
@@ -80,7 +81,7 @@ public final class DeclarationParser {
     "background-clip", new BackgroundClipParser(),
     "background-origin", new BackgroundOriginParser(),
     "background-size", new BackgroundSizeParser(),
-    "background", new BackgroundColorParser(),
+    "background", new BackgroundParser(),
 
     "clear", new ClearParser(),
     "float", new FloatParser(),

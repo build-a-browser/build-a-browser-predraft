@@ -14,8 +14,8 @@ import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.link.LinkDocumentChangeListener;
 import net.buildabrowser.babbrowser.html.misc.MetaDocumentChangeListener;
-import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
+import net.buildabrowser.babbrowser.render.HTMLDocumentRenderer;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxGenerator;
 import net.buildabrowser.babbrowser.render.box.DocumentBox;
@@ -28,6 +28,7 @@ import net.buildabrowser.babbrowser.render.context.ScriptingContext;
 import net.buildabrowser.babbrowser.render.event.EventContext;
 import net.buildabrowser.babbrowser.render.event.EventForwardingTarget;
 import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent;
+import net.buildabrowser.babbrowser.render.image.ImageCache;
 import net.buildabrowser.babbrowser.render.layout.FontCache;
 import net.buildabrowser.babbrowser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
@@ -37,14 +38,14 @@ import net.buildabrowser.babbrowser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.render.layout.StackingContextGenerator;
 import net.buildabrowser.babbrowser.render.logging.PerfLogging;
 import net.buildabrowser.babbrowser.render.paint.backend.FontLoader;
+import net.buildabrowser.babbrowser.render.paint.backend.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.render.paint.backend.LoadedFont;
 import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
 import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 import net.buildabrowser.babbrowser.render.paint.backend.ResourceLoader;
-import net.buildabrowser.babbrowser.render.paint.backend.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.render.style.StyleGenerator;
 
-public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardingTarget {
+public class HTMLDocumentRendererImp implements HTMLDocumentRenderer, EventForwardingTarget {
 
   private static final BoxGenerator boxGenerator = BoxGenerator.create();
 
@@ -59,6 +60,7 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
   private final DocumentBox documentBox;
   private final ScriptingContext scriptingContext;
   private final DocumentChangeListener changeListener;
+  private final ImageCache imageCache;
 
   private DocumentRendererEventListener eventListener;
 
@@ -93,6 +95,7 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
     this.scriptingContext = ScriptingContext.create(
       fetchEngine,
       document.browsingContext().realm().hostDefined());
+    this.imageCache = ImageCache.create(scriptingContext, painter.resourceLoader());
   }
 
   @Override
@@ -216,6 +219,11 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
   @Override
   public DocumentRendererEventListener eventListener() {
     return this.eventListener;
+  }
+
+  @Override
+  public ImageCache imageCache() {
+    return this.imageCache;
   }
 
   private void recomputeBoxes() {

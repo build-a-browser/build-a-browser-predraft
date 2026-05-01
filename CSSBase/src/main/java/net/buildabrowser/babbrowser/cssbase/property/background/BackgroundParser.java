@@ -60,6 +60,11 @@ public class BackgroundParser implements PropertyValueParser {
   }
 
   @Override
+  public CSSProperty relatedProperty() {
+    return CSSProperty.BACKGROUND;
+  }
+
+  @Override
   public void updateProperty(CSSValue result, PropertyContainer propertySetter) {
     List<BackgroundLayer> bgLayers = ((BackgroundValue) result).bgLayers();
     updateSpecificProperty(CSSProperty.BACKGROUND_IMAGE, propertySetter, bgLayers, BackgroundLayer::bgImage);
