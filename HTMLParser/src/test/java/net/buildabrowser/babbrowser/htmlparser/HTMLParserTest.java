@@ -261,4 +261,15 @@ public class HTMLParserTest {
       document);
   }
 
+  @Test
+  @DisplayName("Can parse document with implied end tags")
+  public void canParseDocumentWithImpliedEndTags() throws IOException {
+    Document document = HTMLParser.parse(new StringReader("<p>Text<p>Text 2"));
+    assertTreeMatches(
+      testDocumentToBody(
+        testElement("p", testText("Text")),
+        testElement("p", testText("Text 2"))),
+      document);
+  }
+
 }

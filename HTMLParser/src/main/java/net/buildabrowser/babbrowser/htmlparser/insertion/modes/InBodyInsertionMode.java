@@ -1,9 +1,12 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
+import java.util.Set;
+
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
 import net.buildabrowser.babbrowser.htmlparser.insertion.OpenElementStack;
+import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseAdjustUtil;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseCommentUtil;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseElementUtil;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseTextUtil;
@@ -73,6 +76,22 @@ public class InBodyInsertionMode implements InsertionMode {
     switch (tagToken.name()) {
       case "base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template", "title":
         return InsertionModes.inHeadInsertionMode.emitTagToken(parseContext, tagToken);
+      case "address", "article", "aside", "blockquote", "center", "details", "dialog", "dir", "div", "dl",
+      "fieldset", "figcaption", "figure", "footer", "header", "hgroup", "main", "menu", "nav", "ol", "p",
+      "search", "section", "summary", "ul":
+        if (ParseAdjustUtil.hasInButtonScope(parseContext.openElementStack(), "p")) {
+          ParseAdjustUtil.closeAPElement(parseContext);
+        }
+        ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
+        return false;
+      case "table":
+        if (ParseAdjustUtil.hasInButtonScope(parseContext.openElementStack(), "p")) {
+          ParseAdjustUtil.closeAPElement(parseContext);
+        }
+        ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
+        parseContext.setFramesetOk(false);
+        // TODO: In-table insertion mode
+        return false;
       case "area", "br", "embed", "img", "keygen", "wbr":
         ParseTextUtil.reconstructTheActiveFormattingElements(parseContext);
         ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
@@ -99,6 +118,10 @@ public class InBodyInsertionMode implements InsertionMode {
       case "body":
         // TODO: Other stuff
         parseContext.setInsertionMode(InsertionModes.afterBodyInsertionMode);
+        return false;
+      case "br":
+        parseContext.parseError();
+        return emitStartTagToken(parseContext, tagToken);
       default:
         return handleOtherEndTagToken(parseContext, tagToken);
     }
@@ -109,7 +132,7 @@ public class InBodyInsertionMode implements InsertionMode {
     for (int i = 0; i < stack.size(); i++) {
       Node node = stack.peek(i);
       if (ParseElementUtil.isHTMLElementWithName(node, tagToken.name())) {
-        // TODO: Generate implied end tags
+        ParseAdjustUtil.generateImpliedEndTags(stack, Set.of(tagToken.name()));
         if (node != stack.peek()) {
           parseContext.parseError();
         }
