@@ -1,8 +1,10 @@
 package net.buildabrowser.babbrowser.dom;
 
-public interface Node {
+import net.buildabrowser.babbrowser.dom.events.EventTarget;
+
+public interface Node extends EventTarget {
   
-  Document ownerDocument();
+  Document nodeDocument();
 
   Node parentNode();
 
@@ -17,5 +19,9 @@ public interface Node {
   Node previousSibling();
 
   Node appendChild(Node node);
+
+  default EventTarget getTheParent() {
+    return parentNode();
+  }
 
 }

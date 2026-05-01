@@ -1,27 +1,42 @@
 package net.buildabrowser.babbrowser.css.engine.styles.imp;
 
-import java.util.BitSet;
+import java.util.HashMap;
+import java.util.Map;
 
-import net.buildabrowser.babbrowser.css.engine.property.CSSProperty;
-import net.buildabrowser.babbrowser.css.engine.property.CSSValue;
-import net.buildabrowser.babbrowser.css.engine.property.color.ColorValue;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.InnerDisplayValue;
-import net.buildabrowser.babbrowser.css.engine.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
+import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
 
-// TODO: Storage really needs optimized...
 public class ActiveStylesImp implements ActiveStyles {
 
-  private final CSSValue[] propertyValues;
-  private final BitSet inheritValues;
+  static {
+    if (CSSProperty.idCount() > 127) {
+      throw new RuntimeException(
+        "Property count greater than available bits: Please optimize");
+    }
+  }
 
   private final ActiveStyles parentStyles;
 
+  // A BitSet has a header and long array. Even with a lazy initialization attempt
+  // that took a lot of memory. Use longs instead
+  private long inheritValues1, inheritValues2;
+  private long hasOwnValues1, hasOwnValues2;
+
+  // TODO: Switch to an IntrusiveList?
+  private SinglyLinkedList<CSSValue> activeProperties;
+  private Map<String, CSSValue> customProperties;
+
   public ActiveStylesImp(ActiveStyles parentStyles) {
     this.parentStyles = parentStyles;
-    this.propertyValues = new CSSValue[CSSProperty.idCount()];
-    this.inheritValues = new BitSet(CSSProperty.idCount());
+  }
+
+  @Override
+  public ActiveStyles parent() {
+    return this.parentStyles;
   }
 
   @Override
@@ -30,8 +45,15 @@ public class ActiveStylesImp implements ActiveStyles {
       throw new UnsupportedOperationException("Cannot set expanded property!");
     }
 
-    propertyValues[property.id()] = value;
-    inheritValues.set(property.id(), false);
+    addEntry(property.id(), value);
+    setInheritValue(property.id(), false);
+  }
+
+  @Override
+  public void setCustomProperty(String property, CSSValue value) {
+    lazilyInitCustomProperties();
+
+    customProperties.put(property, value);
   }
 
   @Override
@@ -41,8 +63,8 @@ public class ActiveStylesImp implements ActiveStyles {
         inheritProperty(expansion);
       }
     } else {
-      propertyValues[property.id()] = null;
-      inheritValues.set(property.id(), true);
+      removeEntry(property.id());
+      setInheritValue(property.id(), true);
     }
   }
 
@@ -58,9 +80,15 @@ public class ActiveStylesImp implements ActiveStyles {
   }
 
   @Override
+  public void useInitialCustomProperty(String property) {
+    lazilyInitCustomProperties();
+    customProperties.put(property, null);
+  }
+
+  @Override
   public void unsetProperty(CSSProperty property) {
-    propertyValues[property.id()] = null;
-    inheritValues.set(property.id(), false);
+    removeEntry(property.id());
+    setInheritValue(property.id(), false);
   }
 
   @Override
@@ -70,59 +98,116 @@ public class ActiveStylesImp implements ActiveStyles {
     }
 
     int id = property.id();
-    return
-      parentStyles != null && inheritValues.get(id) ? parentStyles.getProperty(property) :
-      propertyValues[id] != null ? propertyValues[id] :
-      parentStyles != null && property.inherited() ? parentStyles.getProperty(property) :
+    if (getHasOwnValue(id)) {
+      return scanValue(id);
+    }
+
+    return parentStyles != null && (property.inherited() || getInheritValue(id)) ?
+      parentStyles.getProperty(property) :
       property.initial();
   }
 
   @Override
-  public int textColor() {
-    return ((ColorValue) getProperty(CSSProperty.COLOR)).asSARGB();
+  public CSSValue getCustomProperty(String property) {
+    if (
+      customProperties == null
+      || !customProperties.containsKey(property)
+    ) {
+      return CSSFailure.UNSET_CUSTOM_PROPERTY;
+    }
+
+    return customProperties.get(property);
   }
 
   @Override
-  public int backgroundColor() {
-    return ((ColorValue) getProperty(CSSProperty.BACKGROUND_COLOR)).asSARGB();
+  public boolean wasInherited(CSSProperty property) {
+    return
+      parentStyles != null
+      && (property.inherited() || getInheritValue(property.id()))
+      && !getHasOwnValue(property.id());
   }
 
-  @Override
-  public int borderTopColor() {
-    CSSValue property = getProperty(CSSProperty.BORDER_TOP_COLOR);
-    if (property.equals(CSSValue.NONE)) return textColor();
-    return ((ColorValue) property).asSARGB();
+  private CSSValue scanValue(int id) {
+    if (!getHasOwnValue(id)) return null;
+    int listPos = getPropertyPos(id);
+    return IntrusiveList.get(activeProperties, listPos).item();
+  }
+  
+  private void addEntry(int id, CSSValue value) {
+    assert value != null;
+    boolean wasPresent = getHasOwnValue(id);
+    int listPos = getPropertyPos(id);
+
+    if (wasPresent) {
+      activeProperties = IntrusiveList.replace(activeProperties, listPos, new SinglyLinkedList<>(value));
+    } else {
+      activeProperties = IntrusiveList.insert(activeProperties, listPos, new SinglyLinkedList<>(value));
+    }
+    setHasOwnValue(id, true);
   }
 
-  @Override
-  public int borderBottomColor() {
-    CSSValue property = getProperty(CSSProperty.BORDER_BOTTOM_COLOR);
-    if (property.equals(CSSValue.NONE)) return textColor();
-    return ((ColorValue) property).asSARGB();
+  private void removeEntry(int id) {
+    if (!getHasOwnValue(id)) return;
+    setHasOwnValue(id, false);
+
+    int listPos = getPropertyPos(id);
+    activeProperties = IntrusiveList.remove(activeProperties, listPos);
   }
 
-  @Override
-  public int borderLeftColor() {
-    CSSValue property = getProperty(CSSProperty.BORDER_LEFT_COLOR);
-    if (property.equals(CSSValue.NONE)) return textColor();
-    return ((ColorValue) property).asSARGB();
+  private void lazilyInitCustomProperties() {
+    if (customProperties == null) {
+      this.customProperties = new HashMap<>(4);
+    }
   }
 
-  @Override
-  public int borderRightColor() {
-    CSSValue property = getProperty(CSSProperty.BORDER_RIGHT_COLOR);
-    if (property.equals(CSSValue.NONE)) return textColor();
-    return ((ColorValue) property).asSARGB();
+  private int getPropertyPos(int id) {
+    long mask1 = id < 64 ? (1L << id) - 1 : -1L;
+    long mask2 = id < 64 ? 0 : (1L << Math.min(id - 64, 63)) - 1;
+    return Long.bitCount(hasOwnValues1 & mask1) + Long.bitCount(hasOwnValues2 & mask2);
   }
 
-  @Override
-  public OuterDisplayValue outerDisplayValue() {
-    return ((DisplayValue) getProperty(CSSProperty.DISPLAY)).outerDisplayValue();
+  private void setHasOwnValue(int id, boolean b) {
+    boolean isLowerByte = id < 64;
+    if (b && isLowerByte) {
+      hasOwnValues1 |= (1L << id);
+    } else if (!b && isLowerByte) {
+      hasOwnValues1 &= ~(1L << id);
+    } else if (b) {
+      hasOwnValues2 |= (1L << (id - 64));
+    } else {
+      hasOwnValues2 &= ~(1L << (id - 64));
+    }
   }
 
-  @Override
-  public InnerDisplayValue innerDisplayValue() {
-    return ((DisplayValue) getProperty(CSSProperty.DISPLAY)).innerDisplayValue();
+  private boolean getHasOwnValue(int id) {
+    boolean isLowerByte = id < 64;
+    if (isLowerByte) {
+      return (hasOwnValues1 & (1L << id)) != 0;
+    } else {
+      return (hasOwnValues2 & (1L << (id - 64))) != 0;
+    }
+  }
+
+  private void setInheritValue(int id, boolean b) {
+    boolean isLowerByte = id < 64;
+    if (b && isLowerByte) {
+      inheritValues1 |= (1L << id);
+    } else if (!b && isLowerByte) {
+      inheritValues1 &= ~(1L << id);
+    } else if (b) {
+      inheritValues2 |= (1L << (id - 64));
+    } else {
+      inheritValues2 &= ~(1L << (id - 64));
+    }
+  }
+
+  private boolean getInheritValue(int id) {
+    boolean isLowerByte = id < 64;
+    if (isLowerByte) {
+      return (inheritValues1 & (1L << id)) != 0;
+    } else {
+      return (inheritValues2 & (1L << (id - 64))) != 0;
+    }
   }
   
 }

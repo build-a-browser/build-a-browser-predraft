@@ -1,35 +1,81 @@
 package net.buildabrowser.babbrowser.css.engine.matcher.simple;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
+import net.buildabrowser.babbrowser.css.engine.matcher.psuedo.HoverSelectorMatcher;
+import net.buildabrowser.babbrowser.css.engine.matcher.psuedo.RootSelectorMatcher;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
 import net.buildabrowser.babbrowser.cssbase.selector.Combinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
+import net.buildabrowser.babbrowser.cssbase.selector.SimplePsuedoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
+import net.buildabrowser.babbrowser.dom.events.Event;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
 public class SimpleSelectorMatchers implements DocumentChangeListener {
   
-  private final ElementSet allElements = ElementSet.create();
-  private final TypeSelectorMatcher typeSelectorMatcher = new TypeSelectorMatcher(allElements);
-  private final IdSelectorMatcher idSelectorMatcher = new IdSelectorMatcher();
-  private final AttributeOneOfSelectorMatcher attributeOneOfSelectorMatcher = new AttributeOneOfSelectorMatcher(allElements);
+  private final ElementRootSet allElements;
+  private final TypeSelectorMatcher typeSelectorMatcher;
+  private final IdSelectorMatcher idSelectorMatcher;
+  private final AttributeSelectorMatcher attributePresentSelectorMatcher;
+  private final AttributeOneOfSelectorMatcher attributeOneOfSelectorMatcher;
 
-  private final List<SimpleSelectorMatcher<?>> allMatchers = List.of(
-    typeSelectorMatcher,
-    idSelectorMatcher,
-    attributeOneOfSelectorMatcher
-  );
+  // Psuedo
+  private final RootSelectorMatcher rootSelectorMatcher;
+  private final HoverSelectorMatcher hoverSelectorMatcher;
 
+  private final Map<SimplePsuedoSelector, SimpleSelectorMatcher<SimplePsuedoSelector>> simplePsuedoSelectors;
+
+  private final List<SimpleSelectorMatcher<?>> allMatchers;
+  private final Consumer<SelectorPart> onSelectorChanged;
+
+  public SimpleSelectorMatchers(
+    ElementRootSet allElements,
+    Consumer<SelectorPart> onSelectorChanged
+  ) {
+    this.allElements = allElements;
+    this.onSelectorChanged = onSelectorChanged;
+
+    this.typeSelectorMatcher = new TypeSelectorMatcher(allElements, onSelectorChanged);
+    this.idSelectorMatcher = new IdSelectorMatcher(allElements, onSelectorChanged);
+    this.attributePresentSelectorMatcher = new AttributeSelectorMatcher(allElements, onSelectorChanged);
+    this.attributeOneOfSelectorMatcher = new AttributeOneOfSelectorMatcher(allElements, onSelectorChanged);
+
+    // TODO: Move these to a PsuedoSelectorMatchers?
+    this.rootSelectorMatcher = new RootSelectorMatcher(allElements, onSelectorChanged);
+    this.hoverSelectorMatcher = new HoverSelectorMatcher(allElements, onSelectorChanged);
+
+    this.simplePsuedoSelectors = Map.of(
+      SimplePsuedoSelector.ROOT, rootSelectorMatcher,
+      SimplePsuedoSelector.HOVER, hoverSelectorMatcher
+    );
+    
+    this.allMatchers = List.of(
+      typeSelectorMatcher,
+      idSelectorMatcher,
+      attributePresentSelectorMatcher,
+      attributeOneOfSelectorMatcher,
+
+      // Psuedo
+      rootSelectorMatcher,
+      hoverSelectorMatcher
+    );
+  }
+
+  @Override
   public void onNodeAdded(Node node) {
     if (node instanceof Element element) {
       allElements.add(element);
+      onSelectorChanged.accept(UniversalSelector.create());
     }
 
     for (SimpleSelectorMatcher<?> matcher: allMatchers) {
@@ -37,9 +83,11 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
     }
   }
 
+  @Override
   public void onNodeRemoved(Node node) {
     if (node instanceof Element element) {
       allElements.remove(element);
+      onSelectorChanged.accept(UniversalSelector.create());
     }
 
     for (SimpleSelectorMatcher<?> matcher: allMatchers) {
@@ -47,9 +95,18 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
     }
   }
 
+  @Override
   public void onAttributeChanged(Element element, String attrName, String prevValue, String newValue) {
+    allElements.add(element);
     for (SimpleSelectorMatcher<?> matcher: allMatchers) {
       matcher.onAttributeChanged(element, attrName, prevValue, newValue);
+    }
+  }
+
+  @Override
+  public void onElementEvent(Element element, Event event) {
+    for (SimpleSelectorMatcher<?> matcher: allMatchers) {
+      matcher.onElementEvent(element, event);
     }
   }
 
@@ -59,32 +116,38 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
       case TypeSelector typeSelector -> typeSelectorMatcher.match(typeSelector);
       case AttributeSelector attributeSelector -> switch (attributeSelector.type()) {
         case AttributeType.ONE_OF -> attributeOneOfSelectorMatcher.match(attributeSelector);
+        default -> attributePresentSelectorMatcher.match(attributeSelector);
       };
+      case SimplePsuedoSelector psuedoSelector -> simplePsuedoSelectors.get(psuedoSelector).match(psuedoSelector);
       case UniversalSelector _ -> allElements;
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
     };
   }
 
   public void addSelectorReference(SelectorPart selectorPart) {
+    onSelectorChanged.accept(selectorPart);
     switch (selectorPart) {
       case IdSelector idSelector -> idSelectorMatcher.addSelectorReference(idSelector);
       case TypeSelector typeSelector -> typeSelectorMatcher.addSelectorReference(typeSelector);
       case AttributeSelector attributeSelector -> { switch (attributeSelector.type()) {
         case AttributeType.ONE_OF -> attributeOneOfSelectorMatcher.addSelectorReference(attributeSelector);
+        default -> attributePresentSelectorMatcher.addSelectorReference(attributeSelector);
       } }
-      case Combinator _, UniversalSelector _ -> {}
+      case Combinator _, UniversalSelector _, SimplePsuedoSelector _ -> {}
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
     };
   }
 
   public void removeSelectorReference(SelectorPart selectorPart) {
+    onSelectorChanged.accept(selectorPart);
     switch (selectorPart) {
       case IdSelector idSelector -> idSelectorMatcher.removeSelectorReference(idSelector);
       case TypeSelector typeSelector -> typeSelectorMatcher.removeSelectorReference(typeSelector);
       case AttributeSelector attributeSelector -> { switch (attributeSelector.type()) {
         case AttributeType.ONE_OF -> attributeOneOfSelectorMatcher.removeSelectorReference(attributeSelector);
+        default -> attributePresentSelectorMatcher.removeSelectorReference(attributeSelector);
       } }
-      case Combinator _, UniversalSelector _ -> {}
+      case Combinator _, UniversalSelector _, SimplePsuedoSelector _ -> {}
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
     };
   }

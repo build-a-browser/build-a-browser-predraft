@@ -9,6 +9,10 @@ public interface InsertionMode {
 
   boolean emitCharacterToken(ParseContext parseContext, int ch);
 
+  // Optimization so less character insertions are done
+  // Must not include whitespace, as insertion modes specially handle whitespace
+  boolean emitOptimizedString(ParseContext parseContext, String data);
+
   boolean emitEOFToken(ParseContext parseContext);
 
   boolean emitTagToken(ParseContext parseContext, TagToken tagToken);

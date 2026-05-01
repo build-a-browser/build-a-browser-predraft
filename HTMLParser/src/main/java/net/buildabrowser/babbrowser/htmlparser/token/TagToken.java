@@ -1,7 +1,6 @@
 package net.buildabrowser.babbrowser.htmlparser.token;
 
-import java.util.Map;
-
+import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.htmlparser.token.imp.TagTokenImp;
 
 public interface TagToken {
@@ -23,7 +22,7 @@ public interface TagToken {
 
   void appendToAttributeValue(int ch);
 
-  Map<String, String> attributes();
+  void copyAttributesTo(Element element);
 
   static TagToken create(boolean isStartTag) {
     return new TagTokenImp(isStartTag);

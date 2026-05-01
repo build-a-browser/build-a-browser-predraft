@@ -1,7 +1,8 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
+import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Namespace;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseCommentUtil;
@@ -36,6 +37,11 @@ public class BeforeHTMLInsertionMode implements InsertionMode {
   }
 
   @Override
+  public boolean emitOptimizedString(ParseContext parseContext, String data) {
+    return handleAnythingElse(parseContext);
+  }
+
+  @Override
   public boolean emitEOFToken(ParseContext parseContext) {
     return handleAnythingElse(parseContext);
   }
@@ -43,7 +49,7 @@ public class BeforeHTMLInsertionMode implements InsertionMode {
   @Override
   public boolean emitTagToken(ParseContext parseContext, TagToken tagToken) {
     if (tagToken.isStartTag() && tagToken.name().equals("html")) {
-      MutableElement element = ParseElementUtil.createAnElementForAToken(tagToken, Namespace.HTML_NAMESPACE, parseContext.document());
+      Element element = ParseElementUtil.createAnElementForAToken(tagToken, Namespace.HTML_NAMESPACE, parseContext.document());
       parseContext.document().appendChild(element);
       parseContext.openElementStack().pushNode(element);
       parseContext.setInsertionMode(InsertionModes.beforeHeadInsertionMode);
@@ -63,7 +69,7 @@ public class BeforeHTMLInsertionMode implements InsertionMode {
   }
 
   private boolean handleAnythingElse(ParseContext parseContext) {
-    MutableElement element = MutableElement.create("html", parseContext.document());
+    Element element = HTMLElement.create("html", parseContext.document());
     parseContext.document().appendChild(element);
     parseContext.openElementStack().pushNode(element);
 

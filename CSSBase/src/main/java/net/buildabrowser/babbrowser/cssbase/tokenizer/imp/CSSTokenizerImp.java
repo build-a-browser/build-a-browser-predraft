@@ -2,8 +2,10 @@ package net.buildabrowser.babbrowser.cssbase.tokenizer.imp;
 
 import java.io.IOException;
 
+import net.buildabrowser.babbrowser.common.util.ASCIIUtil;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizer;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
+import net.buildabrowser.babbrowser.cssbase.tokens.AtKeywordToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.BadStringToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
@@ -12,8 +14,10 @@ import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.HashToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LCBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LParenToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.LSBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RCBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.RParenToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.RSBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.SemicolonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.StringToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
@@ -42,7 +46,10 @@ public class CSSTokenizerImp implements CSSTokenizer {
       case '.' -> consumeFullStop(stream);
       case ':' -> ColonToken.create();
       case ';' -> SemicolonToken.create();
+      case '@' -> consumeCommercialAt(stream);
+      case '[' -> LSBracketToken.create();
       case '\\' -> consumeReverseSolidus(stream);
+      case ']' -> RSBracketToken.create();
       case '{' -> LCBracketToken.create();
       case '}' -> RCBracketToken.create();
       case -1 -> EOFToken.create();
@@ -51,7 +58,7 @@ public class CSSTokenizerImp implements CSSTokenizer {
   }
 
   private Token handleOtherValue(CSSTokenizerInput stream, int ch) throws IOException {
-    if (TokenizerUtil.isDigit(ch)) {
+    if (ASCIIUtil.isDigit(ch)) {
       stream.unread(ch);
       return numberTokenizer.consumeANumericToken(stream);
     } else if (TokenizerUtil.isIdentStartCodePoint(ch)) {
@@ -71,7 +78,7 @@ public class CSSTokenizerImp implements CSSTokenizer {
       ch1 = stream.read();
       // TODO: Will this error if ch1 was -1?
       ch2 = stream.peek();
-      while (ch1 != '*' && ch2 != '/') {
+      while (!(ch1 == '*' && ch2 == '/')) {
         if (ch2 == -1) {
           // TODO: Parse error
           return;
@@ -94,10 +101,10 @@ public class CSSTokenizerImp implements CSSTokenizer {
       int ch = stream.read();
       if (ch == endingCodePoint) {
         return StringToken.create(valueBuilder.toString());
-      } else if (ch == '\n') {
+      } else if (ch == -1) {
         // TODO: Parse error
         return StringToken.create(valueBuilder.toString());
-      } else if (ch == -1) {
+      } else if (ch == '\n') {
         // TODO: Parse error
         stream.unread(ch);
         return BadStringToken.create();
@@ -165,6 +172,15 @@ public class CSSTokenizerImp implements CSSTokenizer {
     }
 
     return new DelimToken('.');
+  }
+
+  private Token consumeCommercialAt(CSSTokenizerInput stream) throws IOException {
+    if (TokenizerUtil.wouldStartAnIdentSequence(stream)) {
+      String value = identTokenizer.consumeIdentSequence(stream);
+      return AtKeywordToken.create(value);
+    }
+
+    return new DelimToken('@');
   }
 
   private Token consumeReverseSolidus(CSSTokenizerInput stream) throws IOException {

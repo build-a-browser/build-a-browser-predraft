@@ -7,44 +7,45 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
+import net.buildabrowser.babbrowser.dom.Document;
+import net.buildabrowser.babbrowser.dom.Element;
 
 public class TypeSelectorMatcherTest {
   
-  private ElementSet elementSet;
+  private ElementRootSet allElements;
   private TypeSelectorMatcher matcher;
 
   @BeforeEach
   public void beforeEach() {
-    this.elementSet = ElementSet.create();
-    this.matcher = new TypeSelectorMatcher(elementSet);
+    this.allElements = ElementSet.createRoot();
+    this.matcher = new TypeSelectorMatcher(allElements, _ -> {});
   }
 
   @Test
   @DisplayName("Can match valid types")
   @SuppressWarnings("deprecation")
   public void canMatchValidTypes() {
-    MutableElement element = MutableElement.create("a", MutableDocument.create(matcher));
-    elementSet.add(element);
+    Element element = Element.create("a", Document.create(matcher));
+    allElements.add(element);
     TypeSelector selector = TypeSelector.create("a");
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
-    Assertions.assertEquals(Set.of(element), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(element), matcher.match(selector).asSet());
   }
 
   @Test
   @DisplayName("Can not match invalid types")
   @SuppressWarnings("deprecation")
   public void cannotMatchInvalidValidTypes() {
-    MutableElement element = MutableElement.create("b", MutableDocument.create(matcher));
-    elementSet.add(element);
+    Element element = Element.create("b", Document.create(matcher));
+    allElements.add(element);
     TypeSelector selector = TypeSelector.create("a");
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
-    Assertions.assertEquals(Set.of(), matcher.match(selector).raw());
+    Assertions.assertEquals(Set.of(), matcher.match(selector).asSet());
   }
 
 }

@@ -2,17 +2,24 @@ package net.buildabrowser.babbrowser.css.engine.matcher;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.IntConsumer;
 
-import net.buildabrowser.babbrowser.css.engine.matcher.imp.ElementSetImp;
+import com.zaxxer.sparsebits.SparseBitSet;
+
+import net.buildabrowser.babbrowser.css.engine.matcher.imp.ElementRootSetImp;
 import net.buildabrowser.babbrowser.dom.Element;
 
 public interface ElementSet extends Iterable<Element> {
   
-  void add(Element element);
+  boolean add(Element element);
 
-  void remove(Element element);
+  boolean addById(int elementId);
+
+  boolean remove(Element element);
 
   boolean contains(Element element);
+
+  boolean containsById(int elId);
 
   ElementSet copy();
 
@@ -20,11 +27,24 @@ public interface ElementSet extends Iterable<Element> {
 
   void union(ElementSet other);
 
-  @Deprecated
-  Set<Element> raw();
+  void forEachElementId(IntConsumer iterator);
 
-  static ElementSet create() {
-    return new ElementSetImp();
+  ElementRootSet root();
+
+  void resize(int size);
+
+  boolean isEmpty();
+
+  void removeAll();
+
+  @Deprecated
+  SparseBitSet raw();
+
+  @Deprecated
+  Set<Element> asSet();
+
+  static ElementRootSet createRoot() {
+    return new ElementRootSetImp(e -> {});
   }
 
   static ElementSet unionMany(List<ElementSet> sets) {

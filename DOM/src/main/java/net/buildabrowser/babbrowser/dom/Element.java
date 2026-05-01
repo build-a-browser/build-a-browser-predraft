@@ -1,6 +1,8 @@
 package net.buildabrowser.babbrowser.dom;
 
-import java.util.Map;
+import java.util.List;
+
+import net.buildabrowser.babbrowser.dom.imp.ElementImp;
 
 public interface Element extends Node {
 
@@ -8,8 +10,24 @@ public interface Element extends Node {
 
   String namespace();
 
-  Map<String, String> attributes();
+  List<String> getAttributeNames();
+
+  String getAttribute(String name);
+  
+  boolean hasAttribute(String name);
 
   void addAttribute(String name, String value);
+
+  // Extensions
+
+  int getId();
+
+  void setId(int id);
+
+  public static Element create(
+    String name, Node parentNode
+  ) {
+    return new ElementImp(name, Namespace.HTML_NAMESPACE, parentNode);
+  }
 
 }

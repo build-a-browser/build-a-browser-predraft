@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.util;
 
-import net.buildabrowser.babbrowser.dom.mutable.MutableComment;
-import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
+import net.buildabrowser.babbrowser.dom.Comment;
+import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
 
@@ -13,10 +13,10 @@ public final class ParseCommentUtil {
     insertAComment(parseContext, commentToken, null);
   }
 
-  public static void insertAComment(ParseContext parseContext, CommentToken commentToken, MutableNode targetOverride) {
+  public static void insertAComment(ParseContext parseContext, CommentToken commentToken, Node targetOverride) {
     String data = commentToken.data();
-    MutableNode adjustedInsertionLocation = ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, targetOverride);
-    MutableComment comment = MutableComment.create(data);
+    Node adjustedInsertionLocation = ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, targetOverride);
+    Comment comment = Comment.create(data);
     adjustedInsertionLocation.appendChild(comment);
   }
 

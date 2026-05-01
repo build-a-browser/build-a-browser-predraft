@@ -1,0 +1,10 @@
+plugins {
+  id 'java-library'
+}
+
+dependencies {
+  implementation project(':Common')
+  implementation project(':Infra')
+  api project(':Stream')
+  implementation project(':Network')
+}

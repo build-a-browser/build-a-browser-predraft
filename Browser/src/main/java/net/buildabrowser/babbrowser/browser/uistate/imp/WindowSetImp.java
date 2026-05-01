@@ -1,16 +1,16 @@
 package net.buildabrowser.babbrowser.browser.uistate.imp;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
-import net.buildabrowser.babbrowser.browser.render.uistate.event.BrowserEventDispatcher;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
 import net.buildabrowser.babbrowser.browser.uistate.event.WindowMutationEventListener;
 import net.buildabrowser.babbrowser.browser.uistate.event.WindowSetMutationEventListener;
+import net.buildabrowser.babbrowser.render.uistate.event.BrowserEventDispatcher;
 
 public class WindowSetImp implements WindowSet {
   
@@ -25,14 +25,14 @@ public class WindowSetImp implements WindowSet {
   
   @Override
   public void close() {
-    for (Window window: windows) {
+    for (Window window: List.copyOf(windows)) {
       window.close();
     }
     mutationEventDispatcher.fire(listener -> listener.onClose(this));
   }
 
   @Override
-  public void open(URL url) {
+  public void open(URI url) {
     windows.get(0).openTab().navigate(url);
   }
 
@@ -43,7 +43,7 @@ public class WindowSetImp implements WindowSet {
 
   @Override
   public Window openWindow(WindowOptions options) {
-    Window window = Window.create(browserInstance, options);
+    Window window = Window.create(browserInstance, this, options);
     window.addWindowMutationEventListener(new WindowCleanupListener(), false);
     windows.add(window);
     mutationEventDispatcher.fire(listener -> listener.onWindowAdded(this, window));

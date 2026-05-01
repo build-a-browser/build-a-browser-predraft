@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
-import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
+import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
 import net.buildabrowser.babbrowser.htmlparser.insertion.OpenElementStack;
@@ -30,6 +30,14 @@ public class InBodyInsertionMode implements InsertionMode {
         parseContext.setFramesetOk(false);
         return false;
     }
+  }
+
+  @Override
+  public boolean emitOptimizedString(ParseContext parseContext, String data) {
+    ParseTextUtil.reconstructTheActiveFormattingElements(parseContext);
+    ParseTextUtil.insertAString(parseContext, data);
+    parseContext.setFramesetOk(false);
+    return false;
   }
 
   @Override
@@ -72,6 +80,13 @@ public class InBodyInsertionMode implements InsertionMode {
         // TODO: Acknowledge self-closing flag
         parseContext.setFramesetOk(false);
         return false;
+      case "input":
+        // TODO: Check additional scopes
+        ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
+        parseContext.openElementStack().popNode();
+        // TODO: Acknowledge self-closing flag
+        parseContext.setFramesetOk(false);
+        return false;
       default:
         ParseTextUtil.reconstructTheActiveFormattingElements(parseContext);
         ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
@@ -92,7 +107,7 @@ public class InBodyInsertionMode implements InsertionMode {
   private boolean handleOtherEndTagToken(ParseContext parseContext, TagToken tagToken) {
     OpenElementStack stack = parseContext.openElementStack();
     for (int i = 0; i < stack.size(); i++) {
-      MutableNode node = stack.peek(i);
+      Node node = stack.peek(i);
       if (ParseElementUtil.isHTMLElementWithName(node, tagToken.name())) {
         // TODO: Generate implied end tags
         if (node != stack.peek()) {

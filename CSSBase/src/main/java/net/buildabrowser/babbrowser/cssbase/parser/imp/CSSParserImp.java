@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.buildabrowser.babbrowser.cssbase.cssom.AtRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleList;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
@@ -38,7 +39,9 @@ public class CSSParserImp implements CSSParser {
     List<CSSRule> rawRules = intermediateParser.consumeAListOfRules(stream, topLevel);
     List<CSSRule> mappedRules = new ArrayList<>(rawRules.size());
     for (CSSRule rawRule: rawRules) {
-      mappedRules.add(remapRule(rawRule));
+      CSSRule remappedRule = remapRule(rawRule);
+      if (remappedRule == null) continue;
+      mappedRules.add(remappedRule);
     }
     
     return CSSRuleList.create(mappedRules);
@@ -48,6 +51,9 @@ public class CSSParserImp implements CSSParser {
     switch (rule) {
       case QualifiedRule qualifiedRule:
         return createStyleRule(qualifiedRule);
+      case AtRule _:
+        // TODO
+        return null;
       default:
         throw new UnsupportedOperationException("Unrecognized rule type!");
     }
@@ -60,7 +66,7 @@ public class CSSParserImp implements CSSParser {
 
     List<ComplexSelector> selectors = ComplexSelectorParser.parseComplexSelectors(qualifiedRule.prelude());
 
-    return StyleRule.create(selectors, declarations);
+    return new StyleRule(selectors, declarations);
   }
   
 }

@@ -4,27 +4,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
-import net.buildabrowser.babbrowser.browser.render.uistate.event.BrowserEventDispatcher;
 import net.buildabrowser.babbrowser.browser.uistate.Tab;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
+import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
 import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListener;
 import net.buildabrowser.babbrowser.browser.uistate.event.WindowMutationEventListener;
+import net.buildabrowser.babbrowser.render.uistate.event.BrowserEventDispatcher;
 
 public class WindowImp implements Window {
 
   private final List<Tab> tabs = new ArrayList<>();
   private final BrowserEventDispatcher<WindowMutationEventListener> mutationEventDispatcher = BrowserEventDispatcher.create();
   private final WindowOptions options;
+  private final WindowSet relatedWindowSet;
   private final BrowserInstance browserInstance;
 
-  public WindowImp(BrowserInstance browserInstance, WindowOptions options) {
+  public WindowImp(BrowserInstance browserInstance, WindowSet relatedWindowSet, WindowOptions options) {
     this.options = options;
+    this.relatedWindowSet = relatedWindowSet;
     this.browserInstance = browserInstance;
   }
 
   @Override
   public void close() {
     mutationEventDispatcher.fire(listener -> listener.onClose(this));
+    for (Tab tab: tabs) {
+      tab.close();
+    }
   }
 
   @Override
@@ -47,10 +53,14 @@ public class WindowImp implements Window {
   @Override
   public Tab openTab() {
     Tab tab = Tab.create(browserInstance);
-    tabs.add(tab);
-    mutationEventDispatcher.fire(l -> l.onTabAdded(this, tab));
+    addTab(tab);
     
     return tab;
+  }
+
+  @Override
+  public WindowSet relatedWindowSet() {
+    return this.relatedWindowSet;
   }
 
   @Override

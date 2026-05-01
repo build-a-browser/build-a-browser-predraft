@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.browser.uistate;
 
-import java.net.URL;
+import java.net.URI;
 
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
@@ -11,7 +11,7 @@ public interface WindowSet {
 
   void close();
   
-  void open(URL url);
+  void open(URI url);
   
   Window[] getWindows();
   

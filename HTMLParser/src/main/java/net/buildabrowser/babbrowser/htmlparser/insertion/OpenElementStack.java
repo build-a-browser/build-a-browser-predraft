@@ -1,19 +1,19 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion;
 
-import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
+import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.htmlparser.insertion.imp.OpenElementStackImp;
 
 public interface OpenElementStack {
   
-  void pushNode(MutableNode node);
+  void pushNode(Node node);
 
-  MutableNode peek();
+  Node peek();
 
-  MutableNode peek(int pos);
+  Node peek(int pos);
 
-  MutableNode popNode();
+  Node popNode();
 
-  void removeSpecificNode(MutableNode node);
+  void removeSpecificNode(Node node);
 
   int size();
 

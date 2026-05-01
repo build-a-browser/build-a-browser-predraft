@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.css.engine.matcher.simple;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
-import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
 public interface SimpleSelectorMatcher<T extends SelectorPart> extends DocumentChangeListener {
   

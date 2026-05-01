@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.htmlparser.shared.imp;
 
-import net.buildabrowser.babbrowser.dom.mutable.MutableDocument;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
+import net.buildabrowser.babbrowser.dom.Document;
+import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
 import net.buildabrowser.babbrowser.htmlparser.insertion.OpenElementStack;
@@ -15,16 +15,16 @@ public class ParseContextImp implements ParseContext {
 
   private final OpenElementStack openElementStack = OpenElementStack.create();
 
-  private final MutableDocument document;
+  private final Document document;
   private final TokenizeContext tokenizeContext;
 
   private InsertionMode currentInsertionMode;
   private InsertionMode originalInsertionMode;
-  private MutableElement headElementPointer;
+  private Element headElementPointer;
 
   private String lastTagTokenName;
 
-  public ParseContextImp(MutableDocument document, TokenizeContext tokenizeContext) {
+  public ParseContextImp(Document document, TokenizeContext tokenizeContext) {
     this.document = document;
     this.tokenizeContext = tokenizeContext;
     this.currentInsertionMode = InsertionModes.initialInsertionMode;
@@ -35,6 +35,14 @@ public class ParseContextImp implements ParseContext {
     boolean shouldReprocess;
     do {
       shouldReprocess = currentInsertionMode.emitCharacterToken(this, ch);
+    } while (shouldReprocess);
+  }
+
+  @Override
+  public void emitOptimizedString(String data) {
+    boolean shouldReprocess;
+    do {
+      shouldReprocess = currentInsertionMode.emitOptimizedString(this, data);
     } while (shouldReprocess);
   }
 
@@ -104,7 +112,7 @@ public class ParseContextImp implements ParseContext {
   }
 
   @Override
-  public MutableDocument document() {
+  public Document document() {
     return this.document;
   }
 
@@ -112,12 +120,12 @@ public class ParseContextImp implements ParseContext {
   public void parseError() {}
 
   @Override
-  public void setTheHeadElementPointer(MutableElement element) {
+  public void setTheHeadElementPointer(Element element) {
     this.headElementPointer = element;
   }
 
   @Override
-  public MutableElement headElementPointer() {
+  public Element headElementPointer() {
     return this.headElementPointer;
   }
 

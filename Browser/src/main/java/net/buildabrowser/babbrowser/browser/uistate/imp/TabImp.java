@@ -1,12 +1,13 @@
 package net.buildabrowser.babbrowser.browser.uistate.imp;
 
-import java.net.URL;
+import java.net.URI;
 
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
-import net.buildabrowser.babbrowser.browser.render.uistate.Frame;
-import net.buildabrowser.babbrowser.browser.render.uistate.event.BrowserEventDispatcher;
 import net.buildabrowser.babbrowser.browser.uistate.Tab;
 import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListener;
+import net.buildabrowser.babbrowser.render.uistate.Frame;
+import net.buildabrowser.babbrowser.render.uistate.event.BrowserEventDispatcher;
+import net.buildabrowser.babbrowser.render.uistate.event.FrameEventListener;
 
 public class TabImp implements Tab {
   
@@ -16,11 +17,26 @@ public class TabImp implements Tab {
 
   public TabImp(BrowserInstance browserInstance) {
     this.frame = browserInstance.getRenderingEngine().createFrame();
+
+    frame.addEventListener(
+      new FrameEventListener() {
+        @Override
+        public void onURLChange(URI url) {
+          mutationEventDispatcher.fire(l -> l.onNavigate(TabImp.this, url));
+        }
+
+        @Override
+        public void onTitleChange(String title) {
+          mutationEventDispatcher.fire(l -> l.onTitleChange(TabImp.this, title));
+        }
+      },
+      true);
   }
 
   @Override
   public void close() {
     this.frame.close();
+    mutationEventDispatcher.fire(l -> l.onClose(this));
   }
   
   @Override
@@ -29,23 +45,22 @@ public class TabImp implements Tab {
   }
 
   @Override
-  public String getName() {
-    String frameName = frame.getName();
+  public String getTitle() {
+    String frameName = frame.getTitle();
     if (frameName == null || frameName.isEmpty()) {
       return frame.getURL().toString();
     }
-    return frame.getName();
+    return frameName;
   }
 
   @Override
-  public URL getURL() {
+  public URI getURL() {
     return frame.getURL();
   }
 
   @Override
-  public void navigate(URL url) {
+  public void navigate(URI url) {
     frame.navigate(url);
-    mutationEventDispatcher.fire(l -> l.onNavigate(this, url));
   }
 
   @Override

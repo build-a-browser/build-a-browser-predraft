@@ -4,16 +4,28 @@ plugins {
 
 dependencies {
     implementation project(':Renderer')
+
+    implementation 'com.github.taucher2003:t2003-logger-impl:1.0.2'
+	implementation 'com.github.taucher2003:t2003-logger-binder:1.0.2'
 }
 
 application {
     mainClass = 'net.buildabrowser.babbrowser.browser.Main'
     applicationDefaultJvmArgs = [
+        '-Xms32m',
         '-XX:MaxHeapFreeRatio=10', '-XX:MinHeapFreeRatio=10',
-        '-XX:+UnlockExperimentalVMOptions', '-XX:+UseCompactObjectHeaders'
+        '-XX:G1PeriodicGCInterval=3000',
+        '-XX:+G1PeriodicGCInvokesConcurrent',
+        '-XX:+UnlockExperimentalVMOptions', '-XX:+UseCompactObjectHeaders',
+        '-Djava.net.preferIPv4Stack=true'
     ]
 }
 
 run {
-    enableAssertions = true
+    if (project.hasProperty('assert')) {
+        enableAssertions = true
+    }
+    if (project.hasProperty('debug')) {
+        systemProperty "babbrowser.debug", project.getProperty('debug')
+    }
 }

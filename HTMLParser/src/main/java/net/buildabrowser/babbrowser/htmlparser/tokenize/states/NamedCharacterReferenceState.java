@@ -1,11 +1,11 @@
 package net.buildabrowser.babbrowser.htmlparser.tokenize.states;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.MatchTrie;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
@@ -13,18 +13,20 @@ import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 public class NamedCharacterReferenceState implements TokenizeState {
 
   private final Map<String, String> referenceMap;
-  private final List<String> optionsWithoutAmpersand;
+  private final MatchTrie optionsWithoutAmpersandTrie;
 
   public NamedCharacterReferenceState(Map<String, String> referenceMap) {
     this.referenceMap = referenceMap;
-    this.optionsWithoutAmpersand = new ArrayList<>();
+
+    List<String> optionsWithoutAmpersand = new ArrayList<>();
     for (String option: referenceMap.keySet()) {
       optionsWithoutAmpersand.add(option.substring(1));
     }
+    this.optionsWithoutAmpersandTrie = MatchTrie.compile(optionsWithoutAmpersand);
   }
 
   @Override
-  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
+  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     // Automatically occurs upon no lookahead matched
     tokenizeContext.flushCodePointsConsumedAsACharacterReference(parseContext);
     // Since this stage technically does not consume unless a match is present,
@@ -50,8 +52,8 @@ public class NamedCharacterReferenceState implements TokenizeState {
   }
 
   @Override
-  public List<String> lookaheadOptions() {
-    return this.optionsWithoutAmpersand;
+  public MatchTrie lookaheadOptions() {
+    return this.optionsWithoutAmpersandTrie;
   }
   
 }

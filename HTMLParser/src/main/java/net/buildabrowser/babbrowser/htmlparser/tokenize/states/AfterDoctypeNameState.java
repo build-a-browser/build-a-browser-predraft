@@ -1,18 +1,20 @@
 package net.buildabrowser.babbrowser.htmlparser.tokenize.states;
 
-import java.io.IOException;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.MatchTrie;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
 public class AfterDoctypeNameState implements TokenizeState {
 
+  private static final MatchTrie OPTIONS_TRIE = MatchTrie.compile(List.of("PUBLIC", "SYSTEM"));
+
   @Override
-  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
+  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     switch (ch) {
       case '\t', '\n', '\f', ' ':
         break;
@@ -48,8 +50,8 @@ public class AfterDoctypeNameState implements TokenizeState {
   }
 
   @Override
-  public List<String> lookaheadOptions() {
-    return List.of("PUBLIC", "SYSTEM");
+  public MatchTrie lookaheadOptions() {
+    return OPTIONS_TRIE;
   }
 
 }

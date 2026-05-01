@@ -1,18 +1,16 @@
 package net.buildabrowser.babbrowser.htmlparser.tokenize.states;
 
-import java.io.IOException;
-
+import net.buildabrowser.babbrowser.common.util.ASCIIUtil;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeContext.TemporaryBuffer;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
-import net.buildabrowser.babbrowser.htmlparser.tokenize.util.ASCIIUtil;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
 
 public class CharacterReferenceState implements TokenizeState {
 
   @Override
-  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) throws IOException {
+  public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     TemporaryBuffer temporaryBuffer = tokenizeContext.temporaryBuffer();
     temporaryBuffer.clear();
     temporaryBuffer.append('&');

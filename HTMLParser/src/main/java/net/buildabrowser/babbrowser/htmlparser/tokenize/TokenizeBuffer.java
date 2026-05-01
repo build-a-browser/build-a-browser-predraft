@@ -1,12 +1,10 @@
 package net.buildabrowser.babbrowser.htmlparser.tokenize;
 
-import java.util.List;
-
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeBufferImp;
 
 public interface TokenizeBuffer {
   
-  boolean continues(List<String> options);
+  boolean continues();
 
   String lastMatch();
 
@@ -15,6 +13,8 @@ public interface TokenizeBuffer {
   void reset();
 
   void appendCodePoint(int codepoint);
+
+  void markLookahead(MatchTrie lookaheadOptions);
 
   static TokenizeBuffer create() {
     return new TokenizeBufferImp();

@@ -15,6 +15,8 @@ public interface Window {
   void addTab(Tab tab);
   
   Tab openTab();
+
+  WindowSet relatedWindowSet();
   
   void addWindowMutationEventListener(WindowMutationEventListener mutationListener, boolean sync);
   
@@ -22,8 +24,10 @@ public interface Window {
   
   static record WindowOptions(boolean isPrivate) {}
 
-  static Window create(BrowserInstance browserInstance, WindowOptions options) {
-    return new WindowImp(browserInstance, options);
+  static Window create(
+    BrowserInstance browserInstance, WindowSet relatedWindowSet, WindowOptions options
+  ) {
+    return new WindowImp(browserInstance, relatedWindowSet, options);
   }
   
 }

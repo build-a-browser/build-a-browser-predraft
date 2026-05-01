@@ -1,8 +1,5 @@
 package net.buildabrowser.babbrowser.htmlparser.tokenize.imp;
 
-import java.io.IOException;
-import java.io.PushbackReader;
-
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
 import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
@@ -14,8 +11,9 @@ import net.buildabrowser.babbrowser.htmlparser.tokenize.TokenizeState;
 
 public class TokenizeContextImp implements TokenizeContext {
 
-  private final PushbackReader pushbackReader;
+  private final Pushback pushback;
   private final TemporaryBuffer temporaryBuffer = new TemporaryBufferImp();
+  private final TemporaryBuffer dataBuffer = new TemporaryBufferImp();
   private final TagTokenImp tagToken = new TagTokenImp();
   private final DoctypeToken doctypeToken = DoctypeToken.create();
   private final CommentToken commentToken = CommentToken.create();
@@ -24,8 +22,8 @@ public class TokenizeContextImp implements TokenizeContext {
   private TokenizeState returnState;
   private int charRefCode;
 
-  public TokenizeContextImp(PushbackReader pushbackReader) {
-    this.pushbackReader = pushbackReader;
+  public TokenizeContextImp(Pushback pushback) {
+    this.pushback = pushback;
   }
 
   @Override
@@ -34,9 +32,9 @@ public class TokenizeContextImp implements TokenizeContext {
   }
 
   @Override
-  public void reconsumeInTokenizeState(int ch, TokenizeState tokenizeState) throws IOException {
+  public void reconsumeInTokenizeState(int ch, TokenizeState tokenizeState) {
     this.tokenizeState = tokenizeState;
-    pushbackReader.unread(ch);
+    pushback.unread(ch);
   }
 
   @Override
@@ -57,6 +55,11 @@ public class TokenizeContextImp implements TokenizeContext {
   @Override
   public TemporaryBuffer temporaryBuffer() {
     return temporaryBuffer;
+  }
+
+  @Override
+  public TemporaryBuffer dataBuffer() {
+    return dataBuffer;
   }
 
   @Override

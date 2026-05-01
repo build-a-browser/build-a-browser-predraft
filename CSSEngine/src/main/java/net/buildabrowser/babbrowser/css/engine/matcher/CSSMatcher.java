@@ -5,13 +5,17 @@ import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.mutable.DocumentChangeListener;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
 public interface CSSMatcher {
   
   DocumentChangeListener documentChangeListener();
 
-  void applyStylesheets(Document document, StyleSheetList uaStyleSheets);
+  void applyStylesheets(Document document);
+
+  ElementSet changedElements();
+
+  boolean changed();
 
   interface CSSMatcherContext {
     
@@ -21,8 +25,8 @@ public interface CSSMatcher {
 
   }
 
-  static CSSMatcher create(CSSMatcherContext context) {
-    return new CSSMatcherImp(context);
+  static CSSMatcher create(CSSMatcherContext context, StyleSheetList uaStyleSheets) {
+    return new CSSMatcherImp(context, uaStyleSheets);
   }
 
 }

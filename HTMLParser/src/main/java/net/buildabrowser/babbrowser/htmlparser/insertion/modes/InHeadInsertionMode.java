@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
 import net.buildabrowser.babbrowser.dom.Namespace;
-import net.buildabrowser.babbrowser.dom.mutable.MutableElement;
-import net.buildabrowser.babbrowser.dom.mutable.MutableNode;
+import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseCommentUtil;
@@ -25,6 +25,11 @@ public class InHeadInsertionMode implements InsertionMode {
       default:
         return handleAnythingElse(parseContext);
     }
+  }
+
+  @Override
+  public boolean emitOptimizedString(ParseContext parseContext, String data) {
+    return handleAnythingElse(parseContext);
   }
 
   @Override
@@ -75,13 +80,13 @@ public class InHeadInsertionMode implements InsertionMode {
         ParseElementUtil.startGenericRawTextElementParsingAlgorithm(parseContext, tagToken);
         return false;
       case "script":
-        MutableNode adjustedInsertionLocation = ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, null);
-        MutableNode newEl = ParseElementUtil.createAnElementForAToken(tagToken, Namespace.HTML_NAMESPACE, adjustedInsertionLocation);
+        Node adjustedInsertionLocation = ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, null);
+        Node newEl = ParseElementUtil.createAnElementForAToken(tagToken, Namespace.HTML_NAMESPACE, adjustedInsertionLocation);
         // TODO: JS stuff...
         adjustedInsertionLocation.appendChild(newEl);
         parseContext.openElementStack().pushNode(newEl);
         parseContext.tokenizeContext().setTokenizeState(TokenizeStates.scriptDataState);
-        parseContext.setOriginalInsertionMode(this);
+        parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());
         parseContext.setInsertionMode(InsertionModes.textInsertionMode);
         return false;
       case "head":
@@ -95,8 +100,8 @@ public class InHeadInsertionMode implements InsertionMode {
   private boolean emitEndTagToken(ParseContext parseContext, TagToken tagToken) {
     switch (tagToken.name()) {
       case "head":
-        MutableNode popped = parseContext.openElementStack().popNode();
-        assert(popped instanceof MutableElement poppedElement && poppedElement.name().equals("head"));
+        Node popped = parseContext.openElementStack().popNode();
+        assert(popped instanceof Element poppedElement && poppedElement.name().equals("head"));
         parseContext.setInsertionMode(InsertionModes.afterHeadInsertionMode);
         return false;
       case "body", "html", "br":
@@ -109,8 +114,8 @@ public class InHeadInsertionMode implements InsertionMode {
   }
 
   private boolean handleAnythingElse(ParseContext parseContext) {
-    MutableNode popped = parseContext.openElementStack().popNode();
-    assert(popped instanceof MutableElement poppedElement && poppedElement.name().equals("head"));
+    Node popped = parseContext.openElementStack().popNode();
+    assert(popped instanceof Element poppedElement && poppedElement.name().equals("head"));
     parseContext.setInsertionMode(InsertionModes.afterHeadInsertionMode);
     return true;
   }

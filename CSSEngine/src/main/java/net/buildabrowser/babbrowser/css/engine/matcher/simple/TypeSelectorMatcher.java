@@ -2,9 +2,12 @@ package net.buildabrowser.babbrowser.css.engine.matcher.simple;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
+import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.util.RefCounted;
+import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
@@ -13,16 +16,21 @@ public class TypeSelectorMatcher implements SimpleSelectorMatcher<TypeSelector> 
 
   private final Map<TypeSelector, RefCounted<ElementSet>> matchingElements = new HashMap<>();
 
-  private final ElementSet allElements;
+  private final ElementRootSet allElements;
+  private final Consumer<SelectorPart> onSelectorChanged;
 
-  public TypeSelectorMatcher(ElementSet allElements) {
+  public TypeSelectorMatcher(
+    ElementRootSet allElements,
+    Consumer<SelectorPart> onSelectorChanged
+  ) {
     this.allElements = allElements;
+    this.onSelectorChanged = onSelectorChanged;
   }
 
   @Override
   public void addSelectorReference(TypeSelector ref) {
     RefCounted<ElementSet> setRef = matchingElements
-      .computeIfAbsent(ref, _ -> RefCounted.create(ElementSet.create()));
+      .computeIfAbsent(ref, _ -> RefCounted.create(allElements.createChild()));
     boolean didExist = setRef.isReferenced();
     setRef.incRefCount();
 
@@ -49,23 +57,31 @@ public class TypeSelectorMatcher implements SimpleSelectorMatcher<TypeSelector> 
   @Override
   public void onNodeAdded(Node node) {
     if (!(node instanceof Element element)) return;
-    RefCounted<ElementSet> set = matchingElements.get(TypeSelector.create(element.name()));
+    TypeSelector selector = TypeSelector.create(element.name());
+    RefCounted<ElementSet> set = matchingElements.get(selector);
     if (set == null) return;
-    set.object().add(element);
-  };
+    boolean changed = set.object().add(element);
+    if (changed) {
+      onSelectorChanged.accept(selector);
+    }
+  }
 
   @Override
   public void onNodeRemoved(Node node) {
     if (!(node instanceof Element element)) return;
-    RefCounted<ElementSet> set = matchingElements.get(TypeSelector.create(element.name()));
+    TypeSelector selector = TypeSelector.create(element.name());
+    RefCounted<ElementSet> set = matchingElements.get(selector);
     if (set == null) return;
-    set.object().remove(element);
-  };
+    boolean changed = set.object().remove(element);
+    if (changed) {
+      onSelectorChanged.accept(selector);
+    }
+  }
 
   @Override
   public ElementSet match(TypeSelector selector) {
     RefCounted<ElementSet> set = matchingElements.get(selector);
-    if (set == null) return ElementSet.create();
+    if (set == null) return allElements.createTemporaryChild();
     return set.object();
   }
 
