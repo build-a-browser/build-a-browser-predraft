@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.imp;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,6 +51,11 @@ public class OpenElementStackImp implements OpenElementStack {
   @Override
   public int size() {
     return stack.size();
+  }
+
+  @Override
+  public Iterator<Node> iterator() {
+    return stack.iterator();
   }
 
   // TODO: Not really the best place to do this

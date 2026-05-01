@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion;
 
+import java.util.Iterator;
+
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.htmlparser.insertion.imp.OpenElementStackImp;
 
@@ -16,6 +18,8 @@ public interface OpenElementStack {
   void removeSpecificNode(Node node);
 
   int size();
+
+  Iterator<Node> iterator();
 
   static OpenElementStack create() {
     return new OpenElementStackImp();
