@@ -1,13 +1,14 @@
 package net.buildabrowser.babbrowser.cssbase.parser;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.AtRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
@@ -15,7 +16,6 @@ import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.CSSIntermediateParserImp;
-import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.AtKeywordToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
@@ -31,13 +31,11 @@ import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
 
 public class CSSIntermediateParserTest {
-  
-  private CSSIntermediateParserImp parser;
 
-  @BeforeEach
-  public void beforeEach() {
-    this.parser = new CSSIntermediateParserImp();
-  }
+  private static final CSSTokenStreamSource TEST_SOURCE = new CSSTokenStreamSource(
+    CommonUtil.rethrow(() -> new URI("about:blank")));
+  
+  private final CSSIntermediateParserImp parser = new CSSIntermediateParserImp();
 
   @Test
   @DisplayName("Can parse an empty CSS stylesheet")
@@ -108,38 +106,38 @@ public class CSSIntermediateParserTest {
   @Test
   @DisplayName("Can parse the contents of an empty style rule")
   public void canParseTheContentsOfAnEmptyStyleRule() throws IOException {
-    List<Declaration> contents = parser.consumeAStyleBlocksContents(ListCSSTokenStream.create());
+    List<Declaration> contents = parser.consumeAStyleBlocksContents(CSSTokenStream.createForTesting());
     Assertions.assertEquals(List.of(), contents);
   }
 
   @Test
   @DisplayName("Can parse the contents of a style rule with a declaration")
   public void canParseTheContentsOfAStyleRuleWithADeclaration() throws IOException {
-    List<Declaration> contents = parser.consumeAStyleBlocksContents(ListCSSTokenStream.create(
+    List<Declaration> contents = parser.consumeAStyleBlocksContents(CSSTokenStream.createForTesting(
       IdentToken.create("color"), ColonToken.create(), IdentToken.create("red"), SemicolonToken.create()
     ));
     Assertions.assertEquals(List.of(
-      Declaration.create("color", List.of(IdentToken.create("red")), false)
+      Declaration.create(TEST_SOURCE, "color", List.of(IdentToken.create("red")), false)
     ), contents);
   }
 
   @Test
   @DisplayName("Can parse the contents of a style rule with a declaration and whitespace")
   public void canParseTheContentsOfAStyleRuleWithADeclarationAndWhitespace() throws IOException {
-    List<Declaration> contents = parser.consumeAStyleBlocksContents(ListCSSTokenStream.create(
+    List<Declaration> contents = parser.consumeAStyleBlocksContents(CSSTokenStream.createForTesting(
       WhitespaceToken.create(), IdentToken.create("color"), WhitespaceToken.create(), ColonToken.create(),
       WhitespaceToken.create(), IdentToken.create("red"), WhitespaceToken.create(), SemicolonToken.create(),
       WhitespaceToken.create()
     ));
     Assertions.assertEquals(List.of(
-      Declaration.create("color", List.of(IdentToken.create("red")), false)
+      Declaration.create(TEST_SOURCE, "color", List.of(IdentToken.create("red")), false)
     ), contents);
   }
 
   @Test
   @DisplayName("Can parse a CSS stylesheet referencing a function")
   public void canParseAFunction() throws IOException {
-    List<Declaration> contents = parser.consumeAStyleBlocksContents(ListCSSTokenStream.create(
+    List<Declaration> contents = parser.consumeAStyleBlocksContents(CSSTokenStream.createForTesting(
       IdentToken.create("color"), ColonToken.create(),
       FunctionToken.create("rgb"),
       NumberToken.create(0), CommaToken.create(),
@@ -148,7 +146,7 @@ public class CSSIntermediateParserTest {
       RParenToken.create()
     ));
     Assertions.assertEquals(List.of(
-      Declaration.create("color", List.of(new FunctionValue("rgb", List.of(
+      Declaration.create(TEST_SOURCE, "color", List.of(new FunctionValue("rgb", List.of(
         NumberToken.create(0), CommaToken.create(),
         NumberToken.create(0), CommaToken.create(),
         NumberToken.create(0), CommaToken.create()
@@ -157,7 +155,7 @@ public class CSSIntermediateParserTest {
   }
 
   private List<CSSRule> parseTokens(Token... tokens) throws IOException {
-    return parser.consumeAListOfRules(ListCSSTokenStream.create(tokens), true);
+    return parser.consumeAListOfRules(CSSTokenStream.createForTesting(tokens), true);
   }
 
 }

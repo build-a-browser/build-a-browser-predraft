@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
@@ -23,7 +23,7 @@ public class GapParserTest {
   @DisplayName("Can parse normal gap value")
   public void canParseNormalGapValue() throws IOException {
     CSSValue value = gapParser.parse(
-      CSSTokenStream.create(IdentToken.create("normal")));
+      CSSTokenStream.createForTesting(IdentToken.create("normal")));
     Assertions.assertEquals(GapValue.NORMAL, value);
   }
   
@@ -31,7 +31,7 @@ public class GapParserTest {
   @DisplayName("Can parse length gap value")
   public void canParseLengthSizeValue() throws IOException {
     CSSValue value = gapParser.parse(
-      CSSTokenStream.create(DimensionToken.create(4, "em")));
+      CSSTokenStream.createForTesting(DimensionToken.create(4, "em")));
     Assertions.assertEquals(
       LengthValue.create(4, true, LengthType.EM),
       value);
@@ -41,7 +41,7 @@ public class GapParserTest {
   @DisplayName("Can parse percentage gap value")
   public void canParsePercentageGapValue() throws IOException {
     CSSValue value = gapParser.parse(
-      CSSTokenStream.create(PercentageToken.create(4)));
+      CSSTokenStream.createForTesting(PercentageToken.create(4)));
     Assertions.assertEquals(PercentageValue.create(4), value);
   }
 

@@ -17,7 +17,6 @@ import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundSizeVa
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundSizeValue.SizedBackgroundSizeValue;
 import net.buildabrowser.babbrowser.cssbase.property.box.VisualBoxValue;
 import net.buildabrowser.babbrowser.cssbase.property.shared.URLValue;
-import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.network.URLUtil;
 import net.buildabrowser.babbrowser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
@@ -41,7 +40,6 @@ public class ElementBackgroundImagePainter {
     ManyResult bgOrigins = (ManyResult) fragment.box().activeStyles().getProperty(CSSProperty.BACKGROUND_ORIGIN);
     ManyResult bgSizes = (ManyResult) fragment.box().activeStyles().getProperty(CSSProperty.BACKGROUND_SIZE);
 
-    HTMLDocument nodeDocument = (HTMLDocument) fragment.box().element().nodeDocument();
     ImageCache imageCache = fragment.box().layoutContext().global().imageCache();
 
     boolean isInitial = true;
@@ -62,8 +60,9 @@ public class ElementBackgroundImagePainter {
       if (backgroundURL.equals(CSSValue.NONE)) continue;
 
       // TODO: This needs to be relative to the stylesheet, not the document
+      URLValue urlValue = (URLValue) backgroundURL;
       URI imageURL = CommonUtil.tryOrNull(
-        () -> URLUtil.createURL(nodeDocument.baseURL(), ((URLValue) backgroundURL).value()));
+        () -> URLUtil.createURL(urlValue.refURL(), urlValue.value()));
       if (imageURL == null) continue;
 
       LoadedImage image = imageCache.getImage(

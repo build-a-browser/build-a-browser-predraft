@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -91,7 +91,7 @@ public class CalcParser implements PropertyValueParser {
       stream.read();
       CalcEntry entry = CALC_TYPE_MAP.get(functionValue.name());
       SeekableCSSTokenStream childStream = ListCSSTokenStream.createWithSkippedWhitespace(
-        functionValue.value());
+        stream.source(), functionValue.value());
       CSSValue result = entry.parser().parse(childStream, entry.type());
       if (!(childStream.peek() instanceof EOFToken)) {
         return CSSFailure.EXPECTED_EOF;

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightValue.RelativeFontWeightValue;
@@ -26,7 +26,7 @@ public class FontShorthandParserTest {
   @Test
   @DisplayName("Can parse minimal font shorthand")
   public void canParseMinimalFontShorthand() throws IOException {
-    CSSValue value = fontShorthandParser.parse(CSSTokenStream.create(
+    CSSValue value = fontShorthandParser.parse(CSSTokenStream.createForTesting(
       DimensionToken.create(4, "px"),
       IdentToken.create("monospace")));
     Assertions.assertEquals(
@@ -41,7 +41,7 @@ public class FontShorthandParserTest {
   @Test
   @DisplayName("Can parse maximal font shorthand")
   public void canParseMaximalFontShorthand() throws IOException {
-    CSSValue value = fontShorthandParser.parse(CSSTokenStream.create(
+    CSSValue value = fontShorthandParser.parse(CSSTokenStream.createForTesting(
       IdentToken.create("bolder"),
       DimensionToken.create(4, "px"),
       DelimToken.create('/'),

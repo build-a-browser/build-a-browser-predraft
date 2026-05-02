@@ -1,9 +1,11 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.imp;
 
+import java.net.URI;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.algo.StyleAlgos;
@@ -36,7 +38,7 @@ public class OpenElementStackImp implements OpenElementStack {
   public Node popNode() {
     Node node = stack.removeFirst();
     if (ParseElementUtil.isHTMLElementWithName(node, "style")) {
-      StyleAlgos.updateAStyleBlock((Element) node);
+      updateAStyleBlock((Element) node);
     } else if (ParseElementUtil.isHTMLElementWithName(node, "title")) {
       emitTitleElement(node);
     }
@@ -66,6 +68,14 @@ public class OpenElementStackImp implements OpenElementStack {
     if (eventListener != null) {
       eventListener.onTitleChanged(document.title());
     }
+  }
+
+  private void updateAStyleBlock(Element node) {
+    // Testing passes a Document instead of HTMLDocument
+    Document nodeDocument = node.nodeDocument();
+    URI refURL = nodeDocument instanceof HTMLDocument htmlDocument ?
+      htmlDocument.baseURL() : nodeDocument.url();
+    StyleAlgos.updateAStyleBlock(node, refURL);
   }
   
 }

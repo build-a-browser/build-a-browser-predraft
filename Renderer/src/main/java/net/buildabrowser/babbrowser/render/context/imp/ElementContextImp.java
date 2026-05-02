@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.render.context.imp;
 
+import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,10 +13,13 @@ import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule.RuleSource;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
+import net.buildabrowser.babbrowser.dom.Document;
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.context.ElementContext;
 
@@ -94,9 +98,13 @@ public class ElementContextImp implements ElementContext {
       // TODO: Might be good to find a better way to pass the CSS parser
       // For now, it is cached as a singleton
       // Also, how will !important factor into the below??
+      Document nodeDocument = element.nodeDocument();
+      URI baseURL = nodeDocument instanceof HTMLDocument htmlDocument ? htmlDocument.baseURL() : nodeDocument.url();
+      CSSTokenStreamSource source = new CSSTokenStreamSource(baseURL);
       CSSTokenizerInput tokenizerInput = CSSTokenizerInput.fromString(styleStr);
-      CSSTokenStream tokenizerStream = CSSTokenStream.create(tokenizerInput);
-      List<Declaration> declarations = CommonUtil.rethrow(() -> CSSParser.create().parseAStyleBlocksContents(tokenizerStream));
+      CSSTokenStream tokenizerStream = CSSTokenStream.create(source, tokenizerInput);
+      List<Declaration> declarations = CommonUtil.rethrow(
+        () -> CSSParser.create().parseAStyleBlocksContents(tokenizerStream));
       // Need to do some dumb constructors to convert it to a WeightedStyleRule, maybe improve this later...
       StyleRule styleRule = new StyleRule(List.of(), declarations);
       // also why wasn't there a .create anyways?

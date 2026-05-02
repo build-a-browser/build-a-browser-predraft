@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;

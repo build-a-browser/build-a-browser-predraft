@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.text;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;

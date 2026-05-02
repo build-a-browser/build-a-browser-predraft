@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundRepeatValue.BackgroundAxisRepeatValue;
@@ -21,7 +21,7 @@ public class BackgroundRepeatParserTest {
   @DisplayName("Can parse single repeat value")
   public void canParseSingleRepeatValue() throws IOException {
     CSSValue value = backgroundRepeatParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("repeat-y")));
     Assertions.assertEquals(
       ManyResult.create(
@@ -35,7 +35,7 @@ public class BackgroundRepeatParserTest {
   @DisplayName("Can parse multiple repeat values")
   public void canParseMultipleRepeatValues() throws IOException {
     CSSValue value = backgroundRepeatParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("space"),
         IdentToken.create("round"),
         CommaToken.create(),

@@ -12,6 +12,8 @@ import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 
 public class CSSParserImp implements CSSParser {
@@ -39,7 +41,7 @@ public class CSSParserImp implements CSSParser {
     List<CSSRule> rawRules = intermediateParser.consumeAListOfRules(stream, topLevel);
     List<CSSRule> mappedRules = new ArrayList<>(rawRules.size());
     for (CSSRule rawRule: rawRules) {
-      CSSRule remappedRule = remapRule(rawRule);
+      CSSRule remappedRule = remapRule(stream.source(), rawRule);
       if (remappedRule == null) continue;
       mappedRules.add(remappedRule);
     }
@@ -47,10 +49,12 @@ public class CSSParserImp implements CSSParser {
     return CSSRuleList.create(mappedRules);
   }
 
-  private CSSRule remapRule(CSSRule rule) throws IOException {
+  private CSSRule remapRule(
+    CSSTokenStreamSource source, CSSRule rule
+  ) throws IOException {
     switch (rule) {
       case QualifiedRule qualifiedRule:
-        return createStyleRule(qualifiedRule);
+        return createStyleRule(source, qualifiedRule);
       case AtRule _:
         // TODO
         return null;
@@ -59,12 +63,14 @@ public class CSSParserImp implements CSSParser {
     }
   }
 
-  private CSSRule createStyleRule(QualifiedRule qualifiedRule) throws IOException {
+  private CSSRule createStyleRule(
+    CSSTokenStreamSource source, QualifiedRule qualifiedRule
+  ) throws IOException {
     List<Declaration> declarations = intermediateParser.consumeAStyleBlocksContents(
-      ListCSSTokenStream.create(qualifiedRule.simpleBlock().value())
-    );
+      ListCSSTokenStream.create(source, qualifiedRule.simpleBlock().value()));
 
-    List<ComplexSelector> selectors = ComplexSelectorParser.parseComplexSelectors(qualifiedRule.prelude());
+    List<ComplexSelector> selectors = ComplexSelectorParser.parseComplexSelectors(
+      ListCSSTokenStream.create(source, qualifiedRule.prelude()));
 
     return new StyleRule(selectors, declarations);
   }

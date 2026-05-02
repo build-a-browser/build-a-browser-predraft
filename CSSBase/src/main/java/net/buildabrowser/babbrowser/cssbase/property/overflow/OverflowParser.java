@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property.overflow;
 import java.io.IOException;
 import java.util.Map;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;

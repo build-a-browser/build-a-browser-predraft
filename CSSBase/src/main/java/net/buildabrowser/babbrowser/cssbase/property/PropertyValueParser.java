@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 
 public interface PropertyValueParser {
  

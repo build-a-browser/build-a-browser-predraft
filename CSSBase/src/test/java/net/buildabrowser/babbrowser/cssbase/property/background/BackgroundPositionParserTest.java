@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundPositionValue.BackgroundPositionSide;
@@ -25,7 +25,7 @@ public class BackgroundPositionParserTest {
   @DisplayName("Can parse single-component horizontal named background position")
   public void canParseSingleComponentHorizontalNamedBackgroundPosition() throws IOException {
     CSSValue value = backgroundPositionParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("right")));
     Assertions.assertEquals(
       ManyResult.create(
@@ -39,7 +39,7 @@ public class BackgroundPositionParserTest {
   @DisplayName("Can parse single-component vertical named background position")
   public void canParseSingleComponentVerticalNamedBackgroundPosition() throws IOException {
     CSSValue value = backgroundPositionParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("bottom")));
     Assertions.assertEquals(
       ManyResult.create(
@@ -53,7 +53,7 @@ public class BackgroundPositionParserTest {
   @DisplayName("Can parse single-component horizontal percentage background position")
   public void canParseSingleComponentHorizontaPercentageBackgroundPosition() throws IOException {
     CSSValue value = backgroundPositionParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         PercentageToken.create(5)));
     Assertions.assertEquals(
       ManyResult.create(
@@ -67,7 +67,7 @@ public class BackgroundPositionParserTest {
   @DisplayName("Can parse double-component named background position")
   public void canParseDoubleComponentNamedBackgroundPosition() throws IOException {
     CSSValue value = backgroundPositionParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("right"),
         IdentToken.create("bottom")));
     Assertions.assertEquals(
@@ -82,7 +82,7 @@ public class BackgroundPositionParserTest {
   @DisplayName("Can parse reversed double-component named background position")
   public void canParseReversedDoubleComponentNamedBackgroundPosition() throws IOException {
     CSSValue value = backgroundPositionParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("bottom"),
         IdentToken.create("center")));
     Assertions.assertEquals(
@@ -97,7 +97,7 @@ public class BackgroundPositionParserTest {
   @DisplayName("Can parse double-component percentage background position")
   public void canParseDoubleComponentPercentageBackgroundPosition() throws IOException {
     CSSValue value = backgroundPositionParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         PercentageToken.create(6),
         PercentageToken.create(9)));
     Assertions.assertEquals(
@@ -113,7 +113,7 @@ public class BackgroundPositionParserTest {
   @DisplayName("Can parse double-component mixed background position")
   public void canParseDoubleComponentMixedBackgroundPosition() throws IOException {
     CSSValue value = backgroundPositionParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("left"),
         PercentageToken.create(9)));
     Assertions.assertEquals(
@@ -128,7 +128,7 @@ public class BackgroundPositionParserTest {
   @DisplayName("Can parse triple-component mixed background position")
   public void canParseTripleComponentMixedBackgroundPosition() throws IOException {
     CSSValue value = backgroundPositionParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("center"),
         IdentToken.create("left"),
         PercentageToken.create(9)));
@@ -146,7 +146,7 @@ public class BackgroundPositionParserTest {
   @DisplayName("Can parse quadruple-component mixed background position")
   public void canParseQuadrupleComponentMixedBackgroundPosition() throws IOException {
     CSSValue value = backgroundPositionParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("right"),
         PercentageToken.create(7),
         IdentToken.create("bottom"),
@@ -163,7 +163,7 @@ public class BackgroundPositionParserTest {
   @DisplayName("Can parse multiple background positions")
   public void canParseMultipleBackgroundPositions() throws IOException {
     CSSValue value = backgroundPositionParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("bottom"),
         CommaToken.create(),
         IdentToken.create("center"),

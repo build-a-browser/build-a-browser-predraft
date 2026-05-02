@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
 import net.buildabrowser.babbrowser.cssbase.selector.ChildCombinator;
@@ -34,9 +35,10 @@ public final class ComplexSelectorParser {
   
   private ComplexSelectorParser() {}
 
-  public static List<ComplexSelector> parseComplexSelectors(List<Token> prelude) throws IOException {
+  public static List<ComplexSelector> parseComplexSelectors(
+    CSSTokenStream tokenStream
+  ) throws IOException {
     List<ComplexSelector> selectors = new ArrayList<>(1);
-    CSSTokenStream tokenStream = CSSTokenStream.create(prelude);
     while (!(tokenStream.peek() instanceof EOFToken)) {
       ComplexSelector selector = parseComplexSelector(tokenStream);
       if (selector != null) {
@@ -99,7 +101,8 @@ public final class ComplexSelectorParser {
         }
       }
       case ColonToken _ -> isInvalid |= parsePsuedoSelector(tokenStream, parts);
-      case SimpleBlock simpleBlock -> isInvalid |= parseAttributeSelector(simpleBlock, parts);
+      case SimpleBlock simpleBlock -> isInvalid |= parseAttributeSelector(
+        tokenStream.source(), simpleBlock, parts);
       case WhitespaceToken _ -> {}
       default -> isInvalid = true;
     }
@@ -131,10 +134,12 @@ public final class ComplexSelectorParser {
     return isInvalid;
   }
 
-  private static boolean parseAttributeSelector(SimpleBlock simpleBlock, List<SelectorPart> parts) throws IOException {
+  private static boolean parseAttributeSelector(
+    CSSTokenStreamSource source, SimpleBlock simpleBlock, List<SelectorPart> parts
+  ) throws IOException {
     if (!(simpleBlock.type() instanceof LSBracketToken)) return true;
 
-    CSSTokenStream tokenStream = ListCSSTokenStream.create(simpleBlock.value());
+    CSSTokenStream tokenStream = ListCSSTokenStream.create(source, simpleBlock.value());
     ignoreWhitespace(tokenStream);
     String attrName = parseIdentOrString(tokenStream);
     if (attrName == null) return true;

@@ -217,7 +217,8 @@ public class ComplexSelectorParserTest {
   }
   
   private List<ComplexSelector> parseTokens(Token... tokens) throws IOException {
-    return ComplexSelectorParser.parseComplexSelectors(List.of(tokens));
+    return ComplexSelectorParser.parseComplexSelectors(
+      CSSTokenStream.createForTesting(tokens));
   }
 
   private List<ComplexSelector> oneSelector(SelectorPart... parts) {

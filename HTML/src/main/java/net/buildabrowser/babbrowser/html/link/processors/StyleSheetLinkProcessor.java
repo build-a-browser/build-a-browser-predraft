@@ -5,7 +5,8 @@ import java.nio.charset.StandardCharsets;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.fetch.FetchResponse;
@@ -31,9 +32,11 @@ public class StyleSheetLinkProcessor extends DefaultLinkProcessor {
     }
 
     if (success) {
+      CSSTokenStreamSource source = new CSSTokenStreamSource(
+        response.url());
       CSSTokenizerInput tokenizerInput = CSSTokenizerInput.fromString(
         new String(bodyBytes, StandardCharsets.UTF_8));
-      CSSTokenStream tokenizerStream = CSSTokenStream.create(tokenizerInput);
+      CSSTokenStream tokenizerStream = CSSTokenStream.create(source, tokenizerInput);
       // TODO: Set properties
       CSSStyleSheet styleSheet = CommonUtil.rethrow(() ->
         CSSParser.create().parseAStyleSheet(tokenizerStream));

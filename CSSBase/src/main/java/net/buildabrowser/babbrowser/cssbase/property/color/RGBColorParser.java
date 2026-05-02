@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property.color;
 import java.io.IOException;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
@@ -34,7 +34,8 @@ public class RGBColorParser implements PropertyValueParser {
       return EXPECTED_FUNCTION;
     }
 
-    SeekableCSSTokenStream childStream = ListCSSTokenStream.createWithSkippedWhitespace(function.value());
+    SeekableCSSTokenStream childStream = ListCSSTokenStream.createWithSkippedWhitespace(
+      stream.source(), function.value());
 
     return PropertyValueParserUtil.parseLongest(childStream,
       this::parseLegacyColor,

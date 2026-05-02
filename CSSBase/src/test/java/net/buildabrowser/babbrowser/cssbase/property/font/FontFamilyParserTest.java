@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
@@ -22,7 +22,7 @@ public class FontFamilyParserTest {
   @DisplayName("Can parse font name")
   public void canParseFontName() throws IOException {
     CSSValue value = fontFamilyParser.parse(
-      CSSTokenStream.create(StringToken.create("arial")));
+      CSSTokenStream.createForTesting(StringToken.create("arial")));
     Assertions.assertEquals(
       new ManyResult(List.of(FontNameValue.create("arial"))),
       value);
@@ -32,7 +32,7 @@ public class FontFamilyParserTest {
   @DisplayName("Can parse font family")
   public void canParseFontFamily() throws IOException {
     CSSValue value = fontFamilyParser.parse(
-      CSSTokenStream.create(IdentToken.create("monospace")));
+      CSSTokenStream.createForTesting(IdentToken.create("monospace")));
     Assertions.assertEquals(
       new ManyResult(List.of(FontFamilyValue.MONOSPACE)),
       value);
@@ -42,7 +42,7 @@ public class FontFamilyParserTest {
   @DisplayName("Can parse font-family with fallbacks")
   public void canParseFontFamilyWithFallbacks() throws IOException {
     CSSValue value = fontFamilyParser.parse(
-      CSSTokenStream.create(StringToken.create("helvetica"),
+      CSSTokenStream.createForTesting(StringToken.create("helvetica"),
       CommaToken.create(),
       IdentToken.create("Arial"),
       CommaToken.create(),

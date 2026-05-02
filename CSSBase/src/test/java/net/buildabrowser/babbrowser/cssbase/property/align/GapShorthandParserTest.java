@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
@@ -21,7 +21,7 @@ public class GapShorthandParserTest {
   @DisplayName("Can parse gap shorthand value with one element")
   public void canParseGapShorthandValueWithOneElement() throws IOException {
     CSSValue value = gapShorthandParser.parse(
-      CSSTokenStream.create(DimensionToken.create(4, "em")));
+      CSSTokenStream.createForTesting(DimensionToken.create(4, "em")));
     Assertions.assertEquals(
       new GapShorthandValue(
         LengthValue.create(4, true, LengthType.EM),
@@ -33,7 +33,7 @@ public class GapShorthandParserTest {
   @DisplayName("Can parse gap shorthand value with two elements")
   public void canParseGapShorthandValueWithTwoElements() throws IOException {
     CSSValue value = gapShorthandParser.parse(
-      CSSTokenStream.create(DimensionToken.create(4, "em"),
+      CSSTokenStream.createForTesting(DimensionToken.create(4, "em"),
       IdentToken.create("normal")));
     Assertions.assertEquals(
       new GapShorthandValue(

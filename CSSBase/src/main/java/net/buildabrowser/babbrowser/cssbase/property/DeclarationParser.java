@@ -9,7 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
+import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSDeferred;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSVarValue;
@@ -192,7 +194,9 @@ public final class DeclarationParser {
     return PROPERTY_PARSERS.containsKey(declName.toLowerCase());
   }
 
-  public static CSSValue parseDeclaration(Declaration declaration) {
+  public static CSSValue parseDeclaration(
+    CSSTokenStreamSource source, Declaration declaration
+  ) throws IOException {
     PropertyValueParser parser = PROPERTY_PARSERS.get(declaration.name().toLowerCase());
     if (parser == null) return CSSValue.SpecialCSSValue.INVALID;
     if (parser.relatedProperty() == null) {
@@ -214,12 +218,15 @@ public final class DeclarationParser {
       // TODO: Support revert keyword
     }
 
-    Boolean shouldDefer = CustomPropertyParser.hasVarReferences(declaration.value());
+    CSSTokenStream innerStream = ListCSSTokenStream.createWithSkippedWhitespace(
+      source, declaration.value());
+    Boolean shouldDefer = CustomPropertyParser.hasVarReferences(innerStream);
     if (shouldDefer == null) return CSSValue.SpecialCSSValue.INVALID;
     if (shouldDefer) return new CSSDeferred(declaration, parser);
 
     // TODO: Do any cases preserve whitespace?
-    SeekableCSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(declaration.value());
+    SeekableCSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(
+      source, declaration.value());
     try {
       CSSValue result = parser.parse(tokenStream);
       if (
@@ -245,12 +252,16 @@ public final class DeclarationParser {
     return parser;
   }
 
-  public static CSSValue parseDeferredDeclaration(CSSDeferred deferredValue, PropertyContainer refContainer) {
-    CSSValue resolvedValue = CustomPropertyParser.resolveVarValues(deferredValue.value(), refContainer);
+  public static CSSValue parseDeferredDeclaration(
+    CSSTokenStreamSource source, CSSDeferred deferredValue, PropertyContainer refContainer
+  ) throws IOException {
+    CSSValue resolvedValue = CustomPropertyParser.resolveVarValues(
+      source, deferredValue.value(), refContainer);
     if (resolvedValue == null) return CSSValue.SpecialCSSValue.INVALID;
     if (resolvedValue.isFailure()) return CSSValue.SpecialCSSValue.INVALID;
     List<Token> resolvedTokens = ((CSSVarValue) resolvedValue).propertyTokens();
-    SeekableCSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(resolvedTokens);
+    SeekableCSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(
+      source, resolvedTokens);
     try {
       CSSValue result = deferredValue.parser().parse(tokenStream);
       if (

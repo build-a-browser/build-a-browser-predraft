@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -126,7 +126,7 @@ public class SizeParser implements PropertyValueParser {
       && token instanceof FunctionValue funcValue
       && funcValue.name().equals("fit-content")
     ) {
-      return parseFitContent(funcValue);
+      return parseFitContent(stream, funcValue);
     } else {
       return NO_VALID_RESULT;
     }
@@ -137,8 +137,11 @@ public class SizeParser implements PropertyValueParser {
     return property;
   }
 
-  private CSSValue parseFitContent(FunctionValue funcValue) throws IOException {
-    SeekableCSSTokenStream stream = ListCSSTokenStream.createWithSkippedWhitespace(funcValue.value());
+  private CSSValue parseFitContent(
+    SeekableCSSTokenStream refStream, FunctionValue funcValue
+  ) throws IOException {
+    SeekableCSSTokenStream stream = ListCSSTokenStream.createWithSkippedWhitespace(
+      refStream.source(), funcValue.value());
     CSSValue result = PURE_LENGTH_PERCENTAGE.parse(stream);
     if (result.isFailure()) return result;
     if (!(stream.peek() instanceof EOFToken)) return CSSFailure.EXPECTED_EOF;

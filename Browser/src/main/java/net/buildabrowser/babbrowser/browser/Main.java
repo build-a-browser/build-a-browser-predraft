@@ -17,6 +17,7 @@ import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
 import net.buildabrowser.babbrowser.render.RenderingEngine;
@@ -78,7 +79,9 @@ public class Main {
       Reader reader = new InputStreamReader(
         ClassLoader.getSystemClassLoader().getResourceAsStream("ua/ua.css"))
     ) {
-      return StyleSheetList.createFromReader(reader);
+      CSSTokenStreamSource source = new CSSTokenStreamSource(
+        CommonUtil.rethrow(() -> new URI("about:blank")));
+      return StyleSheetList.createFromReader(source, reader);
     }
   }
 

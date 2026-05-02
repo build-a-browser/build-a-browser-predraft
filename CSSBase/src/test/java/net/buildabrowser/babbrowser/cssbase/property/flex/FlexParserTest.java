@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -21,7 +21,7 @@ public class FlexParserTest {
   @DisplayName("Can parse flex value just grow")
   public void canParseFlexValueWithGrow() throws IOException {
     CSSValue value = flexParser.parse(
-      CSSTokenStream.create(NumberToken.create(2)));
+      CSSTokenStream.createForTesting(NumberToken.create(2)));
     Assertions.assertEquals(
       FlexValue.create(
         FlexGrowValue.create(2),
@@ -34,7 +34,7 @@ public class FlexParserTest {
   @DisplayName("Can parse fully specified flex value")
   public void canParseFullySpecifiedFlexValue() throws IOException {
     CSSValue value = flexParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         PercentageToken.create(2),
         NumberToken.create(6),
         NumberToken.create(9)));
@@ -50,7 +50,7 @@ public class FlexParserTest {
   @DisplayName("Can parse flex value with none")
   public void canParseFlexValueWithNone() throws IOException {
     CSSValue value = flexParser.parse(
-      CSSTokenStream.create(IdentToken.create("none")));
+      CSSTokenStream.createForTesting(IdentToken.create("none")));
     Assertions.assertEquals(
       FlexValue.create(
         FlexGrowValue.create(0),
@@ -63,7 +63,7 @@ public class FlexParserTest {
   @DisplayName("Can parse flex value with auto")
   public void canParseFlexValueWithAuto() throws IOException {
     CSSValue value = flexParser.parse(
-      CSSTokenStream.create(IdentToken.create("auto")));
+      CSSTokenStream.createForTesting(IdentToken.create("auto")));
     Assertions.assertEquals(
       FlexValue.create(
         FlexGrowValue.create(1),

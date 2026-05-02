@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -19,7 +19,7 @@ public class BorderStyleParserTest {
   @DisplayName("Can parse named border style")
   public void canParseNamedBorderStyle() throws IOException {
     CSSValue value = borderStyleParser.parse(
-      CSSTokenStream.create(IdentToken.create("solid")));
+      CSSTokenStream.createForTesting(IdentToken.create("solid")));
     Assertions.assertEquals(BorderStyleValue.SOLID, value);
   }
 

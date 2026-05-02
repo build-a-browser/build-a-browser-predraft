@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundSizeValue.SizedBackgroundSizeValue;
@@ -26,7 +26,7 @@ public class BackgroundSizeParserTest {
   @DisplayName("Can parse single-component named size value")
   public void canParseSingleComponentNamedSizeValue() throws IOException {
     CSSValue value = backgroundSizeParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("cover")));
     Assertions.assertEquals(
       ManyResult.create(
@@ -38,7 +38,7 @@ public class BackgroundSizeParserTest {
   @DisplayName("Can parse single-component percentage size value")
   public void canParseSingleComponentPercentageSizeValue() throws IOException {
     CSSValue value = backgroundSizeParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         PercentageToken.create(5)));
     Assertions.assertEquals(
       ManyResult.create(
@@ -51,7 +51,7 @@ public class BackgroundSizeParserTest {
   @DisplayName("Can parse double-component percentage size value")
   public void canParseDoubleComponentPercentageSizeValue() throws IOException {
     CSSValue value = backgroundSizeParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("auto"),
         PercentageToken.create(7)));
     Assertions.assertEquals(
@@ -65,7 +65,7 @@ public class BackgroundSizeParserTest {
   @DisplayName("Can parse size value with length unit")
   public void canParseSizeValueWithLengthUnit() throws IOException {
     CSSValue value = backgroundSizeParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("auto"),
         DimensionToken.create(5, true, "em")));
     Assertions.assertEquals(
@@ -79,7 +79,7 @@ public class BackgroundSizeParserTest {
   @DisplayName("Can parse multiple size values")
   public void canParseMultipleSizeValues() throws IOException {
     CSSValue value = backgroundSizeParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("auto"),
         PercentageToken.create(7),
         CommaToken.create(),

@@ -1,13 +1,15 @@
 package net.buildabrowser.babbrowser.cssbase.property.background;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundPositionValue.BackgroundPositionSide;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundSizeValue.SizedBackgroundSizeValue;
@@ -24,18 +26,21 @@ import net.buildabrowser.babbrowser.cssbase.tokens.URLToken;
 
 public class BackgroundParserTest {
 
+  private static final URI TESTING_URL = CommonUtil.rethrow(() -> new URI("about:blank"));
+
   private final BackgroundParser backgroundParser = new BackgroundParser();
 
   @Test
   @DisplayName("Can parse background shorthand with just URL")
   public void canParseBackgroundShorthandWithJustURL() throws IOException {
     CSSValue value = backgroundParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         URLToken.create("background.css")));
     Assertions.assertEquals(
       BackgroundValue.create(List.of(
         BackgroundLayer.create(
-          URLValue.create("background.css"), null, null, null, null,
+          URLValue.create("background.css", TESTING_URL),
+          null, null, null, null,
           null, null, null))),
       value);
   }
@@ -44,14 +49,15 @@ public class BackgroundParserTest {
   @DisplayName("Can parse background shorthand with color in last layer")
   public void canParseBackgroundShorthandWithColorInLastLayer() throws IOException {
     CSSValue value = backgroundParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         URLToken.create("background.css"),
         CommaToken.create(),
         IdentToken.create("rebeccapurple")));
     Assertions.assertEquals(
       BackgroundValue.create(List.of(
         BackgroundLayer.create(
-          URLValue.create("background.css"), null, null, null, null,
+          URLValue.create("background.css", TESTING_URL),
+          null, null, null, null,
           null, null, null),
         BackgroundLayer.create(
           null, null, null, null, null, null, null,
@@ -63,7 +69,7 @@ public class BackgroundParserTest {
   @DisplayName("Can parse background shorthand with position")
   public void canParseBackgroundShorthandWithPosition() throws IOException {
     CSSValue value = backgroundParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("center"),
         IdentToken.create("left"),
         PercentageToken.create(9)));
@@ -83,7 +89,7 @@ public class BackgroundParserTest {
   @DisplayName("Can parse background shorthand with position and size")
   public void canParseBackgroundShorthandWithPositionAndSize() throws IOException {
     CSSValue value = backgroundParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         PercentageToken.create(1),
         PercentageToken.create(2),
         DelimToken.create('/'),
@@ -108,7 +114,7 @@ public class BackgroundParserTest {
   @DisplayName("Can parse background shorthand with same origin and clip")
   public void canParseBackgroundShorthandWithSameOriginAndClip() throws IOException {
     CSSValue value = backgroundParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("content-box")));
     Assertions.assertEquals(
       BackgroundValue.create(List.of(
@@ -122,7 +128,7 @@ public class BackgroundParserTest {
   @DisplayName("Can parse background shorthand with differing origin and clip")
   public void canParseBackgroundShorthandWithDifferingOriginAndClip() throws IOException {
     CSSValue value = backgroundParser.parse(
-      CSSTokenStream.create(
+      CSSTokenStream.createForTesting(
         IdentToken.create("padding-box"),
         IdentToken.create("border-box")));
     Assertions.assertEquals(

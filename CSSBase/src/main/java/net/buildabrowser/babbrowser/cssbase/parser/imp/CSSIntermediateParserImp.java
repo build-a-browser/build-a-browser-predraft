@@ -10,7 +10,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.AtKeywordToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
@@ -143,7 +143,8 @@ public class CSSIntermediateParserImp {
     }
 
 
-    Declaration declaration = consumeADeclaration(ListCSSTokenStream.create(tempTokens));
+    Declaration declaration = consumeADeclaration(
+      ListCSSTokenStream.create(stream.source(), tempTokens));
     if (declaration != null) {
       declarations.add(declaration);
     }
@@ -168,7 +169,8 @@ public class CSSIntermediateParserImp {
       declValue.removeLast();
     }
 
-    return Declaration.create(nameToken.value(), declValue, false);
+    return Declaration.create(
+      stream.source(), nameToken.value(), declValue, false);
   }
 
   private Token consumeAComponentValue(CSSTokenStream stream) throws IOException {

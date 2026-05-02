@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
@@ -24,7 +24,7 @@ public class LineHeightParserTest {
   @DisplayName("Can parse normal line-height value")
   public void canParseNormalLineHeightValue() throws IOException {
     CSSValue value = lineHeightParser.parse(
-      CSSTokenStream.create(IdentToken.create("normal")));
+      CSSTokenStream.createForTesting(IdentToken.create("normal")));
     Assertions.assertEquals(LineHeightValue.NORMAL, value);
   }
   
@@ -32,7 +32,7 @@ public class LineHeightParserTest {
   @DisplayName("Can parse length line-height value")
   public void canParseLengthSizeValue() throws IOException {
     CSSValue value = lineHeightParser.parse(
-      CSSTokenStream.create(DimensionToken.create(4, "em")));
+      CSSTokenStream.createForTesting(DimensionToken.create(4, "em")));
     Assertions.assertEquals(
       LengthValue.create(4, true, LengthType.EM),
       value);
@@ -42,7 +42,7 @@ public class LineHeightParserTest {
   @DisplayName("Can parse percentage line-height value")
   public void canParsePercentageLineHeightValue() throws IOException {
     CSSValue value = lineHeightParser.parse(
-      CSSTokenStream.create(PercentageToken.create(4)));
+      CSSTokenStream.createForTesting(PercentageToken.create(4)));
     Assertions.assertEquals(PercentageValue.create(4), value);
   }
 
@@ -50,7 +50,7 @@ public class LineHeightParserTest {
   @DisplayName("Can parse number line-height value")
   public void canParseNumberLineHeightValue() throws IOException {
     CSSValue value = lineHeightParser.parse(
-      CSSTokenStream.create(NumberToken.create(4)));
+      CSSTokenStream.createForTesting(NumberToken.create(4)));
     Assertions.assertEquals(LineHeightValue.NumberHeight.create(4), value);
   }
 

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightValue.RelativeFontWeightValue;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -20,7 +20,7 @@ public class FontWeightParserTest {
   @DisplayName("Can parse named font weight")
   public void canParseNamedFontWeight() throws IOException {
     CSSValue value = fontWeightParser.parse(
-      CSSTokenStream.create(IdentToken.create("bolder")));
+      CSSTokenStream.createForTesting(IdentToken.create("bolder")));
     Assertions.assertEquals(RelativeFontWeightValue.BOLDER, value);
   }
 
@@ -28,7 +28,7 @@ public class FontWeightParserTest {
   @DisplayName("Can parse numerical font weight")
   public void canParseNumericalFontWeight() throws IOException {
     CSSValue value = fontWeightParser.parse(
-      CSSTokenStream.create(NumberToken.create(500)));
+      CSSTokenStream.createForTesting(NumberToken.create(500)));
     Assertions.assertEquals(FontWeightValue.create(500), value);
   }
 

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
@@ -27,7 +27,7 @@ public class SizeParserTest {
   @DisplayName("Can parse length size value")
   public void canParseLengthSizeValue() throws IOException {
     CSSValue value = sizeParser.parse(
-      CSSTokenStream.create(DimensionToken.create(4, "em")));
+      CSSTokenStream.createForTesting(DimensionToken.create(4, "em")));
     Assertions.assertEquals(
       LengthValue.create(4, true, LengthType.EM),
       value);
@@ -37,7 +37,7 @@ public class SizeParserTest {
   @DisplayName("Can parse length size value of zero")
   public void canParseLengthSizeValueOfZero() throws IOException {
     CSSValue value = sizeParser.parse(
-      CSSTokenStream.create(NumberToken.create(0)));
+      CSSTokenStream.createForTesting(NumberToken.create(0)));
     Assertions.assertEquals(
       LengthValue.create(0, true, null),
       value);
@@ -47,7 +47,7 @@ public class SizeParserTest {
   @DisplayName("Can parse percentage size value")
   public void canParsePercentageSizeValue() throws IOException {
     CSSValue value = sizeParser.parse(
-      CSSTokenStream.create(PercentageToken.create(4)));
+      CSSTokenStream.createForTesting(PercentageToken.create(4)));
     Assertions.assertEquals(PercentageValue.create(4), value);
   }
 
@@ -55,7 +55,7 @@ public class SizeParserTest {
   @DisplayName("Can parse none size value when enabled")
   public void canParseNoneSizeValueWhenEnabled() throws IOException {
     CSSValue value = sizeParser.parse(
-      CSSTokenStream.create(IdentToken.create("none")));
+      CSSTokenStream.createForTesting(IdentToken.create("none")));
     Assertions.assertEquals(CSSValue.NONE, value);
   }
 
@@ -63,7 +63,7 @@ public class SizeParserTest {
   @DisplayName("Cannot parse none size value when disabled")
   public void cannotParseNoneSizeValueWhenDisabled() throws IOException {
     CSSValue value = disabledSizeParser.parse(
-      CSSTokenStream.create(IdentToken.create("none")));
+      CSSTokenStream.createForTesting(IdentToken.create("none")));
     Assertions.assertTrue(value.isFailure());
   }
 
@@ -71,7 +71,7 @@ public class SizeParserTest {
   @DisplayName("Can parse min-content size value when enabled")
   public void canParseMinContentSizeValueWhenEnabled() throws IOException {
     CSSValue value = minMaxParser.parse(
-      CSSTokenStream.create(IdentToken.create("min-content")));
+      CSSTokenStream.createForTesting(IdentToken.create("min-content")));
     Assertions.assertEquals(SizeValue.MIN_CONTENT, value);
   }
 
@@ -79,7 +79,7 @@ public class SizeParserTest {
   @DisplayName("Can parse fit-content size value when enabled")
   public void canParseFitContentSizeValueWhenEnabled() throws IOException {
     CSSValue value = minMaxParser.parse(
-      CSSTokenStream.create(new FunctionValue("fit-content", List.of(PercentageToken.create(50)))));
+      CSSTokenStream.createForTesting(new FunctionValue("fit-content", List.of(PercentageToken.create(50)))));
     Assertions.assertEquals(SizeValue.FitContent.create(PercentageValue.create(50)), value);
   }
 

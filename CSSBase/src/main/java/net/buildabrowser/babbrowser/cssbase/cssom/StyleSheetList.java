@@ -7,7 +7,8 @@ import java.util.function.Consumer;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.imp.StyleSheetListImp;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
 
 public interface StyleSheetList extends Iterable<CSSStyleSheet> {
@@ -30,9 +31,9 @@ public interface StyleSheetList extends Iterable<CSSStyleSheet> {
     return new StyleSheetListImp(styleSheetListener);
   }
 
-  static StyleSheetList createFromReader(Reader reader) {
+  static StyleSheetList createFromReader(CSSTokenStreamSource source, Reader reader) {
     CSSTokenizerInput tokenizerInput = CSSTokenizerInput.fromReader(reader);
-    CSSTokenStream tokenizerStream = CSSTokenStream.create(tokenizerInput);
+    CSSTokenStream tokenizerStream = CSSTokenStream.create(source, tokenizerInput);
     
     CSSStyleSheet styleSheet = CommonUtil.rethrow(() -> CSSParser.create().parseAStyleSheet(tokenizerStream));
     return StyleSheetList.create(List.of(styleSheet));

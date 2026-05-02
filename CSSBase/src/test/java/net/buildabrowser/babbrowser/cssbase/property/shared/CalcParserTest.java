@@ -8,7 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.cssbase.property.shared.CalcValue.CalcClampFunc;
@@ -37,7 +37,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse fallback value")
   public void canParseFallbackValue() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       PercentageToken.create(5)));
     Assertions.assertEquals(PercentageValue.create(5), value);
   }
@@ -45,7 +45,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse calc with single value")
   public void canParseCalcWithSingleValue() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("calc", List.of(
         PercentageToken.create(5)))));
 
@@ -56,7 +56,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse calc with addition")
   public void canParseCalcWithAddition() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("calc", List.of(
         PercentageToken.create(5),
         DelimToken.create('+'),
@@ -70,7 +70,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse calc with addition and subtraction")
   public void canParseCalcWithAdditionAndSubtraction() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("calc", List.of(
         PercentageToken.create(5),
         DelimToken.create('+'),
@@ -88,7 +88,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse calc with multiplication")
   public void canParseCalcWithMultiplication() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("calc", List.of(
         PercentageToken.create(5),
         DelimToken.create('*'),
@@ -102,7 +102,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse calc with addition and division")
   public void canParseCalcWithAdditionAndDivision() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("calc", List.of(
         PercentageToken.create(5),
         DelimToken.create('+'),
@@ -120,7 +120,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse calc with parentheses")
   public void canParseCalcWithParentheses() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("calc", List.of(
         PercentageToken.create(5),
         DelimToken.create('-'),
@@ -142,7 +142,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse calc with keyword")
   public void canParseCalcWithKeyword() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("calc", List.of(
         IdentToken.create("e")))));
 
@@ -153,7 +153,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse non-trivial calc expression")
   public void canParseNonTrivialCalcExpression() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("calc", List.of(
         PercentageToken.create(5),
         DelimToken.create('+'),
@@ -179,7 +179,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse min function")
   public void canParseMinFunction() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("min", List.of(
         PercentageToken.create(5),
         CommaToken.create(),
@@ -197,7 +197,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse calc function with nested min function")
   public void canParseCalcFunctionWithNestedMinFunction() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("calc", List.of(
         PercentageToken.create(5),
         DelimToken.create('+'),
@@ -219,7 +219,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse clamp function with none")
   public void canParseClampFunctionWithNone() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("clamp", List.of(
         IdentToken.create("none"),
         CommaToken.create(),
@@ -237,7 +237,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse clamp function with specified values")
   public void canParseClampFunctionWithSpecifiedValues() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("clamp", List.of(
         PercentageToken.create(1),
         CommaToken.create(),
@@ -255,7 +255,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse round function with all arguments")
   public void canParseRoundFunctionWithAllArguments() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("round", List.of(
         IdentToken.create("to-zero"),
         CommaToken.create(),
@@ -273,7 +273,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse round function with just one argument")
   public void canParseRoundFunctionWithJustOneArgument() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("round", List.of(
         PercentageToken.create(5)))));
 
@@ -287,7 +287,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse rem function")
   public void canParseRemFunction() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("rem", List.of(
         NumberToken.create(5),
         CommaToken.create(),
@@ -302,7 +302,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse log function with one argument")
   public void canParseLogFunctionWithOneArgument() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("log", List.of(
         NumberToken.create(5)))));
       
@@ -315,7 +315,7 @@ public class CalcParserTest {
   @Test
   @DisplayName("Can parse log function with two arguments")
   public void canParseLogFunctionWithTwoArguments() throws IOException {
-    CSSValue value = calcParser.parse(CSSTokenStream.create(
+    CSSValue value = calcParser.parse(CSSTokenStream.createForTesting(
       new FunctionValue("log", List.of(
         NumberToken.create(5),
         CommaToken.create(),

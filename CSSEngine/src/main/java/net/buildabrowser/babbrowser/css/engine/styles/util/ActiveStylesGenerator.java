@@ -2,10 +2,13 @@ package net.buildabrowser.babbrowser.css.engine.styles.util;
 
 import java.util.Collection;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSDeferred;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSVarValue;
@@ -47,7 +50,8 @@ public final class ActiveStylesGenerator {
     CSSValue declValue = declaration.evaluate();
 
     if (declValue instanceof CSSDeferred deferredValue) {
-      declValue = DeclarationParser.parseDeferredDeclaration(deferredValue, activeStyles);
+      declValue = CommonUtil.rethrow(() -> DeclarationParser.parseDeferredDeclaration(
+        declaration.source(), deferredValue, activeStyles));
     }
 
     switch (declValue) {
@@ -60,7 +64,11 @@ public final class ActiveStylesGenerator {
   }
 
   private static void parseCustomDeclaration(ActiveStyles activeStyles, Declaration declaration) {
-    if (!CustomPropertyParser.isValidCustomPropertyValue(declaration.value(), true)) {
+    CSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(
+      declaration.source(), declaration.value());
+    boolean isValidCustomPropertyValue = CommonUtil.rethrow(
+      () -> CustomPropertyParser.isValidCustomPropertyValue(tokenStream, true));
+    if (!isValidCustomPropertyValue) {
       return;
     }
     if (

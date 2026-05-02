@@ -1,11 +1,14 @@
 package net.buildabrowser.babbrowser.cssbase.property.shared;
 
+import java.net.URI;
+
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 
-public record URLValue(String value) implements CSSValue {
+// Added URI field not in spec, to track CSS stylesheet source
+public record URLValue(String value, URI refURL) implements CSSValue {
   
-  public static URLValue create(String value) {
-    return new URLValue(value);
+  public static URLValue create(String value, URI refURL) {
+    return new URLValue(value, refURL);
   }
 
 }

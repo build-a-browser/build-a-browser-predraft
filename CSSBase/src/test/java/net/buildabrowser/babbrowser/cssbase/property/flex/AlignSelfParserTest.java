@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 
@@ -18,7 +18,7 @@ public class AlignSelfParserTest {
   @DisplayName("Can parse align-self value")
   public void canParseAlignSelfValue() throws IOException {
     CSSValue value = alignSelfParser.parse(
-      CSSTokenStream.create(IdentToken.create("flex-start")));
+      CSSTokenStream.createForTesting(IdentToken.create("flex-start")));
     Assertions.assertEquals(AlignItemsValue.FLEX_START, value);
   }
 
@@ -26,7 +26,7 @@ public class AlignSelfParserTest {
   @DisplayName("Can parse align-self value with auto")
   public void canParseAlignSelfValueWithAuto() throws IOException {
     CSSValue value = alignSelfParser.parse(
-      CSSTokenStream.create(IdentToken.create("auto")));
+      CSSTokenStream.createForTesting(IdentToken.create("auto")));
     Assertions.assertEquals(CSSValue.AUTO, value);
   }
 
