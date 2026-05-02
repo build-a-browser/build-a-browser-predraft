@@ -20,8 +20,7 @@ public final class ElementBackgroundPainter {
   private ElementBackgroundPainter() {}
 
   public static void paintBackground(PaintCanvas canvas, BoxFragment fragment) {
-    canvas.alterPaint(paint -> paint.setColor(ActiveStylesUtil.backgroundColor(fragment.box().activeStyles())));
-    canvas.drawBox(0, 0, fragment.width(Measurement.BORDER), fragment.height(Measurement.BORDER));
+    ElementBackgroundImagePainter.paintBackgroundImages(canvas, fragment);
 
     // Might need changed when adding tables, but usually background is followed by border,
     // so it is easiest to just put here for now
@@ -34,19 +33,24 @@ public final class ElementBackgroundPainter {
 
   private static void paintBorders(PaintCanvas canvas, BoxFragment fragment) {
     // Quick and dirty implementation, ignore styles for now
+    // TODO: Also need to properly split border edges
     float[] borders = fragment.box().dimensions().getComputedBorder();
     
+    // Top
     canvas.alterPaint(paint -> paint.setColor(borderTopColor(fragment.box().activeStyles())));
-    canvas.drawBox(0, 0, fragment.width(Measurement.BORDER), borders[0]);
+    canvas.drawBox(0, 0, fragment.width(Measurement.BORDER) - borders[3], borders[0]);
 
+    // Bottom
     canvas.alterPaint(paint -> paint.setColor(borderBottomColor(fragment.box().activeStyles())));
-    canvas.drawBox(0, fragment.height(Measurement.BORDER) - borders[1], fragment.width(Measurement.BORDER), borders[1]);
+    canvas.drawBox(borders[2], fragment.height(Measurement.BORDER) - borders[1], fragment.width(Measurement.BORDER) - borders[2], borders[1]);
 
+    // Left
     canvas.alterPaint(paint -> paint.setColor(borderLeftColor(fragment.box().activeStyles())));
-    canvas.drawBox(0, 0, borders[2], fragment.height(Measurement.BORDER));
+    canvas.drawBox(0, borders[0], borders[2], fragment.height(Measurement.BORDER) - borders[0]);
 
+    // Right
     canvas.alterPaint(paint -> paint.setColor(borderRightColor(fragment.box().activeStyles())));
-    canvas.drawBox(fragment.width(Measurement.BORDER) - borders[3], 0, borders[3], fragment.height(Measurement.BORDER));
+    canvas.drawBox(fragment.width(Measurement.BORDER) - borders[3], 0, borders[3], fragment.height(Measurement.BORDER) - borders[1]);
   }
 
   private static void paintDebugOutlines(PaintCanvas canvas, BoxFragment fragment) {

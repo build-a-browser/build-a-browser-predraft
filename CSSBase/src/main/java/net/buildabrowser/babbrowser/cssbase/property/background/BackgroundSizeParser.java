@@ -38,8 +38,8 @@ public class BackgroundSizeParser implements PropertyValueParser {
     CSSValue firstValue = bgSizeParser.parse(stream);
     if (firstValue.isFailure()) return firstValue;
 
-    CSSValue secondValue = bgSizeParser.parse(stream);
     int position = stream.position();
+    CSSValue secondValue = bgSizeParser.parse(stream);
     if (secondValue.isFailure()) {
       stream.seek(position);
       return SizedBackgroundSizeValue.create(firstValue, CSSValue.AUTO);

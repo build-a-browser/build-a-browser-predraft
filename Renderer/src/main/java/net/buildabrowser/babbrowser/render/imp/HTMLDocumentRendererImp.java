@@ -14,8 +14,8 @@ import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.link.LinkDocumentChangeListener;
 import net.buildabrowser.babbrowser.html.misc.MetaDocumentChangeListener;
+import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
-import net.buildabrowser.babbrowser.render.HTMLDocumentRenderer;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxGenerator;
 import net.buildabrowser.babbrowser.render.box.DocumentBox;
@@ -45,7 +45,7 @@ import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 import net.buildabrowser.babbrowser.render.paint.backend.ResourceLoader;
 import net.buildabrowser.babbrowser.render.style.StyleGenerator;
 
-public class HTMLDocumentRendererImp implements HTMLDocumentRenderer, EventForwardingTarget {
+public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardingTarget {
 
   private static final BoxGenerator boxGenerator = BoxGenerator.create();
 
@@ -221,11 +221,6 @@ public class HTMLDocumentRendererImp implements HTMLDocumentRenderer, EventForwa
     return this.eventListener;
   }
 
-  @Override
-  public ImageCache imageCache() {
-    return this.imageCache;
-  }
-
   private void recomputeBoxes() {
     Box child = null;
     for (Node childNode: document.childNodes()) {
@@ -248,7 +243,8 @@ public class HTMLDocumentRendererImp implements HTMLDocumentRenderer, EventForwa
     if (rootBox == null) return;
 
     GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
-      painter.resourceLoader(), rootFont.metrics(), fontCache, scriptingContext);
+      painter.resourceLoader(), rootFont.metrics(),
+      fontCache, scriptingContext, imageCache);
 
     LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
     LayoutContextGenerator.generateLayoutContexts(rootBox, layoutContext);

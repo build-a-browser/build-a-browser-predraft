@@ -10,8 +10,11 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundSizeValue.SizedBackgroundSizeValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
 
@@ -55,6 +58,20 @@ public class BackgroundSizeParserTest {
       ManyResult.create(
         SizedBackgroundSizeValue.create(
           CSSValue.AUTO, PercentageValue.create(7))),
+      value);
+  }
+
+  @Test
+  @DisplayName("Can parse size value with length unit")
+  public void canParseSizeValueWithLengthUnit() throws IOException {
+    CSSValue value = backgroundSizeParser.parse(
+      CSSTokenStream.create(
+        IdentToken.create("auto"),
+        DimensionToken.create(5, true, "em")));
+    Assertions.assertEquals(
+      ManyResult.create(
+        SizedBackgroundSizeValue.create(
+          CSSValue.AUTO, LengthValue.create(5, true, LengthType.EM))),
       value);
   }
 

@@ -9,7 +9,6 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundRepeatValue.BackgroundAxisRepeatValue;
-import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 
 public class BackgroundRepeatParser implements PropertyValueParser {
 
@@ -47,14 +46,12 @@ public class BackgroundRepeatParser implements PropertyValueParser {
     CSSValue firstValue = PropertyValueParserUtil.parseIdentMap(stream, INNER_VALUES);
     if (firstValue.isFailure()) return firstValue;
 
-    if (stream.peek() instanceof EOFToken) {
-      return BackgroundRepeatValue.create(
-        (BackgroundAxisRepeatValue) firstValue,
-        (BackgroundAxisRepeatValue) firstValue);
-    }
-
+    int position = stream.position();
     CSSValue secondValue = PropertyValueParserUtil.parseIdentMap(stream, INNER_VALUES);
-    if (secondValue.isFailure()) return secondValue;
+    if (secondValue.isFailure()) {
+      secondValue = firstValue;
+      stream.seek(position);
+    }
 
     return BackgroundRepeatValue.create(
       (BackgroundAxisRepeatValue) firstValue,

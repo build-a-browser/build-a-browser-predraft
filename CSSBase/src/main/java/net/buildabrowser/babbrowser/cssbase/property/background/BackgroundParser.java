@@ -92,8 +92,9 @@ public class BackgroundParser implements PropertyValueParser {
     for (BackgroundLayer layer: bgLayers) {
       CSSValue value = valueGetter.apply(layer);
       if (value == null) {
-        value = property.initial();
+        value = ((ManyResult) property.initial()).values().getFirst();
       }
+      propLayers.add(value);
     }
 
     ManyResult valueList = new ManyResult(propLayers);

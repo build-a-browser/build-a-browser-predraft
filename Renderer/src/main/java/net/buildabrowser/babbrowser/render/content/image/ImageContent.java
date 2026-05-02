@@ -7,7 +7,6 @@ import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.network.URLUtil;
-import net.buildabrowser.babbrowser.render.HTMLDocumentRenderer;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
@@ -119,8 +118,7 @@ public class ImageContent implements BoxContent, BoxPainter {
     URI baseURL = htmlDocument.baseURL();
     URI imageSource = getImageSource(baseURL);
     if (imageSource == null) return null;
-    // TODO: A bit of a hack to get the imageCache
-    ImageCache imageCache = ((HTMLDocumentRenderer) htmlDocument.renderer()).imageCache();
+    ImageCache imageCache = layoutContext.imageCache();
     return imageCache.getImage(imageSource, box.element(), InvalidationLevel.LAYOUT);
   }
 

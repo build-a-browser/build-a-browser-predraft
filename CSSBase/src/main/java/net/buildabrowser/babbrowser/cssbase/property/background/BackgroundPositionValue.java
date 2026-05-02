@@ -1,24 +1,23 @@
 package net.buildabrowser.babbrowser.cssbase.property.background;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
 
 public record BackgroundPositionValue(
   BackgroundPositionSide horizontalSide,
-  PercentageValue horizontalPercent,
+  CSSValue horizontalLength,
   BackgroundPositionSide verticalSide,
-  PercentageValue verticalPercent
+  CSSValue verticalLength
 ) implements CSSValue {
   
   public static BackgroundPositionValue create(
     BackgroundPositionSide horizontalSide,
-    PercentageValue horizontalPercent,
+    CSSValue horizontalLength,
     BackgroundPositionSide verticalSide,
-    PercentageValue verticalPercent
+    CSSValue verticalLength
   ) {
     return new BackgroundPositionValue(
-      horizontalSide, horizontalPercent,
-      verticalSide, verticalPercent);
+      horizontalSide, horizontalLength,
+      verticalSide, verticalLength);
   }
 
   public static enum BackgroundPositionSide implements CSSValue {

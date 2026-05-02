@@ -38,7 +38,7 @@ public final class FlowLayoutUtil {
     ResourceLoader resourceLoader = new TestResourceLoader(() -> testMetrics);
     LayoutContext layoutContext = new LayoutContext(
       new GlobalLayoutContext(
-        resourceLoader, testMetrics, resourceLoader.fontLoader()::load, null),
+        resourceLoader, testMetrics, resourceLoader.fontLoader()::load, null, null),
       () -> testMetrics);
     LayoutContextGenerator.generateLayoutContexts(parentBox, layoutContext);
     FlowRootContent content = (FlowRootContent) parentBox.content();
