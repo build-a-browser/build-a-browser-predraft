@@ -38,7 +38,7 @@ public class LineSegment {
 
     LayoutFragment curNode = fragments;
     while (curNode != null) {
-      height = Math.max(height, curNode.height(Measurement.BORDER));
+      height = Math.max(height, curNode.height(Measurement.MARGIN));
       curNode = curNode.next();
     }
 
@@ -50,7 +50,7 @@ public class LineSegment {
 
     LayoutFragment curNode = fragments;
     while (curNode != null) {
-      height = Math.max(height, curNode.inkHeight(Measurement.BORDER));
+      height = Math.max(height, curNode.inkHeight(Measurement.MARGIN));
       curNode = curNode.next();
     }
 
@@ -66,9 +66,9 @@ public class LineSegment {
     nextFragment = nextFragment == null ? newFragment : nextFragment.next();
 
     inkWidth = Math.max(
-      width + managedBoxFragment.inkWidth(Measurement.BORDER),
+      width + managedBoxFragment.inkWidth(Measurement.MARGIN),
       inkWidth);
-    width += managedBoxFragment.width(Measurement.BORDER);
+    width += managedBoxFragment.width(Measurement.MARGIN);
   }
 
 }

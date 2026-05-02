@@ -145,9 +145,23 @@ public class CompositeLayerImp implements CompositeLayer {
     vpIntersection[0] -= this.offsetX + scrollX;
     vpIntersection[1] -= this.offsetY + scrollY;
 
+    if (scrollBoxFragment != null) {
+      canvas.clip(
+        scrollBoxFragment.posX(Measurement.CONTENT) - scrollBoxFragment.posX(Measurement.BORDER),
+        scrollBoxFragment.posY(Measurement.CONTENT) - scrollBoxFragment.posY(Measurement.BORDER),
+        scrollBoxFragment.width(Measurement.CONTENT),
+        scrollBoxFragment.height(Measurement.CONTENT));
+    }
+
+    if (scrollBoxFragment != null) {
+      canvas.pushPaint();
+      scrollBoxFragment.painter().paintBackground(scrollBoxFragment, canvas, vpIntersection);
+      canvas.popPaint();
+    } else {
     forEachFragment(
       (fragment, vpi) -> fragment.painter().paintBackground(fragment, canvas, vpi),
       canvas, vpIntersection);
+    }
     
     for (CompositeLayer layer: childLayers) {
       if (layer.zIndex() >= 0) continue;
@@ -163,6 +177,8 @@ public class CompositeLayerImp implements CompositeLayer {
     }
 
     if (scrollBoxFragment != null) {
+      canvas.unclip();
+
       vpIntersection[0] += scrollX;
       vpIntersection[1] += scrollY;
 

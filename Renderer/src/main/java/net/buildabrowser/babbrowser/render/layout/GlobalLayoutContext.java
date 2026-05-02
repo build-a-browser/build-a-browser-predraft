@@ -9,6 +9,7 @@ public record GlobalLayoutContext(
   ResourceLoader resourceLoader,
   FontMetrics rootMetrics,
   FontCache fontCache,
+  Viewport viewport,
   ScriptingContext scriptingContext,
   ImageCache imageCache
 ) {

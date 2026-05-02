@@ -247,7 +247,10 @@ public class FlowBlockLayout {
       newFragment.inkHeight(Measurement.BORDER));
     parentContext.minWidth(
       newFragment.posX(Measurement.MARGIN) + newFragment.width(Measurement.MARGIN),
-      newFragment.posX(Measurement.MARGIN) + newFragment.inkWidth(Measurement.MARGIN));
+      Math.max(
+        newFragment.posX(Measurement.MARGIN) + newFragment.inkWidth(Measurement.MARGIN),
+        // Since margin can be negative
+        newFragment.posX(Measurement.BORDER) + newFragment.inkWidth(Measurement.BORDER)));
     parentContext.addFragment(newFragment);
     if (
       !relatedConstraint.isPreLayoutConstraint()

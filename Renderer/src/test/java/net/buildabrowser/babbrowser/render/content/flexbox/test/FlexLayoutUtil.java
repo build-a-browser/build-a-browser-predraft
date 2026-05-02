@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.render.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutContextGenerator;
+import net.buildabrowser.babbrowser.render.layout.Viewport;
 import net.buildabrowser.babbrowser.render.paint.backend.FontMetrics;
 import net.buildabrowser.babbrowser.render.paint.backend.ResourceLoader;
 import net.buildabrowser.babbrowser.render.paint.test.TestFontMetrics;
@@ -35,9 +36,11 @@ public final class FlexLayoutUtil {
   ) {
     FontMetrics testMetrics = TestFontMetrics.create(10, 5);
     ResourceLoader resourceLoader = new TestResourceLoader(() -> testMetrics);
+    Viewport viewport = new Viewport(0, 0, (int) widthConstraint.value(), (int) heightConstraint.value());
     LayoutContext layoutContext = new LayoutContext(
       new GlobalLayoutContext(
-        resourceLoader, testMetrics, resourceLoader.fontLoader()::load, null, null),
+        resourceLoader, testMetrics, resourceLoader.fontLoader()::load,
+        viewport, null, null),
       () -> testMetrics);
     LayoutContextGenerator.generateLayoutContexts(parentBox, layoutContext);
     FlexBoxContent content = (FlexBoxContent) parentBox.content();

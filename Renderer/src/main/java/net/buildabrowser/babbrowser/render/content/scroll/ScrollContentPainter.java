@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.render.content.scroll;
 
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.render.content.common.paint.ElementBackgroundPainter;
 import net.buildabrowser.babbrowser.render.content.scroll.ScrollMath.ScrollMathResult;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
@@ -26,18 +27,21 @@ public class ScrollContentPainter implements BoxPainter {
 
   @Override
   public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
-    // TOD: I think border and stuff might be outside the scrollbox (haven't checked),
-    // in which case this method should be changed accordingly
-    canvas.alterPaint(p -> p.incOffset(
-      fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER),
-      fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER)));
-
-    ScrollBoxFragment scrollBoxFragment = (ScrollBoxFragment) fragment;
-    BoxFragment innerFragment = scrollBoxFragment.innerFragment();
-    innerFragment.painter().paintBackground(innerFragment, canvas, vpIntersection);
+    // TODO: Is this right?
+    ElementBackgroundPainter.paintBackground(canvas, fragment);
   }
 
   public void paintScrollbars(ScrollBoxFragment scrollBoxFragment, PaintCanvas canvas) {
+    if (
+      scrollBoxFragment.hasHorizontalScroll()
+      && scrollBoxFragment.hasVerticalScroll()
+    ) {
+      canvas.alterPaint(c -> c.setColor(GUTTER_BG_COLOR));
+      canvas.drawBox(
+        scrollBoxFragment.width(Measurement.CONTENT) - GUTTER_WIDTH,
+        scrollBoxFragment.height(Measurement.CONTENT) - GUTTER_WIDTH,
+        GUTTER_WIDTH, GUTTER_WIDTH);
+    }
     if (scrollBoxFragment.hasHorizontalScroll()) {
       paintHorizontalScroller(scrollBoxFragment, canvas);
     }
@@ -50,11 +54,14 @@ public class ScrollContentPainter implements BoxPainter {
     ScrollMathResult scrollInfo = scrollBoxFragment.horizontalScrollInfo();
     ScrollBarState scrollState = scrollBoxFragment.box().horizontalScrollState();
     canvas.alterPaint(c -> c.setColor(GUTTER_BG_COLOR));
-    canvas.drawBox(scrollInfo.trackX(), scrollInfo.trackY(), scrollInfo.trackSize(), GUTTER_WIDTH);
+    canvas.drawBox(
+      scrollInfo.trackX(), scrollInfo.trackY(),
+      scrollInfo.trackSize(), GUTTER_WIDTH);
     int scrollerColor = determineScrollColor(scrollState);
     canvas.alterPaint(c -> c.setColor(scrollerColor));
-    canvas.drawBox(scrollInfo.trackX() + scrollInfo.scrollerPos(), scrollInfo.trackY(),
-    scrollInfo.scrollerSize(), GUTTER_WIDTH);
+    canvas.drawBox(
+      scrollInfo.trackX() + scrollInfo.scrollerPos(), scrollInfo.trackY(),
+      scrollInfo.scrollerSize(), GUTTER_WIDTH);
   }
 
   private static void paintVerticalScroller(ScrollBoxFragment scrollBoxFragment, PaintCanvas canvas) {

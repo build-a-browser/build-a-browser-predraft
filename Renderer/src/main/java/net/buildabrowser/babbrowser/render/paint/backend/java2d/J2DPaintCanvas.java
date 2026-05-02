@@ -112,5 +112,21 @@ public class J2DPaintCanvas implements PaintCanvas {
 
     this.font = paint.getFont();
   }
+
+  @Override
+  public void mark() {
+    
+  }
+
+  @Override
+  public void unmark() {
+    
+  }
+
+  @Override
+  public void withMark(Consumer<PaintCanvas> withMarkCallback) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'withMark'");
+  }
   
 }

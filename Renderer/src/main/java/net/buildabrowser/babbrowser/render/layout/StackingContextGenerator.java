@@ -5,6 +5,8 @@ import java.util.Deque;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
+import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundAttachmentValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
@@ -52,13 +54,14 @@ public final class StackingContextGenerator {
     ActiveStyles activeStyles = elementBox.activeStyles();
     CSSValue positioning = activeStyles.getProperty(CSSProperty.POSITION);
     boolean isScrollable = elementBox instanceof ScrollBox;
+    boolean hasFixedAttachment = hasFixedAttachment(activeStyles);
 
     if (positioning.equals(PositionValue.ABSOLUTE)) {
       parentContext = parentContext.createChild(elementBox);
       deferredBoxes.add(elementBox);
     } else if (
       positioning.equals(PositionValue.RELATIVE)
-      || isScrollable
+      || isScrollable || hasFixedAttachment
     ) {
       parentContext = parentContext.createChild(elementBox);
       parentContext.computeInsets();
@@ -81,6 +84,17 @@ public final class StackingContextGenerator {
     while (childIt.hasNext()) {
       generateStackingContexts(childIt.next(), parentContext, deferredBoxes);
     }
+  }
+
+  private static boolean hasFixedAttachment(ActiveStyles activeStyles) {
+    ManyResult attachmentList = (ManyResult) activeStyles.getProperty(CSSProperty.BACKGROUND_ATTACHMENT);
+    for (CSSValue result: attachmentList.values()) {
+      if (
+        result.equals(BackgroundAttachmentValue.FIXED)
+      ) return true;
+    }
+
+    return false;
   }
 
 }

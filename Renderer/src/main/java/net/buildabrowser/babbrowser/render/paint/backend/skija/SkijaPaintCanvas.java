@@ -16,6 +16,8 @@ import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
 public class SkijaPaintCanvas implements PaintCanvas {
  
   private final Deque<SkijaPaint> paintStack = new ArrayDeque<>();
+  private final Deque<Matrix44> matrixStack = new ArrayDeque<>();
+  private final Deque<SkijaPaint> markedPaintStack = new ArrayDeque<>();
 
   private final Canvas canvas;
   private final io.github.humbleui.skija.Paint rawPaint;
@@ -107,6 +109,37 @@ public class SkijaPaintCanvas implements PaintCanvas {
     Matrix44 matrix = canvas.getLocalToDevice();
     canvas.restore();
     canvas.setMatrix(matrix);
+  }
+
+  @Override
+  public void mark() {
+    matrixStack.add(canvas.getLocalToDevice());
+    markedPaintStack.push(paintStack.getLast());
+  }
+
+  @Override
+  public void unmark() {
+    markedPaintStack.pop();
+    canvas.setMatrix(matrixStack.pop());
+  }
+
+  @Override
+  public void withMark(Consumer<PaintCanvas> withMarkCallback) {
+    float oldTranslateX = currentTranslateX, oldTranslateY = currentTranslateY;
+    currentTranslateX = 0; currentTranslateY = 0;
+
+    Matrix44 oldMatrix = canvas.getLocalToDevice();
+    canvas.setMatrix(matrixStack.peek());
+    paintStack.push(markedPaintStack.getLast());
+    postPaintUpdate();
+
+    withMarkCallback.accept(this);
+
+    paintStack.pop();
+    postPaintUpdate();
+    canvas.setMatrix(oldMatrix);
+
+    currentTranslateX = oldTranslateX; currentTranslateY = oldTranslateY;
   }
   
 }

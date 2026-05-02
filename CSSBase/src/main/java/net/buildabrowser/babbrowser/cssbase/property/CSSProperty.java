@@ -45,7 +45,8 @@ public enum CSSProperty {
   BACKGROUND_IMAGE(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(CSSValue.NONE)),
   BACKGROUND_REPEAT(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(BackgroundRepeatValue.create(
     BackgroundAxisRepeatValue.REPEAT, BackgroundAxisRepeatValue.REPEAT))),
-  BACKGROUND_ATTACHMENT(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(BackgroundAttachmentValue.SCROLL)),
+  // Unfortunately layout as stacking contexts (generated during layout) need regenerated
+  BACKGROUND_ATTACHMENT(nextId(), false, ManyResult.create(BackgroundAttachmentValue.SCROLL)),
   BACKGROUND_POSITION(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(BackgroundPositionValue.create(
     BackgroundPositionSide.LEFT, PercentageValue.create(0),
     BackgroundPositionSide.TOP, PercentageValue.create(0)))),

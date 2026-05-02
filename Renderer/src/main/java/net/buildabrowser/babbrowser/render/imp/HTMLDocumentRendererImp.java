@@ -36,6 +36,7 @@ import net.buildabrowser.babbrowser.render.layout.LayoutContext;
 import net.buildabrowser.babbrowser.render.layout.LayoutContextGenerator;
 import net.buildabrowser.babbrowser.render.layout.StackingContext;
 import net.buildabrowser.babbrowser.render.layout.StackingContextGenerator;
+import net.buildabrowser.babbrowser.render.layout.Viewport;
 import net.buildabrowser.babbrowser.render.logging.PerfLogging;
 import net.buildabrowser.babbrowser.render.paint.backend.FontLoader;
 import net.buildabrowser.babbrowser.render.paint.backend.FontLoader.FontOptions;
@@ -170,7 +171,9 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
     canvas.drawBox(0, 0, width, height);
     // TODO: What if the root layer is updating internally while painting? (sync)
     int[] viewport = new int[] { 0, 0, width, height };
+    canvas.mark();
     rootLayer.draw(canvas, viewport);
+    canvas.unmark();
     PerfLogging.logWindowPaintTime(windowPaintStartTime);
   }
 
@@ -242,9 +245,10 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
     ElementBox rootBox = documentBox.htmlBox();
     if (rootBox == null) return;
 
+    Viewport viewport = new Viewport(0, 0, width, height);
     GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
-      painter.resourceLoader(), rootFont.metrics(),
-      fontCache, scriptingContext, imageCache);
+      painter.resourceLoader(), rootFont.metrics(), fontCache,
+      viewport, scriptingContext, imageCache);
 
     LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
     LayoutContextGenerator.generateLayoutContexts(rootBox, layoutContext);

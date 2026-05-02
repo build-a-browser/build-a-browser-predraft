@@ -84,7 +84,9 @@ public final class FlowRootContentPainter {
     }
 
     @Override
-    public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {}
+    public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+      paintBackgroundAndAdvance(canvas, fragment);
+    }
 
   }
 
@@ -149,8 +151,6 @@ public final class FlowRootContentPainter {
   private static void paintInlineManagedBoxFragment(
     ManagedBoxFragment fragment, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment
   ) {
-    paintBackgroundAndAdvance(canvas, fragment);
-
     ElementBox parentBox = fragment.box();
     LayoutFragment curNode = fragment.fragments();
     while (curNode != null) {
@@ -199,14 +199,11 @@ public final class FlowRootContentPainter {
   private static void paintBlockBackground(
     BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment
   ) {
-    if (fragment instanceof UnmanagedBoxFragment) {
-      paintBackgroundAndAdvance(canvas, fragment);
-    }
+    paintBackgroundAndAdvance(canvas, fragment);
     if (!(fragment instanceof ManagedBoxFragment managedBoxFragment)) {
       return;
     }
-
-    paintBackgroundAndAdvance(canvas, fragment);
+    
     paintBlockLevelBackgrounds(managedBoxFragment, canvas, vpIntersection, refFragment);
   }
 
@@ -230,8 +227,10 @@ public final class FlowRootContentPainter {
     }
   }
 
-  private static void paintBackgroundAndAdvance(PaintCanvas canvas, BoxFragment fragment) {
-    ElementBackgroundPainter.paintBackground(canvas, fragment);
+  private static void paintBackgroundAndAdvance(PaintCanvas canvas, LayoutFragment fragment) {
+    if (fragment instanceof BoxFragment boxFragment) {
+      ElementBackgroundPainter.paintBackground(canvas, boxFragment);
+    }
 
     canvas.alterPaint(paint -> paint.incOffset(
       fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER),

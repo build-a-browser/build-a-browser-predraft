@@ -23,6 +23,12 @@ public interface PaintCanvas {
   void clip(float x, float y, float w, float h);
 
   void unclip();
+ 
+  void mark();
+
+  void unmark();
+
+  void withMark(Consumer<PaintCanvas> withMarkCallback);
 
   FontMetrics fontMetrics();
 

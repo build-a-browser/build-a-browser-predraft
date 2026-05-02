@@ -17,8 +17,10 @@ public final class ScrollMath {
 
     float trackHeightReduction = scrollBoxFragment.hasHorizontalScroll() && scrollBoxFragment.hasVerticalScroll() ? 16 : 0;
     float trackSize = scrollBoxFragment.width(Measurement.CONTENT) - trackHeightReduction;
-    float trackX = scrollBoxFragment.posX(Measurement.CONTENT);
-    float trackY = scrollBoxFragment.posY(Measurement.CONTENT) + scrollBoxFragment.height(Measurement.CONTENT) - GUTTER_WIDTH;
+    float contentOffsetX = scrollBoxFragment.posX(Measurement.CONTENT) - scrollBoxFragment.posX(Measurement.BORDER);
+    float contentOffsetY = scrollBoxFragment.posY(Measurement.CONTENT) - scrollBoxFragment.posY(Measurement.BORDER);
+    float trackX = contentOffsetX;
+    float trackY = contentOffsetY + scrollBoxFragment.height(Measurement.CONTENT) - GUTTER_WIDTH;
     float scrollerSize = trackSize / innerFragment.inkWidth(Measurement.CONTENT) * trackSize;
 
     float reducedTrackHeight = trackSize;
@@ -41,8 +43,10 @@ public final class ScrollMath {
 
     float trackHeightReduction = scrollBoxFragment.hasHorizontalScroll() && scrollBoxFragment.hasVerticalScroll() ? 16 : 0;
     float trackSize = scrollBoxFragment.height(Measurement.CONTENT) - trackHeightReduction;
-    float trackX = scrollBoxFragment.posX(Measurement.CONTENT) + scrollBoxFragment.width(Measurement.CONTENT) - GUTTER_WIDTH;
-    float trackY = scrollBoxFragment.posY(Measurement.CONTENT);
+    float contentOffsetX = scrollBoxFragment.posX(Measurement.CONTENT) - scrollBoxFragment.posX(Measurement.BORDER);
+    float contentOffsetY = scrollBoxFragment.posY(Measurement.CONTENT) - scrollBoxFragment.posY(Measurement.BORDER);
+    float trackX = contentOffsetX + scrollBoxFragment.width(Measurement.CONTENT) - GUTTER_WIDTH;
+    float trackY = contentOffsetY;
     float scrollerSize = trackSize / innerFragment.inkHeight(Measurement.CONTENT) * trackSize;
 
     float reducedTrackHeight = trackSize;
