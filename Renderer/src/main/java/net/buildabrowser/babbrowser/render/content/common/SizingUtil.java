@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.render.layout.LayoutContext;
+import net.buildabrowser.babbrowser.render.layout.Viewport;
 
 public final class SizingUtil {
   
@@ -46,6 +47,7 @@ public final class SizingUtil {
     LayoutContext layoutContext,
     LengthValue lengthValue
   ) {
+    Viewport viewport = layoutContext.global().viewport();
     double baseValue = lengthValue.value().doubleValue();
     double sizeResult = baseValue == 0 ? 0 : switch (lengthValue.dimension()) {
       // TODO: Use real values for EM, EX
@@ -57,6 +59,12 @@ public final class SizingUtil {
       case PT -> baseValue / 0.75;
       case PC -> baseValue * 9;
       case PX -> baseValue;
+
+      case VW -> baseValue * viewport.width() / 100;
+      case VH -> baseValue * viewport.height() / 100;
+      case VMIN -> baseValue * Math.min(viewport.width(), viewport.height()) / 100;
+      case VMAX -> baseValue * Math.max(viewport.width(), viewport.height()) / 100;
+
       default -> throw new UnsupportedOperationException("Unknown Unit!");
     };
 

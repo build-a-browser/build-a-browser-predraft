@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property.size;
 import java.io.IOException;
 import java.util.Map;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
@@ -26,7 +27,7 @@ public class SizeParser implements PropertyValueParser {
   private static final CSSFailure NO_VALID_RESULT = new CSSFailure("No valid result...");
   private static final CSSFailure INVALID_LENGTH_TYPE = new CSSFailure("Unknown length type!");
 
-  private static final Map<String, LengthType> LENGTH_TYPES = Map.of(
+  private static final Map<String, LengthType> LENGTH_TYPES = CommonUtil.mapOf(
     "em", LengthType.EM,
     "ex", LengthType.EX,
     "in", LengthType.IN,
@@ -34,7 +35,12 @@ public class SizeParser implements PropertyValueParser {
     "mm", LengthType.MM,
     "pt", LengthType.PT,
     "pc", LengthType.PC,
-    "px", LengthType.PX
+    "px", LengthType.PX,
+
+    "vw", LengthType.VW,
+    "vh", LengthType.VH,
+    "vmin", LengthType.VMIN,
+    "vmax", LengthType.VMAX
   );
 
   private final CalcParser calcParser;

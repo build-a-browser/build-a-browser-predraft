@@ -1,13 +1,13 @@
 package net.buildabrowser.babbrowser.cssbase.property;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
@@ -72,7 +72,7 @@ public final class DeclarationParser {
   private static final Logger LOGGER = LoggerFactory.getLogger(DeclarationParser.class);
 
   // TODO: A number of these need CalcParser added. Things handled by SizeParser get this free.
-  private final static Map<String, PropertyValueParser> PROPERTY_PARSERS = mapOf(
+  private final static Map<String, PropertyValueParser> PROPERTY_PARSERS = CommonUtil.mapOf(
     "color", new ColorParser(),
     
     "background-color", new BackgroundColorParser(),
@@ -275,16 +275,6 @@ public final class DeclarationParser {
     }
 
     return CSSValue.SpecialCSSValue.INVALID;
-  }
-
-  @SuppressWarnings("unchecked")
-  private static <T, U> Map<T, U> mapOf(Object... values) {
-    Map<T, U> map = new HashMap<>();
-    for (int i = 0; i < values.length; i += 2) {
-      map.put((T) values[i], (U) values[i + 1]);
-    }
-
-    return Map.copyOf(map);
   }
 
 }

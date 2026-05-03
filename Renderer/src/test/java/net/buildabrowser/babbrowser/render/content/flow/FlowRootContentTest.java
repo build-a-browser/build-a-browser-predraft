@@ -317,4 +317,18 @@ public class FlowRootContentTest {
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
+  @Test
+  @DisplayName("Can layout block box with vw-width non-replaced block child")
+  public void canLayoutBlockBoxWithVwWidthNonReplacedBlockChild() {
+    ActiveStyles childStyles = ActiveStyles.create();
+    childStyles.setProperty(CSSProperty.WIDTH, LengthValue.create(5, true, LengthType.VW));
+    ElementBox childBox = flowBlockBox(childStyles, List.of());
+    ElementBox parentBox = flowBlockBox(List.of(childBox));
+
+    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 0, parentBox, List.of(
+      new ManagedBoxFragment(0, 0, 4, 0, childBox, List.of())));
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 80).fragment();
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
 }

@@ -1,5 +1,8 @@
 package net.buildabrowser.babbrowser.common.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class CommonUtil {
   
   private CommonUtil() {}
@@ -27,6 +30,16 @@ public final class CommonUtil {
     } catch (Exception e) {
       return null;
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T, U> Map<T, U> mapOf(Object... values) {
+    Map<T, U> map = new HashMap<>();
+    for (int i = 0; i < values.length; i += 2) {
+      map.put((T) values[i], (U) values[i + 1]);
+    }
+
+    return Map.copyOf(map);
   }
 
   public static interface ThrowingSupplier<T> {
