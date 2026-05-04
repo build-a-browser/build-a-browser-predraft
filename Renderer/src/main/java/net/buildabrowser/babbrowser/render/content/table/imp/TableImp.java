@@ -1,16 +1,23 @@
-package net.buildabrowser.babbrowser.render.content.table;
+package net.buildabrowser.babbrowser.render.content.table.imp;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.content.table.Table;
+import net.buildabrowser.babbrowser.render.content.table.TableCell;
+import net.buildabrowser.babbrowser.render.content.table.TableColumn;
 
 public class TableImp implements Table {
 
   // Multiple layers in case of overlapping cells
-  private CellImp[][][] cells;
+  private TableCellImp[][][] cells;
 
   private int width = -1, height = -1;
+  private List<TableColumn> columns;
 
   public TableImp() {
-    this.cells = new CellImp[1][4][4];
+    this.cells = new TableCellImp[1][4][4];
   }
 
   @Override
@@ -26,9 +33,11 @@ public class TableImp implements Table {
   }
 
   @Override
-  public Cell createCell(int cellX, int cellY, int initWidth, int initHeight, ElementBox cellBox) {
+  public TableCell createCell(int cellX, int cellY, int initWidth, int initHeight, ElementBox cellBox) {
     resizeInternalGrid(cellX + initWidth, cellY + initHeight, 0);
-    CellImp myCell = new CellImp(cellX, cellY, initWidth, initHeight, cellBox);
+    TableCellImp myCell = new TableCellImp(
+      cellX, cellY, initWidth, initHeight,
+      this, cellBox);
     for (int y = cellY; y < cellY + initHeight; y++) {
       for (int x = cellX; x < cellX + initWidth; x++) {
         recordCell(cellX, cellY, myCell);
@@ -38,15 +47,15 @@ public class TableImp implements Table {
   }
   
   @Override
-  public Cell getCell(int cellX, int cellY, int layer) {
+  public TableCell cell(int cellX, int cellY, int layer) {
     if (layer >= cells.length) return null;
     return cells[layer][cellY][cellX];
   }
 
   @Override
-  public void extendCellY(Cell cell, int targetY) {
+  public void extendCellY(TableCell cell, int targetY) {
     resizeInternalGrid(0, targetY, 0);
-    CellImp cellImp = (CellImp) cell;
+    TableCellImp cellImp = (TableCellImp) cell;
     for (int y = cell.cellY() + cell.height(); y <= targetY; y++) {
       cellImp.extend(1);
       for (int x = cell.cellX(); x < cell.cellX() + cell.width(); x++) {
@@ -63,6 +72,26 @@ public class TableImp implements Table {
   }
 
   @Override
+  public void createColumns() {
+    this.columns = new ArrayList<>(width);
+    for (int x = 0; x < width; x++) {
+      columns.add(new TableColumnImp(this, x));
+    }
+  }
+
+  @Override
+  public List<TableColumn> columns() {
+    assert this.columns != null;
+    return columns;
+  }
+
+  @Override
+  public TableColumn column(int colX) {
+    assert this.columns != null;
+    return columns.get(colX);
+  }
+
+  @Override
   public int width() {
     assert width != -1;
     return this.width;
@@ -74,7 +103,7 @@ public class TableImp implements Table {
     return this.height;
   }
 
-  private void recordCell(int cellX, int cellY, CellImp myCell) {
+  private void recordCell(int cellX, int cellY, TableCellImp myCell) {
     for (int z = 0; z < cells.length; z++) {
       if (cells[z][cellY][cellX] != null) continue;
       cells[z][cellY][cellX] = myCell;
@@ -99,7 +128,7 @@ public class TableImp implements Table {
       && newWidth == this.cells[0][0].length
     ) return;
 
-    CellImp[][][] newCells = new CellImp[newDepth][newHeight][newWidth];
+    TableCellImp[][][] newCells = new TableCellImp[newDepth][newHeight][newWidth];
     for (int z = 0; z < this.cells.length; z++) {
       for (int y = 0; y < this.cells[0].length; y++) {
         System.arraycopy(this.cells[z][y], 0, newCells[z][y], 0, this.cells[z][y].length);

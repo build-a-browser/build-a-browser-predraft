@@ -1,5 +1,3 @@
-/* Copied from Webicity */
-
 a {
   color: #0000FF;
 }
@@ -45,6 +43,11 @@ option {
 
 section {
   display: block;
+}
+
+/* TODO: This needs to only occur in quirks mode */
+table {
+  text-align: initial;
 }
 
 /* For content after this line, see licenses/WHATWG.txt for license information. */

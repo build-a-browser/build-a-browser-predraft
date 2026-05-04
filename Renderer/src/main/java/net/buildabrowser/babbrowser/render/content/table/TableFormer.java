@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
-import net.buildabrowser.babbrowser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.render.content.table.Table.RowGroup;
 
 public final class TableFormer {
@@ -79,7 +80,7 @@ public final class TableFormer {
   }
 
   private static void growDownwardGrowingCells(Table table, TableFormerBookkeeping bookkeeping) {
-    for (Cell cell: bookkeeping.downwardGrowingCells) {
+    for (TableCell cell: bookkeeping.downwardGrowingCells) {
       table.extendCellY(cell, bookkeeping.yCurrent);
     }
   }
@@ -105,12 +106,13 @@ public final class TableFormer {
         bookkeeping.xWidth++;
       }
       // TODO: Parse span attributes
-      int colspan = 1, rowspan = 1;
+      int colspan = parseSpan(currentCell.element(), "colspan", 1000);
+      int rowspan = parseSpan(currentCell.element(), "rowspan", 65534);
       boolean cellGrowsDownward = rowspan == 0;
       rowspan = cellGrowsDownward ? 1 : rowspan;
       bookkeeping.xWidth = Math.max(bookkeeping.xWidth, xCurrent + colspan);
       bookkeeping.yHeight = Math.max(bookkeeping.yHeight, bookkeeping.yCurrent + rowspan);
-      Cell c = table.createCell(xCurrent, bookkeeping.yCurrent, rowspan, colspan, currentCell);
+      TableCell c = table.createCell(xCurrent, bookkeeping.yCurrent, colspan, rowspan, currentCell);
       // TODO: Headers and stuff, also record any table model error
       if (cellGrowsDownward) {
         bookkeeping.downwardGrowingCells.add(c);
@@ -165,9 +167,25 @@ public final class TableFormer {
     };
   }
 
+  private static int parseSpan(HTMLElement element, String name, int limit) {
+    // TODO: Use qualified name
+    if (element == null || !(
+      element.name().equals("td")
+      || element.name().equals("th")
+    )) return 1;
+    String spanAttr = element.getAttribute(name);
+    // TODO: Proper way to parse a number
+    Integer span = CommonUtil.tryOrNull(() -> Integer.valueOf(spanAttr));
+    if (span == null || span < 0) {
+      span = 1;
+    }
+
+    return Math.min(span, limit);
+  }
+
   private static class TableFormerBookkeeping {
     private final List<ElementBox> pendingTfootElements = new ArrayList<>();
-    private final List<Cell> downwardGrowingCells = new ArrayList<>();
+    private final List<TableCell> downwardGrowingCells = new ArrayList<>();
     private int xWidth = 0;
     private int yHeight = 0;
     private int yCurrent = 0;

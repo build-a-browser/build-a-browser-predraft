@@ -8,9 +8,9 @@ import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.render.content.table.Table.Cell;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.render.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.render.layout.LayoutUtil;
 
 public class TableContent implements BoxContent {
@@ -30,16 +30,21 @@ public class TableContent implements BoxContent {
   }
 
   @Override
+  public void fixupChildren() {
+    TableFixup.adjustTableBox(rootBox);
+  }
+
+  @Override
   public UnmanagedBoxFragment layout(
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    TableFixup.adjustTableBox(rootBox);
     Table table = Table.create();
     TableFormer.formTable(table, rootBox);
+    table.createColumns();
 
     if (table.width() == 0) {
-      this.sizedTable = new SizedTable(table, new float[0], new float[0]);
+      this.sizedTable = new SizedTable(table, new float[0]);
       return new UnmanagedBoxFragment(
         LayoutUtil.constraintOrDim(widthConstraint, 0),
         LayoutUtil.constraintOrDim(heightConstraint, 0),
@@ -47,27 +52,35 @@ public class TableContent implements BoxContent {
         rootBox, painter);
     }
 
-    float[] columnWidths = TableFixedLayout.computeColumnWidths(table, widthConstraint);
-    float totalWidth = sumWidths(columnWidths);
+    // TODO: Need to merge unspecified columns with only spans
+
+    float gridMin = sumMinWidths(table.columns());
+    float gridMax = sumMaxWidths(table.columns());
+
     if (widthConstraint.isPreLayoutConstraint()) {
+      float usedWidth = widthConstraint.type().equals(LayoutConstraintType.MAX_CONTENT) ?
+        gridMax : gridMin;
       return new UnmanagedBoxFragment(
-        LayoutUtil.constraintOrDim(widthConstraint, totalWidth),
+        LayoutUtil.constraintOrDim(widthConstraint, usedWidth),
         LayoutUtil.constraintOrDim(heightConstraint, 0),
-        totalWidth, 0,
+        usedWidth, 0,
         rootBox, painter);
     }
 
     float[] rowHeights = new float[table.height()];
-    layoutCellsAndHeights(table, columnWidths, rowHeights);
+    layoutCellsAndHeights(table, rowHeights);
     // TODO: Respect alignments and explicit row heights
-    positionCells(table, columnWidths, rowHeights);
+    positionCells(table, rowHeights);
 
-    this.sizedTable = new SizedTable(table, columnWidths, rowHeights);
-    float totalHeight = sumWidths(rowHeights);
+    this.sizedTable = new SizedTable(table, rowHeights);
+    float totalHeight = sumHeights(rowHeights);
+    float inkWidth = widthConstraint.isBounded() ?
+      Math.max(widthConstraint.floatValue(), gridMin) :
+      gridMax;
     return new UnmanagedBoxFragment(
-      LayoutUtil.constraintOrDim(widthConstraint, totalWidth),
+      LayoutUtil.constraintOrDim(widthConstraint, gridMax),
       LayoutUtil.constraintOrDim(heightConstraint, totalHeight),
-      totalWidth, totalHeight,
+      inkWidth, totalHeight,
       rootBox, painter);
   }
 
@@ -81,19 +94,25 @@ public class TableContent implements BoxContent {
     return this.rootBox;
   }
 
+  @Override
+  public void positionLayers(float layerX, float layerY) {
+    // TODO: Implement this
+  }
+
   public SizedTable sizedTable() {
     return this.sizedTable;
   }
 
-  private void layoutCellsAndHeights(Table table, float[] columnWidths, float[] rowHeights) {
-    for (int y = 0; y < table.height(); y++) {
-      for (int x = 0; x < table.width(); x++) {
-        for (int z = 0; table.getCell(x, y, z) != null; z++) {
-          Cell cell = table.getCell(x, y, z);
+  private void layoutCellsAndHeights(Table table, float[] rowHeights) {
+    for (int x = 0; x < table.width(); x++) {
+      float columnWidth = table.column(x).usedWidth();
+      for (int y = 0; y < table.height(); y++) {
+        for (int z = 0; table.cell(x, y, z) != null; z++) {
+          TableCell cell = table.cell(x, y, z);
           if (cell.getRelatedFragment() != null) continue;
 
           UnmanagedBoxFragment fragment = cell.cellBox().layout(
-            LayoutConstraint.of(columnWidths[x]), LayoutConstraint.AUTO);
+            LayoutConstraint.of(columnWidth), LayoutConstraint.AUTO);
           cell.setRelatedFragment(fragment);
 
           LayoutConstraint fragmentHeight = SizingHeightUtil.evaluateAdjustedHeightSize(
@@ -110,29 +129,49 @@ public class TableContent implements BoxContent {
     }
   }
 
-  private List<UnmanagedBoxFragment> positionCells(Table table, float[] columnWidths, float[] rowHeights) {
+  private List<UnmanagedBoxFragment> positionCells(Table table, float[] rowHeights) {
     List<UnmanagedBoxFragment> fragments = new ArrayList<>();
 
-    float currentY = 0;
-    for (int y = 0; y < table.height(); y++) {
-      float currentX = 0;
-      for (int x = 0; x < table.width(); x++) {
-        for (int z = 0; table.getCell(x, y, z) != null; z++) {
-          Cell cell = table.getCell(x, y, z);
+    float currentX = 0;
+    for (int x = 0; x < table.width(); x++) {
+      TableColumn column = table.column(x);
+
+      float currentY = 0;
+      for (int y = 0; y < table.height(); y++) {
+        for (int z = 0; table.cell(x, y, z) != null; z++) {
+          TableCell cell = table.cell(x, y, z);
           if (cell.getRelatedFragment() == null) continue;
           if (cell.cellX() != x || cell.cellY() != y) continue;
           
           cell.getRelatedFragment().setPos(currentX, currentY);
         }
-        currentX += columnWidths[x];
+        currentY += rowHeights[y];
       }
-      currentY += rowHeights[y];
+      currentX += column.usedWidth();
     }
 
     return fragments;
   }
 
-  private float sumWidths(float[] columnWidths) {
+  private float sumMinWidths(List<TableColumn> columns) {
+    float totalWidth = 0;
+    for (TableColumn column: columns) {
+      totalWidth += column.minContentWidth();
+    }
+
+    return totalWidth;
+  }
+
+  private float sumMaxWidths(List<TableColumn> columns) {
+    float totalWidth = 0;
+    for (TableColumn column: columns) {
+      totalWidth += column.maxContentWidth();
+    }
+
+    return totalWidth;
+  }
+
+  private float sumHeights(float[] columnWidths) {
     float totalWidth = 0;
     for (float width: columnWidths) {
       totalWidth += width;
@@ -141,11 +180,6 @@ public class TableContent implements BoxContent {
     return totalWidth;
   }
 
-  public static record SizedTable(Table table, float[] columnWidths, float[] columnHeights) {}
-
-  @Override
-  public void positionLayers(float layerX, float layerY) {
-    // TODO: Implement this
-  }
+  public static record SizedTable(Table table, float[] columnHeights) {}
   
 }

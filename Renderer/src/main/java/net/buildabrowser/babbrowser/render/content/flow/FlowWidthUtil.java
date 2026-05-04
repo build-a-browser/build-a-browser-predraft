@@ -5,6 +5,7 @@ import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.render.content.common.SizingWidthUtil;
+import net.buildabrowser.babbrowser.render.content.table.TableContent;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint.LayoutConstraintType;
 
@@ -76,27 +77,37 @@ public final class FlowWidthUtil {
     float usedRightMargin = isRightMarginSet ? marginRightConstraint.value() : 0;
     usedRightMargin = Math.max(usedRightMargin, extraRightMargin);
 
+    ElementBoxDimensions boxDimensions = childBox.dimensions();
+
     if (determinedConstraint.isPreLayoutConstraint()) {
-      childBox.dimensions().setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
+      boxDimensions.setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
       return determinedConstraint;
     }
 
     if (!parentConstraint.isBounded()) {
-      childBox.dimensions().setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
+      boxDimensions.setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
       LayoutConstraint usedConstraint = determinedConstraint.type().equals(LayoutConstraintType.AUTO) ?
         parentConstraint : determinedConstraint;
       return SizingWidthUtil.clampWidth(parentConstraint, childBox, usedConstraint);
     }    
 
-    float[] border = childBox.dimensions().getComputedBorder();
-    float[] padding = childBox.dimensions().getComputedPadding();
+    float[] border = boxDimensions.getComputedBorder();
+    float[] padding = boxDimensions.getComputedPadding();
 
-    float parentMinusSurroundingsWidth = parentConstraint.value()
+    float autoWidth = parentConstraint.value()
       - usedLeftMargin - usedRightMargin
       - border[2] - border[3] - padding[2] - padding[3];
+    
+    // TODO: I don't really like this special case
+    if (childBox.content() instanceof TableContent) {
+      float minWidth = boxDimensions.preferredMinWidthConstraint();
+      float preferredWidth = boxDimensions.preferredWidthConstraint();
+      autoWidth = Math.max(Math.min(preferredWidth, autoWidth), minWidth);
+    }
+
     float preclampWidth = Math.max(0,
       determinedConstraint.isBounded() ?
-        determinedConstraint.value() : parentMinusSurroundingsWidth);
+        determinedConstraint.value() : autoWidth);
 
     LayoutConstraint clampedWidth = SizingWidthUtil.clampWidth(
       parentConstraint, childBox, LayoutConstraint.of(preclampWidth));
