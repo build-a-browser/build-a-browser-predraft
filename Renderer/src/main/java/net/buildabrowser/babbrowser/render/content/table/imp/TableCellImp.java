@@ -1,10 +1,14 @@
 package net.buildabrowser.babbrowser.render.content.table.imp;
 
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.table.Table;
 import net.buildabrowser.babbrowser.render.content.table.TableCell;
 import net.buildabrowser.babbrowser.render.content.table.TableColumn;
+import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
 // Unfortunately cannot be a record since height and relatedFragment are mutable...
 public class TableCellImp implements TableCell {
@@ -76,8 +80,8 @@ public class TableCellImp implements TableCell {
 
     float baselineBorderSpacing = baselineBorderSpacing();
     TableColumn column = table.column(colNum);
-    float prevMinContent = column.minContentWidthSpan(width - 1);
-    float prevMaxContent = column.maxContentWidthSpan(width - 1);
+    float prevMinContent = column.minContentWidth(width - 1);
+    float prevMaxContent = column.maxContentWidth(width - 1);
 
     float baselineDiff = baselineMaxContentWidth - baselineMinContentWidth;
     float colBaselineRatio = baselineDiff == 0 ? 0 : (prevMaxContent - prevMinContent) / baselineDiff;
@@ -101,7 +105,7 @@ public class TableCellImp implements TableCell {
 
     float baselineBorderSpacing = baselineBorderSpacing();
     TableColumn column = table.column(colNum);
-    float prevMaxContent = column.maxContentWidthSpan(width - 1);
+    float prevMaxContent = column.maxContentWidth(width - 1);
 
     float colBaselineRatio = prevMaxContent / baselineMaxContentWidth;
     float maxContentDiff = Math.max(
@@ -111,15 +115,50 @@ public class TableCellImp implements TableCell {
     return prevMaxContent + colBaselineProduct;
   }
 
+  // TODO: Is evaluateAdjustedSize and AUTO proper to use here?
   @Override
   public float outerMinContentWidth() {
     // TODO: Make this actually be "outer"
-    return cellBox.dimensions().preferredMinWidthConstraint();
+    ActiveStyles cellStyles = cellBox.activeStyles();
+    float minContentWidth = cellBox.dimensions().preferredWidthConstraint();
+    LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
+      LayoutConstraint.AUTO, cellBox, cellStyles.getProperty(CSSProperty.MIN_WIDTH));
+
+    if (specifiedMinWidth.isBounded()) {
+      return Math.max(specifiedMinWidth.value(), minContentWidth);
+    }
+    return minContentWidth;
   }
 
   @Override
   public float outerMaxContentWidth() {
-    return cellBox.dimensions().preferredWidthConstraint();
+    ActiveStyles cellStyles = cellBox.activeStyles();
+    float minContentWidth = cellBox.dimensions().preferredWidthConstraint();
+    LayoutConstraint specifiedWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
+      LayoutConstraint.AUTO, cellBox);
+    LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
+      LayoutConstraint.AUTO, cellBox, cellStyles.getProperty(CSSProperty.MIN_WIDTH));
+    LayoutConstraint specifiedMaxWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
+      LayoutConstraint.AUTO, cellBox, cellStyles.getProperty(CSSProperty.MAX_WIDTH));
+
+    float usedWidth = minContentWidth;
+    if (specifiedMinWidth.isBounded()) {
+      usedWidth = Math.max(usedWidth, specifiedMinWidth.value());
+    }
+    if (specifiedWidth.isBounded()) {
+      usedWidth = Math.max(usedWidth, specifiedWidth.value());
+    }
+
+    boolean isConstrained = width == 1 && table.column(cellX).isConstrained();
+    if (specifiedMaxWidth.isBounded() && specifiedWidth.isBounded()) {
+      usedWidth = Math.max(usedWidth, Math.min(specifiedMaxWidth.value(), specifiedWidth.value()));
+    } else if (specifiedMaxWidth.isBounded() && !isConstrained) {
+      usedWidth = Math.max(usedWidth, Math.min(specifiedMaxWidth.value(), minContentWidth));
+    } else if (specifiedMaxWidth.isBounded()) {
+      usedWidth = Math.max(usedWidth, specifiedMaxWidth.value());
+    }
+
+    return usedWidth;
   }
 
   private float baselineMinContentWidth() {
@@ -131,7 +170,7 @@ public class TableCellImp implements TableCell {
     for (int x = 0; x < width; x++) {
       baselineMinContentWidth += table
         .column(cellX + x)
-        .minContentWidthSpan(width - 1);
+        .minContentWidth(width - 1);
     }
 
     return baselineMinContentWidth;
@@ -142,7 +181,7 @@ public class TableCellImp implements TableCell {
     for (int x = 0; x < width; x++) {
       baselineMinContentWidth += table
         .column(cellX + x)
-        .maxContentWidthSpan(width - 1);
+        .maxContentWidth(width - 1);
     }
 
     return baselineMinContentWidth;

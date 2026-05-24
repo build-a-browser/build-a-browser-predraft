@@ -43,6 +43,12 @@ public final class TableBoxUtil {
     return displayValue.equals(OuterDisplayValue.TABLE_ROW);
   }
 
+  public static boolean isTableColumn(Box currentElement) {
+    if (!(currentElement instanceof ElementBox elementBox)) return false;
+    OuterDisplayValue displayValue = outerDisplayValue(elementBox.activeStyles());
+    return displayValue.equals(OuterDisplayValue.TABLE_COLUMN);
+  }
+
   public static boolean isTableCell(Box currentElement) {
     if (!(currentElement instanceof ElementBox elementBox)) return false;
     OuterDisplayValue displayValue = outerDisplayValue(elementBox.activeStyles());

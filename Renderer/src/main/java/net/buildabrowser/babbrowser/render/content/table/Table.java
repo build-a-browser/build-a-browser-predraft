@@ -31,8 +31,8 @@ public interface Table {
 
   static record RowGroup(int yStart, int yHeight, ElementBox groupBox) {}
 
-  static Table create() {
-    return new TableImp();
+  static Table create(ElementBox tableBox) {
+    return new TableImp(tableBox);
   }
 
 }

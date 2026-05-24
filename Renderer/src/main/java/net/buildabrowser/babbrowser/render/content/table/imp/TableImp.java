@@ -3,12 +3,18 @@ package net.buildabrowser.babbrowser.render.content.table.imp;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
+import net.buildabrowser.babbrowser.render.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.render.content.table.Table;
+import net.buildabrowser.babbrowser.render.content.table.TableBoxUtil;
 import net.buildabrowser.babbrowser.render.content.table.TableCell;
 import net.buildabrowser.babbrowser.render.content.table.TableColumn;
 
 public class TableImp implements Table {
+
+  private final ElementBox tableBox;
 
   // Multiple layers in case of overlapping cells
   private TableCellImp[][][] cells;
@@ -16,7 +22,8 @@ public class TableImp implements Table {
   private int width = -1, height = -1;
   private List<TableColumn> columns;
 
-  public TableImp() {
+  public TableImp(ElementBox tableBox) {
+    this.tableBox = tableBox;
     this.cells = new TableCellImp[1][4][4];
   }
 
@@ -74,8 +81,10 @@ public class TableImp implements Table {
   @Override
   public void createColumns() {
     this.columns = new ArrayList<>(width);
-    for (int x = 0; x < width; x++) {
-      columns.add(new TableColumnImp(this, x));
+    int specWidth = createSpecifiedColumns(0, tableBox);
+    for (int x = specWidth; x < width; x++) {
+      ElementBox colBox = ElementBox.createAnonymous(tableBox, BoxLevel.INLINE_LEVEL);
+      columns.add(new TableColumnImp(this, x, colBox));
     }
   }
 
@@ -135,6 +144,27 @@ public class TableImp implements Table {
       }
     }
     this.cells = newCells;
+  }
+
+  private int createSpecifiedColumns(int x, ElementBox parentBox) {
+    ElementBoxIterator childIt = parentBox.childBoxes();
+    while (childIt.hasNext() && x < width) {
+      Box nextBox = childIt.next();
+      if (
+        nextBox instanceof ElementBox elBox
+        && TableBoxUtil.isColumnGroup(nextBox)
+      ) {
+        x = createSpecifiedColumns(x, elBox);
+      } else if (
+        nextBox instanceof ElementBox colBox
+        && TableBoxUtil.isTableColumn(nextBox)
+      ) {
+        columns.add(new TableColumnImp(this, x, colBox));
+        x++;
+      }
+    }
+
+    return x;
   }
   
 }

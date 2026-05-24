@@ -19,8 +19,22 @@ public final class SizingUtil {
     LayoutConstraint parentConstraint,
     CSSValue sizeValue
   ) {
+    return evaluateBaseSize(
+      layoutContext, parentConstraint, sizeValue,
+      true, true);
+  }
+
+  public static LayoutConstraint evaluateBaseSize(
+    LayoutContext layoutContext,
+    LayoutConstraint parentConstraint,
+    CSSValue sizeValue,
+    boolean allowLength,
+    boolean allowPercentage
+  ) {
     CalcEvaluation calcResult = CalcInterpreter.evaluateNode(sizeValue,
-      innerSizeValue -> evaluateBaseSizeRaw(layoutContext, parentConstraint, innerSizeValue));
+      innerSizeValue -> evaluateBaseSizeRaw(
+        layoutContext, parentConstraint, innerSizeValue,
+        allowLength, allowPercentage));
     return calcResult.valueType().equals(CalcEvalType.LENGTH_PERCENTAGE) ?
       LayoutConstraint.of(calcResult.floatValue()) :
       LayoutConstraint.AUTO;
@@ -31,10 +45,23 @@ public final class SizingUtil {
     LayoutConstraint parentConstraint,
     CSSValue sizeValue
   ) {
-    if (sizeValue instanceof LengthValue lengthValue) {
+    return evaluateBaseSizeRaw(
+      layoutContext, parentConstraint, sizeValue,
+      true, true);
+  }
+
+  static LayoutConstraint evaluateBaseSizeRaw(
+    LayoutContext layoutContext,
+    LayoutConstraint parentConstraint,
+    CSSValue sizeValue,
+    boolean allowLength,
+    boolean allowPercentage
+  ) {
+    if (allowLength && sizeValue instanceof LengthValue lengthValue) {
       return evaluateLengthBaseSize(layoutContext, lengthValue);
     } else if (
-      sizeValue instanceof PercentageValue percentageValue
+      allowPercentage
+      && sizeValue instanceof PercentageValue percentageValue
       && parentConstraint.isBounded()
     ) {
       return LayoutConstraint.of(percentageValue.value() * parentConstraint.value() / 100);

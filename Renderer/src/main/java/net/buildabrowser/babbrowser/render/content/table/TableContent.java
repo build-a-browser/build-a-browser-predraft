@@ -39,7 +39,7 @@ public class TableContent implements BoxContent {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    Table table = Table.create();
+    Table table = Table.create(rootBox);
     TableFormer.formTable(table, rootBox);
     table.createColumns();
 
@@ -54,8 +54,8 @@ public class TableContent implements BoxContent {
 
     // TODO: Need to merge unspecified columns with only spans
 
-    float gridMin = sumMinWidths(table.columns());
-    float gridMax = sumMaxWidths(table.columns());
+    float gridMin = TableSizeUtil.sumMinWidths(table.columns());
+    float gridMax = TableSizeUtil.sumMaxWidths(table.columns());
 
     if (widthConstraint.isPreLayoutConstraint()) {
       float usedWidth = widthConstraint.type().equals(LayoutConstraintType.MAX_CONTENT) ?
@@ -67,13 +67,19 @@ public class TableContent implements BoxContent {
         rootBox, painter);
     }
 
+    if (widthConstraint.value() < gridMin) {
+      widthConstraint = LayoutConstraint.of(gridMin);
+    }
+
+    TableColumnSizerAuto.assignTableWidths(widthConstraint, table.columns());
+
     float[] rowHeights = new float[table.height()];
     layoutCellsAndHeights(table, rowHeights);
     // TODO: Respect alignments and explicit row heights
     positionCells(table, rowHeights);
 
     this.sizedTable = new SizedTable(table, rowHeights);
-    float totalHeight = sumHeights(rowHeights);
+    float totalHeight = TableSizeUtil.sumSizes(rowHeights);
     float inkWidth = widthConstraint.isBounded() ?
       Math.max(widthConstraint.floatValue(), gridMin) :
       gridMax;
@@ -151,33 +157,6 @@ public class TableContent implements BoxContent {
     }
 
     return fragments;
-  }
-
-  private float sumMinWidths(List<TableColumn> columns) {
-    float totalWidth = 0;
-    for (TableColumn column: columns) {
-      totalWidth += column.minContentWidth();
-    }
-
-    return totalWidth;
-  }
-
-  private float sumMaxWidths(List<TableColumn> columns) {
-    float totalWidth = 0;
-    for (TableColumn column: columns) {
-      totalWidth += column.maxContentWidth();
-    }
-
-    return totalWidth;
-  }
-
-  private float sumHeights(float[] columnWidths) {
-    float totalWidth = 0;
-    for (float width: columnWidths) {
-      totalWidth += width;
-    }
-
-    return totalWidth;
   }
 
   public static record SizedTable(Table table, float[] columnHeights) {}
