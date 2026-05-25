@@ -59,6 +59,10 @@ import net.buildabrowser.babbrowser.cssbase.property.position.ZIndexParser;
 import net.buildabrowser.babbrowser.cssbase.property.shared.ManySideShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingParser;
 import net.buildabrowser.babbrowser.cssbase.property.size.SizeParser;
+import net.buildabrowser.babbrowser.cssbase.property.table.BorderCollapseParser;
+import net.buildabrowser.babbrowser.cssbase.property.table.BorderSpacingParser;
+import net.buildabrowser.babbrowser.cssbase.property.table.CaptionSideParser;
+import net.buildabrowser.babbrowser.cssbase.property.table.TableLayoutParser;
 import net.buildabrowser.babbrowser.cssbase.property.text.LineHeightParser;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignParser;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeParser;
@@ -181,6 +185,11 @@ public final class DeclarationParser {
     "row-gap", new GapParser(CSSProperty.ROW_GAP),
     "column-gap", new GapParser(CSSProperty.COLUMN_GAP),
     "gap", new GapShorthandParser(),
+
+    "table-layout", new TableLayoutParser(),
+    "border-collapse", new BorderCollapseParser(),
+    "border-spacing", new BorderSpacingParser(),
+    "caption-side", new CaptionSideParser(),
 
     "overflow-x", new OverflowParser(CSSProperty.OVERFLOW_X),
     "overflow-y", new OverflowParser(CSSProperty.OVERFLOW_Y),

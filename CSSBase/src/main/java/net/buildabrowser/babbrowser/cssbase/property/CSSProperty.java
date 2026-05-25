@@ -32,6 +32,9 @@ import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
+import net.buildabrowser.babbrowser.cssbase.property.table.BorderCollapseValue;
+import net.buildabrowser.babbrowser.cssbase.property.table.BorderSpacingValue;
+import net.buildabrowser.babbrowser.cssbase.property.table.CaptionSideValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.LineHeightValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
@@ -148,11 +151,16 @@ public enum CSSProperty {
   ROW_GAP(nextId(), false, GapValue.NORMAL),
   COLUMN_GAP(nextId(), false, GapValue.NORMAL),
   GAP(new CSSProperty[] { CSSProperty.ROW_GAP, CSSProperty.COLUMN_GAP }),
+
+  TABLE_LAYOUT(nextId(), false, CSSValue.AUTO),
+  BORDER_COLLAPSE(nextId(), false, BorderCollapseValue.SEPARATE),
+  BORDER_SPACING(nextId(), false, BorderSpacingValue.create(LengthValue.ZERO, LengthValue.ZERO)),
+  CAPTION_SIDE(nextId(), false, CaptionSideValue.TOP),
   
   OVERFLOW_X(nextId(), false, InvalidationLevel.BOX, OverflowValue.VISIBLE),
   OVERFLOW_Y(nextId(), false, InvalidationLevel.BOX, OverflowValue.VISIBLE),
   // TODO: OVERFLOW_INLINE, OVERFLOW_BLOCK
-  OVERFLOW(new CSSProperty[] { CSSProperty.OVERFLOW_X, CSSProperty.OVERFLOW_Y });
+  OVERFLOW(new CSSProperty[] { CSSProperty.OVERFLOW_X, CSSProperty.OVERFLOW_Y }),;
 
   private static int propertyId = 0;
 
