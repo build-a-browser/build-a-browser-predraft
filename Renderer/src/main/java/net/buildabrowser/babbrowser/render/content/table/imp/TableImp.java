@@ -29,7 +29,7 @@ public class TableImp implements Table {
 
   @Override
   public boolean isSlotAssigned(int x, int y) {
-    if (x >= width || y >= height) return false;
+    if (y >= cells[0].length || x >= cells[0][0].length) return false;
     return cells[0][y][x] != null;
   }
 
@@ -47,7 +47,7 @@ public class TableImp implements Table {
       this, cellBox);
     for (int y = cellY; y < cellY + initHeight; y++) {
       for (int x = cellX; x < cellX + initWidth; x++) {
-        recordCell(cellX, cellY, myCell);
+        recordCell(x, y, myCell);
       }
     }
     return myCell;

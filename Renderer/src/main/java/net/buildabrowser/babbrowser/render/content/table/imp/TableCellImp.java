@@ -120,7 +120,7 @@ public class TableCellImp implements TableCell {
   public float outerMinContentWidth() {
     // TODO: Make this actually be "outer"
     ActiveStyles cellStyles = cellBox.activeStyles();
-    float minContentWidth = cellBox.dimensions().preferredWidthConstraint();
+    float minContentWidth = cellBox.dimensions().preferredMinWidthConstraint();
     LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
       LayoutConstraint.AUTO, cellBox, cellStyles.getProperty(CSSProperty.MIN_WIDTH));
 
@@ -133,7 +133,8 @@ public class TableCellImp implements TableCell {
   @Override
   public float outerMaxContentWidth() {
     ActiveStyles cellStyles = cellBox.activeStyles();
-    float minContentWidth = cellBox.dimensions().preferredWidthConstraint();
+    float minContentWidth = cellBox.dimensions().preferredMinWidthConstraint();
+    float maxContentWidth = cellBox.dimensions().preferredWidthConstraint();
     LayoutConstraint specifiedWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
       LayoutConstraint.AUTO, cellBox);
     LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
@@ -152,13 +153,15 @@ public class TableCellImp implements TableCell {
     boolean isConstrained = width == 1 && table.column(cellX).isConstrained();
     if (specifiedMaxWidth.isBounded() && specifiedWidth.isBounded()) {
       usedWidth = Math.max(usedWidth, Math.min(specifiedMaxWidth.value(), specifiedWidth.value()));
-    } else if (specifiedMaxWidth.isBounded() && !isConstrained) {
-      usedWidth = Math.max(usedWidth, Math.min(specifiedMaxWidth.value(), minContentWidth));
-    } else if (specifiedMaxWidth.isBounded()) {
+    } else if (specifiedMaxWidth.isBounded() && isConstrained) {
       usedWidth = Math.max(usedWidth, specifiedMaxWidth.value());
+    } else if (specifiedMaxWidth.isBounded()) {
+      usedWidth = Math.max(usedWidth, Math.min(specifiedMaxWidth.value(), maxContentWidth));
+    } else if (!isConstrained) {
+      usedWidth = Math.max(usedWidth, maxContentWidth);
     }
 
-    return usedWidth;
+    return maxContentWidth;// usedWidth;
   }
 
   private float baselineMinContentWidth() {

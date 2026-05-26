@@ -88,8 +88,8 @@ public final class TableFormer {
   private static void processRow(
     Table table, TableFormerBookkeeping bookkeeping, ElementBox refBox
   ) {
-    if (bookkeeping.yHeight > bookkeeping.yCurrent) {
-      bookkeeping.yCurrent++;
+    if (bookkeeping.yCurrent == bookkeeping.yHeight) {
+      bookkeeping.yHeight++;
     }
     int xCurrent = 0;
     growDownwardGrowingCells(table, bookkeeping);

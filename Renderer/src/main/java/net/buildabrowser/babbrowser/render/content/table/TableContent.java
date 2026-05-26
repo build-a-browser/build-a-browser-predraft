@@ -111,14 +111,13 @@ public class TableContent implements BoxContent {
 
   private void layoutCellsAndHeights(Table table, float[] rowHeights) {
     for (int x = 0; x < table.width(); x++) {
-      float columnWidth = table.column(x).usedWidth();
       for (int y = 0; y < table.height(); y++) {
         for (int z = 0; table.cell(x, y, z) != null; z++) {
           TableCell cell = table.cell(x, y, z);
           if (cell.getRelatedFragment() != null) continue;
 
           UnmanagedBoxFragment fragment = cell.cellBox().layout(
-            LayoutConstraint.of(columnWidth), LayoutConstraint.AUTO);
+            LayoutConstraint.of(cellWidth(table, cell)), LayoutConstraint.AUTO);
           cell.setRelatedFragment(fragment);
 
           LayoutConstraint fragmentHeight = SizingHeightUtil.evaluateAdjustedHeightSize(
@@ -133,6 +132,14 @@ public class TableContent implements BoxContent {
         }
       }
     }
+  }
+
+  private float cellWidth(Table table, TableCell cell) {
+    float totalWidth = 0;
+    for (int x = cell.cellX(); x < cell.cellX() + cell.width(); x++) {
+      totalWidth += table.column(x).usedWidth();
+    }
+    return totalWidth;
   }
 
   private List<UnmanagedBoxFragment> positionCells(Table table, float[] rowHeights) {

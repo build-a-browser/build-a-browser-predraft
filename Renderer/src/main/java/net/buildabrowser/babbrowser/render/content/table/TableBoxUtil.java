@@ -58,7 +58,7 @@ public final class TableBoxUtil {
   public static boolean isTableRowGroup(Box currentElement) {
     if (!(currentElement instanceof ElementBox elementBox)) return false;
     OuterDisplayValue displayValue = outerDisplayValue(elementBox.activeStyles());
-    return displayValue.equals(OuterDisplayValue.TABLE_ROW_GROUP);
+    return isLikeTableRowGroup(displayValue);
   }
 
   private static boolean isTableTrack(ElementBox elementBox) {
@@ -71,8 +71,15 @@ public final class TableBoxUtil {
   private static boolean isTableTrackGroup(ElementBox elementBox) {
     OuterDisplayValue displayValue = outerDisplayValue(elementBox.activeStyles());
     return
-      displayValue.equals(OuterDisplayValue.TABLE_ROW_GROUP)
+      isLikeTableRowGroup(displayValue)
       || displayValue.equals(OuterDisplayValue.TABLE_COLUMN_GROUP);
+  }
+
+  private static boolean isLikeTableRowGroup(OuterDisplayValue displayValue) {
+    return
+      displayValue.equals(OuterDisplayValue.TABLE_ROW_GROUP)
+      || displayValue.equals(OuterDisplayValue.TABLE_HEADER_GROUP)
+      || displayValue.equals(OuterDisplayValue.TABLE_FOOTER_GROUP);
   }
 
 }

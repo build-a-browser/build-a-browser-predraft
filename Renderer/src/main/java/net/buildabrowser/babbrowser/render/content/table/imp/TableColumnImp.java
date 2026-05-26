@@ -245,7 +245,7 @@ public class TableColumnImp implements TableColumn {
   }
 
   private float maxContentWidthSpan(int colSpan) {
-    float largestMax = minContentWidth(colSpan - 1);
+    float largestMax = maxContentWidth(colSpan - 1);
     for (int y = 0; y < table.height(); y++) {
       int i = 0;
       TableCell cell = table.cell(colX, y, i);

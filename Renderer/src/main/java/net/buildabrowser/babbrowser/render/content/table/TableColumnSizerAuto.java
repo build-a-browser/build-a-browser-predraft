@@ -219,7 +219,7 @@ public final class TableColumnSizerAuto {
 
   private static boolean isRule2Column(TableColumn column) {
     return
-      column.isConstrained()
+      !column.isConstrained()
       && column.intrinsicPercentage() == 0;
   }
 
