@@ -161,7 +161,7 @@ public class TableCellImp implements TableCell {
       usedWidth = Math.max(usedWidth, maxContentWidth);
     }
 
-    return maxContentWidth;// usedWidth;
+    return usedWidth;
   }
 
   private float baselineMinContentWidth() {
@@ -191,8 +191,7 @@ public class TableCellImp implements TableCell {
   }
 
   private float baselineBorderSpacing() {
-    // TODO: Compute baseline border spacing
-    return 0;
+    return table.spacings().hSpace() * (width - 1);
   }
 
 }

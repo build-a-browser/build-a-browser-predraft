@@ -1,8 +1,15 @@
 package net.buildabrowser.babbrowser.render.content.table;
 
+import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
 public interface TableColumn {
+
+  ElementBox columnBox();
+
+  float usedWidth();
+
+  void setUsedWidth(float usedWidth);
   
   float minContentWidth();
 
@@ -11,10 +18,6 @@ public interface TableColumn {
   float maxContentWidth();
 
   float maxContentWidth(int colSpan);
-
-  float usedWidth();
-
-  void setUsedWidth(float usedWidth);
 
   boolean isConstrained();
 

@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.render.content.table;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.content.table.TableContent.BorderSpacings;
 import net.buildabrowser.babbrowser.render.content.table.imp.TableImp;
 
 public interface Table {
@@ -19,11 +20,21 @@ public interface Table {
 
   void markSize(int width, int height);
 
-  void createColumns();
+  void createTracks();
 
   List<TableColumn> columns();
 
+  List<TableRow> rows();
+
+  List<ColumnGroup> columnGroups();
+
+  List<RowGroup> rowGroups();
+
   TableColumn column(int colX);
+
+  TableRow row(int rowY);
+
+  BorderSpacings spacings();
 
   int width();
 
@@ -31,8 +42,12 @@ public interface Table {
 
   static record RowGroup(int yStart, int yHeight, ElementBox groupBox) {}
 
-  static Table create(ElementBox tableBox) {
-    return new TableImp(tableBox);
+  static record ColumnGroup(int xStart, int xWidth, ElementBox groupBox) {}
+
+  static Table create(
+    ElementBox tableBox, BorderSpacings spacings
+  ) {
+    return new TableImp(tableBox, spacings);
   }
 
 }

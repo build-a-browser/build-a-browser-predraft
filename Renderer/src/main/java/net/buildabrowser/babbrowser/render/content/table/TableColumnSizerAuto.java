@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.render.content.table;
 
 import java.util.List;
 
+import net.buildabrowser.babbrowser.render.content.table.TableContent.BorderSpacings;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
 public final class TableColumnSizerAuto {
@@ -17,22 +18,27 @@ public final class TableColumnSizerAuto {
 
   public static void assignTableWidths(
     LayoutConstraint widthConstraint,
-    List<TableColumn> columns
+    List<TableColumn> columns,
+    BorderSpacings borderSpacings
   ) {
+    LayoutConstraint assignableWidth = widthConstraint.isBounded() ?
+      LayoutConstraint.of(Math.max(0,
+        widthConstraint.value() - borderSpacings.hSpace() * (columns.size() + 1))) :
+      widthConstraint;
     if (widthConstraint.isBounded()) {
-      boolean didAssign = assignInterpolatedTableWidths(widthConstraint, columns);
+      boolean didAssign = assignInterpolatedTableWidths(assignableWidth, columns);
       if (didAssign) return;
     }
 
     for (TableColumn column: columns) {
-      column.setUsedWidth(column.maxContentSizingGuess(widthConstraint));
+      column.setUsedWidth(column.maxContentSizingGuess(assignableWidth));
     }
     if (!widthConstraint.isBounded()) return;
-    distributeExcessWidthAuto(widthConstraint, columns);
+    distributeExcessWidthAuto(assignableWidth, columns);
   }
 
   private static boolean assignInterpolatedTableWidths(
-    LayoutConstraint widthConstraint,
+    LayoutConstraint assignableWidth,
     List<TableColumn> columns
   ) {
     float closestUnder = -1;
@@ -42,17 +48,17 @@ public final class TableColumnSizerAuto {
     float[] closestOverValues = null;
 
     for (ColumnSizer sizer: TABLE_SIZERS) {
-      float[] columnSizes = determineColumnSizes(columns, widthConstraint, sizer);
+      float[] columnSizes = determineColumnSizes(columns, assignableWidth, sizer);
       float constraintTotal = TableSizeUtil.sumSizes(columnSizes);
       if (
         constraintTotal > closestUnder
-        && constraintTotal <= widthConstraint.floatValue()
+        && constraintTotal <= assignableWidth.floatValue()
       ) {
         closestUnder = constraintTotal;
         closestUnderValues = columnSizes;
       } else if (
         constraintTotal < closestOver
-        && constraintTotal >= widthConstraint.floatValue()
+        && constraintTotal >= assignableWidth.floatValue()
       ) {
         closestOver = constraintTotal;
         closestOverValues = columnSizes;
@@ -63,7 +69,7 @@ public final class TableColumnSizerAuto {
 
     float overWeight =
       closestOver == closestUnder ? 0 :
-      (widthConstraint.value() - closestUnder) / (closestOver - closestUnder);
+      (assignableWidth.value() - closestUnder) / (closestOver - closestUnder);
 
     int i = 0;
     for (TableColumn column: columns) {
@@ -89,10 +95,13 @@ public final class TableColumnSizerAuto {
     return columnSizes;
   }
   
-  private static void distributeExcessWidthAuto(LayoutConstraint widthConstraint, List<TableColumn> columns) {
-    float excessWidth = widthConstraint.value();
+  private static void distributeExcessWidthAuto(
+    LayoutConstraint assignableWidth,
+    List<TableColumn> columns
+  ) {
+    float excessWidth = assignableWidth.value();
     for (TableColumn column: columns) {
-      excessWidth -= column.maxContentSizingGuess(widthConstraint);
+      excessWidth -= column.maxContentSizingGuess(assignableWidth);
     }
     if (excessWidth <= 0) return;
     

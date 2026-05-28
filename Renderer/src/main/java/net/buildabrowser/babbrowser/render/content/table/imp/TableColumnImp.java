@@ -41,6 +41,11 @@ public class TableColumnImp implements TableColumn {
   }
 
   @Override
+  public ElementBox columnBox() {
+    return this.columnBox;
+  }
+
+  @Override
   public boolean isConstrained() {
     // TODO: Account for min/max-content keyword, and group
     ActiveStyles columnStyles = columnBox.activeStyles();

@@ -3,9 +3,14 @@ package net.buildabrowser.babbrowser.render.content.table;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.table.BorderCollapseValue;
+import net.buildabrowser.babbrowser.cssbase.property.table.BorderSpacingValue;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.SizingHeightUtil;
+import net.buildabrowser.babbrowser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
@@ -23,7 +28,7 @@ public class TableContent implements BoxContent {
 
   private final ElementBox rootBox;
   
-  private SizedTable sizedTable;
+  private Table table;
 
   public TableContent(ElementBox rootBox) {
     this.rootBox = rootBox;
@@ -39,12 +44,12 @@ public class TableContent implements BoxContent {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    Table table = Table.create(rootBox);
+    BorderSpacings borderSpacings = determineBorderSpacing();
+    this.table = Table.create(rootBox, borderSpacings);
     TableFormer.formTable(table, rootBox);
-    table.createColumns();
+    table.createTracks();
 
     if (table.width() == 0) {
-      this.sizedTable = new SizedTable(table, new float[0]);
       return new UnmanagedBoxFragment(
         LayoutUtil.constraintOrDim(widthConstraint, 0),
         LayoutUtil.constraintOrDim(heightConstraint, 0),
@@ -54,8 +59,12 @@ public class TableContent implements BoxContent {
 
     // TODO: Need to merge unspecified columns with only spans
 
-    float gridMin = TableSizeUtil.sumMinWidths(table.columns());
-    float gridMax = TableSizeUtil.sumMaxWidths(table.columns());
+    List<TableColumn> columns = table.columns();
+    float hSpaceTotal = (columns.size() + 1) * borderSpacings.hSpace();
+    float vSpaceTotal = (columns.size() + 1) * borderSpacings.vSpace();
+
+    float gridMin = TableSizeUtil.sumMinWidths(columns) + hSpaceTotal;
+    float gridMax = TableSizeUtil.sumMaxWidths(columns) + hSpaceTotal;
 
     if (widthConstraint.isPreLayoutConstraint()) {
       float usedWidth = widthConstraint.type().equals(LayoutConstraintType.MAX_CONTENT) ?
@@ -71,18 +80,20 @@ public class TableContent implements BoxContent {
       widthConstraint = LayoutConstraint.of(gridMin);
     }
 
-    TableColumnSizerAuto.assignTableWidths(widthConstraint, table.columns());
+    TableColumnSizerAuto.assignTableWidths(
+      widthConstraint, columns, borderSpacings);
 
-    float[] rowHeights = new float[table.height()];
-    layoutCellsAndHeights(table, rowHeights);
+    layoutCellsAndHeights(table);
     // TODO: Respect alignments and explicit row heights
-    positionCells(table, rowHeights);
+    positionCells(table);
 
-    this.sizedTable = new SizedTable(table, rowHeights);
-    float totalHeight = TableSizeUtil.sumSizes(rowHeights);
+    float totalHeight = TableSizeUtil.sumHeights(table.rows()) + vSpaceTotal;
     float inkWidth = widthConstraint.isBounded() ?
       Math.max(widthConstraint.floatValue(), gridMin) :
       gridMax;
+
+    positionTracksAndTrackGroups(table, inkWidth, totalHeight);
+
     return new UnmanagedBoxFragment(
       LayoutUtil.constraintOrDim(widthConstraint, gridMax),
       LayoutUtil.constraintOrDim(heightConstraint, totalHeight),
@@ -105,13 +116,14 @@ public class TableContent implements BoxContent {
     // TODO: Implement this
   }
 
-  public SizedTable sizedTable() {
-    return this.sizedTable;
+  public Table table() {
+    return this.table;
   }
 
-  private void layoutCellsAndHeights(Table table, float[] rowHeights) {
+  private void layoutCellsAndHeights(Table table) {
     for (int x = 0; x < table.width(); x++) {
       for (int y = 0; y < table.height(); y++) {
+        float rowHeight = 0;
         for (int z = 0; table.cell(x, y, z) != null; z++) {
           TableCell cell = table.cell(x, y, z);
           if (cell.getRelatedFragment() != null) continue;
@@ -128,8 +140,10 @@ public class TableContent implements BoxContent {
             cell.getRelatedFragment().height(Measurement.CONTENT);
           // cell.height() > 1 is technically unspecified behaviour
           float itemHeight = usedHeight / cell.height();
-          rowHeights[y] = Math.max(rowHeights[y], itemHeight);
+          
+          rowHeight = Math.max(rowHeight, itemHeight);
         }
+        table.row(y).setUsedHeight(rowHeight);
       }
     }
   }
@@ -142,15 +156,52 @@ public class TableContent implements BoxContent {
     return totalWidth;
   }
 
-  private List<UnmanagedBoxFragment> positionCells(Table table, float[] rowHeights) {
+  private List<UnmanagedBoxFragment> positionTracksAndTrackGroups(
+    Table table, float tableWidth, float tableHeight
+  ) {
     List<UnmanagedBoxFragment> fragments = new ArrayList<>();
 
+    BorderSpacings borderSpacings = table.spacings();
     float currentX = 0;
     for (int x = 0; x < table.width(); x++) {
+      currentX += borderSpacings.hSpace();
+      TableColumn column = table.column(x);
+
+      // TODO: Also need to update groups
+      ElementBox columnBox = column.columnBox();
+      columnBox.updatePositioningFragment(
+        new UnmanagedBoxFragment(currentX, 0, column.usedWidth(), tableHeight, columnBox));
+      currentX += column.usedWidth();
+    }
+
+    float currentY = 0;
+    for (int y = 0; y < table.height(); y++) {
+      currentY += borderSpacings.vSpace();
+      TableRow row = table.row(y);
+
+      // TODO: Also need to update groups
+      ElementBox rowBox = row.rowBox();
+      rowBox.updatePositioningFragment(
+        new UnmanagedBoxFragment(0, currentY, tableWidth, row.usedHeight(), rowBox));
+      currentY += row.usedHeight();
+    }
+
+    return fragments;
+  }
+
+  private List<UnmanagedBoxFragment> positionCells(Table table) {
+    List<UnmanagedBoxFragment> fragments = new ArrayList<>();
+
+    BorderSpacings borderSpacings = table.spacings();
+    float currentX = 0;
+    for (int x = 0; x < table.width(); x++) {
+      currentX += borderSpacings.hSpace();
       TableColumn column = table.column(x);
 
       float currentY = 0;
       for (int y = 0; y < table.height(); y++) {
+        currentY += borderSpacings.vSpace();
+
         for (int z = 0; table.cell(x, y, z) != null; z++) {
           TableCell cell = table.cell(x, y, z);
           if (cell.getRelatedFragment() == null) continue;
@@ -158,7 +209,7 @@ public class TableContent implements BoxContent {
           
           cell.getRelatedFragment().setPos(currentX, currentY);
         }
-        currentY += rowHeights[y];
+        currentY += table.rows().get(y).usedHeight();
       }
       currentX += column.usedWidth();
     }
@@ -166,6 +217,29 @@ public class TableContent implements BoxContent {
     return fragments;
   }
 
-  public static record SizedTable(Table table, float[] columnHeights) {}
+  private BorderSpacings determineBorderSpacing() {
+    CSSValue borderCollapse = rootBox.activeStyles().getProperty(CSSProperty.BORDER_COLLAPSE);
+    if (!(borderCollapse.equals(BorderCollapseValue.SEPARATE))) return BorderSpacings.ZERO;
+
+    CSSValue borderSpacingValue = rootBox.activeStyles().getProperty(CSSProperty.BORDER_SPACING);
+    if (!(borderSpacingValue instanceof BorderSpacingValue borderSpacingValues)) return BorderSpacings.ZERO;
+
+    LayoutConstraint borderHSize = SizingUtil.evaluateBaseSize(
+      rootBox.layoutContext(), LayoutConstraint.AUTO, borderSpacingValues.hSpace());
+    if (!borderHSize.isBounded()) return BorderSpacings.ZERO;
+
+    LayoutConstraint borderVSize = SizingUtil.evaluateBaseSize(
+      rootBox.layoutContext(), LayoutConstraint.AUTO, borderSpacingValues.vSpace());
+    if (!borderVSize.isBounded()) return BorderSpacings.ZERO;
+
+    return new BorderSpacings(borderHSize.value(), borderVSize.value());
+  }
+
+  // TODO: Avoid needing this wrapper
+  public static record BorderSpacings(float hSpace, float vSpace) {
+
+    public static BorderSpacings ZERO = new BorderSpacings(0, 0);
+
+  }
   
 }

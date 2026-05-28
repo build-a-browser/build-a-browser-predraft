@@ -24,6 +24,15 @@ public final class TableSizeUtil {
     return totalWidth;
   }
 
+  public static float sumHeights(List<TableRow> rows) {
+    float totalHeight = 0;
+    for (TableRow row: rows) {
+      totalHeight += row.usedHeight();
+    }
+
+    return totalHeight;
+  }
+
   public static float sumSizes(float[] columnWidths) {
     float totalWidth = 0;
     for (float width: columnWidths) {

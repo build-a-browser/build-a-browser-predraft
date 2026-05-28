@@ -11,19 +11,27 @@ import net.buildabrowser.babbrowser.render.content.table.Table;
 import net.buildabrowser.babbrowser.render.content.table.TableBoxUtil;
 import net.buildabrowser.babbrowser.render.content.table.TableCell;
 import net.buildabrowser.babbrowser.render.content.table.TableColumn;
+import net.buildabrowser.babbrowser.render.content.table.TableContent.BorderSpacings;
+import net.buildabrowser.babbrowser.render.content.table.TableRow;
 
 public class TableImp implements Table {
 
   private final ElementBox tableBox;
+  private final BorderSpacings spacings;
 
   // Multiple layers in case of overlapping cells
   private TableCellImp[][][] cells;
 
   private int width = -1, height = -1;
   private List<TableColumn> columns;
+  private List<TableRow> rows;
 
-  public TableImp(ElementBox tableBox) {
+  public TableImp(
+    ElementBox tableBox,
+    BorderSpacings spacings
+  ) {
     this.tableBox = tableBox;
+    this.spacings = spacings;
     this.cells = new TableCellImp[1][4][4];
   }
 
@@ -36,7 +44,6 @@ public class TableImp implements Table {
   @Override
   public void assignRowGroup(RowGroup group) {
     // TODO Auto-generated method stub
-    
   }
 
   @Override
@@ -79,13 +86,16 @@ public class TableImp implements Table {
   }
 
   @Override
-  public void createColumns() {
+  public void createTracks() {
     this.columns = new ArrayList<>(width);
     int specWidth = createSpecifiedColumns(0, tableBox);
     for (int x = specWidth; x < width; x++) {
       ElementBox colBox = ElementBox.createAnonymous(tableBox, BoxLevel.INLINE_LEVEL);
       columns.add(new TableColumnImp(this, x, colBox));
     }
+
+    this.rows = new ArrayList<>();
+    createSpecifiedRows(0, tableBox);
   }
 
   @Override
@@ -95,9 +105,38 @@ public class TableImp implements Table {
   }
 
   @Override
+  public List<TableRow> rows() {
+    assert this.rows != null;
+    return rows;
+  }
+
+  @Override
+  public List<ColumnGroup> columnGroups() {
+    // TODO: Implement
+    return List.of();
+  }
+
+  @Override
+  public List<RowGroup> rowGroups() {
+    // TODO: Implement
+    return List.of();
+  }
+
+  @Override
   public TableColumn column(int colX) {
     assert this.columns != null;
     return columns.get(colX);
+  }
+
+  @Override
+  public TableRow row(int rowY) {
+    assert this.rows != null;
+    return rows.get(rowY);
+  }
+
+  @Override
+  public BorderSpacings spacings() {
+    return this.spacings;
   }
 
   @Override
@@ -160,6 +199,27 @@ public class TableImp implements Table {
         && TableBoxUtil.isTableColumn(nextBox)
       ) {
         columns.add(new TableColumnImp(this, x, colBox));
+        x++;
+      }
+    }
+
+    return x;
+  }
+
+  private int createSpecifiedRows(int x, ElementBox parentBox) {
+    ElementBoxIterator childIt = parentBox.childBoxes();
+    while (childIt.hasNext() && x < width) {
+      Box nextBox = childIt.next();
+      if (
+        nextBox instanceof ElementBox elBox
+        && TableBoxUtil.isTableRowGroup(nextBox)
+      ) {
+        x = createSpecifiedRows(x, elBox);
+      } else if (
+        nextBox instanceof ElementBox rowBox
+        && TableBoxUtil.isTableRow(nextBox)
+      ) {
+        rows.add(new TableRowImp(rowBox));
         x++;
       }
     }

@@ -5,6 +5,7 @@ import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.flow.FlowRootContent;
+import net.buildabrowser.babbrowser.render.layout.LayoutContext;
 
 public class AnonymousElementBoxImp extends AbstractElementBoxImp {
 
@@ -39,5 +40,19 @@ public class AnonymousElementBoxImp extends AbstractElementBoxImp {
 
   @Override
   public void update() {}
+
+
+  @Override
+  public LayoutContext layoutContext() {
+    if (super.layoutContext() != null) {
+      return super.layoutContext();
+    }
+
+    if (parentBox() instanceof ElementBox parentBox) {
+      return parentBox.layoutContext();
+    }
+
+    return null;
+  }
   
 }

@@ -17,7 +17,7 @@ application {
         '-XX:G1PeriodicGCInterval=3000',
         '-XX:+G1PeriodicGCInvokesConcurrent',
         '-XX:+UnlockExperimentalVMOptions', '-XX:+UseCompactObjectHeaders',
-        '-Djava.net.preferIPv4Stack=true'
+        '-Djava.net.preferIPv4Stack=true', '-XX:CICompilerCount=2'
     ]
 }
 

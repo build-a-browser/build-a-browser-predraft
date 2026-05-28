@@ -45,6 +45,11 @@ section {
   display: block;
 }
 
+table {
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+
 /* TODO: This needs to only occur in quirks mode */
 table {
   text-align: initial;
