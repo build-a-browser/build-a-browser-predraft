@@ -17,6 +17,9 @@ public interface TableCell {
 
   TableComputedBorders borders();
 
+  // TODO: Having to have a second copy is not great
+  TableComputedBorders preservedBorders();
+
   void setRelatedFragment(UnmanagedBoxFragment fragment);
 
   UnmanagedBoxFragment getRelatedFragment();

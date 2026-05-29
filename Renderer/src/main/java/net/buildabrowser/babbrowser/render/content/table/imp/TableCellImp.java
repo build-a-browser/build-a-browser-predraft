@@ -20,6 +20,7 @@ public class TableCellImp implements TableCell {
   private final int width;
 
   private final TableComputedBorders borders = new TableComputedBorders();
+  private final TableComputedBorders preservedBorders = new TableComputedBorders();
   
   private int height;
   private UnmanagedBoxFragment relatedFragment;
@@ -68,6 +69,11 @@ public class TableCellImp implements TableCell {
   @Override
   public TableComputedBorders borders() {
     return this.borders;
+  }
+
+  @Override
+  public TableComputedBorders preservedBorders() {
+    return this.preservedBorders;
   }
 
   @Override
