@@ -12,6 +12,7 @@ import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.render.content.table.imp.TableSeparateBorderPainter;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
@@ -23,12 +24,13 @@ public class TableContent implements BoxContent {
   // TODO: Don't forget to handle out-of-flow items
 
   private static final EventHandler EVENT_HANDLER = new TableEventHandler();
+  private static final TableBorderPainter SEPARATE_BORDER_PAINTER = new TableSeparateBorderPainter();
 
   private final TableContentPainter painter = new TableContentPainter(this);
-
   private final ElementBox rootBox;
   
   private Table table;
+  private TableBorderPainter borderPainter;
 
   public TableContent(ElementBox rootBox) {
     this.rootBox = rootBox;
@@ -58,6 +60,9 @@ public class TableContent implements BoxContent {
     }
 
     // TODO: Need to merge unspecified columns with only spans
+
+    this.borderPainter = SEPARATE_BORDER_PAINTER;
+    borderPainter.assignBorders(table, widthConstraint);
 
     List<TableColumn> columns = table.columns();
     float hSpaceTotal = (columns.size() + 1) * borderSpacings.hSpace();
@@ -120,40 +125,60 @@ public class TableContent implements BoxContent {
     return this.table;
   }
 
+  public TableBorderPainter borderPainter() {
+    return this.borderPainter;
+  }
+
   private void layoutCellsAndHeights(Table table) {
-    for (int x = 0; x < table.width(); x++) {
-      for (int y = 0; y < table.height(); y++) {
-        float rowHeight = 0;
+    for (int y = 0; y < table.height(); y++) {
+      float rowHeight = 0;
+      for (int x = 0; x < table.width(); x++) {
         for (int z = 0; table.cell(x, y, z) != null; z++) {
           TableCell cell = table.cell(x, y, z);
           if (cell.getRelatedFragment() != null) continue;
 
           UnmanagedBoxFragment fragment = cell.cellBox().layout(
-            LayoutConstraint.of(cellWidth(table, cell)), LayoutConstraint.AUTO);
+            LayoutConstraint.of(innerCellWidth(table, cell)), LayoutConstraint.AUTO);
           cell.setRelatedFragment(fragment);
 
           LayoutConstraint fragmentHeight = SizingHeightUtil.evaluateAdjustedHeightSize(
             LayoutConstraint.AUTO, cell.cellBox());
 
-          float usedHeight = fragmentHeight.isBounded() ?
+          float innerHeight = fragmentHeight.isBounded() ?
             fragmentHeight.value() :
             cell.getRelatedFragment().height(Measurement.CONTENT);
           // cell.height() > 1 is technically unspecified behaviour
+          float usedHeight = outerCellHeight(cell, innerHeight);
           float itemHeight = usedHeight / cell.height();
           
           rowHeight = Math.max(rowHeight, itemHeight);
         }
-        table.row(y).setUsedHeight(rowHeight);
       }
+      table.row(y).setUsedHeight(rowHeight);
     }
   }
 
-  private float cellWidth(Table table, TableCell cell) {
-    float totalWidth = 0;
+  private float innerCellWidth(Table table, TableCell cell) {
+    float totalOuterWidth = 0;
     for (int x = cell.cellX(); x < cell.cellX() + cell.width(); x++) {
-      totalWidth += table.column(x).usedWidth();
+      totalOuterWidth += table.column(x).usedWidth();
     }
-    return totalWidth;
+
+    float[] padding = cell.cellBox().dimensions().getComputedPadding();
+    float totalHPadding = padding[2] + padding[3];
+    TableComputedBorders borders = cell.borders();
+    float totalHBorder = borders.leftBorder.borderWidth() + borders.rightBorder.borderWidth();
+
+    return totalOuterWidth - totalHPadding - totalHBorder;
+  }
+
+  private float outerCellHeight(TableCell cell, float innerHeight) {
+    float[] padding = cell.cellBox().dimensions().getComputedPadding();
+    float totalVPadding = padding[0] + padding[1];
+    TableComputedBorders borders = cell.borders();
+    float totalVBorder = borders.topBorder.borderWidth() + borders.bottomBorder.borderWidth();
+
+    return innerHeight + totalVPadding + totalVBorder;
   }
 
   private List<UnmanagedBoxFragment> positionTracksAndTrackGroups(

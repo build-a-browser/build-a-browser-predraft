@@ -15,6 +15,8 @@ public interface TableCell {
 
   ElementBox cellBox();
 
+  TableComputedBorders borders();
+
   void setRelatedFragment(UnmanagedBoxFragment fragment);
 
   UnmanagedBoxFragment getRelatedFragment();

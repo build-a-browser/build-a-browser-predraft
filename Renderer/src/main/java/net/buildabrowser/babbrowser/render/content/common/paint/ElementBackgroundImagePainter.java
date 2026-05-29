@@ -31,7 +31,12 @@ import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
 
 public class ElementBackgroundImagePainter {
   
-  public static void paintBackgroundImages(PaintCanvas canvas, BoxFragment fragment) {
+  public static void paintBackgroundImages(
+    PaintCanvas canvas,
+    BoxFragment fragment,
+    float fragmentWidth,
+    float fragmentHeight
+  ) {
     ManyResult bgImages = (ManyResult) fragment.box().activeStyles().getProperty(CSSProperty.BACKGROUND_IMAGE);
     ManyResult bgRepeats = (ManyResult) fragment.box().activeStyles().getProperty(CSSProperty.BACKGROUND_REPEAT);
     ManyResult bgAttachments = (ManyResult) fragment.box().activeStyles().getProperty(CSSProperty.BACKGROUND_ATTACHMENT);
@@ -46,11 +51,12 @@ public class ElementBackgroundImagePainter {
     for (int i = bgImages.values().size() - 1; i >= 0; i--) {
       clipCanvas(
         canvas, fragment,
+        fragmentWidth, fragmentHeight,
         getBGLayerProperty(bgClips, i));
 
       if (isInitial) {
         canvas.alterPaint(paint -> paint.setColor(ActiveStylesUtil.backgroundColor(fragment.box().activeStyles())));
-        canvas.drawBox(0, 0, fragment.width(Measurement.BORDER), fragment.height(Measurement.BORDER));
+        canvas.drawBox(0, 0, fragmentWidth, fragmentHeight);
         isInitial = false;
       }
 
@@ -72,6 +78,7 @@ public class ElementBackgroundImagePainter {
 
       clipCanvas(
         canvas, fragment,
+        fragmentWidth, fragmentHeight,
         getBGLayerProperty(bgClips, i));
       
       paintBackground(
@@ -80,7 +87,9 @@ public class ElementBackgroundImagePainter {
         getBGLayerProperty(bgAttachments, i),
         getBGLayerProperty(bgPositions, i),
         getBGLayerProperty(bgOrigins, i),
-        getBGLayerProperty(bgSizes, i));
+        getBGLayerProperty(bgSizes, i),
+        fragmentWidth,
+        fragmentHeight);
     
       canvas.unclip();
     }
@@ -95,15 +104,17 @@ public class ElementBackgroundImagePainter {
     BackgroundAttachmentValue attachmentValue,
     BackgroundPositionValue positionValue,
     VisualBoxValue originValue,
-    CSSValue sizeValue
+    CSSValue sizeValue,
+    float fragmentWidth,
+    float fragmentHeight
   ) {
     ScrollBoxFragment scrollBoxFragment = fragment instanceof ScrollBoxFragment scrollBoxFragment_ ? scrollBoxFragment_ : null;
     boolean isFixed = attachmentValue.equals(BackgroundAttachmentValue.FIXED);
     boolean isLocal = attachmentValue.equals(BackgroundAttachmentValue.LOCAL) && scrollBoxFragment != null;
     Viewport viewport = fragment.box().layoutContext().global().viewport();
 
-    float vpW = fragment.width(Measurement.BORDER);
-    float vpH = fragment.height(Measurement.BORDER);
+    float vpW = fragmentWidth;
+    float vpH = fragmentHeight;
     if (isFixed) {
       vpW = viewport.width();
       vpH = viewport.height();
@@ -286,17 +297,18 @@ public class ElementBackgroundImagePainter {
 
   private static void clipCanvas(
     PaintCanvas canvas, BoxFragment fragment,
+    float fragmentWidth, float fragmentHeight,
     VisualBoxValue bgClip
   ) {
     float vpX = offsetImageX(0, fragment, bgClip);
     float vpY = offsetImageY(0, fragment, bgClip);
     float vpW = switch (bgClip) {
-      case BORDER_BOX -> fragment.width(Measurement.BORDER);
+      case BORDER_BOX -> fragmentWidth;
       case PADDING_BOX -> fragment.width(Measurement.PADDING);
       case CONTENT_BOX -> fragment.width(Measurement.CONTENT);
     };
     float vpH = switch (bgClip) {
-      case BORDER_BOX -> fragment.height(Measurement.BORDER);
+      case BORDER_BOX -> fragmentHeight;
       case PADDING_BOX -> fragment.height(Measurement.PADDING);
       case CONTENT_BOX -> fragment.height(Measurement.CONTENT);
     };

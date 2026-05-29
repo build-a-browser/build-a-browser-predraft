@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.render.content.common.paint.ElementBackgroun
 import net.buildabrowser.babbrowser.render.content.common.paint.ElementBackgroundPainter;
 import net.buildabrowser.babbrowser.render.content.table.Table.ColumnGroup;
 import net.buildabrowser.babbrowser.render.content.table.Table.RowGroup;
+import net.buildabrowser.babbrowser.render.content.table.imp.TableCellMetrics;
 import net.buildabrowser.babbrowser.render.paint.BoxPainter;
 import net.buildabrowser.babbrowser.render.paint.PaintUtil;
 import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
@@ -92,24 +93,47 @@ public class TableContentPainter implements BoxPainter {
     if (cell.cellX() != x || cell.cellY() != y)
       return;
 
-    paintFragmentBackground(canvas, childFragment);
+    paintCellBackground(
+      canvas, content.table(), cell, childFragment);
+    content.borderPainter().paintCellBorders(
+      canvas, content.table(), cell, childFragment);
+    // TODO: Also paint outline
     
     canvas.pushPaint();
     canvas.alterPaint(p -> p.incOffset(childFragment.posX(Measurement.CONTENT), childFragment.posY(Measurement.CONTENT)));
     // TODO: Skip if context differs
     PaintUtil.maybePaintFragment(
       childFragment, canvas, vpIntersection,
-      childFragment.painter()::paintBackground);
-    PaintUtil.maybePaintFragment(
-      childFragment, canvas, vpIntersection,
       childFragment.painter()::paint);
     canvas.popPaint();
   }
 
-  private void paintFragmentBackground(PaintCanvas canvas, BoxFragment fragment) {
+  private void paintFragmentBackground(
+    PaintCanvas canvas,
+    BoxFragment fragment
+  ) {
     canvas.pushPaint();
     canvas.alterPaint(p -> p.incOffset(fragment.posX(Measurement.BORDER), fragment.posY(Measurement.BORDER)));
-    ElementBackgroundImagePainter.paintBackgroundImages(canvas, fragment);
+    ElementBackgroundImagePainter.paintBackgroundImages(
+      canvas, fragment,
+      fragment.width(Measurement.BORDER),
+      fragment.height(Measurement.BORDER));
+    canvas.popPaint();
+  }
+
+  private void paintCellBackground(
+    PaintCanvas canvas,
+    Table table,
+    TableCell cell,
+    UnmanagedBoxFragment fragment
+  ) {
+    canvas.pushPaint();
+    canvas.alterPaint(p -> p.incOffset(fragment.posX(Measurement.BORDER), fragment.posY(Measurement.BORDER)));
+    // TODO: Do we or do we not need to call the actual fragment's paintBackground
+    ElementBackgroundImagePainter.paintBackgroundImages(
+      canvas, fragment,
+      TableCellMetrics.outerCellWidth(table, cell),
+      TableCellMetrics.outerCellHeight(table, cell));
     canvas.popPaint();
   }
   

@@ -95,7 +95,11 @@ public class TableImp implements Table {
     }
 
     this.rows = new ArrayList<>();
-    createSpecifiedRows(0, tableBox);
+    int specHeight = createSpecifiedRows(0, tableBox);
+    for (int y = specHeight; y < height; y++) {
+      ElementBox rowBox = ElementBox.createAnonymous(tableBox, BoxLevel.INLINE_LEVEL);
+      rows.add(new TableRowImp(rowBox));
+    }
   }
 
   @Override

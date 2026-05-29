@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxF
 import net.buildabrowser.babbrowser.render.content.table.Table;
 import net.buildabrowser.babbrowser.render.content.table.TableCell;
 import net.buildabrowser.babbrowser.render.content.table.TableColumn;
+import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
 // Unfortunately cannot be a record since height and relatedFragment are mutable...
@@ -17,6 +18,8 @@ public class TableCellImp implements TableCell {
   private final ElementBox cellBox;
   private final int cellX, cellY;
   private final int width;
+
+  private final TableComputedBorders borders = new TableComputedBorders();
   
   private int height;
   private UnmanagedBoxFragment relatedFragment;
@@ -60,6 +63,11 @@ public class TableCellImp implements TableCell {
 
   public void extend(int heightExtension) {
     this.height += heightExtension;
+  }
+
+  @Override
+  public TableComputedBorders borders() {
+    return this.borders;
   }
 
   @Override
@@ -125,9 +133,9 @@ public class TableCellImp implements TableCell {
       LayoutConstraint.AUTO, cellBox, cellStyles.getProperty(CSSProperty.MIN_WIDTH));
 
     if (specifiedMinWidth.isBounded()) {
-      return Math.max(specifiedMinWidth.value(), minContentWidth);
+      return outerWidth(Math.max(specifiedMinWidth.value(), minContentWidth));
     }
-    return minContentWidth;
+    return outerWidth(minContentWidth);
   }
 
   @Override
@@ -161,7 +169,7 @@ public class TableCellImp implements TableCell {
       usedWidth = Math.max(usedWidth, maxContentWidth);
     }
 
-    return usedWidth;
+    return outerWidth(usedWidth);
   }
 
   private float baselineMinContentWidth() {
@@ -188,6 +196,14 @@ public class TableCellImp implements TableCell {
     }
 
     return baselineMinContentWidth;
+  }
+
+  private float outerWidth(float innerWidth) {
+    float[] padding = cellBox.dimensions().getComputedPadding();
+    float totalHPadding = padding[2] + padding[3];
+    float totalHBorder = borders.leftBorder.borderWidth() + borders.rightBorder.borderWidth();
+
+    return innerWidth + totalHPadding + totalHBorder;
   }
 
   private float baselineBorderSpacing() {

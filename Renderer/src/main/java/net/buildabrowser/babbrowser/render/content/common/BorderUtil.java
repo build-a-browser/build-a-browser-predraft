@@ -30,7 +30,7 @@ public final class BorderUtil {
     childBox.dimensions().setComputedBorder(topBorder, bottomBorder, leftBorder, rightBorder);
   }
 
-  private static float computeBorder(
+  public static float computeBorder(
     CSSValue property,
     CSSValue styleProperty,
     ElementBox childBox,
