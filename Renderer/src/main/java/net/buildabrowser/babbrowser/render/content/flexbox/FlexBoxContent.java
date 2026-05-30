@@ -115,7 +115,7 @@ public class FlexBoxContent implements BoxContent {
 
     for (FlexItem item: items) {
       MarginUtil.computeSimpleMargin(item.box(), widthConstraint);
-      BorderUtil.computeBorder(item.box(), widthConstraint);
+      BorderUtil.computeBorder(item.box());
       PaddingUtil.computePadding(item.box(), widthConstraint);
       item.computeMinMaxSizes(mainSize, isVertical);
     }

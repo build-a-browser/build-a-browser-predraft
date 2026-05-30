@@ -73,9 +73,8 @@ public class FlowInlineLayout {
     } else if (box instanceof ElementBox elementBox) {
       // Might get computed twice for outer box, doesn't really matter
       LayoutConstraint widthConstraint = rootContent.blockLayout().activeContext().innerWidthConstraint();
-      BorderUtil.computeBorder(elementBox, widthConstraint);
+      BorderUtil.computeBorder(elementBox);
       PaddingUtil.computePadding(elementBox, widthConstraint);
-      
       
       if (!PositionUtil.affectsLayout(elementBox)) {
         stagingArea.pushStagedElement(new StagedUnmanagedBox(elementBox));

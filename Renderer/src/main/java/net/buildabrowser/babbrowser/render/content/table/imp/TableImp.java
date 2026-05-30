@@ -11,10 +11,13 @@ import net.buildabrowser.babbrowser.render.content.table.Table;
 import net.buildabrowser.babbrowser.render.content.table.TableBoxUtil;
 import net.buildabrowser.babbrowser.render.content.table.TableCell;
 import net.buildabrowser.babbrowser.render.content.table.TableColumn;
+import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders;
 import net.buildabrowser.babbrowser.render.content.table.TableContent.BorderSpacings;
 import net.buildabrowser.babbrowser.render.content.table.TableRow;
 
 public class TableImp implements Table {
+
+  private final TableComputedBorders borders = new TableComputedBorders();
 
   private final ElementBox tableBox;
   private final BorderSpacings spacings;
@@ -33,6 +36,16 @@ public class TableImp implements Table {
     this.tableBox = tableBox;
     this.spacings = spacings;
     this.cells = new TableCellImp[1][4][4];
+  }
+
+  @Override
+  public ElementBox tableBox() {
+    return this.tableBox;
+  }
+
+  @Override
+  public TableComputedBorders borders() {
+    return this.borders;
   }
 
   @Override

@@ -5,6 +5,7 @@ import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragmen
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.paint.ElementBackgroundImagePainter;
 import net.buildabrowser.babbrowser.render.content.common.paint.ElementBackgroundPainter;
+import net.buildabrowser.babbrowser.render.content.common.paint.ElementBorderPainter;
 import net.buildabrowser.babbrowser.render.content.table.Table.ColumnGroup;
 import net.buildabrowser.babbrowser.render.content.table.Table.RowGroup;
 import net.buildabrowser.babbrowser.render.content.table.imp.TableCellUtil;
@@ -22,6 +23,7 @@ public class TableContentPainter implements BoxPainter {
 
   @Override
   public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+    if (content.borderPainter() == null) return;
     paintColumnGroups(canvas, vpIntersection);
     paintColumns(canvas, vpIntersection);
     paintRowGroups(canvas, vpIntersection);
@@ -32,7 +34,13 @@ public class TableContentPainter implements BoxPainter {
   @Override
   public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
     // TODO: Adjust box to exclude captions
-    ElementBackgroundPainter.paintBackground(canvas, fragment);
+    ElementBackgroundImagePainter.paintBackgroundImages(
+      canvas, fragment,
+      fragment.width(Measurement.BORDER),
+      fragment.height(Measurement.BORDER));
+
+    ElementBorderPainter.paintBorders(canvas, fragment);
+    ElementBackgroundPainter.paintDebugOutlines(canvas, fragment);
   }
 
   private void paintColumnGroups(PaintCanvas canvas, int[] vpIntersection) {
@@ -69,10 +77,9 @@ public class TableContentPainter implements BoxPainter {
 
   private void paintCells(PaintCanvas canvas, int[] vpIntersection) {
     Table table = content.table();
-    TableCellUtil.forEachCell(table, (cell, x, y) -> {
+    TableCellUtil.forEachCell(table, cell -> {
       UnmanagedBoxFragment childFragment = cell.getRelatedFragment();
       if (childFragment == null) return;
-      if (cell.cellX() != x || cell.cellY() != y) return;
       canvas.pushPaint();
       paintCellBackground(canvas, table, cell, childFragment);
       content.borderPainter().paintCellBorders(canvas, table, cell, childFragment);
@@ -80,12 +87,11 @@ public class TableContentPainter implements BoxPainter {
       canvas.popPaint();
     });
 
-    content.borderPainter().paintSavedBorders(canvas, table, content.savedBorders());
+    content.borderPainter().paintSavedBorders(canvas, table);
 
-    TableCellUtil.forEachCell(table, (cell, x, y) -> {
+    TableCellUtil.forEachCell(table, cell -> {
       UnmanagedBoxFragment childFragment = cell.getRelatedFragment();
       if (childFragment == null) return;
-      if (cell.cellX() != x || cell.cellY() != y) return;
       canvas.pushPaint();
       canvas.alterPaint(p -> p.incOffset(
         childFragment.posX(Measurement.CONTENT),

@@ -1,34 +1,27 @@
-package net.buildabrowser.babbrowser.render.content.table.imp;
+package net.buildabrowser.babbrowser.render.content.table.imp.collapsed;
+
+import static net.buildabrowser.babbrowser.render.content.table.imp.collapsed.TableCollapsedBorderAssignerUtil.compareCellOrder;
+import static net.buildabrowser.babbrowser.render.content.table.imp.collapsed.TableCollapsedBorderAssignerUtil.isCurrentMoreSpecific;
+import static net.buildabrowser.babbrowser.render.content.table.imp.collapsed.TableCollapsedBorderAssignerUtil.strongerBorder;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
+import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.content.table.Table;
 import net.buildabrowser.babbrowser.render.content.table.TableCell;
+import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders;
 import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders.BorderSide;
 import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders.ComputedBorder;
 import net.buildabrowser.babbrowser.render.content.table.TableConflictOps;
+import net.buildabrowser.babbrowser.render.content.table.imp.TableCellUtil;;
 
+// All values are pre-divided, so don't divide by two where the spec says
 public final class TableBorderConflictResolver {
 
   private static final TableConflictOps RIGHT_CONFLICT_OPS = new TableRightConflictOps();
   private static final TableConflictOps BOTTOM_CONFLICT_OPS = new TableBottomConflictOps();
-
-  private static final List<CSSValue> BORDER_STYLE_ORDER = List.of(
-    BorderStyleValue.DOUBLE,
-    BorderStyleValue.SOLID,
-    BorderStyleValue.DASHED,
-    BorderStyleValue.DOTTED,
-    BorderStyleValue.RIDGE,
-    BorderStyleValue.OUTSET,
-    BorderStyleValue.GROOVE,
-    BorderStyleValue.INSET,
-    CSSValue.NONE
-  );
   
   private TableBorderConflictResolver() {}
 
@@ -37,43 +30,8 @@ public final class TableBorderConflictResolver {
       resolveBorderConflicts(RIGHT_CONFLICT_OPS, table, cell);
       resolveBorderConflicts(BOTTOM_CONFLICT_OPS, table, cell);
     });
-  }
 
-  public static int compareCellOrder(TableCell a, TableCell b) {
-    return
-      a.cellY() < b.cellY() ? -1 :
-      a.cellY() > b.cellY() ? 1 :
-      a.cellX() < b.cellX() ? -1 :
-      a.cellX() > b.cellX() ? 1 :
-      0;
-  }
-
-  public static boolean isCurrentMoreSpecific(
-    ComputedBorder oldBorder, ComputedBorder currentBorder
-  ) {
-    if (
-      oldBorder.borderStyle().equals(BorderStyleValue.HIDDEN)
-      && !currentBorder.borderStyle().equals(BorderStyleValue.HIDDEN)
-    ) return false;
-    if (
-      !oldBorder.borderStyle().equals(BorderStyleValue.HIDDEN)
-      && currentBorder.borderStyle().equals(BorderStyleValue.HIDDEN)
-    ) return true;
-
-    if (
-      oldBorder.borderWidth() > currentBorder.borderWidth()
-    ) return false;
-    if (
-      oldBorder.borderWidth() < currentBorder.borderWidth()
-    ) return true;
-
-    int oldBorderOrder = BORDER_STYLE_ORDER.indexOf(oldBorder.borderStyle());
-    int currentBorderOrder = BORDER_STYLE_ORDER.indexOf(currentBorder.borderStyle());
-
-    if (oldBorderOrder < currentBorderOrder) return false;
-    if (oldBorderOrder > currentBorderOrder) return true;
-
-    return false;
+    resolveTableBorderConflicts(table);
   }
   
   // TODO: There is no way this is performant
@@ -82,8 +40,8 @@ public final class TableBorderConflictResolver {
     TableConflictOps conflictOps,
     Table table, TableCell cell
   ) {
-    Set<TableCell> cellSet1 = new TreeSet<>(TableBorderConflictResolver::compareCellOrder);
-    Set<TableCell> cellSet2 = new TreeSet<>(TableBorderConflictResolver::compareCellOrder);
+    Set<TableCell> cellSet1 = new TreeSet<>(TableCollapsedBorderAssignerUtil::compareCellOrder);
+    Set<TableCell> cellSet2 = new TreeSet<>(TableCollapsedBorderAssignerUtil::compareCellOrder);
 
     int initPos = conflictOps.lockedStart(cell) + conflictOps.lockedRun(cell) - 1;
     for (int scan = conflictOps.scanStart(cell); scan < conflictOps.scanStart(cell) + conflictOps.scanRun(cell); scan++) {
@@ -121,6 +79,7 @@ public final class TableBorderConflictResolver {
 
     // Must have already been harmonized if border source is the opposite side
     int borderStart = conflictOps.lockedStart(cell) + conflictOps.lockedRun(cell);
+    if (borderStart >= table.width()) return;
     for (int scan = conflictOps.scanStart(cell); scan < conflictOps.scanStart(cell) + conflictOps.scanRun(cell); scan++) {
       for (int z = 0; conflictOps.getCell(table, borderStart, scan, z) != null; z++) {
         TableCell borderCell = conflictOps.getCell(table, borderStart, scan, z);
@@ -144,6 +103,7 @@ public final class TableBorderConflictResolver {
     )) return;
 
     int borderStart = conflictOps.lockedStart(cell) - 1;
+    if (borderStart < 0) return;
     for (int scan = conflictOps.scanStart(cell); scan < conflictOps.scanStart(cell) + conflictOps.scanRun(cell); scan++) {
       for (int z = 0; conflictOps.getCell(table, borderStart, scan, z) != null; z++) {
         TableCell borderCell = conflictOps.getCell(table, borderStart, scan, z);
@@ -194,6 +154,54 @@ public final class TableBorderConflictResolver {
     // TODO: Tracks and track groups
 
     return chosenBorder;
+  }
+
+  private static void resolveTableBorderConflicts(Table table) {
+    TableComputedBorders borders = table.borders();
+
+    ComputedBorder largestTopBorder = borders.topBorder;
+    for (int x = 0; x < table.width(); x++) {
+      for (int z = 0; table.cell(x, 0, z) != null; z++) {
+        TableComputedBorders cellBorders = table.cell(x, 0, z).borders();
+        cellBorders.topBorder = strongerBorder(cellBorders.topBorder, borders.topBorder);
+        largestTopBorder = strongerBorder(largestTopBorder, cellBorders.topBorder);
+      }
+    }
+
+    ComputedBorder largestBottomBorder = borders.bottomBorder;
+    for (int x = 0; x < table.width(); x++) {
+      for (int z = 0; table.cell(x, table.height() - 1, z) != null; z++) {
+        TableComputedBorders cellBorders = table.cell(x, table.height() - 1, z).borders();
+        cellBorders.bottomBorder = strongerBorder(cellBorders.bottomBorder, borders.bottomBorder);
+        largestBottomBorder = strongerBorder(largestBottomBorder, cellBorders.bottomBorder);
+      }
+    }
+
+    ComputedBorder largestLeftBorder = borders.leftBorder;
+    for (int y = 0; y < table.height(); y++) {
+      for (int z = 0; table.cell(0, y, z) != null; z++) {
+        TableComputedBorders cellBorders = table.cell(0, y, z).borders();
+        cellBorders.leftBorder = strongerBorder(cellBorders.leftBorder, borders.leftBorder);
+        largestLeftBorder = strongerBorder(largestLeftBorder, cellBorders.leftBorder);
+      }
+    }
+
+    ComputedBorder largestRightBorder = borders.rightBorder;
+    for (int y = 0; y < table.height(); y++) {
+      for (int z = 0; table.cell(table.width() - 1, y, z) != null; z++) {
+        TableComputedBorders cellBorders = table.cell(table.width() - 1, y, z).borders();
+        cellBorders.rightBorder = strongerBorder(cellBorders.rightBorder, borders.rightBorder);
+        largestRightBorder = strongerBorder(largestRightBorder, cellBorders.rightBorder);
+      }
+    }
+
+    ElementBoxDimensions tableDimensions = table.tableBox().dimensions();
+    tableDimensions.setComputedBorder(
+      largestTopBorder.borderWidth(),
+      largestBottomBorder.borderWidth(),
+      largestLeftBorder.borderWidth(),
+      largestRightBorder.borderWidth()
+    );
   }
 
 }

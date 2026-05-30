@@ -12,13 +12,20 @@ public final class PaintUtil {
   public static void maybePaintFragment(
     BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection, FragmentPaintFunc func
   ) {
+    maybePaintFragment(fragment, canvas, vpIntersection, func, Measurement.CONTENT);
+  }
+
+  public static void maybePaintFragment(
+    BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection,
+    FragmentPaintFunc func, Measurement measurement
+  ) {
     if (!aabbFragmentVp(fragment, vpIntersection)) return;
 
     int vX = vpIntersection[0], vY = vpIntersection[1], vW = vpIntersection[2], vH = vpIntersection[3];
     // Though the AABB check is done by border, fragments typically only care about vpIntersection for culling
     // children in their content section
-    vpIntersection[0] -= fragment.posX(Measurement.CONTENT);
-    vpIntersection[1] -= fragment.posY(Measurement.CONTENT);
+    vpIntersection[0] -= fragment.posX(measurement);
+    vpIntersection[1] -= fragment.posY(measurement);
     // TODO: Also intersect width/height
     func.paint(fragment, canvas, vpIntersection);
     

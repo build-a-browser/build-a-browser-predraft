@@ -7,6 +7,10 @@ import net.buildabrowser.babbrowser.render.content.table.TableContent.BorderSpac
 import net.buildabrowser.babbrowser.render.content.table.imp.TableImp;
 
 public interface Table {
+
+  ElementBox tableBox();
+
+  TableComputedBorders borders();
   
   boolean isSlotAssigned(int x, int y);
 

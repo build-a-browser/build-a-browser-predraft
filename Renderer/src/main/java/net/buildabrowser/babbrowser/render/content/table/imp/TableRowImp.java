@@ -1,9 +1,12 @@
 package net.buildabrowser.babbrowser.render.content.table.imp;
 
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders;
 import net.buildabrowser.babbrowser.render.content.table.TableRow;
 
 public class TableRowImp implements TableRow {
+
+  private final TableComputedBorders borders = new TableComputedBorders();
  
   private final ElementBox rowBox;
 
@@ -14,6 +17,16 @@ public class TableRowImp implements TableRow {
   }
 
   @Override
+  public ElementBox rowBox() {
+    return this.rowBox;
+  }
+
+  @Override
+  public TableComputedBorders borders() {
+    return this.borders;
+  }
+
+  @Override
   public float usedHeight() {
     return this.usedHeight;
   }
@@ -21,11 +34,6 @@ public class TableRowImp implements TableRow {
   @Override
   public void setUsedHeight(float usedHeight) {
     this.usedHeight = usedHeight;
-  }
-
-  @Override
-  public ElementBox rowBox() {
-    return this.rowBox;
   }
 
 }

@@ -62,7 +62,7 @@ public class FlowBlockLayout {
     for (Box childBox: box.childBoxes()) {
       if (childBox instanceof ElementBox elementBox) {
         // TODO: Maybe add a util method that groups all of this stuff
-        BorderUtil.computeBorder(elementBox, widthConstraint);
+        BorderUtil.computeBorder(elementBox);
         PaddingUtil.computePadding(elementBox, widthConstraint);
       }
       if (

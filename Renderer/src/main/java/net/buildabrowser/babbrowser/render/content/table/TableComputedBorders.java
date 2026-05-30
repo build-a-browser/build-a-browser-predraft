@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.render.content.table;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.render.content.common.paint.ElementBorderPainter;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
@@ -18,7 +19,7 @@ public class TableComputedBorders {
   public ComputedBorder rightBorder;
 
   public static record ComputedBorder(
-    TableCell sourceCell,
+    ElementBox sourceBox,
     BorderSide sourceSide,
     float borderWidth,
     CSSValue borderStyle
@@ -33,7 +34,7 @@ public class TableComputedBorders {
       };
 
       return ElementBorderPainter.borderColor(
-        sourceCell.cellBox().activeStyles(), colorProperty);
+        sourceBox.activeStyles(), colorProperty);
     }
 
   }
@@ -44,7 +45,7 @@ public class TableComputedBorders {
 
   // TODO: Include column/row borders
   public static ComputedBorder computeBorder(
-    TableCell sourceCell,
+    ElementBox sourceBox,
     BorderSide sourceSide,
     LayoutConstraint referenceConstraint,
     boolean divTwo // So we don't have to allocate another ComputedBorder later
@@ -63,13 +64,13 @@ public class TableComputedBorders {
       case RIGHT -> CSSProperty.BORDER_RIGHT_STYLE;
     };
 
-    ActiveStyles sourceStyles = sourceCell.cellBox().activeStyles();
+    ActiveStyles sourceStyles = sourceBox.activeStyles();
     CSSValue widthValue = sourceStyles.getProperty(widthProperty);
     CSSValue borderStyle = sourceStyles.getProperty(styleProperty);
-    float borderWidth = BorderUtil.computeBorder(widthValue, borderStyle, sourceCell.cellBox(), referenceConstraint);
+    float borderWidth = BorderUtil.computeBorder(widthValue, borderStyle, sourceBox, referenceConstraint);
     if (divTwo) borderWidth /= 2;
 
-    return new ComputedBorder(sourceCell, sourceSide, borderWidth, borderStyle);
+    return new ComputedBorder(sourceBox, sourceSide, borderWidth, borderStyle);
   }
 
 }

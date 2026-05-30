@@ -54,7 +54,7 @@ public final class FlowRootContentPainter {
         canvas.alterPaint(paint -> paint.incOffset(
           childFragment.posX(Measurement.BORDER),
           childFragment.posY(Measurement.BORDER)));
-        paintBackgroundAndAdvance(canvas, (BoxFragment) childFragment);
+        paintUnmanagedBackgroundAndAdvance(canvas, (BoxFragment) childFragment, vpIntersection);
         paintFragment(childFragment, canvas, vpIntersection, refFragment);
         canvas.popPaint();
       }
@@ -172,7 +172,7 @@ public final class FlowRootContentPainter {
   private static void paintInlineUnmanagedBoxFragment(
     UnmanagedBoxFragment fragment, PaintCanvas canvas, int[] vpIntersection
   ) {
-    paintBackgroundAndAdvance(canvas, fragment);
+    paintUnmanagedBackgroundAndAdvance(canvas, fragment, vpIntersection);
     fragment.painter().paint(fragment, canvas, vpIntersection);
   }
 
@@ -199,11 +199,12 @@ public final class FlowRootContentPainter {
   private static void paintBlockBackground(
     BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment
   ) {
-    paintBackgroundAndAdvance(canvas, fragment);
     if (!(fragment instanceof ManagedBoxFragment managedBoxFragment)) {
+      paintUnmanagedBackgroundAndAdvance(canvas, fragment, vpIntersection);
       return;
     }
     
+    paintBackgroundAndAdvance(canvas, fragment);
     paintBlockLevelBackgrounds(managedBoxFragment, canvas, vpIntersection, refFragment);
   }
 
@@ -231,6 +232,19 @@ public final class FlowRootContentPainter {
     if (fragment instanceof BoxFragment boxFragment) {
       ElementBackgroundPainter.paintBackground(canvas, boxFragment);
     }
+
+    canvas.alterPaint(paint -> paint.incOffset(
+      fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER),
+      fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER)));
+  }
+
+  private static void paintUnmanagedBackgroundAndAdvance(
+    PaintCanvas canvas, BoxFragment fragment, int[] vpIntersection
+  ) {
+    PaintUtil.maybePaintFragment(
+      fragment, canvas, vpIntersection,
+      fragment.painter()::paintBackground,
+      Measurement.BORDER);
 
     canvas.alterPaint(paint -> paint.incOffset(
       fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER),

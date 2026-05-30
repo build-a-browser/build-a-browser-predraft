@@ -11,22 +11,26 @@ public final class BorderUtil {
   
   private BorderUtil() {}
 
-  public static void computeBorder(
-    ElementBox childBox, LayoutConstraint referenceConstraint
-  ) {
+  public static void computeBorder(ElementBox childBox) {
+    // TODO: This is not so great
+    if (childBox.content().computesOwnBorder()) return;
+    computeBorderForced(childBox);
+  }
+
+  public static void computeBorderForced(ElementBox childBox) {
     ActiveStyles styles = childBox.activeStyles();
     float topBorder = computeBorder(
       styles.getProperty(CSSProperty.BORDER_TOP_WIDTH), styles.getProperty(CSSProperty.BORDER_TOP_STYLE),
-      childBox, referenceConstraint);
+      childBox, LayoutConstraint.AUTO);
     float bottomBorder = computeBorder(
       styles.getProperty(CSSProperty.BORDER_BOTTOM_WIDTH), styles.getProperty(CSSProperty.BORDER_BOTTOM_STYLE),
-      childBox, referenceConstraint);
+      childBox, LayoutConstraint.AUTO);
     float leftBorder = computeBorder(
       styles.getProperty(CSSProperty.BORDER_LEFT_WIDTH), styles.getProperty(CSSProperty.BORDER_LEFT_STYLE),
-      childBox, referenceConstraint);
+      childBox, LayoutConstraint.AUTO);
     float rightBorder = computeBorder(
       styles.getProperty(CSSProperty.BORDER_RIGHT_WIDTH), styles.getProperty(CSSProperty.BORDER_RIGHT_STYLE),
-      childBox, referenceConstraint);
+      childBox, LayoutConstraint.AUTO);
     childBox.dimensions().setComputedBorder(topBorder, bottomBorder, leftBorder, rightBorder);
   }
 

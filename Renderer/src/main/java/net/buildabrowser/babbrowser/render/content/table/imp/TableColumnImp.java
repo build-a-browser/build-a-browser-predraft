@@ -7,9 +7,12 @@ import net.buildabrowser.babbrowser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.render.content.table.Table;
 import net.buildabrowser.babbrowser.render.content.table.TableCell;
 import net.buildabrowser.babbrowser.render.content.table.TableColumn;
+import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
 public class TableColumnImp implements TableColumn {
+
+  private final TableComputedBorders borders = new TableComputedBorders();
 
   private final Table table;
   private final int colX;
@@ -31,6 +34,16 @@ public class TableColumnImp implements TableColumn {
   }
 
   @Override
+  public ElementBox columnBox() {
+    return this.columnBox;
+  }
+
+  @Override
+  public TableComputedBorders borders() {
+    return this.borders;
+  }
+
+  @Override
   public float usedWidth() {
     return this.usedWidth;
   }
@@ -38,11 +51,6 @@ public class TableColumnImp implements TableColumn {
   @Override
   public void setUsedWidth(float usedWidth) {
     this.usedWidth = usedWidth;
-  }
-
-  @Override
-  public ElementBox columnBox() {
-    return this.columnBox;
   }
 
   @Override

@@ -7,6 +7,8 @@ public interface TableColumn {
 
   ElementBox columnBox();
 
+  TableComputedBorders borders();
+
   float usedWidth();
 
   void setUsedWidth(float usedWidth);

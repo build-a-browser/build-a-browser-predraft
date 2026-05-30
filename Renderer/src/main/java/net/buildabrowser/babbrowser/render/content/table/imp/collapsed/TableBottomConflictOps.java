@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.render.content.table.imp;
+package net.buildabrowser.babbrowser.render.content.table.imp.collapsed;
 
 import net.buildabrowser.babbrowser.render.content.table.Table;
 import net.buildabrowser.babbrowser.render.content.table.TableCell;

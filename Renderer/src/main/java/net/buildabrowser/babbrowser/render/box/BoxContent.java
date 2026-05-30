@@ -18,6 +18,11 @@ public interface BoxContent {
 
   EventHandler eventHandler();
 
+  // TODO: Handle this more properly later
+  default boolean computesOwnBorder() {
+    return false;
+  }
+
   default boolean isReplaced() {
     return false;
   }

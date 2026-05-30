@@ -2,7 +2,6 @@ package net.buildabrowser.babbrowser.render.content.table;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -14,9 +13,8 @@ import net.buildabrowser.babbrowser.render.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders.ComputedBorder;
-import net.buildabrowser.babbrowser.render.content.table.imp.TableCollapsedBorderPainter;
 import net.buildabrowser.babbrowser.render.content.table.imp.TableSeparateBorderPainter;
+import net.buildabrowser.babbrowser.render.content.table.imp.collapsed.TableCollapsedBorderPainter;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint.LayoutConstraintType;
@@ -28,15 +26,11 @@ public class TableContent implements BoxContent {
 
   private static final EventHandler EVENT_HANDLER = new TableEventHandler();
 
-  private static final TableBorderPainter SEPARATE_BORDER_PAINTER = new TableSeparateBorderPainter();
-  private static final TableBorderPainter COLLAPSED_BORDER_PAINTER = new TableCollapsedBorderPainter();
-
   private final TableContentPainter painter = new TableContentPainter(this);
   private final ElementBox rootBox;
   
   private Table table;
   private TableBorderPainter borderPainter;
-  private Set<ComputedBorder> savedBorders;
 
   public TableContent(ElementBox rootBox) {
     this.rootBox = rootBox;
@@ -69,9 +63,9 @@ public class TableContent implements BoxContent {
 
     CSSValue collapseValue = rootBox.activeStyles().getProperty(CSSProperty.BORDER_COLLAPSE);
     this.borderPainter = collapseValue.equals(BorderCollapseValue.COLLAPSE) ?
-      COLLAPSED_BORDER_PAINTER :
-      SEPARATE_BORDER_PAINTER;
-    this.savedBorders = borderPainter.assignBorders(table, widthConstraint);
+      new TableCollapsedBorderPainter() :
+      new TableSeparateBorderPainter();
+    borderPainter.assignBorders(table, widthConstraint);
 
     List<TableColumn> columns = table.columns();
     float hSpaceTotal = (columns.size() + 1) * borderSpacings.hSpace();
@@ -130,16 +124,17 @@ public class TableContent implements BoxContent {
     // TODO: Implement this
   }
 
+  @Override
+  public boolean computesOwnBorder() {
+    return true;
+  }
+
   public Table table() {
     return this.table;
   }
 
   public TableBorderPainter borderPainter() {
     return this.borderPainter;
-  }
-
-  public Set<ComputedBorder> savedBorders() {
-    return this.savedBorders;
   }
 
   private void layoutCellsAndHeights(Table table) {
@@ -234,7 +229,6 @@ public class TableContent implements BoxContent {
     float currentX = 0;
     for (int x = 0; x < table.width(); x++) {
       currentX += borderSpacings.hSpace();
-      TableColumn column = table.column(x);
 
       float currentY = 0;
       for (int y = 0; y < table.height(); y++) {
@@ -247,9 +241,9 @@ public class TableContent implements BoxContent {
           
           cell.getRelatedFragment().setPos(currentX, currentY);
         }
-        currentY += table.rows().get(y).usedHeight();
+        currentY += table.row(y).usedHeight();
       }
-      currentX += column.usedWidth();
+      currentX += table.column(x).usedWidth();
     }
 
     return fragments;

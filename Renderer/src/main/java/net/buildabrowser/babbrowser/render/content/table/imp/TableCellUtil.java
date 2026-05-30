@@ -43,26 +43,4 @@ public final class TableCellUtil {
     }
   }
 
-  public static void forEachCell(
-    Table table,
-    CellPosConsumer cellAction
-  ) {
-    for (int y = 0; y < table.height(); y++) {
-      for (int x = 0; x < table.width(); x++) {
-        for (int z = 0; table.cell(x, y, z) != null; z++) {
-          TableCell cell = table.cell(x, y, z);
-          if (cell.cellX() != x || cell.cellY() != y) continue;
-          
-          cellAction.accept(cell, x, y);
-        }
-      }
-    }
-  }
-
-  public static interface CellPosConsumer {
-
-    void accept(TableCell cell, int x, int y);
-
-  }
-
 }
