@@ -58,7 +58,7 @@ public final class ActiveStylesGenerator {
       case CSSValue.SpecialCSSValue.INITIAL -> activeStyles.useInitialProperty(declarationDetails.relatedProperty());
       case CSSValue.SpecialCSSValue.INHERIT -> activeStyles.inheritProperty(declarationDetails.relatedProperty());
       case CSSValue.SpecialCSSValue.UNSET -> activeStyles.unsetProperty(declarationDetails.relatedProperty());
-      case CSSValue.SpecialCSSValue.INVALID -> activeStyles.unsetProperty(declarationDetails.relatedProperty());
+      case CSSValue.SpecialCSSValue.INVALID -> {}
       default -> declarationDetails.updateProperty(declValue, activeStyles);
     }
   }

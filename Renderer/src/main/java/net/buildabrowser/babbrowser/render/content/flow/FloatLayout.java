@@ -30,11 +30,7 @@ public final class FloatLayout {
       FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
         parentHeightConstraint, parentWidthConstraint, childBox);
 
-    if (!parentWidthConstraint.isPreLayoutConstraint()) {
-      return childBox.layout(childWidthConstraint, childHeightContraint);
-    }
-
-    return new UnmanagedBoxFragment(0, 0, childBox);
+    return childBox.layout(childWidthConstraint, childHeightContraint);
   }
 
   public static boolean addFloat(

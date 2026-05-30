@@ -110,7 +110,12 @@ public class CompositeLayerImp implements CompositeLayer {
 
     vpIntersection[0] = overscrollX; vpIntersection[1] = overscrollY; vpIntersection[2] = overscrollWidth; vpIntersection[3] = overscrollHeight;
 
-    foregroundBitMap.resize(overscrollX, overscrollY, overscrollWidth, overscrollHeight);
+    foregroundBitMap.resize(
+      overscrollX, overscrollY,
+      // TODO: Hack for it to work when content is above layer start (e.g. negative margin)
+      // But this probably won't work with fixed-size layers
+      Math.max(overscrollWidth, 1),
+      Math.max(overscrollHeight, 1));
     foregroundBitMap.update(canvas -> {
       // TODO: These paint checks aren't cool
       if (entries != null) {

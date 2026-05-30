@@ -5,6 +5,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.render.content.common.MarginUtil;
 import net.buildabrowser.babbrowser.render.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.render.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
@@ -58,7 +59,10 @@ public final class PositionLayout {
 
     UnmanagedBoxFragment itemFragment = refBox.layout(
       usedWidthConstraint, usedHeightConstraint);
-    itemFragment.setPos(0, 0);
+
+    MarginUtil.computeSimpleMargin(refBox, usedWidthConstraint);
+    float[] margins = refBox.dimensions().getComputedMargin();
+    itemFragment.setPos(margins[2], margins[0]);
 
     // TODO: Compute margins
 
@@ -83,7 +87,10 @@ public final class PositionLayout {
       topInsetIsAuto, bottomInsetIsAuto, insets, 0,
       computedFragment.height(Measurement.BORDER), refHeight);
 
-    return new float[] { leftPos, topPos };
+    return new float[] {
+      leftPos + computedFragment.posX(Measurement.BORDER),
+      topPos + computedFragment.posY(Measurement.BORDER)
+    };
   }
 
   private static float positionAbsoluteAxis(
@@ -94,7 +101,9 @@ public final class PositionLayout {
     float itemSize,
     float axisSize
   ) {
-    if (bottomInsetIsAuto) {
+    if (bottomInsetIsAuto && topInsetIsAuto) {
+      return 0; // TODO: What is the correct thing to return?
+    } else if (bottomInsetIsAuto) {
       // TODO: Account for writing mode
       return insets[conIndex];
     } else if (topInsetIsAuto) {

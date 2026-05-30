@@ -43,7 +43,10 @@ public class FlowBlockLayout {
     LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     rootContext.collapse();
-    return rootContext.close(widthConstraint, heightConstraint);
+    return rootContext.close(
+      widthConstraint, heightConstraint,
+      rootContent.floatTracker().contentWidth(),
+      rootContent.floatTracker().contentHeight());
   }
 
   public BlockFormattingContext activeContext() {
@@ -112,7 +115,6 @@ public class FlowBlockLayout {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    ackFloatClear(elementBox);
     if (FlowUtil.isInFlow(elementBox)) {
       addManagedBlockToBlock(elementBox, widthConstraint, heightConstraint);
     } else {
@@ -134,16 +136,17 @@ public class FlowBlockLayout {
     float[] margin = childBox.dimensions().getComputedMargin();
 
     parentContext.recordMargin(margin[0]);
-    boolean collapseFirst = needsCollapsed(childBox, 0);
+    boolean needsFloatClear = needsFloatClear(childBox);
+    boolean collapseFirst = needsCollapsed(childBox, 0) || needsFloatClear;
     if (collapseFirst) {
       parentContext.collapse();
     }
     BlockFormattingContext collapseContext = collapseFirst ? null : parentContext;
     BlockFormattingContext childContext = new BlockFormattingContext(
       childBox, childWidthConstraint, childHeightConstraint, parentContext, collapseContext);
-    
-    activeContext = childContext;
 
+    ackFloatClear(childBox);
+    activeContext = childContext;
     addChildrenToBlock(childBox, childWidthConstraint, childHeightConstraint);
 
     boolean collapseAfter = needsCollapsed(childBox, 1);
@@ -232,9 +235,7 @@ public class FlowBlockLayout {
 
     LayoutFragment newFragment = PositionLayout.layout(childBox);
     parentContext.addFragment(newFragment); // Still needed to set fragment parent
-
-    float[] margin = childBox.dimensions().getComputedMargin();
-    newFragment.setPos(margin[2], margin[0] + estimatedAboveMargin + parentContext.currentY());
+    newFragment.setPos(0, estimatedAboveMargin + parentContext.currentY());
   }
 
   public void addFinishedFragment(
@@ -267,6 +268,11 @@ public class FlowBlockLayout {
     float rightClear = clearValue.equals(ClearValue.LEFT) ? 0 : rootContent.floatTracker().clearedLineEndPosition();
     float totalClear = Math.max(leftClear, rightClear);
     activeContext.increaseY(totalClear, totalClear);
+  }
+
+  private boolean needsFloatClear(ElementBox elementBox) {
+    CSSValue clearValue = elementBox.activeStyles().getProperty(CSSProperty.CLEAR);
+    return !clearValue.equals(CSSValue.NONE);
   }
 
   private boolean needsCollapsed(ElementBox box, int refIndex) {

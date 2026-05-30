@@ -134,8 +134,17 @@ public class BlockFormattingContext {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    float preclampWidth = LayoutUtil.constraintOrDim(widthConstraint, width);
-    float preclampHeight = LayoutUtil.constraintOrDim(heightConstraint, y);
+    return close(widthConstraint, heightConstraint, 0, 0);
+  }
+
+  public ManagedBoxFragment close(
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint,
+    float contributionW,
+    float contributionH
+  ) {
+    float preclampWidth = LayoutUtil.constraintOrDim(widthConstraint, Math.max(width, contributionW));
+    float preclampHeight = LayoutUtil.constraintOrDim(heightConstraint, Math.max(y, contributionH));
     
     // In case it wasn't originally resolved. Passing AUTO should be fine because if the parent is
     // definite it should have already resolved anyways. Note that this will not resolve child percentages
@@ -150,7 +159,8 @@ public class BlockFormattingContext {
 
     return new ManagedBoxFragment(
       usedWidth, usedHeight,
-      inkWidth, inkY,
+      Math.max(inkWidth, contributionW),
+      Math.max(inkY, contributionH),
       elementBox,
       FlowRootContentPainter.FLOW_BLOCK_PAINTER, fragments);
   }

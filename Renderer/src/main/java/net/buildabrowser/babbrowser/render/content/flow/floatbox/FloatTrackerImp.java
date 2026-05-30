@@ -34,12 +34,16 @@ public class FloatTrackerImp implements FloatTracker {
   private List<BoxFragment> allFloats;
 
   private boolean sidesSorted = true;
+  private float lineEnd = 0;
   private float blockEnd = 0;
+
+  // TODO: More accurately lay out floats during pre-render. Right now it's a bit hacked together.
 
   @Override
   public boolean addLineStartFloat(BoxFragment box, LayoutConstraint lineConstraint, float reservedWidth) {
-    // TODO: Find a proper way to handle pre-layout constraints
-    if (lineConstraint.isPreLayoutConstraint()) return true;
+    if (lineConstraint.isPreLayoutConstraint()) {
+      lineConstraint = LayoutConstraint.of(Float.MAX_VALUE);
+    }
     ensureListsInit();
 
     float[] freeInfo = new float[2];
@@ -48,12 +52,14 @@ public class FloatTrackerImp implements FloatTracker {
 
     // Since the box is placed by border pos, we need to convert our margin pos to border pos
     float[] margin = box.box().dimensions().getComputedMargin();
-    box.setPos(Math.max(freeInfo[0] + margin[2], posX()), freePos + margin[0]);
+    float boxX = Math.max(freeInfo[0] + margin[2], posX());
+    box.setPos(boxX, freePos + margin[0]);
 
     leftFloats.add(box);
     allFloats.add(box);
     sidesSorted = false;
 
+    this.lineEnd = Math.max(this.lineEnd, boxX + box.width(Measurement.BORDER));
     this.blockEnd = Math.max(this.blockEnd, freePos + box.height(Measurement.MARGIN));
 
     return true;
@@ -61,7 +67,9 @@ public class FloatTrackerImp implements FloatTracker {
 
   @Override
   public boolean addLineEndFloat(BoxFragment box, LayoutConstraint lineConstraint, float reservedWidth) {
-    if (lineConstraint.isPreLayoutConstraint()) return true;
+    if (lineConstraint.isPreLayoutConstraint()) {
+      return addLineStartFloat(box, lineConstraint, reservedWidth);
+    }
     ensureListsInit();
 
     float[] freeInfo = new float[2];
@@ -79,6 +87,7 @@ public class FloatTrackerImp implements FloatTracker {
     allFloats.add(box);
     sidesSorted = true;
 
+    this.lineEnd = Math.max(this.lineEnd, maxEdgePos);
     this.blockEnd = Math.max(this.blockEnd, freePos + box.height(Measurement.MARGIN));
 
     return true;
@@ -140,6 +149,11 @@ public class FloatTrackerImp implements FloatTracker {
   public List<BoxFragment> allFloats() {
     if (allFloats == null) return List.of(); // Java caches this
     return this.allFloats;
+  }
+
+  @Override
+  public float contentWidth() {
+    return this.lineEnd;
   }
 
   @Override
