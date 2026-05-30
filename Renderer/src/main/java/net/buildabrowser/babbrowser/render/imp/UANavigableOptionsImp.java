@@ -3,12 +3,12 @@ package net.buildabrowser.babbrowser.render.imp;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
-import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
+import net.buildabrowser.babbrowser.html.html.RenderableDocument;
+import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.html.navigation.NavigationParams;
 import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.render.loader.DocumentLoaderRegistry;
@@ -22,20 +22,20 @@ public class UANavigableOptionsImp implements UANavigableOptions {
   private final Supplier<StyleSheetList> uaStyleSheetsSupplier;
   private final DocumentLoaderRegistry documentLoaderRegistry;
   private final Painter painter;
-  private final Consumer<URI> onNavigate;
+  private final DocumentRendererEventListener eventListener;
 
   public UANavigableOptionsImp(
     FetchEngine fetchEngine,
     Supplier<StyleSheetList> uaStyleSheetsSupplier,
     DocumentLoaderRegistry documentLoaderRegistry,
     Painter painter,
-    Consumer<URI> onNavigate
+    DocumentRendererEventListener eventListener
   ) {
     this.fetchEngine = fetchEngine;
     this.uaStyleSheetsSupplier = uaStyleSheetsSupplier;
     this.documentLoaderRegistry = documentLoaderRegistry;
     this.painter = painter;
-    this.onNavigate = onNavigate;
+    this.eventListener = eventListener;
   }
 
   @Override
@@ -44,9 +44,9 @@ public class UANavigableOptionsImp implements UANavigableOptions {
   }
 
   @Override
-  public Document loadDocument(NavigationParams navigationParams) {
+  public RenderableDocument loadDocument(NavigationParams navigationParams) {
     // TODO: Use the correct mime
-    Document document = documentLoaderRegistry.getByMimeType("text/html").load(
+    RenderableDocument document = documentLoaderRegistry.getByMimeType("text/html").load(
       this, painter, navigationParams);
     requestRepaint();
     return document;
@@ -55,6 +55,11 @@ public class UANavigableOptionsImp implements UANavigableOptions {
   @Override
   public StyleSheetList uaStyleSheets() {
     return this.uaStyleSheetsSupplier.get();
+  }
+
+  @Override
+  public DocumentRendererEventListener eventListener() {
+    return this.eventListener;
   }
 
   @Override
@@ -71,7 +76,7 @@ public class UANavigableOptionsImp implements UANavigableOptions {
 
   @Override
   public void onNavigate(URI url) {
-    onNavigate.accept(url);
+    eventListener.onNavigate(url);
   }
   
 }

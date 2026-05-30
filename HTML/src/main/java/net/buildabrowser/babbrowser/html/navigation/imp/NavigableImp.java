@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.html.navigation.imp;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.html.events.EventLoop;
-import net.buildabrowser.babbrowser.html.html.HTMLDocument;
+import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentState;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
@@ -30,7 +30,7 @@ public class NavigableImp implements Navigable {
   }
 
   @Override
-  public HTMLDocument activeDocument() {
+  public RenderableDocument activeDocument() {
     return activeSessionHistory.getDocument();
   }
 

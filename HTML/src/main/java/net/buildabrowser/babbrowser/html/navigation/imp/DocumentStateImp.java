@@ -1,19 +1,19 @@
 package net.buildabrowser.babbrowser.html.navigation.imp;
 
-import net.buildabrowser.babbrowser.html.html.HTMLDocument;
+import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.DocumentState;
 
 public class DocumentStateImp implements DocumentState {
 
-  private HTMLDocument document;
+  private RenderableDocument document;
 
   @Override
-  public HTMLDocument document() {
+  public RenderableDocument document() {
     return this.document;
   }
 
   @Override
-  public void setDocument(HTMLDocument document) {
+  public void setDocument(RenderableDocument document) {
     this.document = document;
   }
   

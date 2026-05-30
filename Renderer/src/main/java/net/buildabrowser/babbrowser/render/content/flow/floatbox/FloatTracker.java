@@ -30,6 +30,8 @@ public interface FloatTracker {
   List<BoxFragment> allFloats();
 
   // Exists to min-bound the containing block
+  float contentWidth();
+
   float contentHeight();
   
   static FloatTracker createForFlow(Supplier<BlockFormattingContext> activeFormattingContext) {

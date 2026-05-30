@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.render.imp;
+package net.buildabrowser.babbrowser.browser.chrome;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;

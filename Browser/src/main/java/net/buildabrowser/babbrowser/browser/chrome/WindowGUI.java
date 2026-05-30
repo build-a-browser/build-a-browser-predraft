@@ -2,6 +2,8 @@ package net.buildabrowser.babbrowser.browser.chrome;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -14,6 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.buildabrowser.babbrowser.browser.uistate.Tab;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
@@ -22,35 +26,49 @@ import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListen
 import net.buildabrowser.babbrowser.browser.uistate.event.WindowMutationEventListener;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.network.URLUtil;
+import net.buildabrowser.babbrowser.render.GraphicalDocumentRenderer;
+import net.buildabrowser.babbrowser.render.imp.NoOpGraphicalDocumentRenderer;
+import net.buildabrowser.babbrowser.render.paint.backend.CanvasCallbacks;
+import net.buildabrowser.babbrowser.render.paint.backend.ComponentPainter;
+import net.buildabrowser.babbrowser.render.paint.backend.PaintCanvas;
 
 public class WindowGUI extends JFrame implements WindowMutationEventListener {
 
   private static final String NEW_TAB_PAGE = "https://buildabrowser.net/";
+
+  private static final GraphicalDocumentRenderer NO_OP_RENDERER = new NoOpGraphicalDocumentRenderer();
   
-  private final JTabbedPane tabbedPane = new JTabbedPane();
+  private final JTabbedPane tabbedPane;
 
   private final Window window;
+  private final Component sharedRenderedContent;
 
-  private WindowGUI(Window window) {
+  private WindowGUI(
+    Window window,
+    ComponentPainter<Component> painter
+  ) {
     super("BuildABrowser Test Program");
     this.window = window;
 
+    this.setLayout(new GridBagLayout());
     this.setSize(new Dimension(800, 500));
-    this.setMaximumSize(new Dimension(800, 500));
-    addNewTabButton();
-    addMenu();
-    window.addWindowMutationEventListener(this, true);
+
+    this.tabbedPane = createTabPane();
+    this.sharedRenderedContent = createSharedRenderedContent(painter);
     
-    this.add(tabbedPane);
     this.addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
         window.close();
       }
     });
+
+    addNewTabButton();
+    addMenu();
+    window.addWindowMutationEventListener(this, true);
   }
 
-  public void showWindow() {
+	public void showWindow() {
     this.setVisible(true);
   }
   
@@ -126,6 +144,7 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
   private void openTab() {
     Tab tab = window.openTab();
     tab.navigate(CommonUtil.rethrow(() -> URLUtil.createURL(NEW_TAB_PAGE)));
+    System.out.println("Tab Count: " + window.getTabs().length);
   }
 
   private void closeTab() {
@@ -135,9 +154,86 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
     tabGUI.tab().close();
   }
 
-  public static WindowGUI create(Window window) {
+  private JTabbedPane createTabPane() {
+    JTabbedPane tabbedPane = new JTabbedPane();
+    tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+
+    GridBagConstraints tabPaneConstraints = new GridBagConstraints();
+    tabPaneConstraints.fill = GridBagConstraints.HORIZONTAL;
+    tabPaneConstraints.weightx = 1;
+    tabPaneConstraints.weighty = 0;
+    tabPaneConstraints.gridx = 0;
+    tabPaneConstraints.gridy = 0;
+		this.add(tabbedPane, tabPaneConstraints);
+    tabbedPane.addChangeListener(new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        if (tabbedPane.getSelectedComponent() instanceof TabGUI tabGUI) {
+          tabGUI.activate(sharedRenderedContent);
+          SwingUtilities.invokeLater(() -> {
+            sharedRenderedContent.revalidate();
+            sharedRenderedContent.repaint();
+          });
+        }
+      }
+    });
+
+    return tabbedPane;
+	}
+
+  private Component createSharedRenderedContent(ComponentPainter<Component> painter) {
+    Component panel = painter.createComponent(new CanvasCallbacks() {
+
+      @Override
+      public void layout() {
+        GraphicalDocumentRenderer activeRenderer = activeRenderer();
+        if (activeRenderer == null) return;
+        activeRenderer.resize(
+          sharedRenderedContent.getWidth(),
+          sharedRenderedContent.getHeight());
+      }
+
+      @Override
+      public void paint(PaintCanvas canvas) {
+        GraphicalDocumentRenderer activeRenderer = activeRenderer();
+        if (activeRenderer == null) return;
+        activeRenderer.draw(canvas);
+      }
+
+      // TODO: Handle invalidation listener
+      
+    });
+
+    RendererMouseInputAdapter inputHandler = new RendererMouseInputAdapter(() -> activeRenderer());
+    panel.addMouseListener(inputHandler);
+    panel.addMouseMotionListener(inputHandler);
+    panel.addMouseWheelListener(inputHandler);
+    
+    GridBagConstraints renderedContentConstraints = new GridBagConstraints();
+    renderedContentConstraints.fill = GridBagConstraints.BOTH;
+    renderedContentConstraints.weightx = 1;
+    renderedContentConstraints.weighty = 1;
+    renderedContentConstraints.gridx = 0;
+    renderedContentConstraints.gridy = 1;
+    this.add(panel, renderedContentConstraints);
+
+    return panel;
+  }
+
+  private GraphicalDocumentRenderer activeRenderer() {
+    if (!(
+      tabbedPane.getSelectedComponent() instanceof TabGUI tabGUI
+    )) return NO_OP_RENDERER;
+
+    return tabGUI.tab().getFrame().getRenderer();
+  }
+
+  public static WindowGUI create(
+    Window window,
+    ComponentPainter<Component> painter
+  ) {
     JFrame.setDefaultLookAndFeelDecorated(true);
-    return new WindowGUI(window);
+    return new WindowGUI(window, painter);
   }
 
 }

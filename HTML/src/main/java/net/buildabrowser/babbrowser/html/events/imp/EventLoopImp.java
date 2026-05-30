@@ -26,8 +26,7 @@ public class EventLoopImp implements EventLoop {
   // For now, just doing round-robin. Will change in the future
   private final Set<TaskSource> taskOrder = new LinkedHashSet<>();
 
-  private final ExecutorService threadGroup = Executors.newWorkStealingPool(
-    Math.max(Runtime.getRuntime().availableProcessors(), 4));
+  private final ExecutorService threadGroup = Executors.newVirtualThreadPerTaskExecutor();
 
   @SuppressWarnings("unused")
   private Task currentlyRunningTask;

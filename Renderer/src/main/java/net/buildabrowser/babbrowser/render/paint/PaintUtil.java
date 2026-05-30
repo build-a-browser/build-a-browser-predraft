@@ -44,11 +44,11 @@ public final class PaintUtil {
   }
 
   private static boolean aabbFragmentVp(BoxFragment fragment, int[] vpIntersection) {
-    return !(
-      vpIntersection[0] + vpIntersection[2] < fragment.posX(Measurement.BORDER)
-      || vpIntersection[0] > fragment.posX(Measurement.BORDER) + fragment.inkWidth(Measurement.BORDER)
-      || vpIntersection[1] + vpIntersection[3] < fragment.posY(Measurement.BORDER)
-      || vpIntersection[1] > fragment.posY(Measurement.BORDER) + fragment.inkHeight(Measurement.BORDER));
+    return
+      fragment.posX(Measurement.BORDER) < vpIntersection[0] + vpIntersection[2]
+      && vpIntersection[0] < fragment.posX(Measurement.BORDER) + fragment.inkWidth(Measurement.BORDER)
+      && fragment.posY(Measurement.BORDER) < vpIntersection[1] + vpIntersection[3]
+      && vpIntersection[1] < fragment.posY(Measurement.BORDER) + fragment.inkHeight(Measurement.BORDER);
   }
 
   public static interface FragmentPaintFunc {

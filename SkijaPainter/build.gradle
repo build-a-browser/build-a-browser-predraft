@@ -1,0 +1,41 @@
+import org.gradle.internal.os.OperatingSystem
+
+plugins {
+    id 'java-library'
+}
+
+project.ext.lwjglVersion = "3.4.1"
+project.ext.lwjgl3_awtVersion = "0.2.4"
+
+project.ext.skijaVersion = "0.143.6"
+switch (OperatingSystem.current()) {
+    case OperatingSystem.LINUX:
+		project.ext.lwjglNatives = "natives-linux"
+        project.ext.skijaNatives = "skija-linux-x64"
+        break
+    case OperatingSystem.WINDOWS:
+		project.ext.lwjglNatives = "natives-windows"
+        project.ext.skijaNatives = "skija-windows-x64"
+        break
+    case OperatingSystem.MAC_OS:
+		project.ext.lwjglNatives = "natives-macos-arm64"
+        project.ext.skijaNatives = "skija-macos-arm64"
+        break
+}
+
+dependencies {
+    api project(':Renderer')
+
+    implementation "io.github.humbleui:${skijaNatives}:${skijaVersion}"
+
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+
+	implementation "org.lwjgl:lwjgl"
+	implementation "org.lwjgl:lwjgl-opengl"
+    implementation "org.lwjgl:lwjgl-jawt"
+	implementation "org.lwjgl:lwjgl::$lwjglNatives"
+	implementation "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+	implementation("org.lwjglx:lwjgl3-awt:${lwjgl3_awtVersion}") {
+        exclude group: 'org.lwjgl'
+    }
+}

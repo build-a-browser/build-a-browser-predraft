@@ -1,23 +1,18 @@
 package net.buildabrowser.babbrowser.render.paint.backend.skija;
 
-import java.awt.Component;
-
 import io.github.humbleui.skija.ImageInfo;
 import io.github.humbleui.skija.Surface;
-import net.buildabrowser.babbrowser.render.paint.backend.CanvasCallbacks;
 import net.buildabrowser.babbrowser.render.paint.backend.PaintBitMap;
 import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 import net.buildabrowser.babbrowser.render.paint.backend.ResourceLoader;
 
-public class SkijaPainter implements Painter {
+public abstract class SkijaPainter implements Painter {
 
   private final ResourceLoader resourceLoader = new SkijaResourceLoader();
 
-  private final boolean isSoftwareRendered;
   private final boolean bitmapIsABitmap;
 
-  public SkijaPainter(boolean isSoftwareRendered, boolean bitmapIsABitmap) {
-    this.isSoftwareRendered = isSoftwareRendered;
+  public SkijaPainter(boolean bitmapIsABitmap) {
     this.bitmapIsABitmap = bitmapIsABitmap;
   }
 
@@ -34,15 +29,6 @@ public class SkijaPainter implements Painter {
       return new SkijaBitMap(surface);
     } else {
       return new SkijaCommandList(width, height);
-    }
-  }
-
-  @Override
-  public Component createComponent(CanvasCallbacks callbacks) {
-    if (isSoftwareRendered) {
-      return new SkijaSoftwareCanvas(callbacks);
-    } else {
-      return new SkijaGPUCanvas(callbacks);
     }
   }
   

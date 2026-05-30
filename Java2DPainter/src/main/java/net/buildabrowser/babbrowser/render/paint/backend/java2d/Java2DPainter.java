@@ -8,11 +8,11 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 import net.buildabrowser.babbrowser.render.paint.backend.CanvasCallbacks;
+import net.buildabrowser.babbrowser.render.paint.backend.ComponentPainter;
 import net.buildabrowser.babbrowser.render.paint.backend.PaintBitMap;
-import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 import net.buildabrowser.babbrowser.render.paint.backend.ResourceLoader;
 
-public class Java2DPainter implements Painter {
+public class Java2DPainter implements ComponentPainter<Component> {
   
   private final ResourceLoader resourceLoader = new J2DResourceLoader();
 

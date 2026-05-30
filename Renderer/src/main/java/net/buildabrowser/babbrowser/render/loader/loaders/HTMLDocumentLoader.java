@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicLong;
 
-import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.fetch.FetchResponse;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
@@ -14,7 +13,7 @@ import net.buildabrowser.babbrowser.html.navigation.NavigationParams;
 import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
-import net.buildabrowser.babbrowser.render.imp.HTMLDocumentRendererImp;
+import net.buildabrowser.babbrowser.render.imp.HTMLGraphicalDocumentRendererImp;
 import net.buildabrowser.babbrowser.render.loader.DocumentLoader;
 import net.buildabrowser.babbrowser.render.logging.PerfLogging;
 import net.buildabrowser.babbrowser.render.paint.backend.Painter;
@@ -25,7 +24,7 @@ import net.buildabrowser.babbrowser.stream.imp.ReadableStreamDefaultReaderImp;
 public class HTMLDocumentLoader implements DocumentLoader {
 
   @Override
-  public Document load(
+  public HTMLDocument load(
     UANavigableOptions uaNavigableOptions,
     Painter painter,
     NavigationParams navigationParams
@@ -39,7 +38,7 @@ public class HTMLDocumentLoader implements DocumentLoader {
 
     parseHTMLDocument(response, document);
 
-    DocumentRenderer renderer = new HTMLDocumentRendererImp(
+    DocumentRenderer renderer = new HTMLGraphicalDocumentRendererImp(
       document, navigationParams.navigable(), painter);
     document.attachRenderer(renderer);
 

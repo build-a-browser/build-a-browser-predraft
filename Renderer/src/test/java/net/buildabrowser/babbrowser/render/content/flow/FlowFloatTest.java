@@ -46,7 +46,7 @@ public class FlowFloatTest {
 
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);;
 
-    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 0, parentBox, List.of());
+    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 10, parentBox, List.of());
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
@@ -72,7 +72,7 @@ public class FlowFloatTest {
 
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);;
 
-    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 0, parentBox, List.of());
+    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 10, parentBox, List.of());
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
@@ -170,7 +170,7 @@ public class FlowFloatTest {
 
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);;
 
-    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 0, parentBox, List.of());
+    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 15, parentBox, List.of());
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
@@ -205,7 +205,7 @@ public class FlowFloatTest {
 
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);;
 
-    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 0, parentBox, List.of());
+    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 15, parentBox, List.of());
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
@@ -243,7 +243,7 @@ public class FlowFloatTest {
 
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);;
 
-    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 0, parentBox, List.of());
+    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 30, parentBox, List.of());
     LayoutFragment actualMainFragment = layoutResult.fragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
