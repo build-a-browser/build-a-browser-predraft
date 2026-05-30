@@ -6,6 +6,7 @@ import java.util.Set;
 
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.htmlparser.insertion.OpenElementStack;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 
@@ -20,6 +21,8 @@ public final class ParseAdjustUtil {
     "select", "template");
 
   private static final Set<String> BUTTON_SCOPE = mergeSet(DEFAULT_SCOPE, Set.of("button"));
+
+  private static final Set<String> TABLE_SCOPE = Set.of("html", "table", "template");
 
   private ParseAdjustUtil() {}
 
@@ -87,6 +90,17 @@ public final class ParseAdjustUtil {
 
   public static boolean hasInButtonScope(OpenElementStack openElementStack, String elementName) {
     return hasInScope(openElementStack, BUTTON_SCOPE, elementName);
+  }
+
+  public static boolean hasInTableScope(OpenElementStack openElementStack, String elementName) {
+    return hasInScope(openElementStack, TABLE_SCOPE, elementName);
+  }
+
+  public static void popUntil(OpenElementStack openElementStack, String elementName) {
+    while (!(
+      openElementStack.popNode() instanceof HTMLElement element
+      && element.name().equals(elementName)
+    ));
   }
 
   private static <T> Set<T> mergeSet(Set<T> set1, Set<T> set2) {

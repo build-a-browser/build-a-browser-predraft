@@ -135,6 +135,11 @@ public class ParseContextImp implements ParseContext {
   }
 
   @Override
+  public void setFosterParentingEnabled(boolean b) {
+    // TODO: Implement
+  }
+
+  @Override
   public void stopParsing() {
     // Hopefully, HTMLParserImp will stop for us...
   }

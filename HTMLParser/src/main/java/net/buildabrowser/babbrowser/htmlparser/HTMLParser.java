@@ -7,7 +7,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import net.buildabrowser.babbrowser.dom.Document;
-import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.htmlparser.imp.HTMLParserImp;
 
@@ -20,10 +19,7 @@ public interface HTMLParser {
   void done();
 
   public static Document parse(Reader streamReader) throws IOException {
-    Document document = Document.create(new DocumentChangeListener() {
-      @Override public void onNodeAdded(Node node) {}
-      @Override public void onNodeRemoved(Node node) {}
-    });
+    Document document = Document.create(new DocumentChangeListener() {});
 
     HTMLParser parser = create(document, StandardCharsets.UTF_8);
     int ch;

@@ -24,6 +24,10 @@ public interface TagToken {
 
   void copyAttributesTo(Element element);
 
+  String attribute(String string);
+
+  void acknowledgeSelfClosingFlag();
+
   static TagToken create(boolean isStartTag) {
     return new TagTokenImp(isStartTag);
   }

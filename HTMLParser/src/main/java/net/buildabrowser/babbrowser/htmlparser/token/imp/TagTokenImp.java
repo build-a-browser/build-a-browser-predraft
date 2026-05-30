@@ -98,6 +98,24 @@ public class TagTokenImp implements TagToken {
     }
   }
 
+  @Override
+  public String attribute(String attrName) {
+    AttributeList currentAttribute = this.attributes;
+    while (currentAttribute != null) {
+      if (
+        currentAttribute.name().equals(attrName)
+      ) return currentAttribute.value();
+      currentAttribute = currentAttribute.next();
+    }
+
+    return null;
+  }
+
+  @Override
+  public void acknowledgeSelfClosingFlag() {
+    // No-op
+  }
+
   public void reinit(boolean isStartTag) {
     this.isStartTag = isStartTag;
     this.isSelfClosing = false;

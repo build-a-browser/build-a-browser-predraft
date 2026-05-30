@@ -39,5 +39,9 @@ public final class ParseTextUtil {
   public static void reconstructTheActiveFormattingElements(ParseContext parseContext) {
     // TODO: Implement the algorithm
   }
+
+  public static void clearActiveFormattingElementsToLastMarker(ParseContext parseContext) {
+    // TODO: Implement the algorithm
+  }
   
 }

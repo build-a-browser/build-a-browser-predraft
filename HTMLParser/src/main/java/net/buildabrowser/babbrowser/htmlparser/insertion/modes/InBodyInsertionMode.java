@@ -90,7 +90,7 @@ public class InBodyInsertionMode implements InsertionMode {
         }
         ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
         parseContext.setFramesetOk(false);
-        // TODO: In-table insertion mode
+        parseContext.setInsertionMode(InsertionModes.inTableInsertionMode);
         return false;
       case "area", "br", "embed", "img", "keygen", "wbr":
         ParseTextUtil.reconstructTheActiveFormattingElements(parseContext);

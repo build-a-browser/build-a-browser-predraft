@@ -47,6 +47,8 @@ public interface ParseContext {
 
   void setFramesetOk(boolean b);
 
+  void setFosterParentingEnabled(boolean b);
+
   void stopParsing();
 
   TokenizeContext tokenizeContext();
