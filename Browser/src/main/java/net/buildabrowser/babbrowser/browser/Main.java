@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser;
 
+import java.awt.Component;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -23,13 +24,14 @@ import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
 import net.buildabrowser.babbrowser.render.RenderingEngine;
 import net.buildabrowser.babbrowser.render.loader.DocumentLoaderRegistry;
 import net.buildabrowser.babbrowser.render.loader.loaders.HTMLDocumentLoader;
-import net.buildabrowser.babbrowser.render.paint.backend.Painter;
+import net.buildabrowser.babbrowser.render.paint.backend.ComponentPainter;
 import net.buildabrowser.babbrowser.render.paint.backend.java2d.Java2DPainter;
-import net.buildabrowser.babbrowser.render.paint.backend.skija.SkijaPainter;
+import net.buildabrowser.babbrowser.render.paint.backend.skija.SkijaAWTPainter;
 
 public class Main {
   
   public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
+    System.setProperty("org.lwjgl.opengl.contextAPI", "GLX");
     setLookAndFeel();
 
     // TODO: Use a proper argument parser
@@ -40,9 +42,9 @@ public class Main {
       isSoftwareRendered = isSoftwareRendered || arg.equals("--use-software-rendering");
     }
 
-    Painter painter = useJava2d ?
+    ComponentPainter<Component> painter = useJava2d ?
       new Java2DPainter() :
-      new SkijaPainter(isSoftwareRendered, false);
+      new SkijaAWTPainter(isSoftwareRendered, false);
 
     DocumentLoaderRegistry loaderRegistry = DocumentLoaderRegistry.create();
     loaderRegistry.register("text/html", new HTMLDocumentLoader());
@@ -63,7 +65,7 @@ public class Main {
       window.openTab().navigate(url);
     }
 
-    WindowSetGUI.create(windowSet);
+    WindowSetGUI.create(windowSet, painter);
   }
 
   private static void setLookAndFeel() {

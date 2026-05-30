@@ -2,13 +2,13 @@ package net.buildabrowser.babbrowser.html.navigation;
 
 import java.net.URI;
 
-import net.buildabrowser.babbrowser.html.html.HTMLDocument;
+import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.imp.NavigableImp;
 import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
 
 public interface Navigable {
 
-  HTMLDocument activeDocument();
+  RenderableDocument activeDocument();
 
   BrowsingContext activeBrowsingContext();
 

@@ -8,7 +8,7 @@ import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.NavigateParameters;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
 import net.buildabrowser.babbrowser.html.scripting.Window;
-import net.buildabrowser.babbrowser.render.Renderer;
+import net.buildabrowser.babbrowser.render.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.render.RenderingEngine;
 import net.buildabrowser.babbrowser.render.RenderingEngine.NavigableRendererPair;
 import net.buildabrowser.babbrowser.render.uistate.Frame;
@@ -20,7 +20,7 @@ public class FrameImp implements Frame {
   private final BrowserEventDispatcher<FrameEventListener> eventDispatcher = BrowserEventDispatcher.create();
 
   private final Navigable navigable;
-  private final Renderer renderer;
+  private final GraphicalDocumentRenderer renderer;
 
   public FrameImp(RenderingEngine renderingEngine) {
     NavigableRendererPair navigableRendererPair = renderingEngine.createNavigable(
@@ -44,14 +44,14 @@ public class FrameImp implements Frame {
   }
 
   @Override
-  public Renderer getRenderer() {
+  public GraphicalDocumentRenderer getRenderer() {
     return this.renderer;
   }
 
   @Override
   public String getTitle() {
     return renderer
-      .getTitle()
+      .title()
       .orElse(navigable.activeDocument().url().toString());
   }
 

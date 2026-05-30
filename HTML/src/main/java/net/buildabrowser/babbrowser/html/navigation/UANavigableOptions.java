@@ -3,16 +3,19 @@ package net.buildabrowser.babbrowser.html.navigation;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
-import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
+import net.buildabrowser.babbrowser.html.html.RenderableDocument;
+import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 
 public interface UANavigableOptions {
 
   FetchEngine fetchEngine();
 
-  Document loadDocument(NavigationParams navigationParams);
+  RenderableDocument loadDocument(NavigationParams navigationParams);
 
   StyleSheetList uaStyleSheets();
+
+  DocumentRendererEventListener eventListener();
 
   void requestRepaint();
 

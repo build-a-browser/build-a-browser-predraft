@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.render.imp;
 
 import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Optional;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
@@ -14,8 +15,8 @@ import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.link.LinkDocumentChangeListener;
 import net.buildabrowser.babbrowser.html.misc.MetaDocumentChangeListener;
-import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
+import net.buildabrowser.babbrowser.render.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.BoxGenerator;
 import net.buildabrowser.babbrowser.render.box.DocumentBox;
@@ -46,7 +47,7 @@ import net.buildabrowser.babbrowser.render.paint.backend.Painter;
 import net.buildabrowser.babbrowser.render.paint.backend.ResourceLoader;
 import net.buildabrowser.babbrowser.render.style.StyleGenerator;
 
-public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardingTarget {
+public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRenderer, EventForwardingTarget {
 
   private static final BoxGenerator boxGenerator = BoxGenerator.create();
 
@@ -63,8 +64,6 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
   private final DocumentChangeListener changeListener;
   private final ImageCache imageCache;
 
-  private DocumentRendererEventListener eventListener;
-
   private volatile InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
   private CompositeLayer rootLayer;
   private LoadedFont rootFont;
@@ -72,7 +71,7 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
   // TODO: Switch to AtomicInteger? Synchronize?
   private int width, height;
 
-  public HTMLDocumentRendererImp(
+  public HTMLGraphicalDocumentRendererImp(
     HTMLDocument document,
     Navigable navigable,
     Painter painter
@@ -158,12 +157,11 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
   }
 
   @Override
-  public void draw(Object context) {
+  public void draw(PaintCanvas canvas) {
     if (
       this.rootLayer == null
       || this.width <= 0
       || this.height <= 0
-      || !(context instanceof PaintCanvas canvas)
     ) return;
 
     long windowPaintStartTime = System.currentTimeMillis();
@@ -203,8 +201,23 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
   }
 
   @Override
+  public Optional<String> title() {
+    String title = document.title();
+    if (!title.isEmpty()) {
+      return Optional.of(title);
+    }
+
+    return Optional.empty();
+  }
+
+  @Override
   public DocumentChangeListener changeListener() {
     return this.changeListener;
+  }
+
+  @Override
+  public void addRepaintListener(Runnable repaintListener) {
+    navigable.uaNavigableOptions().addRepaintListener(repaintListener);
   }
 
   @Override
@@ -212,16 +225,6 @@ public class HTMLDocumentRendererImp implements DocumentRenderer, EventForwardin
     if (invalidationLevel.ordinal() < this.invalidationLevel.ordinal()) {
       this.invalidationLevel = invalidationLevel;
     }
-  }
-
-  @Override
-  public void setEventListener(DocumentRendererEventListener eventListener) {
-    this.eventListener = eventListener;
-  }
-
-  @Override
-  public DocumentRendererEventListener eventListener() {
-    return this.eventListener;
   }
 
   private void recomputeBoxes() {

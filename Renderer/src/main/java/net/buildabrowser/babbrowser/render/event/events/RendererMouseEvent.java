@@ -4,7 +4,7 @@ public record RendererMouseEvent(
   float winX, float winY,
   int button, MouseEventType event,
   int scrollX, int scrollY
-) {
+) implements RendererEvent {
 
   public static RendererMouseEvent create(
     float winX, float winY,

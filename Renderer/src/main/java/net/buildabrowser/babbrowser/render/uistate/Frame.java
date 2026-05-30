@@ -2,14 +2,14 @@ package net.buildabrowser.babbrowser.render.uistate;
 
 import java.net.URI;
 
-import net.buildabrowser.babbrowser.render.Renderer;
+import net.buildabrowser.babbrowser.render.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.render.RenderingEngine;
 import net.buildabrowser.babbrowser.render.uistate.event.FrameEventListener;
 import net.buildabrowser.babbrowser.render.uistate.imp.FrameImp;
 
 public interface Frame {
 
-  Renderer getRenderer();
+  GraphicalDocumentRenderer getRenderer();
 
   String getTitle();
 

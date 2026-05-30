@@ -1,11 +1,13 @@
 package net.buildabrowser.babbrowser.html.navigation;
 
+import java.io.Closeable;
 import java.net.URI;
+import java.util.Optional;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
-public interface DocumentRenderer {
+public interface DocumentRenderer extends Closeable {
   
   boolean shouldRender();
 
@@ -15,17 +17,13 @@ public interface DocumentRenderer {
 
   void updateRendering();
 
-  void resize(int width, int height);
-
-  void draw(Object context);
+  Optional<String> title();
 
   DocumentChangeListener changeListener();
   
   void onDocumentInvalidated(InvalidationLevel invalidationLevel);
 
-  void setEventListener(DocumentRendererEventListener eventListener);
-
-  DocumentRendererEventListener eventListener();
+  default void close() {}
 
   interface DocumentRendererEventListener {
 

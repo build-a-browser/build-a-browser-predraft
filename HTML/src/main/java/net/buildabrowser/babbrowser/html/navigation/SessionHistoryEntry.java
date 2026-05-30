@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.html.navigation;
 
 import java.net.URI;
 
-import net.buildabrowser.babbrowser.html.html.HTMLDocument;
+import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.imp.SessionHistoryEntryImp;
 
 public interface SessionHistoryEntry {
@@ -22,7 +22,7 @@ public interface SessionHistoryEntry {
     Runnable completionSteps
   );
   
-  default HTMLDocument getDocument() {
+  default RenderableDocument getDocument() {
     return documentState().document();
   }
 

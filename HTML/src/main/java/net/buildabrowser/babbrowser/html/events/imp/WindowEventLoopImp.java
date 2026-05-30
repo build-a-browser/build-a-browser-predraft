@@ -10,7 +10,7 @@ import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
-import net.buildabrowser.babbrowser.html.html.HTMLDocument;
+import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
@@ -75,7 +75,7 @@ public class WindowEventLoopImp extends EventLoopImp implements WindowEventLoop 
     }
   }
 
-  private List<Document> docs = new ArrayList<>();
+  private List<RenderableDocument> docs = new ArrayList<>();
   private void updateRendering() {
     if (relatedNavigables.isEmpty()) {
       isLooping.set(false);
@@ -88,25 +88,24 @@ public class WindowEventLoopImp extends EventLoopImp implements WindowEventLoop 
     docs.clear();
     // I did this additively, the spec subtracts, but this is simpler
     for (Navigable navigable: relatedNavigables) {
-      Document doc = navigable.activeDocument();
+      RenderableDocument doc = navigable.activeDocument();
       // TODO: A number of conditions
-      DocumentRenderer renderer = ((HTMLDocument) doc).renderer();
+      DocumentRenderer renderer = doc.renderer();
       if (renderer == null || !renderer.shouldRender()) continue;
       docs.add(doc);
     }
     
     // TODO: A ton of other steps
-    for (Document doc: docs) {
-      DocumentRenderer renderer = ((HTMLDocument) doc).renderer();
+    for (RenderableDocument doc: docs) {
+      DocumentRenderer renderer = doc.renderer();
       renderer.recalculateStyles();
       renderer.updateLayout();
       // TODO: and resize observers
     }
     
     // TODO: and a few steps in between...
-    for (Document doc: docs) {
-      DocumentRenderer renderer = ((HTMLDocument) doc).renderer();
-      renderer.updateRendering();
+    for (RenderableDocument doc: docs) {
+      doc.renderer().updateRendering();
     }
     // TODO: and the rest...
     // End of spec

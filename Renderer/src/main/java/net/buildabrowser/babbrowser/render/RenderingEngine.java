@@ -19,7 +19,7 @@ public interface RenderingEngine {
     DocumentRendererEventListener eventListener
   );
 
-  static RenderingEngine create(
+  static <T> RenderingEngine create(
     FetchEngine fetchEngine,
     Painter painter,
     DocumentLoaderRegistry documentLoaderRegistry,
@@ -29,6 +29,9 @@ public interface RenderingEngine {
       fetchEngine, painter, documentLoaderRegistry, uaStyleSheetsSupplier);
   }
 
-  static record NavigableRendererPair(Navigable navigable, Renderer renderer) {}
+  static record NavigableRendererPair(
+    Navigable navigable,
+    GraphicalDocumentRenderer renderer
+  ) {}
   
 }

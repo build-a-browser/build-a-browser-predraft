@@ -9,7 +9,6 @@ import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRen
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.util.TraversableUtil;
 import net.buildabrowser.babbrowser.html.scripting.Window;
-import net.buildabrowser.babbrowser.render.Renderer;
 import net.buildabrowser.babbrowser.render.RenderingEngine;
 import net.buildabrowser.babbrowser.render.loader.DocumentLoaderRegistry;
 import net.buildabrowser.babbrowser.render.paint.backend.Painter;
@@ -46,8 +45,7 @@ public class RenderingEngineImp implements RenderingEngine {
     Navigable navigable = TraversableUtil.createNewTopLevelTraversable(
       new UANavigableOptionsImp(
         fetchEngine, uaStyleSheetsSupplier, documentLoaderRegistry,
-        painter, eventListener::onNavigate));
-    Renderer renderer = Renderer.create(navigable, painter, eventListener);
+        painter, eventListener));
 
     // TODO: Where does this code actually go?
     Window window = navigable.activeDocument().browsingContext().activeWindow();
@@ -56,7 +54,7 @@ public class RenderingEngineImp implements RenderingEngine {
     eventLoop.addNavigable(navigable);
     // TODO: Shutdown
 
-    return new NavigableRendererPair(navigable, renderer);
+    return new NavigableRendererPair(navigable, new DelegatingGraphicalDocumentRenderer(navigable));
   }
   
 }

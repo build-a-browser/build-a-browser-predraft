@@ -1,11 +1,11 @@
 package net.buildabrowser.babbrowser.html.navigation;
 
-import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 
 public class NavigateParameters {
 
-  public Document sourceDocument;
+  public RenderableDocument sourceDocument;
   
   public NavigationHistoryBehavior historyHandling = NavigationHistoryBehavior.AUTO;
 

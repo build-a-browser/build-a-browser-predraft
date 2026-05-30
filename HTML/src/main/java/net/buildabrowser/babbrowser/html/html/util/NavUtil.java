@@ -4,6 +4,7 @@ import java.net.URI;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
+import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.NavigateParameters;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
@@ -36,7 +37,7 @@ public final class NavUtil {
 
     // TODO: Also pass referrer policy
     NavigateParameters navParameters = new NavigateParameters();
-    navParameters.sourceDocument = subject.nodeDocument();
+    navParameters.sourceDocument = (RenderableDocument) subject.nodeDocument();
     navParameters.userInvolvement = userInvolvement;
     navParameters.sourceElement = subject;
     
