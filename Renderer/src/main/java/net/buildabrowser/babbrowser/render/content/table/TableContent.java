@@ -9,10 +9,12 @@ import net.buildabrowser.babbrowser.cssbase.property.table.BorderCollapseValue;
 import net.buildabrowser.babbrowser.cssbase.property.table.BorderSpacingValue;
 import net.buildabrowser.babbrowser.render.box.BoxContent;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
+import net.buildabrowser.babbrowser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.render.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.render.content.table.imp.TableCellUtil;
 import net.buildabrowser.babbrowser.render.content.table.imp.TableSeparateBorderPainter;
 import net.buildabrowser.babbrowser.render.content.table.imp.collapsed.TableCollapsedBorderPainter;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
@@ -41,6 +43,10 @@ public class TableContent implements BoxContent {
     TableFixup.adjustTableBox(rootBox);
   }
 
+  // Done during layout
+  @Override
+  public void computeMeasures(ElementBox box, LayoutConstraint referenceConstraint) {}
+
   @Override
   public UnmanagedBoxFragment layout(
     LayoutConstraint widthConstraint,
@@ -60,6 +66,8 @@ public class TableContent implements BoxContent {
     }
 
     // TODO: Need to merge unspecified columns with only spans
+
+    TableCellUtil.forEachCell(table, cell -> PaddingUtil.computePadding(cell.cellBox(), widthConstraint));
 
     CSSValue collapseValue = rootBox.activeStyles().getProperty(CSSProperty.BORDER_COLLAPSE);
     this.borderPainter = collapseValue.equals(BorderCollapseValue.COLLAPSE) ?
@@ -84,26 +92,26 @@ public class TableContent implements BoxContent {
         rootBox, painter);
     }
 
-    if (widthConstraint.value() < gridMin) {
-      widthConstraint = LayoutConstraint.of(gridMin);
-    }
+    LayoutConstraint usedConstraint = widthConstraint.value() < gridMin ?
+      LayoutConstraint.of(gridMin) :
+      widthConstraint;
 
     TableColumnSizerAuto.assignTableWidths(
-      widthConstraint, columns, borderSpacings);
+      usedConstraint, columns, borderSpacings);
 
     layoutCellsAndHeights(table);
     // TODO: Respect alignments and explicit row heights
     positionCells(table);
 
     float totalHeight = TableSizeUtil.sumHeights(table.rows()) + vSpaceTotal;
-    float inkWidth = widthConstraint.isBounded() ?
-      Math.max(widthConstraint.floatValue(), gridMin) :
+    float inkWidth = usedConstraint.isBounded() ?
+      Math.max(usedConstraint.floatValue(), gridMin) :
       gridMax;
 
     positionTracksAndTrackGroups(table, inkWidth, totalHeight);
 
     return new UnmanagedBoxFragment(
-      LayoutUtil.constraintOrDim(widthConstraint, gridMax),
+      LayoutUtil.constraintOrDim(usedConstraint, gridMax),
       LayoutUtil.constraintOrDim(heightConstraint, totalHeight),
       inkWidth, totalHeight,
       rootBox, painter);
@@ -122,11 +130,6 @@ public class TableContent implements BoxContent {
   @Override
   public void positionLayers(float layerX, float layerY) {
     // TODO: Implement this
-  }
-
-  @Override
-  public boolean computesOwnBorder() {
-    return true;
   }
 
   public Table table() {

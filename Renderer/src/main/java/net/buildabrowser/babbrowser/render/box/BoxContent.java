@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.render.box;
 
+import net.buildabrowser.babbrowser.render.content.common.BorderUtil;
+import net.buildabrowser.babbrowser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.event.EventHandler;
 import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
@@ -9,6 +11,11 @@ public interface BoxContent {
   default void fixupChildren() {}
 
   default void computeIntrinsics() {}
+
+  default void computeMeasures(ElementBox box, LayoutConstraint referenceConstraint) {
+    PaddingUtil.computePadding(box, referenceConstraint);
+    BorderUtil.computeBorder(box);
+  }
   
   UnmanagedBoxFragment layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
 
@@ -17,11 +24,6 @@ public interface BoxContent {
   ElementBox rootBox();
 
   EventHandler eventHandler();
-
-  // TODO: Handle this more properly later
-  default boolean computesOwnBorder() {
-    return false;
-  }
 
   default boolean isReplaced() {
     return false;

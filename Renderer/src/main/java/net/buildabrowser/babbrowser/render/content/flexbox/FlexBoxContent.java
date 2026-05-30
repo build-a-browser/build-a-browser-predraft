@@ -19,9 +19,7 @@ import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.render.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.render.box.TextBox;
-import net.buildabrowser.babbrowser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.render.content.common.MarginUtil;
-import net.buildabrowser.babbrowser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.render.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
@@ -115,8 +113,7 @@ public class FlexBoxContent implements BoxContent {
 
     for (FlexItem item: items) {
       MarginUtil.computeSimpleMargin(item.box(), widthConstraint);
-      BorderUtil.computeBorder(item.box());
-      PaddingUtil.computePadding(item.box(), widthConstraint);
+      item.box().content().computeMeasures(item.box(), widthConstraint);
       item.computeMinMaxSizes(mainSize, isVertical);
     }
 

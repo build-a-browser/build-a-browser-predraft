@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.render.content.table.imp;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.render.content.common.BorderUtil;
+import net.buildabrowser.babbrowser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.paint.ElementBackgroundPainter;
 import net.buildabrowser.babbrowser.render.content.common.paint.ElementBorderPainter;
@@ -21,7 +22,8 @@ public class TableSeparateBorderPainter implements TableBorderPainter {
     Table table,
     LayoutConstraint referenceConstraint
   ) {
-    BorderUtil.computeBorderForced(table.tableBox());
+    BorderUtil.computeBorder(table.tableBox());
+    PaddingUtil.computePadding(table.tableBox(), referenceConstraint);
     TableCellUtil.forEachCell(table, cell -> assignBorders(cell, referenceConstraint));
   }
 

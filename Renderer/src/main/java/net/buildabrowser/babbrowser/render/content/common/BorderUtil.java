@@ -12,12 +12,6 @@ public final class BorderUtil {
   private BorderUtil() {}
 
   public static void computeBorder(ElementBox childBox) {
-    // TODO: This is not so great
-    if (childBox.content().computesOwnBorder()) return;
-    computeBorderForced(childBox);
-  }
-
-  public static void computeBorderForced(ElementBox childBox) {
     ActiveStyles styles = childBox.activeStyles();
     float topBorder = computeBorder(
       styles.getProperty(CSSProperty.BORDER_TOP_WIDTH), styles.getProperty(CSSProperty.BORDER_TOP_STYLE),

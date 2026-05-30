@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.render.content.table.imp;
 
+import java.util.Arrays;
+
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
@@ -18,10 +20,10 @@ public class TableColumnImp implements TableColumn {
   private final int colX;
   private final ElementBox columnBox;
 
-  // TODO: Need more granular caching
   private float usedWidth = Float.NaN;
-  private float minWidth = Float.NaN;
-  private float maxWidth = Float.NaN;
+  // TODO: This is probably terrible for memory
+  private float[] minWidths;
+  private float[] maxWidths;
 
   public TableColumnImp(
     Table table,
@@ -142,36 +144,44 @@ public class TableColumnImp implements TableColumn {
 
   @Override
   public float minContentWidth() {
-    if (Float.isNaN(minWidth)) {
-      this.minWidth = minContentWidth(largestColSpan());
-    }
-    return this.minWidth;
+    return minContentWidth(largestColSpan());
   }
 
   @Override
   public float maxContentWidth() {
-    if (Float.isNaN(maxWidth)) {
-      this.maxWidth = maxContentWidth(largestColSpan());
-    }
-    return this.maxWidth;
+    return maxContentWidth(largestColSpan());
   }
 
   @Override
   public float minContentWidth(int colSpan) {
-    if (colSpan > 1) {
-      return minContentWidthSpan(colSpan);
-    } else {
-      return minContentWidthSingle();
+    if (this.minWidths == null) {
+      this.minWidths = new float[largestColSpan()];
+      Arrays.fill(this.minWidths, Float.NaN);
     }
+
+    if (Float.isNaN(this.minWidths[colSpan - 1])) {
+      return this.minWidths[colSpan - 1] = colSpan > 1 ?
+        minContentWidthSpan(colSpan) :
+        minContentWidthSingle();
+    }
+
+    return this.minWidths[colSpan - 1];
   }
 
   @Override
   public float maxContentWidth(int colSpan) {
-    if (colSpan > 1) {
-      return maxContentWidthSpan(colSpan);
-    } else {
-      return maxContentWidthSingle();
+    if (this.maxWidths == null) {
+      this.maxWidths = new float[largestColSpan()];
+      Arrays.fill(this.maxWidths, Float.NaN);
     }
+
+    if (Float.isNaN(this.maxWidths[colSpan - 1])) {
+      return this.maxWidths[colSpan - 1] = colSpan > 1 ?
+        maxContentWidthSpan(colSpan) :
+        maxContentWidthSingle();
+    }
+    
+    return this.maxWidths[colSpan - 1];
   }
 
   @Override

@@ -8,8 +8,6 @@ import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.render.box.TextBox;
-import net.buildabrowser.babbrowser.render.content.common.BorderUtil;
-import net.buildabrowser.babbrowser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
@@ -61,9 +59,7 @@ public class FlowBlockLayout {
     boolean isInInline = false;
     for (Box childBox: box.childBoxes()) {
       if (childBox instanceof ElementBox elementBox) {
-        // TODO: Maybe add a util method that groups all of this stuff
-        BorderUtil.computeBorder(elementBox);
-        PaddingUtil.computePadding(elementBox, widthConstraint);
+        elementBox.content().computeMeasures(elementBox, widthConstraint);
       }
       if (
         childBox instanceof ElementBox elementBox

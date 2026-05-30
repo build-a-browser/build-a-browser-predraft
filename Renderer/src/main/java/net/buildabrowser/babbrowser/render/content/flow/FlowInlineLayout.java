@@ -10,8 +10,6 @@ import net.buildabrowser.babbrowser.render.box.Box;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.render.box.TextBox;
-import net.buildabrowser.babbrowser.render.content.common.BorderUtil;
-import net.buildabrowser.babbrowser.render.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.render.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.render.content.common.fragment.LayoutFragment.Measurement;
@@ -73,8 +71,7 @@ public class FlowInlineLayout {
     } else if (box instanceof ElementBox elementBox) {
       // Might get computed twice for outer box, doesn't really matter
       LayoutConstraint widthConstraint = rootContent.blockLayout().activeContext().innerWidthConstraint();
-      BorderUtil.computeBorder(elementBox);
-      PaddingUtil.computePadding(elementBox, widthConstraint);
+      elementBox.content().computeMeasures(elementBox, widthConstraint);
       
       if (!PositionUtil.affectsLayout(elementBox)) {
         stagingArea.pushStagedElement(new StagedUnmanagedBox(elementBox));
