@@ -34,8 +34,8 @@ public class AttributeSelectorMatcher implements SimpleSelectorMatcher<Attribute
     if (ref.type().equals(AttributeType.ONE_OF)) return;
 
     RefCounted<ElementSet> setRef = matchingElements
-      .computeIfAbsent(ref.attrName(), _ -> new HashMap<>(1))
-      .computeIfAbsent(ref, _ -> RefCounted.create(allElements.createChild()));
+      .computeIfAbsent(ref.attrName(), _1 -> new HashMap<>(1))
+      .computeIfAbsent(ref, _1 -> RefCounted.create(allElements.createChild()));
     boolean didExist = setRef.isReferenced();
     setRef.incRefCount();
 

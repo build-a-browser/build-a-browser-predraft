@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.isBlank;
+
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -10,9 +12,9 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.box.TextBox;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.content.flow.floatbox.FloatTracker;
@@ -89,7 +91,7 @@ public class FlowBlockLayout {
           isInInline = false;
         }
         addToBlock((ElementBox) childBox, widthConstraint, heightConstraint);
-      } else if (childBox instanceof TextBox textBox && textBox.text().isBlank()) {
+      } else if (childBox instanceof TextBox textBox && isBlank(textBox.text())) {
         continue; // TODO: Check the actual spec-compliant way to handle this
       } else {
         activeContext.collapse();

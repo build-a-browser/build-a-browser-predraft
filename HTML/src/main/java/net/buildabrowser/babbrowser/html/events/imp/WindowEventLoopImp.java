@@ -13,6 +13,7 @@ import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
+import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
 
 public class WindowEventLoopImp extends EventLoopImp implements WindowEventLoop {
@@ -21,6 +22,10 @@ public class WindowEventLoopImp extends EventLoopImp implements WindowEventLoop 
   private final AtomicBoolean isLooping = new AtomicBoolean(false);
   private final AtomicBoolean queuedGlobalTask = new AtomicBoolean(false);
   
+  public WindowEventLoopImp(UANavigableOptions navigableOptions) {
+    super(navigableOptions.createThreadGroup());
+  }
+
   // TODO: The spec defines an algorithm involving realms and a loop
   // but we do not have realms yet
   @Override

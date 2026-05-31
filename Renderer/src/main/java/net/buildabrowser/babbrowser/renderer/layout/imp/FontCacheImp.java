@@ -19,7 +19,7 @@ public class FontCacheImp implements FontCache {
   }
 
   public LoadedFont load(FontOptions fontOptions) {
-    return fontCache.computeIfAbsent(fontOptions, _ -> fontLoader.load(fontOptions));
+    return fontCache.computeIfAbsent(fontOptions, _1 -> fontLoader.load(fontOptions));
   }
 
 }

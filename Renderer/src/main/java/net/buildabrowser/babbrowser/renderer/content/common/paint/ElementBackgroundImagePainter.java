@@ -176,6 +176,7 @@ public class ElementBackgroundImagePainter {
       case BORDER_BOX -> imgX;
       case PADDING_BOX -> imgX + fragment.posX(Measurement.PADDING) - fragment.posX(Measurement.BORDER);
       case CONTENT_BOX -> imgX + fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER);
+      default -> throw new UnsupportedOperationException("Unrecognized Origin Value: " + originValue);
     };
   }
 
@@ -184,6 +185,7 @@ public class ElementBackgroundImagePainter {
       case BORDER_BOX -> imgY;
       case PADDING_BOX -> imgY + fragment.posY(Measurement.PADDING) - fragment.posY(Measurement.BORDER);
       case CONTENT_BOX -> imgY + fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER);
+      default -> throw new UnsupportedOperationException("Unrecognized Origin Value: " + originValue);
     };
   }
 
@@ -241,6 +243,7 @@ public class ElementBackgroundImagePainter {
       case CENTER -> centerPos;
       case TOP, LEFT -> offset;
       case BOTTOM, RIGHT -> excludedSize - offset;
+      default -> throw new UnsupportedOperationException("Unrecognized Background Position Side: " + side);
     };
   }
 
@@ -281,6 +284,7 @@ public class ElementBackgroundImagePainter {
       case REPEAT, ROUND -> pos - (float) Math.ceil(pos / size) * size;
       case SPACE -> 0;
       case NO_REPEAT -> pos;
+      default -> throw new UnsupportedOperationException("Unrecognized Background Axis Repeat: " + backgroundAxisRepeat);
     };
   }
 
@@ -292,6 +296,7 @@ public class ElementBackgroundImagePainter {
       case REPEAT, ROUND -> (int) Math.ceil((vpSize - pos) / size);
       case SPACE -> Math.max(1, (int) (vpSize / size));
       case NO_REPEAT -> 1;
+      default -> throw new UnsupportedOperationException("Unrecognized Background Axis Repeat: " + backgroundAxisRepeat);
     };
   }
 
@@ -306,11 +311,13 @@ public class ElementBackgroundImagePainter {
       case BORDER_BOX -> fragmentWidth;
       case PADDING_BOX -> fragment.width(Measurement.PADDING);
       case CONTENT_BOX -> fragment.width(Measurement.CONTENT);
+      default -> throw new UnsupportedOperationException("Unrecognized Background Clip: " + bgClip);
     };
     float vpH = switch (bgClip) {
       case BORDER_BOX -> fragmentHeight;
       case PADDING_BOX -> fragment.height(Measurement.PADDING);
       case CONTENT_BOX -> fragment.height(Measurement.CONTENT);
+      default -> throw new UnsupportedOperationException("Unrecognized Background Clip: " + bgClip);
     };
     canvas.clip(vpX, vpY, vpW, vpH);
   }

@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.renderer;
 
+import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
@@ -21,12 +22,14 @@ public interface RenderingEngine {
 
   static <T> RenderingEngine create(
     FetchEngine fetchEngine,
+    Supplier<ExecutorService> threadGroupSupplier,
     Painter painter,
     DocumentLoaderRegistry documentLoaderRegistry,
     Supplier<StyleSheetList> uaStyleSheetsSupplier
   ) {
     return new RenderingEngineImp(
-      fetchEngine, painter, documentLoaderRegistry, uaStyleSheetsSupplier);
+      fetchEngine, threadGroupSupplier, painter,
+      documentLoaderRegistry, uaStyleSheetsSupplier);
   }
 
   static record NavigableRendererPair(

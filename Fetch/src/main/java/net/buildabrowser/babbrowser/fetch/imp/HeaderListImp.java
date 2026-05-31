@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.fetch.imp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.fetch.HeaderList;
@@ -43,7 +44,7 @@ public class HeaderListImp implements HeaderList {
     // TODO: Properly implement the spec
     String value = get(name);
     if (value == null) return List.of();
-    return List.of(value.split(",")).stream().map(s -> s.strip()).toList();
+    return List.of(value.split(",")).stream().map(s -> s.trim()).collect(Collectors.toList());
   }
 
 }

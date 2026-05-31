@@ -1,5 +1,8 @@
 package net.buildabrowser.babbrowser.cssbase.property.background;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.getFirst;
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.getLast;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +11,8 @@ import java.util.function.Function;
 import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.AnyOrderResult;
@@ -48,7 +51,7 @@ public class BackgroundParser implements PropertyValueParser {
 
     List<BackgroundLayer> bgLayers = (List<BackgroundLayer>) (List) ((ManyResult) result).values();
 
-    BackgroundLayer lastLayer = bgLayers.getLast();
+    BackgroundLayer lastLayer = getLast(bgLayers);
     for (BackgroundLayer layer: bgLayers) {
       if (layer == lastLayer) continue;
       if (layer.bgColor() != null) {
@@ -75,7 +78,7 @@ public class BackgroundParser implements PropertyValueParser {
     updateSpecificProperty(CSSProperty.BACKGROUND_ORIGIN, propertySetter, bgLayers, BackgroundLayer::bgOrigin);
     updateSpecificProperty(CSSProperty.BACKGROUND_CLIP, propertySetter, bgLayers, BackgroundLayer::bgClip);
 
-    CSSValue bgColor = bgLayers.getLast().bgColor();
+    CSSValue bgColor = getLast(bgLayers).bgColor();
     if (bgColor == null) {
       bgColor = CSSProperty.BACKGROUND_COLOR.initial();
     }
@@ -92,7 +95,7 @@ public class BackgroundParser implements PropertyValueParser {
     for (BackgroundLayer layer: bgLayers) {
       CSSValue value = valueGetter.apply(layer);
       if (value == null) {
-        value = ((ManyResult) property.initial()).values().getFirst();
+        value = getFirst(((ManyResult) property.initial()).values());
       }
       propLayers.add(value);
     }

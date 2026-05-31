@@ -46,7 +46,7 @@ public class ImageCacheImp implements ImageCache {
     InvalidationLevel invalidation
   ) {
     ImageCacheEntryImp imageEntry = imageEntries.computeIfAbsent(
-      imageURI, _ -> new ImageCacheEntryImp());
+      imageURI, _1 -> new ImageCacheEntryImp());
     if (imageEntry.getImage() != null) {
       return imageEntry.getImage();
     }

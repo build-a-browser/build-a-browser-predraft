@@ -155,14 +155,14 @@ public class ReadableByteStreamControllerImp implements ReadableByteStreamContro
     List<ReadRequest> readRequests = reader.readRequests;
     while (!readRequests.isEmpty()) {
       if (queueTotalSize == 0) return;
-      ReadRequest readRequest = readRequests.removeFirst();
+      ReadRequest readRequest = readRequests.remove(0);
       fillReadRequestFromQueue(readRequest);
     }
   }
 
   private void fillReadRequestFromQueue(ReadRequest readRequest) {
     assert queueTotalSize > 0;
-    ByteBuffer entry = queue.removeFirst();
+    ByteBuffer entry = queue.remove(0);
     this.queueTotalSize -= entry.limit();
     handleQueueDrain();
     // TODO: Create a view

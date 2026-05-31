@@ -48,7 +48,7 @@ public class SkijaGPUCanvas extends AWTGLCanvas {
   @Override
   public void paintGL() {
     if (invalid) {
-      callbacks.layout();
+      callbacks.layout(getWidth(), getHeight());
     }
 
     if (

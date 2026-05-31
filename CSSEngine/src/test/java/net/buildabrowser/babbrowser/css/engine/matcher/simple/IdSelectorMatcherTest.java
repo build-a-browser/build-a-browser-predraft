@@ -21,7 +21,7 @@ public class IdSelectorMatcherTest {
   @BeforeEach
   public void beforeEach() {
     this.allElements = ElementSet.createRoot();
-    this.matcher = new IdSelectorMatcher(allElements, _ -> {});
+    this.matcher = new IdSelectorMatcher(allElements, _1 -> {});
   }
 
   @Test

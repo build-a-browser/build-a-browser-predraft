@@ -119,7 +119,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
         default -> attributePresentSelectorMatcher.match(attributeSelector);
       };
       case SimplePsuedoSelector psuedoSelector -> simplePsuedoSelectors.get(psuedoSelector).match(psuedoSelector);
-      case UniversalSelector _ -> allElements;
+      case UniversalSelector _1 -> allElements;
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
     };
   }
@@ -133,7 +133,9 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
         case AttributeType.ONE_OF -> attributeOneOfSelectorMatcher.addSelectorReference(attributeSelector);
         default -> attributePresentSelectorMatcher.addSelectorReference(attributeSelector);
       } }
-      case Combinator _, UniversalSelector _, SimplePsuedoSelector _ -> {}
+      case Combinator _1 -> {}
+      case UniversalSelector _1 -> {}
+      case SimplePsuedoSelector _1 -> {}
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
     };
   }
@@ -147,7 +149,9 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
         case AttributeType.ONE_OF -> attributeOneOfSelectorMatcher.removeSelectorReference(attributeSelector);
         default -> attributePresentSelectorMatcher.removeSelectorReference(attributeSelector);
       } }
-      case Combinator _, UniversalSelector _, SimplePsuedoSelector _ -> {}
+      case Combinator _1 -> {}
+      case UniversalSelector _1 -> {}
+      case SimplePsuedoSelector _1 -> {}
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
     };
   }

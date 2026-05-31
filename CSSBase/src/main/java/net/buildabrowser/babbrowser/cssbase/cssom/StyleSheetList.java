@@ -24,7 +24,7 @@ public interface StyleSheetList extends Iterable<CSSStyleSheet> {
   void removeStylesheet(CSSStyleSheet styleSheet);
 
   static StyleSheetList create(List<CSSStyleSheet> styleSheets) {
-    return new StyleSheetListImp(styleSheets, _ -> {});
+    return new StyleSheetListImp(styleSheets, _1 -> {});
   }
 
   static StyleSheetList create(Consumer<CSSStyleSheet> styleSheetListener) {

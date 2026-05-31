@@ -13,8 +13,10 @@ public interface BrowsingContext {
 
   Realm realm();
 
-  public static BrowsingContext create() {
-    return new BrowsingContextImp();
+  public static BrowsingContext create(
+    UANavigableOptions uaNavigableOptions
+  ) {
+    return new BrowsingContextImp(uaNavigableOptions);
   }
 
 }

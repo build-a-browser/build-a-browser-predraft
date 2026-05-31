@@ -1,10 +1,13 @@
 package net.buildabrowser.babbrowser.browser.net.imp;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.net.http.HttpResponse.ResponseInfo;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +20,11 @@ import org.slf4j.LoggerFactory;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
+import net.buildabrowser.babbrowser.fetch.FetchResponse;
 import net.buildabrowser.babbrowser.fetch.HeaderList;
+import net.buildabrowser.babbrowser.fetch.imp.FetchImpUtil;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchResponse;
+import net.buildabrowser.babbrowser.network.ExtensionUtil;
 import net.buildabrowser.babbrowser.network.encoding.ContentDecoder;
 import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
 
@@ -77,6 +83,29 @@ public class FetchBackendImp implements FetchBackend {
       return null;
     });
     // TODO: Proper exception handling
+  }
+
+  @Override
+  public FetchResponse fetchFile(FetchRequest request) {
+    // TODO: Improve security
+    File file = CommonUtil.tryOrNull(() -> new File(request.url()));
+    if (file == null || !file.exists() || file.isDirectory()) {
+      return FetchResponse.createNetworkError();
+    }
+    
+    try {
+      byte[] bytes = Files.readAllBytes(file.toPath());
+      String mimeType = ExtensionUtil.guessMimeTypeFromFileName(file.getPath());
+      if (mimeType == null) {
+        mimeType = "application/octet-stream";
+      }
+      return FetchResponse.create(
+        "OK",
+        HeaderList.create("Content-Type", mimeType),
+        FetchImpUtil.getBytesAsABody(bytes));
+    } catch (IOException e) {
+      return FetchResponse.createNetworkError();
+    }
   }
 
   private void appendResponseHeaders(MutableFetchResponse response, ResponseInfo responseInfo) {

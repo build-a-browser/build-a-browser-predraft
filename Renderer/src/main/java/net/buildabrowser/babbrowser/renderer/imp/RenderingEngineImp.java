@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.imp;
 
+import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
@@ -17,17 +18,20 @@ import net.buildabrowser.babbrowser.renderer.uistate.Frame;
 public class RenderingEngineImp implements RenderingEngine {
 
   private final FetchEngine fetchEngine;
+  private final Supplier<ExecutorService> threadGroupSupplier;
   private final Painter painter;
   private final DocumentLoaderRegistry documentLoaderRegistry;
   private final Supplier<StyleSheetList> uaStyleSheetsSupplier;
 
   public RenderingEngineImp(
     FetchEngine fetchEngine,
+    Supplier<ExecutorService> threadGroupSupplier,
     Painter painter,
     DocumentLoaderRegistry documentLoaderRegistry,
     Supplier<StyleSheetList> uaStyleSheetsSupplier
   ) {
     this.fetchEngine = fetchEngine;
+    this.threadGroupSupplier = threadGroupSupplier;
     this.painter = painter;
     this.documentLoaderRegistry = documentLoaderRegistry;
     this.uaStyleSheetsSupplier = uaStyleSheetsSupplier;
@@ -44,8 +48,8 @@ public class RenderingEngineImp implements RenderingEngine {
   ) {
     Navigable navigable = TraversableUtil.createNewTopLevelTraversable(
       new UANavigableOptionsImp(
-        fetchEngine, uaStyleSheetsSupplier, documentLoaderRegistry,
-        painter, eventListener));
+        fetchEngine, threadGroupSupplier, uaStyleSheetsSupplier,
+        documentLoaderRegistry, painter, eventListener));
 
     // TODO: Where does this code actually go?
     Window window = navigable.activeDocument().browsingContext().activeWindow();

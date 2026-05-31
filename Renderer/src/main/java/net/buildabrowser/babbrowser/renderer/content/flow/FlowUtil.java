@@ -42,7 +42,7 @@ public final class FlowUtil {
   public static boolean isBlockLevel(Box childBox) {
     return switch(childBox) {
       case ElementBox elementBox -> elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL);
-      case TextBox _ -> false;
+      case TextBox _1 -> false;
       default -> throw new UnsupportedOperationException("Unknown box type!");
     };
   }

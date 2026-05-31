@@ -184,12 +184,11 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
     Component panel = painter.createComponent(new CanvasCallbacks() {
 
       @Override
-      public void layout() {
+      public void layout(float width, float height) {
         GraphicalDocumentRenderer activeRenderer = activeRenderer();
         if (activeRenderer == null) return;
-        activeRenderer.resize(
-          sharedRenderedContent.getWidth(),
-          sharedRenderedContent.getHeight());
+        // TODO: Make renderer accept float instead?
+        activeRenderer.resize((int) Math.ceil(width), (int) Math.ceil(height));
       }
 
       @Override

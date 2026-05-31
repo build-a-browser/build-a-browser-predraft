@@ -3,6 +3,8 @@ plugins {
 }
 
 dependencies {
+    implementation project(':Common')
+
     implementation 'com.aayushatharva.brotli4j:brotli4j:1.22.0'
     runtimeOnly 'com.aayushatharva.brotli4j:natives:1.22.0'
 }

@@ -91,7 +91,7 @@ public class TagTokenImp implements TagToken {
       currentAttribute = currentAttribute.next();
     }
 
-    if (!attributeNameBuilder.isEmpty()) {
+    if (attributeNameBuilder.length() != 0) {
       element.addAttribute(
         attributeNameBuilder.toString(),
       attributeValueBuilder.toString());

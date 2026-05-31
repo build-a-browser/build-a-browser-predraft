@@ -30,8 +30,8 @@ public class SkijaSoftwareCanvas extends JPanel {
 
   @Override
   public void doLayout() {
-    callbacks.layout();
     super.doLayout();
+    callbacks.layout(getWidth(), getHeight());
   }
 
   @Override

@@ -5,7 +5,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -26,7 +25,7 @@ public class EventLoopImp implements EventLoop {
   // For now, just doing round-robin. Will change in the future
   private final Set<TaskSource> taskOrder = new LinkedHashSet<>();
 
-  private final ExecutorService threadGroup = Executors.newVirtualThreadPerTaskExecutor();
+  private final ExecutorService threadGroup;
 
   @SuppressWarnings("unused")
   private Task currentlyRunningTask;
@@ -40,6 +39,10 @@ public class EventLoopImp implements EventLoop {
   protected AtomicBoolean isClosing = new AtomicBoolean(false);
 
   // TODO: Properly shut down the event loop
+
+  public EventLoopImp(ExecutorService threadGroup) {
+    this.threadGroup = threadGroup;
+  }
 
   @Override
   public void start() {
@@ -115,7 +118,7 @@ public class EventLoopImp implements EventLoop {
     synchronized(tasks) { 
       Task task = new Task(steps, source, document);
       TaskQueue queue = tasks.computeIfAbsent(source,
-        _ -> new TaskQueue(new LinkedHashSet<>()));
+        _1 -> new TaskQueue(new LinkedHashSet<>()));
       queue.tasks().add(task);
       taskOrder.add(source);
       numTasks++;

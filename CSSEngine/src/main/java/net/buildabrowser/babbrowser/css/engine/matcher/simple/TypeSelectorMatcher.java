@@ -30,7 +30,7 @@ public class TypeSelectorMatcher implements SimpleSelectorMatcher<TypeSelector> 
   @Override
   public void addSelectorReference(TypeSelector ref) {
     RefCounted<ElementSet> setRef = matchingElements
-      .computeIfAbsent(ref, _ -> RefCounted.create(allElements.createChild()));
+      .computeIfAbsent(ref, _1 -> RefCounted.create(allElements.createChild()));
     boolean didExist = setRef.isReferenced();
     setRef.incRefCount();
 

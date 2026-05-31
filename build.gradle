@@ -1,8 +1,12 @@
+plugins {
+	id 'ru.vyarus.animalsniffer' version '2.0.1' apply false
+}
+
 import org.gradle.nativeplatform.internal.DefaultTargetMachineFactory
 
 subprojects {
 	apply plugin: 'java'
-	
+
 	repositories {
 		mavenCentral()
 	}
@@ -10,19 +14,43 @@ subprojects {
 	dependencies {
 		implementation "org.slf4j:slf4j-api:1.7.36"
 
-    testImplementation platform("org.junit:junit-bom:5.10.0")
-    testImplementation "org.junit.jupiter:junit-jupiter"
+		testImplementation platform("org.junit:junit-bom:6.0.1")
+		testImplementation "org.junit.jupiter:junit-jupiter"
 		testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 	}
 
 	tasks.withType(Test).configureEach {
 		useJUnitPlatform()
-		// failOnNoDiscoveredTests = false
 	}
 
-	java {
-    sourceCompatibility = JavaVersion.VERSION_24
-    targetCompatibility = JavaVersion.VERSION_24
-	}
+	def desktopModules = [':Browser', ':SkijaPainter', ':Java2DPainter']
 
+	if (!desktopModules.contains(project.path)) {
+		apply plugin: 'ru.vyarus.animalsniffer'
+
+		java {
+			sourceCompatibility = JavaVersion.VERSION_21
+			targetCompatibility = JavaVersion.VERSION_21
+		}
+
+		dependencies {
+			signature 'com.toasttab.android:gummy-bears-api-29:0.14.0:@signature'
+			// 29 signature does not have a coreLib2 variant, so use 24
+			signature 'com.toasttab.android:gummy-bears-api-24:0.14.0:coreLib2@signature'
+		}
+
+		animalsniffer {
+			sourceSets = [sourceSets.main]
+			ignore = [
+				'java.lang.Record',
+				'java.lang.runtime',
+				'java.util.zip.CRC32'
+			]
+		}
+	} else {
+		java {
+			sourceCompatibility = JavaVersion.VERSION_24
+			targetCompatibility = JavaVersion.VERSION_24
+		}
+	}
 }

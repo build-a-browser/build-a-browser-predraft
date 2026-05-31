@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 import javax.swing.UIManager;
@@ -54,7 +55,11 @@ public class Main {
     Supplier<StyleSheetList> uaStyleSheetsSupplier = () -> CommonUtil.rethrow(() -> loadUAStyleSheets());
 
     RenderingEngine renderingEngine = RenderingEngine.create(
-      fetchEngine, painter, loaderRegistry, uaStyleSheetsSupplier);
+      fetchEngine,
+      Executors::newVirtualThreadPerTaskExecutor,
+      painter,
+      loaderRegistry,
+      uaStyleSheetsSupplier);
     BrowserInstance browserInstance = BrowserInstance.create(renderingEngine);
   
     WindowSet windowSet = WindowSet.create(browserInstance);

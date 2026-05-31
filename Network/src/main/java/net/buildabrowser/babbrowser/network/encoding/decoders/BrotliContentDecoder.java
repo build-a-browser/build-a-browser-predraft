@@ -1,6 +1,9 @@
 package net.buildabrowser.babbrowser.network.encoding.decoders;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.slice;
+
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 import com.aayushatharva.brotli4j.Brotli4jLoader;
@@ -28,21 +31,23 @@ public class BrotliContentDecoder implements ContentDecoder {
 
   @Override
   public void push(ByteBuffer buffer) throws IOException {
+    ByteBuffer decoderByteBuffer = decoder.getInputBuffer();
+    Buffer decoderBuffer = decoderByteBuffer;
     if (buffer.remaining() < BUFFER_SIZE) {
       int remaining = buffer.remaining();
-      decoder.getInputBuffer().clear();
-      decoder.getInputBuffer().put(buffer);
-      decoder.getInputBuffer().flip();
+      decoderBuffer.clear();
+      decoderByteBuffer.put(buffer);
+      decoderBuffer.flip();
       decoder.push(remaining);
       emitOutput();
     } else {
       while (buffer.remaining() > 0) {
         int toPush = Math.min(BUFFER_SIZE, buffer.remaining());
-        ByteBuffer subBuffer = buffer.slice(buffer.position(), toPush);
-        buffer.position(buffer.position() + toPush);
-        decoder.getInputBuffer().clear();
-        decoder.getInputBuffer().put(subBuffer);
-        decoder.getInputBuffer().flip();
+        ByteBuffer subBuffer = slice(buffer, buffer.position(), toPush);
+        ((Buffer) buffer).position(buffer.position() + toPush);
+        decoderBuffer.clear();
+        decoderByteBuffer.put(subBuffer);
+        decoderBuffer.flip();
         decoder.push(toPush);
         emitOutput();
       }
@@ -71,7 +76,7 @@ public class BrotliContentDecoder implements ContentDecoder {
         // Yet another point the buffer needs copied. I guess zero-copy buffers just aren't a thing.
         ByteBuffer result = decoder.pull();
         ByteBuffer copy = ByteBuffer.allocate(result.limit()).put(result);
-        copy.flip();
+        ((Buffer) copy).flip();
         onChunk.push(copy);
       } else {
         decoder.push(0);

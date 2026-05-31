@@ -195,6 +195,7 @@ public class CalcInterpreter {
         case NEAREST, LINE_WIDTH, TO_ZERO -> aEval.derive(argAsZero);
         case UP -> aEval.derive(aEval.floatValue() > 0 ? Float.POSITIVE_INFINITY : argAsZero);
         case DOWN -> aEval.derive(aEval.floatValue() < 0 ? Float.NEGATIVE_INFINITY : argAsZero);
+        default -> throw new UnsupportedOperationException("Unsupported Rounding Strategy: " + calcValue.roundingStrategy());
       };
     }
 
@@ -208,6 +209,7 @@ public class CalcInterpreter {
       case TO_ZERO -> aEval.floatValue() >= 0 ? lowerB : upperB;
       // TODO: Snap to line width in some cases
       case LINE_WIDTH -> isCloserToLower ? lowerB : upperB;
+      default -> throw new UnsupportedOperationException("Unsupported Rounding Strategy: " + calcValue.roundingStrategy());
     };
 
     return aEval.derive(chosenValue);

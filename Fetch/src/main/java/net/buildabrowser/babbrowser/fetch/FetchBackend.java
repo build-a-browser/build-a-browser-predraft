@@ -14,4 +14,7 @@ public interface FetchBackend {
     Consumer<Optional<ByteBuffer>> byteConsumer
   );
 
+  // TODO: Better abstraction for this
+  FetchResponse fetchFile(FetchRequest request);
+
 }

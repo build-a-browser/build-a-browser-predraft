@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.fetch.imp;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.getLast;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ public class MutableFetchResponseImp implements MutableFetchResponse {
   @Override
   public URI url() {
     if (urlList.isEmpty()) return null;
-    return urlList.getLast();
+    return getLast(urlList);
   }
 
   @Override

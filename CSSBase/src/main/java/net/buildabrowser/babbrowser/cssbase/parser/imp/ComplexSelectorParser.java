@@ -1,5 +1,8 @@
 package net.buildabrowser.babbrowser.cssbase.parser.imp;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.getFirst;
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.getLast;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,8 +82,8 @@ public final class ComplexSelectorParser {
     }
 
     if (parts.isEmpty()) return null;
-    isInvalid |= parts.getFirst() instanceof Combinator;
-    isInvalid |= parts.getLast() instanceof Combinator;
+    isInvalid |= getFirst(parts) instanceof Combinator;
+    isInvalid |= getLast(parts) instanceof Combinator;
     if (isInvalid) return null;
 
     return new ComplexSelector(parts);
@@ -100,10 +103,10 @@ public final class ComplexSelectorParser {
           isInvalid = true;
         }
       }
-      case ColonToken _ -> isInvalid |= parsePsuedoSelector(tokenStream, parts);
+      case ColonToken _1 -> isInvalid |= parsePsuedoSelector(tokenStream, parts);
       case SimpleBlock simpleBlock -> isInvalid |= parseAttributeSelector(
         tokenStream.source(), simpleBlock, parts);
-      case WhitespaceToken _ -> {}
+      case WhitespaceToken _1 -> {}
       default -> isInvalid = true;
     }
 

@@ -92,7 +92,7 @@ public class ReadableStreamImp implements ReadableStream {
     ReadableStreamDefaultReaderImp defaultReader = (ReadableStreamDefaultReaderImp) reader;
     List<ReadRequest> readRequests = defaultReader.readRequests;
     assert !readRequests.isEmpty();
-    ReadRequest readRequest = readRequests.removeFirst();
+    ReadRequest readRequest = readRequests.remove(0);
     if (done) {
       readRequest.close();
     } else {
@@ -106,13 +106,13 @@ public class ReadableStreamImp implements ReadableStream {
 
   private void setupReadableByteStreamControllerFromUnderlyingSource(UnderlyingSource underlyingSource) {
     UnderlyingSourceStartCallback startAlgorithm = underlyingSource == null || underlyingSource.start == null ?
-      _ -> null :
+      _1 -> null :
       underlyingSource.start;
     UnderlyingSourcePullCallback pullAlgorithm = underlyingSource == null || underlyingSource.pull == null ?
-      _ -> CompletableFuture.completedFuture(null) :
+      _1 -> CompletableFuture.completedFuture(null) :
       underlyingSource.pull;
     UnderlyingSourceCancelCallback cancelAlgorithm = underlyingSource == null || underlyingSource.cancel == null ?
-      _ -> CompletableFuture.completedFuture(null) :
+      _1 -> CompletableFuture.completedFuture(null) :
       underlyingSource.cancel;
     // TODO: Handle autoAllocateChunkSize
     setupReadableByteStreamController(startAlgorithm, pullAlgorithm, cancelAlgorithm);
@@ -132,7 +132,7 @@ public class ReadableStreamImp implements ReadableStream {
     CompletableFuture<?> startPromise = startResult instanceof CompletableFuture completeableFuture ?
       completeableFuture :
       CompletableFuture.completedFuture(null);
-    startPromise.thenAccept(_ -> controller.postStart());
+    startPromise.thenAccept(_1 -> controller.postStart());
     startPromise.exceptionally(e -> { controller.error(e); return null; });
   }
 

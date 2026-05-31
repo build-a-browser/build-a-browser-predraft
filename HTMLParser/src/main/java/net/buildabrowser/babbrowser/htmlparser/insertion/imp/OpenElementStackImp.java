@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.imp;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.getFirst;
+
 import java.net.URI;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -21,12 +23,12 @@ public class OpenElementStackImp implements OpenElementStack {
 
   @Override
   public void pushNode(Node node) {
-    stack.addFirst(node);
+    stack.add(0, node);
   }
 
   @Override
   public Node peek() {
-    return stack.getFirst();
+    return getFirst(stack);
   }
 
   @Override
@@ -36,7 +38,7 @@ public class OpenElementStackImp implements OpenElementStack {
 
   @Override
   public Node popNode() {
-    Node node = stack.removeFirst();
+    Node node = stack.remove(0);
     if (ParseElementUtil.isHTMLElementWithName(node, "style")) {
       updateAStyleBlock((Element) node);
     } else if (ParseElementUtil.isHTMLElementWithName(node, "title")) {

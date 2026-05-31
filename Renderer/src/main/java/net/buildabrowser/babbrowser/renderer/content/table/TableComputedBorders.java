@@ -30,6 +30,7 @@ public class TableComputedBorders {
         case RIGHT -> CSSProperty.BORDER_RIGHT_COLOR;
         case TOP -> CSSProperty.BORDER_TOP_COLOR;
         case BOTTOM -> CSSProperty.BORDER_BOTTOM_COLOR;
+        default -> throw new UnsupportedOperationException("Unrecognized Border Side: " + sourceSide);
       };
 
       return ElementBorderPainter.borderColor(
@@ -53,6 +54,7 @@ public class TableComputedBorders {
       case BOTTOM -> CSSProperty.BORDER_BOTTOM_WIDTH;
       case LEFT -> CSSProperty.BORDER_LEFT_WIDTH;
       case RIGHT -> CSSProperty.BORDER_RIGHT_WIDTH;
+      default -> throw new UnsupportedOperationException("Unrecognized Border Side: " + sourceSide);
     };
 
     CSSProperty styleProperty = switch (sourceSide) {
@@ -60,6 +62,7 @@ public class TableComputedBorders {
       case BOTTOM -> CSSProperty.BORDER_BOTTOM_STYLE;
       case LEFT -> CSSProperty.BORDER_LEFT_STYLE;
       case RIGHT -> CSSProperty.BORDER_RIGHT_STYLE;
+      default -> throw new UnsupportedOperationException("Unrecognized Border Side: " + sourceSide);
     };
 
     ActiveStyles sourceStyles = sourceBox.activeStyles();

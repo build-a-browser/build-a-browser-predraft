@@ -25,7 +25,7 @@ public final class LineWhitespaceCollapser {
     while (!stagingArea.done()) {
       int nextText = stagingArea.cursorPos();
       switch (stagingArea.next()) {
-        case StagedText _ -> {
+        case StagedText _1 -> {
           lastTextWhitespaceTrailed = switch (modeStack.peek()) {
             case COLLAPSE, PRESERVE_BREAKS -> collapseWhitespaceInner(
               stagingArea, nextText, newText, whitespaceCollapse, lastTextWhitespaceTrailed);
@@ -38,7 +38,7 @@ public final class LineWhitespaceCollapser {
           WhitespaceCollapseValue collapse = (WhitespaceCollapseValue) styles.getProperty(CSSProperty.WHITE_SPACE_COLLAPSE);
           modeStack.push(collapse);
         }
-        case ManagedBoxExitMarker _ -> modeStack.pop();
+        case ManagedBoxExitMarker _1 -> modeStack.pop();
         default -> {}
       }
     }

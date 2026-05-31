@@ -1,5 +1,8 @@
 package net.buildabrowser.babbrowser.cssbase.parser.imp;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.getLast;
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.removeLast;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +38,11 @@ public class CSSIntermediateParserImp {
     while (true) {
       Token token = stream.read();
       switch (token) {
-        case WhitespaceToken _:
+        case WhitespaceToken _1:
           continue;
-        case EOFToken _:
+        case EOFToken _1:
           return rules;
-        case AtKeywordToken _:
+        case AtKeywordToken _1:
           stream.unread(token);
           CSSRule atRule = consumeAnAtRule(stream);
           rules.add(atRule);
@@ -62,12 +65,12 @@ public class CSSIntermediateParserImp {
     while (true) {
       Token token = stream.read();
       switch (token) {
-        case SemicolonToken _:
+        case SemicolonToken _1:
           return new AtRule(name, prelude, null);
-        case EOFToken _:
+        case EOFToken _1:
           // TODO: Report parse error
           return new AtRule(name, prelude, null);
-        case LCBracketToken _: {
+        case LCBracketToken _1: {
           SimpleBlock simpleBlock = consumeASimpleBlock(stream, token);
           return new AtRule(name, prelude, simpleBlock);
         }
@@ -92,10 +95,10 @@ public class CSSIntermediateParserImp {
     while (true) {
       Token token = stream.read();
       switch (token) {
-        case EOFToken _:
+        case EOFToken _1:
           // TODO: Report parse error
           return null;
-        case LCBracketToken _: {
+        case LCBracketToken _1: {
           SimpleBlock simpleBlock = consumeASimpleBlock(stream, token);
           return new QualifiedRule(prelude, simpleBlock);
         }
@@ -120,12 +123,14 @@ public class CSSIntermediateParserImp {
     while (true) {
       Token token = stream.read();
       switch (token) {
-        case WhitespaceToken _, SemicolonToken _:
+        case WhitespaceToken _1:
           continue;
-        case EOFToken _:
+        case SemicolonToken _1:
+          continue;
+        case EOFToken _1:
           // TODO: Extend decl with rules
           return declarations;
-        case IdentToken _:
+        case IdentToken _1:
           handleStyleBlockIdent(stream, declarations, token);
           break;
         default:
@@ -165,8 +170,8 @@ public class CSSIntermediateParserImp {
 
     // TODO: !important
     if (declValue.isEmpty()) return null;
-    while (declValue.getLast() instanceof WhitespaceToken) {
-      declValue.removeLast();
+    while (getLast(declValue) instanceof WhitespaceToken) {
+      removeLast(declValue);
     }
 
     return Declaration.create(

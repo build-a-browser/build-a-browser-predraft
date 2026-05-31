@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.network.encoding.decoders;
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.zip.CRC32;
@@ -93,7 +94,7 @@ public class GzipContentDecoder extends DeflateContentDecoder {
       offset += 2;
     }
     
-    buffer.position(offset);
+    ((Buffer) buffer).position(offset);
 
     return true;
   }
@@ -113,7 +114,7 @@ public class GzipContentDecoder extends DeflateContentDecoder {
     int position = chunk.position();
     actualSize += chunk.remaining();
     crc.update(chunk);
-    chunk.position(position);
+    ((Buffer) chunk).position(position);
     super.handleChunk(chunk);
   }
   

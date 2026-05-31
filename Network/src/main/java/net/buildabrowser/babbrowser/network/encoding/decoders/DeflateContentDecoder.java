@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.network.encoding.decoders;
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
@@ -34,7 +35,7 @@ public class DeflateContentDecoder implements ContentDecoder {
       buffer = remainingData;
       remainingData = EMPTY_BUFFER;
       
-      inflater.setInput(buffer);
+      setInput(buffer);
       
       while (!(inflater.finished() || inflater.needsInput())) {
         byte[] buf = new byte[1024];
@@ -50,7 +51,7 @@ public class DeflateContentDecoder implements ContentDecoder {
       if (inflater.getRemaining() > 0) {
         remainingData = ByteBuffer.allocate(inflater.getRemaining());
         remainingData.put(buffer.array(), buffer.limit() - inflater.getRemaining(), inflater.getRemaining());
-        remainingData.flip();
+        ((Buffer) remainingData).flip();
       }
     } catch (DataFormatException e) {
       throw new IOException("Data format error during decompression", e);
@@ -79,8 +80,24 @@ public class DeflateContentDecoder implements ContentDecoder {
     ByteBuffer newBuffer = ByteBuffer.allocate(remainingData.remaining() + buffer.remaining());
     newBuffer.put(remainingData);
     newBuffer.put(buffer);
-    newBuffer.flip();
+    ((Buffer) newBuffer).flip();
     remainingData = newBuffer;
+  }
+
+  // TODO: Use the normal setInput when it is supported
+  private void setInput(ByteBuffer buffer) {
+    if (buffer.hasArray()) {
+      inflater.setInput(
+        buffer.array(), 
+        buffer.arrayOffset() + buffer.position(), 
+        buffer.remaining()
+      );
+      ((java.nio.Buffer) buffer).position(buffer.limit());
+    } else {
+      byte[] tempArray = new byte[buffer.remaining()];
+      buffer.get(tempArray);
+      inflater.setInput(tempArray);
+    }
   }
 
 }

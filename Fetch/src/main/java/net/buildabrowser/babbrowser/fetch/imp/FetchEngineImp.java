@@ -1,11 +1,11 @@
 package net.buildabrowser.babbrowser.fetch.imp;
 
-import java.io.File;
-import java.io.IOException;
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.slice;
+
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -18,17 +18,16 @@ import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.fetch.FetchParameters;
 import net.buildabrowser.babbrowser.fetch.FetchParameters.ProcessResponse;
 import net.buildabrowser.babbrowser.fetch.FetchParameters.ProcessResponseConsumeBody;
-import net.buildabrowser.babbrowser.fetch.FetchRequest.RedirectMode;
-import net.buildabrowser.babbrowser.fetch.FetchRequest.RequestMode;
 import net.buildabrowser.babbrowser.fetch.FetchParams;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
+import net.buildabrowser.babbrowser.fetch.FetchRequest.RedirectMode;
+import net.buildabrowser.babbrowser.fetch.FetchRequest.RequestMode;
 import net.buildabrowser.babbrowser.fetch.FetchResponse;
 import net.buildabrowser.babbrowser.fetch.FetchUtil;
 import net.buildabrowser.babbrowser.fetch.HeaderList;
 import net.buildabrowser.babbrowser.fetch.imp.DataURLProcessor.DataURL;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchResponse;
-import net.buildabrowser.babbrowser.network.ExtensionUtil;
 import net.buildabrowser.babbrowser.stream.ReadableByteStreamController;
 import net.buildabrowser.babbrowser.stream.ReadableStream;
 import net.buildabrowser.babbrowser.stream.ReadableStreamBYOBRequest;
@@ -114,6 +113,7 @@ public class FetchEngineImp implements FetchEngine {
     return switch (fetchType) {
       case SCHEME_FETCH -> schemeFetch(fetchParams);
       case HTTP_FETCH -> httpFetch(fetchParams, makeCORSPreflight);
+      default -> throw new UnsupportedOperationException("Unrecognized fetch type: " + fetchType);
     };
   }
 
@@ -154,27 +154,9 @@ public class FetchEngineImp implements FetchEngine {
 
   private FetchResponse fetchFile(FetchRequest request) {
     // The spec does not say how to implement file
-    // TODO: Improve security
-    File file = CommonUtil.tryOrNull(() -> new File(request.url()));
-    if (file == null || !file.exists() || file.isDirectory()) {
-      return FetchResponse.createNetworkError();
-    }
-    
-    try {
-      byte[] bytes = Files.readAllBytes(file.toPath());
-      String mimeType = ExtensionUtil.guessMimeTypeFromFileName(file.getPath());
-      if (mimeType == null) {
-        mimeType = "application/octet-stream";
-      }
-      return FetchResponse.create(
-        "OK",
-        HeaderList.create("Content-Type", mimeType),
-        FetchImpUtil.getBytesAsABody(bytes));
-    } catch (IOException e) {
-      return FetchResponse.createNetworkError();
-    }
+    return fetchBackend.fetchFile(request);
   }
-
+  
   private FetchResponse httpFetch(FetchParams fetchParams, boolean makeCORSPreflight) {
     // TODO: A ton of stuff
     FetchRequest request = fetchParams.request();
@@ -257,7 +239,7 @@ public class FetchEngineImp implements FetchEngine {
       fetchBackend.makeRequest(response, request, bytesOpt -> {
         receivedResponse.complete(null);
         ReadableByteStreamController bsController = (ReadableByteStreamController) controller;
-        if (bytesOpt.isEmpty()) {
+        if (!bytesOpt.isPresent()) {
           bsController.close();
           return;
         }
@@ -268,15 +250,15 @@ public class FetchEngineImp implements FetchEngine {
           ReadableStreamBYOBRequest byobRequest = bsController.byobRequest();
           ByteBuffer view = byobRequest.view();
           readLen = Math.min(bytes.remaining(), view.remaining());
-          view.put(bytes.slice(bytes.position(), readLen));
-          view.flip();
-          bytes.position(bytes.position() + readLen);
+          view.put(slice(bytes, bytes.position(), readLen));
+          ((Buffer) view).flip();
+          ((Buffer) bytes).position(bytes.position() + readLen);
           bsController.byobRequest().respond(readLen);
         }
 
         if (bytes.remaining() > 0) {
-          bsController.enqueue(bytes.slice(bytes.position(), bytes.remaining()));
-          bytes.position(bytes.limit());
+          bsController.enqueue(slice(bytes, bytes.position(), bytes.remaining()));
+          ((Buffer) bytes).position(bytes.limit());
         }
 
         if (pullPromise.item != null) {

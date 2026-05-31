@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.table;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.isBlank;
+
 import java.util.ListIterator;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
@@ -10,9 +12,9 @@ import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerD
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.renderer.box.TextBox;
-import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
 
 public final class TableFixup {
 
@@ -85,7 +87,7 @@ public final class TableFixup {
         whitespaceStartIt = null;
       } else if (
         child instanceof TextBox childTextBox
-        && childTextBox.text().isBlank()
+        && isBlank(childTextBox.text())
       ) {
         whitespaceStartIt = whitespaceStartIt != null ? whitespaceStartIt : childIt.clone();
       } else {

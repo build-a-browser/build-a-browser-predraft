@@ -5,6 +5,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 import net.buildabrowser.babbrowser.common.util.Base64Util;
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.infra.StringUtil;
 
 public final class DataURLProcessor {
@@ -14,17 +15,18 @@ public final class DataURLProcessor {
     String input = dataURL.toString(); // TODO: Properly serialize
     int[] position = new int[] { 5 };
     String mimeType = StringUtil.collectCodePoints(input, ch -> ch != ',', position);
-    mimeType = mimeType.strip();
+    mimeType = mimeType.trim();
     position[0]++;
     String encodedBody = input.substring(position[0]);
-    String stringBody = URLDecoder.decode(encodedBody.replace("+", "%2B"), StandardCharsets.UTF_8);
+    String stringBody = CommonUtil.rethrow(() -> URLDecoder.decode(
+      encodedBody.replace("+", "%2B"), StandardCharsets.UTF_8.name()));
     byte[] body;
     if (mimeType.matches(".*;\\s*base64$")) {
       body = Base64Util.forgivingBase64Decode(stringBody);
       if (body == null) return null;
       mimeType = mimeType
         .substring(0, mimeType.length() - 6)
-        .stripTrailing();
+        .replaceAll("\\s+$", "");
       mimeType = mimeType.substring(0, mimeType.length() - 1);
     } else {
       body = stringBody.getBytes();

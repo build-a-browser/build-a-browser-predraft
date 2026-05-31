@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.content.common;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
 import static net.buildabrowser.babbrowser.renderer.content.common.SizingUtil.evaluateBaseSizeRaw;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
@@ -12,8 +13,8 @@ import net.buildabrowser.babbrowser.cssbase.property.size.SizeValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
+import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
 public final class SizingWidthUtil {
   
@@ -125,7 +126,7 @@ public final class SizingWidthUtil {
       float min = referenceDimensions.preferredMinWidthConstraint();
       float max = referenceDimensions.preferredWidthConstraint();
       float preferred = innerConstraint.value();
-      return LayoutConstraint.of(Math.clamp(preferred, min, max));
+      return LayoutConstraint.of(mathClamp(preferred, min, max));
     } else {
       return evaluateBaseSizeRaw(layoutContext, parentConstraint, sizeValue);
     }

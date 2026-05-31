@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.table.imp;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
+
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
@@ -93,7 +95,7 @@ public class TableCellImp implements TableCell {
 
     float baselineDiff = baselineMaxContentWidth - baselineMinContentWidth;
     float colBaselineRatio = baselineDiff == 0 ? 0 : (prevMaxContent - prevMinContent) / baselineDiff;
-    float colBaselineMul = Math.clamp(
+    float colBaselineMul = mathClamp(
       outerMinContentWidth() - baselineMinContentWidth - baselineBorderSpacing,
       0, baselineDiff);
     float colBaselineProduct = colBaselineRatio * colBaselineMul;

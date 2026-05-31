@@ -102,7 +102,7 @@ public final class FlowRootContentPainter {
       case LineBoxFragment lineboxFragment -> PaintUtil.maybePaintGenericFragment(
         lineboxFragment, canvas, vpIntersection,
         (f, c, vpi) -> paintLineBoxFragment(f, c, vpi, refFragment));
-      case PosRefBoxFragment _ -> {}
+      case PosRefBoxFragment _1 -> {}
       default -> throw new UnsupportedOperationException("Unrecognized Fragment Type!" + fragment);
     }
   }
@@ -137,7 +137,7 @@ public final class FlowRootContentPainter {
     LayoutFragment fragment, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment
   ) {
     switch (fragment) {
-      case PosRefBoxFragment _ -> {}
+      case PosRefBoxFragment _1 -> {}
       case ManagedBoxFragment boxFragment -> PaintUtil.maybePaintFragment(boxFragment, canvas, vpIntersection,
         (f, c, vpi) -> paintInlineManagedBoxFragment(boxFragment, c, vpi, refFragment));
       case UnmanagedBoxFragment boxFragment -> PaintUtil.maybePaintFragment(

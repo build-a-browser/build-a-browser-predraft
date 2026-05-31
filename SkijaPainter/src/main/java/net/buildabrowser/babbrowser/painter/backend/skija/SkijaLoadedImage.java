@@ -6,12 +6,12 @@ import net.buildabrowser.babbrowser.renderer.paint.backend.LoadedImage;
 public record SkijaLoadedImage(Image image) implements LoadedImage {
 
   @Override
-  public float width() {
+  public int width() {
     return image.getWidth();
   }
 
   @Override
-  public float height() {
+  public int height() {
     return image.getHeight();
   }
   

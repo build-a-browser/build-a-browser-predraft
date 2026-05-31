@@ -120,7 +120,7 @@ public class FlowInlineLayout {
         case StagedBlockLevelBox stagedBlockLevelBox -> addBlockLevelToInline(
           stagedBlockLevelBox.elementBox(), widthConstraint, heightConstraint);
         case ManagedBoxEntryMarker marker -> activeInlineContext.pushElement(marker.elementBox());
-        case ManagedBoxExitMarker _ -> activeInlineContext.popElement();
+        case ManagedBoxExitMarker _1 -> activeInlineContext.popElement();
         default -> throw new UnsupportedOperationException("Unknown staging element type");
       }
     }

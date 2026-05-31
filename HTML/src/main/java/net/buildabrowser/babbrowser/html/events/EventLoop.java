@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.html.events;
 
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.html.events.imp.WindowEventLoopImp;
+import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
 import net.buildabrowser.babbrowser.html.scripting.Window;
 
@@ -23,8 +24,8 @@ public interface EventLoop {
     eventLoop.queueTask(steps, source, document);
   }
 
-  static WindowEventLoop createWindowEventLoop() {
-    return new WindowEventLoopImp();
+  static WindowEventLoop createWindowEventLoop(UANavigableOptions navigableOptions) {
+    return new WindowEventLoopImp(navigableOptions);
   }
 
 }

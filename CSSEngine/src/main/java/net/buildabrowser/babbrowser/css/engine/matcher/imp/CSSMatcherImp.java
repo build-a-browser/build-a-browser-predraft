@@ -185,9 +185,9 @@ public class CSSMatcherImp implements CSSMatcher {
     int numTypeSelectors = 0;
     for (SelectorPart selectorPart: selector.parts()) {
       switch (selectorPart) {
-        case IdSelector _ -> numIdSelectors++;
-        case AttributeSelector _ -> numClassSelectors++;
-        case TypeSelector _ -> numTypeSelectors++;
+        case IdSelector _1 -> numIdSelectors++;
+        case AttributeSelector _1 -> numClassSelectors++;
+        case TypeSelector _1 -> numTypeSelectors++;
         default -> {}
       }
     }
@@ -214,10 +214,10 @@ public class CSSMatcherImp implements CSSMatcher {
 
   private ElementSet matchCombinator(Combinator combinator, ElementSet currentMatched, ElementSet nextMatched) {
     return switch (combinator) {
-      case DescendantCombinator _ -> combinatorMatchers.matchDescendants(currentMatched, nextMatched);
-      case ChildCombinator _ -> combinatorMatchers.matchChild(currentMatched, nextMatched);
-      case NextSiblingCombinator _ -> combinatorMatchers.matchNextSibling(currentMatched, nextMatched);
-      case SubsequentSiblingCombinator _ -> combinatorMatchers.matchSubsequentSibling(currentMatched, nextMatched);
+      case DescendantCombinator _1 -> combinatorMatchers.matchDescendants(currentMatched, nextMatched);
+      case ChildCombinator _1 -> combinatorMatchers.matchChild(currentMatched, nextMatched);
+      case NextSiblingCombinator _1 -> combinatorMatchers.matchNextSibling(currentMatched, nextMatched);
+      case SubsequentSiblingCombinator _1 -> combinatorMatchers.matchSubsequentSibling(currentMatched, nextMatched);
       default -> throw new IllegalArgumentException();
     };
   }

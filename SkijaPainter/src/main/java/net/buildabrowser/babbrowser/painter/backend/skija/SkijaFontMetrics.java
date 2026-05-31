@@ -32,8 +32,10 @@ public class SkijaFontMetrics implements FontMetrics {
   @Override
   public float stringWidth(String text) {
     float textWidth = 0;
-    for (int i = 0; i < text.length(); i++) {
-      textWidth += getCharacterWidth(text.codePointAt(i));
+    for (int i = 0; i < text.length();) {
+      int codePoint = text.codePointAt(i);
+      textWidth += getCharacterWidth(codePoint);
+      i += Character.charCount(codePoint);
     }
 
     return textWidth;
@@ -61,11 +63,12 @@ public class SkijaFontMetrics implements FontMetrics {
     
     short glyph = rawFonts[0].getUTF32Glyph(codePoint);
     float width = rawFonts[0].getWidths(new short[] { glyph })[0];
-    for (int i = 1; i < rawFonts.length && glyph == 0; i++) {
-      Font rawFont = rawFonts[i];
+    for (Font rawFont: rawFonts) {
       glyph = rawFont.getUTF32Glyph(codePoint);
-      if (glyph == 0) continue;
-      width = rawFont.getWidths(new short[] { glyph })[0];
+      if (glyph != 0) {
+        width = rawFont.getWidths(new short[] { glyph })[0];
+        break;
+      }
     }
 
     if (codePoint < 256) {

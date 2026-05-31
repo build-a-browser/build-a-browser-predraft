@@ -55,7 +55,7 @@ public class CSSParserImp implements CSSParser {
     switch (rule) {
       case QualifiedRule qualifiedRule:
         return createStyleRule(source, qualifiedRule);
-      case AtRule _:
+      case AtRule _1:
         // TODO
         return null;
       default:

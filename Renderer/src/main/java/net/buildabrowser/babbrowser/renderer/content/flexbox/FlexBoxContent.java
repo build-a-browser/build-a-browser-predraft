@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.flexbox;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.isBlank;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,22 +18,22 @@ import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.renderer.box.TextBox;
-import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.renderer.content.common.MarginUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexCrossAlignment.CrossAlignmentContext;
 import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexMainAlignment.MainAlignmentContext;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
-import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 
 public class FlexBoxContent implements BoxContent {
 
@@ -55,7 +57,7 @@ public class FlexBoxContent implements BoxContent {
     boolean didInsertBox = false;
     while (childIt.hasNext()) {
       switch (childIt.next()) {
-        case ElementBox _ -> {
+        case ElementBox _1 -> {
           anonymousBox = null;
           didInsertBox = false;
         }
@@ -65,7 +67,7 @@ public class FlexBoxContent implements BoxContent {
             // It's actually flex-level, but this flag has no effect regardless
             anonymousBox = ElementBox.createAnonymous(ActiveStyles.create(), anonymousBox, BoxLevel.BLOCK_LEVEL);
           }
-          isOnlyWhitespace = isOnlyWhitespace && textBox.text().isBlank(); // TODO: Proper HTML whitespace
+          isOnlyWhitespace = isOnlyWhitespace && isBlank(textBox.text()); // TODO: Proper HTML whitespace
           childIt.remove();
           anonymousBox.addChild(textBox);
         }

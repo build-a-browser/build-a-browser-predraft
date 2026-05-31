@@ -13,7 +13,7 @@ public final class TraversableUtil {
   public static Navigable createNewTopLevelTraversable(
     UANavigableOptions uaNavigableOptions
   ) {
-    HTMLDocument document = BrowsingContext.create().activeDocument();
+    HTMLDocument document = BrowsingContext.create(uaNavigableOptions).activeDocument();
     DocumentState documentState = DocumentState.create();
     documentState.setDocument(document);
     // TODO: Support aux context

@@ -116,17 +116,17 @@ public final class TestUtil {
       classifyType(refText),
       classifyType(node)));
   }
-
+ 
   private static String classifyType(Object object) {
     return switch (object) {
-      case Document _ -> "Document";
-      case TestDocument _ -> "Document";
-      case Element _ -> "Element";
-      case TestElement _ -> "Element";
-      case Text _ -> "Text";
-      case TestText _ -> "Text";
-      case Comment _ -> "Comment";
-      case TestComment _ -> "Comment";
+      case Document _1 -> "Document";
+      case TestDocument _1 -> "Document";
+      case Element _1 -> "Element";
+      case TestElement _1 -> "Element";
+      case Text _1 -> "Text";
+      case TestText _1 -> "Text";
+      case Comment _1 -> "Comment";
+      case TestComment _1 -> "Comment";
       default -> "Unknown";
     };
   }

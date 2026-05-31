@@ -1,14 +1,16 @@
 package net.buildabrowser.babbrowser.cssbase.property.color;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
+
 import java.io.IOException;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
-import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue.SRGBAColor;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
@@ -64,9 +66,9 @@ public class RGBColorParser implements PropertyValueParser {
       stream.read();
       Token alphaToken = stream.read();
       if (alphaToken instanceof PercentageToken percentageToken) {
-        alphaComponent = Math.clamp((int) (percentageToken.value().floatValue() / 100 * 255), 0, 255);
+        alphaComponent = mathClamp((int) (percentageToken.value().floatValue() / 100 * 255), 0, 255);
       } else if (alphaToken instanceof NumberToken numberToken) {
-        alphaComponent = Math.clamp((int) (numberToken.value().floatValue() * 255), 0, 255);
+        alphaComponent = mathClamp((int) (numberToken.value().floatValue() * 255), 0, 255);
       } else {
         return EXPECTED_NUMBER;
       }
@@ -103,9 +105,9 @@ public class RGBColorParser implements PropertyValueParser {
 
     Token alphaToken = stream.read();
     if (alphaToken instanceof PercentageToken percentageToken) {
-      alphaComponent = Math.clamp((int) (percentageToken.value().floatValue() / 100 * 255), 0, 255);
+      alphaComponent = mathClamp((int) (percentageToken.value().floatValue() / 100 * 255), 0, 255);
     } else if (alphaToken instanceof NumberToken numberToken) {
-      alphaComponent = Math.clamp((int) (numberToken.value().floatValue() * 255), 0, 255);
+      alphaComponent = mathClamp((int) (numberToken.value().floatValue() * 255), 0, 255);
     } else if (
       alphaToken instanceof IdentToken identToken
       && identToken.value().equals("none")
@@ -128,8 +130,8 @@ public class RGBColorParser implements PropertyValueParser {
   }
 
   private int parseLegacyColorComponent(Token token, boolean isPercent) {
-    if (isPercent) return Math.clamp((int) (((PercentageToken) token).value().floatValue() / 100 * 255), 0, 255);
-    return Math.clamp((int) (((NumberToken) token).value().floatValue()), 0, 255);
+    if (isPercent) return mathClamp((int) (((PercentageToken) token).value().floatValue() / 100 * 255), 0, 255);
+    return mathClamp((int) (((NumberToken) token).value().floatValue()), 0, 255);
   }
 
   private CSSFailure checkModernColorComponent(Token token) {
@@ -142,9 +144,9 @@ public class RGBColorParser implements PropertyValueParser {
 
   private int parseModernColorComponent(Token token) {
     if (token instanceof PercentageToken percentageToken) {
-      return Math.clamp((int) (percentageToken.value().floatValue() / 100 * 255), 0, 255);
+      return mathClamp((int) (percentageToken.value().floatValue() / 100 * 255), 0, 255);
     } else if (token instanceof NumberToken numberToken) {
-      return Math.clamp((int) (numberToken.value().floatValue()), 0, 255);
+      return mathClamp((int) (numberToken.value().floatValue()), 0, 255);
     } else return 0;
   }
   

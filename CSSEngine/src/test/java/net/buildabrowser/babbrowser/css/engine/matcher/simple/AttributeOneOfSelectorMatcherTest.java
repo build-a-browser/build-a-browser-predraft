@@ -22,7 +22,7 @@ public class AttributeOneOfSelectorMatcherTest {
   @BeforeEach
   public void beforeEach() {
     this.allElements = ElementSet.createRoot();
-    this.matcher = new AttributeOneOfSelectorMatcher(allElements, _ -> {});
+    this.matcher = new AttributeOneOfSelectorMatcher(allElements, _1 -> {});
   }
 
   @Test

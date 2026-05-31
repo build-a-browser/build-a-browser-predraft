@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.common.position;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
+
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -8,9 +10,9 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.MarginUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
+import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 
@@ -43,7 +45,7 @@ public final class PositionLayout {
 
     // TODO: Handle sizes other than fit-content
     // TODO: Also clamp to max width and min width
-    float fitContentWidth = Math.clamp(
+    float fitContentWidth = mathClamp(
       containingWidth,
       dimensions.preferredMinWidthConstraint(),
       dimensions.preferredWidthConstraint());

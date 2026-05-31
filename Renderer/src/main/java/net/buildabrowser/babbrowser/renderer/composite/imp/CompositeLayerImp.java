@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.composite.imp;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
+
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
@@ -109,8 +111,8 @@ public class CompositeLayerImp implements CompositeLayer {
       return;
     }
 
-    int overscrollX = Math.clamp(overscrollXUnclamped, 0, backingWidth - overscrollWidth);
-    int overscrollY = Math.clamp(overscrollYUnclamped, 0, backingHeight - overscrollHeight);
+    int overscrollX = mathClamp(overscrollXUnclamped, 0, backingWidth - overscrollWidth);
+    int overscrollY = mathClamp(overscrollYUnclamped, 0, backingHeight - overscrollHeight);
 
     vpIntersection[0] = overscrollX; vpIntersection[1] = overscrollY; vpIntersection[2] = overscrollWidth; vpIntersection[3] = overscrollHeight;
 

@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.cssbase.property;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.removeLast;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -54,11 +56,11 @@ public final class CustomPropertyParser {
       boolean areMatchesEmpty = matchTokens.isEmpty();
       if (
         (token instanceof RParenToken
-          && (areMatchesEmpty || !(matchTokens.removeLast() instanceof LParenToken)))
+          && (areMatchesEmpty || !(removeLast(matchTokens) instanceof LParenToken)))
         || (token instanceof RSBracketToken
-          && (areMatchesEmpty || !(matchTokens.removeLast() instanceof LSBracketToken)))
+          && (areMatchesEmpty || !(removeLast(matchTokens) instanceof LSBracketToken)))
         || (token instanceof RCBracketToken
-          && (areMatchesEmpty || !(matchTokens.removeLast() instanceof LCBracketToken)))
+          && (areMatchesEmpty || !(removeLast(matchTokens) instanceof LCBracketToken)))
       ) return false;
 
       if (token instanceof FunctionValue funcValue) {

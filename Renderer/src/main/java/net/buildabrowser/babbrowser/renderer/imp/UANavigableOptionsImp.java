@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.renderer.imp;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
@@ -19,6 +20,7 @@ public class UANavigableOptionsImp implements UANavigableOptions {
   private final List<Runnable> repaintListeners = new LinkedList<>();
 
   private final FetchEngine fetchEngine;
+  private final Supplier<ExecutorService> threadGroupSupplier;
   private final Supplier<StyleSheetList> uaStyleSheetsSupplier;
   private final DocumentLoaderRegistry documentLoaderRegistry;
   private final Painter painter;
@@ -26,12 +28,14 @@ public class UANavigableOptionsImp implements UANavigableOptions {
 
   public UANavigableOptionsImp(
     FetchEngine fetchEngine,
+    Supplier<ExecutorService> threadGroupSupplier,
     Supplier<StyleSheetList> uaStyleSheetsSupplier,
     DocumentLoaderRegistry documentLoaderRegistry,
     Painter painter,
     DocumentRendererEventListener eventListener
   ) {
     this.fetchEngine = fetchEngine;
+    this.threadGroupSupplier = threadGroupSupplier;
     this.uaStyleSheetsSupplier = uaStyleSheetsSupplier;
     this.documentLoaderRegistry = documentLoaderRegistry;
     this.painter = painter;
@@ -41,6 +45,11 @@ public class UANavigableOptionsImp implements UANavigableOptions {
   @Override
   public FetchEngine fetchEngine() {
     return this.fetchEngine;
+  }
+
+  @Override
+  public ExecutorService createThreadGroup() {
+    return threadGroupSupplier.get();
   }
 
   @Override

@@ -1,5 +1,8 @@
 package net.buildabrowser.babbrowser.fetch.imp;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.getFirst;
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.getLast;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +32,7 @@ public class MutableFetchRequestImp implements MutableFetchRequest {
   
   @Override
   public URI url() {
-    return urlList.getFirst();
+    return getFirst(urlList);
   }
 
   @Override
@@ -74,7 +77,7 @@ public class MutableFetchRequestImp implements MutableFetchRequest {
 
   @Override
   public URI currentURL() {
-    return urlList.getLast();
+    return getLast(urlList);
   }
 
   @Override

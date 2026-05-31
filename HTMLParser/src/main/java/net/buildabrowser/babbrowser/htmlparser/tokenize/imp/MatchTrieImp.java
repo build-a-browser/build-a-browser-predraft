@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.htmlparser.tokenize.imp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import net.buildabrowser.babbrowser.htmlparser.tokenize.MatchTrie;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.MatchTrieView;
@@ -15,7 +16,7 @@ public record MatchTrieImp(String base, Map<Integer, MatchTrie> extensions, bool
   }
 
   public static MatchTrie compile(List<String> options) {
-    return compile_(options.stream().map(s -> s.toUpperCase()).toList());
+    return compile_(options.stream().map(s -> s.toUpperCase()).collect(Collectors.toList()));
   }
 
   private static MatchTrie compile_(List<String> options) {
@@ -31,11 +32,11 @@ public record MatchTrieImp(String base, Map<Integer, MatchTrie> extensions, bool
     for (String option: options) {
       if (option.length() <= commonLength) continue;
       int startCodePoint = option.codePointAt(commonLength);
-      extensions.computeIfAbsent(startCodePoint, _ -> compile_(options.stream()
+      extensions.computeIfAbsent(startCodePoint, _1 -> compile_(options.stream()
         .filter(s -> s.length() > commonLength)
         .filter(s -> s.codePointAt(commonLength) == startCodePoint)
         .map(s -> s.substring(commonLength + 1))
-        .toList()));
+        .collect(Collectors.toList())));
     }
 
     return new MatchTrieImp(base, extensions, hasMatch);

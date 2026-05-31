@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.common.util;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.mapCopyOf;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +41,7 @@ public final class CommonUtil {
       map.put((T) values[i], (U) values[i + 1]);
     }
 
-    return Map.copyOf(map);
+    return mapCopyOf(map);
   }
 
   public static interface ThrowingSupplier<T> {

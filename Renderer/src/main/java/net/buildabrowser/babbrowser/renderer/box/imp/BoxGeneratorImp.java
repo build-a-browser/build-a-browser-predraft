@@ -28,7 +28,7 @@ public class BoxGeneratorImp implements BoxGenerator {
     return switch (node) {
       case HTMLText text -> List.of(createTextBox(text));
       case HTMLElement element -> createElementBoxes(parentBox, element);
-      case Comment _ -> List.of();
+      case Comment _1 -> List.of();
       default -> throw new UnsupportedOperationException("Unsupported Box Type");
     };
   }

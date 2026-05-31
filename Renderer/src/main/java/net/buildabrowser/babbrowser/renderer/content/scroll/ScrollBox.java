@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.scroll;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
+
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.Box;
@@ -43,7 +45,7 @@ public class ScrollBox extends ElementBoxImp {
 
   public void setScrollX(float newScrollX) {
     if (scrollFragment == null) return;
-    this.scrollX = (int) Math.ceil(Math.clamp(
+    this.scrollX = (int) Math.ceil(mathClamp(
       newScrollX,
       0, scrollFragment.inkWidth(Measurement.CONTENT) - scrollFragment.width(Measurement.CONTENT)));
     element().invalidate(InvalidationLevel.PAINT);
@@ -51,7 +53,7 @@ public class ScrollBox extends ElementBoxImp {
 
   public void setScrollY(float newScrollY) {
     if (scrollFragment == null) return;
-    this.scrollY = (int) Math.ceil(Math.clamp(
+    this.scrollY = (int) Math.ceil(mathClamp(
       newScrollY,
       0, scrollFragment.inkHeight(Measurement.CONTENT) - scrollFragment.height(Measurement.CONTENT)));
     element().invalidate(InvalidationLevel.PAINT);

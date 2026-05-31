@@ -33,7 +33,7 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
     if (titleElement == null) return "";
     // TODO: Proper way to get title text
     if (titleElement.firstChild() instanceof Text text) {
-      return text.data().strip();
+      return text.data().trim();
     }
 
     return "";

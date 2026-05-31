@@ -42,7 +42,7 @@ public final class FlowLayerPositioning {
     float layerX, float layerY, LayoutFragment fragment, StackingContext refContext
   ) {
     switch (fragment) {
-      case TextFragment _ -> {}
+      case TextFragment _1 -> {}
       case PosRefBoxFragment posRef -> {
         posRef.box().dimensions().setStaticPosition(layerX, layerY);
       }

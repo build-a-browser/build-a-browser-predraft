@@ -4,6 +4,7 @@ import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
+import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.html.scripting.Realm;
 import net.buildabrowser.babbrowser.html.scripting.RealmExecutionContext;
 import net.buildabrowser.babbrowser.html.scripting.SimilarOriginWindowAgent;
@@ -14,9 +15,9 @@ public class BrowsingContextImp implements BrowsingContext {
   private Window activeWindow;
   private Realm realm;
 
-  public BrowsingContextImp() {
+  public BrowsingContextImp(UANavigableOptions uaNavigableOptions) {
     // TODO: A ton of spec steps
-    SimilarOriginWindowAgent agent = obtainSimilarOriginWindowAgent();
+    SimilarOriginWindowAgent agent = obtainSimilarOriginWindowAgent(uaNavigableOptions);
     
     // I moved this above some of the other steps because I need a document to
     // create a window
@@ -48,9 +49,11 @@ public class BrowsingContextImp implements BrowsingContext {
     return this.realm;
   }
 
-  private SimilarOriginWindowAgent obtainSimilarOriginWindowAgent() {
+  private SimilarOriginWindowAgent obtainSimilarOriginWindowAgent(
+    UANavigableOptions uaNavigableOptions
+  ) {
     // TODO: Proper way to obtain
-    WindowEventLoop eventLoop = EventLoop.createWindowEventLoop();
+    WindowEventLoop eventLoop = EventLoop.createWindowEventLoop(uaNavigableOptions);
     return () -> eventLoop;
   }
   

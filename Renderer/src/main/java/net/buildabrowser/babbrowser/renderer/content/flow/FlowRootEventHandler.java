@@ -53,7 +53,7 @@ public class FlowRootEventHandler implements EventHandler {
   ) {
     // TODO: Make sure it is on the same stacking context
     return switch (fragment) {
-      case PosRefBoxFragment _ -> EventHandlerResponse.UNHANDLED;
+      case PosRefBoxFragment _1 -> EventHandlerResponse.UNHANDLED;
       case ManagedBoxFragment managedFragment -> handleInnerMouseEvent(
         eventContext, mouseEvent, parentFragment, managedFragment, relX, relY);
       case UnmanagedBoxFragment unmanagedFragment -> handleInnerMouseEvent(

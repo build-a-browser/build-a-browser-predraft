@@ -87,6 +87,7 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
       case MAX_CONTENT, AUTO -> true;
       case BOUNDED -> floatTracker.lineStartPos() + this.activeLineBox.totalWidth() + itemSize
         <= floatTracker.lineEndPos(inlineConstraint);
+      default -> throw new UnsupportedOperationException("Unrecognized Layout Constraint: " + inlineConstraint);
     };
   }
 

@@ -16,7 +16,7 @@ public class FlowTextFragmentBuilder {
   }
 
   public boolean isEmpty() {
-    return textBuilder.isEmpty();
+    return textBuilder.length() == 0;
   }
 
   public float height() {

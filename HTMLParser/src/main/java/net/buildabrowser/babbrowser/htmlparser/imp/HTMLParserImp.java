@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.htmlparser.imp;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -76,7 +77,7 @@ public class HTMLParserImp implements HTMLParser {
       // Should really only run once, so the allocation should be fine
       CharBuffer chars = CharBuffer.allocate(16);
       lastResult = CommonUtil.rethrow(() -> charsetDecoder.flush(chars));
-      chars.flip();
+      ((Buffer) chars).flip();
       parseCharBuffer(chars);
     }
     
