@@ -241,10 +241,12 @@ public final class FlowRootContentPainter {
   private static void paintUnmanagedBackgroundAndAdvance(
     PaintCanvas canvas, BoxFragment fragment, int[] vpIntersection
   ) {
+    canvas.pushPaint();
     PaintUtil.maybePaintFragment(
       fragment, canvas, vpIntersection,
       fragment.painter()::paintBackground,
       Measurement.BORDER);
+    canvas.popPaint();
 
     canvas.alterPaint(paint -> paint.incOffset(
       fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER),

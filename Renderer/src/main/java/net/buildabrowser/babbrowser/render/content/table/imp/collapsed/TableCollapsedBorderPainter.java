@@ -20,8 +20,11 @@ public class TableCollapsedBorderPainter implements TableBorderPainter {
   private final TableCollapsedBorderAssigner assigner = new TableCollapsedBorderAssigner();
 
   @Override
-  public void assignBorders(Table table, LayoutConstraint referenceConstraint) {
-    assigner.assignBorders(table, referenceConstraint);
+  public void assignBorders(
+    Table table,
+    LayoutConstraint referenceConstraint
+  ) {
+    assigner.assignBorders(table);
   }
 
   @Override

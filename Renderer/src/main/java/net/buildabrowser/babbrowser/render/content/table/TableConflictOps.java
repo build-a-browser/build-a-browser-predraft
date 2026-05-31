@@ -22,4 +22,6 @@ public interface TableConflictOps {
 
   int scanRun(TableCell cell);
 
+  int lockedRun(Table table);
+
 }

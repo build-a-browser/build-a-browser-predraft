@@ -52,4 +52,9 @@ public class TableRightConflictOps implements TableConflictOps {
     return cell.height();
   }
 
+  @Override
+  public int lockedRun(Table table) {
+    return table.width();
+  }
+
 }

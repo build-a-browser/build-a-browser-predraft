@@ -9,7 +9,6 @@ import net.buildabrowser.babbrowser.render.content.table.TableCell;
 import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders;
 import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders.BorderSide;
 import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders.ComputedBorder;
-import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
 public class TableCollapsedBorderAssignerUtil {
 
@@ -29,13 +28,12 @@ public class TableCollapsedBorderAssignerUtil {
 
   public static TableComputedBorders computeInitialBorders(
     ElementBox elBox,
-    TableComputedBorders borders,
-    LayoutConstraint referenceConstraint
+    TableComputedBorders borders
   ) {
-    borders.topBorder = TableComputedBorders.computeBorder(elBox, BorderSide.TOP, referenceConstraint, true);
-    borders.bottomBorder = TableComputedBorders.computeBorder(elBox, BorderSide.BOTTOM, referenceConstraint, true);
-    borders.leftBorder = TableComputedBorders.computeBorder(elBox, BorderSide.LEFT, referenceConstraint, true);
-    borders.rightBorder = TableComputedBorders.computeBorder(elBox, BorderSide.RIGHT, referenceConstraint, true);
+    borders.topBorder = TableComputedBorders.computeBorder(elBox, BorderSide.TOP, true);
+    borders.bottomBorder = TableComputedBorders.computeBorder(elBox, BorderSide.BOTTOM, true);
+    borders.leftBorder = TableComputedBorders.computeBorder(elBox, BorderSide.LEFT, true);
+    borders.rightBorder = TableComputedBorders.computeBorder(elBox, BorderSide.RIGHT, true);
     return borders;
   }
 

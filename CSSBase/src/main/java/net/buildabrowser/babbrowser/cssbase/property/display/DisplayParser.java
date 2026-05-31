@@ -73,9 +73,7 @@ public class DisplayParser implements PropertyValueParser {
 
     if (innerDisplayValue == null) innerDisplayValue = InnerDisplayValue.FLOW;
 
-    boolean isDefaultInline =
-      innerDisplayValue.equals(InnerDisplayValue.FLOW)
-      || innerDisplayValue.equals(InnerDisplayValue.RUBY);
+    boolean isDefaultInline = innerDisplayValue.equals(InnerDisplayValue.RUBY);
     if (outerDisplayValue == null) outerDisplayValue = isDefaultInline ?
       OuterDisplayValue.INLINE : OuterDisplayValue.BLOCK;
 

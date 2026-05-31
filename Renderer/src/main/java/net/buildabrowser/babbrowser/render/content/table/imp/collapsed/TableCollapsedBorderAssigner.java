@@ -11,7 +11,6 @@ import net.buildabrowser.babbrowser.render.content.table.TableCell;
 import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders;
 import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders.ComputedBorder;
 import net.buildabrowser.babbrowser.render.content.table.imp.TableCellUtil;
-import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
 // NOSPEC: The spec way to collapse borders does not seem to match major browsers
 // or account for track/track-group borders, so I instead am using an approach that
@@ -24,17 +23,17 @@ public class TableCollapsedBorderAssigner {
 
   private TableComputedBorders[][] slotGrid;
 
-  public void assignBorders(Table table, LayoutConstraint referenceConstraint) {
+  public void assignBorders(Table table) {
     populateSlotGrid(table);
-    trackAssigner.assignColumnsBorders(table, referenceConstraint);
-    trackAssigner.assignRowsBorders(table, referenceConstraint);
-    TableCellUtil.forEachCell(table, cell -> cellAssigner.assignCellBorders(table, cell, referenceConstraint));
+    trackAssigner.assignColumnsBorders(table);
+    trackAssigner.assignRowsBorders(table);
+    TableCellUtil.forEachCell(table, cell -> cellAssigner.assignCellBorders(table, cell));
     // This part is kind of from the spec, but taking in 
     // Solely affects layout, not painting
-    computeInitialBorders(table.tableBox(), table.borders(), referenceConstraint);
+    computeInitialBorders(table.tableBox(), table.borders());
     TableBorderConflictResolver.resolveBorderConflicts(table);
     // Called after, not before, because TableBorderConflictResolver has its own table handling
-    trackAssigner.assignTableBorders(table, referenceConstraint);
+    trackAssigner.assignTableBorders(table);
     orderSlotGrid(table);
 
     TableCellUtil.forEachCell(table, this::assignFinalDimensions);

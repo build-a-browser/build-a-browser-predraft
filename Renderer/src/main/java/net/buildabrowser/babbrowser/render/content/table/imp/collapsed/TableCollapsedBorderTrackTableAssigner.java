@@ -7,8 +7,7 @@ import net.buildabrowser.babbrowser.render.content.table.Table;
 import net.buildabrowser.babbrowser.render.content.table.TableColumn;
 import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders;
 import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders.ComputedBorder;
-import net.buildabrowser.babbrowser.render.content.table.TableRow;
-import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;;
+import net.buildabrowser.babbrowser.render.content.table.TableRow;;
 
 // TODO: Make everything static to avoid some memory usage? Probably doesn't matter.
 // TODO: Also need to do track groups
@@ -22,23 +21,18 @@ public class TableCollapsedBorderTrackTableAssigner {
     this.mainAssigner = mainAssigner;
   }
   
-  void assignColumnsBorders(
-    Table table,
-    LayoutConstraint referenceConstraint
-  ) {
+  void assignColumnsBorders(Table table) {
     for (int x = 0; x < table.width(); x++) {
-      assignColumnBorder(table, referenceConstraint, x);
+      assignColumnBorder(table, x);
     }
   }
 
   private void assignColumnBorder(
-    Table table,
-    LayoutConstraint referenceConstraint,
-    int x
+    Table table, int x
   ) {
     TableColumn column = table.column(x);
     TableComputedBorders borders = computeInitialBorders(
-      column.columnBox(), column.borders(), referenceConstraint);
+      column.columnBox(), column.borders());
     placeTopBorder(x, 0, borders.topBorder);
     placeBottomBorder(x, table.height() - 1, borders.bottomBorder);
     for (int y = 0; y < table.height(); y++) {
@@ -47,23 +41,18 @@ public class TableCollapsedBorderTrackTableAssigner {
     }
   }
 
-  void assignRowsBorders(
-    Table table,
-    LayoutConstraint referenceConstraint
-  ) {
+  void assignRowsBorders(Table table) {
     for (int y = 0; y < table.height(); y++) {
-      assignRowBorder(table, referenceConstraint, y);
+      assignRowBorder(table, y);
     }
   }
 
   private void assignRowBorder(
-    Table table,
-    LayoutConstraint referenceConstraint,
-    int y
+    Table table, int y
   ) {
     TableRow row = table.row(y);
     TableComputedBorders borders = computeInitialBorders(
-      row.rowBox(), row.borders(), referenceConstraint);
+      row.rowBox(), row.borders());
     placeLeftBorder(0, y, borders.leftBorder);
     placeRightBorder(table.width() - 1, y, borders.rightBorder);
     for (int x = 0; x < table.width(); x++) {
@@ -72,10 +61,7 @@ public class TableCollapsedBorderTrackTableAssigner {
     }
   }
 
-  void assignTableBorders(
-    Table table,
-    LayoutConstraint referenceConstraint
-  ) {
+  void assignTableBorders(Table table) {
     TableComputedBorders borders = table.borders();
     for (int x = 0; x < table.width(); x++) {
       placeTopBorder(x, 0, borders.topBorder);

@@ -79,7 +79,7 @@ public final class TableBorderConflictResolver {
 
     // Must have already been harmonized if border source is the opposite side
     int borderStart = conflictOps.lockedStart(cell) + conflictOps.lockedRun(cell);
-    if (borderStart >= table.width()) return;
+    if (borderStart >= conflictOps.lockedRun(table)) return;
     for (int scan = conflictOps.scanStart(cell); scan < conflictOps.scanStart(cell) + conflictOps.scanRun(cell); scan++) {
       for (int z = 0; conflictOps.getCell(table, borderStart, scan, z) != null; z++) {
         TableCell borderCell = conflictOps.getCell(table, borderStart, scan, z);

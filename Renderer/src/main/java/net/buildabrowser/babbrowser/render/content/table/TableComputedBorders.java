@@ -6,7 +6,6 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.render.box.ElementBox;
 import net.buildabrowser.babbrowser.render.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.render.content.common.paint.ElementBorderPainter;
-import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
 public class TableComputedBorders {
 
@@ -47,7 +46,6 @@ public class TableComputedBorders {
   public static ComputedBorder computeBorder(
     ElementBox sourceBox,
     BorderSide sourceSide,
-    LayoutConstraint referenceConstraint,
     boolean divTwo // So we don't have to allocate another ComputedBorder later
   ) {
     CSSProperty widthProperty = switch (sourceSide) {
@@ -67,7 +65,7 @@ public class TableComputedBorders {
     ActiveStyles sourceStyles = sourceBox.activeStyles();
     CSSValue widthValue = sourceStyles.getProperty(widthProperty);
     CSSValue borderStyle = sourceStyles.getProperty(styleProperty);
-    float borderWidth = BorderUtil.computeBorder(widthValue, borderStyle, sourceBox, referenceConstraint);
+    float borderWidth = BorderUtil.computeBorder(sourceBox, widthValue, borderStyle);
     if (divTwo) borderWidth /= 2;
 
     return new ComputedBorder(sourceBox, sourceSide, borderWidth, borderStyle);

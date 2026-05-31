@@ -144,7 +144,6 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
   private void openTab() {
     Tab tab = window.openTab();
     tab.navigate(CommonUtil.rethrow(() -> URLUtil.createURL(NEW_TAB_PAGE)));
-    System.out.println("Tab Count: " + window.getTabs().length);
   }
 
   private void closeTab() {

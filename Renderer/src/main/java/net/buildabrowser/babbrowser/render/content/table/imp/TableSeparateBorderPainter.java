@@ -24,7 +24,7 @@ public class TableSeparateBorderPainter implements TableBorderPainter {
   ) {
     BorderUtil.computeBorder(table.tableBox());
     PaddingUtil.computePadding(table.tableBox(), referenceConstraint);
-    TableCellUtil.forEachCell(table, cell -> assignBorders(cell, referenceConstraint));
+    TableCellUtil.forEachCell(table, cell -> assignBorders(cell));
   }
 
   @Override
@@ -46,16 +46,13 @@ public class TableSeparateBorderPainter implements TableBorderPainter {
     canvas.popPaint();
   }
 
-  private void assignBorders(
-    TableCell cell,
-    LayoutConstraint referenceConstraint
-  ) {
+  private void assignBorders(TableCell cell) {
     TableComputedBorders borders = cell.borders();
     ElementBox cellBox = cell.cellBox();
-    borders.topBorder = TableComputedBorders.computeBorder(cellBox, BorderSide.TOP, referenceConstraint, false);
-    borders.bottomBorder = TableComputedBorders.computeBorder(cellBox, BorderSide.BOTTOM, referenceConstraint, false);
-    borders.leftBorder = TableComputedBorders.computeBorder(cellBox, BorderSide.LEFT, referenceConstraint, false);
-    borders.rightBorder = TableComputedBorders.computeBorder(cellBox, BorderSide.RIGHT, referenceConstraint, false);
+    borders.topBorder = TableComputedBorders.computeBorder(cellBox, BorderSide.TOP, false);
+    borders.bottomBorder = TableComputedBorders.computeBorder(cellBox, BorderSide.BOTTOM, false);
+    borders.leftBorder = TableComputedBorders.computeBorder(cellBox, BorderSide.LEFT, false);
+    borders.rightBorder = TableComputedBorders.computeBorder(cellBox, BorderSide.RIGHT, false);
 
     cell.cellBox().dimensions().setComputedBorder(
       borders.topBorder.borderWidth(),

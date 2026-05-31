@@ -7,7 +7,6 @@ import net.buildabrowser.babbrowser.render.content.table.Table;
 import net.buildabrowser.babbrowser.render.content.table.TableCell;
 import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders;
 import net.buildabrowser.babbrowser.render.content.table.TableComputedBorders.ComputedBorder;
-import net.buildabrowser.babbrowser.render.layout.LayoutConstraint;
 
 // TODO: Make everything static to avoid some memory usage? Probably doesn't matter.
 public class TableCollapsedBorderCellAssigner {
@@ -22,11 +21,10 @@ public class TableCollapsedBorderCellAssigner {
   
   void assignCellBorders(
     Table table,
-    TableCell cell,
-    LayoutConstraint referenceConstraint
+    TableCell cell
   ) {
     TableComputedBorders borders = computeInitialBorders(
-      cell.cellBox(), cell.borders(), referenceConstraint);
+      cell.cellBox(), cell.borders());
     for (int y = 0; y < cell.height(); y++) {
       for (int x = 0; x < cell.width(); x++) {
         assignSlotCellBorders(cell, x, y, borders);
