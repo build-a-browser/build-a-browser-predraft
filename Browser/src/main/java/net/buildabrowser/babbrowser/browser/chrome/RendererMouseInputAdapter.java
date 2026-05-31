@@ -7,9 +7,9 @@ import java.util.function.Supplier;
 import javax.swing.event.MouseInputAdapter;
 
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
-import net.buildabrowser.babbrowser.render.event.EventForwardingTarget;
-import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent;
-import net.buildabrowser.babbrowser.render.event.events.RendererMouseEvent.MouseEventType;
+import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
+import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
+import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent.MouseEventType;
 
 public class RendererMouseInputAdapter extends MouseInputAdapter {
 

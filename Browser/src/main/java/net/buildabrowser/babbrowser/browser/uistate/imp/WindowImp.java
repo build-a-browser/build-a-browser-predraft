@@ -9,7 +9,7 @@ import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
 import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListener;
 import net.buildabrowser.babbrowser.browser.uistate.event.WindowMutationEventListener;
-import net.buildabrowser.babbrowser.render.uistate.event.BrowserEventDispatcher;
+import net.buildabrowser.babbrowser.renderer.uistate.event.BrowserEventDispatcher;
 
 public class WindowImp implements Window {
 

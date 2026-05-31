@@ -5,7 +5,7 @@ import java.net.URI;
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
 import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListener;
 import net.buildabrowser.babbrowser.browser.uistate.imp.TabImp;
-import net.buildabrowser.babbrowser.render.uistate.Frame;
+import net.buildabrowser.babbrowser.renderer.uistate.Frame;
 
 public interface Tab {
   

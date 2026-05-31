@@ -1,0 +1,100 @@
+package net.buildabrowser.babbrowser.renderer.layout;
+
+import java.util.Deque;
+
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
+import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundAttachmentValue;
+import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
+import net.buildabrowser.babbrowser.renderer.box.Box;
+import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.box.ElementBoxIterator;
+import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
+
+public final class StackingContextGenerator {
+  
+  private StackingContextGenerator() {}
+
+  public static void generateStackingContextsRoot(
+    ElementBox rootBox, Deque<ElementBox> deferredBoxes
+  ) {
+    StackingContext rootContext = StackingContext.createRoot(rootBox);
+    rootBox.setStackingContext(rootContext);
+    rootContext.computeInsets();
+
+    ElementBoxIterator childIt = rootBox.childBoxes();
+    while (childIt.hasNext()) {
+      generateStackingContexts(childIt.next(), rootContext, deferredBoxes);
+    }
+  }
+
+  public static void generateStackingContextsDeferred(
+    ElementBox deferredBox, Deque<ElementBox> deferredBoxes
+  ) {
+    // TODO: Need to track font
+    StackingContext deferredContext = deferredBox.stackingContext();
+    assert deferredContext != null;
+
+    for (Box box: deferredBox.childBoxes()) {
+      generateStackingContexts(box, deferredContext, deferredBoxes);
+    }
+  }
+
+  private static void generateStackingContexts(
+    Box box, StackingContext parentContext, Deque<ElementBox> deferredBoxes
+  ) {
+    if (!(box instanceof ElementBox elementBox)) return;
+    if (elementBox.parentBox() instanceof ScrollBox) {
+      generateScrollChildStackingContexts(elementBox, parentContext, deferredBoxes);
+      return;
+    }
+
+    ActiveStyles activeStyles = elementBox.activeStyles();
+    CSSValue positioning = activeStyles.getProperty(CSSProperty.POSITION);
+    boolean isScrollable = elementBox instanceof ScrollBox;
+    boolean hasFixedAttachment = hasFixedAttachment(activeStyles);
+
+    if (positioning.equals(PositionValue.ABSOLUTE)) {
+      parentContext = parentContext.createChild(elementBox);
+      deferredBoxes.add(elementBox);
+    } else if (
+      positioning.equals(PositionValue.RELATIVE)
+      || isScrollable || hasFixedAttachment
+    ) {
+      parentContext = parentContext.createChild(elementBox);
+      parentContext.computeInsets();
+    } // TODO: Other positions
+    elementBox.setStackingContext(parentContext);
+
+    ElementBoxIterator childIt = elementBox.childBoxes();
+    if (!positioning.equals(PositionValue.ABSOLUTE)) {
+      while (childIt.hasNext()) {
+        generateStackingContexts(childIt.next(), parentContext, deferredBoxes);
+      }
+    }
+  }
+
+  private static void generateScrollChildStackingContexts(
+    ElementBox elementBox, StackingContext parentContext, Deque<ElementBox> deferredBoxes
+  ) {
+    elementBox.setStackingContext(parentContext);
+    ElementBoxIterator childIt = elementBox.childBoxes();
+    while (childIt.hasNext()) {
+      generateStackingContexts(childIt.next(), parentContext, deferredBoxes);
+    }
+  }
+
+  private static boolean hasFixedAttachment(ActiveStyles activeStyles) {
+    ManyResult attachmentList = (ManyResult) activeStyles.getProperty(CSSProperty.BACKGROUND_ATTACHMENT);
+    for (CSSValue result: attachmentList.values()) {
+      if (
+        result.equals(BackgroundAttachmentValue.FIXED)
+      ) return true;
+    }
+
+    return false;
+  }
+
+}

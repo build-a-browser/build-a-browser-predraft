@@ -10,7 +10,7 @@ import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
 import net.buildabrowser.babbrowser.browser.uistate.event.WindowMutationEventListener;
 import net.buildabrowser.babbrowser.browser.uistate.event.WindowSetMutationEventListener;
-import net.buildabrowser.babbrowser.render.uistate.event.BrowserEventDispatcher;
+import net.buildabrowser.babbrowser.renderer.uistate.event.BrowserEventDispatcher;
 
 public class WindowSetImp implements WindowSet {
   

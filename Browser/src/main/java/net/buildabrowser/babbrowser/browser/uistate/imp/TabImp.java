@@ -5,9 +5,9 @@ import java.net.URI;
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
 import net.buildabrowser.babbrowser.browser.uistate.Tab;
 import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListener;
-import net.buildabrowser.babbrowser.render.uistate.Frame;
-import net.buildabrowser.babbrowser.render.uistate.event.BrowserEventDispatcher;
-import net.buildabrowser.babbrowser.render.uistate.event.FrameEventListener;
+import net.buildabrowser.babbrowser.renderer.uistate.Frame;
+import net.buildabrowser.babbrowser.renderer.uistate.event.BrowserEventDispatcher;
+import net.buildabrowser.babbrowser.renderer.uistate.event.FrameEventListener;
 
 public class TabImp implements Tab {
   

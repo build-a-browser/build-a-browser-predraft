@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.browser;
 
 import net.buildabrowser.babbrowser.browser.imp.BrowserInstanceImp;
-import net.buildabrowser.babbrowser.render.RenderingEngine;
+import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 
 public interface BrowserInstance {
   
