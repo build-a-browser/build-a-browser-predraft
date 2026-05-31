@@ -52,6 +52,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private static final BoxGenerator boxGenerator = BoxGenerator.create();
 
   private final EventContext eventContext = EventContext.create();
+  private final Object frontLayerLock = new Object();
 
   private final HTMLDocument document;
   private final Navigable navigable;
@@ -65,7 +66,9 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private final ImageCache imageCache;
 
   private volatile InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
-  private CompositeLayer rootLayer;
+  private StackingContext frontLayerRegenContext;
+  private CompositeLayer rootLayerBack;
+  private CompositeLayer rootLayerFront;
   private LoadedFont rootFont;
 
   // TODO: Switch to AtomicInteger? Synchronize?
@@ -140,16 +143,27 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     boolean needsPaint = invalidationLevel.ordinal() <= InvalidationLevel.PAINT.ordinal();
     if (
       !needsPaint
-      || rootLayer == null
+      || rootLayerBack == null
       || width <= 0 || height <= 0
     ) return;
 
     long paintStartTime = System.currentTimeMillis();
     int[] viewport = new int[] { 0, 0, width, height };
-    rootLayer.repaint(viewport);
+    rootLayerBack.repaint(viewport);
 
     document.validate();
     this.invalidationLevel = InvalidationLevel.NONE;
+
+    synchronized (frontLayerLock) {
+      CompositeLayer oldFrontLayer = rootLayerFront;
+      rootLayerFront = rootLayerBack;
+      rootLayerBack = oldFrontLayer;
+    }
+
+    if (frontLayerRegenContext != null) {
+      this.rootLayerBack = frontLayerRegenContext.createLayer(painter);
+      this.frontLayerRegenContext = null;
+    }
     
     navigable.uaNavigableOptions().requestRepaint();
 
@@ -158,20 +172,22 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   @Override
   public void draw(PaintCanvas canvas) {
-    if (
-      this.rootLayer == null
-      || this.width <= 0
-      || this.height <= 0
-    ) return;
-
     long windowPaintStartTime = System.currentTimeMillis();
-    canvas.alterPaint(p -> p.setColor(0xFFFFFFFF));
-    canvas.drawBox(0, 0, width, height);
-    // TODO: What if the root layer is updating internally while painting? (sync)
-    int[] viewport = new int[] { 0, 0, width, height };
-    canvas.mark();
-    rootLayer.draw(canvas, viewport);
-    canvas.unmark();
+    synchronized (frontLayerLock) {
+      if (
+        this.rootLayerFront == null
+        || this.width <= 0
+        || this.height <= 0
+      ) return;
+
+      canvas.alterPaint(p -> p.setColor(0xFFFFFFFF));
+      canvas.drawBox(0, 0, width, height);
+      // TODO: What if the root layer is updating internally while painting? (sync)
+      int[] viewport = new int[] { 0, 0, width, height };
+      canvas.mark();
+      rootLayerFront.draw(canvas, viewport);
+      canvas.unmark();
+    }
     PerfLogging.logWindowPaintTime(windowPaintStartTime);
   }
 
@@ -190,14 +206,16 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   @Override
   public void forwardEvent(RendererMouseEvent mouseEvent) {
-    if (rootLayer == null) return;
-    // I'm not putting this on the event loop until the spec's dispatcher runs, because
-    // scroll bars need to remain responsive even while something like layout is running
-    // TODO: There *was* a race condition being caused by this, but I can't consistently
-    // reproduce it, so I can't debug it
-    CompositeEventsDispatcher.dispatchMouseEvent(
-      eventContext, rootLayer, mouseEvent,
-      mouseEvent.winX(), mouseEvent.winY());
+    synchronized (frontLayerLock) {
+      if (rootLayerFront == null) return;
+      // I'm not putting this on the event loop until the spec's dispatcher runs, because
+      // scroll bars need to remain responsive even while something like layout is running
+      // TODO: There *was* a race condition being caused by this, but I can't consistently
+      // reproduce it, so I can't debug it
+      CompositeEventsDispatcher.dispatchMouseEvent(
+        eventContext, rootLayerFront, mouseEvent,
+        mouseEvent.winX(), mouseEvent.winY());
+    }
   }
 
   @Override
@@ -272,7 +290,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       layoutAbsolute(deferredLayout, itemBox);
     }
     
-    this.rootLayer = rootBox.stackingContext().createLayer(painter);
+    this.rootLayerBack = rootBox.stackingContext().createLayer(painter);
+    this.frontLayerRegenContext = rootBox.stackingContext();
   }
 
   private void layoutAbsolute(

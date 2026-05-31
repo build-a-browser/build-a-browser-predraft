@@ -1,17 +1,18 @@
 package net.buildabrowser.babbrowser.renderer.composite.imp;
 
+import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerEntry;
-import net.buildabrowser.babbrowser.renderer.composite.LayerBitMap;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBoxFragment;
+import net.buildabrowser.babbrowser.renderer.paint.backend.PaintBitMap;
 import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.paint.backend.Painter;
 
@@ -19,17 +20,19 @@ public class CompositeLayerImp implements CompositeLayer {
 
   private static final int OVERSCROLL_FACTOR = 3;
 
-  private final List<CompositeLayer> childLayers = new LinkedList<>();
+  private final List<CompositeLayer> childLayers = new ArrayList<>(1);
+  private final BitSet activeChildren = new BitSet();
 
+  private final Painter backingPainter;
   private final PositionValue positioning;
   private final float offsetX, offsetY;
   private final int zIndex;
 
-  private final LayerBitMap foregroundBitMap;
-
   // Unfortunately can't use the LayoutFragment's intrusive list, as it is already in use
   private CompositeLayerEntry entries;
   private int backingWidth, backingHeight;
+  private int backingX, backingY;
+  private PaintBitMap backingImage;
   private boolean sorted;
 
   public CompositeLayerImp(
@@ -38,12 +41,11 @@ public class CompositeLayerImp implements CompositeLayer {
     float offsetX, float offsetY,
     int zIndex
   ) {
+    this.backingPainter = painter;
     this.positioning = positioning;
     this.offsetX = offsetX;
     this.offsetY = offsetY;
     this.zIndex = zIndex;
-
-    this.foregroundBitMap = new LayerBitMapImp(painter);
   }
 
   @Override
@@ -75,8 +77,11 @@ public class CompositeLayerImp implements CompositeLayer {
 
     repaintSelf(vpIntersection, scrollBoxFragment);
 
+    activeChildren.clear();
+    int i = 0;
     for (CompositeLayer childLayer: childLayers) {
       childLayer.repaint(vpIntersection);
+      activeChildren.set(i++, childLayer.layerActive());
     }
 
     vpIntersection[0] = vX; vpIntersection[1] = vY; vpIntersection[2] = vW; vpIntersection[3] = vH;
@@ -100,8 +105,7 @@ public class CompositeLayerImp implements CompositeLayer {
       || nearbyViewportY + nearbyViewportHeight < 0
       || nearbyViewportY > backingHeight
     ) {
-      foregroundBitMap.resize(0, 0, 0, 0);
-      foregroundBitMap.update(_ -> {});
+      this.backingImage = null;
       return;
     }
 
@@ -110,21 +114,23 @@ public class CompositeLayerImp implements CompositeLayer {
 
     vpIntersection[0] = overscrollX; vpIntersection[1] = overscrollY; vpIntersection[2] = overscrollWidth; vpIntersection[3] = overscrollHeight;
 
-    foregroundBitMap.resize(
-      overscrollX, overscrollY,
+    this.backingImage = backingPainter.createPaintBitMap(
       // TODO: Hack for it to work when content is above layer start (e.g. negative margin)
       // But this probably won't work with fixed-size layers
       Math.max(overscrollWidth, 1),
       Math.max(overscrollHeight, 1));
-    foregroundBitMap.update(canvas -> {
+    this.backingX = overscrollX;
+    this.backingY = overscrollY;
+
+    backingImage.withCanvas(canvas -> {
       // TODO: These paint checks aren't cool
       if (entries != null) {
         canvas.alterPaint(p -> p.setFont(entries.fragment().box().layoutContext().font()));
       }
       forEachFragment((fragment, vpi) -> {
         canvas.alterPaint(p -> p.incOffset(
-          fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER),
-          fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER)));
+          fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER) - backingX,
+          fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER) - backingY));
 
         fragment.painter().paint(fragment, canvas, vpi);
       }, canvas, vpIntersection);
@@ -168,16 +174,23 @@ public class CompositeLayerImp implements CompositeLayer {
       canvas, vpIntersection);
     }
     
-    for (CompositeLayer layer: childLayers) {
-      if (layer.zIndex() >= 0) continue;
+    int gtLayerStart = 0;
+    for (int i = activeChildren.nextSetBit(0); i >= 0; i = activeChildren.nextSetBit(i + 1)) {
+      CompositeLayer layer = childLayers.get(i);
+      if (layer.zIndex() >= 0) {
+        gtLayerStart = i;
+        break;
+      }
       paintChildLayer(canvas, layer, scrollX, scrollY, vpIntersection);
     }
 
     // Parent already offset the x, y by layer.
-    foregroundBitMap.draw(scrollX, scrollY, canvas);
+    if (this.backingImage != null) {
+      canvas.drawBitMap(scrollX + this.backingX, scrollY + this.backingY, backingImage);
+    }
     
-    for (CompositeLayer layer: childLayers) {
-      if (layer.zIndex() < 0) continue;
+    for (int i = activeChildren.nextSetBit(gtLayerStart); i >= 0; i = activeChildren.nextSetBit(i + 1)) {
+      CompositeLayer layer = childLayers.get(i);
       paintChildLayer(canvas, layer, scrollX, scrollY, vpIntersection);
     }
 
@@ -226,6 +239,11 @@ public class CompositeLayerImp implements CompositeLayer {
   @Override
   public CompositeLayerEntry entries() {
     return this.entries;
+  }
+
+  @Override
+  public boolean layerActive() {
+    return backingImage != null || !activeChildren.isEmpty();
   }
 
   private ScrollBoxFragment relatedScrollBox() {
@@ -282,6 +300,7 @@ public class CompositeLayerImp implements CompositeLayer {
     float scrollX, float scrollY,
     int[] vpIntersection
   ) {
+    if (this.backingImage == null) return;
     canvas.pushPaint();
     canvas.alterPaint(paint -> paint.incOffset(
       layer.posX() + scrollX,

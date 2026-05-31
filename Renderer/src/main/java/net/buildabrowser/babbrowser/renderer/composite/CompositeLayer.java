@@ -28,6 +28,8 @@ public interface CompositeLayer {
 
   List<CompositeLayer> childLayers();
 
+  boolean layerActive();
+
   CompositeLayerEntry entries();
 
   static CompositeLayer create(
