@@ -3,21 +3,22 @@ package net.buildabrowser.babbrowser.renderer.content.flow;
 import static net.buildabrowser.babbrowser.renderer.layout.StackingContext.startsStackingContext;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
+import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.TextFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.common.paint.ElementBackgroundPainter;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
-import net.buildabrowser.babbrowser.renderer.paint.PaintUtil;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;;
+import net.buildabrowser.babbrowser.renderer.paint.PaintUtil;;
 
 public final class FlowRootContentPainter {
 
@@ -33,30 +34,30 @@ public final class FlowRootContentPainter {
     public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
       FlowRootBoxFragment wrapperFragment = (FlowRootBoxFragment) fragment;
       ManagedBoxFragment baseFragment = wrapperFragment.rootFragment();
-      canvas.pushPaint();
       paintBlockLevelBackgrounds(baseFragment, canvas, vpIntersection, baseFragment);
       paintFloats(wrapperFragment.floats(), canvas, vpIntersection, baseFragment);
       paintManagedBoxFragment(baseFragment, canvas, vpIntersection, baseFragment);
-      canvas.popPaint();
     }
 
     @Override
     public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
       // TODO: This triggers too early for <body>
-      paintBackgroundAndAdvance(canvas, fragment);
+      paintManagedBackground(canvas, fragment);
     }
 
     public static void paintFloats(List<BoxFragment> floats, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment) {
       for (BoxFragment childFragment: floats) {
         if (startsStackingContext(childFragment, refFragment)) continue;
 
-        canvas.pushPaint();
-        canvas.alterPaint(paint -> paint.incOffset(
-          childFragment.posX(Measurement.BORDER),
-          childFragment.posY(Measurement.BORDER)));
-        paintUnmanagedBackgroundAndAdvance(canvas, (BoxFragment) childFragment, vpIntersection);
-        paintFragment(childFragment, canvas, vpIntersection, refFragment);
-        canvas.popPaint();
+        canvas.withTransform(
+          t -> t.translate(
+            childFragment.posX(Measurement.BORDER),
+            childFragment.posY(Measurement.BORDER)),
+          c -> {
+            paintUnmanagedBackgroundThen(
+              c, (BoxFragment) childFragment, vpIntersection,
+              c2 -> paintFragment(childFragment, c2, vpIntersection, refFragment));
+          });
       }
     }
 
@@ -85,7 +86,7 @@ public final class FlowRootContentPainter {
 
     @Override
     public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
-      paintBackgroundAndAdvance(canvas, fragment);
+      paintManagedBackground(canvas, fragment);
     }
 
   }
@@ -118,17 +119,16 @@ public final class FlowRootContentPainter {
       curNode = curNode.next();
       if (startsStackingContext(childFragment, refFragment)) continue;
 
-      canvas.pushPaint();
-      canvas.alterPaint(paint -> {
-        paint.incOffset(childFragment.posX(Measurement.CONTENT), childFragment.posY(Measurement.CONTENT));
-        if (parentBox.layoutContext() != null) {
-          // TODO: Remove this if once I move some stuff to fixupChildren
-          paint.setFont(parentBox.layoutContext().font());
-        }
-        paint.setColor(ActiveStylesUtil.textColor(parentBox.activeStyles()));
-      });
-      paintFragment(childFragment, canvas, vpIntersection, refFragment);
-      canvas.popPaint();
+      canvas.withPaintAndTransform(
+        paint -> {
+          if (parentBox.layoutContext() != null) {
+            // TODO: Remove this if once I move some stuff to fixupChildren
+            paint.setFont(parentBox.layoutContext().font());
+          }
+          paint.setColor(ActiveStylesUtil.textColor(parentBox.activeStyles()));
+        },
+        t -> t.translate(childFragment.posX(Measurement.CONTENT), childFragment.posY(Measurement.CONTENT)),
+        c -> paintFragment(childFragment, c, vpIntersection, refFragment));
     }
   }
 
@@ -158,22 +158,22 @@ public final class FlowRootContentPainter {
       curNode = curNode.next();
       if (startsStackingContext(childFragment, refFragment)) continue;
 
-      canvas.pushPaint();
-      canvas.alterPaint(paint -> {
-        paint.incOffset(childFragment.posX(Measurement.BORDER), childFragment.posY(Measurement.BORDER));
-        paint.setFont(parentBox.layoutContext().font());
-        paint.setColor(ActiveStylesUtil.textColor(parentBox.activeStyles()));
-      });
-      paintInlineFragment(childFragment, canvas, vpIntersection, refFragment);
-      canvas.popPaint();
+      canvas.withPaintAndTransform(
+        p -> {
+          p.setFont(parentBox.layoutContext().font());
+          p.setColor(ActiveStylesUtil.textColor(parentBox.activeStyles()));
+        },
+        t -> t.translate(childFragment.posX(Measurement.BORDER), childFragment.posY(Measurement.BORDER)),
+        c -> paintInlineFragment(childFragment, c, vpIntersection, refFragment));
     }
   }
 
   private static void paintInlineUnmanagedBoxFragment(
     UnmanagedBoxFragment fragment, PaintCanvas canvas, int[] vpIntersection
   ) {
-    paintUnmanagedBackgroundAndAdvance(canvas, fragment, vpIntersection);
-    fragment.painter().paint(fragment, canvas, vpIntersection);
+    paintUnmanagedBackgroundThen(
+      canvas, fragment, vpIntersection,
+      c -> fragment.painter().paint(fragment, c, vpIntersection));
   }
 
   private static void paintTextFragment(PaintCanvas canvas, TextFragment textFragment) {
@@ -189,10 +189,9 @@ public final class FlowRootContentPainter {
       curNode = curNode.next();
       if (startsStackingContext(childFragment, refFragment)) continue;
 
-      canvas.pushPaint();
-      canvas.alterPaint(paint -> paint.incOffset(childFragment.posX(Measurement.BORDER), childFragment.posY(Measurement.BORDER)));
-      paintInlineFragment(childFragment, canvas, vpIntersection, refFragment);
-      canvas.popPaint();
+      canvas.withTransform(
+        t -> t.translate(childFragment.posX(Measurement.BORDER), childFragment.posY(Measurement.BORDER)),
+        c -> paintInlineFragment(childFragment, c, vpIntersection, refFragment));
     }
   }
 
@@ -200,12 +199,13 @@ public final class FlowRootContentPainter {
     BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment
   ) {
     if (!(fragment instanceof ManagedBoxFragment managedBoxFragment)) {
-      paintUnmanagedBackgroundAndAdvance(canvas, fragment, vpIntersection);
+      paintUnmanagedBackground(canvas, fragment, vpIntersection);
       return;
     }
     
-    paintBackgroundAndAdvance(canvas, fragment);
-    paintBlockLevelBackgrounds(managedBoxFragment, canvas, vpIntersection, refFragment);
+    paintManagedBackgroundThen(
+      canvas, fragment,
+      c -> paintBlockLevelBackgrounds(managedBoxFragment, c, vpIntersection, refFragment));
   }
 
   private static void paintBlockLevelBackgrounds(
@@ -218,39 +218,52 @@ public final class FlowRootContentPainter {
       if (startsStackingContext(childFragment, refFragment)) continue;
 
       if (childFragment instanceof BoxFragment childBoxFragment) {
-        canvas.pushPaint();
-        canvas.alterPaint(paint -> paint.incOffset(childFragment.posX(Measurement.BORDER), childFragment.posY(Measurement.BORDER)));
-        PaintUtil.maybePaintFragment(childBoxFragment, canvas, vpIntersection,
-          (f, c, vpi) -> paintBlockBackground(f, c, vpi, refFragment));
-        
-        canvas.popPaint();
+        canvas.withTransform(
+          t -> t.translate(childFragment.posX(Measurement.BORDER), childFragment.posY(Measurement.BORDER)),
+          c -> PaintUtil.maybePaintFragment(childBoxFragment, c, vpIntersection,
+            (f, c2, vpi) -> paintBlockBackground(f, c2, vpi, refFragment)));
       }
     }
   }
 
-  private static void paintBackgroundAndAdvance(PaintCanvas canvas, LayoutFragment fragment) {
+  private static void paintManagedBackground(PaintCanvas canvas, LayoutFragment fragment) {
     if (fragment instanceof BoxFragment boxFragment) {
       ElementBackgroundPainter.paintBackground(canvas, boxFragment);
     }
-
-    canvas.alterPaint(paint -> paint.incOffset(
-      fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER),
-      fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER)));
   }
 
-  private static void paintUnmanagedBackgroundAndAdvance(
+  private static void paintManagedBackgroundThen(
+    PaintCanvas canvas, LayoutFragment fragment,
+    Consumer<PaintCanvas> paintFunc
+  ) {
+    paintManagedBackground(canvas, fragment);
+
+    canvas.withTransform(
+      p -> p.translate(
+        fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER),
+        fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER)),
+      paintFunc);
+  }
+
+  private static void paintUnmanagedBackground(
     PaintCanvas canvas, BoxFragment fragment, int[] vpIntersection
   ) {
-    canvas.pushPaint();
     PaintUtil.maybePaintFragment(
       fragment, canvas, vpIntersection,
       fragment.painter()::paintBackground,
       Measurement.BORDER);
-    canvas.popPaint();
+  }
 
-    canvas.alterPaint(paint -> paint.incOffset(
-      fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER),
-      fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER)));
+  private static void paintUnmanagedBackgroundThen(
+    PaintCanvas canvas, BoxFragment fragment, int[] vpIntersection,
+    Consumer<PaintCanvas> paintFunc
+  ) {
+    paintUnmanagedBackground(canvas, fragment, vpIntersection);
+    canvas.withTransform(
+      t -> t.translate(
+        fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER),
+        fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER)),
+      paintFunc);
   }
 
 }

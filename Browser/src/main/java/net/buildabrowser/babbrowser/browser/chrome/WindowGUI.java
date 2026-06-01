@@ -26,11 +26,11 @@ import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListen
 import net.buildabrowser.babbrowser.browser.uistate.event.WindowMutationEventListener;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.network.URLUtil;
+import net.buildabrowser.babbrowser.painter.core.CanvasCallbacks;
+import net.buildabrowser.babbrowser.painter.core.ComponentPainter;
+import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.renderer.imp.NoOpGraphicalDocumentRenderer;
-import net.buildabrowser.babbrowser.renderer.paint.backend.CanvasCallbacks;
-import net.buildabrowser.babbrowser.renderer.paint.backend.ComponentPainter;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;
 
 public class WindowGUI extends JFrame implements WindowMutationEventListener {
 

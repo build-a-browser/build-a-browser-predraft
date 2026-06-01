@@ -1,12 +1,12 @@
 package net.buildabrowser.babbrowser.renderer.content.flexbox;
 
+import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.common.paint.ElementBackgroundPainter;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
 import net.buildabrowser.babbrowser.renderer.paint.PaintUtil;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;
 
 public class FlexBoxContentPainter implements BoxPainter {
 
@@ -34,16 +34,14 @@ public class FlexBoxContentPainter implements BoxPainter {
 
   private void paintChild(BoxFragment child, PaintCanvas canvas, int[] vpIntersection, StackingContext refContext) {
     if (child.box().stackingContext() != refContext) return;
-      
-    canvas.pushPaint();
-    canvas.alterPaint(p -> p.incOffset(child.posX(Measurement.BORDER), child.posY(Measurement.BORDER)));
-    child.painter().paintBackground(child, canvas, vpIntersection);
-    canvas.popPaint();
+    
+    canvas.withTransform(
+      t -> t.translate(child.posX(Measurement.BORDER), child.posY(Measurement.BORDER)),
+      c -> child.painter().paintBackground(child, c, vpIntersection));
 
-    canvas.pushPaint();
-    canvas.alterPaint(p -> p.incOffset(child.posX(Measurement.CONTENT), child.posY(Measurement.CONTENT)));
-    child.painter().paint(child, canvas, vpIntersection);
-    canvas.popPaint();
+    canvas.withTransform(
+      t -> t.translate(child.posX(Measurement.CONTENT), child.posY(Measurement.CONTENT)),
+      c -> child.painter().paint(child, c, vpIntersection));
   }
 
 }

@@ -17,10 +17,10 @@ import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
 import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
+import net.buildabrowser.babbrowser.painter.core.LoadedImage;
+import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
 import net.buildabrowser.babbrowser.renderer.context.ScriptingContext;
 import net.buildabrowser.babbrowser.renderer.image.ImageCache;
-import net.buildabrowser.babbrowser.renderer.paint.backend.LoadedImage;
-import net.buildabrowser.babbrowser.renderer.paint.backend.ResourceLoader;
 
 public class ImageCacheImp implements ImageCache {
 

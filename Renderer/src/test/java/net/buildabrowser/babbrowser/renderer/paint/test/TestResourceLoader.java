@@ -3,10 +3,10 @@ package net.buildabrowser.babbrowser.renderer.paint.test;
 import java.io.IOException;
 import java.io.InputStream;
 
-import net.buildabrowser.babbrowser.renderer.paint.backend.FontLoader;
-import net.buildabrowser.babbrowser.renderer.paint.backend.LoadedFont;
-import net.buildabrowser.babbrowser.renderer.paint.backend.LoadedImage;
-import net.buildabrowser.babbrowser.renderer.paint.backend.ResourceLoader;
+import net.buildabrowser.babbrowser.painter.core.FontLoader;
+import net.buildabrowser.babbrowser.painter.core.LoadedFont;
+import net.buildabrowser.babbrowser.painter.core.LoadedImage;
+import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
 
 public class TestResourceLoader implements ResourceLoader {
 

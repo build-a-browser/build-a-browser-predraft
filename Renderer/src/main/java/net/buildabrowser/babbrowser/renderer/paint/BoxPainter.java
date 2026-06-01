@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.paint;
 
+import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;
 
 public interface BoxPainter {
 

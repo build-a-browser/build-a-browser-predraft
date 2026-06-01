@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.flow.test;
 
+import net.buildabrowser.babbrowser.painter.core.FontMetrics;
+import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
@@ -9,8 +11,6 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContextGenerator;
 import net.buildabrowser.babbrowser.renderer.layout.Viewport;
-import net.buildabrowser.babbrowser.renderer.paint.backend.FontMetrics;
-import net.buildabrowser.babbrowser.renderer.paint.backend.ResourceLoader;
 import net.buildabrowser.babbrowser.renderer.paint.test.TestFontMetrics;
 import net.buildabrowser.babbrowser.renderer.paint.test.TestResourceLoader;
 

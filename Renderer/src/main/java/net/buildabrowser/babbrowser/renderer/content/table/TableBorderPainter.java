@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.renderer.content.table;
 
+import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;
 
 public interface TableBorderPainter {
   

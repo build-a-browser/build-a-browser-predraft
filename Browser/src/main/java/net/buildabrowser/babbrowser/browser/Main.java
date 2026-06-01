@@ -22,12 +22,12 @@ import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
-import net.buildabrowser.babbrowser.painter.backend.java2d.Java2DPainter;
-import net.buildabrowser.babbrowser.painter.backend.skija.SkijaAWTPainter;
+import net.buildabrowser.babbrowser.painter.core.ComponentPainter;
+import net.buildabrowser.babbrowser.painter.java2d.Java2DPainter;
+import net.buildabrowser.babbrowser.painter.skija.SkijaAWTPainter;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 import net.buildabrowser.babbrowser.renderer.loader.loaders.HTMLDocumentLoader;
-import net.buildabrowser.babbrowser.renderer.paint.backend.ComponentPainter;
 
 public class Main {
   

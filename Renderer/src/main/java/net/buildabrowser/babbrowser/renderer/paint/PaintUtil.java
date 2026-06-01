@@ -1,9 +1,10 @@
 package net.buildabrowser.babbrowser.renderer.paint;
 
+import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;
 
 public final class PaintUtil {
   
@@ -19,6 +20,7 @@ public final class PaintUtil {
     BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection,
     FragmentPaintFunc func, Measurement measurement
   ) {
+    if (fragment instanceof PosRefBoxFragment) return;
     if (!aabbFragmentVp(fragment, vpIntersection)) return;
 
     int vX = vpIntersection[0], vY = vpIntersection[1], vW = vpIntersection[2], vH = vpIntersection[3];

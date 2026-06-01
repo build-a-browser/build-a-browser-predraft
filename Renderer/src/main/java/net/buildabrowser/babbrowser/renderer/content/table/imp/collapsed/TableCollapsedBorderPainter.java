@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.renderer.content.table.imp.collapsed;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
+import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.common.paint.ElementBorderPainter;
@@ -11,7 +12,6 @@ import net.buildabrowser.babbrowser.renderer.content.table.TableComputedBorders;
 import net.buildabrowser.babbrowser.renderer.content.table.TableComputedBorders.ComputedBorder;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.collapsed.TableCollapsedBorderAssigner.SlotComputedBorder;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;
 
 public class TableCollapsedBorderPainter implements TableBorderPainter {
 
@@ -58,23 +58,21 @@ public class TableCollapsedBorderPainter implements TableBorderPainter {
     float bottomBorderWidth = bottomStyle.equals(CSSValue.NONE) ? 0 : bottomBorder.borderWidth() * 2;
     float leftBorderWidth = leftStyle.equals(CSSValue.NONE) ? 0 : leftBorder.borderWidth() * 2;
     float rightBorderWidth = rightStyle.equals(CSSValue.NONE) ? 0 : rightBorder.borderWidth() * 2;
-
-    canvas.pushPaint();
-    canvas.alterPaint(p -> p.incOffset(
-      columnFragment.posX(Measurement.BORDER) - leftBorderWidth / 2,
-      rowFragment.posY(Measurement.BORDER) - topBorderWidth / 2));
     
     float fragmentWidth = table.column(slotBorder.x()).usedWidth() + leftBorderWidth / 2 + rightBorderWidth / 2;
     float fragmentHeight = table.row(slotBorder.y()).usedHeight() + topBorderWidth / 2 + bottomBorderWidth / 2;
 
-    switch (border.sourceSide()) {
-      case TOP -> paintTopBorder(canvas, border, fragmentWidth);
-      case BOTTOM -> paintBottomBorder(canvas, border, fragmentWidth, fragmentHeight);
-      case LEFT -> paintLeftBorder(canvas, border, fragmentHeight);
-      case RIGHT -> paintRightBorder(canvas, border, fragmentWidth, fragmentHeight);
-    }
-
-    canvas.popPaint();
+    if (border.borderWidth() > 0) canvas.withPaintAndTransform(
+      p -> p.setColor(border.borderColor()),
+      t -> t.translate(
+        columnFragment.posX(Measurement.BORDER) - leftBorderWidth / 2,
+        rowFragment.posY(Measurement.BORDER) - topBorderWidth / 2),
+      c -> { switch (border.sourceSide()) {
+        case TOP -> paintTopBorder(canvas, border, fragmentWidth);
+        case BOTTOM -> paintBottomBorder(canvas, border, fragmentWidth, fragmentHeight);
+        case LEFT -> paintLeftBorder(canvas, border, fragmentHeight);
+        case RIGHT -> paintRightBorder(canvas, border, fragmentWidth, fragmentHeight);
+      }});
   }
 
   private ComputedBorder borderOrGeneric(ComputedBorder border) {
@@ -88,8 +86,7 @@ public class TableCollapsedBorderPainter implements TableBorderPainter {
     float fragmentWidth
   ) {
     float borderWidth = border.borderWidth() * 2;
-    canvas.alterPaint(paint -> paint.setColor(border.borderColor()));
-    if (borderWidth > 0) ElementBorderPainter.paintHorizontalBorder(
+    ElementBorderPainter.paintHorizontalBorder(
       canvas,
       0, 0,
       fragmentWidth, borderWidth,
@@ -104,8 +101,7 @@ public class TableCollapsedBorderPainter implements TableBorderPainter {
   ) {
     float borderWidth = border.borderWidth() * 2;
     float bottomBorderY = fragmentHeight - borderWidth;
-    canvas.alterPaint(paint -> paint.setColor(border.borderColor()));
-    if (borderWidth > 0) ElementBorderPainter.paintHorizontalBorder(
+    ElementBorderPainter.paintHorizontalBorder(
       canvas,
       0, bottomBorderY,
       fragmentWidth, borderWidth,
@@ -118,7 +114,6 @@ public class TableCollapsedBorderPainter implements TableBorderPainter {
     float fragmentHeight
   ) {
     float borderWidth = border.borderWidth() * 2;
-    canvas.alterPaint(paint -> paint.setColor(border.borderColor()));
     if (borderWidth > 0) ElementBorderPainter.paintVerticalBorder(
       canvas,
       0, 0,
@@ -134,8 +129,7 @@ public class TableCollapsedBorderPainter implements TableBorderPainter {
   ) {
     float borderWidth = border.borderWidth() * 2;
     float rightBorderX = fragmentWidth - borderWidth;
-    canvas.alterPaint(paint -> paint.setColor(border.borderColor()));
-    if (borderWidth > 0) ElementBorderPainter.paintVerticalBorder(
+    ElementBorderPainter.paintVerticalBorder(
       canvas,
       rightBorderX, 0,
       fragmentHeight, borderWidth,

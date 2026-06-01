@@ -16,6 +16,12 @@ import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.link.LinkDocumentChangeListener;
 import net.buildabrowser.babbrowser.html.misc.MetaDocumentChangeListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
+import net.buildabrowser.babbrowser.painter.core.FontLoader;
+import net.buildabrowser.babbrowser.painter.core.LoadedFont;
+import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
+import net.buildabrowser.babbrowser.painter.core.Painter;
+import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
+import net.buildabrowser.babbrowser.painter.core.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxGenerator;
@@ -39,12 +45,6 @@ import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContextGenerator;
 import net.buildabrowser.babbrowser.renderer.layout.Viewport;
 import net.buildabrowser.babbrowser.renderer.logging.PerfLogging;
-import net.buildabrowser.babbrowser.renderer.paint.backend.FontLoader;
-import net.buildabrowser.babbrowser.renderer.paint.backend.LoadedFont;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;
-import net.buildabrowser.babbrowser.renderer.paint.backend.Painter;
-import net.buildabrowser.babbrowser.renderer.paint.backend.ResourceLoader;
-import net.buildabrowser.babbrowser.renderer.paint.backend.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.renderer.style.StyleGenerator;
 
 public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRenderer, EventForwardingTarget {
@@ -180,13 +180,13 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
         || this.height <= 0
       ) return;
 
-      canvas.alterPaint(p -> p.setColor(0xFFFFFFFF));
-      canvas.drawBox(0, 0, width, height);
+      canvas.withPaint(
+        p -> p.setColor(0xFFFFFFFF),
+        c -> c.drawBox(0, 0, width, height));
       // TODO: What if the root layer is updating internally while painting? (sync)
       int[] viewport = new int[] { 0, 0, width, height };
-      canvas.mark();
-      rootLayerFront.draw(canvas, viewport);
-      canvas.unmark();
+      canvas.saveTransform(
+        c -> rootLayerFront.draw(c, viewport));
     }
     PerfLogging.logWindowPaintTime(windowPaintStartTime);
   }

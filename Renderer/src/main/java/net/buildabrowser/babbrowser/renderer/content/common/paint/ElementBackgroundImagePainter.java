@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.common.paint;
 
 import java.net.URI;
+import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
@@ -18,6 +19,8 @@ import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundSizeVa
 import net.buildabrowser.babbrowser.cssbase.property.box.VisualBoxValue;
 import net.buildabrowser.babbrowser.cssbase.property.shared.URLValue;
 import net.buildabrowser.babbrowser.network.URLUtil;
+import net.buildabrowser.babbrowser.painter.core.LoadedImage;
+import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
@@ -26,8 +29,6 @@ import net.buildabrowser.babbrowser.renderer.image.ImageCache;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.Viewport;
-import net.buildabrowser.babbrowser.renderer.paint.backend.LoadedImage;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;
 
 public class ElementBackgroundImagePainter {
   
@@ -49,18 +50,19 @@ public class ElementBackgroundImagePainter {
 
     boolean isInitial = true;
     for (int i = bgImages.values().size() - 1; i >= 0; i--) {
-      clipCanvas(
-        canvas, fragment,
-        fragmentWidth, fragmentHeight,
-        getBGLayerProperty(bgClips, i));
-
+      int layer = i;
       if (isInitial) {
-        canvas.alterPaint(paint -> paint.setColor(ActiveStylesUtil.backgroundColor(fragment.box().activeStyles())));
-        canvas.drawBox(0, 0, fragmentWidth, fragmentHeight);
+        clipCanvas(
+          canvas, fragment,
+          fragmentWidth, fragmentHeight,
+          getBGLayerProperty(bgClips, layer),
+          _1 -> canvas.withPaint(
+            paint -> paint.setColor(ActiveStylesUtil.backgroundColor(fragment.box().activeStyles())),
+            _2 -> canvas.drawBox(0, 0, fragmentWidth, fragmentHeight)
+          ));
+        
         isInitial = false;
       }
-
-      canvas.unclip();
 
       CSSValue backgroundURL = bgImages.values().get(i);
       if (backgroundURL.equals(CSSValue.NONE)) continue;
@@ -79,19 +81,16 @@ public class ElementBackgroundImagePainter {
       clipCanvas(
         canvas, fragment,
         fragmentWidth, fragmentHeight,
-        getBGLayerProperty(bgClips, i));
-      
-      paintBackground(
-        canvas, fragment, image,
-        getBGLayerProperty(bgRepeats, i),
-        getBGLayerProperty(bgAttachments, i),
-        getBGLayerProperty(bgPositions, i),
-        getBGLayerProperty(bgOrigins, i),
-        getBGLayerProperty(bgSizes, i),
-        fragmentWidth,
-        fragmentHeight);
-    
-      canvas.unclip();
+        getBGLayerProperty(bgClips, layer),
+        c -> paintBackground(
+          c, fragment, image,
+          getBGLayerProperty(bgRepeats, layer),
+          getBGLayerProperty(bgAttachments, layer),
+          getBGLayerProperty(bgPositions, layer),
+          getBGLayerProperty(bgOrigins, layer),
+          getBGLayerProperty(bgSizes, layer),
+          fragmentWidth,
+          fragmentHeight));
     }
   }
 
@@ -155,8 +154,8 @@ public class ElementBackgroundImagePainter {
       float imgX_ = imgX, imgY_ = imgY;
       float imgW_ = imgW, imgH_ = imgH;
       float vpW_ = vpW, vpH_ = vpH;
-      canvas.withMark(c -> drawRepeatingImage(
-        canvas, image,
+      canvas.restoreTransform(c -> drawRepeatingImage(
+        c, image,
         repeatValue,
         imgX_, imgY_,
         imgW_, imgH_,
@@ -303,7 +302,8 @@ public class ElementBackgroundImagePainter {
   private static void clipCanvas(
     PaintCanvas canvas, BoxFragment fragment,
     float fragmentWidth, float fragmentHeight,
-    VisualBoxValue bgClip
+    VisualBoxValue bgClip,
+    Consumer<PaintCanvas> paintFunc
   ) {
     float vpX = offsetImageX(0, fragment, bgClip);
     float vpY = offsetImageY(0, fragment, bgClip);
@@ -319,7 +319,7 @@ public class ElementBackgroundImagePainter {
       case CONTENT_BOX -> fragment.height(Measurement.CONTENT);
       default -> throw new UnsupportedOperationException("Unrecognized Background Clip: " + bgClip);
     };
-    canvas.clip(vpX, vpY, vpW, vpH);
+    canvas.withClip(vpX, vpY, vpW, vpH, paintFunc);
   }
 
   @SuppressWarnings("unchecked")

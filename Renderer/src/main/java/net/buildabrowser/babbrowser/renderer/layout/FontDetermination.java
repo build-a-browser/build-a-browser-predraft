@@ -12,11 +12,11 @@ import net.buildabrowser.babbrowser.cssbase.property.font.FontNameValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontNamedSizeValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightValue.RelativeFontWeightValue;
+import net.buildabrowser.babbrowser.painter.core.FontLoader;
+import net.buildabrowser.babbrowser.painter.core.LoadedFont;
+import net.buildabrowser.babbrowser.painter.core.FontLoader.FontFamily;
+import net.buildabrowser.babbrowser.painter.core.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
-import net.buildabrowser.babbrowser.renderer.paint.backend.FontLoader;
-import net.buildabrowser.babbrowser.renderer.paint.backend.LoadedFont;
-import net.buildabrowser.babbrowser.renderer.paint.backend.FontLoader.FontFamily;
-import net.buildabrowser.babbrowser.renderer.paint.backend.FontLoader.FontOptions;
 
 public final class FontDetermination {
   

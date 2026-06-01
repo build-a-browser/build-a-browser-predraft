@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
+import net.buildabrowser.babbrowser.painter.core.PaintBitMap;
+import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
+import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerEntry;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBoxFragment;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintBitMap;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;
-import net.buildabrowser.babbrowser.renderer.paint.backend.Painter;
 
 public class CompositeLayerImp implements CompositeLayer {
 
@@ -126,16 +126,15 @@ public class CompositeLayerImp implements CompositeLayer {
 
     backingImage.withCanvas(canvas -> {
       // TODO: These paint checks aren't cool
-      if (entries != null) {
-        canvas.alterPaint(p -> p.setFont(entries.fragment().box().layoutContext().font()));
-      }
+      if (entries == null) return;
       forEachFragment((fragment, vpi) -> {
-        canvas.alterPaint(p -> p.incOffset(
-          fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER) - backingX,
-          fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER) - backingY));
-
-        fragment.painter().paint(fragment, canvas, vpi);
+        canvas.withTransform(
+          t -> t.translate(
+            fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER) - backingX,
+            fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER) - backingY),
+          c -> fragment.painter().paint(fragment, c, vpi));
       }, canvas, vpIntersection);
+        
     });
 
 
@@ -145,70 +144,12 @@ public class CompositeLayerImp implements CompositeLayer {
   @Override
   public void draw(PaintCanvas canvas, int[] vpIntersection) {
     if (entries != null) {
-      canvas.alterPaint(p -> p.setFont(entries.fragment().box().layoutContext().font()));
-    }
-
-    int vX = vpIntersection[0], vY = vpIntersection[1], vW = vpIntersection[2], vH = vpIntersection[3];
-
-    // TODO: Having to treat scrollable entries specially is not great
-    ScrollBoxFragment scrollBoxFragment = relatedScrollBox();
-    int scrollX = scrollBoxFragment == null ? 0 : -scrollBoxFragment.box().scrollX();
-    int scrollY = scrollBoxFragment == null ? 0 : -scrollBoxFragment.box().scrollY();
-
-    vpIntersection[0] -= this.offsetX + scrollX;
-    vpIntersection[1] -= this.offsetY + scrollY;
-
-    if (scrollBoxFragment != null) {
-      canvas.clip(
-        scrollBoxFragment.posX(Measurement.CONTENT) - scrollBoxFragment.posX(Measurement.BORDER),
-        scrollBoxFragment.posY(Measurement.CONTENT) - scrollBoxFragment.posY(Measurement.BORDER),
-        scrollBoxFragment.width(Measurement.CONTENT),
-        scrollBoxFragment.height(Measurement.CONTENT));
-    }
-
-    if (scrollBoxFragment != null) {
-      canvas.pushPaint();
-      scrollBoxFragment.painter().paintBackground(scrollBoxFragment, canvas, vpIntersection);
-      canvas.popPaint();
+      canvas.withPaint(
+        p -> p.setFont(entries.fragment().box().layoutContext().font()),
+        c -> drawWithScroll(c, vpIntersection));
     } else {
-    forEachFragment(
-      (fragment, vpi) -> fragment.painter().paintBackground(fragment, canvas, vpi),
-      canvas, vpIntersection);
+      drawWithScroll(canvas, vpIntersection);
     }
-    
-    int gtLayerStart = 0;
-    for (int i = activeChildren.nextSetBit(0); i >= 0; i = activeChildren.nextSetBit(i + 1)) {
-      CompositeLayer layer = childLayers.get(i);
-      if (layer.zIndex() >= 0) {
-        gtLayerStart = i;
-        break;
-      }
-      paintChildLayer(canvas, layer, scrollX, scrollY, vpIntersection);
-    }
-
-    // Parent already offset the x, y by layer.
-    if (this.backingImage != null) {
-      canvas.drawBitMap(scrollX + this.backingX, scrollY + this.backingY, backingImage);
-    }
-    
-    for (int i = activeChildren.nextSetBit(gtLayerStart); i >= 0; i = activeChildren.nextSetBit(i + 1)) {
-      CompositeLayer layer = childLayers.get(i);
-      paintChildLayer(canvas, layer, scrollX, scrollY, vpIntersection);
-    }
-
-    if (scrollBoxFragment != null) {
-      canvas.unclip();
-
-      vpIntersection[0] += scrollX;
-      vpIntersection[1] += scrollY;
-
-      canvas.pushPaint();
-      canvas.alterPaint(p -> p.incOffset(entries.offsetX(), entries.offsetY()));
-      scrollBoxFragment.painter().paintScrollbars(scrollBoxFragment, canvas);
-      canvas.popPaint();
-    }
-
-    vpIntersection[0] = vX; vpIntersection[1] = vY; vpIntersection[2] = vW; vpIntersection[3] = vH;
   }
 
   @Override
@@ -248,6 +189,73 @@ public class CompositeLayerImp implements CompositeLayer {
     return backingImage != null || !activeChildren.isEmpty();
   }
 
+  private void drawWithScroll(PaintCanvas canvas, int[] vpIntersection) {
+    int vX = vpIntersection[0], vY = vpIntersection[1], vW = vpIntersection[2], vH = vpIntersection[3];
+
+    // TODO: Having to treat scrollable entries specially is not great
+    ScrollBoxFragment scrollBoxFragment = relatedScrollBox();
+    int scrollX = scrollBoxFragment == null ? 0 : -scrollBoxFragment.box().scrollX();
+    int scrollY = scrollBoxFragment == null ? 0 : -scrollBoxFragment.box().scrollY();
+
+    vpIntersection[0] -= this.offsetX + scrollX;
+    vpIntersection[1] -= this.offsetY + scrollY;
+
+    if (scrollBoxFragment == null) {
+      drawInnerContent(canvas, vpIntersection, scrollBoxFragment, scrollX, scrollY);
+    } else {
+      canvas.withClip(
+        scrollBoxFragment.posX(Measurement.CONTENT) - scrollBoxFragment.posX(Measurement.BORDER),
+        scrollBoxFragment.posY(Measurement.CONTENT) - scrollBoxFragment.posY(Measurement.BORDER),
+        scrollBoxFragment.width(Measurement.CONTENT),
+        scrollBoxFragment.height(Measurement.CONTENT),
+        c -> drawInnerContent(c, vpIntersection, scrollBoxFragment, scrollX, scrollY));
+
+      vpIntersection[0] += scrollX;
+      vpIntersection[1] += scrollY;
+
+      canvas.withTransform(
+        t -> t.translate(entries.offsetX(), entries.offsetY()),
+        c -> scrollBoxFragment.painter().paintScrollbars(scrollBoxFragment, c));
+    }
+
+    vpIntersection[0] = vX; vpIntersection[1] = vY; vpIntersection[2] = vW; vpIntersection[3] = vH;
+  }
+
+  private void drawInnerContent(
+    PaintCanvas canvas,
+    int[] vpIntersection,
+    ScrollBoxFragment scrollBoxFragment,
+    int scrollX, int scrollY
+  ) {
+    if (scrollBoxFragment != null) {
+      scrollBoxFragment.painter().paintBackground(scrollBoxFragment, canvas, vpIntersection);
+    } else {
+      forEachFragment(
+        (fragment, vpi) -> fragment.painter().paintBackground(fragment, canvas, vpi),
+        canvas, vpIntersection);
+    }
+    
+    int gtLayerStart = 0;
+    for (int i = activeChildren.nextSetBit(0); i >= 0; i = activeChildren.nextSetBit(i + 1)) {
+      CompositeLayer layer = childLayers.get(i);
+      if (layer.zIndex() >= 0) {
+        gtLayerStart = i;
+        break;
+      }
+      paintChildLayer(canvas, layer, scrollX, scrollY, vpIntersection);
+    }
+
+    // Parent already offset the x, y by layer.
+    if (this.backingImage != null) {
+      canvas.drawBitMap(scrollX + this.backingX, scrollY + this.backingY, backingImage);
+    }
+    
+    for (int i = activeChildren.nextSetBit(gtLayerStart); i >= 0; i = activeChildren.nextSetBit(i + 1)) {
+      CompositeLayer layer = childLayers.get(i);
+      paintChildLayer(canvas, layer, scrollX, scrollY, vpIntersection);
+    }
+  }
+
   private ScrollBoxFragment relatedScrollBox() {
     if (
       entries != null
@@ -281,19 +289,15 @@ public class CompositeLayerImp implements CompositeLayer {
       vpIntersection[0] -= currentEntry.offsetX();
       vpIntersection[1] -= currentEntry.offsetY();
       
-      canvas.pushPaint();
-      canvas.alterPaint(p -> p.incOffset(
-        currentEntry.offsetX(),
-        currentEntry.offsetY()));
-
-      // Technically you can use the outer vpIntersection since it's the same array
-      // but this feels cleaner
-      func.accept(fragment, vpIntersection);
+      canvas.withTransform(
+        t -> t.translate(currentEntry.offsetX(), currentEntry.offsetY()),
+        // Technically you can use the outer vpIntersection since it's the same array
+        // but this feels cleaner
+        _1 -> func.accept(fragment, vpIntersection)
+      );
 
       vpIntersection[0] += currentEntry.offsetX();
       vpIntersection[1] += currentEntry.offsetY();
-      
-      canvas.popPaint();
     }
   }
 
@@ -303,12 +307,11 @@ public class CompositeLayerImp implements CompositeLayer {
     int[] vpIntersection
   ) {
     if (this.backingImage == null) return;
-    canvas.pushPaint();
-    canvas.alterPaint(paint -> paint.incOffset(
-      layer.posX() + scrollX,
-      layer.posY() + scrollY));
-    layer.draw(canvas, vpIntersection);
-    canvas.popPaint();
+    canvas.withTransform(
+      t -> t.translate(
+        layer.posX() + scrollX,
+        layer.posY() + scrollY),
+      c -> layer.draw(c, vpIntersection));
   }
 
   private int backingWidth() {

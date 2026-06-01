@@ -6,7 +6,7 @@ import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.Invalidatable;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
-import net.buildabrowser.babbrowser.renderer.paint.backend.LoadedImage;
+import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 
 public class ImageCacheEntryImp {
   

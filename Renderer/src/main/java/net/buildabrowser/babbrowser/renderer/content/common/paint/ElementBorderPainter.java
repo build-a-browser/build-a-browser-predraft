@@ -1,14 +1,17 @@
 package net.buildabrowser.babbrowser.renderer.content.common.paint;
 
+import java.util.function.Consumer;
+
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue;
+import net.buildabrowser.babbrowser.painter.core.Paint;
+import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;
 
 public final class ElementBorderPainter {
   
@@ -40,66 +43,58 @@ public final class ElementBorderPainter {
     float rightBorderWidth = rightStyle.equals(CSSValue.NONE) ? 0 : borders[3];
     
     // Top
-    canvas.alterPaint(paint -> paint.setColor(borderColor(boxStyles, CSSProperty.BORDER_TOP_COLOR)));
-    clipBorder(
+    withBorderClipAndPaint(
       canvas,
       0, 0,
       fragmentWidth, topBorderWidth,
       leftBorderWidth, rightBorderWidth,
-      BorderDirection.TOP);
-    if (topBorderWidth > 0) paintHorizontalBorder(
-      canvas,
-      0, 0,
-      fragmentWidth, topBorderWidth,
-      (BorderStyleValue) topStyle);
-    unclipBorder(canvas);
+      BorderDirection.TOP,
+      p -> p.setColor(borderColor(boxStyles, CSSProperty.BORDER_TOP_COLOR)),
+      c -> paintHorizontalBorder(
+        c, 0, 0,
+        fragmentWidth, topBorderWidth,
+        (BorderStyleValue) topStyle));
     
     // Bottom
     float bottomBorderY = fragmentHeight - bottomBorderWidth;
-    canvas.alterPaint(paint -> paint.setColor(borderColor(boxStyles, CSSProperty.BORDER_BOTTOM_COLOR)));
-    clipBorder(
+    withBorderClipAndPaint(
       canvas,
       0, bottomBorderY,
       fragmentWidth, bottomBorderWidth,
       leftBorderWidth, rightBorderWidth,
-      BorderDirection.BOTTOM);
-    if (bottomBorderWidth > 0) paintHorizontalBorder(
-      canvas,
-      0, bottomBorderY,
-      fragmentWidth, bottomBorderWidth,
-      (BorderStyleValue) bottomStyle);
-    unclipBorder(canvas);
+      BorderDirection.BOTTOM,
+      p -> p.setColor(borderColor(boxStyles, CSSProperty.BORDER_BOTTOM_COLOR)),
+      c -> paintHorizontalBorder(
+        c, 0, bottomBorderY,
+        fragmentWidth, bottomBorderWidth,
+        (BorderStyleValue) bottomStyle));
 
     // Left
-    canvas.alterPaint(paint -> paint.setColor(borderColor(boxStyles, CSSProperty.BORDER_LEFT_COLOR)));
-    clipBorder(
+    withBorderClipAndPaint(
       canvas,
       0, 0,
       fragmentHeight, leftBorderWidth,
       topBorderWidth, bottomBorderWidth,
-      BorderDirection.LEFT);
-    if (leftBorderWidth > 0) paintVerticalBorder(
-      canvas,
-      0, 0,
-      fragmentHeight, leftBorderWidth,
-      (BorderStyleValue) leftStyle);
-    unclipBorder(canvas);
+      BorderDirection.LEFT,
+      p -> p.setColor(borderColor(boxStyles, CSSProperty.BORDER_LEFT_COLOR)),
+      c -> paintVerticalBorder(
+        c, 0, 0,
+        fragmentHeight, leftBorderWidth,
+        (BorderStyleValue) leftStyle));
 
     // Right
     float rightBorderX = fragmentWidth - rightBorderWidth;
-    canvas.alterPaint(paint -> paint.setColor(borderColor(boxStyles, CSSProperty.BORDER_RIGHT_COLOR)));
-    clipBorder(
+    withBorderClipAndPaint(
       canvas,
       rightBorderX, 0,
       fragmentHeight, rightBorderWidth,
       topBorderWidth, bottomBorderWidth,
-      BorderDirection.RIGHT);
-    if (rightBorderWidth > 0) paintVerticalBorder(
-      canvas,
-      rightBorderX, 0,
-      fragmentHeight, rightBorderWidth,
-      (BorderStyleValue) rightStyle);
-    unclipBorder(canvas);
+      BorderDirection.RIGHT,
+      p -> p.setColor(borderColor(boxStyles, CSSProperty.BORDER_RIGHT_COLOR)),
+      c -> paintVerticalBorder(
+        c, rightBorderX, 0,
+        fragmentHeight, rightBorderWidth,
+        (BorderStyleValue) rightStyle));
   }
 
   // TODO: Need to respect styles
@@ -128,18 +123,18 @@ public final class ElementBorderPainter {
     return ((ColorValue) property).asSARGB();
   }
 
-  private static void clipBorder(
+  private static void withBorderClipAndPaint(
     PaintCanvas canvas,
     float x, float y,
     float run, float thickness,
     float startWidth, float endWidth,
-    BorderDirection borderDirection
+    BorderDirection borderDirection,
+    Consumer<Paint> alterPaintFunc,
+    Consumer<PaintCanvas> paintFunc
   ) {
     if (run <= 0 || thickness <= 0) return;
-  }
-
-  private static void unclipBorder(PaintCanvas canvas) {
-    
+    // TODO: Implement clipping
+    canvas.withPaint(alterPaintFunc, paintFunc);
   }
 
   public static enum BorderDirection {

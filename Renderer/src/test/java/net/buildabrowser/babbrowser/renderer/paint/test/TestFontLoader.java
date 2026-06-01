@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.paint.test;
 
-import net.buildabrowser.babbrowser.renderer.paint.backend.FontLoader;
-import net.buildabrowser.babbrowser.renderer.paint.backend.LoadedFont;
+import net.buildabrowser.babbrowser.painter.core.FontLoader;
+import net.buildabrowser.babbrowser.painter.core.LoadedFont;
 
 public class TestFontLoader implements FontLoader {
 

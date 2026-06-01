@@ -10,9 +10,9 @@ import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRen
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.util.TraversableUtil;
 import net.buildabrowser.babbrowser.html.scripting.Window;
+import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
-import net.buildabrowser.babbrowser.renderer.paint.backend.Painter;
 import net.buildabrowser.babbrowser.renderer.uistate.Frame;
 
 public class RenderingEngineImp implements RenderingEngine {

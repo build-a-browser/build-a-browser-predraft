@@ -3,7 +3,7 @@ import org.gradle.nativeplatform.internal.DefaultTargetMachineFactory
 rootProject.name = 'buildabrowser'
 include(
   ':Common', ':Infra',
-  ':CSSBase', ':CSSEngine', ':Renderer',
+  ':CSSBase', ':CSSEngine', ':PainterCore', ':Renderer',
   ':SkijaPainter', ':Java2DPainter',
   ':DOM', ':HTML', ':HTMLParser',':Browser', ':Network',
   ':Stream', ':Fetch')

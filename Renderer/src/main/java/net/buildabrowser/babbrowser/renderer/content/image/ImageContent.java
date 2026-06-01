@@ -7,6 +7,9 @@ import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.network.URLUtil;
+import net.buildabrowser.babbrowser.painter.core.FontMetrics;
+import net.buildabrowser.babbrowser.painter.core.LoadedImage;
+import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
@@ -20,9 +23,6 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
-import net.buildabrowser.babbrowser.renderer.paint.backend.FontMetrics;
-import net.buildabrowser.babbrowser.renderer.paint.backend.LoadedImage;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;
 
 public class ImageContent implements BoxContent, BoxPainter {
 
@@ -84,14 +84,12 @@ public class ImageContent implements BoxContent, BoxPainter {
 
   @Override
   public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
-    canvas.alterPaint(paint -> paint.setColor(ActiveStylesUtil.backgroundColor(box.activeStyles())));
     float width = fragment.width(Measurement.CONTENT);
     float height = fragment.height(Measurement.CONTENT);
-    canvas.drawBox(0, 0, width, height);
-    canvas.alterPaint(paint -> {
-      paint.setFont(box.layoutContext().font());
-      paint.setColor(ActiveStylesUtil.textColor(box.activeStyles()));
-    });
+
+    canvas.withPaint(
+      paint -> paint.setColor(ActiveStylesUtil.backgroundColor(box.activeStyles())),
+      c -> c.drawBox(0, 0, width, height));
 
     if (image != null) {
       canvas.drawImage(0, 0, width, height, image);
@@ -99,7 +97,12 @@ public class ImageContent implements BoxContent, BoxPainter {
     }
 
     String alt = getImageAlt();
-    canvas.drawText(0, 0, alt);
+    canvas.withPaint(
+      p -> {
+        p.setFont(box.layoutContext().font());
+        p.setColor(ActiveStylesUtil.textColor(box.activeStyles()));
+      },
+      c -> c.drawText(0, 0, alt));
   }
 
   @Override

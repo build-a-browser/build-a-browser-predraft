@@ -9,6 +9,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.ZIndexValue;
+import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
@@ -19,7 +20,6 @@ import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragm
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
-import net.buildabrowser.babbrowser.renderer.paint.backend.Painter;
 
 // TODO: Some of the positioning code here is quite hacky
 public class StackingContextImp implements StackingContext {

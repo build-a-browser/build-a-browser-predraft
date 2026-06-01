@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.renderer;
 
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
-import net.buildabrowser.babbrowser.renderer.paint.backend.PaintCanvas;
+import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 
 public interface GraphicalDocumentRenderer extends DocumentRenderer {
 

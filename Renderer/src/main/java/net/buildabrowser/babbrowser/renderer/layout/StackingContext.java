@@ -3,12 +3,12 @@ package net.buildabrowser.babbrowser.renderer.layout;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
+import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.layout.imp.StackingContextImp;
-import net.buildabrowser.babbrowser.renderer.paint.backend.Painter;
 
 public interface StackingContext {
 

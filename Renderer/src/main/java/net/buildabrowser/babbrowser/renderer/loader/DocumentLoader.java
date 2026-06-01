@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.renderer.loader;
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.NavigationParams;
 import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
-import net.buildabrowser.babbrowser.renderer.paint.backend.Painter;
+import net.buildabrowser.babbrowser.painter.core.Painter;
 
 public interface DocumentLoader {
 
