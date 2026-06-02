@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragm
 import net.buildabrowser.babbrowser.renderer.content.common.paint.ElementBackgroundPainter;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollMath.ScrollMathResult;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
+import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 
 public class ScrollContentPainter implements BoxPainter {
 
@@ -19,14 +20,14 @@ public class ScrollContentPainter implements BoxPainter {
 
   // Composite Layer already adjusts vp for scrolling and the inner fragment
   @Override
-  public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+  public void paint(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     ScrollBoxFragment scrollBoxFragment = (ScrollBoxFragment) fragment;
     BoxFragment innerFragment = scrollBoxFragment.innerFragment();
     innerFragment.painter().paint(innerFragment, canvas, vpIntersection);
   }
 
   @Override
-  public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+  public void paintBackground(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     // TODO: Is this right?
     ElementBackgroundPainter.paintBackground(canvas, fragment);
   }

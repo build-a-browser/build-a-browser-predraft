@@ -2,8 +2,8 @@ package net.buildabrowser.babbrowser.renderer.content.table;
 
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.paint.ElementBackgroundImagePainter;
 import net.buildabrowser.babbrowser.renderer.content.common.paint.ElementBackgroundPainter;
 import net.buildabrowser.babbrowser.renderer.content.common.paint.ElementBorderPainter;
@@ -12,6 +12,7 @@ import net.buildabrowser.babbrowser.renderer.content.table.Table.RowGroup;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.TableCellUtil;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
 import net.buildabrowser.babbrowser.renderer.paint.PaintUtil;
+import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 
 public class TableContentPainter implements BoxPainter {
 
@@ -22,7 +23,7 @@ public class TableContentPainter implements BoxPainter {
   }
 
   @Override
-  public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+  public void paint(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     if (content.borderPainter() == null) return;
     paintColumnGroups(canvas, vpIntersection);
     paintColumns(canvas, vpIntersection);
@@ -32,7 +33,7 @@ public class TableContentPainter implements BoxPainter {
   }
 
   @Override
-  public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+  public void paintBackground(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     // TODO: Adjust box to exclude captions
     ElementBackgroundImagePainter.paintBackgroundImages(
       canvas, fragment,
@@ -43,7 +44,7 @@ public class TableContentPainter implements BoxPainter {
     ElementBackgroundPainter.paintDebugOutlines(canvas, fragment);
   }
 
-  private void paintColumnGroups(PaintCanvas canvas, int[] vpIntersection) {
+  private void paintColumnGroups(PaintCanvas canvas, VpIntersection vpIntersection) {
     Table table = content.table();
     for (ColumnGroup colGroup: table.columnGroups()) {
       BoxFragment fragment = colGroup.groupBox().positioningFragment();
@@ -51,7 +52,7 @@ public class TableContentPainter implements BoxPainter {
     }
   }
 
-  private void paintColumns(PaintCanvas canvas, int[] vpIntersection) {
+  private void paintColumns(PaintCanvas canvas, VpIntersection vpIntersection) {
     Table table = content.table();
     for (TableColumn column: table.columns()) {
       BoxFragment fragment = column.columnBox().positioningFragment();
@@ -59,7 +60,7 @@ public class TableContentPainter implements BoxPainter {
     }
   }
 
-  private void paintRowGroups(PaintCanvas canvas, int[] vpIntersection) {
+  private void paintRowGroups(PaintCanvas canvas, VpIntersection vpIntersection) {
     Table table = content.table();
     for (RowGroup rowGroup: table.rowGroups()) {
       BoxFragment fragment = rowGroup.groupBox().positioningFragment();
@@ -67,7 +68,7 @@ public class TableContentPainter implements BoxPainter {
     }
   }
 
-  private void paintRows(PaintCanvas canvas, int[] vpIntersection) {
+  private void paintRows(PaintCanvas canvas, VpIntersection vpIntersection) {
     Table table = content.table();
     for (TableRow row: table.rows()) {
       BoxFragment fragment = row.rowBox().positioningFragment();
@@ -75,7 +76,7 @@ public class TableContentPainter implements BoxPainter {
     }
   }
 
-  private void paintCells(PaintCanvas canvas, int[] vpIntersection) {
+  private void paintCells(PaintCanvas canvas, VpIntersection vpIntersection) {
     Table table = content.table();
     TableCellUtil.forEachCell(table, cell -> {
       UnmanagedBoxFragment childFragment = cell.getRelatedFragment();

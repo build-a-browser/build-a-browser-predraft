@@ -45,6 +45,7 @@ import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContextGenerator;
 import net.buildabrowser.babbrowser.renderer.layout.Viewport;
 import net.buildabrowser.babbrowser.renderer.logging.PerfLogging;
+import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 import net.buildabrowser.babbrowser.renderer.style.StyleGenerator;
 
 public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRenderer, EventForwardingTarget {
@@ -148,8 +149,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     ) return;
 
     long paintStartTime = System.currentTimeMillis();
-    int[] viewport = new int[] { 0, 0, width, height };
-    rootLayerBack.repaint(viewport);
+    VpIntersection vpIntersection = new VpIntersection(width, height);
+    rootLayerBack.repaint(vpIntersection);
 
     document.validate();
     this.invalidationLevel = InvalidationLevel.NONE;
@@ -184,9 +185,9 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
         p -> p.setColor(0xFFFFFFFF),
         c -> c.drawBox(0, 0, width, height));
       // TODO: What if the root layer is updating internally while painting? (sync)
-      int[] viewport = new int[] { 0, 0, width, height };
+      VpIntersection vpIntersection = new VpIntersection(width, height);
       canvas.saveTransform(
-        c -> rootLayerFront.draw(c, viewport));
+        c -> rootLayerFront.draw(c, vpIntersection));
     }
     PerfLogging.logWindowPaintTime(windowPaintStartTime);
   }

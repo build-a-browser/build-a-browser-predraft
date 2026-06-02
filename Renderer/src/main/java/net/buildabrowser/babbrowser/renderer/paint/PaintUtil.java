@@ -11,57 +11,57 @@ public final class PaintUtil {
   private PaintUtil() {}
 
   public static void maybePaintFragment(
-    BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection, FragmentPaintFunc func
+    BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection, FragmentPaintFunc func
   ) {
     maybePaintFragment(fragment, canvas, vpIntersection, func, Measurement.CONTENT);
   }
 
   public static void maybePaintFragment(
-    BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection,
+    BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection,
     FragmentPaintFunc func, Measurement measurement
   ) {
     if (fragment instanceof PosRefBoxFragment) return;
     if (!aabbFragmentVp(fragment, vpIntersection)) return;
 
-    int vX = vpIntersection[0], vY = vpIntersection[1], vW = vpIntersection[2], vH = vpIntersection[3];
-    // Though the AABB check is done by border, fragments typically only care about vpIntersection for culling
-    // children in their content section
-    vpIntersection[0] -= fragment.posX(measurement);
-    vpIntersection[1] -= fragment.posY(measurement);
-    // TODO: Also intersect width/height
-    func.paint(fragment, canvas, vpIntersection);
-    
-    vpIntersection[0] = vX; vpIntersection[1] = vY; vpIntersection[2] = vW; vpIntersection[3] = vH;
+    vpIntersection.enterEl(
+      fragment.posX(measurement),
+      fragment.posY(measurement),
+      fragment.width(measurement),
+      fragment.height(measurement),
+      vpi -> func.paint(fragment, canvas, vpi));
   }
 
+  // TODO: Why were maybePaintFragment and maybePaintGenericFragment distinct again?
+  // But this variant does not cull
   public static <T extends LayoutFragment> void maybePaintGenericFragment(
-    T fragment, PaintCanvas canvas, int[] vpIntersection, GenericFragmentPaintFunc<T> func
+    T fragment, PaintCanvas canvas, VpIntersection vpIntersection, GenericFragmentPaintFunc<T> func
   ) {
-    int vX = vpIntersection[0], vY = vpIntersection[1], vW = vpIntersection[2], vH = vpIntersection[3];
-    vpIntersection[0] -= fragment.posX(Measurement.CONTENT);
-    vpIntersection[1] -= fragment.posY(Measurement.CONTENT);
-    func.paint(fragment, canvas, vpIntersection);
-    
-    vpIntersection[0] = vX; vpIntersection[1] = vY; vpIntersection[2] = vW; vpIntersection[3] = vH;
+    Measurement measurement = Measurement.CONTENT;
+    vpIntersection.enterEl(
+      fragment.posX(measurement),
+      fragment.posY(measurement),
+      fragment.width(measurement),
+      fragment.height(measurement),
+      vpi -> func.paint(fragment, canvas, vpi));
   }
 
-  private static boolean aabbFragmentVp(BoxFragment fragment, int[] vpIntersection) {
+  private static boolean aabbFragmentVp(BoxFragment fragment, VpIntersection vpIntersection) {
     return
-      fragment.posX(Measurement.BORDER) < vpIntersection[0] + vpIntersection[2]
-      && vpIntersection[0] < fragment.posX(Measurement.BORDER) + fragment.inkWidth(Measurement.BORDER)
-      && fragment.posY(Measurement.BORDER) < vpIntersection[1] + vpIntersection[3]
-      && vpIntersection[1] < fragment.posY(Measurement.BORDER) + fragment.inkHeight(Measurement.BORDER);
+      fragment.posX(Measurement.BORDER) < vpIntersection.elX() + vpIntersection.elWidth()
+      && vpIntersection.elX() < fragment.posX(Measurement.BORDER) + fragment.inkWidth(Measurement.BORDER)
+      && fragment.posY(Measurement.BORDER) < vpIntersection.elY() + vpIntersection.elHeight()
+      && vpIntersection.elY() < fragment.posY(Measurement.BORDER) + fragment.inkHeight(Measurement.BORDER);
   }
 
   public static interface FragmentPaintFunc {
   
-    void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection);
+    void paint(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection);
 
   }
 
   public static interface GenericFragmentPaintFunc<T extends LayoutFragment> {
   
-    void paint(T fragment, PaintCanvas canvas, int[] vpIntersection);
+    void paint(T fragment, PaintCanvas canvas, VpIntersection vpIntersection);
 
   }
 

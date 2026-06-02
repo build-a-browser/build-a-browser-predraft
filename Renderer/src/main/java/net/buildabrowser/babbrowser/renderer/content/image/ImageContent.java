@@ -14,8 +14,8 @@ import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler;
 import net.buildabrowser.babbrowser.renderer.image.ImageCache;
 import net.buildabrowser.babbrowser.renderer.layout.GlobalLayoutContext;
@@ -23,6 +23,7 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
+import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 
 public class ImageContent implements BoxContent, BoxPainter {
 
@@ -83,7 +84,7 @@ public class ImageContent implements BoxContent, BoxPainter {
   }
 
   @Override
-  public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+  public void paint(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     float width = fragment.width(Measurement.CONTENT);
     float height = fragment.height(Measurement.CONTENT);
 
@@ -106,7 +107,7 @@ public class ImageContent implements BoxContent, BoxPainter {
   }
 
   @Override
-  public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+  public void paintBackground(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     // TODO: Implement
   }
 

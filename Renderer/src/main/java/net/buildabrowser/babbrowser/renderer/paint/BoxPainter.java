@@ -5,8 +5,8 @@ import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment
 
 public interface BoxPainter {
 
-  void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection);
+  void paint(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection);
 
-  void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection);
+  void paintBackground(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection);
   
 }

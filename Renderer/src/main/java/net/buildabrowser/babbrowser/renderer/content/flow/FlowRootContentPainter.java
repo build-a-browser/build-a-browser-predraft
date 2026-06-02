@@ -18,7 +18,8 @@ import net.buildabrowser.babbrowser.renderer.content.common.fragment.TextFragmen
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.paint.ElementBackgroundPainter;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
-import net.buildabrowser.babbrowser.renderer.paint.PaintUtil;;
+import net.buildabrowser.babbrowser.renderer.paint.PaintUtil;
+import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;;
 
 public final class FlowRootContentPainter {
 
@@ -31,7 +32,7 @@ public final class FlowRootContentPainter {
   public static class FlowRootBoxPainter implements BoxPainter {
 
     @Override
-    public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+    public void paint(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
       FlowRootBoxFragment wrapperFragment = (FlowRootBoxFragment) fragment;
       ManagedBoxFragment baseFragment = wrapperFragment.rootFragment();
       paintBlockLevelBackgrounds(baseFragment, canvas, vpIntersection, baseFragment);
@@ -40,12 +41,12 @@ public final class FlowRootContentPainter {
     }
 
     @Override
-    public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+    public void paintBackground(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
       // TODO: This triggers too early for <body>
       paintManagedBackground(canvas, fragment);
     }
 
-    public static void paintFloats(List<BoxFragment> floats, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment) {
+    public static void paintFloats(List<BoxFragment> floats, PaintCanvas canvas, VpIntersection vpIntersection, BoxFragment refFragment) {
       for (BoxFragment childFragment: floats) {
         if (startsStackingContext(childFragment, refFragment)) continue;
 
@@ -66,12 +67,12 @@ public final class FlowRootContentPainter {
   private static class FlowBlockPainter implements BoxPainter {
 
     @Override
-    public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+    public void paint(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
       paintManagedBoxFragment((ManagedBoxFragment) fragment, canvas, vpIntersection, fragment);
     }
 
     @Override
-    public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+    public void paintBackground(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
       paintBlockBackground(fragment, canvas, vpIntersection, fragment);
     }
 
@@ -80,19 +81,19 @@ public final class FlowRootContentPainter {
   private static class FlowInlinePainter implements BoxPainter {
 
     @Override
-    public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+    public void paint(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
       paintInlineManagedBoxFragment((ManagedBoxFragment) fragment, canvas, vpIntersection, (BoxFragment) fragment);
     }
 
     @Override
-    public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+    public void paintBackground(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
       paintManagedBackground(canvas, fragment);
     }
 
   }
 
   public static void paintFragment(
-    LayoutFragment fragment, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment
+    LayoutFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection, BoxFragment refFragment
   ) {
     switch (fragment) {
       case ManagedBoxFragment boxFragment -> PaintUtil.maybePaintFragment(boxFragment, canvas, vpIntersection,
@@ -109,7 +110,7 @@ public final class FlowRootContentPainter {
   }
 
   private static void paintManagedBoxFragment(
-    ManagedBoxFragment fragment, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment
+    ManagedBoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection, BoxFragment refFragment
   ) {
     ElementBox parentBox = fragment.box();
     
@@ -134,7 +135,7 @@ public final class FlowRootContentPainter {
 
   // TODO: Unify this with above? Inline is offseting by border (then child adjusts), block-level by content
   private static void paintInlineFragment(
-    LayoutFragment fragment, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment
+    LayoutFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection, BoxFragment refFragment
   ) {
     switch (fragment) {
       case PosRefBoxFragment _1 -> {}
@@ -149,7 +150,7 @@ public final class FlowRootContentPainter {
   }
 
   private static void paintInlineManagedBoxFragment(
-    ManagedBoxFragment fragment, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment
+    ManagedBoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection, BoxFragment refFragment
   ) {
     ElementBox parentBox = fragment.box();
     LayoutFragment curNode = fragment.fragments();
@@ -169,7 +170,7 @@ public final class FlowRootContentPainter {
   }
 
   private static void paintInlineUnmanagedBoxFragment(
-    UnmanagedBoxFragment fragment, PaintCanvas canvas, int[] vpIntersection
+    UnmanagedBoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection
   ) {
     paintUnmanagedBackgroundThen(
       canvas, fragment, vpIntersection,
@@ -181,7 +182,7 @@ public final class FlowRootContentPainter {
   }
 
   private static void paintLineBoxFragment(
-    LineBoxFragment lineboxFragment, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment
+    LineBoxFragment lineboxFragment, PaintCanvas canvas, VpIntersection vpIntersection, BoxFragment refFragment
   ) {
     LayoutFragment curNode = lineboxFragment.fragments();
     while (curNode != null) {
@@ -196,7 +197,7 @@ public final class FlowRootContentPainter {
   }
 
   private static void paintBlockBackground(
-    BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment
+    BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection, BoxFragment refFragment
   ) {
     if (!(fragment instanceof ManagedBoxFragment managedBoxFragment)) {
       paintUnmanagedBackground(canvas, fragment, vpIntersection);
@@ -209,7 +210,7 @@ public final class FlowRootContentPainter {
   }
 
   private static void paintBlockLevelBackgrounds(
-    ManagedBoxFragment fragment, PaintCanvas canvas, int[] vpIntersection, BoxFragment refFragment
+    ManagedBoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection, BoxFragment refFragment
   ) {
     LayoutFragment curNode = fragment.fragments();
     while (curNode != null) {
@@ -246,7 +247,7 @@ public final class FlowRootContentPainter {
   }
 
   private static void paintUnmanagedBackground(
-    PaintCanvas canvas, BoxFragment fragment, int[] vpIntersection
+    PaintCanvas canvas, BoxFragment fragment, VpIntersection vpIntersection
   ) {
     PaintUtil.maybePaintFragment(
       fragment, canvas, vpIntersection,
@@ -255,7 +256,7 @@ public final class FlowRootContentPainter {
   }
 
   private static void paintUnmanagedBackgroundThen(
-    PaintCanvas canvas, BoxFragment fragment, int[] vpIntersection,
+    PaintCanvas canvas, BoxFragment fragment, VpIntersection vpIntersection,
     Consumer<PaintCanvas> paintFunc
   ) {
     paintUnmanagedBackground(canvas, fragment, vpIntersection);

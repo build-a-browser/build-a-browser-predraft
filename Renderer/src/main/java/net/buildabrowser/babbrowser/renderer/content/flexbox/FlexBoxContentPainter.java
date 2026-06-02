@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.renderer.content.common.paint.ElementBackgro
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
 import net.buildabrowser.babbrowser.renderer.paint.PaintUtil;
+import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 
 public class FlexBoxContentPainter implements BoxPainter {
 
@@ -17,7 +18,7 @@ public class FlexBoxContentPainter implements BoxPainter {
   }
 
   @Override
-  public void paint(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+  public void paint(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     StackingContext refContext = fragment.box().stackingContext();
     BoxFragment nextChild = content.fragments();
     while (nextChild != null) {
@@ -28,11 +29,11 @@ public class FlexBoxContentPainter implements BoxPainter {
   }
 
   @Override
-  public void paintBackground(BoxFragment fragment, PaintCanvas canvas, int[] vpIntersection) {
+  public void paintBackground(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     ElementBackgroundPainter.paintBackground(canvas, fragment);
   }
 
-  private void paintChild(BoxFragment child, PaintCanvas canvas, int[] vpIntersection, StackingContext refContext) {
+  private void paintChild(BoxFragment child, PaintCanvas canvas, VpIntersection vpIntersection, StackingContext refContext) {
     if (child.box().stackingContext() != refContext) return;
     
     canvas.withTransform(

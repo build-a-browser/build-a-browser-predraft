@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.composite.imp.CompositeLayerImp;
+import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 
 public interface CompositeLayer {
 
@@ -14,9 +15,9 @@ public interface CompositeLayer {
   // TODO: Currently replaces entries instead of adding them - is this good?
   void addEntries(CompositeLayerEntry entries);
 
-  void repaint(int[] viewport);
+  void repaint(VpIntersection vpIntersection);
 
-  void draw(PaintCanvas canvas, int[] viewport);
+  void draw(PaintCanvas canvas, VpIntersection vpIntersection);
 
   PositionValue positioning();
 
