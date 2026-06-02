@@ -23,7 +23,7 @@ subprojects {
 		useJUnitPlatform()
 	}
 
-	def desktopModules = [':Browser', ':SkijaPainter', ':Java2DPainter']
+	def desktopModules = [':Browser', ':PainterSkija', ':PainterJava2D']
 
 	if (!desktopModules.contains(project.path)) {
 		apply plugin: 'ru.vyarus.animalsniffer'

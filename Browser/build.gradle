@@ -5,8 +5,8 @@ plugins {
 
 dependencies {
     implementation project(':Renderer')
-    implementation project(':Java2DPainter')
-    implementation project(':SkijaPainter')
+    implementation project(':PainterJava2D')
+    implementation project(':PainterSkija')
 
     implementation 'com.github.taucher2003:t2003-logger-impl:1.0.2'
 	implementation 'com.github.taucher2003:t2003-logger-binder:1.0.2'
