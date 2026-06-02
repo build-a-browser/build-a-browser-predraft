@@ -29,7 +29,7 @@ public class ScrollContentPainter implements BoxPainter {
   @Override
   public void paintBackground(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     // TODO: Is this right?
-    ElementBackgroundPainter.paintBackground(canvas, fragment);
+    ElementBackgroundPainter.paintBackground(canvas, fragment, vpIntersection);
   }
 
   public void paintScrollbars(ScrollBoxFragment scrollBoxFragment, PaintCanvas canvas) {

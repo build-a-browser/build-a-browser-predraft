@@ -28,13 +28,14 @@ import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.image.ImageCache;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
-import net.buildabrowser.babbrowser.renderer.layout.Viewport;
+import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 
 public class ElementBackgroundImagePainter {
   
   public static void paintBackgroundImages(
     PaintCanvas canvas,
     BoxFragment fragment,
+    VpIntersection vpIntersection,
     float fragmentWidth,
     float fragmentHeight
   ) {
@@ -83,7 +84,7 @@ public class ElementBackgroundImagePainter {
         fragmentWidth, fragmentHeight,
         getBGLayerProperty(bgClips, layer),
         c -> paintBackground(
-          c, fragment, image,
+          c, fragment, vpIntersection, image,
           getBGLayerProperty(bgRepeats, layer),
           getBGLayerProperty(bgAttachments, layer),
           getBGLayerProperty(bgPositions, layer),
@@ -98,6 +99,7 @@ public class ElementBackgroundImagePainter {
   private static void paintBackground(
     PaintCanvas canvas,
     BoxFragment fragment,
+    VpIntersection vpIntersection,
     LoadedImage image,
     BackgroundRepeatValue repeatValue,
     BackgroundAttachmentValue attachmentValue,
@@ -110,13 +112,12 @@ public class ElementBackgroundImagePainter {
     ScrollBoxFragment scrollBoxFragment = fragment instanceof ScrollBoxFragment scrollBoxFragment_ ? scrollBoxFragment_ : null;
     boolean isFixed = attachmentValue.equals(BackgroundAttachmentValue.FIXED);
     boolean isLocal = attachmentValue.equals(BackgroundAttachmentValue.LOCAL) && scrollBoxFragment != null;
-    Viewport viewport = fragment.box().layoutContext().global().viewport();
 
     float vpW = fragmentWidth;
     float vpH = fragmentHeight;
     if (isFixed) {
-      vpW = viewport.width();
-      vpH = viewport.height();
+      vpW = vpIntersection.vpWidth();
+      vpH = vpIntersection.vpHeight();
     }
 
     LayoutContext layoutContext = fragment.box().layoutContext();
@@ -153,19 +154,22 @@ public class ElementBackgroundImagePainter {
     if (isFixed) {
       float imgX_ = imgX, imgY_ = imgY;
       float imgW_ = imgW, imgH_ = imgH;
-      float vpW_ = vpW, vpH_ = vpH;
       canvas.restoreTransform(c -> drawRepeatingImage(
         c, image,
         repeatValue,
         imgX_, imgY_,
         imgW_, imgH_,
-        vpW_, vpH_));
+        vpIntersection.vpWidth(), vpIntersection.vpHeight(),
+        vpIntersection.elVpX(), vpIntersection.elVpY(),
+        fragmentWidth, fragmentHeight));
     } else {
       drawRepeatingImage(
         canvas, image,
         repeatValue,
         imgX, imgY,
         imgW, imgH,
+        vpW, vpH,
+        0, 0,
         vpW, vpH);
     }
   }
@@ -246,25 +250,31 @@ public class ElementBackgroundImagePainter {
     };
   }
 
+  // TODO: Sooo many parameters, would be nice to simplify this
+  // (without a record, ofc)
   private static void drawRepeatingImage(
     PaintCanvas canvas,
     LoadedImage image,
     BackgroundRepeatValue repeatValue,
     float imgX, float imgY,
     float imgW, float imgH,
-    float vpW, float vpH
+    float vpW, float vpH,
+    float elVpOffsetX, float elVpOffsetY,
+    float elW, float elH
   ) {
     // TODO: What if imgX or imgY is negative?
     
     boolean isXSpace = repeatValue.xAxisRepeat().equals(BackgroundAxisRepeatValue.SPACE);
     boolean isYSpace = repeatValue.yAxisRepeat().equals(BackgroundAxisRepeatValue.SPACE);
-    float adjX = adjustPosForRepeat(imgX, imgW, vpW, repeatValue.xAxisRepeat());
-    float adjY = adjustPosForRepeat(imgY, imgH, vpH, repeatValue.yAxisRepeat());
-    int repeatTimesX = determineRepeatTimes(adjX, imgW, vpW, repeatValue.xAxisRepeat());
-    int repeatTimesY = determineRepeatTimes(adjY, imgH, vpH, repeatValue.yAxisRepeat());
+    float adjX = adjustPosForRepeat(imgX, imgW, vpW, elVpOffsetX, repeatValue.xAxisRepeat());
+    float adjY = adjustPosForRepeat(imgY, imgH, vpH, elVpOffsetY, repeatValue.yAxisRepeat());
+    int repeatTimesX = determineRepeatTimes(adjX, imgW, vpW, elVpOffsetX, elW, repeatValue.xAxisRepeat());
+    int repeatTimesY = determineRepeatTimes(adjY, imgH, vpH, elVpOffsetY, elH, repeatValue.yAxisRepeat());
     float strideX = isXSpace && repeatTimesX > 1 ? imgW + (vpW % imgW) / (repeatTimesX - 1) : imgW;
     float strideY = isYSpace && repeatTimesY > 1 ? imgH + (vpH % imgH) / (repeatTimesY - 1) : imgH;
 
+    // TODO: Figure out how to do this without a loop
+    // (Skija has a way to draw repeating images, but we need a gap between them)
     for (int tileX = 0; tileX < repeatTimesX; tileX++) {
       for (int tileY = 0; tileY < repeatTimesY; tileY++) {
         float tilePosX = adjX + tileX * strideX;
@@ -276,11 +286,17 @@ public class ElementBackgroundImagePainter {
 
   // TODO: Seems to match Firefox but not Chromium for ROUND... Which is right?
   private static float adjustPosForRepeat(
-    float pos, float size, float vpSize,
+    float pos, float size, float vpSize, float elVpOffset,
     BackgroundAxisRepeatValue backgroundAxisRepeat
   ) {
     return switch (backgroundAxisRepeat) {
-      case REPEAT, ROUND -> pos - (float) Math.ceil(pos / size) * size;
+      case REPEAT, ROUND -> {
+        float determinedPos = pos - (float) Math.ceil(pos / size) * size;
+        // Optimization to only draw repeating fixed textures near the element
+        float postGap = elVpOffset - determinedPos;
+        determinedPos += (int) (postGap / size) * size;
+        yield determinedPos;
+      }
       case SPACE -> 0;
       case NO_REPEAT -> pos;
       default -> throw new UnsupportedOperationException("Unrecognized Background Axis Repeat: " + backgroundAxisRepeat);
@@ -289,11 +305,16 @@ public class ElementBackgroundImagePainter {
 
   private static int determineRepeatTimes(
     float pos, float size, float vpSize,
+    float elVpOffset, float elSize,
     BackgroundAxisRepeatValue backgroundAxisRepeat
   ) {
+    int repeatRepeat = (int) Math.ceil((elSize + (elVpOffset - pos)) / size);
     return switch (backgroundAxisRepeat) {
-      case REPEAT, ROUND -> (int) Math.ceil((vpSize - pos) / size);
-      case SPACE -> Math.max(1, (int) (vpSize / size));
+      case REPEAT, ROUND -> repeatRepeat;
+      case SPACE -> {
+        int spaceRepeat = Math.max(1, (int) (vpSize / size));
+        yield Math.min(spaceRepeat, repeatRepeat);
+      }
       case NO_REPEAT -> 1;
       default -> throw new UnsupportedOperationException("Unrecognized Background Axis Repeat: " + backgroundAxisRepeat);
     };

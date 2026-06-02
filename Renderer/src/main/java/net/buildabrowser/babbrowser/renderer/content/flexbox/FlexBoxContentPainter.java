@@ -30,7 +30,7 @@ public class FlexBoxContentPainter implements BoxPainter {
 
   @Override
   public void paintBackground(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
-    ElementBackgroundPainter.paintBackground(canvas, fragment);
+    ElementBackgroundPainter.paintBackground(canvas, fragment, vpIntersection);
   }
 
   private void paintChild(BoxFragment child, PaintCanvas canvas, VpIntersection vpIntersection, StackingContext refContext) {

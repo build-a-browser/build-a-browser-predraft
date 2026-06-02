@@ -6,11 +6,15 @@ public class VpIntersection {
   
   private final int vpW, vpH;
   private int vpScrollX, vpScrollY;
-  private int elX, elY, elW, elH;
+  private int bufferX, bufferY;
+  private int bufferW, bufferH;
+  private int elX, elY;
 
   public VpIntersection(float vpW, float vpH) {
-    this.vpW = this.elW =  (int) Math.ceil(vpW);
-    this.vpH = this.elH =  (int) Math.ceil(vpH);
+    this.vpW = (int) Math.ceil(vpW);
+    this.vpH = (int) Math.ceil(vpH);
+    this.bufferW = this.vpW;
+    this.bufferH = this.vpH;
   }
 
   public int vpWidth() {
@@ -29,33 +33,41 @@ public class VpIntersection {
     return this.vpScrollY;
   }
 
-  public int elX() {
-    return this.elX;
+  public int bufferX() {
+    return this.bufferX;
   }
 
-  public int elY() {
-    return this.elY;
+  public int bufferY() {
+    return this.bufferY;
   }
 
-  public int elWidth() {
-    return this.elW;
+  public int bufferWidth() {
+    return this.bufferW;
   }
 
-  public int elHeight() {
-    return this.elH;
+  public int bufferHeight() {
+    return this.bufferH;
   }
 
-  // TODO: Also intersect width and height
+  public int elVpX() {
+    return this.elX - this.vpScrollX;
+  }
+
+  public int elVpY() {
+    return this.elY - this.vpScrollY;
+  }
+
+  // TODO: Make a version also accounting for element width/height (adjusted for ink if needed)
   public void enterEl(
-    float x, float y, float w, float h,
+    float x, float y,
     Consumer<VpIntersection> elFunc
   ) {
-    int vX = elX, vY = elY, vW = elW, vH = elH;
-    elX -= x;
-    elY -= y;
+    int oldElX = elX, oldElY = elY;
+    elX += x;
+    elY += y;
     elFunc.accept(this);
     
-    elX = vX; elY = vY; elW = vW; elH = vH;
+    elX = oldElX; elY = oldElY;
   }
 
   public void enterOffset(
@@ -65,23 +77,25 @@ public class VpIntersection {
     int oldScrollX = vpScrollX, oldScrollY = vpScrollY;
     vpScrollX += scrollX;
     vpScrollY += scrollY;
-    enterEl(x + scrollX, y + scrollY, elW - x, elH - y, elFunc);
+    enterEl(x, y, elFunc);
     vpScrollX = oldScrollX; vpScrollY = oldScrollY;
   }
 
-  public void enterCustom(
+  public void enterBuffer(
     float x, float y, float w, float h,
     Consumer<VpIntersection> elFunc
   ) {
-    int vX = elX, vY = elY, vW = elW, vH = elH;
+    int oldBufferX = bufferX, oldBufferY = bufferY;
+    int oldBufferW = bufferW, oldBufferH = bufferH;
     // TODO: More precise rounding
-    elX = (int) Math.floor(x);
-    elY = (int) Math.floor(y);
-    elW = (int) Math.ceil(w);
-    elH = (int) Math.ceil(h);
+    bufferX = (int) Math.floor(x);
+    bufferY = (int) Math.floor(y);
+    bufferW = (int) Math.ceil(w);
+    bufferH = (int) Math.ceil(h);
     elFunc.accept(this);
     
-    elX = vX; elY = vY; elW = vW; elH = vH;
+    bufferX = oldBufferX; bufferY = oldBufferY;
+    bufferW = oldBufferW; bufferH = oldBufferH;
   }
 
 }

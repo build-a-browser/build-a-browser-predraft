@@ -34,10 +34,12 @@ public final class CompatUtil {
   }
 
   public static float mathClamp(float value, float min, float max) {
+    assert min <= max;
     return Math.min(Math.max(value, min), max);
   }
 
   public static int mathClamp(int value, int min, int max) {
+    assert min <= max;
     return Math.min(Math.max(value, min), max);
   }
 

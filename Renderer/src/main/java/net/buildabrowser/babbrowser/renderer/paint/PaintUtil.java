@@ -21,13 +21,11 @@ public final class PaintUtil {
     FragmentPaintFunc func, Measurement measurement
   ) {
     if (fragment instanceof PosRefBoxFragment) return;
-    if (!aabbFragmentVp(fragment, vpIntersection)) return;
+    if (!aabbFragmentVp(fragment, vpIntersection, measurement)) return;
 
     vpIntersection.enterEl(
       fragment.posX(measurement),
       fragment.posY(measurement),
-      fragment.width(measurement),
-      fragment.height(measurement),
       vpi -> func.paint(fragment, canvas, vpi));
   }
 
@@ -40,17 +38,20 @@ public final class PaintUtil {
     vpIntersection.enterEl(
       fragment.posX(measurement),
       fragment.posY(measurement),
-      fragment.width(measurement),
-      fragment.height(measurement),
       vpi -> func.paint(fragment, canvas, vpi));
   }
 
-  private static boolean aabbFragmentVp(BoxFragment fragment, VpIntersection vpIntersection) {
+  // TODO: Use width instead of inkWidth for clipped elements
+  private static boolean aabbFragmentVp(
+    BoxFragment fragment, VpIntersection vpIntersection, Measurement measurement
+  ) {
+    float elPosX = vpIntersection.elVpX() + fragment.posX(measurement);
+    float elPosY = vpIntersection.elVpY() + fragment.posY(measurement);
     return
-      fragment.posX(Measurement.BORDER) < vpIntersection.elX() + vpIntersection.elWidth()
-      && vpIntersection.elX() < fragment.posX(Measurement.BORDER) + fragment.inkWidth(Measurement.BORDER)
-      && fragment.posY(Measurement.BORDER) < vpIntersection.elY() + vpIntersection.elHeight()
-      && vpIntersection.elY() < fragment.posY(Measurement.BORDER) + fragment.inkHeight(Measurement.BORDER);
+      elPosX < vpIntersection.bufferX() + vpIntersection.bufferWidth()
+      && vpIntersection.bufferX() < elPosX + fragment.inkWidth(measurement)
+      && elPosY < vpIntersection.bufferY() + vpIntersection.bufferHeight()
+      && vpIntersection.bufferY() < elPosY + fragment.inkHeight(measurement);
   }
 
   public static interface FragmentPaintFunc {

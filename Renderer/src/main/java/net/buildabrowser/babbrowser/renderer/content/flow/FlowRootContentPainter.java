@@ -43,7 +43,7 @@ public final class FlowRootContentPainter {
     @Override
     public void paintBackground(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
       // TODO: This triggers too early for <body>
-      paintManagedBackground(canvas, fragment);
+      paintManagedBackground(canvas, fragment, vpIntersection);
     }
 
     public static void paintFloats(List<BoxFragment> floats, PaintCanvas canvas, VpIntersection vpIntersection, BoxFragment refFragment) {
@@ -87,7 +87,7 @@ public final class FlowRootContentPainter {
 
     @Override
     public void paintBackground(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
-      paintManagedBackground(canvas, fragment);
+      paintManagedBackground(canvas, fragment, vpIntersection);
     }
 
   }
@@ -197,7 +197,10 @@ public final class FlowRootContentPainter {
   }
 
   private static void paintBlockBackground(
-    BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection, BoxFragment refFragment
+    BoxFragment fragment,
+    PaintCanvas canvas,
+    VpIntersection vpIntersection,
+    BoxFragment refFragment
   ) {
     if (!(fragment instanceof ManagedBoxFragment managedBoxFragment)) {
       paintUnmanagedBackground(canvas, fragment, vpIntersection);
@@ -205,7 +208,7 @@ public final class FlowRootContentPainter {
     }
     
     paintManagedBackgroundThen(
-      canvas, fragment,
+      canvas, fragment, vpIntersection,
       c -> paintBlockLevelBackgrounds(managedBoxFragment, c, vpIntersection, refFragment));
   }
 
@@ -227,17 +230,23 @@ public final class FlowRootContentPainter {
     }
   }
 
-  private static void paintManagedBackground(PaintCanvas canvas, LayoutFragment fragment) {
+  private static void paintManagedBackground(
+    PaintCanvas canvas,
+    LayoutFragment fragment,
+    VpIntersection vpIntersection
+  ) {
     if (fragment instanceof BoxFragment boxFragment) {
-      ElementBackgroundPainter.paintBackground(canvas, boxFragment);
+      ElementBackgroundPainter.paintBackground(canvas, boxFragment, vpIntersection);
     }
   }
 
   private static void paintManagedBackgroundThen(
-    PaintCanvas canvas, LayoutFragment fragment,
+    PaintCanvas canvas,
+    LayoutFragment fragment,
+    VpIntersection vpIntersection,
     Consumer<PaintCanvas> paintFunc
   ) {
-    paintManagedBackground(canvas, fragment);
+    paintManagedBackground(canvas, fragment, vpIntersection);
 
     canvas.withTransform(
       p -> p.translate(

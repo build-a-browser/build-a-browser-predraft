@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.renderer.content.common.paint;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 
 public final class ElementBackgroundPainter {
 
@@ -14,9 +15,13 @@ public final class ElementBackgroundPainter {
   
   private ElementBackgroundPainter() {}
 
-  public static void paintBackground(PaintCanvas canvas, BoxFragment fragment) {
+  public static void paintBackground(
+    PaintCanvas canvas,
+    BoxFragment fragment,
+    VpIntersection vpIntersection
+  ) {
     ElementBackgroundImagePainter.paintBackgroundImages(
-      canvas, fragment,
+      canvas, fragment, vpIntersection,
       fragment.width(Measurement.BORDER),
       fragment.height(Measurement.BORDER));
 

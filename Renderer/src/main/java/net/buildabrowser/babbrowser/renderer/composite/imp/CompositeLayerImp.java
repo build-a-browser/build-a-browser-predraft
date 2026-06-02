@@ -69,8 +69,8 @@ public class CompositeLayerImp implements CompositeLayer {
     ensureLayersSorted();
 
     ScrollBoxFragment scrollBoxFragment = relatedScrollBox();
-    int scrollX = scrollBoxFragment == null ? 0 : -scrollBoxFragment.box().scrollX();
-    int scrollY = scrollBoxFragment == null ? 0 : -scrollBoxFragment.box().scrollY();
+    int scrollX = scrollBoxFragment == null ? 0 : scrollBoxFragment.box().scrollX();
+    int scrollY = scrollBoxFragment == null ? 0 : scrollBoxFragment.box().scrollY();
 
     vpIntersection.enterOffset(
       this.offsetX, this.offsetY, scrollX, scrollY,
@@ -88,31 +88,48 @@ public class CompositeLayerImp implements CompositeLayer {
     }
   }
 
+  // This math is so confusing (╥﹏╥) - I spent hours trying to get it right
+  // yPast is the height of the portion of the layer already above the viewport, or 0 if it is not above the viewport
+  // overscrollYUnclamped adds a half buffer above yPast
+  // overscrollY ensures the overflow buffer does not start before the top edge of the layer
+  // enterBuffer takes coordinates adjusted to be relative to the viewport
+  // makeBackingImage just takes the element-relative coordinates - the code does its own adjustment for scroll later
+  
+  // Please don't nest enterBuffer calls, it will make my life a million times harder
+  // Hopefully I got it right, also there are no unit tests b/c this is graphics code
   private void repaintSelf(VpIntersection vpIntersection, ScrollBoxFragment scrollBoxFragment) {
-    final int overscrollWidth = Math.min(backingWidth, vpIntersection.vpWidth() * OVERSCROLL_FACTOR);
-    final int overscrollHeight = Math.min(backingHeight, vpIntersection.vpHeight() * OVERSCROLL_FACTOR);
-    int overscrollXUnclamped = vpIntersection.elX() - Math.max(0, (overscrollWidth - vpIntersection.vpWidth()) / 2);
-    int overscrollYUnclamped = vpIntersection.elY() - Math.max(0, (overscrollHeight - vpIntersection.vpHeight()) / 2);
+    int overscrollWidth = Math.min(backingWidth, vpIntersection.vpWidth() * OVERSCROLL_FACTOR);
+    int overscrollHeight = Math.min(backingHeight, vpIntersection.vpHeight() * OVERSCROLL_FACTOR);
+    
+    int xPast = Math.max(0, -vpIntersection.elVpX());
+    int yPast = Math.max(0, -vpIntersection.elVpY());
+    
+    int overscrollXUnclamped = xPast - Math.max(0, (overscrollWidth - vpIntersection.vpWidth()) / 2);
+    int overscrollYUnclamped = yPast - Math.max(0, (overscrollHeight - vpIntersection.vpHeight()) / 2);
+    
+    int overscrollX = mathClamp(overscrollXUnclamped, 0, backingWidth - overscrollWidth);
+    int overscrollY = mathClamp(overscrollYUnclamped, 0, backingHeight - overscrollHeight);
+    
+    float vpOverscrollX = vpIntersection.elVpX() + overscrollX;
+    float vpOverscrollY = vpIntersection.elVpY() + overscrollY;
 
-    int nearbyViewportWidth = vpIntersection.elWidth() * OVERSCROLL_FACTOR;
-    int nearbyViewportHeight = vpIntersection.elHeight() * OVERSCROLL_FACTOR;
-    int nearbyViewportX = vpIntersection.elX() - Math.max(0, (nearbyViewportWidth - vpIntersection.vpWidth()) / 2);
-    int nearbyViewportY = vpIntersection.elY() - Math.max(0, (nearbyViewportHeight - vpIntersection.vpHeight()) / 2);
+    int nearbyViewportWidth = vpIntersection.vpWidth() * OVERSCROLL_FACTOR;
+    int nearbyViewportHeight = vpIntersection.vpHeight() * OVERSCROLL_FACTOR;
+    int nearbyViewportX = -Math.max(0, (nearbyViewportWidth - vpIntersection.vpWidth()) / 2);
+    int nearbyViewportY = -Math.max(0, (nearbyViewportHeight - vpIntersection.vpHeight()) / 2);
     if (
-      nearbyViewportX + nearbyViewportWidth < 0
-      || nearbyViewportX > backingWidth
-      || nearbyViewportY + nearbyViewportHeight < 0
-      || nearbyViewportY > backingHeight
+      nearbyViewportX + nearbyViewportWidth < vpOverscrollX
+      || nearbyViewportX > vpOverscrollX + backingWidth
+      || nearbyViewportY + nearbyViewportHeight < vpOverscrollY
+      || nearbyViewportY > vpOverscrollY + backingHeight
     ) {
       this.backingImage = null;
       return;
     }
 
-    final int overscrollX = mathClamp(overscrollXUnclamped, 0, backingWidth - overscrollWidth);
-    final int overscrollY = mathClamp(overscrollYUnclamped, 0, backingHeight - overscrollHeight);
-
-    vpIntersection.enterCustom(
-      overscrollX, overscrollY, overscrollWidth, overscrollHeight,
+    vpIntersection.enterBuffer(
+      vpOverscrollX, vpOverscrollY,
+      overscrollWidth, overscrollHeight,
       vpi -> makeBackingImage(vpi, overscrollWidth, overscrollHeight, overscrollX, overscrollY));
   }
 
@@ -207,8 +224,8 @@ public class CompositeLayerImp implements CompositeLayer {
   }
 
   private void drawScrollable(PaintCanvas canvas, VpIntersection vpIntersection, ScrollBoxFragment scrollBoxFragment) {
-    int scrollX = scrollBoxFragment == null ? 0 : -scrollBoxFragment.box().scrollX();
-    int scrollY = scrollBoxFragment == null ? 0 : -scrollBoxFragment.box().scrollY();
+    int scrollX = scrollBoxFragment == null ? 0 : scrollBoxFragment.box().scrollX();
+    int scrollY = scrollBoxFragment == null ? 0 : scrollBoxFragment.box().scrollY();
 
     vpIntersection.enterOffset(
       0, 0, scrollX, scrollY,
@@ -250,7 +267,7 @@ public class CompositeLayerImp implements CompositeLayer {
 
     // Parent already offset the x, y by layer.
     if (this.backingImage != null) {
-      canvas.drawBitMap(scrollX + this.backingX, scrollY + this.backingY, backingImage);
+      canvas.drawBitMap(this.backingX - scrollX, this.backingY - scrollY, backingImage);
     }
     
     for (int i = activeChildren.nextSetBit(gtLayerStart); i >= 0; i = activeChildren.nextSetBit(i + 1)) {
@@ -307,8 +324,8 @@ public class CompositeLayerImp implements CompositeLayer {
     if (this.backingImage == null) return;
     canvas.withTransform(
       t -> t.translate(
-        layer.posX() + scrollX,
-        layer.posY() + scrollY),
+        layer.posX() - scrollX,
+        layer.posY() - scrollY),
       c -> layer.draw(c, vpIntersection));
   }
 

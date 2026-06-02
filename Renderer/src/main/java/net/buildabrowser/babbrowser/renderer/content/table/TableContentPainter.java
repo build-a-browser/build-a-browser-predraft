@@ -36,7 +36,7 @@ public class TableContentPainter implements BoxPainter {
   public void paintBackground(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     // TODO: Adjust box to exclude captions
     ElementBackgroundImagePainter.paintBackgroundImages(
-      canvas, fragment,
+      canvas, fragment, vpIntersection,
       fragment.width(Measurement.BORDER),
       fragment.height(Measurement.BORDER));
 
@@ -48,7 +48,7 @@ public class TableContentPainter implements BoxPainter {
     Table table = content.table();
     for (ColumnGroup colGroup: table.columnGroups()) {
       BoxFragment fragment = colGroup.groupBox().positioningFragment();
-      paintFragmentBackground(canvas, fragment);
+      paintFragmentBackground(canvas, fragment, vpIntersection);
     }
   }
 
@@ -56,7 +56,7 @@ public class TableContentPainter implements BoxPainter {
     Table table = content.table();
     for (TableColumn column: table.columns()) {
       BoxFragment fragment = column.columnBox().positioningFragment();
-      paintFragmentBackground(canvas, fragment);
+      paintFragmentBackground(canvas, fragment, vpIntersection);
     }
   }
 
@@ -64,7 +64,7 @@ public class TableContentPainter implements BoxPainter {
     Table table = content.table();
     for (RowGroup rowGroup: table.rowGroups()) {
       BoxFragment fragment = rowGroup.groupBox().positioningFragment();
-      paintFragmentBackground(canvas, fragment);
+      paintFragmentBackground(canvas, fragment, vpIntersection);
     }
   }
 
@@ -72,7 +72,7 @@ public class TableContentPainter implements BoxPainter {
     Table table = content.table();
     for (TableRow row: table.rows()) {
       BoxFragment fragment = row.rowBox().positioningFragment();
-      paintFragmentBackground(canvas, fragment);
+      paintFragmentBackground(canvas, fragment, vpIntersection);
     }
   }
 
@@ -81,7 +81,7 @@ public class TableContentPainter implements BoxPainter {
     TableCellUtil.forEachCell(table, cell -> {
       UnmanagedBoxFragment childFragment = cell.getRelatedFragment();
       if (childFragment == null) return;
-      paintCellBackground(canvas, table, cell, childFragment);
+      paintCellBackground(canvas, childFragment, vpIntersection, table, cell);
       content.borderPainter().paintCellBorders(canvas, table, cell, childFragment);
       // TODO: Also paint outline
     });
@@ -104,23 +104,25 @@ public class TableContentPainter implements BoxPainter {
 
   private void paintFragmentBackground(
     PaintCanvas canvas,
-    BoxFragment fragment
+    BoxFragment fragment,
+    VpIntersection vpIntersection
   ) {
     canvas.withTransform(
       t -> t.translate(
         fragment.posX(Measurement.BORDER),
         fragment.posY(Measurement.BORDER)),
       c -> ElementBackgroundImagePainter.paintBackgroundImages(
-        c, fragment,
+        c, fragment, vpIntersection,
         fragment.width(Measurement.BORDER),
         fragment.height(Measurement.BORDER)));
   }
 
   private void paintCellBackground(
     PaintCanvas canvas,
+    UnmanagedBoxFragment fragment,
+    VpIntersection vpIntersection,
     Table table,
-    TableCell cell,
-    UnmanagedBoxFragment fragment
+    TableCell cell
   ) {
     // TODO: Do we or do we not need to call the actual fragment's paintBackground
     canvas.withTransform(
@@ -128,7 +130,7 @@ public class TableContentPainter implements BoxPainter {
         fragment.posX(Measurement.BORDER),
         fragment.posY(Measurement.BORDER)),
       c -> ElementBackgroundImagePainter.paintBackgroundImages(
-        c, fragment,
+        c, fragment, vpIntersection,
         TableCellUtil.outerCellWidth(table, cell),
         TableCellUtil.outerCellHeight(table, cell)));
   }
