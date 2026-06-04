@@ -12,15 +12,15 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.TableCellUtil;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.TableSeparateBorderPainter;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.collapsed.TableCollapsedBorderPainter;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
+import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 
 public class TableContent implements BoxContent {
 
@@ -76,8 +76,9 @@ public class TableContent implements BoxContent {
     borderPainter.assignBorders(table, widthConstraint);
 
     List<TableColumn> columns = table.columns();
+    List<TableRow> rows = table.rows();
     float hSpaceTotal = (columns.size() + 1) * borderSpacings.hSpace();
-    float vSpaceTotal = (columns.size() + 1) * borderSpacings.vSpace();
+    float vSpaceTotal = (rows.size() + 1) * borderSpacings.vSpace();
 
     float gridMin = TableSizeUtil.sumMinWidths(columns) + hSpaceTotal;
     float gridMax = TableSizeUtil.sumMaxWidths(columns) + hSpaceTotal;
@@ -103,7 +104,7 @@ public class TableContent implements BoxContent {
     // TODO: Respect alignments and explicit row heights
     positionCells(table);
 
-    float totalHeight = TableSizeUtil.sumHeights(table.rows()) + vSpaceTotal;
+    float totalHeight = TableSizeUtil.sumHeights(rows) + vSpaceTotal;
     float inkWidth = usedConstraint.isBounded() ?
       Math.max(usedConstraint.floatValue(), gridMin) :
       gridMax;

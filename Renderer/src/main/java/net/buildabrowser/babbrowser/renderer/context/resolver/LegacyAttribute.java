@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.renderer.context.imp;
+package net.buildabrowser.babbrowser.renderer.context.resolver;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;

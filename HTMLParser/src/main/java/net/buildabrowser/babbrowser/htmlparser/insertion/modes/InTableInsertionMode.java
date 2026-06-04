@@ -148,7 +148,7 @@ public class InTableInsertionMode implements InsertionMode {
 
       ParseAdjustUtil.popUntil(parseContext.openElementStack(), "table");
       InsertionModeUtil.resetInsertionModeAppropriately(parseContext);
-      return true;
+      return false;
     case "body", "caption", "col", "colgroup", "html", "tbody", "td", "tfoot", "th", "thead", "tr":
       parseContext.parseError();
       return false;

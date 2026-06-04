@@ -22,7 +22,9 @@ import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
-import net.buildabrowser.babbrowser.renderer.context.imp.LegacyAttribute.LegacyAttributeName;
+import net.buildabrowser.babbrowser.renderer.context.resolver.LegacyAttribute;
+import net.buildabrowser.babbrowser.renderer.context.resolver.LegacyAttributeResolver;
+import net.buildabrowser.babbrowser.renderer.context.resolver.LegacyAttribute.LegacyAttributeName;
 
 public class ElementContextImp implements ElementContext {
 
@@ -103,7 +105,7 @@ public class ElementContextImp implements ElementContext {
     removeLegacyAttribute(legacyAttrName);
 
     LegacyAttribute newAttribute = LegacyAttributeResolver.resolveLegacyAttribute(
-      legacyAttrName, newValue);
+      element.name(), legacyAttrName, newValue);
     if (newAttribute == null) return;
     onCSSRuleMatched(newAttribute.rule());
     newAttribute.setNext(legacyAttributes);

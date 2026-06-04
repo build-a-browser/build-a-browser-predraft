@@ -66,6 +66,11 @@ public final class TableColumnSizerAuto {
     }
 
     if (closestOverValues == null) return false;
+    if (closestUnderValues == null) {
+      // TODO: Avoid computing twice
+      closestUnderValues = determineColumnSizes(columns, assignableWidth, TableColumn::minContentSizingGuess);
+      closestUnder = TableSizeUtil.sumSizes(closestUnderValues);
+    }
 
     float overWeight =
       closestOver == closestUnder ? 0 :

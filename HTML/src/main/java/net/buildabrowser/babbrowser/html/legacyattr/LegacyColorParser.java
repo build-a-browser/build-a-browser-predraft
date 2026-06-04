@@ -21,7 +21,7 @@ public final class LegacyColorParser {
     if (comp3Color != -1) return comp3Color;
     // Fast path (not listed in spec, should behave the same)
     int comp6Color = parse6ComponentLegacyColor(input);
-    if (comp6Color != -1) return comp3Color;
+    if (comp6Color != -1) return comp6Color;
 
     StringBuilder colorBuilder = new StringBuilder(input);
     int numCodePoints = replaceAndCount(colorBuilder, ch -> ch <= 255, "00");
@@ -34,15 +34,12 @@ public final class LegacyColorParser {
     }
 
     numCodePoints = replaceAndCount(colorBuilder, ASCIIUtil::isHexDigit, "0");
-    System.out.println(numCodePoints + " " + colorBuilder);
     while (
       numCodePoints == 0
       || numCodePoints % 3 != 0
     ) {
-      colorBuilder.appendCodePoint('0');
       numCodePoints++;
     }
-    System.out.println(colorBuilder);
 
     int length = numCodePoints / 3;
     int firstMark = colorBuilder.offsetByCodePoints(0, length);
@@ -72,7 +69,6 @@ public final class LegacyColorParser {
       length--;
     }
 
-    System.out.println(comp1 + " " + comp2 + " " + comp3);
     int red1 = ASCIIUtil.hexValue(comp1.codePointAt(0));
     int green1 = ASCIIUtil.hexValue(comp2.codePointAt(0));
     int blue1 = ASCIIUtil.hexValue(comp3.codePointAt(0));
@@ -81,8 +77,8 @@ public final class LegacyColorParser {
     }
 
     int red = red1 * 16 + ASCIIUtil.hexValue(comp1.codePointAt(1));
-    int green = green1 * 16 + ASCIIUtil.hexValue(comp3.codePointAt(1));
-    int blue = blue1 * 16 + ASCIIUtil.hexValue(comp2.codePointAt(1));
+    int green = green1 * 16 + ASCIIUtil.hexValue(comp2.codePointAt(1));
+    int blue = blue1 * 16 + ASCIIUtil.hexValue(comp3.codePointAt(1));
     return newColor(red, green, blue);
   }
 
@@ -126,7 +122,7 @@ public final class LegacyColorParser {
 
   private static int parse6ComponentLegacyColor(String input) {
     if (!(
-      input.length() == 4
+      input.length() == 7
       && input.codePointAt(0) == '#'
       && ASCIIUtil.isHexDigit(input.codePointAt(1))
       && ASCIIUtil.isHexDigit(input.codePointAt(2))
