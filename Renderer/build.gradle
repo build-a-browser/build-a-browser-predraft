@@ -11,4 +11,6 @@ dependencies {
     implementation project(':Common')
     implementation project(':HTMLParser')
     implementation project(':CSSEngine')
+
+    implementation("com.google.code.gson:gson:2.13.2")
 }

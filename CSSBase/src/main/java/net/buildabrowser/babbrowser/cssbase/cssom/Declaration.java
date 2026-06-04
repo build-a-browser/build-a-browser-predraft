@@ -28,6 +28,17 @@ public class Declaration {
     this.important = important;
   }
 
+  public Declaration(
+    CSSTokenStreamSource source,
+    String name, CSSValue evaluation, boolean important
+  ) {
+    this.source = source;
+    this.name = name;
+    this.value = List.of();
+    this.important = important;
+    this.evaluation = evaluation;
+  }
+
   public CSSTokenStreamSource source() {
     return this.source;
   }
@@ -66,6 +77,16 @@ public class Declaration {
   public static Declaration create(
     CSSTokenStreamSource source,
     String name, List<Token> value, boolean important
+  ) {
+    if (DeclarationParser.isKnownDeclarationName(name)) {
+      name = name.intern();
+    }
+    return new Declaration(source, name, value, important);
+  }
+
+  public static Declaration create(
+    CSSTokenStreamSource source,
+    String name, CSSValue value, boolean important
   ) {
     if (DeclarationParser.isKnownDeclarationName(name)) {
       name = name.intern();

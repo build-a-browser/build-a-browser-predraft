@@ -22,6 +22,7 @@ import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.context.imp.LegacyAttribute.LegacyAttributeName;
 
 public class ElementContextImp implements ElementContext {
 
@@ -30,13 +31,19 @@ public class ElementContextImp implements ElementContext {
   // TreeSet has a ton of overhead, sort on access instead
   private final List<WeightedStyleRule> styleRules = new LinkedList<>();
   private final HTMLElement element;
+  // TODO: Remove the need for this field
 
   private ActiveStyles activeStyles = null;
   private WeightedStyleRule internalStyleRule = null;
+  private LegacyAttribute legacyAttributes = null;
 
   public ElementContextImp(HTMLElement element) {
     this.element = element;
     updateStyle(element.getAttribute("style"));
+    // TODO: More efficient iterator (but it does not exist yet)
+    for (String attribute: element.getAttributeNames()) {
+      onAttributeValueChanged(attribute, null, element.getAttribute(attribute));
+    }
   }
   
   @Override
@@ -56,6 +63,8 @@ public class ElementContextImp implements ElementContext {
     if (attrName.equals("style")) {
       updateStyle(newValue);
     }
+
+    updateLegacyAttrs(attrName, newValue);
   }
 
   @Override
@@ -86,6 +95,41 @@ public class ElementContextImp implements ElementContext {
   public ActiveStyles activeStyles() {
     assert this.activeStyles != null;
     return this.activeStyles;
+  }
+
+  private void updateLegacyAttrs(String attrName, String newValue) {
+    LegacyAttributeName legacyAttrName = LegacyAttribute.lookup(attrName);
+    if (legacyAttrName == null) return;
+    removeLegacyAttribute(legacyAttrName);
+
+    LegacyAttribute newAttribute = LegacyAttributeResolver.resolveLegacyAttribute(
+      legacyAttrName, newValue);
+    if (newAttribute == null) return;
+    onCSSRuleMatched(newAttribute.rule());
+    newAttribute.setNext(legacyAttributes);
+    this.legacyAttributes = newAttribute;
+  }
+
+  private void removeLegacyAttribute(LegacyAttributeName legacyAttrName) {
+    if (legacyAttributes == null) return;
+    if (legacyAttributes.name().equals(legacyAttrName)) {
+      this.legacyAttributes = legacyAttributes.next();
+      return;
+    }
+
+    LegacyAttribute prevAttr = legacyAttributes;
+    LegacyAttribute currentAttr = legacyAttributes.next();
+    while (currentAttr != null) {
+      if (currentAttr.name().equals(legacyAttrName)) {
+        prevAttr.setNext(currentAttr.next());
+        currentAttr.setNext(null);
+        onCSSRuleUnmatched(currentAttr.rule());
+        return;
+      }
+
+      prevAttr = prevAttr.next();
+      currentAttr = currentAttr.next();
+    }
   }
 
   private void updateStyle(String styleStr) {

@@ -35,4 +35,8 @@ public interface ColorValue extends CSSValue {
 
   }
 
+  static ColorValue fromARGB(int argb) {
+    return () -> argb;
+  }
+
 }
