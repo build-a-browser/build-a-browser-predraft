@@ -31,7 +31,7 @@ import net.buildabrowser.babbrowser.html.navigation.util.TraversableUtil;
 import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
-import net.buildabrowser.babbrowser.renderer.context.resolver.LegacyBGColorAttributeResolver;
+import net.buildabrowser.babbrowser.renderer.hintattr.LegacyBGColorAttributeResolver;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 import net.buildabrowser.babbrowser.renderer.uistate.Frame;
 

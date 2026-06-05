@@ -3,11 +3,13 @@ package net.buildabrowser.babbrowser.cssbase.property.border;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.color.ColorParserTestUtil;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue.SRGBAColor;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
@@ -17,6 +19,11 @@ import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 public class BorderShorthandParserTest {
   
   private final BorderShorthandParser borderShorthandParser = new BorderShorthandParser();
+
+  @BeforeAll
+  public static void beforeAll() {
+    ColorParserTestUtil.initColors();
+  }
 
   @Test
   @DisplayName("Can parse border shorthand with all components")

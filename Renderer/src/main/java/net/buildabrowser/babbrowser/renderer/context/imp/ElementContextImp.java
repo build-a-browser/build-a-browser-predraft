@@ -22,9 +22,9 @@ import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
-import net.buildabrowser.babbrowser.renderer.context.resolver.LegacyAttribute;
-import net.buildabrowser.babbrowser.renderer.context.resolver.LegacyAttributeResolver;
-import net.buildabrowser.babbrowser.renderer.context.resolver.LegacyAttribute.LegacyAttributeName;
+import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHint;
+import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHintResolver;
+import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHint.PresentationalHintName;
 
 public class ElementContextImp implements ElementContext {
 
@@ -37,7 +37,7 @@ public class ElementContextImp implements ElementContext {
 
   private ActiveStyles activeStyles = null;
   private WeightedStyleRule internalStyleRule = null;
-  private LegacyAttribute legacyAttributes = null;
+  private PresentationalHint legacyAttributes = null;
 
   public ElementContextImp(HTMLElement element) {
     this.element = element;
@@ -100,11 +100,11 @@ public class ElementContextImp implements ElementContext {
   }
 
   private void updateLegacyAttrs(String attrName, String newValue) {
-    LegacyAttributeName legacyAttrName = LegacyAttribute.lookup(attrName);
+    PresentationalHintName legacyAttrName = PresentationalHint.lookup(attrName);
     if (legacyAttrName == null) return;
     removeLegacyAttribute(legacyAttrName);
 
-    LegacyAttribute newAttribute = LegacyAttributeResolver.resolveLegacyAttribute(
+    PresentationalHint newAttribute = PresentationalHintResolver.resolvePresentationalHint(
       element.name(), legacyAttrName, newValue);
     if (newAttribute == null) return;
     onCSSRuleMatched(newAttribute.rule());
@@ -112,15 +112,15 @@ public class ElementContextImp implements ElementContext {
     this.legacyAttributes = newAttribute;
   }
 
-  private void removeLegacyAttribute(LegacyAttributeName legacyAttrName) {
+  private void removeLegacyAttribute(PresentationalHintName legacyAttrName) {
     if (legacyAttributes == null) return;
     if (legacyAttributes.name().equals(legacyAttrName)) {
       this.legacyAttributes = legacyAttributes.next();
       return;
     }
 
-    LegacyAttribute prevAttr = legacyAttributes;
-    LegacyAttribute currentAttr = legacyAttributes.next();
+    PresentationalHint prevAttr = legacyAttributes;
+    PresentationalHint currentAttr = legacyAttributes.next();
     while (currentAttr != null) {
       if (currentAttr.name().equals(legacyAttrName)) {
         prevAttr.setNext(currentAttr.next());

@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property.color;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +15,11 @@ import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 public class NamedColorParserTest {
 
   private final NamedColorParser namedColorParser = new NamedColorParser();
+
+  @BeforeAll
+  public static void beforeAll() {
+    ColorParserTestUtil.initColors();
+  }
   
   @Test
   @DisplayName("Can parse named color")

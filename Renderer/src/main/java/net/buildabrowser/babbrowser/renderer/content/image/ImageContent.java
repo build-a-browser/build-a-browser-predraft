@@ -44,18 +44,8 @@ public class ImageContent implements BoxContent, BoxPainter {
 
     ElementBoxDimensions dimensions = box.dimensions();
     if (image != null) {
-      // TODO: Do this the proper way
       float width = image.width();
-      String widthAttr = box.element().getAttribute("width");
-      try {
-        if (widthAttr != null) width = Integer.valueOf(widthAttr);
-      } catch (NumberFormatException e) {}
-
       float height = image.height();
-      String heightAttr = box.element().getAttribute("height");
-      try {
-        if (heightAttr != null) height = Integer.valueOf(heightAttr);
-      } catch (NumberFormatException e) {}
 
       dimensions.setIntrinsicWidth(width);
       dimensions.setInstrinsicHeight(height);

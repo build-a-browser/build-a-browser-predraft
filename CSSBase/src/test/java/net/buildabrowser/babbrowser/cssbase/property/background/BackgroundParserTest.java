@@ -5,6 +5,7 @@ import java.net.URI;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +16,7 @@ import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundPositi
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundSizeValue.SizedBackgroundSizeValue;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundValue.BackgroundLayer;
 import net.buildabrowser.babbrowser.cssbase.property.box.VisualBoxValue;
+import net.buildabrowser.babbrowser.cssbase.property.color.ColorParserTestUtil;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue.SRGBAColor;
 import net.buildabrowser.babbrowser.cssbase.property.shared.URLValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
@@ -29,6 +31,11 @@ public class BackgroundParserTest {
   private static final URI TESTING_URL = CommonUtil.rethrow(() -> new URI("about:blank"));
 
   private final BackgroundParser backgroundParser = new BackgroundParser();
+
+  @BeforeAll
+  public static void beforeAll() {
+    ColorParserTestUtil.initColors();
+  }
 
   @Test
   @DisplayName("Can parse background shorthand with just URL")

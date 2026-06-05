@@ -1,11 +1,11 @@
-package net.buildabrowser.babbrowser.renderer.context.resolver;
+package net.buildabrowser.babbrowser.renderer.hintattr;
 
 import java.util.Map;
 import java.util.Set;
 
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue;
-import net.buildabrowser.babbrowser.html.legacyattr.LegacyColorParser;
-import net.buildabrowser.babbrowser.renderer.context.resolver.LegacyAttribute.LegacyAttributeName;
+import net.buildabrowser.babbrowser.html.attrparse.LegacyColorParser;
+import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHint.PresentationalHintName;
 
 public final class LegacyBGColorAttributeResolver {
 
@@ -18,8 +18,8 @@ public final class LegacyBGColorAttributeResolver {
   
   private LegacyBGColorAttributeResolver() {}
 
-  public static LegacyAttribute resolveBgColorLegacyAttribute(
-    String elName, LegacyAttributeName name, String value
+  public static PresentationalHint resolveBgColorLegacyAttribute(
+    String elName, PresentationalHintName name, String value
   ) {
     if (NAMED_COLORS == null) {
       throw new IllegalStateException("NAMED_COLORS is a singleton that must be initialized!");
@@ -29,7 +29,8 @@ public final class LegacyBGColorAttributeResolver {
     int color = LegacyColorParser.parseLegacyColor(value, NAMED_COLORS);
     if (color == -1) return null;
     ColorValue colorValue = ColorValue.fromARGB(0XFF000000 | color);
-    return LegacyAttributeResolver.createLegacyAttribute(name, "background-color", colorValue);
+    return PresentationalHintResolver.createLegacyAttribute(
+      name, "background-color", colorValue);
   }
 
   public static void setColorMap(
