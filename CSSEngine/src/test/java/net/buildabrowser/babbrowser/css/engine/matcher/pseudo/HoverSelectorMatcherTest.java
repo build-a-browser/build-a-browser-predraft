@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.css.engine.matcher.psuedo;
+package net.buildabrowser.babbrowser.css.engine.matcher.pseudo;
 
 import java.util.Set;
 
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePsuedoSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.events.PointerEvent;
@@ -31,7 +31,7 @@ public class HoverSelectorMatcherTest {
   public void canMatchHoveredElement() {
     Element element = Element.create("a", Document.create(matcher));
     allElements.add(element);
-    SimplePsuedoSelector selector = SimplePsuedoSelector.HOVER;
+    SimplePseudoSelector selector = SimplePseudoSelector.HOVER;
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     matcher.onElementEvent(element, (PointerEvent) () -> "mousemove");
@@ -44,7 +44,7 @@ public class HoverSelectorMatcherTest {
   public void cannotMatchNotHoveredElement() {
     Element element = Element.create("a", Document.create(matcher));
     allElements.add(element);
-    SimplePsuedoSelector selector = SimplePsuedoSelector.HOVER;
+    SimplePseudoSelector selector = SimplePseudoSelector.HOVER;
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     Assertions.assertEquals(Set.of(), matcher.match(selector).asSet());
@@ -58,7 +58,7 @@ public class HoverSelectorMatcherTest {
     Element element2 = Element.create("b", Document.create(matcher));
     allElements.add(element1);
     allElements.add(element2);
-    SimplePsuedoSelector selector = SimplePsuedoSelector.HOVER;
+    SimplePseudoSelector selector = SimplePseudoSelector.HOVER;
     matcher.onNodeAdded(element1);
     matcher.onNodeAdded(element2);
     matcher.addSelectorReference(selector);
@@ -75,7 +75,7 @@ public class HoverSelectorMatcherTest {
     Element element2 = Element.create("b", element1);
     allElements.add(element1);
     allElements.add(element2);
-    SimplePsuedoSelector selector = SimplePsuedoSelector.HOVER;
+    SimplePseudoSelector selector = SimplePseudoSelector.HOVER;
     matcher.onNodeAdded(element1);
     matcher.onNodeAdded(element2);
     matcher.addSelectorReference(selector);

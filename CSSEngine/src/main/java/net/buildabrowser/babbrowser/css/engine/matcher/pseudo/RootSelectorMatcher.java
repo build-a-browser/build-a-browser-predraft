@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.css.engine.matcher.psuedo;
+package net.buildabrowser.babbrowser.css.engine.matcher.pseudo;
 
 import java.util.function.Consumer;
 
@@ -6,11 +6,11 @@ import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.simple.SimpleSelectorMatcher;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePsuedoSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 
-public class RootSelectorMatcher implements SimpleSelectorMatcher<SimplePsuedoSelector> {
+public class RootSelectorMatcher implements SimpleSelectorMatcher<SimplePseudoSelector> {
 
   private final ElementSet allElements;
   private final ElementSet matchingElements;
@@ -26,10 +26,10 @@ public class RootSelectorMatcher implements SimpleSelectorMatcher<SimplePsuedoSe
   }
 
   @Override
-  public void addSelectorReference(SimplePsuedoSelector ref) {}
+  public void addSelectorReference(SimplePseudoSelector ref) {}
 
   @Override
-  public void removeSelectorReference(SimplePsuedoSelector ref) {}
+  public void removeSelectorReference(SimplePseudoSelector ref) {}
 
   @Override
   public void onNodeAdded(Node node) {
@@ -37,7 +37,7 @@ public class RootSelectorMatcher implements SimpleSelectorMatcher<SimplePsuedoSe
     if (matches(element)) {
       boolean changed = matchingElements.add(element);
       if (changed) {
-        onSelectorChanged.accept(SimplePsuedoSelector.ROOT);
+        onSelectorChanged.accept(SimplePseudoSelector.ROOT);
       }
     }
   }
@@ -47,13 +47,13 @@ public class RootSelectorMatcher implements SimpleSelectorMatcher<SimplePsuedoSe
     if (!(node instanceof Element element)) return;
     boolean changed = matchingElements.remove(element);
     if (changed) {
-      onSelectorChanged.accept(SimplePsuedoSelector.ROOT);
+      onSelectorChanged.accept(SimplePseudoSelector.ROOT);
     }
   }
 
   @Override
-  public ElementSet match(SimplePsuedoSelector selector) {
-    if (!(selector.equals(SimplePsuedoSelector.ROOT))) {
+  public ElementSet match(SimplePseudoSelector selector) {
+    if (!(selector.equals(SimplePseudoSelector.ROOT))) {
       return allElements.root().createTemporaryChild();
     }
     return matchingElements;

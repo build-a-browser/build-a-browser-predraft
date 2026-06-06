@@ -6,14 +6,14 @@ import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
-import net.buildabrowser.babbrowser.css.engine.matcher.psuedo.HoverSelectorMatcher;
-import net.buildabrowser.babbrowser.css.engine.matcher.psuedo.RootSelectorMatcher;
+import net.buildabrowser.babbrowser.css.engine.matcher.pseudo.HoverSelectorMatcher;
+import net.buildabrowser.babbrowser.css.engine.matcher.pseudo.RootSelectorMatcher;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
 import net.buildabrowser.babbrowser.cssbase.selector.Combinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePsuedoSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
 import net.buildabrowser.babbrowser.dom.Element;
@@ -33,7 +33,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
   private final RootSelectorMatcher rootSelectorMatcher;
   private final HoverSelectorMatcher hoverSelectorMatcher;
 
-  private final Map<SimplePsuedoSelector, SimpleSelectorMatcher<SimplePsuedoSelector>> simplePsuedoSelectors;
+  private final Map<SimplePseudoSelector, SimpleSelectorMatcher<SimplePseudoSelector>> simplePsuedoSelectors;
 
   private final List<SimpleSelectorMatcher<?>> allMatchers;
   private final Consumer<SelectorPart> onSelectorChanged;
@@ -55,8 +55,8 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
     this.hoverSelectorMatcher = new HoverSelectorMatcher(allElements, onSelectorChanged);
 
     this.simplePsuedoSelectors = Map.of(
-      SimplePsuedoSelector.ROOT, rootSelectorMatcher,
-      SimplePsuedoSelector.HOVER, hoverSelectorMatcher
+      SimplePseudoSelector.ROOT, rootSelectorMatcher,
+      SimplePseudoSelector.HOVER, hoverSelectorMatcher
     );
     
     this.allMatchers = List.of(
@@ -118,7 +118,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
         case AttributeType.ONE_OF -> attributeOneOfSelectorMatcher.match(attributeSelector);
         default -> attributePresentSelectorMatcher.match(attributeSelector);
       };
-      case SimplePsuedoSelector psuedoSelector -> simplePsuedoSelectors.get(psuedoSelector).match(psuedoSelector);
+      case SimplePseudoSelector pseudoSelector -> simplePsuedoSelectors.get(pseudoSelector).match(pseudoSelector);
       case UniversalSelector _1 -> allElements;
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
     };
@@ -135,7 +135,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
       } }
       case Combinator _1 -> {}
       case UniversalSelector _1 -> {}
-      case SimplePsuedoSelector _1 -> {}
+      case SimplePseudoSelector _1 -> {}
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
     };
   }
@@ -151,7 +151,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
       } }
       case Combinator _1 -> {}
       case UniversalSelector _1 -> {}
-      case SimplePsuedoSelector _1 -> {}
+      case SimplePseudoSelector _1 -> {}
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
     };
   }

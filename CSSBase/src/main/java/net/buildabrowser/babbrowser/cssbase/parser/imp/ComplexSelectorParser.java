@@ -19,7 +19,7 @@ import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.NextSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePsuedoSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SubsequentSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
@@ -191,10 +191,10 @@ public final class ComplexSelectorParser {
     CSSTokenStream tokenStream, List<SelectorPart> parts
   ) throws IOException {
     Token nextToken = tokenStream.read();
-    // TODO: Another : means psuedo-class
+    // TODO: Another : means pseudo-class
     if (!(nextToken instanceof IdentToken identToken)) return true;
     String selectorName = identToken.value();
-    SimplePsuedoSelector matchingSimplePsuedoSelector = SimplePsuedoSelector.lookupType(selectorName);
+    SimplePseudoSelector matchingSimplePsuedoSelector = SimplePseudoSelector.lookupType(selectorName);
     if (matchingSimplePsuedoSelector == null) return true;
     parts.add(matchingSimplePsuedoSelector);
     return false;

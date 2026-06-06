@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.css.engine.matcher.psuedo;
+package net.buildabrowser.babbrowser.css.engine.matcher.pseudo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,12 +8,12 @@ import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.simple.SimpleSelectorMatcher;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePsuedoSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.events.Event;
 
-public class HoverSelectorMatcher implements SimpleSelectorMatcher<SimplePsuedoSelector> {
+public class HoverSelectorMatcher implements SimpleSelectorMatcher<SimplePseudoSelector> {
 
   private final ElementSet allElements;
   private final ElementSet matchingElements;
@@ -29,17 +29,17 @@ public class HoverSelectorMatcher implements SimpleSelectorMatcher<SimplePsuedoS
   }
 
   @Override
-  public void addSelectorReference(SimplePsuedoSelector ref) {}
+  public void addSelectorReference(SimplePseudoSelector ref) {}
 
   @Override
-  public void removeSelectorReference(SimplePsuedoSelector ref) {}
+  public void removeSelectorReference(SimplePseudoSelector ref) {}
 
   @Override
   public void onNodeRemoved(Node node) {
     if (!(node instanceof Element element)) return;
     boolean changed = matchingElements.remove(element);
     if (changed) {
-      onSelectorChanged.accept(SimplePsuedoSelector.HOVER);
+      onSelectorChanged.accept(SimplePseudoSelector.HOVER);
     }
   }
 
@@ -68,13 +68,13 @@ public class HoverSelectorMatcher implements SimpleSelectorMatcher<SimplePsuedoS
     }
 
     if (changed) {
-      onSelectorChanged.accept(SimplePsuedoSelector.HOVER);
+      onSelectorChanged.accept(SimplePseudoSelector.HOVER);
     }
   }
 
   @Override
-  public ElementSet match(SimplePsuedoSelector selector) {
-    if (!(selector.equals(SimplePsuedoSelector.HOVER))) {
+  public ElementSet match(SimplePseudoSelector selector) {
+    if (!(selector.equals(SimplePseudoSelector.HOVER))) {
       return allElements.root().createTemporaryChild();
     }
     return matchingElements;

@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.css.engine.matcher.psuedo;
+package net.buildabrowser.babbrowser.css.engine.matcher.pseudo;
 
 import java.util.Set;
 
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePsuedoSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 
@@ -30,7 +30,7 @@ public class RootSelectorMatcherTest {
   public void canMatchValidTypes() {
     Element element = Element.create("html", Document.create(matcher));
     allElements.add(element);
-    SimplePsuedoSelector selector = SimplePsuedoSelector.ROOT;
+    SimplePseudoSelector selector = SimplePseudoSelector.ROOT;
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     Assertions.assertEquals(Set.of(element), matcher.match(selector).asSet());
@@ -42,7 +42,7 @@ public class RootSelectorMatcherTest {
   public void cannotMatchInvalidValidTypes() {
     Element element = Element.create("b", Document.create(matcher));
     allElements.add(element);
-    SimplePsuedoSelector selector = SimplePsuedoSelector.ROOT;
+    SimplePseudoSelector selector = SimplePseudoSelector.ROOT;
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     Assertions.assertEquals(Set.of(), matcher.match(selector).asSet());
