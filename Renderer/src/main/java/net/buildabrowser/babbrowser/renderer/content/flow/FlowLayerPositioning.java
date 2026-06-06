@@ -44,7 +44,7 @@ public final class FlowLayerPositioning {
     switch (fragment) {
       case TextFragment _1 -> {}
       case PosRefBoxFragment posRef -> {
-        posRef.box().dimensions().setStaticPosition(layerX, layerY);
+        posRef.box().alterDimensions(false, d -> d.setStaticPosition(layerX, layerY));
       }
       case LineBoxFragment lineBoxFragment -> recursePositionLineBoxFragment(
         layerX, layerY, refContext, lineBoxFragment);

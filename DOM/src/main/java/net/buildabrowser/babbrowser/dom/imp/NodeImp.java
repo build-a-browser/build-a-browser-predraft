@@ -6,7 +6,7 @@ import net.buildabrowser.babbrowser.dom.NodeList;
 
 public abstract class NodeImp implements Node {
 
-  private final NodeList nodeList = NodeList.create(this);
+  private NodeList nodeList;
 
   protected Node parentNode;
   private NodeImp firstChild;
@@ -24,8 +24,12 @@ public abstract class NodeImp implements Node {
     return this.parentNode;
   }
 
+  // Avoid iterating over this, prefer forEachChild or a manual loop
   @Override
   public NodeList childNodes() {
+    if (nodeList == null) {
+      this.nodeList = NodeList.create(this);
+    }
     return nodeList;
   }
 

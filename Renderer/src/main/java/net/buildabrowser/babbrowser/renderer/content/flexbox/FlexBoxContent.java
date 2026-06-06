@@ -280,7 +280,7 @@ public class FlexBoxContent implements BoxContent {
       // Once again, fixup should have made everything ElementBox
       ElementBox childBox = (ElementBox) childIt.next();
       if (!PositionUtil.affectsLayout(childBox)) {
-        childBox.dimensions().setStaticPosition(layerX, layerY);
+        childBox.alterDimensions(false, d -> d.setStaticPosition(layerX, layerY));
         continue;
       }
     }

@@ -143,9 +143,9 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
 
   private void syncNodes(DocumentChangeListener changeListener, Node node) {
     changeListener.onNodeAdded(this);
-    for (Node childNode: node.childNodes()) {
+    node.forEachChild(childNode -> {
       syncNodes(changeListener, childNode);
-    }
+    });
   }
   
 }

@@ -6,6 +6,7 @@ import static net.buildabrowser.babbrowser.renderer.content.table.imp.collapsed.
 import java.util.Set;
 import java.util.TreeSet;
 
+import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.content.table.Table;
 import net.buildabrowser.babbrowser.renderer.content.table.TableCell;
 import net.buildabrowser.babbrowser.renderer.content.table.TableComputedBorders;
@@ -49,7 +50,8 @@ public class TableCollapsedBorderAssigner {
 
   private void assignFinalDimensions(TableCell cell) {
     TableComputedBorders borders = cell.borders();
-    cell.cellBox().dimensions().setComputedBorder(
+    EBDimensionsUtil.setComputedBorder(
+      cell.cellBox(),
       borders.topBorder.borderWidth(),
       borders.bottomBorder.borderWidth(),
       borders.leftBorder.borderWidth(),

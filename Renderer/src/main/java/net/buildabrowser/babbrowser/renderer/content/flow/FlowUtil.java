@@ -5,10 +5,10 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.renderer.box.Box;
+import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.renderer.box.TextBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
+import net.buildabrowser.babbrowser.renderer.box.TextBox;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -18,17 +18,17 @@ public final class FlowUtil {
   private FlowUtil() {}
 
   public static float constraintWidth(
-    ElementBoxDimensions dimensions, LayoutConstraint layoutConstraint
+    ElementBox box, LayoutConstraint layoutConstraint
   ) {
     return switch (layoutConstraint.type()) {
       case BOUNDED -> layoutConstraint.value();
-      case MIN_CONTENT -> dimensions.preferredMinWidthConstraint();
-      case MAX_CONTENT -> dimensions.preferredWidthConstraint();
+      case MIN_CONTENT -> EBDimensionsUtil.preferredMinWidthConstraint(box);
+      case MAX_CONTENT -> EBDimensionsUtil.preferredWidthConstraint(box);
       default -> throw new UnsupportedOperationException("Unsupported constraint type!");
     };
   }
 
-  public static float constraintHeight(ElementBoxDimensions dimensions, LayoutConstraint layoutConstraint) {
+  public static float constraintHeight(ElementBox box, LayoutConstraint layoutConstraint) {
     return switch (layoutConstraint.type()) {
       case BOUNDED -> layoutConstraint.value();
       case AUTO -> 0;

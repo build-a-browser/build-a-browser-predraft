@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.box;
 
 import java.util.Comparator;
+import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.cssbase.property.EmptyPropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
@@ -24,6 +25,8 @@ public interface ElementBox extends Box {
   Box parentBox();
 
   ElementBoxDimensions dimensions();
+
+  void alterDimensions(boolean skipIfNone, Consumer<MutableElementBoxDimensions> alterFunc);
 
   ElementBoxIterator childBoxes();
 

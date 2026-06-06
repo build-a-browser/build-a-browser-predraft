@@ -1,15 +1,10 @@
 package net.buildabrowser.babbrowser.renderer.box.imp;
 
-import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.renderer.box.MutableElementBoxDimensions;
 
-public class ElementBoxDimensionsImp implements ElementBoxDimensions {
+public class ElementBoxDimensionsImp implements MutableElementBoxDimensions {
 
   private static final float[] ZERO_SIZE = new float[4];
-
-  private final ElementBox box;
 
   private float[] computedBorder;
   private float[] computedPadding;
@@ -21,10 +16,6 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   private float intrinsicWidth = -1;
   private float intrinsicHeight = -1;
   private float intrinsicRatio = -1;
-
-  public ElementBoxDimensionsImp(ElementBox box) {
-    this.box = box;
-  }
 
   @Override
   public void setComputedBorder(float t, float b, float l, float r) {
@@ -110,16 +101,6 @@ public class ElementBoxDimensionsImp implements ElementBoxDimensions {
   @Override
   public float staticY() {
     return this.staticY;
-  }
-
-  @Override
-  public float preferredMinWidthConstraint() {
-    return box.layout(LayoutConstraint.MIN_CONTENT, LayoutConstraint.AUTO).width(Measurement.CONTENT);
-  }
-
-  @Override
-  public float preferredWidthConstraint() {
-    return box.layout(LayoutConstraint.MAX_CONTENT, LayoutConstraint.AUTO).width(Measurement.CONTENT);
   }
 
   @Override

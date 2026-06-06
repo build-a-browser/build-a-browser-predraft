@@ -274,7 +274,7 @@ public class FlowRootContentTest {
     childStyles.setProperty(CSSProperty.WIDTH, LengthValue.create(20, true, LengthType.PX));
     TestTextBox childBox1 = new TestTextBox("Hello");
     ElementBox childBox2 = sizedReplacedInlineBlockBox(childStyles, 40, 80);
-    childBox2.dimensions().setIntrinsicRatio(.5f);
+    childBox2.alterDimensions(false, d -> d.setIntrinsicRatio(.5f));
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
     LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 80, 40, parentBox, List.of(

@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.dom;
 
+import java.util.function.Consumer;
+
 import net.buildabrowser.babbrowser.dom.events.EventTarget;
 
 public interface Node extends EventTarget {
@@ -22,6 +24,14 @@ public interface Node extends EventTarget {
 
   default EventTarget getTheParent() {
     return parentNode();
+  }
+
+  default void forEachChild(Consumer<Node> itFunc) {
+    Node currentNode = firstChild();
+    while (currentNode != null) {
+      itFunc.accept(currentNode);
+      currentNode = currentNode.nextSibling();
+    }
   }
 
 }

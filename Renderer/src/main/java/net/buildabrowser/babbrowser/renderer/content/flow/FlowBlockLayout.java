@@ -215,8 +215,8 @@ public class FlowBlockLayout {
     activeContext.collapse();
     UnmanagedBoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
       new UnmanagedBoxFragment(
-        FlowUtil.constraintWidth(childBox.dimensions(), childWidthConstraint),
-        FlowUtil.constraintHeight(childBox.dimensions(), childHeightConstraint),
+        FlowUtil.constraintWidth(childBox, childWidthConstraint),
+        FlowUtil.constraintHeight(childBox, childHeightConstraint),
         childBox) :
       childBox.layout(childWidthConstraint, childHeightConstraint);
 

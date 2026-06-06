@@ -1,11 +1,12 @@
 package net.buildabrowser.babbrowser.renderer.content.table.imp;
 
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
+import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.PaddingUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.paint.ElementBackgroundPainter;
 import net.buildabrowser.babbrowser.renderer.content.common.paint.ElementBorderPainter;
 import net.buildabrowser.babbrowser.renderer.content.table.Table;
@@ -55,7 +56,8 @@ public class TableSeparateBorderPainter implements TableBorderPainter {
     borders.leftBorder = TableComputedBorders.computeBorder(cellBox, BorderSide.LEFT, false);
     borders.rightBorder = TableComputedBorders.computeBorder(cellBox, BorderSide.RIGHT, false);
 
-    cell.cellBox().dimensions().setComputedBorder(
+    EBDimensionsUtil.setComputedBorder(
+      cell.cellBox(),
       borders.topBorder.borderWidth(),
       borders.bottomBorder.borderWidth(),
       borders.leftBorder.borderWidth(),

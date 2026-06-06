@@ -10,8 +10,8 @@ import net.buildabrowser.babbrowser.cssbase.property.calc.CalcEvaluation.CalcEva
 import net.buildabrowser.babbrowser.cssbase.property.calc.CalcInterpreter;
 import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.SizeValue;
+import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
@@ -74,7 +74,7 @@ public final class SizingWidthUtil {
     CSSValue sizeValue
   ) {
     LayoutConstraint constraint = evaluateBaseWidthSize(
-      refBox.layoutContext(), parentConstraint, refBox.dimensions(), sizeValue);
+      refBox.layoutContext(), parentConstraint, refBox, sizeValue);
     if (!constraint.isBounded()) return constraint;
     if (constraint.value() < 0) return LayoutConstraint.of(0);
 
@@ -89,7 +89,7 @@ public final class SizingWidthUtil {
   private static LayoutConstraint evaluateBaseWidthSize(
     LayoutContext layoutContext,
     LayoutConstraint parentConstraint,
-    ElementBoxDimensions referenceDimensions,
+    ElementBox referenceBox,
     CSSValue sizeValue
   ) {
     // TODO: Is this a good way to handle prelayout?
@@ -117,14 +117,14 @@ public final class SizingWidthUtil {
     }
 
     if (sizeValue.equals(SizeValue.MIN_CONTENT)) {
-      return LayoutConstraint.of(referenceDimensions.preferredMinWidthConstraint());
+      return LayoutConstraint.of(EBDimensionsUtil.preferredMinWidthConstraint(referenceBox));
     } else if (sizeValue.equals(SizeValue.MAX_CONTENT)) {
-      return LayoutConstraint.of(referenceDimensions.preferredWidthConstraint());
+      return LayoutConstraint.of(EBDimensionsUtil.preferredWidthConstraint(referenceBox));
     } else if (sizeValue instanceof SizeValue.FitContent fitContent) {
       LayoutConstraint innerConstraint = evaluateBaseSizeRaw(layoutContext, parentConstraint, fitContent.optimal());
       assert innerConstraint.isBounded();
-      float min = referenceDimensions.preferredMinWidthConstraint();
-      float max = referenceDimensions.preferredWidthConstraint();
+      float min = EBDimensionsUtil.preferredMinWidthConstraint(referenceBox);
+      float max = EBDimensionsUtil.preferredWidthConstraint(referenceBox);
       float preferred = innerConstraint.value();
       return LayoutConstraint.of(mathClamp(preferred, min, max));
     } else {

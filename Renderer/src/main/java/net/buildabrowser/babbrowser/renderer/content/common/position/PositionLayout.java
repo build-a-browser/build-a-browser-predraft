@@ -5,8 +5,8 @@ import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
+import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.MarginUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
@@ -33,8 +33,6 @@ public final class PositionLayout {
     float refWidth, float refHeight,
     float[] insets
   ) {
-    ElementBoxDimensions dimensions = refBox.dimensions();
-
     float containingWidth = refWidth - insets[2] - insets[3];
     float containingHeight = refHeight - insets[0] - insets[1];
 
@@ -47,8 +45,8 @@ public final class PositionLayout {
     // TODO: Also clamp to max width and min width
     float fitContentWidth = mathClamp(
       containingWidth,
-      dimensions.preferredMinWidthConstraint(),
-      dimensions.preferredWidthConstraint());
+      EBDimensionsUtil.preferredWidthConstraint(refBox),
+      EBDimensionsUtil.preferredMinWidthConstraint(refBox));
     float usedWidth = baseWidth.type().equals(LayoutConstraintType.AUTO) ?
       fitContentWidth :
       baseWidth.value();

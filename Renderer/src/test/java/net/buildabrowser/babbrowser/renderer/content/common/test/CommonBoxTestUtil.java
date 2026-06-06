@@ -23,8 +23,10 @@ public final class CommonBoxTestUtil {
     ActiveStyles childrenStyles = ActiveStyles.create();
     ElementBox myBox = new TestElementBox(
       box -> new TestFixedSizeReplacedContent(box, width, height), BoxLevel.BLOCK_LEVEL, childrenStyles, List.of());
-    myBox.dimensions().setIntrinsicWidth(width);
-    myBox.dimensions().setInstrinsicHeight(height);
+    myBox.alterDimensions(false, d -> {
+      d.setIntrinsicWidth(width);
+      d.setInstrinsicHeight(height);
+    });
     return myBox;
   }
 
@@ -36,8 +38,10 @@ public final class CommonBoxTestUtil {
     styles.setProperty(CSSProperty.DISPLAY, DisplayValue.create(OuterDisplayValue.BLOCK, InnerDisplayValue.FLOW_ROOT));
     TestElementBox myBox = new TestElementBox(
       box -> new TestFixedSizeReplacedContent(box, width, height), BoxLevel.INLINE_LEVEL, styles, List.of());
-    myBox.dimensions().setIntrinsicWidth(width);
-    myBox.dimensions().setInstrinsicHeight(height);
+    myBox.alterDimensions(false, d -> {
+      d.setIntrinsicWidth(width);
+      d.setInstrinsicHeight(height);
+    });
     return myBox;
   }
 

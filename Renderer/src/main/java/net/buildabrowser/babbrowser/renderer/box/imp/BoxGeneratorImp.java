@@ -8,15 +8,14 @@ import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterD
 import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.dom.Comment;
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.NodeList;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.html.HTMLText;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.BoxGenerator;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.box.TextBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
+import net.buildabrowser.babbrowser.renderer.box.TextBox;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
@@ -77,7 +76,7 @@ public class BoxGeneratorImp implements BoxGenerator {
         return createElementBox(parentBox, element, BoxLevel.BLOCK_LEVEL);
       case CONTENTS:
         element.setBox(null);
-        return createChildBoxes(parentBox, element.childNodes());
+        return createChildBoxes(parentBox, element);
       case INLINE:
         return createElementBox(parentBox, element, BoxLevel.INLINE_LEVEL);
       case NONE:
@@ -93,9 +92,9 @@ public class BoxGeneratorImp implements BoxGenerator {
   private void clearBoxes(Node node) {
     if (node instanceof HTMLElement element) {
       element.setBox(null);
-      for (Node child: element.childNodes()) {
+      element.forEachChild(child -> {
         clearBoxes(child);
-      }
+      });
     } else if (node instanceof HTMLText text) {
       text.setBox(null);
     }
@@ -140,7 +139,7 @@ public class BoxGeneratorImp implements BoxGenerator {
       element.setBox(elementBox);
       element.invalidate(InvalidationLevel.BOX);
     }
-    for (Box childBox: createChildBoxes(elementBox, element.childNodes())) {
+    for (Box childBox: createChildBoxes(elementBox, element)) {
       elementBox.addChild(childBox);
     }
 
@@ -151,11 +150,18 @@ public class BoxGeneratorImp implements BoxGenerator {
     return List.of(scrollBox == null ? elementBox : scrollBox);
   }
 
-  private List<Box> createChildBoxes(Box parentBox, NodeList children) {
-    List<Box> childBoxes = new ArrayList<>((int) children.length());
-    for (Node childNode: children) {
-      childBoxes.addAll(box(parentBox, childNode));
+  private List<Box> createChildBoxes(Box parentBox, Node parent) {
+    int length = 0;
+    Node currentNode = parent.firstChild();
+    while (currentNode != null) {
+      length++;
+      currentNode = currentNode.nextSibling();
     }
+
+    List<Box> childBoxes = new ArrayList<>(length);
+    parent.forEachChild(childNode -> {
+      childBoxes.addAll(box(parentBox, childNode));
+    });
 
     return childBoxes;
   }

@@ -4,6 +4,7 @@ import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
+import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
@@ -130,7 +131,7 @@ public class TableCellImp implements TableCell {
   public float outerMinContentWidth() {
     // TODO: Make this actually be "outer"
     PropertyContainer properties = cellBox.properties();
-    float minContentWidth = cellBox.dimensions().preferredMinWidthConstraint();
+    float minContentWidth = EBDimensionsUtil.preferredMinWidthConstraint(cellBox);
     LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
       LayoutConstraint.AUTO, cellBox, properties.get(CSSProperty.MIN_WIDTH));
 
@@ -143,8 +144,8 @@ public class TableCellImp implements TableCell {
   @Override
   public float outerMaxContentWidth() {
     PropertyContainer properties = cellBox.properties();
-    float minContentWidth = cellBox.dimensions().preferredMinWidthConstraint();
-    float maxContentWidth = cellBox.dimensions().preferredWidthConstraint();
+    float minContentWidth = EBDimensionsUtil.preferredMinWidthConstraint(cellBox);
+    float maxContentWidth = EBDimensionsUtil.preferredWidthConstraint(cellBox);
     LayoutConstraint specifiedWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
       LayoutConstraint.AUTO, cellBox);
     LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateAdjustedWidthSize(

@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.context.imp;
 
 import java.net.URI;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,6 +18,7 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
@@ -30,16 +31,16 @@ import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHint.Present
 import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHintResolver;
 import net.buildabrowser.babbrowser.renderer.style.StyleCache;
 
-public class ElementContextImp implements ElementContext {
+public class ElementContextImp implements ElementContext, PropertyContainer {
 
   private static final SelectorSpecificity ATTR_SPECIFICITY = new SelectorSpecificity(true, 0, 0, 0);
 
   // TreeSet has a ton of overhead, sort on access instead
-  private final List<WeightedStyleRule> styleRules = new LinkedList<>();
+  private final List<WeightedStyleRule> styleRules = new ArrayList<>(1);
   private final HTMLElement element;
   // TODO: Remove the need for this field
 
-  private PropertyContainer properties = null;
+  private ActiveStyles activeStyles = null;
   private WeightedStyleRule internalStyleRule = null;
   private PresentationalHint legacyAttributes = null;
 
@@ -74,19 +75,16 @@ public class ElementContextImp implements ElementContext {
 
   @Override
   public void regenerateStyles(StyleCache styleCache) {
-    PropertyContainer oldProperties = this.properties;
-    PropertyContainer parentProperties = element.parentNode() instanceof HTMLElement parent ?
-      ((ElementContext) parent.getContext()).properties() :
-      null;
+    ActiveStyles oldStyles = this.activeStyles;
+    PropertyContainer parentProperties = parent();
     // TODO: How bad is doing this?
     Set<WeightedStyleRule> rulesSet = new TreeSet<>(WeightedStyleRule::compare);
     rulesSet.addAll(styleRules);
-    ActiveStyles activeStyles = styleCache.lookupOrElse(rulesSet, rules -> {
+    this.activeStyles = styleCache.lookupOrElse(rulesSet, rules -> {
       return ActiveStylesGenerator.generateActiveStyles(rules, parentProperties);
     });
-    this.properties = ActiveStyles.parentStyles(parentProperties, activeStyles);
 
-    if (oldProperties == null) {
+    if (oldStyles == null) {
       element.invalidate(InvalidationLevel.BOX);
     } else {
       // TODO: This is an inefficient way to do this, but we can't put a change listener on the
@@ -94,7 +92,9 @@ public class ElementContextImp implements ElementContext {
       //   vars, etc. are respected each render)
       for (CSSProperty property : CSSProperty.values()) {
         if (property.hasExpansion()) continue;
-        if (!properties.get(property).equals(oldProperties.get(property))) {
+        CSSValue newValue = activeStyles.getProperty(parentProperties, property);
+        CSSValue oldValue = oldStyles.getProperty(parentProperties, property);
+        if (!newValue.equals(oldValue)) {
           element.invalidate(property.invalidationLevel());
         }
       }
@@ -103,8 +103,8 @@ public class ElementContextImp implements ElementContext {
 
   @Override
   public PropertyContainer properties() {
-    assert this.properties != null;
-    return this.properties;
+    assert this.activeStyles != null;
+    return this;
   }
 
   private void updateLegacyAttrs(String attrName, String newValue) {
@@ -165,6 +165,31 @@ public class ElementContextImp implements ElementContext {
       WeightedStyleRule weightedStyleRule = new WeightedStyleRule(styleRule, ATTR_SPECIFICITY, RuleSource.AUTHOR, 0, 0);
       onCSSRuleMatched(weightedStyleRule);
     }
+  }
+
+  // Directly implement PropertyContainer to save some allocations
+
+  @Override
+  public PropertyContainer parent() {
+    return
+      element.parentNode() instanceof HTMLElement parent
+      && parent.getContext() instanceof ElementContext parentContext ?
+      parentContext.properties() : null;
+  }
+
+  @Override
+  public boolean wasInherited(CSSProperty property) {
+    return parent() != null && activeStyles.shouldInherit(property);
+  }
+
+  @Override
+  public CSSValue get(CSSProperty property) {
+    return activeStyles.getProperty(parent(), property);
+  }
+
+  @Override
+  public CSSValue getCustom(String property) {
+    return activeStyles.getCustom(property);
   }
   
 }

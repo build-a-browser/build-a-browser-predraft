@@ -97,9 +97,9 @@ public class ElementImp extends NodeImp implements Element {
       currentAttribute = currentAttribute.next();
     }
     builder.append(">");
-    for (Node child: childNodes()) {
+    forEachChild(child -> {
       builder.append(child.toString());
-    }
+    });
     builder
       .append("</")
       .append(name)

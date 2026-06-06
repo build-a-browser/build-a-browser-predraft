@@ -4,6 +4,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
+import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
@@ -21,7 +22,7 @@ public final class BorderUtil {
       properties.get(CSSProperty.BORDER_LEFT_WIDTH), properties.get(CSSProperty.BORDER_LEFT_STYLE));
     float rightBorder = computeBorder(childBox,
       properties.get(CSSProperty.BORDER_RIGHT_WIDTH), properties.get(CSSProperty.BORDER_RIGHT_STYLE));
-    childBox.dimensions().setComputedBorder(topBorder, bottomBorder, leftBorder, rightBorder);
+    EBDimensionsUtil.setComputedBorder(childBox, topBorder, bottomBorder, leftBorder, rightBorder);
   }
 
   public static float computeBorder(

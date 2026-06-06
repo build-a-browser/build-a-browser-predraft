@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.box.imp;
 
 import java.util.Comparator;
+import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
@@ -11,6 +12,7 @@ import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxIterator;
+import net.buildabrowser.babbrowser.renderer.box.MutableElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
@@ -23,7 +25,9 @@ import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 
 public abstract class AbstractElementBoxImp extends AbstractBoxImp implements ElementBox {
 
-  private final ElementBoxDimensions dimensions;
+  private static MutableElementBoxDimensions DEFAULT_DIMENSIONS = ElementBoxDimensions.create();
+
+  private MutableElementBoxDimensions dimensions;
 
   private Box parentBox;
   private BoxLevel boxLevel;
@@ -38,7 +42,6 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   Box nextBox;
 
   public AbstractElementBoxImp(Box parentBox, BoxLevel boxLevel) {
-    this.dimensions = ElementBoxDimensions.create(this);
     this.parentBox = parentBox;
     this.boxLevel = boxLevel;
   }
@@ -55,7 +58,21 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
 
   @Override
   public ElementBoxDimensions dimensions() {
+    if (this.dimensions == null) {
+      return DEFAULT_DIMENSIONS;
+    }
     return this.dimensions;
+  }
+
+  @Override
+  public void alterDimensions(
+    boolean skipIfNone, Consumer<MutableElementBoxDimensions> alterFunc
+  ) {
+    if (dimensions == null && skipIfNone) return;
+    if (dimensions == null) {
+      this.dimensions = ElementBoxDimensions.create();
+    }
+    alterFunc.accept(dimensions);
   }
 
   @Override

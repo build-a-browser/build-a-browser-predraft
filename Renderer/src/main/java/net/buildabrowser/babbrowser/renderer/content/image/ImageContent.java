@@ -42,14 +42,15 @@ public class ImageContent implements BoxContent, BoxPainter {
     LayoutContext layoutContext = box.layoutContext();
     this.image = loadImage(layoutContext.global());
 
-    ElementBoxDimensions dimensions = box.dimensions();
     if (image != null) {
       float width = image.width();
       float height = image.height();
 
-      dimensions.setIntrinsicWidth(width);
-      dimensions.setInstrinsicHeight(height);
-      dimensions.setIntrinsicRatio((float) image.width() / (float) image.height());
+      box.alterDimensions(false, dimensions -> {
+        dimensions.setIntrinsicWidth(width);
+        dimensions.setInstrinsicHeight(height);
+        dimensions.setIntrinsicRatio((float) image.width() / (float) image.height());
+      });
       return;
     }
 
@@ -58,8 +59,10 @@ public class ImageContent implements BoxContent, BoxPainter {
     
     float width = fm.stringWidth(alt);
     
-    dimensions.setIntrinsicWidth(width);
-    dimensions.setInstrinsicHeight(fm.height());
+    box.alterDimensions(false, dimensions -> {
+      dimensions.setIntrinsicWidth(width);
+      dimensions.setInstrinsicHeight(fm.height());
+    });
   }
 
   @Override

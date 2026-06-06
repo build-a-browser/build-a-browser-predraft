@@ -8,13 +8,13 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.content.table.Table;
 import net.buildabrowser.babbrowser.renderer.content.table.TableCell;
 import net.buildabrowser.babbrowser.renderer.content.table.TableComputedBorders;
-import net.buildabrowser.babbrowser.renderer.content.table.TableConflictOps;
 import net.buildabrowser.babbrowser.renderer.content.table.TableComputedBorders.BorderSide;
 import net.buildabrowser.babbrowser.renderer.content.table.TableComputedBorders.ComputedBorder;
+import net.buildabrowser.babbrowser.renderer.content.table.TableConflictOps;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.TableCellUtil;;
 
 // All values are pre-divided, so don't divide by two where the spec says
@@ -195,8 +195,8 @@ public final class TableBorderConflictResolver {
       }
     }
 
-    ElementBoxDimensions tableDimensions = table.tableBox().dimensions();
-    tableDimensions.setComputedBorder(
+    EBDimensionsUtil.setComputedBorder(
+      table.tableBox(),
       largestTopBorder.borderWidth(),
       largestBottomBorder.borderWidth(),
       largestLeftBorder.borderWidth(),

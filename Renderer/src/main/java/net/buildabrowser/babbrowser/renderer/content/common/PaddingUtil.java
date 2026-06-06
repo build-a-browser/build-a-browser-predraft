@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.renderer.content.common;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
+import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
@@ -18,7 +19,7 @@ public final class PaddingUtil {
     float bottomPadding = computePadding(properties.get(CSSProperty.PADDING_BOTTOM), childBox, referenceConstraint);
     float leftPadding = computePadding(properties.get(CSSProperty.PADDING_LEFT), childBox, referenceConstraint);
     float rightPadding = computePadding(properties.get(CSSProperty.PADDING_RIGHT), childBox, referenceConstraint);
-    childBox.dimensions().setComputedPadding(topPadding, bottomPadding, leftPadding, rightPadding);
+    EBDimensionsUtil.setComputedPadding(childBox, topPadding, bottomPadding, leftPadding, rightPadding);
   }
 
   private static float computePadding(

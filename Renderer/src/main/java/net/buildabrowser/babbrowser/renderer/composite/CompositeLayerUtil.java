@@ -53,7 +53,11 @@ public class CompositeLayerUtil {
 
     if (guessedValue.equals(OverflowValue.VISIBLE)) {
       // Even though there's only one <body>, the spec says to scan for a body without display: none;
-      for (Node node: element.childNodes()) {
+      Node currentNode = element.firstChild();
+      while (currentNode != null) {
+        Node node = currentNode;
+        currentNode = currentNode.nextSibling();
+        
         if (!(node instanceof HTMLElement childElement)) continue;
         // TODO: instanceof BodyElement
         if (!childElement.name().equals("body")) continue;

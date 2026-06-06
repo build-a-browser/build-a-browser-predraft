@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
@@ -46,7 +47,7 @@ public final class FlowWidthUtil {
       chosenConstraint = LayoutConstraint.of(usedWidth);
     } else if (boxDimensions.intrinsicRatio() != -1) {
       // TODO: Compute as for block non-replaced
-      chosenConstraint = LayoutConstraint.of(boxDimensions.preferredWidthConstraint());
+      chosenConstraint = LayoutConstraint.of(EBDimensionsUtil.preferredWidthConstraint(childBox));
     } else if (boxDimensions.intrinsicWidth() != -1) {
       chosenConstraint = LayoutConstraint.of(boxDimensions.intrinsicWidth());
     } else {
@@ -80,12 +81,12 @@ public final class FlowWidthUtil {
     ElementBoxDimensions boxDimensions = childBox.dimensions();
 
     if (determinedConstraint.isPreLayoutConstraint()) {
-      boxDimensions.setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
+      EBDimensionsUtil.setComputedHorizontalMargin(childBox, usedLeftMargin, usedRightMargin);
       return determinedConstraint;
     }
 
     if (!parentConstraint.isBounded()) {
-      boxDimensions.setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
+      EBDimensionsUtil.setComputedHorizontalMargin(childBox, usedLeftMargin, usedRightMargin);
       LayoutConstraint usedConstraint = determinedConstraint.type().equals(LayoutConstraintType.AUTO) ?
         parentConstraint : determinedConstraint;
       return SizingWidthUtil.clampWidth(parentConstraint, childBox, usedConstraint);
@@ -100,8 +101,8 @@ public final class FlowWidthUtil {
     
     // TODO: I don't really like this special case
     if (childBox.content() instanceof TableContent) {
-      float minWidth = boxDimensions.preferredMinWidthConstraint();
-      float preferredWidth = boxDimensions.preferredWidthConstraint();
+      float minWidth = EBDimensionsUtil.preferredMinWidthConstraint(childBox);
+      float preferredWidth = EBDimensionsUtil.preferredWidthConstraint(childBox);
       autoWidth = Math.max(Math.min(preferredWidth, autoWidth), minWidth);
     }
 
@@ -131,7 +132,7 @@ public final class FlowWidthUtil {
       usedRightMargin = remainingSpace - usedLeftMargin; // Account for int truncation
     }
 
-    childBox.dimensions().setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
+    EBDimensionsUtil.setComputedHorizontalMargin(childBox, usedLeftMargin, usedRightMargin);
     return clampedWidth;
   }
 
@@ -149,9 +150,8 @@ public final class FlowWidthUtil {
       return parentConstraint;
     }
 
-    ElementBoxDimensions boxDimensions = childBox.dimensions();
-    float preferredMinWidth = boxDimensions.preferredMinWidthConstraint();
-    float preferredWidth = boxDimensions.preferredWidthConstraint();
+    float preferredMinWidth = EBDimensionsUtil.preferredMinWidthConstraint(childBox);
+    float preferredWidth = EBDimensionsUtil.preferredWidthConstraint(childBox);
     float availableWidth = parentConstraint.value();
 
     LayoutConstraint usedConstraint = !parentConstraint.isBounded() ?
@@ -176,11 +176,12 @@ public final class FlowWidthUtil {
       return parentConstraint;
     }
 
-    ElementBoxDimensions boxDimensions = childBox.dimensions();
     LayoutConstraint usedConstraint = LayoutConstraint.of(Math.min(
       // TODO: Account for margins
-      Math.max(boxDimensions.preferredMinWidthConstraint(), parentConstraint.value()),
-      boxDimensions.preferredWidthConstraint()));
+      Math.max(
+        EBDimensionsUtil.preferredMinWidthConstraint(childBox),
+        parentConstraint.value()),
+      EBDimensionsUtil.preferredWidthConstraint(childBox)));
     return SizingWidthUtil.clampWidth(parentConstraint, childBox, usedConstraint);
   }
 
@@ -199,7 +200,7 @@ public final class FlowWidthUtil {
     boolean isRightMarginSet = marginRightConstraint.isBounded();
     float usedLeftMargin = isLeftMarginSet ? marginLeftConstraint.value() : 0;
     float usedRightMargin = isRightMarginSet ? marginRightConstraint.value() : 0;
-    childBox.dimensions().setComputedHorizontalMargin(usedLeftMargin, usedRightMargin);
+    EBDimensionsUtil.setComputedHorizontalMargin(childBox, usedLeftMargin, usedRightMargin);
   }
 
 }

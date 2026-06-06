@@ -5,7 +5,6 @@ import java.net.URI;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.dom.Document;
-import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.AbstractDocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
@@ -59,9 +58,9 @@ public class DocumentImp extends NodeImp implements Document {
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    for (Node child: childNodes()) {
+    forEachChild(child -> {
       builder.append(child.toString());
-    }
+    });
     
     return builder.toString();
   }

@@ -259,7 +259,11 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   private void recomputeBoxes() {
     Box child = null;
-    for (Node childNode: document.childNodes()) {
+    Node currentNode = document.firstChild();
+    while (currentNode != null) {
+      Node childNode = currentNode;
+      currentNode = currentNode.nextSibling();
+
       if (!(childNode instanceof Element)) continue;
       child = boxGenerator.box(documentBox, childNode).get(0);
       boxGenerator.fixup(child);
