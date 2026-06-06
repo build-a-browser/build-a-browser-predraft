@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.pseudo.HoverSelectorMatcher;
+import net.buildabrowser.babbrowser.css.engine.matcher.pseudo.LinkSelectorMatcher;
 import net.buildabrowser.babbrowser.css.engine.matcher.pseudo.RootSelectorMatcher;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
@@ -32,6 +33,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
   // Psuedo
   private final RootSelectorMatcher rootSelectorMatcher;
   private final HoverSelectorMatcher hoverSelectorMatcher;
+  private final LinkSelectorMatcher linkSelectorMatcher;
 
   private final Map<SimplePseudoSelector, SimpleSelectorMatcher<SimplePseudoSelector>> simplePsuedoSelectors;
 
@@ -53,10 +55,12 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
     // TODO: Move these to a PsuedoSelectorMatchers?
     this.rootSelectorMatcher = new RootSelectorMatcher(allElements, onSelectorChanged);
     this.hoverSelectorMatcher = new HoverSelectorMatcher(allElements, onSelectorChanged);
+    this.linkSelectorMatcher = new LinkSelectorMatcher(allElements, onSelectorChanged);
 
     this.simplePsuedoSelectors = Map.of(
       SimplePseudoSelector.ROOT, rootSelectorMatcher,
-      SimplePseudoSelector.HOVER, hoverSelectorMatcher
+      SimplePseudoSelector.HOVER, hoverSelectorMatcher,
+      SimplePseudoSelector.LINK, linkSelectorMatcher
     );
     
     this.allMatchers = List.of(
@@ -67,7 +71,8 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
 
       // Psuedo
       rootSelectorMatcher,
-      hoverSelectorMatcher
+      hoverSelectorMatcher,
+      linkSelectorMatcher
     );
   }
 
