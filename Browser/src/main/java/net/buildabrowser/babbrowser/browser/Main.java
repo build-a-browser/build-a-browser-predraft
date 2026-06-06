@@ -14,14 +14,13 @@ import net.buildabrowser.babbrowser.browser.net.imp.FetchBackendImp;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
-import net.buildabrowser.babbrowser.fetch.FetchEngine;
+import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
 import net.buildabrowser.babbrowser.painter.core.ComponentPainter;
 import net.buildabrowser.babbrowser.painter.java2d.Java2DPainter;
 import net.buildabrowser.babbrowser.painter.skija.SkijaAWTPainter;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
-import net.buildabrowser.babbrowser.renderer.loader.loaders.HTMLDocumentLoader;
 
 public class Main {
   
@@ -41,14 +40,12 @@ public class Main {
       new Java2DPainter() :
       new SkijaAWTPainter(isSoftwareRendered, false);
 
-    DocumentLoaderRegistry loaderRegistry = DocumentLoaderRegistry.create();
-    loaderRegistry.register("text/html", new HTMLDocumentLoader());
-
+    DocumentLoaderRegistry loaderRegistry = DocumentLoaderRegistry.createDefault();
     ContentEncodingRegistry registry = ContentEncodingRegistry.createDefault();
-    FetchEngine fetchEngine = FetchEngine.create(new FetchBackendImp(registry));
+    FetchBackend fetchBackend = new FetchBackendImp(registry);
 
     RenderingEngine renderingEngine = RenderingEngine.create(
-      fetchEngine,
+      fetchBackend,
       Executors::newVirtualThreadPerTaskExecutor,
       painter,
       loaderRegistry,

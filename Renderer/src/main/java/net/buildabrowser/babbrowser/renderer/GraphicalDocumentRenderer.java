@@ -11,4 +11,6 @@ public interface GraphicalDocumentRenderer extends DocumentRenderer {
 
   void addRepaintListener(Runnable repaintListener);
 
+  void removeRepaintListener(Runnable repaintListener);
+
 }

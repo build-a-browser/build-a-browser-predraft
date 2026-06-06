@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
+import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
@@ -20,15 +21,16 @@ public interface RenderingEngine {
     DocumentRendererEventListener eventListener
   );
 
-  static <T> RenderingEngine create(
-    FetchEngine fetchEngine,
+  static RenderingEngine create(
+    FetchBackend fetchBackend,
     Supplier<ExecutorService> threadGroupSupplier,
     Painter painter,
     DocumentLoaderRegistry documentLoaderRegistry,
     ResourceResolver resourceResolver
   ) {
     return new RenderingEngineImp(
-      fetchEngine, threadGroupSupplier, painter,
+      FetchEngine.create(fetchBackend),
+      threadGroupSupplier, painter,
       documentLoaderRegistry, resourceResolver);
   }
 

@@ -24,6 +24,8 @@ public interface UANavigableOptions {
 
   void addRepaintListener(Runnable listener);
 
+  void removeRepaintListener(Runnable listener);
+
   void onNavigate(URI url);
 
 }

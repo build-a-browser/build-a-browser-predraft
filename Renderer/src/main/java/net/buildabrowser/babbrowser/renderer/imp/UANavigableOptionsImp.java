@@ -84,6 +84,11 @@ public class UANavigableOptionsImp implements UANavigableOptions {
   }
 
   @Override
+  public void removeRepaintListener(Runnable listener) {
+    repaintListeners.remove(listener);
+  }
+
+  @Override
   public void onNavigate(URI url) {
     eventListener.onNavigate(url);
   }

@@ -135,6 +135,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     if (invalidationLevel.ordinal() <= InvalidationLevel.LAYOUT.ordinal()) {
       long layoutStartTime = System.currentTimeMillis();
       recomputeLayout();
+      this.invalidationLevel = InvalidationLevel.PAINT;
       PerfLogging.logLayoutTime(layoutStartTime);
     }
   }
@@ -236,6 +237,11 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   @Override
   public void addRepaintListener(Runnable repaintListener) {
+    navigable.uaNavigableOptions().addRepaintListener(repaintListener);
+  }
+
+  @Override
+  public void removeRepaintListener(Runnable repaintListener) {
     navigable.uaNavigableOptions().addRepaintListener(repaintListener);
   }
 

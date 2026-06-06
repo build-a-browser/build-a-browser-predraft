@@ -70,7 +70,6 @@ public final class LegacyColorParser {
       length--;
     }
 
-    System.out.println(comp1 + " " + comp2 + " " + comp3);
     int red1 = ASCIIUtil.hexValue(comp1.codePointAt(0));
     int green1 = ASCIIUtil.hexValue(comp2.codePointAt(0));
     int blue1 = ASCIIUtil.hexValue(comp3.codePointAt(0));

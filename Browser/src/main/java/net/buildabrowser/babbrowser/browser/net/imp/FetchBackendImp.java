@@ -122,8 +122,9 @@ public class FetchBackendImp implements FetchBackend {
     // TODO: Report correct OS
     return switch (request.url().getHost()) {
       case "html.duckduckgo.com", "duckduckgo.com" ->
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 BABBrowser/0.1.0";
-      case "www.whatismybrowser.com" -> "BABBrowser/0.1.0 (X11; Linux x86_64)";
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0"
+        + " Safari/537.36 BABBrowser/0.1.0";
+      case "whatismybrowser.com", "www.whatismybrowser.com" -> "BABBrowser/0.1.0 (X11; Linux x86_64)";
       default -> "Mozilla/5.0 (X11; Linux x86_64) BABBrowser/0.1.0 Firefox/149.0 (Not actually Firefox)";
     };
   }

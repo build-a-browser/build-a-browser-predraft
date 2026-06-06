@@ -78,6 +78,11 @@ public class DelegatingGraphicalDocumentRenderer implements GraphicalDocumentRen
     navigable.uaNavigableOptions().addRepaintListener(repaintListener);
   }
 
+  @Override
+  public void removeRepaintListener(Runnable repaintListener) {
+    navigable.uaNavigableOptions().removeRepaintListener(repaintListener);
+  }
+
   private GraphicalDocumentRenderer activeRenderer() {
     GraphicalDocumentRenderer activeRenderer = (GraphicalDocumentRenderer) navigable.activeDocument().renderer();
     return activeRenderer == null ?

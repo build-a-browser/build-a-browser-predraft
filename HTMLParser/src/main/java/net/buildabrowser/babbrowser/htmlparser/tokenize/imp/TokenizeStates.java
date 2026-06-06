@@ -123,7 +123,7 @@ public final class TokenizeStates {
   public static final TokenizeState hexadecimalCharacterReferenceStartState = new HexadecimalCharacterReferenceStartState();
   public static final TokenizeState hexadecimalCharacterReferenceState = new HexadecimalCharacterReferenceState();
   public static final TokenizeState markupDeclarationOpenState = new MarkupDeclarationOpenState();
-  public static final TokenizeState namedCharacterReferenceState = new NamedCharacterReferenceState(NamedCharacterReferences.loadReferences());
+  public static final TokenizeState namedCharacterReferenceState = new NamedCharacterReferenceState();
   public static final TokenizeState numericCharacterReferenceEndState = new NumericCharacterReferenceEndState();
   public static final TokenizeState numericCharacterReferenceState = new NumericCharacterReferenceState();
   public static final TokenizeState rawTextEndTagNameState = new RawTextEndTagNameState();
