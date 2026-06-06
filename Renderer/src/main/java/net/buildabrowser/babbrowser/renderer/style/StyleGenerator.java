@@ -10,24 +10,24 @@ public final class StyleGenerator {
  
   private StyleGenerator() {}
 
-  public static void style(Node node, ElementSet changedElements) {
+  public static void style(Node node, StyleCache styleCache, ElementSet changedElements) {
     if (changedElements.isEmpty()) return;
 
     for (Element changedElement: changedElements) {
       if (elementHasNoChangedAncestors(changedElement, changedElements)) {
-        style(changedElement);
+        style(changedElement, styleCache);
       }
     }
   }
 
-  public static void style(Node node) {
+  public static void style(Node node, StyleCache styleCache) {
     if (node instanceof HTMLElement element) {
-      ((ElementContextImp) element.getContext()).regenerateStyles();
+      ((ElementContextImp) element.getContext()).regenerateStyles(styleCache);
     }
 
     Node childNode = node.firstChild();
     while (childNode != null) {
-      style(childNode);
+      style(childNode, styleCache);
       childNode = childNode.nextSibling();
     }
   }

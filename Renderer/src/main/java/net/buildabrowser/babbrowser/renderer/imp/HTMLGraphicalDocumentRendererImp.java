@@ -46,6 +46,7 @@ import net.buildabrowser.babbrowser.renderer.layout.StackingContextGenerator;
 import net.buildabrowser.babbrowser.renderer.layout.Viewport;
 import net.buildabrowser.babbrowser.renderer.logging.PerfLogging;
 import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
+import net.buildabrowser.babbrowser.renderer.style.StyleCache;
 import net.buildabrowser.babbrowser.renderer.style.StyleGenerator;
 
 public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRenderer, EventForwardingTarget {
@@ -119,8 +120,12 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     ) {
       long styleStartTime = System.currentTimeMillis();
       cssMatcher.applyStylesheets(document);
+      // TODO: By making a new StyleCache every round, it prevents ActiveStyles from being used
+      // between rounds, but if it was moved to a field, it might hold references to styles that
+      // won't be used again
+      StyleCache styleCache = StyleCache.create();
       ElementSet changedElements = cssMatcher.changedElements();
-      StyleGenerator.style(document, changedElements);
+      StyleGenerator.style(document, styleCache, changedElements);
       PerfLogging.logStyleTime(styleStartTime);
     }
   }

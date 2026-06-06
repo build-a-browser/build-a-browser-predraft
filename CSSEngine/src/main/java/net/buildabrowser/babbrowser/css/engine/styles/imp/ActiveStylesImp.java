@@ -8,8 +8,9 @@ import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSDeferred;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 
 public class ActiveStylesImp implements ActiveStyles {
 
@@ -28,11 +29,14 @@ public class ActiveStylesImp implements ActiveStyles {
   // TODO: Switch to an IntrusiveList?
   private SinglyLinkedList<CSSValue> activeProperties;
   private Map<String, CSSValue> customProperties;
+  private boolean isReusable = true;
 
   @Override
   public void setProperty(CSSProperty property, CSSValue value) {
     if (property.hasExpansion()) {
       throw new UnsupportedOperationException("Cannot set expanded property!");
+    } else if (value instanceof CSSDeferred) {
+      this.isReusable = false;
     }
 
     addEntry(property.id(), value);
@@ -41,8 +45,11 @@ public class ActiveStylesImp implements ActiveStyles {
 
   @Override
   public void setCustomProperty(String property, CSSValue value) {
-    lazilyInitCustomProperties();
+    if (value instanceof CSSDeferred) {
+      this.isReusable = false;
+    }
 
+    lazilyInitCustomProperties();
     customProperties.put(property, value);
   }
 
@@ -117,6 +124,11 @@ public class ActiveStylesImp implements ActiveStyles {
     return
      (property.inherited() || getInheritValue(property.id()))
       && !getHasOwnValue(property.id());
+  }
+
+  @Override
+  public boolean isReusable() {
+    return this.isReusable;
   }
 
   private CSSValue scanValue(int id) {

@@ -4,6 +4,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.context.imp.ElementContextImp;
+import net.buildabrowser.babbrowser.renderer.style.StyleCache;
 
 public interface ElementContext {
   
@@ -13,7 +14,7 @@ public interface ElementContext {
 
   void onAttributeValueChanged(String attrName, String oldValue, String newValue);
 
-  void regenerateStyles();
+  void regenerateStyles(StyleCache styleCache);
 
   PropertyContainer properties();
 

@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.renderer.box;
 
 import java.util.Comparator;
 
+import net.buildabrowser.babbrowser.cssbase.property.EmptyPropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.imp.AnonymousElementBoxImp;
@@ -64,10 +65,15 @@ public interface ElementBox extends Box {
   }
 
   public static ElementBox createAnonymous(ElementBox parentBox, BoxLevel boxLevel) {
-    return new AnonymousElementBoxImp(null, parentBox, boxLevel);
+    PropertyContainer propertyContainer = new EmptyPropertyContainer(parentBox.properties());
+    return new AnonymousElementBoxImp(propertyContainer, parentBox, boxLevel);
   }
 
-  public static ElementBox createAnonymous(PropertyContainer properties, ElementBox parentBox, BoxLevel boxLevel) {
+  public static ElementBox createAnonymous(
+    PropertyContainer properties,
+    ElementBox parentBox,
+    BoxLevel boxLevel
+  ) {
     return new AnonymousElementBoxImp(properties, parentBox, boxLevel);
   }
 

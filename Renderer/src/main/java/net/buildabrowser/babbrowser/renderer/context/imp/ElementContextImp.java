@@ -3,6 +3,8 @@ package net.buildabrowser.babbrowser.renderer.context.imp;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
@@ -24,8 +26,9 @@ import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHint;
-import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHintResolver;
 import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHint.PresentationalHintName;
+import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHintResolver;
+import net.buildabrowser.babbrowser.renderer.style.StyleCache;
 
 public class ElementContextImp implements ElementContext {
 
@@ -51,7 +54,6 @@ public class ElementContextImp implements ElementContext {
   
   @Override
   public void onCSSRuleMatched(WeightedStyleRule styleRule) {
-    // TODO: Could cause exponential growth as the list grows large..
     styleRules.add(styleRule);
   }
 
@@ -71,13 +73,17 @@ public class ElementContextImp implements ElementContext {
   }
 
   @Override
-  public void regenerateStyles() {
+  public void regenerateStyles(StyleCache styleCache) {
     PropertyContainer oldProperties = this.properties;
     PropertyContainer parentProperties = element.parentNode() instanceof HTMLElement parent ?
       ((ElementContext) parent.getContext()).properties() :
       null;
-    styleRules.sort(WeightedStyleRule::compare);
-    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(styleRules, parentProperties);
+    // TODO: How bad is doing this?
+    Set<WeightedStyleRule> rulesSet = new TreeSet<>(WeightedStyleRule::compare);
+    rulesSet.addAll(styleRules);
+    ActiveStyles activeStyles = styleCache.lookupOrElse(rulesSet, rules -> {
+      return ActiveStylesGenerator.generateActiveStyles(rules, parentProperties);
+    });
     this.properties = ActiveStyles.parentStyles(parentProperties, activeStyles);
 
     if (oldProperties == null) {

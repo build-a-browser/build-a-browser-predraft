@@ -65,7 +65,7 @@ public class FlexBoxContent implements BoxContent {
           if (anonymousBox == null) {
             isOnlyWhitespace = true;
             // It's actually flex-level, but this flag has no effect regardless
-            anonymousBox = ElementBox.createAnonymous(anonymousBox, BoxLevel.BLOCK_LEVEL);
+            anonymousBox = ElementBox.createAnonymous(rootBox, BoxLevel.BLOCK_LEVEL);
           }
           isOnlyWhitespace = isOnlyWhitespace && isBlank(textBox.text()); // TODO: Proper HTML whitespace
           childIt.remove();

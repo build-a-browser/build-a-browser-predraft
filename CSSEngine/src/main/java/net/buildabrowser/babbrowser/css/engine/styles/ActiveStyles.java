@@ -18,6 +18,8 @@ public interface ActiveStyles extends MutablePropertyContainer {
 
   boolean shouldInherit(CSSProperty property);
 
+  boolean isReusable();
+
   static ActiveStyles create() {
     return new ActiveStylesImp();
   }
