@@ -4,7 +4,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.content.flow.floatbox.FloatTracker;
@@ -15,7 +15,7 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
   private final FlowRootContent rootContent;
   private final LayoutConstraint inlineConstraint;
   private final InlineStagingArea stagingArea;
-  private final Deque<ActiveStyles> stylesStack;
+  private final Deque<PropertyContainer> stylesStack;
 
   private InlineFormattingContext next;
   private LineBox activeLineBox;
@@ -23,17 +23,17 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
   public InlineFormattingContext(
     FlowRootContent rootContent,
     LayoutConstraint inlineConstraint,
-    ActiveStyles initialStyles
+    PropertyContainer properties
   ) {
     this(rootContent, inlineConstraint, new LineBox(), new LinkedList<>());
-    stylesStack.push(initialStyles);
+    stylesStack.push(properties);
   }
 
   private InlineFormattingContext(
     FlowRootContent rootContent,
     LayoutConstraint inlineConstraint,
     LineBox firstLineBox,
-    Deque<ActiveStyles> stylesStack
+    Deque<PropertyContainer> stylesStack
   ) {
     this.rootContent = rootContent;
     this.inlineConstraint = inlineConstraint;
@@ -52,7 +52,7 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
 
   public void pushElement(ElementBox elementBox) {
     activeLineBox.pushElement(elementBox);
-    stylesStack.push(elementBox.activeStyles());
+    stylesStack.push(elementBox.properties());
   }
 
   public ElementBox popElement() {
@@ -91,7 +91,7 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
     };
   }
 
-  public ActiveStyles activeStyles() {
+  public PropertyContainer properties() {
     return stylesStack.peek();
   }
 

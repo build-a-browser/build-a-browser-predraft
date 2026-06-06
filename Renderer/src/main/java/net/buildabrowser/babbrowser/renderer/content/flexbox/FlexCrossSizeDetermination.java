@@ -54,7 +54,7 @@ public final class FlexCrossSizeDetermination {
   private static void calculateLineCrossSize(
     ElementBox rootBox, FlexLine line, LayoutConstraint containerCrossSize
   ) {
-    boolean isSingleLine = rootBox.activeStyles().getProperty(CSSProperty.FLEX_WRAP).equals(FlexWrapValue.NOWRAP);
+    boolean isSingleLine = rootBox.properties().get(CSSProperty.FLEX_WRAP).equals(FlexWrapValue.NOWRAP);
     if (isSingleLine && containerCrossSize.isBounded()) {
       line.setCrossSize(containerCrossSize.value());
       return;
@@ -89,9 +89,9 @@ public final class FlexCrossSizeDetermination {
     ElementBox rootBox, FlexItem item, FlexLine itemLine,
     LayoutConstraint containerCrossSize, boolean isVertical
   ) {
-    CSSValue itemAlignmentValue = item.box().activeStyles().getProperty(CSSProperty.ALIGN_SELF);
+    CSSValue itemAlignmentValue = item.box().properties().get(CSSProperty.ALIGN_SELF);
     if (itemAlignmentValue.equals(CSSValue.AUTO)) {
-      itemAlignmentValue = rootBox.activeStyles().getProperty(CSSProperty.ALIGN_ITEMS);
+      itemAlignmentValue = rootBox.properties().get(CSSProperty.ALIGN_ITEMS);
     }
     assert itemAlignmentValue instanceof AlignItemsValue;
 

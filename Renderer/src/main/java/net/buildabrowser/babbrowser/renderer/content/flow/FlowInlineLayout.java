@@ -1,21 +1,21 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.box.TextBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
+import net.buildabrowser.babbrowser.renderer.box.TextBox;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.ManagedBoxEntryMarker;
@@ -46,20 +46,23 @@ public class FlowInlineLayout {
   public void stopInline(
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint,
-    ActiveStyles parentStyles
+    PropertyContainer properties
   ) {
     LineWhitespaceCollapser.collapseWhitespace(
       activeInlineContext.stagingArea(),
-      (WhitespaceCollapseValue) parentStyles.getProperty(CSSProperty.WHITE_SPACE_COLLAPSE));
+      (WhitespaceCollapseValue) properties.get(CSSProperty.WHITE_SPACE_COLLAPSE));
     addStagedElements(widthConstraint, heightConstraint);
     activeInlineContext.closeLine();
     activeInlineContext = activeInlineContext.next();
   }
 
-  public void startInline(ActiveStyles parentStyles, LayoutConstraint widthConstraint) {
+  public void startInline(
+    PropertyContainer properties,
+    LayoutConstraint widthConstraint
+  ) {
     activeInlineContext = IntrusiveList.push(
       activeInlineContext,
-      new InlineFormattingContext(rootContent, widthConstraint, parentStyles));
+      new InlineFormattingContext(rootContent, widthConstraint, properties));
   }
 
   // #region Staging
@@ -101,10 +104,10 @@ public class FlowInlineLayout {
   private void addStagedElements(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
     InlineStagingArea stagingArea = activeInlineContext.stagingArea();
     stagingArea.resetCursor();
-    ActiveStyles parentStyles = activeInlineContext.activeStyles();
+    PropertyContainer parentProperties = activeInlineContext.properties();
     while (!stagingArea.done()) {
       switch (stagingArea.next()) {
-        case StagedText stagedText -> addTextToInline(stagedText.layoutContext(), parentStyles, stagedText);
+        case StagedText stagedText -> addTextToInline(stagedText.layoutContext(), parentProperties, stagedText);
         case StagedLineBreak stagedBreak -> addBreakToInline(stagedBreak.layoutContext());
         case StagedFloatBox stagedFloat -> addFloatAroundInline(
           stagedFloat.elementBox(), widthConstraint, heightConstraint);
@@ -185,12 +188,14 @@ public class FlowInlineLayout {
   }
 
   private void addTextToInline(
-    LayoutContext layoutContext, ActiveStyles parentStyles, StagedText stagedText
+    LayoutContext layoutContext,
+    PropertyContainer parentProperties,
+    StagedText stagedText
   ) {
     String text = stagedText.currentText();
     if (text.isEmpty()) return;
 
-    boolean autoWrap = parentStyles.getProperty(CSSProperty.TEXT_WRAP_MODE).equals(TextWrapModeValue.WRAP);
+    boolean autoWrap = parentProperties.get(CSSProperty.TEXT_WRAP_MODE).equals(TextWrapModeValue.WRAP);
     FlowTextLayout.layoutText(layoutContext, stagedText, activeInlineContext, autoWrap);
   }
 
@@ -207,13 +212,13 @@ public class FlowInlineLayout {
   public void positionLine(
     LineBoxFragment fragment,
     LayoutConstraint inlineConstraint,
-    ActiveStyles lineStyles
+    PropertyContainer lineProperties
   ) {
     positionFragmentElements(fragment.fragments(), inlineConstraint);
     float startPos = rootContent.floatTracker().lineStartPos();
     float inlineOffset = inlineConstraint.isBounded() ?
       alignFragment(
-        lineStyles, startPos,
+        lineProperties, startPos,
         rootContent.floatTracker().lineEndPos(inlineConstraint),
         fragment.width(Measurement.CONTENT)) :
       startPos;
@@ -246,14 +251,17 @@ public class FlowInlineLayout {
     }
   }
 
-  private float alignFragment(ActiveStyles lineStyles, float startPos, float endPos, float lineWidth) {
-    TextAlignValue textAlign = (TextAlignValue) lineStyles.getProperty(CSSProperty.TEXT_ALIGN);
+  private float alignFragment(
+    PropertyContainer lineProperties,
+    float startPos, float endPos, float lineWidth
+  ) {
+    TextAlignValue textAlign = (TextAlignValue) lineProperties.get(CSSProperty.TEXT_ALIGN);
     while (
       textAlign.equals(TextAlignValue.MATCH_PARENT)
-      && lineStyles.parent() != null
+      && lineProperties.parent() != null
     ) {
-      lineStyles = lineStyles.parent();
-      textAlign = (TextAlignValue) lineStyles.getProperty(CSSProperty.TEXT_ALIGN);
+      lineProperties = lineProperties.parent();
+      textAlign = (TextAlignValue) lineProperties.get(CSSProperty.TEXT_ALIGN);
     }
 
 

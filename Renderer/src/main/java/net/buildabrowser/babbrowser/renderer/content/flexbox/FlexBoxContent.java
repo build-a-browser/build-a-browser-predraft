@@ -7,9 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.display.OrderValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexDirectionValue;
@@ -65,7 +65,7 @@ public class FlexBoxContent implements BoxContent {
           if (anonymousBox == null) {
             isOnlyWhitespace = true;
             // It's actually flex-level, but this flag has no effect regardless
-            anonymousBox = ElementBox.createAnonymous(ActiveStyles.create(), anonymousBox, BoxLevel.BLOCK_LEVEL);
+            anonymousBox = ElementBox.createAnonymous(anonymousBox, BoxLevel.BLOCK_LEVEL);
           }
           isOnlyWhitespace = isOnlyWhitespace && isBlank(textBox.text()); // TODO: Proper HTML whitespace
           childIt.remove();
@@ -108,7 +108,7 @@ public class FlexBoxContent implements BoxContent {
   private UnmanagedBoxFragment layoutItems(
     List<FlexItem> items, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
-    FlexDirectionValue flexDirection = (FlexDirectionValue) rootBox.activeStyles().getProperty(CSSProperty.FLEX_DIRECTION);
+    FlexDirectionValue flexDirection = (FlexDirectionValue) rootBox.properties().get(CSSProperty.FLEX_DIRECTION);
     boolean isVertical = flexDirection.equals(FlexDirectionValue.COLUMN) || flexDirection.equals(FlexDirectionValue.COLUMN_REVERSE);
     LayoutConstraint mainSize = isVertical ? heightConstraint : widthConstraint;
     LayoutConstraint crossSize = isVertical ? widthConstraint : heightConstraint;
@@ -154,7 +154,7 @@ public class FlexBoxContent implements BoxContent {
 
   private int orderOf(Box box) {
     assert box instanceof ElementBox;
-    return ((OrderValue) ((ElementBox) box).activeStyles().getProperty(CSSProperty.ORDER)).order();
+    return ((OrderValue) ((ElementBox) box).properties().get(CSSProperty.ORDER)).order();
   }
 
   private List<FlexLine> collectFlexItemsIntoFlexLines(
@@ -162,7 +162,7 @@ public class FlexBoxContent implements BoxContent {
   ) {
     List<FlexLine> lines = new LinkedList<>();
     FlexLine activeLine = new FlexLine();
-    if (rootBox.activeStyles().getProperty(CSSProperty.FLEX_WRAP).equals(FlexWrapValue.NOWRAP)) {
+    if (rootBox.properties().get(CSSProperty.FLEX_WRAP).equals(FlexWrapValue.NOWRAP)) {
       for (FlexItem item: flexItems) {
         activeLine.addItem(item);
       }
@@ -192,7 +192,7 @@ public class FlexBoxContent implements BoxContent {
     FlexDirectionValue flexDirection, boolean isVertical, LayoutConstraint mainSize, List<FlexLine> lines
   ) {
     float mainGap = mainGap(isVertical, mainSize);
-    JustifyContentValue contentJustification = (JustifyContentValue) rootBox.activeStyles().getProperty(CSSProperty.JUSTIFY_CONTENT);
+    JustifyContentValue contentJustification = (JustifyContentValue) rootBox.properties().get(CSSProperty.JUSTIFY_CONTENT);
     boolean isReverse =
       flexDirection.equals(FlexDirectionValue.ROW_REVERSE)
       || flexDirection.equals(FlexDirectionValue.COLUMN_REVERSE);
@@ -205,17 +205,17 @@ public class FlexBoxContent implements BoxContent {
     boolean isVertical, LayoutConstraint mainSize, LayoutConstraint crossSize, List<FlexLine> lines
   ) {
     float crossGap = crossGap(isVertical, mainSize);
-    AlignContentValue alignContent = (AlignContentValue) rootBox.activeStyles().getProperty(CSSProperty.ALIGN_CONTENT);
+    AlignContentValue alignContent = (AlignContentValue) rootBox.properties().get(CSSProperty.ALIGN_CONTENT);
     FlexCrossAlignment.alignCrossAxis(
       new CrossAlignmentContext(crossSize, isVertical, alignContent, crossGap),
       lines);
   }
 
   private float mainGap(boolean isVertical, LayoutConstraint mainSize) {
-    ActiveStyles parentStyles = rootBox.activeStyles();
+    PropertyContainer parentProperties = rootBox.properties();
     CSSValue mainGapValue = isVertical ?
-      parentStyles.getProperty(CSSProperty.ROW_GAP) :
-      parentStyles.getProperty(CSSProperty.COLUMN_GAP);
+      parentProperties.get(CSSProperty.ROW_GAP) :
+      parentProperties.get(CSSProperty.COLUMN_GAP);
     LayoutConstraint mainGapConstraint = SizingUtil.evaluateBaseSize(
       rootBox.layoutContext(), mainSize, mainGapValue);
     return mainGapConstraint.isBounded() ? mainGapConstraint.value() : 0;

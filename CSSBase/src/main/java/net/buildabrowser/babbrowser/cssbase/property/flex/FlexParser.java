@@ -5,7 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
+import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.AnyOrderResult;
@@ -53,7 +53,7 @@ public class FlexParser implements PropertyValueParser {
   }
 
   @Override
-  public void updateProperty(CSSValue result, PropertyContainer propertySetter) {
+  public void updateProperty(CSSValue result, MutablePropertyContainer propertySetter) {
     FlexValue flexValue = (FlexValue) result;
     propertySetter.setProperty(CSSProperty.FLEX_GROW, flexValue.flexGrow());
     propertySetter.setProperty(CSSProperty.FLEX_SHRINK, flexValue.flexShrink());

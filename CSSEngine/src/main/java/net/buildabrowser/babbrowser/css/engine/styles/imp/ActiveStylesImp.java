@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
 
 public class ActiveStylesImp implements ActiveStyles {
@@ -19,8 +20,6 @@ public class ActiveStylesImp implements ActiveStyles {
     }
   }
 
-  private final ActiveStyles parentStyles;
-
   // A BitSet has a header and long array. Even with a lazy initialization attempt
   // that took a lot of memory. Use longs instead
   private long inheritValues1, inheritValues2;
@@ -29,15 +28,6 @@ public class ActiveStylesImp implements ActiveStyles {
   // TODO: Switch to an IntrusiveList?
   private SinglyLinkedList<CSSValue> activeProperties;
   private Map<String, CSSValue> customProperties;
-
-  public ActiveStylesImp(ActiveStyles parentStyles) {
-    this.parentStyles = parentStyles;
-  }
-
-  @Override
-  public ActiveStyles parent() {
-    return this.parentStyles;
-  }
 
   @Override
   public void setProperty(CSSProperty property, CSSValue value) {
@@ -92,7 +82,10 @@ public class ActiveStylesImp implements ActiveStyles {
   }
 
   @Override
-  public CSSValue getProperty(CSSProperty property) {
+  public CSSValue getProperty(
+    PropertyContainer parent,
+    CSSProperty property
+  ) {
     if (property.hasExpansion()) {
       throw new UnsupportedOperationException("Cannot get expanded property!");
     }
@@ -102,13 +95,13 @@ public class ActiveStylesImp implements ActiveStyles {
       return scanValue(id);
     }
 
-    return parentStyles != null && (property.inherited() || getInheritValue(id)) ?
-      parentStyles.getProperty(property) :
+    return parent != null && (property.inherited() || getInheritValue(id)) ?
+      parent.get(property) :
       property.initial();
   }
 
   @Override
-  public CSSValue getCustomProperty(String property) {
+  public CSSValue getCustom(String property) {
     if (
       customProperties == null
       || !customProperties.containsKey(property)
@@ -120,10 +113,9 @@ public class ActiveStylesImp implements ActiveStyles {
   }
 
   @Override
-  public boolean wasInherited(CSSProperty property) {
+  public boolean shouldInherit(CSSProperty property) {
     return
-      parentStyles != null
-      && (property.inherited() || getInheritValue(property.id()))
+     (property.inherited() || getInheritValue(property.id()))
       && !getHasOwnValue(property.id());
   }
 

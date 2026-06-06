@@ -65,10 +65,10 @@ public final class FlowWidthUtil {
       parentConstraint, childBox);
     LayoutConstraint marginLeftConstraint = SizingUtil.evaluateBaseSize(
       childBox.layoutContext(), parentConstraint,
-      childBox.activeStyles().getProperty(CSSProperty.MARGIN_LEFT));
+      childBox.properties().get(CSSProperty.MARGIN_LEFT));
     LayoutConstraint marginRightConstraint = SizingUtil.evaluateBaseSize(
       childBox.layoutContext(), parentConstraint,
-      childBox.activeStyles().getProperty(CSSProperty.MARGIN_RIGHT));
+      childBox.properties().get(CSSProperty.MARGIN_RIGHT));
 
     boolean isLeftMarginSet = marginLeftConstraint.isBounded();
     boolean isRightMarginSet = marginRightConstraint.isBounded();
@@ -190,10 +190,10 @@ public final class FlowWidthUtil {
   ) {
     LayoutConstraint marginLeftConstraint = SizingUtil.evaluateBaseSize(
       childBox.layoutContext(), parentConstraint,
-      childBox.activeStyles().getProperty(CSSProperty.MARGIN_LEFT));
+      childBox.properties().get(CSSProperty.MARGIN_LEFT));
     LayoutConstraint marginRightConstraint = SizingUtil.evaluateBaseSize(
       childBox.layoutContext(), parentConstraint,
-      childBox.activeStyles().getProperty(CSSProperty.MARGIN_RIGHT));
+      childBox.properties().get(CSSProperty.MARGIN_RIGHT));
 
     boolean isLeftMarginSet = marginLeftConstraint.isBounded();
     boolean isRightMarginSet = marginRightConstraint.isBounded();

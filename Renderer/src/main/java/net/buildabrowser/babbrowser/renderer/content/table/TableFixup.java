@@ -5,11 +5,12 @@ import static net.buildabrowser.babbrowser.common.util.CompatUtil.isBlank;
 import java.util.ListIterator;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
-import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
@@ -27,7 +28,7 @@ public final class TableFixup {
   }
 
   private static void removeIrrelevantBoxes(ElementBox elementBox) {
-    InnerDisplayValue displayValue = ActiveStylesUtil.innerDisplayValue(elementBox.activeStyles());
+    InnerDisplayValue displayValue = PropertiesUtil.innerDisplayValue(elementBox.properties());
     if (displayValue.equals(InnerDisplayValue.TABLE_COLUMN)) {
       elementBox.clearChildren();
     } else if (displayValue.equals(InnerDisplayValue.TABLE_COLUMN_GROUP)) {
@@ -44,7 +45,7 @@ public final class TableFixup {
       Box childBox = childIt.next();
       if (
         childBox instanceof ElementBox childElementBox
-        && ActiveStylesUtil.innerDisplayValue(childElementBox.activeStyles())
+        && PropertiesUtil.innerDisplayValue(childElementBox.properties())
           .equals(InnerDisplayValue.TABLE_COLUMN)
       ) {
         removeIrrelevantBoxes(childElementBox);
@@ -118,10 +119,11 @@ public final class TableFixup {
         childIt.remove();
         currentFixupWrapper.addChild(childBox);
       } else {
-        ActiveStyles anonStyles = ActiveStyles.create(elementBox.activeStyles());
+        ActiveStyles anonStyles = ActiveStyles.create();
         anonStyles.setProperty(CSSProperty.DISPLAY, DisplayValue.create(
           OuterDisplayValue.TABLE_ROW, InnerDisplayValue.TABLE_ROW));
-        currentFixupWrapper = ElementBox.createAnonymous(anonStyles, elementBox, BoxLevel.INLINE_LEVEL);
+        PropertyContainer anonProperties = ActiveStyles.parentStyles(elementBox.properties(), anonStyles);
+        currentFixupWrapper = ElementBox.createAnonymous(anonProperties, elementBox, BoxLevel.INLINE_LEVEL);
         childIt.set(currentFixupWrapper);
         currentFixupWrapper.addChild(childBox);
       }
@@ -143,10 +145,11 @@ public final class TableFixup {
         childIt.remove();
         currentFixupWrapper.addChild(childBox);
       } else {
-        ActiveStyles anonStyles = ActiveStyles.create(elementBox.activeStyles());
+        ActiveStyles anonStyles = ActiveStyles.create();
         anonStyles.setProperty(CSSProperty.DISPLAY, DisplayValue.create(
           OuterDisplayValue.TABLE_ROW, InnerDisplayValue.TABLE_ROW));
-        currentFixupWrapper = ElementBox.createAnonymous(anonStyles, elementBox, BoxLevel.BLOCK_LEVEL);
+        PropertyContainer anonProperties = ActiveStyles.parentStyles(elementBox.properties(), anonStyles);
+        currentFixupWrapper = ElementBox.createAnonymous(anonProperties, elementBox, BoxLevel.BLOCK_LEVEL);
         childIt.set(currentFixupWrapper);
         currentFixupWrapper.addChild(childBox);
       }
@@ -175,10 +178,11 @@ public final class TableFixup {
         childIt.remove();
         currentFixupWrapper.addChild(childBox);
       } else {
-        ActiveStyles anonStyles = ActiveStyles.create(elementBox.activeStyles());
+        ActiveStyles anonStyles = ActiveStyles.create();
         anonStyles.setProperty(CSSProperty.DISPLAY, DisplayValue.create(
           OuterDisplayValue.TABLE_CELL, InnerDisplayValue.FLOW_ROOT));
-        currentFixupWrapper = ElementBox.createAnonymous(anonStyles, elementBox, BoxLevel.BLOCK_LEVEL);
+        PropertyContainer anonProperties = ActiveStyles.parentStyles(elementBox.properties(), anonStyles);
+        currentFixupWrapper = ElementBox.createAnonymous(anonProperties, elementBox, BoxLevel.BLOCK_LEVEL);
         childIt.set(currentFixupWrapper);
         currentFixupWrapper.addChild(childBox);
       }

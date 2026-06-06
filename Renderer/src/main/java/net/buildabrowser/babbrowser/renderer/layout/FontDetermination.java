@@ -3,9 +3,9 @@ package net.buildabrowser.babbrowser.renderer.layout;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontFamilyValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontNameValue;
@@ -13,9 +13,9 @@ import net.buildabrowser.babbrowser.cssbase.property.font.FontNamedSizeValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightValue.RelativeFontWeightValue;
 import net.buildabrowser.babbrowser.painter.core.FontLoader;
-import net.buildabrowser.babbrowser.painter.core.LoadedFont;
 import net.buildabrowser.babbrowser.painter.core.FontLoader.FontFamily;
 import net.buildabrowser.babbrowser.painter.core.FontLoader.FontOptions;
+import net.buildabrowser.babbrowser.painter.core.LoadedFont;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 
 public final class FontDetermination {
@@ -24,20 +24,20 @@ public final class FontDetermination {
 
   public static FontDeterminationContext determineFont(
     FontDeterminationContext parentDetermination,
-    ActiveStyles activeStyles,
+    PropertyContainer properties,
     LayoutContext parentContext
   ) {
     float fontSize = parentDetermination.fontSize();
-    if (!activeStyles.wasInherited(CSSProperty.FONT_SIZE)) {
-      fontSize = determineNewFontSize(fontSize, activeStyles, parentContext);
+    if (!properties.wasInherited(CSSProperty.FONT_SIZE)) {
+      fontSize = determineNewFontSize(fontSize, properties, parentContext);
     }
 
     int fontWeight = parentDetermination.fontWeight();
-    if (!activeStyles.wasInherited(CSSProperty.FONT_WEIGHT)) {
-      fontWeight = determineNewFontWeight(fontWeight, activeStyles);
+    if (!properties.wasInherited(CSSProperty.FONT_WEIGHT)) {
+      fontWeight = determineNewFontWeight(fontWeight, properties);
     }
 
-    ManyResult fontFamily = (ManyResult) activeStyles.getProperty(CSSProperty.FONT_FAMILY);
+    ManyResult fontFamily = (ManyResult) properties.get(CSSProperty.FONT_FAMILY);
 
     boolean wasChanged =
       fontSize != parentDetermination.fontSize()
@@ -57,10 +57,10 @@ public final class FontDetermination {
 
   private static float determineNewFontSize(
     float parentSize,
-    ActiveStyles activeStyles,
+    PropertyContainer properties,
     LayoutContext parentContext
   ) {
-    CSSValue fontSizeValue = activeStyles.getProperty(CSSProperty.FONT_SIZE);
+    CSSValue fontSizeValue = properties.get(CSSProperty.FONT_SIZE);
     if (fontSizeValue instanceof FontNamedSizeValue fontNamedSizeValue) {
       if (fontNamedSizeValue.isAbsolute()) {
         return parentContext.global().rootMetrics().size() * fontNamedSizeValue.scaling();
@@ -76,8 +76,11 @@ public final class FontDetermination {
     }
   }
 
-  private static int determineNewFontWeight(int fontWeight, ActiveStyles activeStyles) {
-    CSSValue fontWeightValue = activeStyles.getProperty(CSSProperty.FONT_WEIGHT);
+  private static int determineNewFontWeight(
+    int fontWeight,
+    PropertyContainer properties
+  ) {
+    CSSValue fontWeightValue = properties.get(CSSProperty.FONT_WEIGHT);
     if (fontWeightValue.equals(RelativeFontWeightValue.BOLDER)) {
       return bolder(fontWeight);
     } else if (fontWeightValue.equals(RelativeFontWeightValue.LIGHTER)) {

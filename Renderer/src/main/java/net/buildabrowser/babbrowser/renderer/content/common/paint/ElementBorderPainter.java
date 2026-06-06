@@ -2,12 +2,12 @@ package net.buildabrowser.babbrowser.renderer.content.common.paint;
 
 import java.util.function.Consumer;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
-import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue;
+import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.painter.core.Paint;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
@@ -30,12 +30,12 @@ public final class ElementBorderPainter {
     float fragmentWidth, float fragmentHeight
   ) {
     float[] borders = fragment.box().dimensions().getComputedBorder();
-    ActiveStyles boxStyles = fragment.box().activeStyles();
+    PropertyContainer properties = fragment.box().properties();
 
-    CSSValue topStyle = boxStyles.getProperty(CSSProperty.BORDER_TOP_STYLE);
-    CSSValue bottomStyle = boxStyles.getProperty(CSSProperty.BORDER_BOTTOM_STYLE);
-    CSSValue leftStyle = boxStyles.getProperty(CSSProperty.BORDER_LEFT_STYLE);
-    CSSValue rightStyle = boxStyles.getProperty(CSSProperty.BORDER_RIGHT_STYLE);
+    CSSValue topStyle = properties.get(CSSProperty.BORDER_TOP_STYLE);
+    CSSValue bottomStyle = properties.get(CSSProperty.BORDER_BOTTOM_STYLE);
+    CSSValue leftStyle = properties.get(CSSProperty.BORDER_LEFT_STYLE);
+    CSSValue rightStyle = properties.get(CSSProperty.BORDER_RIGHT_STYLE);
 
     float topBorderWidth = topStyle.equals(CSSValue.NONE) ? 0 : borders[0];
     float bottomBorderWidth = bottomStyle.equals(CSSValue.NONE) ? 0 : borders[1];
@@ -49,7 +49,7 @@ public final class ElementBorderPainter {
       fragmentWidth, topBorderWidth,
       leftBorderWidth, rightBorderWidth,
       BorderDirection.TOP,
-      p -> p.setColor(borderColor(boxStyles, CSSProperty.BORDER_TOP_COLOR)),
+      p -> p.setColor(borderColor(properties, CSSProperty.BORDER_TOP_COLOR)),
       c -> paintHorizontalBorder(
         c, 0, 0,
         fragmentWidth, topBorderWidth,
@@ -63,7 +63,7 @@ public final class ElementBorderPainter {
       fragmentWidth, bottomBorderWidth,
       leftBorderWidth, rightBorderWidth,
       BorderDirection.BOTTOM,
-      p -> p.setColor(borderColor(boxStyles, CSSProperty.BORDER_BOTTOM_COLOR)),
+      p -> p.setColor(borderColor(properties, CSSProperty.BORDER_BOTTOM_COLOR)),
       c -> paintHorizontalBorder(
         c, 0, bottomBorderY,
         fragmentWidth, bottomBorderWidth,
@@ -76,7 +76,7 @@ public final class ElementBorderPainter {
       fragmentHeight, leftBorderWidth,
       topBorderWidth, bottomBorderWidth,
       BorderDirection.LEFT,
-      p -> p.setColor(borderColor(boxStyles, CSSProperty.BORDER_LEFT_COLOR)),
+      p -> p.setColor(borderColor(properties, CSSProperty.BORDER_LEFT_COLOR)),
       c -> paintVerticalBorder(
         c, 0, 0,
         fragmentHeight, leftBorderWidth,
@@ -90,7 +90,7 @@ public final class ElementBorderPainter {
       fragmentHeight, rightBorderWidth,
       topBorderWidth, bottomBorderWidth,
       BorderDirection.RIGHT,
-      p -> p.setColor(borderColor(boxStyles, CSSProperty.BORDER_RIGHT_COLOR)),
+      p -> p.setColor(borderColor(properties, CSSProperty.BORDER_RIGHT_COLOR)),
       c -> paintVerticalBorder(
         c, rightBorderX, 0,
         fragmentHeight, rightBorderWidth,
@@ -117,9 +117,12 @@ public final class ElementBorderPainter {
     canvas.drawBox(x, y, thickness, run);
   }
 
-  public static int borderColor(ActiveStyles activeStyles, CSSProperty colorProperty) {
-    CSSValue property = activeStyles.getProperty(colorProperty);
-    if (property.equals(CSSValue.NONE)) return ActiveStylesUtil.textColor(activeStyles);
+  public static int borderColor(
+    PropertyContainer properties,
+    CSSProperty colorProperty
+  ) {
+    CSSValue property = properties.get(colorProperty);
+    if (property.equals(CSSValue.NONE)) return PropertiesUtil.textColor(properties);
     return ((ColorValue) property).asSARGB();
   }
 

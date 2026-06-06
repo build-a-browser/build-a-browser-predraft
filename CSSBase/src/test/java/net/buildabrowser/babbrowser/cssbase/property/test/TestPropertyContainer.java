@@ -5,10 +5,11 @@ import java.util.Map;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
+import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 
-public class TestPropertyContainer implements PropertyContainer {
+public class TestPropertyContainer implements PropertyContainer, MutablePropertyContainer {
 
   private final PropertyContainer parent;
 
@@ -35,12 +36,22 @@ public class TestPropertyContainer implements PropertyContainer {
   }
 
   @Override
-  public CSSValue getProperty(CSSProperty property) {
+  public CSSValue get(CSSProperty property) {
     return valueMap.get(property);
   }
 
   @Override
-  public CSSValue getCustomProperty(String property) {
+  public CSSValue getProperty(PropertyContainer parent, CSSProperty property) {
+    return valueMap.get(property);
+  }
+
+  @Override
+  public boolean wasInherited(CSSProperty property) {
+    return false;
+  }
+
+  @Override
+  public CSSValue getCustom(String property) {
     if (!customValueMap.containsKey(property)) {
       return CSSFailure.UNSET_CUSTOM_PROPERTY;
     }

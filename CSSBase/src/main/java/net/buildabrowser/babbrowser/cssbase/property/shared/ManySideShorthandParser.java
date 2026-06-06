@@ -6,7 +6,7 @@ import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
-import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
+import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 
@@ -70,7 +70,7 @@ public class ManySideShorthandParser implements PropertyValueParser {
   }
 
   @Override
-  public void updateProperty(CSSValue result, PropertyContainer propertySetter) {
+  public void updateProperty(CSSValue result, MutablePropertyContainer propertySetter) {
     if (!(result instanceof ManySideValue sides)) return;
     propertySetter.setProperty(relatedProperties[0], sides.top());
     propertySetter.setProperty(relatedProperties[1], sides.right());

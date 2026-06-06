@@ -2,9 +2,9 @@ package net.buildabrowser.babbrowser.renderer.content.common.position;
 
 import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.MarginUtil;
@@ -76,11 +76,11 @@ public final class PositionLayout {
     UnmanagedBoxFragment computedFragment,
     float refWidth, float refHeight
   ) {
-    ActiveStyles styles = computedFragment.box().activeStyles();
-    boolean topInsetIsAuto = styles.getProperty(CSSProperty.TOP).equals(CSSValue.AUTO);
-    boolean bottomInsetIsAuto = styles.getProperty(CSSProperty.BOTTOM).equals(CSSValue.AUTO);
-    boolean leftInsetIsAuto = styles.getProperty(CSSProperty.LEFT).equals(CSSValue.AUTO);
-    boolean rightInsetIsAuto = styles.getProperty(CSSProperty.RIGHT).equals(CSSValue.AUTO);
+    PropertyContainer properties = computedFragment.box().properties();
+    boolean topInsetIsAuto = properties.get(CSSProperty.TOP).equals(CSSValue.AUTO);
+    boolean bottomInsetIsAuto = properties.get(CSSProperty.BOTTOM).equals(CSSValue.AUTO);
+    boolean leftInsetIsAuto = properties.get(CSSProperty.LEFT).equals(CSSValue.AUTO);
+    boolean rightInsetIsAuto = properties.get(CSSProperty.RIGHT).equals(CSSValue.AUTO);
 
     float leftPos = positionAbsoluteAxis(
       leftInsetIsAuto, rightInsetIsAuto, insets, 2,

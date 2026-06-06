@@ -2,9 +2,9 @@ package net.buildabrowser.babbrowser.renderer.content.flow;
 
 import static net.buildabrowser.babbrowser.common.util.CompatUtil.isBlank;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.floats.ClearValue;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
@@ -59,7 +59,7 @@ public class FlowBlockLayout {
     LayoutConstraint heightConstraint
   ) {
     FlowInlineLayout inlineLayout = rootContent.inlineLayout();
-    ActiveStyles boxStyles = box.activeStyles();
+    PropertyContainer properties = box.properties();
 
     boolean isInInline = false;
     for (Box childBox: box.childBoxes()) {
@@ -87,7 +87,7 @@ public class FlowBlockLayout {
         FloatLayout.addFloat(rootContent, floatFragment, widthConstraint, heightConstraint, 0);
       } else if (FlowUtil.isBlockLevel(childBox)) {
         if (isInInline) {
-          inlineLayout.stopInline(widthConstraint, heightConstraint, boxStyles);
+          inlineLayout.stopInline(widthConstraint, heightConstraint, properties);
           isInInline = false;
         }
         addToBlock((ElementBox) childBox, widthConstraint, heightConstraint);
@@ -96,7 +96,7 @@ public class FlowBlockLayout {
       } else {
         activeContext.collapse();
         if (!isInInline) {
-          inlineLayout.startInline(boxStyles, widthConstraint);
+          inlineLayout.startInline(properties, widthConstraint);
           isInInline = true;
         }
         inlineLayout.stageInline(box.layoutContext(), childBox);
@@ -104,7 +104,7 @@ public class FlowBlockLayout {
     }
 
     if (isInInline) {
-      inlineLayout.stopInline(widthConstraint, heightConstraint, boxStyles);
+      inlineLayout.stopInline(widthConstraint, heightConstraint, properties);
     }
   }
 
@@ -260,7 +260,7 @@ public class FlowBlockLayout {
   }
 
   private void ackFloatClear(ElementBox elementBox) {
-    CSSValue clearValue = elementBox.activeStyles().getProperty(CSSProperty.CLEAR);
+    CSSValue clearValue = elementBox.properties().get(CSSProperty.CLEAR);
     if (clearValue.equals(CSSValue.NONE)) return;
     float leftClear = clearValue.equals(ClearValue.RIGHT) ? 0 : rootContent.floatTracker().clearedLineStartPosition();
     float rightClear = clearValue.equals(ClearValue.LEFT) ? 0 : rootContent.floatTracker().clearedLineEndPosition();
@@ -269,7 +269,7 @@ public class FlowBlockLayout {
   }
 
   private boolean needsFloatClear(ElementBox elementBox) {
-    CSSValue clearValue = elementBox.activeStyles().getProperty(CSSProperty.CLEAR);
+    CSSValue clearValue = elementBox.properties().get(CSSProperty.CLEAR);
     return !clearValue.equals(CSSValue.NONE);
   }
 

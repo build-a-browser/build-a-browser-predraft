@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.renderer.content.common.position;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
@@ -10,13 +10,13 @@ import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
+import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
 public final class PositionUtil {
 
   public static boolean affectsLayout(ElementBox box) {
-    CSSValue position = box.activeStyles().getProperty(CSSProperty.POSITION);
+    CSSValue position = box.properties().get(CSSProperty.POSITION);
     return position.equals(PositionValue.STATIC) || position.equals(PositionValue.RELATIVE) || position.equals(PositionValue.STICKY);
   }
 
@@ -29,12 +29,12 @@ public final class PositionUtil {
   public static float[] computeRelativeInsets(
     float parentWidth, float parentHeight, ElementBox childBox
   ) {
-    ActiveStyles styles = childBox.activeStyles();
+    PropertyContainer properties = childBox.properties();
     float topInset = computeRelativeInset(
-      styles.getProperty(CSSProperty.TOP), styles.getProperty(CSSProperty.BOTTOM),
+      properties.get(CSSProperty.TOP), properties.get(CSSProperty.BOTTOM),
       childBox, LayoutConstraint.of(parentHeight));
     float leftInset = computeRelativeInset(
-      styles.getProperty(CSSProperty.LEFT), styles.getProperty(CSSProperty.RIGHT),
+      properties.get(CSSProperty.LEFT), properties.get(CSSProperty.RIGHT),
       childBox, LayoutConstraint.of(parentWidth));
     
     return new float[] {
@@ -67,18 +67,18 @@ public final class PositionUtil {
   public static float[] computeAbsoluteInsets(
     ElementBox box, float refWidth, float refHeight
   ) {
-    ActiveStyles styles = box.activeStyles();
+    PropertyContainer properties = box.properties();
     LayoutContext layoutContext = box.layoutContext();
     LayoutConstraint refHeightConstraint = LayoutConstraint.of(refHeight);
     LayoutConstraint refWidthConstraint = LayoutConstraint.of(refWidth);
     LayoutConstraint topInset = SizingUtil.evaluateBaseSize(
-      layoutContext, refHeightConstraint, styles.getProperty(CSSProperty.TOP));
+      layoutContext, refHeightConstraint, properties.get(CSSProperty.TOP));
     LayoutConstraint bottomInset = SizingUtil.evaluateBaseSize(
-      layoutContext, refHeightConstraint, styles.getProperty(CSSProperty.BOTTOM));
+      layoutContext, refHeightConstraint, properties.get(CSSProperty.BOTTOM));
     LayoutConstraint leftInset = SizingUtil.evaluateBaseSize(
-      layoutContext, refWidthConstraint, styles.getProperty(CSSProperty.LEFT));
+      layoutContext, refWidthConstraint, properties.get(CSSProperty.LEFT));
     LayoutConstraint rightInset = SizingUtil.evaluateBaseSize(
-      layoutContext, refWidthConstraint, styles.getProperty(CSSProperty.RIGHT));
+      layoutContext, refWidthConstraint, properties.get(CSSProperty.RIGHT));
     
     
     LayoutConstraint[] initConstraints = new LayoutConstraint[] {

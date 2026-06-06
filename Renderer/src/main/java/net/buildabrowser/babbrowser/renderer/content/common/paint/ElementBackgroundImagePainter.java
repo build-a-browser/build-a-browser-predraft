@@ -4,10 +4,10 @@ import java.net.URI;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
-import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundAttachmentValue;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundPositionValue;
@@ -18,6 +18,7 @@ import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundSizeVa
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundSizeValue.SizedBackgroundSizeValue;
 import net.buildabrowser.babbrowser.cssbase.property.box.VisualBoxValue;
 import net.buildabrowser.babbrowser.cssbase.property.shared.URLValue;
+import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.network.URLUtil;
 import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
@@ -39,13 +40,14 @@ public class ElementBackgroundImagePainter {
     float fragmentWidth,
     float fragmentHeight
   ) {
-    ManyResult bgImages = (ManyResult) fragment.box().activeStyles().getProperty(CSSProperty.BACKGROUND_IMAGE);
-    ManyResult bgRepeats = (ManyResult) fragment.box().activeStyles().getProperty(CSSProperty.BACKGROUND_REPEAT);
-    ManyResult bgAttachments = (ManyResult) fragment.box().activeStyles().getProperty(CSSProperty.BACKGROUND_ATTACHMENT);
-    ManyResult bgPositions = (ManyResult) fragment.box().activeStyles().getProperty(CSSProperty.BACKGROUND_POSITION);
-    ManyResult bgClips = (ManyResult) fragment.box().activeStyles().getProperty(CSSProperty.BACKGROUND_CLIP);
-    ManyResult bgOrigins = (ManyResult) fragment.box().activeStyles().getProperty(CSSProperty.BACKGROUND_ORIGIN);
-    ManyResult bgSizes = (ManyResult) fragment.box().activeStyles().getProperty(CSSProperty.BACKGROUND_SIZE);
+    PropertyContainer properties = fragment.box().properties();
+    ManyResult bgImages = (ManyResult) properties.get(CSSProperty.BACKGROUND_IMAGE);
+    ManyResult bgRepeats = (ManyResult) properties.get(CSSProperty.BACKGROUND_REPEAT);
+    ManyResult bgAttachments = (ManyResult) properties.get(CSSProperty.BACKGROUND_ATTACHMENT);
+    ManyResult bgPositions = (ManyResult) properties.get(CSSProperty.BACKGROUND_POSITION);
+    ManyResult bgClips = (ManyResult) properties.get(CSSProperty.BACKGROUND_CLIP);
+    ManyResult bgOrigins = (ManyResult) properties.get(CSSProperty.BACKGROUND_ORIGIN);
+    ManyResult bgSizes = (ManyResult) properties.get(CSSProperty.BACKGROUND_SIZE);
 
     ImageCache imageCache = fragment.box().layoutContext().global().imageCache();
 
@@ -58,7 +60,7 @@ public class ElementBackgroundImagePainter {
           fragmentWidth, fragmentHeight,
           getBGLayerProperty(bgClips, layer),
           _1 -> canvas.withPaint(
-            paint -> paint.setColor(ActiveStylesUtil.backgroundColor(fragment.box().activeStyles())),
+            paint -> paint.setColor(PropertiesUtil.backgroundColor(properties)),
             _2 -> canvas.drawBox(0, 0, fragmentWidth, fragmentHeight)
           ));
         

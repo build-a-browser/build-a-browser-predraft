@@ -2,9 +2,9 @@ package net.buildabrowser.babbrowser.renderer.content.flexbox;
 
 import java.util.List;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -191,10 +191,10 @@ public final class FlexMainAlignment {
   private static LayoutConstraint firstMargin(
     MainAlignmentContext alignmentContext, FlexItem item
   ) {
-    ActiveStyles activeStyles = item.box().activeStyles();
+    PropertyContainer properties = item.box().properties();
     CSSValue relevantValue = alignmentContext.isVertical() ?
-      activeStyles.getProperty(CSSProperty.MARGIN_TOP) :
-      activeStyles.getProperty(CSSProperty.MARGIN_LEFT);
+      properties.get(CSSProperty.MARGIN_TOP) :
+      properties.get(CSSProperty.MARGIN_LEFT);
     return SizingUtil.evaluateBaseSize(
       item.box().layoutContext(), alignmentContext.mainSize(), relevantValue);
   }
@@ -202,10 +202,10 @@ public final class FlexMainAlignment {
   private static LayoutConstraint secondMargin(
     MainAlignmentContext alignmentContext, FlexItem item
   ) {
-    ActiveStyles activeStyles = item.box().activeStyles();
+    PropertyContainer properties = item.box().properties();
     CSSValue relevantValue = alignmentContext.isVertical() ?
-      activeStyles.getProperty(CSSProperty.MARGIN_BOTTOM) :
-      activeStyles.getProperty(CSSProperty.MARGIN_RIGHT);
+      properties.get(CSSProperty.MARGIN_BOTTOM) :
+      properties.get(CSSProperty.MARGIN_RIGHT);
     return SizingUtil.evaluateBaseSize(
       item.box().layoutContext(), alignmentContext.mainSize(), relevantValue);
   }

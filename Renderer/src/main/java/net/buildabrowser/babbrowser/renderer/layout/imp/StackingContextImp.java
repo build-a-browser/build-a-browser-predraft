@@ -4,9 +4,9 @@ import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.ZIndexValue;
 import net.buildabrowser.babbrowser.painter.core.Painter;
@@ -39,10 +39,10 @@ public class StackingContextImp implements StackingContext {
   private float normalizedY = 0;
 
   public StackingContextImp(StackingContext parentContext, ElementBox relatedBox) {
-    ActiveStyles activeStyles = relatedBox.activeStyles();
-    CSSValue zIndex = activeStyles.getProperty(CSSProperty.Z_INDEX);
+    PropertyContainer properties = relatedBox.properties();
+    CSSValue zIndex = properties.get(CSSProperty.Z_INDEX);
     this.zIndexOrder = zIndex.equals(CSSValue.AUTO) ? 0 : ((ZIndexValue) zIndex).zIndex();
-    this.positioning = (PositionValue) activeStyles.getProperty(CSSProperty.POSITION);
+    this.positioning = (PositionValue) properties.get(CSSProperty.POSITION);
     this.isPassthrough = parentContext != null && zIndex.equals(CSSValue.AUTO);
     this.parentContext = parentContext;
     this.relatedBox = relatedBox;
@@ -79,7 +79,7 @@ public class StackingContextImp implements StackingContext {
 
   @Override
   public float[] computeInsets() {
-    CSSValue position = relatedBox.activeStyles().getProperty(CSSProperty.POSITION);
+    CSSValue position = relatedBox.properties().get(CSSProperty.POSITION);
     return this.insets =
       position.equals(PositionValue.RELATIVE) ? determineRelativeInsets() :
       position.equals(PositionValue.ABSOLUTE) ? determineAbsoluteInsets() :

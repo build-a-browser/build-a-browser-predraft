@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.renderer.content.common;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
@@ -13,11 +13,11 @@ public final class PaddingUtil {
   public static void computePadding(
     ElementBox childBox, LayoutConstraint referenceConstraint
   ) {
-    ActiveStyles styles = childBox.activeStyles();
-    float topPadding = computePadding(styles.getProperty(CSSProperty.PADDING_TOP), childBox, referenceConstraint);
-    float bottomPadding = computePadding(styles.getProperty(CSSProperty.PADDING_BOTTOM), childBox, referenceConstraint);
-    float leftPadding = computePadding(styles.getProperty(CSSProperty.PADDING_LEFT), childBox, referenceConstraint);
-    float rightPadding = computePadding(styles.getProperty(CSSProperty.PADDING_RIGHT), childBox, referenceConstraint);
+    PropertyContainer properties = childBox.properties();
+    float topPadding = computePadding(properties.get(CSSProperty.PADDING_TOP), childBox, referenceConstraint);
+    float bottomPadding = computePadding(properties.get(CSSProperty.PADDING_BOTTOM), childBox, referenceConstraint);
+    float leftPadding = computePadding(properties.get(CSSProperty.PADDING_LEFT), childBox, referenceConstraint);
+    float rightPadding = computePadding(properties.get(CSSProperty.PADDING_RIGHT), childBox, referenceConstraint);
     childBox.dimensions().setComputedPadding(topPadding, bottomPadding, leftPadding, rightPadding);
   }
 

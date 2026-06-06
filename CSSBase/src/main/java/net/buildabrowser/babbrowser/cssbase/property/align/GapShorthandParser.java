@@ -5,7 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
+import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 
@@ -33,7 +33,7 @@ public class GapShorthandParser implements PropertyValueParser {
   }
 
   @Override
-  public void updateProperty(CSSValue result, PropertyContainer propertySetter) {
+  public void updateProperty(CSSValue result, MutablePropertyContainer propertySetter) {
     propertySetter.setProperty(CSSProperty.ROW_GAP, ((GapShorthandValue) result).rowGap());
     propertySetter.setProperty(CSSProperty.COLUMN_GAP, ((GapShorthandValue) result).columnGap());
   }

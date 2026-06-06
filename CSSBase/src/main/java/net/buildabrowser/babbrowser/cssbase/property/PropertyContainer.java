@@ -4,12 +4,10 @@ public interface PropertyContainer {
 
   PropertyContainer parent();
 
-  void setProperty(CSSProperty property, CSSValue value);
-
-  void setCustomProperty(String property, CSSValue value);
-
-  CSSValue getProperty(CSSProperty property);
-
-  CSSValue getCustomProperty(String property);
+  boolean wasInherited(CSSProperty property);
   
+  CSSValue get(CSSProperty property);
+
+  CSSValue getCustom(String property);
+
 }

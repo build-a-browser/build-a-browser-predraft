@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.renderer.composite;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowValue;
 import net.buildabrowser.babbrowser.dom.Node;
@@ -16,9 +16,9 @@ public class CompositeLayerUtil {
   private CompositeLayerUtil() {}
 
   public static boolean hasScrollContent(HTMLElement element) {
-    ActiveStyles activeStyles = ((ElementContext) element.getContext()).activeStyles();
-    CSSValue overflowX = activeStyles.getProperty(CSSProperty.OVERFLOW_X);
-    CSSValue overflowY = activeStyles.getProperty(CSSProperty.OVERFLOW_Y);
+    PropertyContainer properties = ((ElementContext) element.getContext()).properties();
+    CSSValue overflowX = properties.get(CSSProperty.OVERFLOW_X);
+    CSSValue overflowY = properties.get(CSSProperty.OVERFLOW_Y);
 
     overflowX = adjustOverflowValueIfHTML(element, overflowX, CSSProperty.OVERFLOW_X);
     overflowY = adjustOverflowValueIfHTML(element, overflowY, CSSProperty.OVERFLOW_Y);
@@ -57,12 +57,12 @@ public class CompositeLayerUtil {
         if (!(node instanceof HTMLElement childElement)) continue;
         // TODO: instanceof BodyElement
         if (!childElement.name().equals("body")) continue;
-        ActiveStyles activeStyles = ((ElementContext) childElement.getContext()).activeStyles();
+        PropertyContainer properties = ((ElementContext) childElement.getContext()).properties();
         if (
-          activeStyles.getProperty(CSSProperty.DISPLAY).equals(DisplayValue.NONE)
+          properties.get(CSSProperty.DISPLAY).equals(DisplayValue.NONE)
         ) continue;
 
-        guessedValue = activeStyles.getProperty(relatedProperty);
+        guessedValue = properties.get(relatedProperty);
         break;
       }
     }

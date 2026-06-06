@@ -15,7 +15,7 @@ public class PosRefBoxFragment extends BoxFragment {
   }
 
   public PositionValue position() {
-    return (PositionValue) box().activeStyles().getProperty(CSSProperty.POSITION);
+    return (PositionValue) box().properties().get(CSSProperty.POSITION);
   }
 
   @Override

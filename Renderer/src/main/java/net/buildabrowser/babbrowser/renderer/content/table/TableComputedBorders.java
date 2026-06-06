@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.renderer.content.table;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.paint.ElementBorderPainter;
@@ -34,7 +34,7 @@ public class TableComputedBorders {
       };
 
       return ElementBorderPainter.borderColor(
-        sourceBox.activeStyles(), colorProperty);
+        sourceBox.properties(), colorProperty);
     }
 
   }
@@ -65,9 +65,9 @@ public class TableComputedBorders {
       default -> throw new UnsupportedOperationException("Unrecognized Border Side: " + sourceSide);
     };
 
-    ActiveStyles sourceStyles = sourceBox.activeStyles();
-    CSSValue widthValue = sourceStyles.getProperty(widthProperty);
-    CSSValue borderStyle = sourceStyles.getProperty(styleProperty);
+    PropertyContainer properties = sourceBox.properties();
+    CSSValue widthValue = properties.get(widthProperty);
+    CSSValue borderStyle = properties.get(styleProperty);
     float borderWidth = BorderUtil.computeBorder(sourceBox, widthValue, borderStyle);
     if (divTwo) borderWidth /= 2;
 

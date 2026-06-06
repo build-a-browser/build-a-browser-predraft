@@ -3,8 +3,8 @@ package net.buildabrowser.babbrowser.renderer.content.flow;
 import java.util.Deque;
 import java.util.LinkedList;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.ManagedBoxEntryMarker;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.ManagedBoxExitMarker;
@@ -34,8 +34,8 @@ public final class LineWhitespaceCollapser {
           };
         }
         case ManagedBoxEntryMarker entryMarker -> {
-          ActiveStyles styles = entryMarker.elementBox().activeStyles();
-          WhitespaceCollapseValue collapse = (WhitespaceCollapseValue) styles.getProperty(CSSProperty.WHITE_SPACE_COLLAPSE);
+          PropertyContainer properties = entryMarker.elementBox().properties();
+          WhitespaceCollapseValue collapse = (WhitespaceCollapseValue) properties.get(CSSProperty.WHITE_SPACE_COLLAPSE);
           modeStack.push(collapse);
         }
         case ManagedBoxExitMarker _1 -> modeStack.pop();

@@ -5,7 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
+import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.AnyOrderResult;
@@ -57,7 +57,7 @@ public class FontShorthandParser implements PropertyValueParser {
   }
 
   @Override
-  public void updateProperty(CSSValue result, PropertyContainer propertySetter) {
+  public void updateProperty(CSSValue result, MutablePropertyContainer propertySetter) {
     FontShorthandValue shorthand = (FontShorthandValue) result;
     if (shorthand.fontWeight() != null) {
       propertySetter.setProperty(CSSProperty.FONT_WEIGHT, shorthand.fontWeight());

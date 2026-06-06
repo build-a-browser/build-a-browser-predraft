@@ -1,11 +1,11 @@
 package net.buildabrowser.babbrowser.renderer.box.imp;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
-import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
+import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
@@ -36,8 +36,8 @@ public class ElementBoxImp extends AbstractElementBoxImp {
   }
 
   @Override
-  public ActiveStyles activeStyles() {
-    return ((ElementContext) element.getContext()).activeStyles();
+  public PropertyContainer properties() {
+    return ((ElementContext) element.getContext()).properties();
   }
 
   @Override
@@ -64,7 +64,7 @@ public class ElementBoxImp extends AbstractElementBoxImp {
   // As of writing, children are cleared before the update, so don't worry about that yet
   @Override
   public void update() {
-    InnerDisplayValue innerDisplay = ActiveStylesUtil.innerDisplayValue(activeStyles());
+    InnerDisplayValue innerDisplay = PropertiesUtil.innerDisplayValue(properties());
     if (
       this.content == null
       || !innerDisplay.equals(prevDisplayValue)
@@ -105,7 +105,7 @@ public class ElementBoxImp extends AbstractElementBoxImp {
   }
 
   private boolean canShareContent() {
-    CSSValue positioning = activeStyles().getProperty(CSSProperty.POSITION);
+    CSSValue positioning = properties().get(CSSProperty.POSITION);
     return
       positioning.equals(PositionValue.STATIC)
       && !CompositeLayerUtil.hasScrollContent(this)

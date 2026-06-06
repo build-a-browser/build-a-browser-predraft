@@ -26,7 +26,7 @@ public final class SizingWidthUtil {
   ) {
     return evaluateAdjustedWidthSize(
       parentConstraint, refBox,
-      refBox.activeStyles().getProperty(CSSProperty.WIDTH));
+      refBox.properties().get(CSSProperty.WIDTH));
   }
 
   public static LayoutConstraint evaluateAdjustedWidthSize(
@@ -51,14 +51,14 @@ public final class SizingWidthUtil {
 
     LayoutConstraint maxConstraint = evaluateAdjustedWidthSize(
       parentConstraint, refBox,
-      refBox.activeStyles().getProperty(CSSProperty.MAX_WIDTH));
+      refBox.properties().get(CSSProperty.MAX_WIDTH));
     if (maxConstraint.isBounded()) {
       adjustedConstraint = Math.min(adjustedConstraint, maxConstraint.value());
     }
 
     LayoutConstraint minConstraint = evaluateAdjustedWidthSize(
       parentConstraint, refBox,
-      refBox.activeStyles().getProperty(CSSProperty.MIN_WIDTH));
+      refBox.properties().get(CSSProperty.MIN_WIDTH));
 
     assert minConstraint.isBounded() || !parentConstraint.isBounded();
     if (minConstraint.isBounded()) {
@@ -78,7 +78,7 @@ public final class SizingWidthUtil {
     if (!constraint.isBounded()) return constraint;
     if (constraint.value() < 0) return LayoutConstraint.of(0);
 
-    CSSValue boxSizing = refBox.activeStyles().getProperty(CSSProperty.BOX_SIZING);
+    CSSValue boxSizing = refBox.properties().get(CSSProperty.BOX_SIZING);
     if (boxSizing.equals(BoxSizingValue.CONTENT_BOX)) return constraint;
 
     float adjustedConstraint = Math.max(0,

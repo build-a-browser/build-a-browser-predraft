@@ -179,7 +179,7 @@ public final class CustomPropertyParser {
       return new InvalidVarResolution(varName);
     }
 
-    CSSValue retValue = refContainer.getCustomProperty(varName);
+    CSSValue retValue = refContainer.getCustom(varName);
     if (retValue == null) {
       return null;
     } else if (retValue.equals(CSSFailure.UNSET_CUSTOM_PROPERTY)) {

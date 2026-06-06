@@ -262,7 +262,8 @@ public final class DeclarationParser {
   }
 
   public static CSSValue parseDeferredDeclaration(
-    CSSTokenStreamSource source, CSSDeferred deferredValue, PropertyContainer refContainer
+    CSSTokenStreamSource source, CSSDeferred deferredValue,
+    PropertyContainer refContainer
   ) throws IOException {
     CSSValue resolvedValue = CustomPropertyParser.resolveVarValues(
       source, deferredValue.value(), refContainer);

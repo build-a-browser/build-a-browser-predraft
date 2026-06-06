@@ -20,7 +20,7 @@ public final class LayoutContextGenerator {
     ElementBox box, LayoutContext parentContext, FontDeterminationContext parentFontInfo
   ) {
     FontDeterminationContext childFontInfo = FontDetermination.determineFont(
-      parentFontInfo, box.activeStyles(), parentContext);
+      parentFontInfo, box.properties(), parentContext);
     LayoutContext childContext = parentContext;
     if (!childFontInfo.equals(parentFontInfo)) {
       childContext = new LayoutContext(parentContext.global(), childFontInfo.font());

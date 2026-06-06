@@ -2,7 +2,6 @@ package net.buildabrowser.babbrowser.renderer.content.table.imp;
 
 import java.util.Arrays;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
@@ -58,11 +57,10 @@ public class TableColumnImp implements TableColumn {
   @Override
   public boolean isConstrained() {
     // TODO: Account for min/max-content keyword, and group
-    ActiveStyles columnStyles = columnBox.activeStyles();
     LayoutConstraint lengthConstraint = SizingUtil.evaluateBaseSize(
       columnBox.layoutContext(),
       LayoutConstraint.AUTO,
-      columnStyles.getProperty(CSSProperty.WIDTH),
+      columnBox.properties().get(CSSProperty.WIDTH),
       true, false);
     if (lengthConstraint.isBounded()) return true;
 
@@ -74,7 +72,7 @@ public class TableColumnImp implements TableColumn {
           LayoutConstraint childLengthConstraint = SizingUtil.evaluateBaseSize(
             cell.cellBox().layoutContext(),
             LayoutConstraint.AUTO,
-            cell.cellBox().activeStyles().getProperty(CSSProperty.WIDTH),
+            cell.cellBox().properties().get(CSSProperty.WIDTH),
             true, false);
           if (childLengthConstraint.isBounded()) return true;
         }
@@ -92,13 +90,12 @@ public class TableColumnImp implements TableColumn {
 
   @Override
   public float minContentPercentageSizingGuess(LayoutConstraint assignableWidth) {
-    ActiveStyles columnStyles = columnBox.activeStyles();
     float minWidth = minContentWidth();
     // TODO: This doesn't support things like the max-content keyword
     LayoutConstraint percentConstraint = SizingUtil.evaluateBaseSize(
       columnBox.layoutContext(),
       assignableWidth,
-      columnStyles.getProperty(CSSProperty.WIDTH),
+      columnBox.properties().get(CSSProperty.WIDTH),
       false, true);
     if (percentConstraint.isBounded()) {
       return Math.max(minWidth, percentConstraint.value());
@@ -108,13 +105,12 @@ public class TableColumnImp implements TableColumn {
 
   @Override
   public float minContentSpecifiedSizingGuess(LayoutConstraint assignableWidth) {
-    ActiveStyles columnStyles = columnBox.activeStyles();
     float minWidth = minContentWidth();
     // TODO: This doesn't support things like the max-content keyword
     LayoutConstraint percentConstraint = SizingUtil.evaluateBaseSize(
       columnBox.layoutContext(),
       assignableWidth,
-      columnStyles.getProperty(CSSProperty.WIDTH),
+      columnBox.properties().get(CSSProperty.WIDTH),
       false, true);
     if (percentConstraint.isBounded()) {
       return Math.max(minWidth, percentConstraint.value());
@@ -129,11 +125,10 @@ public class TableColumnImp implements TableColumn {
 
   @Override
   public float maxContentSizingGuess(LayoutConstraint assignableWidth) {
-    ActiveStyles columnStyles = columnBox.activeStyles();
     LayoutConstraint percentConstraint = SizingUtil.evaluateBaseSize(
       columnBox.layoutContext(),
       assignableWidth,
-      columnStyles.getProperty(CSSProperty.WIDTH),
+      columnBox.properties().get(CSSProperty.WIDTH),
       false, true);
     if (percentConstraint.isBounded()) {
       float minWidth = minContentWidth();
@@ -186,11 +181,10 @@ public class TableColumnImp implements TableColumn {
 
   @Override
   public float intrinsicPercentage() {
-    ActiveStyles columnStyles = columnBox.activeStyles();
     LayoutConstraint percentConstraint = SizingUtil.evaluateBaseSize(
       columnBox.layoutContext(),
       LayoutConstraint.of(100),
-      columnStyles.getProperty(CSSProperty.WIDTH),
+      columnBox.properties().get(CSSProperty.WIDTH),
       false, true);
 
     if (!percentConstraint.isBounded()) return -1;

@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.context;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.context.imp.ElementContextImp;
 
@@ -15,7 +15,7 @@ public interface ElementContext {
 
   void regenerateStyles();
 
-  ActiveStyles activeStyles();
+  PropertyContainer properties();
 
   static ElementContext create(HTMLElement element) {
     return new ElementContextImp(element);

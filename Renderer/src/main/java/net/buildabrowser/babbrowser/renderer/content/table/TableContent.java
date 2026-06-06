@@ -69,7 +69,7 @@ public class TableContent implements BoxContent {
 
     TableCellUtil.forEachCell(table, cell -> PaddingUtil.computePadding(cell.cellBox(), widthConstraint));
 
-    CSSValue collapseValue = rootBox.activeStyles().getProperty(CSSProperty.BORDER_COLLAPSE);
+    CSSValue collapseValue = rootBox.properties().get(CSSProperty.BORDER_COLLAPSE);
     this.borderPainter = collapseValue.equals(BorderCollapseValue.COLLAPSE) ?
       new TableCollapsedBorderPainter() :
       new TableSeparateBorderPainter();
@@ -254,10 +254,10 @@ public class TableContent implements BoxContent {
   }
 
   private BorderSpacings determineBorderSpacing() {
-    CSSValue borderCollapse = rootBox.activeStyles().getProperty(CSSProperty.BORDER_COLLAPSE);
+    CSSValue borderCollapse = rootBox.properties().get(CSSProperty.BORDER_COLLAPSE);
     if (!(borderCollapse.equals(BorderCollapseValue.SEPARATE))) return BorderSpacings.ZERO;
 
-    CSSValue borderSpacingValue = rootBox.activeStyles().getProperty(CSSProperty.BORDER_SPACING);
+    CSSValue borderSpacingValue = rootBox.properties().get(CSSProperty.BORDER_SPACING);
     if (!(borderSpacingValue instanceof BorderSpacingValue borderSpacingValues)) return BorderSpacings.ZERO;
 
     LayoutConstraint borderHSize = SizingUtil.evaluateBaseSize(

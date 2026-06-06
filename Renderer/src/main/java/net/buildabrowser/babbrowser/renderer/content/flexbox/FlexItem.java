@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.renderer.content.flexbox;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexGrowValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexShrinkValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
@@ -31,10 +31,10 @@ public class FlexItem {
 
   public FlexItem(ElementBox itemBox) {
     this.itemBox = itemBox;
-    this.growFactor = ((FlexGrowValue) itemBox.activeStyles()
-      .getProperty(CSSProperty.FLEX_GROW)).value().floatValue();
-    this.shrinkFactor = ((FlexShrinkValue) itemBox.activeStyles()
-      .getProperty(CSSProperty.FLEX_SHRINK)).value().floatValue();
+    this.growFactor = ((FlexGrowValue) itemBox.properties()
+      .get(CSSProperty.FLEX_GROW)).value().floatValue();
+    this.shrinkFactor = ((FlexShrinkValue) itemBox.properties()
+      .get(CSSProperty.FLEX_SHRINK)).value().floatValue();
   }
 
   public ElementBox box() {
@@ -44,10 +44,10 @@ public class FlexItem {
   public void computeMinMaxSizes(LayoutConstraint refMainSize, boolean isVertical) {
     this.isVertical = isVertical;
 
-    ActiveStyles activeStyles = itemBox.activeStyles();
+    PropertyContainer properties = itemBox.properties();
     CSSValue minSizeValue = isVertical ?
-      activeStyles.getProperty(CSSProperty.MIN_HEIGHT) :
-      activeStyles.getProperty(CSSProperty.MIN_WIDTH);
+      properties.get(CSSProperty.MIN_HEIGHT) :
+      properties.get(CSSProperty.MIN_WIDTH);
     LayoutConstraint minMainSizeC = isVertical ?
       SizingHeightUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, minSizeValue) :
       SizingWidthUtil.evaluateAdjustedWidthSize(refMainSize, itemBox, minSizeValue);
@@ -56,8 +56,8 @@ public class FlexItem {
     }
     
     CSSValue maxSizeValue = isVertical ?
-      activeStyles.getProperty(CSSProperty.MAX_HEIGHT) :
-      activeStyles.getProperty(CSSProperty.MAX_WIDTH);
+      properties.get(CSSProperty.MAX_HEIGHT) :
+      properties.get(CSSProperty.MAX_WIDTH);
     LayoutConstraint maxMainSizeC = isVertical ?
       SizingHeightUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, maxSizeValue) :
       SizingWidthUtil.evaluateAdjustedWidthSize(refMainSize, itemBox, maxSizeValue);

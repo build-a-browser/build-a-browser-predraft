@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.floats.FloatValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
@@ -41,9 +41,9 @@ public final class FloatLayout {
     float reservedWidth
   ) {
     FloatTracker floatTracker = rootContent.floatTracker();
-    ActiveStyles childStyles = floatFragment.box().activeStyles();
+    PropertyContainer properties = floatFragment.box().properties();
 
-    return switch (childStyles.getProperty(CSSProperty.FLOAT)) {
+    return switch (properties.get(CSSProperty.FLOAT)) {
       case FloatValue.LEFT -> floatTracker.addLineStartFloat(floatFragment, parentWidthConstraint, reservedWidth);
       case FloatValue.RIGHT -> floatTracker.addLineEndFloat(floatFragment, parentWidthConstraint, reservedWidth);
       default -> throw new UnsupportedOperationException("Unrecognized float type!");

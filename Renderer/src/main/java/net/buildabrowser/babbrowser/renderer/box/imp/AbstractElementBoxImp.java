@@ -3,8 +3,8 @@ package net.buildabrowser.babbrowser.renderer.box.imp;
 import java.util.Comparator;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
-import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
@@ -175,7 +175,7 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   @Override
   public boolean sharesContent(ElementBox elementBox) {
     // TODO: Can't use FlowUtil.isInFlow here because isReplaced() requires content
-    InnerDisplayValue otherInnerDisplay = ActiveStylesUtil.innerDisplayValue(elementBox.activeStyles());
+    InnerDisplayValue otherInnerDisplay = PropertiesUtil.innerDisplayValue(elementBox.properties());
     boolean canShareFlow =
       content() instanceof FlowRootContent
       && otherInnerDisplay.equals(InnerDisplayValue.FLOW)

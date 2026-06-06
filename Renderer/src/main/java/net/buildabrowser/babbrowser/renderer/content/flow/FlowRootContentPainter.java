@@ -5,7 +5,7 @@ import static net.buildabrowser.babbrowser.renderer.layout.StackingContext.start
 import java.util.List;
 import java.util.function.Consumer;
 
-import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
+import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
@@ -126,7 +126,7 @@ public final class FlowRootContentPainter {
             // TODO: Remove this if once I move some stuff to fixupChildren
             paint.setFont(parentBox.layoutContext().font());
           }
-          paint.setColor(ActiveStylesUtil.textColor(parentBox.activeStyles()));
+          paint.setColor(PropertiesUtil.textColor(parentBox.properties()));
         },
         t -> t.translate(childFragment.posX(Measurement.CONTENT), childFragment.posY(Measurement.CONTENT)),
         c -> paintFragment(childFragment, c, vpIntersection, refFragment));
@@ -162,7 +162,7 @@ public final class FlowRootContentPainter {
       canvas.withPaintAndTransform(
         p -> {
           p.setFont(parentBox.layoutContext().font());
-          p.setColor(ActiveStylesUtil.textColor(parentBox.activeStyles()));
+          p.setColor(PropertiesUtil.textColor(parentBox.properties()));
         },
         t -> t.translate(childFragment.posX(Measurement.BORDER), childFragment.posY(Measurement.BORDER)),
         c -> paintInlineFragment(childFragment, c, vpIntersection, refFragment));

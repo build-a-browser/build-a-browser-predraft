@@ -5,7 +5,7 @@ import java.io.IOException;
 import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
+import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 
@@ -32,7 +32,7 @@ public class OverflowShorthandParser implements PropertyValueParser {
   }
 
   @Override
-  public void updateProperty(CSSValue result, PropertyContainer propertySetter) {
+  public void updateProperty(CSSValue result, MutablePropertyContainer propertySetter) {
     OverflowShorthandValue shorthandValue = (OverflowShorthandValue) result;
     propertySetter.setProperty(CSSProperty.OVERFLOW_X, shorthandValue.overflowX());
     propertySetter.setProperty(CSSProperty.OVERFLOW_Y, shorthandValue.overflowY());

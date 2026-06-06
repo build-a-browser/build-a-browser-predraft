@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.box.imp;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
@@ -9,18 +9,13 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
 public class AnonymousElementBoxImp extends AbstractElementBoxImp {
 
-  private final ActiveStyles activeStyles;
+  private final PropertyContainer properties;
   private final BoxContent content;
 
-  public AnonymousElementBoxImp(ActiveStyles activeStyles, ElementBox parentBox, BoxLevel boxLevel) {
+  public AnonymousElementBoxImp(PropertyContainer properties, ElementBox parentBox, BoxLevel boxLevel) {
     super(parentBox, boxLevel);
-    this.activeStyles = activeStyles;
+    this.properties = properties;
     this.content = new FlowRootContent(this);
-  }
-
-  @Override
-  public ActiveStyles activeStyles() {
-    return this.activeStyles;
   }
 
   @Override
@@ -53,6 +48,11 @@ public class AnonymousElementBoxImp extends AbstractElementBoxImp {
     }
 
     return null;
+  }
+
+  @Override
+  public PropertyContainer properties() {
+    return this.properties;
   }
   
 }

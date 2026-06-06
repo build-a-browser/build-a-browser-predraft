@@ -1,9 +1,9 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
-import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
@@ -49,14 +49,14 @@ public final class FlowUtil {
 
   public static boolean isInFlow(ElementBox elementBox) {
     return
-      ActiveStylesUtil.innerDisplayValue(elementBox.activeStyles()).equals(InnerDisplayValue.FLOW)
+      PropertiesUtil.innerDisplayValue(elementBox.properties()).equals(InnerDisplayValue.FLOW)
       && !elementBox.isReplaced()
       && PositionUtil.affectsLayout(elementBox)
       && !CompositeLayerUtil.hasScrollContent(elementBox);
   }
 
   public static boolean isFloat(ElementBox elementBox) {
-    return !elementBox.activeStyles().getProperty(CSSProperty.FLOAT).equals(CSSValue.NONE);
+    return !elementBox.properties().get(CSSProperty.FLOAT).equals(CSSValue.NONE);
   }
 
 }

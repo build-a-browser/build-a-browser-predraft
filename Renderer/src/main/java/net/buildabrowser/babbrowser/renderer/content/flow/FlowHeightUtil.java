@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
@@ -67,11 +67,11 @@ public final class FlowHeightUtil {
   public static void computeVerticalMarginsOrZero(
     ElementBox childBox, LayoutConstraint parentWidthConstraint
   ) {
-    ActiveStyles childStyles = childBox.activeStyles();
+    PropertyContainer properties = childBox.properties();
     LayoutConstraint marginTopConstraint = SizingUtil.evaluateBaseSize(
-      childBox.layoutContext(), parentWidthConstraint, childStyles.getProperty(CSSProperty.MARGIN_TOP));
+      childBox.layoutContext(), parentWidthConstraint, properties.get(CSSProperty.MARGIN_TOP));
     LayoutConstraint marginBottomConstraint = SizingUtil.evaluateBaseSize(
-      childBox.layoutContext(), parentWidthConstraint, childStyles.getProperty(CSSProperty.MARGIN_BOTTOM));
+      childBox.layoutContext(), parentWidthConstraint, properties.get(CSSProperty.MARGIN_BOTTOM));
 
     boolean isTopMarginSet = marginTopConstraint.isBounded();
     boolean isBottomMarginSet = marginBottomConstraint.isBounded();

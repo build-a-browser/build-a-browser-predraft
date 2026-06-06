@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
-import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
@@ -41,7 +41,7 @@ public final class TableFormer {
     
     while (currentElement != null) {
       if (currentElement instanceof ElementBox elementBox) {
-        switch (ActiveStylesUtil.outerDisplayValue(elementBox.activeStyles())) {
+        switch (PropertiesUtil.outerDisplayValue(elementBox.properties())) {
           case TABLE_ROW -> processRow(table, bookkeeping, elementBox);
           case TABLE_FOOTER_GROUP -> {
             endRowGroup(table, bookkeeping);
@@ -156,7 +156,7 @@ public final class TableFormer {
 
   private static boolean firstElementCheck(Box currentElement) {
     if (!(currentElement instanceof ElementBox elBox)) return false;
-    OuterDisplayValue displayValue = ActiveStylesUtil.outerDisplayValue(elBox.activeStyles());
+    OuterDisplayValue displayValue = PropertiesUtil.outerDisplayValue(elBox.properties());
     return switch (displayValue) {
       case TABLE_COLUMN_GROUP -> true;
       case TABLE_HEADER_GROUP -> true;

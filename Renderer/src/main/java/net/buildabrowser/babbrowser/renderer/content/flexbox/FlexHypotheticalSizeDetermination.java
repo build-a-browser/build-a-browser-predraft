@@ -2,14 +2,14 @@ package net.buildabrowser.babbrowser.renderer.content.flexbox;
 
 import java.util.List;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexBasisValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.SizeValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 
@@ -115,12 +115,12 @@ public final class FlexHypotheticalSizeDetermination {
   }
 
   private static CSSValue determineUsedBasis(FlexItem item, boolean isVertical) {
-    ActiveStyles activeStyles = item.box().activeStyles();
-    CSSValue basis = activeStyles.getProperty(CSSProperty.FLEX_BASIS);
+    PropertyContainer properties = item.box().properties();
+    CSSValue basis = properties.get(CSSProperty.FLEX_BASIS);
     if (!basis.equals(CSSValue.AUTO)) return basis;
     basis = isVertical ?
-      activeStyles.getProperty(CSSProperty.HEIGHT) :
-      activeStyles.getProperty(CSSProperty.WIDTH);
+      properties.get(CSSProperty.HEIGHT) :
+      properties.get(CSSProperty.WIDTH);
     if (!basis.equals(CSSValue.AUTO)) return basis;
     return FlexBasisValue.CONTENT;
   }

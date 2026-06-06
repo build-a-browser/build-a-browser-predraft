@@ -1,12 +1,12 @@
 package net.buildabrowser.babbrowser.css.engine.styles;
 
 import net.buildabrowser.babbrowser.css.engine.styles.imp.ActiveStylesImp;
+import net.buildabrowser.babbrowser.css.engine.styles.imp.ActiveStylesPropertyContainerImp;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 
-public interface ActiveStyles extends PropertyContainer {
-
-  ActiveStyles parent();
+public interface ActiveStyles extends MutablePropertyContainer {
 
   void inheritProperty(CSSProperty property);
 
@@ -16,14 +16,23 @@ public interface ActiveStyles extends PropertyContainer {
 
   void unsetProperty(CSSProperty property);
 
-  boolean wasInherited(CSSProperty property);
+  boolean shouldInherit(CSSProperty property);
 
   static ActiveStyles create() {
-    return new ActiveStylesImp(null);
+    return new ActiveStylesImp();
   }
 
-  static ActiveStyles create(ActiveStyles parentStyles) {
-    return new ActiveStylesImp(parentStyles);
+  static PropertyContainer parentStyles(
+    PropertyContainer parentContainer,
+    ActiveStyles activeStyles
+  ) {
+    return new ActiveStylesPropertyContainerImp(parentContainer, activeStyles);
+  }
+
+  static PropertyContainer unparentedStyles(
+    ActiveStyles activeStyles
+  ) {
+    return new ActiveStylesPropertyContainerImp(null, activeStyles);
   }
 
 }

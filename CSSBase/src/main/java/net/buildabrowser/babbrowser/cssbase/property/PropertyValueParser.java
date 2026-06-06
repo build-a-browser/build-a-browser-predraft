@@ -12,7 +12,7 @@ public interface PropertyValueParser {
     return null;
   }
 
-  default void updateProperty(CSSValue result, PropertyContainer propertySetter) {
+  default void updateProperty(CSSValue result, MutablePropertyContainer propertySetter) {
     propertySetter.setProperty(relatedProperty(), result);
   }
 

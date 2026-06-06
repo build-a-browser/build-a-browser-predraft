@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.renderer.content.common;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
@@ -13,14 +13,14 @@ public final class MarginUtil {
   public static void computeSimpleMargin(
     ElementBox childBox, LayoutConstraint referenceConstraint
   ) {
-    ActiveStyles styles = childBox.activeStyles();
+    PropertyContainer properties = childBox.properties();
     
-    float topMargin = computeMargin(styles.getProperty(CSSProperty.MARGIN_TOP), childBox, referenceConstraint);
-    float bottomMargin = computeMargin(styles.getProperty(CSSProperty.MARGIN_BOTTOM), childBox, referenceConstraint);
+    float topMargin = computeMargin(properties.get(CSSProperty.MARGIN_TOP), childBox, referenceConstraint);
+    float bottomMargin = computeMargin(properties.get(CSSProperty.MARGIN_BOTTOM), childBox, referenceConstraint);
     childBox.dimensions().setComputedVerticalMargin(topMargin, bottomMargin);
 
-    float leftMargin = computeMargin(styles.getProperty(CSSProperty.MARGIN_LEFT), childBox, referenceConstraint);
-    float rightMargin = computeMargin(styles.getProperty(CSSProperty.MARGIN_RIGHT), childBox, referenceConstraint);
+    float leftMargin = computeMargin(properties.get(CSSProperty.MARGIN_LEFT), childBox, referenceConstraint);
+    float rightMargin = computeMargin(properties.get(CSSProperty.MARGIN_RIGHT), childBox, referenceConstraint);
     childBox.dimensions().setComputedHorizontalMargin(leftMargin, rightMargin);
   }
 

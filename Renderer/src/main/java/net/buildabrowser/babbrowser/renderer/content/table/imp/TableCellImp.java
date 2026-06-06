@@ -2,8 +2,8 @@ package net.buildabrowser.babbrowser.renderer.content.table.imp;
 
 import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
@@ -129,10 +129,10 @@ public class TableCellImp implements TableCell {
   @Override
   public float outerMinContentWidth() {
     // TODO: Make this actually be "outer"
-    ActiveStyles cellStyles = cellBox.activeStyles();
+    PropertyContainer properties = cellBox.properties();
     float minContentWidth = cellBox.dimensions().preferredMinWidthConstraint();
     LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
-      LayoutConstraint.AUTO, cellBox, cellStyles.getProperty(CSSProperty.MIN_WIDTH));
+      LayoutConstraint.AUTO, cellBox, properties.get(CSSProperty.MIN_WIDTH));
 
     if (specifiedMinWidth.isBounded()) {
       return outerWidth(Math.max(specifiedMinWidth.value(), minContentWidth));
@@ -142,15 +142,15 @@ public class TableCellImp implements TableCell {
 
   @Override
   public float outerMaxContentWidth() {
-    ActiveStyles cellStyles = cellBox.activeStyles();
+    PropertyContainer properties = cellBox.properties();
     float minContentWidth = cellBox.dimensions().preferredMinWidthConstraint();
     float maxContentWidth = cellBox.dimensions().preferredWidthConstraint();
     LayoutConstraint specifiedWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
       LayoutConstraint.AUTO, cellBox);
     LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
-      LayoutConstraint.AUTO, cellBox, cellStyles.getProperty(CSSProperty.MIN_WIDTH));
+      LayoutConstraint.AUTO, cellBox, properties.get(CSSProperty.MIN_WIDTH));
     LayoutConstraint specifiedMaxWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
-      LayoutConstraint.AUTO, cellBox, cellStyles.getProperty(CSSProperty.MAX_WIDTH));
+      LayoutConstraint.AUTO, cellBox, properties.get(CSSProperty.MAX_WIDTH));
 
     float usedWidth = minContentWidth;
     if (specifiedMinWidth.isBounded()) {

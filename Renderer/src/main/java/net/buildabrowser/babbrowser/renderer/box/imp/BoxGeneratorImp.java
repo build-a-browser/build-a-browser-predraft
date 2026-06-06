@@ -3,9 +3,9 @@ package net.buildabrowser.babbrowser.renderer.box.imp;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.dom.Comment;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.NodeList;
@@ -70,7 +70,7 @@ public class BoxGeneratorImp implements BoxGenerator {
 
   private List<Box> createElementBoxes(Box parentBox, HTMLElement element) {
     ElementContext context = (ElementContext) element.getContext();
-    OuterDisplayValue outerDisplayValue = ActiveStylesUtil.outerDisplayValue(context.activeStyles());
+    OuterDisplayValue outerDisplayValue = PropertiesUtil.outerDisplayValue(context.properties());
 
     switch (outerDisplayValue) {
       case BLOCK:

@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.renderer.box;
 
 import java.util.Comparator;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.imp.AnonymousElementBoxImp;
 import net.buildabrowser.babbrowser.renderer.box.imp.ElementBoxImp;
@@ -14,7 +14,7 @@ import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 
 public interface ElementBox extends Box {
 
-  ActiveStyles activeStyles();
+  PropertyContainer properties();
   
   BoxContent content();
 
@@ -64,12 +64,11 @@ public interface ElementBox extends Box {
   }
 
   public static ElementBox createAnonymous(ElementBox parentBox, BoxLevel boxLevel) {
-    ActiveStyles styles = ActiveStyles.create(parentBox.activeStyles());
-    return new AnonymousElementBoxImp(styles, parentBox, boxLevel);
+    return new AnonymousElementBoxImp(null, parentBox, boxLevel);
   }
 
-  public static ElementBox createAnonymous(ActiveStyles styles, ElementBox parentBox, BoxLevel boxLevel) {
-    return new AnonymousElementBoxImp(styles, parentBox, boxLevel);
+  public static ElementBox createAnonymous(PropertyContainer properties, ElementBox parentBox, BoxLevel boxLevel) {
+    return new AnonymousElementBoxImp(properties, parentBox, boxLevel);
   }
 
   enum BoxLevel {

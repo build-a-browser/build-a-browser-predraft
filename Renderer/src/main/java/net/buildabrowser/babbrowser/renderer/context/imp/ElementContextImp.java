@@ -16,6 +16,7 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
 import net.buildabrowser.babbrowser.dom.Document;
@@ -35,7 +36,7 @@ public class ElementContextImp implements ElementContext {
   private final HTMLElement element;
   // TODO: Remove the need for this field
 
-  private ActiveStyles activeStyles = null;
+  private PropertyContainer properties = null;
   private WeightedStyleRule internalStyleRule = null;
   private PresentationalHint legacyAttributes = null;
 
@@ -71,14 +72,15 @@ public class ElementContextImp implements ElementContext {
 
   @Override
   public void regenerateStyles() {
-    ActiveStyles oldStyles = this.activeStyles;
-    ActiveStyles parentStyles = element.parentNode() instanceof HTMLElement parent ?
-      ((ElementContext) parent.getContext()).activeStyles() :
+    PropertyContainer oldProperties = this.properties;
+    PropertyContainer parentProperties = element.parentNode() instanceof HTMLElement parent ?
+      ((ElementContext) parent.getContext()).properties() :
       null;
     styleRules.sort(WeightedStyleRule::compare);
-    this.activeStyles = ActiveStylesGenerator.generateActiveStyles(styleRules, parentStyles);
+    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(styleRules, parentProperties);
+    this.properties = ActiveStyles.parentStyles(parentProperties, activeStyles);
 
-    if (oldStyles == null) {
+    if (oldProperties == null) {
       element.invalidate(InvalidationLevel.BOX);
     } else {
       // TODO: This is an inefficient way to do this, but we can't put a change listener on the
@@ -86,7 +88,7 @@ public class ElementContextImp implements ElementContext {
       //   vars, etc. are respected each render)
       for (CSSProperty property : CSSProperty.values()) {
         if (property.hasExpansion()) continue;
-        if (!activeStyles.getProperty(property).equals(oldStyles.getProperty(property))) {
+        if (!properties.get(property).equals(oldProperties.get(property))) {
           element.invalidate(property.invalidationLevel());
         }
       }
@@ -94,9 +96,9 @@ public class ElementContextImp implements ElementContext {
   }
 
   @Override
-  public ActiveStyles activeStyles() {
-    assert this.activeStyles != null;
-    return this.activeStyles;
+  public PropertyContainer properties() {
+    assert this.properties != null;
+    return this.properties;
   }
 
   private void updateLegacyAttrs(String attrName, String newValue) {

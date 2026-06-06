@@ -23,7 +23,7 @@ public final class SizingHeightUtil {
   ) {
     return evaluateAdjustedHeightSize(
       parentConstraint, refBox,
-      refBox.activeStyles().getProperty(CSSProperty.HEIGHT));
+      refBox.properties().get(CSSProperty.HEIGHT));
   }
 
   public static LayoutConstraint evaluateAdjustedHeightSize(
@@ -64,7 +64,7 @@ public final class SizingHeightUtil {
     if (!constraint.isBounded()) return constraint;
     if (constraint.value() < 0) return LayoutConstraint.of(0);
 
-    CSSValue boxSizing = refBox.activeStyles().getProperty(CSSProperty.BOX_SIZING);
+    CSSValue boxSizing = refBox.properties().get(CSSProperty.BOX_SIZING);
     if (boxSizing.equals(BoxSizingValue.CONTENT_BOX)) return constraint;
     assert boxSizing.equals(BoxSizingValue.BORDER_BOX);
 
@@ -83,14 +83,14 @@ public final class SizingHeightUtil {
 
     LayoutConstraint maxConstraint = evaluateAdjustedHeightSize(
       parentConstraint, refBox,
-      refBox.activeStyles().getProperty(CSSProperty.MAX_HEIGHT));
+      refBox.properties().get(CSSProperty.MAX_HEIGHT));
     if (maxConstraint.isBounded()) {
       adjustedConstraint = Math.min(adjustedConstraint, maxConstraint.value());
     }
 
     LayoutConstraint minConstraint = evaluateAdjustedHeightSize(
       parentConstraint, refBox,
-      refBox.activeStyles().getProperty(CSSProperty.MIN_HEIGHT));
+      refBox.properties().get(CSSProperty.MIN_HEIGHT));
 
     assert minConstraint.isBounded() || !parentConstraint.isBounded();
     if (minConstraint.isBounded()) {

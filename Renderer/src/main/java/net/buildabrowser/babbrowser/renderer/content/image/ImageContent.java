@@ -2,8 +2,8 @@ package net.buildabrowser.babbrowser.renderer.content.image;
 
 import java.net.URI;
 
-import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
+import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.network.URLUtil;
@@ -79,7 +79,7 @@ public class ImageContent implements BoxContent, BoxPainter {
     float height = fragment.height(Measurement.CONTENT);
 
     canvas.withPaint(
-      paint -> paint.setColor(ActiveStylesUtil.backgroundColor(box.activeStyles())),
+      paint -> paint.setColor(PropertiesUtil.backgroundColor(box.properties())),
       c -> c.drawBox(0, 0, width, height));
 
     if (image != null) {
@@ -91,7 +91,7 @@ public class ImageContent implements BoxContent, BoxPainter {
     canvas.withPaint(
       p -> {
         p.setFont(box.layoutContext().font());
-        p.setColor(ActiveStylesUtil.textColor(box.activeStyles()));
+        p.setColor(PropertiesUtil.textColor(box.properties()));
       },
       c -> c.drawText(0, 0, alt));
   }
