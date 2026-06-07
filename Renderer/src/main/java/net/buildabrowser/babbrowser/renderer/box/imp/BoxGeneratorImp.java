@@ -4,10 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
+import net.buildabrowser.babbrowser.cssbase.property.content.ContentValue;
+import net.buildabrowser.babbrowser.cssbase.property.content.ContentValue.StringContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.selector.SelectorTarget;
 import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.dom.Comment;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.html.HTMLText;
 import net.buildabrowser.babbrowser.renderer.box.Box;
@@ -139,9 +146,12 @@ public class BoxGeneratorImp implements BoxGenerator {
       element.setBox(elementBox);
       element.invalidate(InvalidationLevel.BOX);
     }
+
+    addPseudoBoxIfNeeded(elementBox, SelectorTarget.BEFORE);
     for (Box childBox: createChildBoxes(elementBox, element)) {
       elementBox.addChild(childBox);
     }
+    addPseudoBoxIfNeeded(elementBox, SelectorTarget.AFTER);
 
     if (scrollBox != null) {
       scrollBox.clearChildren();
@@ -149,6 +159,42 @@ public class BoxGeneratorImp implements BoxGenerator {
     }
     return List.of(scrollBox == null ? elementBox : scrollBox);
   }
+
+  private void addPseudoBoxIfNeeded(ElementBox elementBox, SelectorTarget target) {
+    // TODO: Need to call invalidate?
+    if (!(
+      elementBox.element() instanceof HTMLElement htmlElement
+      && htmlElement.getContext() instanceof ElementContext context
+    )) return;
+
+    PropertyContainer pseudoProperties = context.targetedProperties(target);
+    if (pseudoProperties == null) return;
+
+    OuterDisplayValue outerDisplayValue = PropertiesUtil.outerDisplayValue(pseudoProperties);
+    BoxLevel boxLevel =
+      outerDisplayValue.equals(OuterDisplayValue.INLINE) ? BoxLevel.INLINE_LEVEL :
+      outerDisplayValue.equals(OuterDisplayValue.BLOCK) ? BoxLevel.BLOCK_LEVEL :
+      null;
+    if (boxLevel == null) return;
+
+    CSSValue contentValue = pseudoProperties.get(CSSProperty.CONTENT);
+    if (
+      !(contentValue instanceof ContentValue content)
+      || content.equals(ContentValue.NORMAL)
+    ) return;
+
+    // TODO: Add a slot to the target to store the box
+    ElementBox box = ElementBox.createAnonymous(pseudoProperties, elementBox, boxLevel);
+    elementBox.addChild(box);
+
+    switch (content) {
+      case StringContentValue stringContent ->
+        box.addChild(TextBox.create(Text.create(stringContent.content())));
+      default -> throw new UnsupportedOperationException(
+        "Unrecognized content type: " + content);
+    }
+  }
+
 
   private List<Box> createChildBoxes(Box parentBox, Node parent) {
     int length = 0;

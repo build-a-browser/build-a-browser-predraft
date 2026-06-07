@@ -139,6 +139,20 @@ public interface IntrusiveList<T extends IntrusiveList<T>> {
     }
   }
 
+
+
+  public static <T extends IntrusiveList<T>> T find(T item, FindFilter<T> filter) {
+    T nextItem = item;
+    while (nextItem != null) {
+      if (filter.filter(nextItem)) {
+        return nextItem;
+      }
+      nextItem = nextItem.next();
+    }
+
+    return null;
+  }
+
   static <T extends IntrusiveList<T>> List<T> toList(T list) {
     List<T> asList = new ArrayList<>(_testingOnlySize(list));
     T current = list;
@@ -189,6 +203,12 @@ public interface IntrusiveList<T extends IntrusiveList<T>> {
     }
 
     return true;
+  }
+
+  public static interface FindFilter<T> {
+
+    boolean filter(T item);
+
   }
 
 }

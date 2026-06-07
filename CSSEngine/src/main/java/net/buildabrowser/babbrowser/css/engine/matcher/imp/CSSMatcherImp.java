@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.css.engine.matcher.imp;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.getLast;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +26,8 @@ import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.NextSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
+import net.buildabrowser.babbrowser.cssbase.selector.SelectorTarget;
+import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
 import net.buildabrowser.babbrowser.cssbase.selector.SubsequentSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.dom.Document;
@@ -105,6 +109,7 @@ public class CSSMatcherImp implements CSSMatcher {
 
     for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
       for (SelectorPart selectorPart: complexSelector.parts()) {
+        if (selectorPart instanceof SimplePseudoElement) continue;
         matchers.addSelectorReference(selectorPart);
       }
     }
@@ -133,8 +138,10 @@ public class CSSMatcherImp implements CSSMatcher {
       if (!needsMatched) continue;
 
       SelectorSpecificity specificity = computeSpecificity(complexSelector);
-      WeightedStyleRule weightedRule = new WeightedStyleRule(
-        styleRule, specificity, ruleSource, sheetOrdering, ruleOrdering);
+      SelectorTarget target = determineTarget(complexSelector);
+      WeightedStyleRule weightedRule = WeightedStyleRule.create(
+        styleRule, specificity, target,
+        ruleSource, sheetOrdering, ruleOrdering);
 
       ElementSet matchedElements = matchElements(complexSelector);
       if (matchedElements == null) {
@@ -195,6 +202,22 @@ public class CSSMatcherImp implements CSSMatcher {
     return new SelectorSpecificity(numIdSelectors, numClassSelectors, numTypeSelectors);
   }
 
+  private SelectorTarget determineTarget(ComplexSelector complexSelector) {
+    if (complexSelector.parts().size() == 0) return SelectorTarget.ELEMENT;
+    SelectorPart selectorPart = getLast(complexSelector.parts());
+    if (!(
+      selectorPart instanceof SimplePseudoElement pseudoClass
+    )) return SelectorTarget.ELEMENT;
+
+    // TODO: Is there actually any point in mapping these?
+    return switch (pseudoClass) {
+      case AFTER -> SelectorTarget.AFTER;
+      case BEFORE -> SelectorTarget.BEFORE;
+      default -> throw new UnsupportedOperationException(
+        "Unsupported psuedo class: " + pseudoClass);
+    };
+  }
+
   private ElementSet matchElements(ComplexSelector complexSelector) {
     List<SelectorPart> parts = complexSelector.parts();
     if (parts.size() == 0) return null;
@@ -204,6 +227,8 @@ public class CSSMatcherImp implements CSSMatcher {
       if (part instanceof Combinator combinator) {
         ElementSet nextMatched = matchers.match(parts.get(++i));
         currentMatched = matchCombinator(combinator, currentMatched, nextMatched);
+      } else if (part instanceof SimplePseudoElement) {
+        if (i != parts.size() - 1) return null;
       } else {
         currentMatched.intersect(matchers.match(part));
       }

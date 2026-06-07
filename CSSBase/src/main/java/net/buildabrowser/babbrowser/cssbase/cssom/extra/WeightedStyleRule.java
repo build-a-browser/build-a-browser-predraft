@@ -2,10 +2,12 @@ package net.buildabrowser.babbrowser.cssbase.cssom.extra;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
+import net.buildabrowser.babbrowser.cssbase.selector.SelectorTarget;
 
 public record WeightedStyleRule(
   StyleRule rule,
   SelectorSpecificity specificity,
+  SelectorTarget target,
   RuleSource ruleSource,
   int sheetOrdering,
   int ruleOrdering
@@ -27,6 +29,31 @@ public record WeightedStyleRule(
 
   public static enum RuleSource {
     USER_AGENT, AUTHOR
+  }
+
+  public static WeightedStyleRule create(
+    StyleRule rule,
+    SelectorSpecificity specificity,
+    SelectorTarget target,
+    RuleSource ruleSource,
+    int sheetOrdering,
+    int ruleOrdering
+  ) {
+    return new WeightedStyleRule(
+      rule, specificity, target,
+      ruleSource, sheetOrdering, ruleOrdering);
+  }
+
+  public static WeightedStyleRule create(
+    StyleRule rule,
+    SelectorSpecificity specificity,
+    RuleSource ruleSource,
+    int sheetOrdering,
+    int ruleOrdering
+  ) {
+    return new WeightedStyleRule(
+      rule, specificity, SelectorTarget.ELEMENT,
+      ruleSource, sheetOrdering, ruleOrdering);
   }
 
 }

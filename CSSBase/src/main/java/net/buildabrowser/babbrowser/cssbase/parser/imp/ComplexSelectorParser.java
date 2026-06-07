@@ -6,6 +6,7 @@ import static net.buildabrowser.babbrowser.common.util.CompatUtil.getLast;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
@@ -19,6 +20,7 @@ import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.NextSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
+import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
 import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SubsequentSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
@@ -35,6 +37,9 @@ import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
 
 public final class ComplexSelectorParser {
+
+  private static final Set<String> LEGACY_PSUEDO_ELEMENTS = Set.of(
+    "first-line", "first-letter", "before", "after");
   
   private ComplexSelectorParser() {}
 
@@ -190,13 +195,35 @@ public final class ComplexSelectorParser {
   private static boolean parsePsuedoSelector(
     CSSTokenStream tokenStream, List<SelectorPart> parts
   ) throws IOException {
-    Token nextToken = tokenStream.read();
-    // TODO: Another : means pseudo-class
+    Token nextToken = tokenStream.peek();
+    if (nextToken instanceof ColonToken) {
+      tokenStream.read();
+      return parsePsuedoElement(tokenStream, parts);
+    }
     if (!(nextToken instanceof IdentToken identToken)) return true;
     String selectorName = identToken.value();
     SimplePseudoSelector matchingSimplePsuedoSelector = SimplePseudoSelector.lookupType(selectorName);
-    if (matchingSimplePsuedoSelector == null) return true;
+    if (matchingSimplePsuedoSelector == null) {
+      if (LEGACY_PSUEDO_ELEMENTS.contains(selectorName)) {
+        return parsePsuedoElement(tokenStream, parts);
+      }
+      return true;
+    }
+    tokenStream.read();
     parts.add(matchingSimplePsuedoSelector);
+    return false;
+  }
+
+  private static boolean parsePsuedoElement(
+    CSSTokenStream tokenStream, List<SelectorPart> parts
+  ) throws IOException {
+    Token nextToken = tokenStream.read();
+    // TODO: Another : means pseudo-class
+    if (!(nextToken instanceof IdentToken identToken)) return true;
+    String className = identToken.value();
+    SimplePseudoElement matchingSimplePsuedoClass = SimplePseudoElement.lookupType(className);
+    if (matchingSimplePsuedoClass == null) return true;
+    parts.add(matchingSimplePsuedoClass);
     return false;
   }
 

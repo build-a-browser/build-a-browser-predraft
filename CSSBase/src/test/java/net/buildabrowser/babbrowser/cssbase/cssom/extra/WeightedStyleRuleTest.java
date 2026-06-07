@@ -12,10 +12,10 @@ public class WeightedStyleRuleTest {
   @Test
   @DisplayName("Author rule wins over UA rule")
   public void authorRuleWinsOverUARule() {
-    WeightedStyleRule firstRule = new WeightedStyleRule(
+    WeightedStyleRule firstRule = WeightedStyleRule.create(
       null, new SelectorSpecificity(0, 0, 0),
       RuleSource.AUTHOR, 0, 0);
-    WeightedStyleRule secondRule = new WeightedStyleRule(
+    WeightedStyleRule secondRule = WeightedStyleRule.create(
       null, new SelectorSpecificity(0, 0, 0),
       RuleSource.USER_AGENT, 0, 0);
 
@@ -55,13 +55,13 @@ public class WeightedStyleRuleTest {
   @Test
   @DisplayName("Rule with later order wins")
   public void ruleWithLaterOrderWins() {
-    WeightedStyleRule firstRule = new WeightedStyleRule(
+    WeightedStyleRule firstRule = WeightedStyleRule.create(
       null, new SelectorSpecificity(0, 0, 0),
       RuleSource.AUTHOR, 0, 0);
-    WeightedStyleRule secondRule = new WeightedStyleRule(
+    WeightedStyleRule secondRule = WeightedStyleRule.create(
       null, new SelectorSpecificity(0, 0, 0),
       RuleSource.AUTHOR, 0, 1);
-    WeightedStyleRule thirdRule = new WeightedStyleRule(
+    WeightedStyleRule thirdRule = WeightedStyleRule.create(
       null, new SelectorSpecificity(0, 0, 0),
       RuleSource.AUTHOR, 1, 0);
 
@@ -78,7 +78,7 @@ public class WeightedStyleRuleTest {
   }
 
   private WeightedStyleRule specificityRule(boolean isAttr, int a, int b, int c) {
-    return new WeightedStyleRule(
+    return WeightedStyleRule.create(
       null, new SelectorSpecificity(isAttr, a, b, c),
       RuleSource.AUTHOR, 0, 0);
   }

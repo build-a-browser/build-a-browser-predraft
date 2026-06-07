@@ -13,6 +13,7 @@ import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundRepeat
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundSizeValue.SizedBackgroundSizeValue;
 import net.buildabrowser.babbrowser.cssbase.property.box.VisualBoxValue;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue.SRGBAColor;
+import net.buildabrowser.babbrowser.cssbase.property.content.ContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
@@ -160,7 +161,9 @@ public enum CSSProperty {
   OVERFLOW_X(nextId(), false, InvalidationLevel.BOX, OverflowValue.VISIBLE),
   OVERFLOW_Y(nextId(), false, InvalidationLevel.BOX, OverflowValue.VISIBLE),
   // TODO: OVERFLOW_INLINE, OVERFLOW_BLOCK
-  OVERFLOW(new CSSProperty[] { CSSProperty.OVERFLOW_X, CSSProperty.OVERFLOW_Y }),;
+  OVERFLOW(new CSSProperty[] { CSSProperty.OVERFLOW_X, CSSProperty.OVERFLOW_Y }),
+  
+  CONTENT(nextId(), false, InvalidationLevel.BOX, ContentValue.NORMAL);
 
   private static int propertyId = 0;
 

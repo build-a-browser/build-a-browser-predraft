@@ -14,6 +14,7 @@ import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.Attribute
 import net.buildabrowser.babbrowser.cssbase.selector.Combinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
+import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
 import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
@@ -124,6 +125,7 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
         default -> attributePresentSelectorMatcher.match(attributeSelector);
       };
       case SimplePseudoSelector pseudoSelector -> simplePsuedoSelectors.get(pseudoSelector).match(pseudoSelector);
+      case SimplePseudoElement _1 -> allElements;
       case UniversalSelector _1 -> allElements;
       default -> throw new UnsupportedOperationException("Don't recognize that selector type! " + selectorPart);
     };

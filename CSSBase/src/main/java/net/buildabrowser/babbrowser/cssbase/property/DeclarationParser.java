@@ -33,6 +33,7 @@ import net.buildabrowser.babbrowser.cssbase.property.border.BorderSizeParser;
 import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleParser;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorBaseParser;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorParser;
+import net.buildabrowser.babbrowser.cssbase.property.content.ContentParser;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayParser;
 import net.buildabrowser.babbrowser.cssbase.property.display.OrderParser;
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentParser;
@@ -196,7 +197,9 @@ public final class DeclarationParser {
     // TODO: Proper implementation
     "overflow-block", new OverflowParser(CSSProperty.OVERFLOW_X),
     "overflow-inline", new OverflowParser(CSSProperty.OVERFLOW_Y),
-    "overflow", new OverflowShorthandParser()
+    "overflow", new OverflowShorthandParser(),
+
+    "content", new ContentParser()
   );
 
   public static boolean isKnownDeclarationName(String declName) {
