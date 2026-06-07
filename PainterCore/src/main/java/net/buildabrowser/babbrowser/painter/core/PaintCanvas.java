@@ -14,6 +14,8 @@ public interface PaintCanvas {
 
   void withClip(float x, float y, float w, float h, Consumer<PaintCanvas> paintFunc);
 
+  void withShapedClip(Consumer<ClipShapeSpec> shapeFunc, Consumer<PaintCanvas> paintFunc);
+
   void drawBox(float x, float y, float w, float h);
 
   void drawText(float x, float y, String text);

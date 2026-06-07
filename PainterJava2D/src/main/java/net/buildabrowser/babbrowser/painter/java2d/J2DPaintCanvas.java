@@ -5,19 +5,21 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 import java.util.function.Consumer;
 
+import net.buildabrowser.babbrowser.painter.core.ClipShapeSpec;
+import net.buildabrowser.babbrowser.painter.core.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 import net.buildabrowser.babbrowser.painter.core.Paint;
 import net.buildabrowser.babbrowser.painter.core.PaintBitMap;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.painter.core.Transform;
-import net.buildabrowser.babbrowser.painter.core.FontLoader.FontOptions;
 
 // TODO: Find out why page rendering seems to be missing some elements present on the Skija painter
 public class J2DPaintCanvas implements PaintCanvas {
@@ -93,6 +95,20 @@ public class J2DPaintCanvas implements PaintCanvas {
   ) {
     Shape oldClip = graphics.getClip();
     graphics.clipRect((int) x, (int) y, (int) w, (int) h);
+    paintFunc.accept(this);
+    graphics.setClip(oldClip);
+  }
+
+  @Override
+  public void withShapedClip(Consumer<ClipShapeSpec> shapeFunc, Consumer<PaintCanvas> paintFunc) {
+    Shape oldClip = graphics.getClip();
+    J2DClipShapeSpec spec = new J2DClipShapeSpec();
+    shapeFunc.accept(spec);
+    Area clipArea = new Area(spec.shape());
+    if (oldClip != null) {
+      clipArea.intersect(new Area(oldClip));
+    }
+    graphics.setClip(clipArea);
     paintFunc.accept(this);
     graphics.setClip(oldClip);
   }

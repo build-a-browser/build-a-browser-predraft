@@ -136,8 +136,35 @@ public final class ElementBorderPainter {
     Consumer<PaintCanvas> paintFunc
   ) {
     if (run <= 0 || thickness <= 0) return;
-    // TODO: Implement clipping
-    canvas.withPaint(alterPaintFunc, paintFunc);
+    
+    canvas.withShapedClip(
+      shape -> {
+        switch (borderDirection) {
+          case TOP -> shape
+            .addPoint(x, y)
+            .addPoint(x + run, y)
+            .addPoint(x + run - endWidth, y + thickness)
+            .addPoint(x + startWidth, y + thickness);
+          case BOTTOM -> shape
+            .addPoint(x + startWidth, y)
+            .addPoint(x + run - endWidth, y)
+            .addPoint(x + run, y + thickness)
+            .addPoint(x, y + thickness);
+          case LEFT -> shape
+            .addPoint(x, y)
+            .addPoint(x, y + run)
+            .addPoint(x + thickness, y + run - endWidth)
+            .addPoint(x + thickness, y + startWidth);
+          case RIGHT -> shape
+            .addPoint(x, y + startWidth)
+            .addPoint(x, y + run - endWidth)
+            .addPoint(x + thickness, y + run)
+            .addPoint(x + thickness, y);
+          default -> throw new UnsupportedOperationException(
+            "Unrecognized border direction: " + borderDirection);
+        }
+      },
+      c -> c.withPaint(alterPaintFunc, paintFunc));
   }
 
   public static enum BorderDirection {

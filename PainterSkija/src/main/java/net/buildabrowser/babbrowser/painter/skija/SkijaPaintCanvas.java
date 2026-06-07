@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.Matrix44;
 import io.github.humbleui.types.Rect;
+import net.buildabrowser.babbrowser.painter.core.ClipShapeSpec;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 import net.buildabrowser.babbrowser.painter.core.Paint;
@@ -81,6 +82,16 @@ public class SkijaPaintCanvas implements PaintCanvas {
   public void withClip(float x, float y, float w, float h, Consumer<PaintCanvas> paintFunc) {
     canvas.save();
     canvas.clipRect(Rect.makeXYWH(x, y, w, h));
+    paintFunc.accept(this);
+    canvas.restore();
+  }
+
+  @Override
+  public void withShapedClip(Consumer<ClipShapeSpec> shapeFunc, Consumer<PaintCanvas> paintFunc) {
+    canvas.save();
+    SkijaClipShapeSpec spec = new SkijaClipShapeSpec();
+    shapeFunc.accept(spec);
+    canvas.clipPath(spec.path());
     paintFunc.accept(this);
     canvas.restore();
   }
