@@ -33,7 +33,7 @@ p {
 }
 
 center {
-  text-align: center;
+  text-align: -bab-center;
 }
 
 option {
@@ -93,3 +93,9 @@ tbody, tbody[hidden] { display: table-row-group; }
 tfoot, tfoot[hidden] { display: table-footer-group; }
 tr, tr[hidden] { display: table-row; }
 td, th { display: table-cell; }
+
+/* TODO: Attr selector should have 'i' */
+table[align=left] { float: left; }
+table[align=right] { float: right; }
+/* TODO: This should be margin-inline */
+table[align=center] { margin-left: auto; margin-right: auto; }

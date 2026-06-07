@@ -3,8 +3,6 @@ package net.buildabrowser.babbrowser.renderer.context.imp;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
@@ -103,11 +101,9 @@ public class ElementContextImp implements ElementContext, PropertyContainer {
   public void regenerateStyles(StyleCache styleCache) {
     ActiveStyles oldStyles = this.activeStyles;
     PropertyContainer parentProperties = parent();
-    // TODO: How bad is doing this?
-    Set<WeightedStyleRule> rulesSet = new TreeSet<>(WeightedStyleRule::compare);
-    rulesSet.addAll(styleRules);
-    this.activeStyles = styleCache.lookupOrElse(rulesSet,
-      rules -> ActiveStylesGenerator.generateActiveStyles(rules, parentProperties));
+    styleRules.sort(WeightedStyleRule::compare);
+    this.activeStyles = styleCache.lookupOrElse(styleRules,
+      rules -> ActiveStylesGenerator.generateActiveStyles(styleRules, parentProperties));
 
     invalidateIfChangedStyles(oldStyles, parentProperties);
 
@@ -201,7 +197,7 @@ public class ElementContextImp implements ElementContext, PropertyContainer {
     while (currentHolder != null) {
       TargetedPropertiesHolder next = currentHolder.next();
 
-      Set<WeightedStyleRule> currentRules = currentHolder.matchedRules();
+      List<WeightedStyleRule> currentRules = currentHolder.matchedRules();
       regenerateTargetedStyles(styleCache, currentRules, currentHolder);
 
       boolean removeCurrent = currentRules.isEmpty();
@@ -220,11 +216,11 @@ public class ElementContextImp implements ElementContext, PropertyContainer {
 
   private void regenerateTargetedStyles(
     StyleCache styleCache,
-    Set<WeightedStyleRule> rulesSet,
+    List<WeightedStyleRule> rulesList,
     TargetedPropertiesHolder holder
   ) {
     PropertyContainer oldProperties = holder.container();
-    ActiveStyles targetedStyles = styleCache.lookupOrElse(rulesSet,
+    ActiveStyles targetedStyles = styleCache.lookupOrElse(rulesList,
       rules -> ActiveStylesGenerator.generateActiveStyles(rules, this));
     PropertyContainer newProperties = ActiveStyles.parentStyles(this, targetedStyles);
     holder.setContainer(newProperties);

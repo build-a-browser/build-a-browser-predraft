@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
@@ -163,6 +164,10 @@ public class BlockFormattingContext {
       Math.max(inkY, contributionH),
       elementBox,
       FlowRootContentPainter.FLOW_BLOCK_PAINTER, fragments);
+  }
+
+  public PropertyContainer properties() {
+    return elementBox.properties();
   }
 
 }

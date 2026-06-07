@@ -22,17 +22,21 @@ public final class AlignAttributeResolver {
   public static PresentationalHint resolveAlignAttribute(
     String elName, PresentationalHintName name, String value
   ) {
-    TextAlignValue alignValue = switch (value.toLowerCase()) {
-      case "left" -> ALLOWED_LEFT_ELEMENTS.contains(elName) ? TextAlignValue.LEFT : null;
-      case "center", "middle" -> ALLOWED_CENTER_ELEMENTS.contains(elName) ? TextAlignValue.CENTER : null;
-      case "right" -> ALLOWED_RIGHT_ELEMENTS.contains(elName) ? TextAlignValue.RIGHT : null;
-      case "justify" -> ALLOWED_JUSTIFY_ELEMENTS.contains(elName) ? TextAlignValue.JUSTIFY : null;
-      default -> null;
-    };
-
+    TextAlignValue alignValue = resolveAlignValue(elName, value);
     if (alignValue == null) return null;
     return PresentationalHintResolver.createLegacyAttribute(
       name, "text-align", alignValue);
+  }
+
+  public static TextAlignValue resolveAlignValue(String elName, String value) {
+    if (value == null) return null;
+    return switch (value.toLowerCase()) {
+      case "left" -> ALLOWED_LEFT_ELEMENTS.contains(elName) ? TextAlignValue._BAB_LEFT : null;
+      case "center", "middle" -> ALLOWED_CENTER_ELEMENTS.contains(elName) ? TextAlignValue._BAB_CENTER : null;
+      case "right" -> ALLOWED_RIGHT_ELEMENTS.contains(elName) ? TextAlignValue._BAB_RIGHT : null;
+      case "justify" -> ALLOWED_JUSTIFY_ELEMENTS.contains(elName) ? TextAlignValue._BAB_JUSTIFY : null;
+      default -> null;
+    };
   }
 
 }

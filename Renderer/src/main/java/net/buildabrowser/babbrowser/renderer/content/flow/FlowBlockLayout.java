@@ -131,8 +131,12 @@ public class FlowBlockLayout {
     LayoutConstraint childHeightConstraint = FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
       parentHeightConstraint, parentWidthConstraint, childBox);
 
-    float[] margin = childBox.dimensions().getComputedMargin();
+    // TODO: Need to make sure this interacts properly with floats
+    float alignStart = FlowAlignUtil.legacyAlign(
+      parentContext, childBox, parentWidthConstraint, childWidthConstraint,
+      0, parentWidthConstraint.value());
 
+    float[] margin = childBox.dimensions().getComputedMargin();
     parentContext.recordMargin(margin[0]);
     boolean needsFloatClear = needsFloatClear(childBox);
     boolean collapseFirst = needsCollapsed(childBox, 0) || needsFloatClear;
@@ -155,7 +159,7 @@ public class FlowBlockLayout {
     ManagedBoxFragment newFragment = childContext.close(childWidthConstraint, childHeightConstraint);
     activeContext = parentContext;
     
-    addFinishedFragment(newFragment, margin[2], parentWidthConstraint);
+    addFinishedFragment(newFragment, alignStart, parentWidthConstraint);
     
     if (!collapseAfter) {
       parentContext.recordMargin(childContext.currentMaxMargin());
@@ -165,6 +169,7 @@ public class FlowBlockLayout {
   }
 
   // TODO: Clean this up some
+  // TODO: I don't recall if this properly handles horizontal margins
   private void addUnmanagedBlockToBlock(
     ElementBox childBox,
     LayoutConstraint parentWidthConstraint,
@@ -202,6 +207,7 @@ public class FlowBlockLayout {
         floatTracker.clearedLineStartPosition(),
         floatTracker.clearedLineEndPosition());
       leftContent = 0;
+      rightContent = parentWidthConstraint.value();
       childWidthConstraint = childBox.isReplaced() ?
         FlowWidthUtil.determineBlockReplacedWidthAndMargins(
           parentWidthConstraint, childBox) :
@@ -209,6 +215,10 @@ public class FlowBlockLayout {
           parentWidthConstraint, childBox,
           leftContent, rightExtraMargin);
     }
+
+    float alignStart = FlowAlignUtil.legacyAlign(
+      activeContext, childBox, parentWidthConstraint,
+      childWidthConstraint, leftContent, rightContent);
 
     float[] margin = childBox.dimensions().getComputedMargin();
     activeContext.recordMargin(Math.max(margin[0], minClear));
@@ -222,7 +232,7 @@ public class FlowBlockLayout {
 
     activeContext.recordMargin(margin[1]);
 
-    addFinishedFragment(newFragment, Math.max(margin[2], leftContent), parentWidthConstraint);
+    addFinishedFragment(newFragment, Math.max(alignStart, leftContent), parentWidthConstraint);
   }
 
   private void addPositionedToBlock(ElementBox childBox) {
@@ -245,6 +255,7 @@ public class FlowBlockLayout {
       newFragment.height(Measurement.BORDER),
       newFragment.inkHeight(Measurement.BORDER));
     parentContext.minWidth(
+      // TODO: This might not work quite right with the new legacy align attributes
       newFragment.posX(Measurement.MARGIN) + newFragment.width(Measurement.MARGIN),
       Math.max(
         newFragment.posX(Measurement.MARGIN) + newFragment.inkWidth(Measurement.MARGIN),

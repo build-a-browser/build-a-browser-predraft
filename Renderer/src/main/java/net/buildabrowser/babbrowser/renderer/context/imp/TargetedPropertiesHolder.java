@@ -2,8 +2,6 @@ package net.buildabrowser.babbrowser.renderer.context.imp;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
@@ -38,10 +36,9 @@ public class TargetedPropertiesHolder implements IntrusiveList<TargetedPropertie
     matchedRules.remove(rule);
   }
 
-  public Set<WeightedStyleRule> matchedRules() {
-    Set<WeightedStyleRule> rulesSet = new TreeSet<>(WeightedStyleRule::compare);
-    rulesSet.addAll(matchedRules);
-    return rulesSet;
+  public List<WeightedStyleRule> matchedRules() {
+    matchedRules.sort(WeightedStyleRule::compare);
+    return matchedRules;
   }
 
   @Override

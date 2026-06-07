@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.renderer.content.flow;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
-import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
 import net.buildabrowser.babbrowser.renderer.box.Box;
@@ -217,7 +216,7 @@ public class FlowInlineLayout {
     positionFragmentElements(fragment.fragments(), inlineConstraint);
     float startPos = rootContent.floatTracker().lineStartPos();
     float inlineOffset = inlineConstraint.isBounded() ?
-      alignFragment(
+      FlowAlignUtil.alignFragment(
         lineProperties, startPos,
         rootContent.floatTracker().lineEndPos(inlineConstraint),
         fragment.width(Measurement.CONTENT)) :
@@ -249,39 +248,6 @@ public class FlowInlineLayout {
         positionFragmentElements(managedBoxFragment.fragments(), relatedConstraint);
       }
     }
-  }
-
-  private float alignFragment(
-    PropertyContainer lineProperties,
-    float startPos, float endPos, float lineWidth
-  ) {
-    TextAlignValue textAlign = (TextAlignValue) lineProperties.get(CSSProperty.TEXT_ALIGN);
-    while (
-      textAlign.equals(TextAlignValue.MATCH_PARENT)
-      && lineProperties.parent() != null
-    ) {
-      lineProperties = lineProperties.parent();
-      textAlign = (TextAlignValue) lineProperties.get(CSSProperty.TEXT_ALIGN);
-    }
-
-
-    return switch (textAlign) {
-      // TODO: Once rtl is supported, obey rtl
-      case START -> startPos;
-      case END -> endPos - lineWidth;
-
-      case LEFT -> startPos;
-      case CENTER -> startPos + (endPos - startPos) / 2 - lineWidth / 2;
-      case RIGHT -> endPos - lineWidth;
-
-      // TODO: Properly implement these
-      case JUSTIFY -> startPos;
-      case JUSTIFY_ALL -> startPos;
-      // MATCH_PARENT remains unresolved, default to START
-      case MATCH_PARENT -> startPos;
-
-      default -> throw new UnsupportedOperationException("Unrecognized value: " + textAlign);
-    };
   }
 
 }

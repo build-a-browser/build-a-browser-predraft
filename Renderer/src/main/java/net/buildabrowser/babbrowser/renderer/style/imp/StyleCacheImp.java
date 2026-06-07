@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.renderer.style.imp;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
@@ -11,32 +11,34 @@ import net.buildabrowser.babbrowser.renderer.style.StyleCache;
 
 public class StyleCacheImp implements StyleCache {
 
-  private final Map<SetKey, ActiveStyles> cacheMap = new HashMap<>();
+  private final Map<ListKey, ActiveStyles> cacheMap = new HashMap<>();
 
   @Override
   public ActiveStyles lookupOrElse(
-    Set<WeightedStyleRule> relatedRules,
-    Function<Set<WeightedStyleRule>, ActiveStyles> stylesGenerator
+    List<WeightedStyleRule> relatedRules,
+    Function<List<WeightedStyleRule>, ActiveStyles> stylesGenerator
   ) {
-    int setHash = relatedRules.hashCode();
-    SetKey setKey = new SetKey(setHash, relatedRules);
-    ActiveStyles existingStyles = cacheMap.get(setKey);
+    int listHash = relatedRules.hashCode();
+    ListKey hashKey = new ListKey(listHash, relatedRules);
+    ActiveStyles existingStyles = cacheMap.get(hashKey);
     if (existingStyles != null) return existingStyles;
     ActiveStyles newStyles = stylesGenerator.apply(relatedRules);
     if (newStyles.isReusable()) {
-      cacheMap.put(setKey, newStyles);
+      cacheMap.put(
+        new ListKey(listHash, List.copyOf(relatedRules)),
+        newStyles);
     }
     return newStyles;
   }
 
-  private record SetKey(
-    int setHash,
-    Set<WeightedStyleRule> set
+  private record ListKey(
+    int listHash,
+    List<WeightedStyleRule> list
   ) {
 
     @Override
     public int hashCode() {
-      return this.setHash;
+      return this.listHash;
     }
 
   }

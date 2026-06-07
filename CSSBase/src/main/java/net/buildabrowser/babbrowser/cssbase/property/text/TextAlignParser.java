@@ -19,7 +19,10 @@ public class TextAlignParser implements PropertyValueParser {
     "center", TextAlignValue.CENTER,
     "justify", TextAlignValue.JUSTIFY,
     "justify-all", TextAlignValue.JUSTIFY_ALL,
-    "match-parent", TextAlignValue.MATCH_PARENT
+    "match-parent", TextAlignValue.MATCH_PARENT,
+
+    // UA extensions
+    "-bab-center", TextAlignValue._BAB_CENTER
   );
 
   @Override
