@@ -37,7 +37,7 @@ public class PresentationalHint implements IntrusiveList<PresentationalHint> {
   }
 
   public static enum PresentationalHintName {
-    BGCOLOR, WIDTH, HEIGHT
+    BGCOLOR, WIDTH, HEIGHT, ALIGN;
   }
 
   public static PresentationalHintName lookup(String attrName) {
@@ -45,6 +45,7 @@ public class PresentationalHint implements IntrusiveList<PresentationalHint> {
       case "bgcolor" -> PresentationalHintName.BGCOLOR;
       case "width" -> PresentationalHintName.WIDTH;
       case "height" -> PresentationalHintName.HEIGHT;
+      case "align" -> PresentationalHintName.ALIGN;
       default -> null;
     };
   }

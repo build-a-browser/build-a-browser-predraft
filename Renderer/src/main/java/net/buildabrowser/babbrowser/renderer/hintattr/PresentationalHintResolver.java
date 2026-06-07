@@ -30,6 +30,8 @@ public final class PresentationalHintResolver {
         WidthAttributeResolver.resolveWidthAttribute(elName, name, value);
       case PresentationalHintName.HEIGHT ->
         HeightAttributeResolver.resolveHeightAttribute(elName, name, value);
+      case PresentationalHintName.ALIGN ->
+        AlignAttributeResolver.resolveAlignAttribute(elName, name, value);
       default -> throw new UnsupportedOperationException(
         "Unsupported legacy attribute name: " + name);
     };
