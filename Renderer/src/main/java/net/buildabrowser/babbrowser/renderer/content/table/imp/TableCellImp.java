@@ -7,11 +7,11 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.table.Table;
 import net.buildabrowser.babbrowser.renderer.content.table.TableCell;
 import net.buildabrowser.babbrowser.renderer.content.table.TableColumn;
 import net.buildabrowser.babbrowser.renderer.content.table.TableComputedBorders;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 // Unfortunately cannot be a record since height and relatedFragment are mutable...
@@ -25,7 +25,7 @@ public class TableCellImp implements TableCell {
   private final TableComputedBorders borders = new TableComputedBorders();
   
   private int height;
-  private UnmanagedBoxFragment relatedFragment;
+  private UnmanagedBoxFragment<?> relatedFragment;
 
   public TableCellImp(
     int cellX, int cellY, int width, int height,
@@ -74,12 +74,12 @@ public class TableCellImp implements TableCell {
   }
 
   @Override
-  public void setRelatedFragment(UnmanagedBoxFragment fragment) {
+  public void setRelatedFragment(UnmanagedBoxFragment<?> fragment) {
     this.relatedFragment = fragment;
   }
 
   @Override
-  public UnmanagedBoxFragment getRelatedFragment() {
+  public UnmanagedBoxFragment<?> getRelatedFragment() {
     return this.relatedFragment;
   }
 

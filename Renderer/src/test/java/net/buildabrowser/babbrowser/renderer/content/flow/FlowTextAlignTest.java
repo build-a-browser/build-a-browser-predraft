@@ -16,11 +16,11 @@ import net.buildabrowser.babbrowser.cssbase.property.floats.FloatValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.test.TestTextBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LineBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.TextFragment;
+import net.buildabrowser.babbrowser.renderer.content.common.test.TestManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.flow.test.FlowLayoutUtil.FlowTestLayoutResult;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
 
 public class FlowTextAlignTest {
 
@@ -34,11 +34,11 @@ public class FlowTextAlignTest {
     
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);
 
-    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
+    LayoutFragment expectedMainFragment = new TestManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
       new LineBoxFragment(0, 0, 20, 10, List.of(
         new TextFragment(0, 0, 20, 10, "test")))
     ));
-    LayoutFragment actualMainFragment = layoutResult.fragment();
+    LayoutFragment actualMainFragment = layoutResult.rootFragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
   }
 
@@ -52,11 +52,11 @@ public class FlowTextAlignTest {
     
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);
 
-    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
+    LayoutFragment expectedMainFragment = new TestManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
       new LineBoxFragment(30, 0, 20, 10, List.of(
         new TextFragment(0, 0, 20, 10, "test")))
     ));
-    LayoutFragment actualMainFragment = layoutResult.fragment();
+    LayoutFragment actualMainFragment = layoutResult.rootFragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
   }
 
@@ -70,11 +70,11 @@ public class FlowTextAlignTest {
     
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);
 
-    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
+    LayoutFragment expectedMainFragment = new TestManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
       new LineBoxFragment(60, 0, 20, 10, List.of(
         new TextFragment(0, 0, 20, 10, "test")))
     ));
-    LayoutFragment actualMainFragment = layoutResult.fragment();
+    LayoutFragment actualMainFragment = layoutResult.rootFragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
   }
 
@@ -98,11 +98,11 @@ public class FlowTextAlignTest {
     
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);
 
-    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
+    LayoutFragment expectedMainFragment = new TestManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
       new LineBoxFragment(25, 0, 20, 10, List.of(
         new TextFragment(0, 0, 20, 10, "test")))
     ));
-    LayoutFragment actualMainFragment = layoutResult.fragment();
+    LayoutFragment actualMainFragment = layoutResult.rootFragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
   }
   

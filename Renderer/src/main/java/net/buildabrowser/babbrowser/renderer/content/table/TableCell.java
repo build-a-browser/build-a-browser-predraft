@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.table;
 
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 
 public interface TableCell {
     
@@ -17,9 +17,9 @@ public interface TableCell {
 
   TableComputedBorders borders();
 
-  void setRelatedFragment(UnmanagedBoxFragment fragment);
+  void setRelatedFragment(UnmanagedBoxFragment<?> fragment);
 
-  UnmanagedBoxFragment getRelatedFragment();
+  UnmanagedBoxFragment<?> getRelatedFragment();
 
   float minContentContribution(int colNum);
 

@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.box;
 
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public final class EBDimensionsUtil {

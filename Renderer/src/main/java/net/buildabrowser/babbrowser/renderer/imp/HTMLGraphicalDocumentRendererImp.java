@@ -29,12 +29,13 @@ import net.buildabrowser.babbrowser.renderer.box.DocumentBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeEventsDispatcher;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.renderer.context.ScriptingContext;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
+import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.image.ImageCache;
 import net.buildabrowser.babbrowser.renderer.layout.FontCache;
 import net.buildabrowser.babbrowser.renderer.layout.GlobalLayoutContext;
@@ -53,6 +54,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   private static final BoxGenerator boxGenerator = BoxGenerator.create();
 
+  // TODO: Allow specifying the FragmentFactory when instantiating the RenderingEngine instance
+  private final FragmentFactory fragmentFactory = FragmentFactory.createDefault();
   private final EventContext eventContext = EventContext.create();
   private final Object frontLayerLock = new Object();
 
@@ -285,13 +288,13 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     Viewport viewport = new Viewport(0, 0, width, height);
     GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
       painter.resourceLoader(), rootFont.metrics(), fontCache,
-      viewport, scriptingContext, imageCache);
+      viewport, scriptingContext, imageCache, fragmentFactory);
 
     LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
     LayoutContextGenerator.generateLayoutContexts(rootBox, layoutContext);
     ArrayDeque<ElementBox> deferredLayout = new ArrayDeque<>();
 
-    UnmanagedBoxFragment fragment = rootBox.layout(
+    UnmanagedBoxFragment<?> fragment = rootBox.layout(
       LayoutConstraint.of(width),
       LayoutConstraint.of(height));
     fragment.setPos(0, 0);
@@ -320,7 +323,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     float[] insets = ownContext.computeInsets();
     float refWidth = parentContext.innerWidth();
     float refHeight = parentContext.innerHeight();
-    UnmanagedBoxFragment itemFragment = PositionLayout.actuallyLayoutAbsolute(
+    UnmanagedBoxFragment<?> itemFragment = PositionLayout.actuallyLayoutAbsolute(
       itemBox, refWidth, refHeight, insets);
     float[] position = PositionLayout.positionAbsolute(
       insets, itemFragment, refWidth, refHeight);

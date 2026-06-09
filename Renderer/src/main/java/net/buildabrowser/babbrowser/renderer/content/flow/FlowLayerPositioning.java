@@ -1,14 +1,14 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LineBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.PosRefBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.TextFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.flow.floatbox.FloatTracker;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 
 public final class FlowLayerPositioning {
@@ -17,7 +17,7 @@ public final class FlowLayerPositioning {
 
   public static void positionLayers(
     float layerX, float layerY,
-    ManagedBoxFragment rootFragment,
+    ManagedBoxFragment<?> rootFragment,
     FloatTracker floatTracker
   ) {
     rootFragment.setLayerPos(layerX, layerY);
@@ -48,9 +48,9 @@ public final class FlowLayerPositioning {
       }
       case LineBoxFragment lineBoxFragment -> recursePositionLineBoxFragment(
         layerX, layerY, refContext, lineBoxFragment);
-      case ManagedBoxFragment boxFragment -> recursePositionManagedBoxFragment(
+      case ManagedBoxFragment<?> boxFragment -> recursePositionManagedBoxFragment(
         layerX, layerY, fragment, refContext, boxFragment);
-      case UnmanagedBoxFragment boxFragment -> recursePositionUnmanagedBoxFragment(
+      case UnmanagedBoxFragment<?> boxFragment -> recursePositionUnmanagedBoxFragment(
         layerX, layerY, refContext, boxFragment);
 
       default -> throw new UnsupportedOperationException("Don't recognize fragment type!");
@@ -72,7 +72,7 @@ public final class FlowLayerPositioning {
 
   private static void recursePositionManagedBoxFragment(
     float layerX, float layerY, LayoutFragment fragment, StackingContext refContext,
-    ManagedBoxFragment boxFragment
+    ManagedBoxFragment<?> boxFragment
   ) {
     if (boxFragment.box().stackingContext() != refContext) {
       refContext = boxFragment.box().stackingContext();
@@ -96,7 +96,9 @@ public final class FlowLayerPositioning {
   }
 
   private static void recursePositionUnmanagedBoxFragment(
-    float layerX, float layerY, StackingContext refContext, UnmanagedBoxFragment boxFragment
+    float layerX, float layerY,
+    StackingContext refContext,
+    UnmanagedBoxFragment<?> boxFragment
   ) {
     if (boxFragment.box().stackingContext() != refContext) {
       refContext = boxFragment.box().stackingContext();

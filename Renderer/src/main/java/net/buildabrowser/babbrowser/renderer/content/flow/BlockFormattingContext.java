@@ -5,8 +5,9 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowBlockBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 
@@ -131,14 +132,14 @@ public class BlockFormattingContext {
     return this.innerHeightConstraint;
   }
 
-  public ManagedBoxFragment close(
+  public FlowBlockBoxFragment close(
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
     return close(widthConstraint, heightConstraint, 0, 0);
   }
 
-  public ManagedBoxFragment close(
+  public FlowBlockBoxFragment close(
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint,
     float contributionW,
@@ -158,12 +159,12 @@ public class BlockFormattingContext {
       heightConstraint.isBounded() ? LayoutConstraint.AUTO : heightConstraint,
       elementBox, LayoutConstraint.of(preclampHeight)).value();
 
-    return new ManagedBoxFragment(
+    FragmentFactory fragmentFactory = elementBox.layoutContext().global().fragmentFactory();
+    return fragmentFactory.createFlowBlockBoxFragment(
       usedWidth, usedHeight,
       Math.max(inkWidth, contributionW),
       Math.max(inkY, contributionH),
-      elementBox,
-      FlowRootContentPainter.FLOW_BLOCK_PAINTER, fragments);
+      elementBox, fragments);
   }
 
   public PropertyContainer properties() {

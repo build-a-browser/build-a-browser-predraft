@@ -3,9 +3,9 @@ package net.buildabrowser.babbrowser.renderer.content.flow.test;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.flow.FlowRootContent;
+import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
+import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowRootBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
@@ -18,8 +18,8 @@ public final class FlowLayoutUtil {
   
   private FlowLayoutUtil() {}
 
-  public static ManagedBoxFragment doLayout(ElementBox parentBox) {
-    return doLayoutConstrained(parentBox, LayoutConstraint.AUTO, LayoutConstraint.AUTO).fragment();
+  public static ManagedBoxFragment<?> doLayout(ElementBox parentBox) {
+    return doLayoutConstrained(parentBox, LayoutConstraint.AUTO, LayoutConstraint.AUTO).rootFragment();
   }
 
   public static FlowTestLayoutResult doLayoutSized(ElementBox parentBox, float width) {
@@ -38,20 +38,20 @@ public final class FlowLayoutUtil {
     FontMetrics testMetrics = TestFontMetrics.create(10, 5);
     ResourceLoader resourceLoader = new TestResourceLoader(() -> testMetrics);
     Viewport viewport = new Viewport(0, 0, (int) widthConstraint.value(), (int) heightConstraint.value());
+    FragmentFactory fragmentFactory = FragmentFactory.createDefault();
     LayoutContext layoutContext = new LayoutContext(
       new GlobalLayoutContext(
         resourceLoader, testMetrics, resourceLoader.fontLoader()::load,
-        viewport, null, null),
+        viewport, null, null, fragmentFactory),
       () -> testMetrics);
     LayoutContextGenerator.generateLayoutContexts(parentBox, layoutContext);
-    FlowRootContent content = (FlowRootContent) parentBox.content();
 
-    UnmanagedBoxFragment dimensionFrag = parentBox.layout(widthConstraint, heightConstraint);
-    return new FlowTestLayoutResult(dimensionFrag, content.rootFragment(), content);
+    FlowRootBoxFragment dimensionFrag = (FlowRootBoxFragment) parentBox.layout(widthConstraint, heightConstraint);
+    return new FlowTestLayoutResult(dimensionFrag, dimensionFrag.rootFragment());
   }
 
   public static record FlowTestLayoutResult(
-    UnmanagedBoxFragment dimensionFrag, ManagedBoxFragment fragment, FlowRootContent rootContent
+    FlowRootBoxFragment flowFragment, ManagedBoxFragment<?> rootFragment
   ) {}
 
 }

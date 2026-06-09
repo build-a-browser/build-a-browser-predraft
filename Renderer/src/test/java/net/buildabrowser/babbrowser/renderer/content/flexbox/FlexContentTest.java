@@ -26,10 +26,10 @@ import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType
 import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.test.TestTextBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.content.common.test.TestUnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.flexbox.test.FlexLayoutUtil.FlexTestLayoutResult;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
 public class FlexContentTest {
 
@@ -44,9 +44,9 @@ public class FlexContentTest {
     ElementBox parentBox = flexBlockBox(List.of(child1, child2, child3));
 
     List<LayoutFragment> expectedFragments = List.of(
-      new UnmanagedBoxFragment(0, 0, 15, 10, child1),
-      new UnmanagedBoxFragment(15, 0, 25, 10, child2),
-      new UnmanagedBoxFragment(40, 0, 20, 10, child3)
+      new TestUnmanagedBoxFragment(0, 0, 15, 10, child1),
+      new TestUnmanagedBoxFragment(15, 0, 25, 10, child2),
+      new TestUnmanagedBoxFragment(40, 0, 20, 10, child3)
     );
 
     LayoutFragment actualFragments = doLayoutSized(parentBox, 100).childFragments();
@@ -65,9 +65,9 @@ public class FlexContentTest {
     ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2, child3));
 
     List<LayoutFragment> expectedFragments = List.of(
-      new UnmanagedBoxFragment(5, 0, 15, 10, child1),
-      new UnmanagedBoxFragment(30, 0, 25, 10, child2),
-      new UnmanagedBoxFragment(65, 0, 20, 10, child3)
+      new TestUnmanagedBoxFragment(5, 0, 15, 10, child1),
+      new TestUnmanagedBoxFragment(30, 0, 25, 10, child2),
+      new TestUnmanagedBoxFragment(65, 0, 20, 10, child3)
     );
 
     LayoutFragment actualFragments = doLayoutSized(parentBox, 90).childFragments();
@@ -89,9 +89,9 @@ public class FlexContentTest {
     ElementBox parentBox = flexBlockBox(List.of(child1, child2, child3));
 
     List<LayoutFragment> expectedFragments = List.of(
-      new UnmanagedBoxFragment(0, 0, 40, 10, child1),
-      new UnmanagedBoxFragment(40, 0, 100, 10, child2),
-      new UnmanagedBoxFragment(140, 0, 20, 10, child3)
+      new TestUnmanagedBoxFragment(0, 0, 40, 10, child1),
+      new TestUnmanagedBoxFragment(40, 0, 100, 10, child2),
+      new TestUnmanagedBoxFragment(140, 0, 20, 10, child3)
     );
 
     LayoutFragment actualFragments = doLayoutSized(parentBox, 200).childFragments();
@@ -112,9 +112,9 @@ public class FlexContentTest {
     ElementBox parentBox = flexBlockBox(List.of(child1, child2, child3));
 
     List<LayoutFragment> expectedFragments = List.of(
-      new UnmanagedBoxFragment(0, 0, 20, 10, child1),
-      new UnmanagedBoxFragment(20, 0, 20, 10, child2),
-      new UnmanagedBoxFragment(40, 0, 25, 10, child3)
+      new TestUnmanagedBoxFragment(0, 0, 20, 10, child1),
+      new TestUnmanagedBoxFragment(20, 0, 20, 10, child2),
+      new TestUnmanagedBoxFragment(40, 0, 25, 10, child3)
     );
 
     LayoutFragment actualFragments = doLayoutSized(parentBox, 65).childFragments();
@@ -138,9 +138,9 @@ public class FlexContentTest {
     ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2, child3));
 
     List<LayoutFragment> expectedFragments = List.of(
-      new UnmanagedBoxFragment(0, 0, 26, 10, child1),
-      new UnmanagedBoxFragment(26, 0, 26, 10, child2),
-      new UnmanagedBoxFragment(0, 10, 32.5f, 10, child3)
+      new TestUnmanagedBoxFragment(0, 0, 26, 10, child1),
+      new TestUnmanagedBoxFragment(26, 0, 26, 10, child2),
+      new TestUnmanagedBoxFragment(0, 10, 32.5f, 10, child3)
     );
 
     LayoutFragment actualFragments = doLayoutSized(parentBox, 65).childFragments();
@@ -162,9 +162,9 @@ public class FlexContentTest {
     ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2, child3));
 
     List<LayoutFragment> expectedFragments = List.of(
-      new UnmanagedBoxFragment(0, 0, 100, 10, child1),
-      new UnmanagedBoxFragment(0, 10, 100, 25, child2),
-      new UnmanagedBoxFragment(0, 35, 100, 10, child3)
+      new TestUnmanagedBoxFragment(0, 0, 100, 10, child1),
+      new TestUnmanagedBoxFragment(0, 10, 100, 25, child2),
+      new TestUnmanagedBoxFragment(0, 35, 100, 10, child3)
     );
 
     LayoutFragment actualFragments = doLayoutSized(parentBox, 100, 50).childFragments();
@@ -189,9 +189,9 @@ public class FlexContentTest {
     ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2, child3));
 
     List<LayoutFragment> expectedFragments = List.of(
-      new UnmanagedBoxFragment(0, 0, 100, 15, child1),
-      new UnmanagedBoxFragment(0, 15, 100, 20, child2),
-      new UnmanagedBoxFragment(0, 35, 100, 15, child3)
+      new TestUnmanagedBoxFragment(0, 0, 100, 15, child1),
+      new TestUnmanagedBoxFragment(0, 15, 100, 20, child2),
+      new TestUnmanagedBoxFragment(0, 35, 100, 15, child3)
     );
 
     LayoutFragment actualFragments = doLayoutSized(parentBox, 100, 50).childFragments();
@@ -210,9 +210,9 @@ public class FlexContentTest {
     ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2, child3));
 
     List<LayoutFragment> expectedFragments = List.of(
-      new UnmanagedBoxFragment(85, 0, 15, 10, child1),
-      new UnmanagedBoxFragment(60, 0, 25, 10, child2),
-      new UnmanagedBoxFragment(40, 0, 20, 10, child3)
+      new TestUnmanagedBoxFragment(85, 0, 15, 10, child1),
+      new TestUnmanagedBoxFragment(60, 0, 25, 10, child2),
+      new TestUnmanagedBoxFragment(40, 0, 20, 10, child3)
     );
 
     LayoutFragment actualFragments = doLayoutSized(parentBox, 100).childFragments();
@@ -242,9 +242,9 @@ public class FlexContentTest {
     ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2, child3));
 
     List<LayoutFragment> expectedFragments = List.of(
-      new UnmanagedBoxFragment(0, 0, 40, 10, child3),
-      new UnmanagedBoxFragment(40, 0, 40, 10, child2),
-      new UnmanagedBoxFragment(0, 10, 40, 10, child1)
+      new TestUnmanagedBoxFragment(0, 0, 40, 10, child3),
+      new TestUnmanagedBoxFragment(40, 0, 40, 10, child2),
+      new TestUnmanagedBoxFragment(0, 10, 40, 10, child1)
     );
 
     LayoutFragment actualFragments = doLayoutSized(parentBox, 100).childFragments();
@@ -267,9 +267,9 @@ public class FlexContentTest {
     ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2, child3));
 
     List<LayoutFragment> expectedFragments = List.of(
-      new UnmanagedBoxFragment(0, 10, 26, 10, child1),
-      new UnmanagedBoxFragment(26, 10, 26, 10, child2),
-      new UnmanagedBoxFragment(0, 40, 26, 10, child3)
+      new TestUnmanagedBoxFragment(0, 10, 26, 10, child1),
+      new TestUnmanagedBoxFragment(26, 10, 26, 10, child2),
+      new TestUnmanagedBoxFragment(0, 40, 26, 10, child3)
     );
 
     LayoutFragment actualFragments = doLayoutSized(parentBox, 65, 60).childFragments();
@@ -305,9 +305,9 @@ public class FlexContentTest {
     // Horizontal Offset (to content edge) = 1px border + 1em (10px) margin + 1em (10px) padding = 21px
     // Offset (to border edge) = 1em (10px) margin
     List<LayoutFragment> expectedFragments = List.of(
-      new UnmanagedBoxFragment(10, 10, 15, 10, child1),
-      new UnmanagedBoxFragment(21 + 15 + 21 + 10, 10, 25, 10, child2),
-      new UnmanagedBoxFragment(21 + 15 + 21 + 21 + 25 + 21 + 10, 10, 20, 10, child3)
+      new TestUnmanagedBoxFragment(10, 10, 15, 10, child1),
+      new TestUnmanagedBoxFragment(21 + 15 + 21 + 10, 10, 25, 10, child2),
+      new TestUnmanagedBoxFragment(21 + 15 + 21 + 21 + 25 + 21 + 10, 10, 20, 10, child3)
     );
 
     FlexTestLayoutResult layoutResult = doLayoutSized(parentBox, 200);
@@ -320,7 +320,7 @@ public class FlexContentTest {
     Assertions.assertEquals(37, actualFragments.width(Measurement.BORDER));
     Assertions.assertEquals(22, actualFragments.height(Measurement.BORDER));
 
-    Assertions.assertEquals(16 + 10 + 16, layoutResult.dimensionFrag().height(Measurement.CONTENT));
+    Assertions.assertEquals(16 + 10 + 16, layoutResult.flexboxFragment().height(Measurement.CONTENT));
   }
 
   @Test
@@ -335,9 +335,9 @@ public class FlexContentTest {
     ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2, child3));
 
     List<LayoutFragment> expectedFragments = List.of(
-      new UnmanagedBoxFragment(0, 0, 15, 10, child1),
-      new UnmanagedBoxFragment(25, 0, 25, 10, child2),
-      new UnmanagedBoxFragment(60, 0, 20, 10, child3)
+      new TestUnmanagedBoxFragment(0, 0, 15, 10, child1),
+      new TestUnmanagedBoxFragment(25, 0, 25, 10, child2),
+      new TestUnmanagedBoxFragment(60, 0, 20, 10, child3)
     );
 
     LayoutFragment actualFragments = doLayoutSized(parentBox, 100).childFragments();
@@ -362,9 +362,9 @@ public class FlexContentTest {
     ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2, child3));
 
     List<LayoutFragment> expectedFragments = List.of(
-      new UnmanagedBoxFragment(0, 0, 26, 10, child1),
-      new UnmanagedBoxFragment(26, 0, 26, 10, child2),
-      new UnmanagedBoxFragment(0, 20, 26, 10, child3)
+      new TestUnmanagedBoxFragment(0, 0, 26, 10, child1),
+      new TestUnmanagedBoxFragment(26, 0, 26, 10, child2),
+      new TestUnmanagedBoxFragment(0, 20, 26, 10, child3)
     );
 
     LayoutFragment actualFragments = doLayoutSized(parentBox, 65).childFragments();

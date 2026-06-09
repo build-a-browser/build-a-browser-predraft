@@ -5,7 +5,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.BorderUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.paint.ElementBorderPainter;
+import net.buildabrowser.babbrowser.renderer.paint.painters.common.ElementBorderPainter;
 
 public class TableComputedBorders {
 

@@ -13,10 +13,10 @@ import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
-import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
+import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.content.common.test.TestManagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 
 public class FlowMinMaxSizeTest {
   
@@ -28,9 +28,9 @@ public class FlowMinMaxSizeTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 100, 0, parentBox, List.of(
-      new ManagedBoxFragment(0, 0, 100, 0, childBox, List.of())));
-    LayoutFragment actualFragment = doLayoutSized(parentBox, 100).fragment();
+    LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 100, 0, parentBox, List.of(
+      new TestManagedBoxFragment(0, 0, 100, 0, childBox, List.of())));
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 100).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -42,9 +42,9 @@ public class FlowMinMaxSizeTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 100, 0, parentBox, List.of(
-      new ManagedBoxFragment(0, 0, 20, 0, childBox, List.of())));
-    LayoutFragment actualFragment = doLayoutSized(parentBox, 100).fragment();
+    LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 100, 0, parentBox, List.of(
+      new TestManagedBoxFragment(0, 0, 20, 0, childBox, List.of())));
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 100).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -57,9 +57,9 @@ public class FlowMinMaxSizeTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 100, 0, parentBox, List.of(
-      new ManagedBoxFragment(0, 0, 20, 0, childBox, List.of())));
-    LayoutFragment actualFragment = doLayoutSized(parentBox, 100).fragment();
+    LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 100, 0, parentBox, List.of(
+      new TestManagedBoxFragment(0, 0, 20, 0, childBox, List.of())));
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 100).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -72,9 +72,9 @@ public class FlowMinMaxSizeTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 100, 0, parentBox, List.of(
-      new ManagedBoxFragment(0, 0, 4, 0, childBox, List.of())));
-    LayoutFragment actualFragment = doLayoutSized(parentBox, 100).fragment();
+    LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 100, 0, parentBox, List.of(
+      new TestManagedBoxFragment(0, 0, 4, 0, childBox, List.of())));
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 100).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -91,10 +91,10 @@ public class FlowMinMaxSizeTest {
 
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 100, 40, parentBox, List.of(
-      new ManagedBoxFragment(0, 0, 100, 20, childBox, List.of(
-        new ManagedBoxFragment(0, 0, 100, 0, nestedChildBox, List.of())))));
-    LayoutFragment actualFragment = doLayoutSized(parentBox, 100, 40).fragment();
+    LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 100, 40, parentBox, List.of(
+      new TestManagedBoxFragment(0, 0, 100, 20, childBox, List.of(
+        new TestManagedBoxFragment(0, 0, 100, 0, nestedChildBox, List.of())))));
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 100, 40).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -112,10 +112,10 @@ public class FlowMinMaxSizeTest {
 
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 100, 40, parentBox, List.of(
-      new ManagedBoxFragment(0, 0, 100, 20, childBox, List.of(
-        new ManagedBoxFragment(0, 0, 100, 5, nestedChildBox, List.of())))));
-    LayoutFragment actualFragment = doLayoutSized(parentBox, 100, 40).fragment();
+    LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 100, 40, parentBox, List.of(
+      new TestManagedBoxFragment(0, 0, 100, 20, childBox, List.of(
+        new TestManagedBoxFragment(0, 0, 100, 5, nestedChildBox, List.of())))));
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 100, 40).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -128,9 +128,9 @@ public class FlowMinMaxSizeTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 100, 40, parentBox, List.of(
-      new ManagedBoxFragment(0, 0, 100, 4, childBox, List.of())));
-    LayoutFragment actualFragment = doLayoutSized(parentBox, 100, 40).fragment();
+    LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 100, 40, parentBox, List.of(
+      new TestManagedBoxFragment(0, 0, 100, 4, childBox, List.of())));
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 100, 40).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 
@@ -143,9 +143,9 @@ public class FlowMinMaxSizeTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    LayoutFragment expectedFragment = new ManagedBoxFragment(0, 0, 100, 40, parentBox, List.of(
-      new ManagedBoxFragment(0, 0, 100, 20, childBox, List.of())));
-    LayoutFragment actualFragment = doLayoutSized(parentBox, 100, 40).fragment();
+    LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 100, 40, parentBox, List.of(
+      new TestManagedBoxFragment(0, 0, 100, 20, childBox, List.of())));
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 100, 40).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }
 

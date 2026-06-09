@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.content.scroll;
 
-import static net.buildabrowser.babbrowser.renderer.content.scroll.ScrollContentPainter.GUTTER_WIDTH;
+import static net.buildabrowser.babbrowser.renderer.paint.painters.scroll.ScrollBoxPainter.GUTTER_WIDTH;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -8,24 +8,23 @@ import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowValue;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler;
+import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 
 public class ScrollBoxContent implements BoxContent {
 
-  private final ScrollBox box;
-  private final EventHandler scrollEventHandler;
+  private final ScrollBox rootBox;
 
   public ScrollBoxContent(ScrollBox scrollBox) {
-    this.box = scrollBox;
-    this.scrollEventHandler = new ScrollEventHandler(scrollBox);
+    this.rootBox = scrollBox;
   }
 
   @Override
-  public UnmanagedBoxFragment layout(
+  public ScrollBoxFragment layout(
     LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     // TODO: This algorithm could have exponential runtime for nested scroll containers.
@@ -35,11 +34,11 @@ public class ScrollBoxContent implements BoxContent {
     boolean addedHorizontalScrollbars = false;
     boolean addedVerticalScrollbars = false;
 
-    BoxContent innerContent = ((ElementBox) box.childBoxes().next()).content();
+    BoxContent innerContent = ((ElementBox) rootBox.childBoxes().next()).content();
     boolean isPreLayout = widthConstraint.isPreLayoutConstraint() || heightConstraint.isPreLayoutConstraint();
-    UnmanagedBoxFragment innerLayout = innerContent.layout(adjustedWidthConstraint, adjustedHeightConstraint);
+    UnmanagedBoxFragment<?> innerLayout = innerContent.layout(adjustedWidthConstraint, adjustedHeightConstraint);
 
-    if (needXScrollbars(box, innerLayout, adjustedWidthConstraint)) {
+    if (needXScrollbars(rootBox, innerLayout, adjustedWidthConstraint)) {
       adjustedHeightConstraint = subtractGutterWidth(adjustedHeightConstraint);
       addedHorizontalScrollbars = true;
       if (!isPreLayout) {
@@ -47,7 +46,7 @@ public class ScrollBoxContent implements BoxContent {
       }
     }
 
-    if (needYScrollbars(box, innerLayout, adjustedHeightConstraint)) {
+    if (needYScrollbars(rootBox, innerLayout, adjustedHeightConstraint)) {
       adjustedWidthConstraint = subtractGutterWidth(adjustedWidthConstraint);
       addedVerticalScrollbars = true;
       if (!isPreLayout) {
@@ -57,7 +56,7 @@ public class ScrollBoxContent implements BoxContent {
     
     if (
       !addedHorizontalScrollbars
-      && needXScrollbars(box, innerLayout, adjustedWidthConstraint)
+      && needXScrollbars(rootBox, innerLayout, adjustedWidthConstraint)
     ) {
       adjustedHeightConstraint = subtractGutterWidth(adjustedHeightConstraint);
       addedHorizontalScrollbars = true;
@@ -72,28 +71,23 @@ public class ScrollBoxContent implements BoxContent {
     float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, outerHeight);
 
     innerLayout.setPos(0, 0);
-    ScrollBoxFragment scrollBoxFragment = new ScrollBoxFragment(
+    FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
+    ScrollBoxFragment scrollBoxFragment = fragmentFactory.createScrollBoxFragment(
       usedWidth, usedHeight,
       outerWidth, outerHeight,
       addedHorizontalScrollbars,
       addedVerticalScrollbars,
-      box, innerLayout);
+      rootBox, innerLayout);
     scrollBoxFragment.setLayerPos(0, 0);
-    box.setScrollFragment(scrollBoxFragment);
     // TODO: I believe this gets replaced by a PosRefBox on one site, I don't recall which
     // Does that break things?
-    box.updatePositioningFragment(scrollBoxFragment);
+    rootBox.updatePositioningFragment(scrollBoxFragment);
     return scrollBoxFragment;
   }
 
   @Override
   public void positionLayers(float layerX, float layerY) {
-    ((ElementBox) box.childBoxes().next()).content().positionLayers(0, 0);
-  }
-
-  @Override
-  public EventHandler eventHandler() {
-    return this.scrollEventHandler;
+    ((ElementBox) rootBox.childBoxes().next()).content().positionLayers(0, 0);
   }
 
   private static LayoutConstraint subtractGutterWidth(LayoutConstraint origConstraint) {
@@ -103,7 +97,7 @@ public class ScrollBoxContent implements BoxContent {
 
   private static boolean needXScrollbars(
     ElementBox box,
-    UnmanagedBoxFragment innerLayout,
+    UnmanagedBoxFragment<?> innerLayout,
     LayoutConstraint adjustedWidthConstraint
   ) {
     CSSValue overflowX = box.properties().get(CSSProperty.OVERFLOW_X);
@@ -116,7 +110,7 @@ public class ScrollBoxContent implements BoxContent {
 
   private static boolean needYScrollbars(
     ElementBox box,
-    UnmanagedBoxFragment innerLayout,
+    UnmanagedBoxFragment<?> innerLayout,
     LayoutConstraint adjustedHeightConstraint
   ) {
     CSSValue overflowY = box.properties().get(CSSProperty.OVERFLOW_Y);
@@ -129,7 +123,7 @@ public class ScrollBoxContent implements BoxContent {
 
   @Override
   public ElementBox rootBox() {
-    return this.box;
+    return this.rootBox;
   }
   
 }

@@ -10,20 +10,23 @@ import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.imp.AnonymousElementBoxImp;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.PosRefBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.TextFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
 public final class EventUtil {
   
   private EventUtil() {}
 
-  public static boolean aabb(BoxFragment fragment, float posX, float posY) {
+  public static boolean aabb(
+    BoxFragment<?> fragment,
+    float posX, float posY
+  ) {
     if (fragment instanceof PosRefBoxFragment) return false;
 
     float layerX = fragment.layerX(Measurement.BORDER);
@@ -35,7 +38,11 @@ public final class EventUtil {
       && posY < layerY + fragment.height(Measurement.BORDER);
   }
 
-  public static boolean aabb(BoxFragment parentFragment, LayoutFragment thisFragment, float posX, float posY) {
+  public static boolean aabb(
+    BoxFragment<?> parentFragment,
+    LayoutFragment thisFragment,
+    float posX, float posY
+  ) {
     if (thisFragment instanceof BoxFragment boxFragment) {
       return aabb(boxFragment, posX, posY);
     }
@@ -50,7 +57,9 @@ public final class EventUtil {
   }
 
   public static EventHandlerResponse forwardElementEvent(
-    RendererMouseEvent mouseEvent, BoxFragment fragment, float posX, float posY
+    RendererMouseEvent mouseEvent,
+    BoxFragment<?> fragment,
+    float posX, float posY
   ) {
     Box relatedBox = fragment.box();
     while (
@@ -78,7 +87,10 @@ public final class EventUtil {
   }
 
   public static EventHandlerResponse forwardElementEvent(
-    RendererMouseEvent mouseEvent, ManagedBoxFragment fragment, TextFragment textFragment, float relX, float relY
+    RendererMouseEvent mouseEvent,
+    ManagedBoxFragment<?> fragment,
+    TextFragment textFragment,
+    float relX, float relY
   ) {
     // TODO: Handle things like text selection
     return forwardElementEvent(mouseEvent, fragment, relX, relY);

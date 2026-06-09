@@ -15,9 +15,9 @@ import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
 public class FlowPositionTest {
   
@@ -36,7 +36,7 @@ public class FlowPositionTest {
 
     LayoutFragment actualFragment = doLayout(parentBox);
 
-    LayoutFragment innerFragment = ((ManagedBoxFragment) actualFragment).fragments().get(0);
+    LayoutFragment innerFragment = ((ManagedBoxFragment<?>) actualFragment).fragments().get(0);
     Assertions.assertEquals(25, innerFragment.width(Measurement.CONTENT));
     Assertions.assertEquals(25, innerFragment.height(Measurement.CONTENT));
     Assertions.assertEquals(0, innerFragment.posX(Measurement.CONTENT));

@@ -14,9 +14,9 @@ import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerEntry;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 
 public class CompositeLayerImp implements CompositeLayer {
@@ -69,8 +69,8 @@ public class CompositeLayerImp implements CompositeLayer {
     ensureLayersSorted();
 
     ScrollBoxFragment scrollBoxFragment = relatedScrollBox();
-    int scrollX = scrollBoxFragment == null ? 0 : scrollBoxFragment.box().scrollX();
-    int scrollY = scrollBoxFragment == null ? 0 : scrollBoxFragment.box().scrollY();
+    int scrollX = scrollBoxFragment == null ? 0 : scrollBoxFragment.scrollX();
+    int scrollY = scrollBoxFragment == null ? 0 : scrollBoxFragment.scrollY();
 
     vpIntersection.enterOffset(
       this.offsetX, this.offsetY, scrollX, scrollY,
@@ -154,7 +154,7 @@ public class CompositeLayerImp implements CompositeLayer {
           t -> t.translate(
             fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER) - backingX,
             fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER) - backingY),
-          c -> fragment.painter().paint(fragment, c, vpi));
+          c -> fragment.withPainterV((p, f) -> p.paint(f, c, vpi)));
       }, canvas, vpIntersection);
         
     });
@@ -224,8 +224,8 @@ public class CompositeLayerImp implements CompositeLayer {
   }
 
   private void drawScrollable(PaintCanvas canvas, VpIntersection vpIntersection, ScrollBoxFragment scrollBoxFragment) {
-    int scrollX = scrollBoxFragment == null ? 0 : scrollBoxFragment.box().scrollX();
-    int scrollY = scrollBoxFragment == null ? 0 : scrollBoxFragment.box().scrollY();
+    int scrollX = scrollBoxFragment == null ? 0 : scrollBoxFragment.scrollX();
+    int scrollY = scrollBoxFragment == null ? 0 : scrollBoxFragment.scrollY();
 
     vpIntersection.enterOffset(
       0, 0, scrollX, scrollY,
@@ -248,10 +248,10 @@ public class CompositeLayerImp implements CompositeLayer {
     int scrollX, int scrollY
   ) {
     if (scrollBoxFragment != null) {
-      scrollBoxFragment.painter().paintBackground(scrollBoxFragment, canvas, vpIntersection);
+      scrollBoxFragment.withPainterV((p, f) -> p.paintBackground(f, canvas, vpIntersection));
     } else {
       forEachFragment(
-        (fragment, vpi) -> fragment.painter().paintBackground(fragment, canvas, vpi),
+        (fragment, vpi) -> fragment.withPainterV((p, f) -> p.paintBackground(f, canvas, vpi)),
         canvas, vpIntersection);
     }
     
@@ -296,15 +296,14 @@ public class CompositeLayerImp implements CompositeLayer {
   }
 
   private void forEachFragment(
-    BiConsumer<BoxFragment, VpIntersection> func, PaintCanvas canvas, VpIntersection vpIntersection
+    BiConsumer<BoxFragment<?>, VpIntersection> func, PaintCanvas canvas, VpIntersection vpIntersection
   ) {
     CompositeLayerEntry nextEntry = entries;
     while (nextEntry != null) {
       CompositeLayerEntry currentEntry = nextEntry;
       nextEntry = nextEntry.next();
 
-      BoxFragment fragment = currentEntry.fragment();
-      if (fragment.painter() == null) continue;
+      BoxFragment<?> fragment = currentEntry.fragment();
       
       vpIntersection.enterOffset(
         currentEntry.offsetX(), currentEntry.offsetY(), 0, 0,
@@ -334,7 +333,7 @@ public class CompositeLayerImp implements CompositeLayer {
     float maxX = Integer.MIN_VALUE;
     CompositeLayerEntry currentEntry = entries;
     while (currentEntry != null) {
-      BoxFragment fragment = currentEntry.fragment();
+      BoxFragment<?> fragment = currentEntry.fragment();
       float adjustedWidth = fragment.inkWidth(Measurement.PADDING);
       minX = Math.min(minX, currentEntry.offsetX());
       maxX = Math.max(maxX, currentEntry.offsetX() + adjustedWidth);
@@ -349,7 +348,7 @@ public class CompositeLayerImp implements CompositeLayer {
     float maxY = Integer.MIN_VALUE;
     CompositeLayerEntry currentEntry = entries;
     while (currentEntry != null) {
-      BoxFragment fragment = currentEntry.fragment();
+      BoxFragment<?> fragment = currentEntry.fragment();
       float adjustedHeight = fragment.inkHeight(Measurement.PADDING);
       minY = Math.min(minY, currentEntry.offsetY());
       maxY = Math.max(maxY, currentEntry.offsetY() + adjustedHeight);

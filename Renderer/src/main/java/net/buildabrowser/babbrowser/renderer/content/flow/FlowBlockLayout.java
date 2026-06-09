@@ -10,14 +10,15 @@ import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.box.TextBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.content.flow.floatbox.FloatTracker;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowBlockBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class FlowBlockLayout {
@@ -39,7 +40,7 @@ public class FlowBlockLayout {
     this.activeContext = rootContext;
   }
 
-  public ManagedBoxFragment close(
+  public FlowBlockBoxFragment close(
     LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     rootContext.collapse();
@@ -82,7 +83,7 @@ public class FlowBlockLayout {
         
         activeContext.collapse();
         ackFloatClear(elementBox);
-        UnmanagedBoxFragment floatFragment = FloatLayout.renderFloat(
+        UnmanagedBoxFragment<?> floatFragment = FloatLayout.renderFloat(
           elementBox, widthConstraint, heightConstraint);
         FloatLayout.addFloat(rootContent, floatFragment, widthConstraint, heightConstraint, 0);
       } else if (FlowUtil.isBlockLevel(childBox)) {
@@ -156,7 +157,7 @@ public class FlowBlockLayout {
       childContext.collapse();
     }
 
-    ManagedBoxFragment newFragment = childContext.close(childWidthConstraint, childHeightConstraint);
+    FlowBlockBoxFragment newFragment = childContext.close(childWidthConstraint, childHeightConstraint);
     activeContext = parentContext;
     
     addFinishedFragment(newFragment, alignStart, parentWidthConstraint);
@@ -223,8 +224,10 @@ public class FlowBlockLayout {
     float[] margin = childBox.dimensions().getComputedMargin();
     activeContext.recordMargin(Math.max(margin[0], minClear));
     activeContext.collapse();
-    UnmanagedBoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
-      new UnmanagedBoxFragment(
+
+    FragmentFactory fragmentFactory = rootContent.rootBox().layoutContext().global().fragmentFactory();
+    UnmanagedBoxFragment<?> newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
+      fragmentFactory.createGenericUnmanagedBox(
         FlowUtil.constraintWidth(childBox, childWidthConstraint),
         FlowUtil.constraintHeight(childBox, childHeightConstraint),
         childBox) :

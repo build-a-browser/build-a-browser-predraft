@@ -6,8 +6,8 @@ import java.util.LinkedList;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.content.flow.floatbox.FloatTracker;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class InlineFormattingContext implements IntrusiveList<InlineFormattingContext> {

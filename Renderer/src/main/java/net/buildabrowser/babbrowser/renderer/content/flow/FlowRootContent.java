@@ -2,16 +2,14 @@ package net.buildabrowser.babbrowser.renderer.content.flow;
 
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.flow.floatbox.FloatTracker;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler;
+import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowRootBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class FlowRootContent implements BoxContent {
-
-  private static final EventHandler EVENT_HANDLER = new FlowRootEventHandler();
 
   private final ElementBox rootBox;
 
@@ -19,7 +17,7 @@ public class FlowRootContent implements BoxContent {
   private final FlowInlineLayout inlineLayout;
   private final FloatTracker floatTracker;
 
-  private ManagedBoxFragment rootFragment;
+  private ManagedBoxFragment<?> rootFragment;
 
   public FlowRootContent(ElementBox box) {
     this.rootBox = box;
@@ -29,7 +27,7 @@ public class FlowRootContent implements BoxContent {
   }
 
   @Override
-  public UnmanagedBoxFragment layout(
+  public FlowRootBoxFragment layout(
     LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     floatTracker.reset();
@@ -42,7 +40,8 @@ public class FlowRootContent implements BoxContent {
     this.rootFragment = blockLayout.close(widthConstraint, heightConstraint);
     rootFragment.setPos(0, 0);
 
-    return new FlowRootBoxFragment(
+    FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
+    return fragmentFactory.createFlowRootBoxFragment(
       rootFragment.width(Measurement.CONTENT),
       rootFragment.height(Measurement.CONTENT),
       rootFragment.inkWidth(Measurement.CONTENT),
@@ -54,11 +53,6 @@ public class FlowRootContent implements BoxContent {
   public void positionLayers(float layerX, float layerY) {
     FlowLayerPositioning.positionLayers(
       layerX, layerY, rootFragment, floatTracker);
-  }
-
-  @Override
-  public EventHandler eventHandler() {
-    return EVENT_HANDLER;
   }
 
   @Override
@@ -76,11 +70,6 @@ public class FlowRootContent implements BoxContent {
 
   FloatTracker floatTracker() {
     return this.floatTracker;
-  }
-
-  // For testing
-  public ManagedBoxFragment rootFragment() {
-    return this.rootFragment;
   }
 
 }

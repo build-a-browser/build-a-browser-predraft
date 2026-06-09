@@ -5,15 +5,14 @@ import java.util.ListIterator;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
-import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler;
-import net.buildabrowser.babbrowser.renderer.event.EventUtil;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventUtil;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 
 public final class CompositeEventsDispatcher {
@@ -83,12 +82,11 @@ public final class CompositeEventsDispatcher {
     ListIterator<CompositeLayerEntry> childIt = entriesList.listIterator(entriesList.size());
     while (childIt.hasPrevious()) {
       CompositeLayerEntry entry = childIt.previous();
-      BoxFragment fragment = entry.fragment();
+      BoxFragment<?> fragment = entry.fragment();
       if (!EventUtil.aabb(fragment, relX, relY)) continue;
 
-      EventHandler eventHandler = fragment.eventHandler();
-      EventHandlerResponse mouseEventResponse = eventHandler.handleMouseEvent(
-        eventContext, mouseEvent, fragment, relX, relY);
+      EventHandlerResponse mouseEventResponse = fragment.withEventHandler((eh, f) -> eh.handleMouseEvent(
+        eventContext, mouseEvent, f, relX, relY));
       if (!mouseEventResponse.isUnhandled()) return mouseEventResponse;
     }
 
@@ -118,22 +116,23 @@ public final class CompositeEventsDispatcher {
       StackingContext observerContext = observerBox.stackingContext();
       if (observerContext != layerContext) continue;
 
-      float childRelX = observerBox instanceof ScrollBox ?
-        translatedRel.relX() : translatedRel.childRelX();
-      float childRelY = observerBox instanceof ScrollBox ?
-        translatedRel.relY() : translatedRel.childRelY();
       // TODO: Position fragment is not reliable
-      BoxFragment observerFragment = observerBox.positioningFragment();
+      BoxFragment<?> observerFragment = observerBox.positioningFragment();
       // TODO: This can happen if an event is handled mid-layout (it is racey)
       // But we can't sync, the whole point of not being on the event loop is to handle
       // things like scrollbars while the event loop is busy
       if (observerFragment == null) return;
-      childRelX -= observerFragment.layerX(Measurement.BORDER);
-      childRelY -= observerFragment.layerY(Measurement.BORDER);
+      
+      float childRelX = -observerFragment.layerX(Measurement.BORDER) +
+        (observerBox instanceof ScrollBox ?
+          translatedRel.relX() : translatedRel.childRelX());
+      float childRelY = -observerFragment.layerY(Measurement.BORDER) +
+        (observerBox instanceof ScrollBox ?
+          translatedRel.relY() : translatedRel.childRelY());
 
-      observerBox.content().eventHandler().observeMouseEvent(
-        eventContext, mouseEvent, observerFragment,
-        childRelX, childRelY, preventedDefault);
+      observerFragment.withEventHandlerV((eh, f) -> eh.observeMouseEvent(
+        eventContext, mouseEvent, f,
+        childRelX, childRelY, preventedDefault));
     }
   }
 
@@ -157,8 +156,8 @@ public final class CompositeEventsDispatcher {
       && entries.next() == null
       && entries.fragment() instanceof ScrollBoxFragment scrollBoxFragment
     ) {
-      childRelX += scrollBoxFragment.box().scrollX();
-      childRelY += scrollBoxFragment.box().scrollY();
+      childRelX += scrollBoxFragment.scrollX();
+      childRelY += scrollBoxFragment.scrollY();
     }
 
     return new TranslatedRel(relX, relY, childRelX, childRelY);

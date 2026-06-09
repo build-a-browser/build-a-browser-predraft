@@ -10,9 +10,9 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.MarginUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.PosRefBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 
@@ -28,7 +28,7 @@ public final class PositionLayout {
     return refFragment;
   }
 
-  public static UnmanagedBoxFragment actuallyLayoutAbsolute(
+  public static UnmanagedBoxFragment<?> actuallyLayoutAbsolute(
     ElementBox refBox,
     float refWidth, float refHeight,
     float[] insets
@@ -57,7 +57,7 @@ public final class PositionLayout {
     LayoutConstraint usedHeightConstraint = SizingHeightUtil.clampHeight(
       LayoutConstraint.of(containingHeight), refBox, baseHeight);
 
-    UnmanagedBoxFragment itemFragment = refBox.layout(
+    UnmanagedBoxFragment<?> itemFragment = refBox.layout(
       usedWidthConstraint, usedHeightConstraint);
 
     MarginUtil.computeSimpleMargin(refBox, usedWidthConstraint);
@@ -71,7 +71,7 @@ public final class PositionLayout {
 
   public static float[] positionAbsolute(
     float[] insets,
-    UnmanagedBoxFragment computedFragment,
+    UnmanagedBoxFragment<?> computedFragment,
     float refWidth, float refHeight
   ) {
     PropertyContainer properties = computedFragment.box().properties();

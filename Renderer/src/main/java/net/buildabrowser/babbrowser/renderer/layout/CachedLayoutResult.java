@@ -1,21 +1,21 @@
 package net.buildabrowser.babbrowser.renderer.layout;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
 public class CachedLayoutResult implements IntrusiveList<CachedLayoutResult> {
   
   private final LayoutConstraint widthConstraint;
   private final LayoutConstraint heightConstraint;
-  private final UnmanagedBoxFragment layoutFragment;
+  private final UnmanagedBoxFragment<?> layoutFragment;
 
   private CachedLayoutResult next;
 
   public CachedLayoutResult(
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint,
-    UnmanagedBoxFragment layoutFragment
+    UnmanagedBoxFragment<?> layoutFragment
   ) {
     this.widthConstraint = widthConstraint;
     this.heightConstraint = heightConstraint;
@@ -40,7 +40,7 @@ public class CachedLayoutResult implements IntrusiveList<CachedLayoutResult> {
     return layoutFragment.height(Measurement.CONTENT);
   }
 
-  public UnmanagedBoxFragment fragment() {
+  public UnmanagedBoxFragment<?> fragment() {
     return this.layoutFragment;
   }
 
@@ -55,7 +55,7 @@ public class CachedLayoutResult implements IntrusiveList<CachedLayoutResult> {
   public static CachedLayoutResult create(
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint,
-    UnmanagedBoxFragment layoutFragment,
+    UnmanagedBoxFragment<?> layoutFragment,
     CachedLayoutResult next
   ) {
     CachedLayoutResult result = new CachedLayoutResult(widthConstraint, heightConstraint, layoutFragment);

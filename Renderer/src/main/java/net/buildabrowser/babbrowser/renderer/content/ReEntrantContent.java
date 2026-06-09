@@ -2,8 +2,7 @@ package net.buildabrowser.babbrowser.renderer.content;
 
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class ReEntrantContent implements BoxContent {
@@ -13,7 +12,7 @@ public class ReEntrantContent implements BoxContent {
   private ReEntrantContent() {}
 
   @Override
-  public UnmanagedBoxFragment layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
+  public UnmanagedBoxFragment<?> layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
     // BoxGeneratorImp tries to share content between the nodes to save on memory usage.
     // Sometimes, some nested nodes will all share the same FlowRootContent on first page load
     // Then, during a second layout cycle, one of the elements in the chain has a style change that causes it
@@ -35,11 +34,6 @@ public class ReEntrantContent implements BoxContent {
 
   @Override
   public ElementBox rootBox() {
-    throw new IllegalStateException("Reached unreachable code");
-  }
-
-  @Override
-  public EventHandler eventHandler() {
     throw new IllegalStateException("Reached unreachable code");
   }
 

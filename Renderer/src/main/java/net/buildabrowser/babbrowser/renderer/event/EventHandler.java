@@ -1,18 +1,18 @@
 package net.buildabrowser.babbrowser.renderer.event;
 
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 
-public interface EventHandler {
+public interface EventHandler<T extends BoxFragment<T>> {
   
   EventHandlerResponse handleMouseEvent(
     EventContext eventContext, RendererMouseEvent mouseEvent,
-    BoxFragment fragment, float relX, float relY
+    T fragment, float relX, float relY
   );
 
   default void observeMouseEvent(
     EventContext eventContext, RendererMouseEvent mouseEvent,
-    BoxFragment fragment, float relX, float relY, boolean preventedDefault
+    T fragment, float relX, float relY, boolean preventedDefault
   ) {}
 
   static enum EventHandlerResponse {

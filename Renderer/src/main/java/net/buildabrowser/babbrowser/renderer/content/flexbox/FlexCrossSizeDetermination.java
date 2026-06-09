@@ -7,8 +7,8 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public final class FlexCrossSizeDetermination {
@@ -41,7 +41,7 @@ public final class FlexCrossSizeDetermination {
       itemCrossConstraint = LayoutConstraint.AUTO;
     }
 
-    UnmanagedBoxFragment boxFragment = item.box().layout(
+    UnmanagedBoxFragment<?> boxFragment = item.box().layout(
       isVertical ? itemCrossConstraint : itemMainConstraint,
       isVertical ? itemMainConstraint : itemCrossConstraint);
     item.setFragment(boxFragment);
@@ -110,7 +110,7 @@ public final class FlexCrossSizeDetermination {
       item.setCrossSize(containerCrossSize.value());
       itemCrossConstraint = LayoutConstraint.of(itemLine.crossSize());
 
-      UnmanagedBoxFragment boxFragment = item.box().layout(
+      UnmanagedBoxFragment<?> boxFragment = item.box().layout(
         isVertical ? itemCrossConstraint : itemMainConstraint,
         isVertical ? itemMainConstraint : itemCrossConstraint);
       item.setFragment(boxFragment);

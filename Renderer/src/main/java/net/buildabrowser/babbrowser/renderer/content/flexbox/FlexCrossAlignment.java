@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.renderer.content.flexbox;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class FlexCrossAlignment {

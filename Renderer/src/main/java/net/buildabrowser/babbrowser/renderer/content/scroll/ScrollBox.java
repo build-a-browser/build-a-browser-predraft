@@ -1,14 +1,11 @@
 package net.buildabrowser.babbrowser.renderer.content.scroll;
 
-import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
-
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.imp.ElementBoxImp;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 
 public class ScrollBox extends ElementBoxImp {
 
@@ -17,10 +14,8 @@ public class ScrollBox extends ElementBoxImp {
   private final ScrollBarState horizontalScrollState;
   private final ScrollBarState verticalScrollState;
 
-  private ScrollBoxFragment scrollFragment;
-
-  private int scrollX = 0;
-  private int scrollY = 0;
+  private int scrollLeft = 0;
+  private int scrollTop = 0;
 
   public ScrollBox(HTMLElement element, Box parentBox, BoxLevel boxLevel) {
     super(element, parentBox, boxLevel);
@@ -38,41 +33,22 @@ public class ScrollBox extends ElementBoxImp {
     return false;
   }
 
-  public void scroll(int scrollX, int scrollY) {
-    setScrollX(this.scrollX + scrollX);
-    setScrollY(this.scrollY + scrollY);
-  }
-
-  public void setScrollX(float newScrollX) {
-    if (scrollFragment == null) return;
-    this.scrollX = (int) Math.ceil(mathClamp(
-      newScrollX,
-      0, scrollFragment.inkWidth(Measurement.CONTENT) - scrollFragment.width(Measurement.CONTENT)));
+  public void setRawScrollLeft(int newScrollX) {
+    this.scrollLeft = newScrollX;
     element().invalidate(InvalidationLevel.PAINT);
   }
 
-  public void setScrollY(float newScrollY) {
-    if (scrollFragment == null) return;
-    this.scrollY = (int) Math.ceil(mathClamp(
-      newScrollY,
-      0, scrollFragment.inkHeight(Measurement.CONTENT) - scrollFragment.height(Measurement.CONTENT)));
+  public void setRawScrollTop(int newScrollY) {
+    this.scrollTop = newScrollY;
     element().invalidate(InvalidationLevel.PAINT);
   }
 
-  public int scrollX() {
-    if (scrollFragment == null) return 0;
-    if (!scrollFragment.hasHorizontalScroll()) return 0;
-    return (int) Math.min(
-      this.scrollX,
-      scrollFragment.inkWidth(Measurement.CONTENT) - scrollFragment.width(Measurement.CONTENT));
+  public int rawScrollLeft() {
+    return this.scrollLeft;
   }
 
-  public int scrollY() {
-    if (scrollFragment == null) return 0;
-    if (!scrollFragment.hasVerticalScroll()) return 0;
-    return (int) Math.min(
-      this.scrollY,
-      scrollFragment.inkHeight(Measurement.CONTENT) - scrollFragment.height(Measurement.CONTENT));
+  public int rawScrollTop() {
+    return this.scrollTop;
   }
   
   public ScrollBarState horizontalScrollState() {
@@ -81,14 +57,6 @@ public class ScrollBox extends ElementBoxImp {
   
   public ScrollBarState verticalScrollState() {
     return this.verticalScrollState;
-  }
-
-  ScrollBoxFragment scrollFragment() {
-    return this.scrollFragment;
-  }
-
-  void setScrollFragment(ScrollBoxFragment scrollFragment) {
-    this.scrollFragment = scrollFragment;
   }
   
 }

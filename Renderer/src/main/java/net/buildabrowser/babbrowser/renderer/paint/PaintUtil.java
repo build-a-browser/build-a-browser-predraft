@@ -1,23 +1,23 @@
 package net.buildabrowser.babbrowser.renderer.paint;
 
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.PosRefBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
 public final class PaintUtil {
   
   private PaintUtil() {}
 
   public static void maybePaintFragment(
-    BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection, FragmentPaintFunc func
+    BoxFragment<?> fragment, PaintCanvas canvas, VpIntersection vpIntersection, FragmentPaintFunc func
   ) {
     maybePaintFragment(fragment, canvas, vpIntersection, func, Measurement.CONTENT);
   }
 
   public static void maybePaintFragment(
-    BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection,
+    BoxFragment<?> fragment, PaintCanvas canvas, VpIntersection vpIntersection,
     FragmentPaintFunc func, Measurement measurement
   ) {
     if (fragment instanceof PosRefBoxFragment) return;
@@ -43,7 +43,7 @@ public final class PaintUtil {
 
   // TODO: Use width instead of inkWidth for clipped elements
   private static boolean aabbFragmentVp(
-    BoxFragment fragment, VpIntersection vpIntersection, Measurement measurement
+    BoxFragment<?> fragment, VpIntersection vpIntersection, Measurement measurement
   ) {
     float elPosX = vpIntersection.elVpX() + fragment.posX(measurement);
     float elPosY = vpIntersection.elVpY() + fragment.posY(measurement);
@@ -56,7 +56,7 @@ public final class PaintUtil {
 
   public static interface FragmentPaintFunc {
   
-    void paint(BoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection);
+    void paint(BoxFragment<?> fragment, PaintCanvas canvas, VpIntersection vpIntersection);
 
   }
 

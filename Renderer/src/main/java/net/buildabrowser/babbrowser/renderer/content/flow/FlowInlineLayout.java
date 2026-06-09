@@ -9,12 +9,6 @@ import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.renderer.box.TextBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LineBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.ManagedBoxEntryMarker;
@@ -24,6 +18,13 @@ import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.Stag
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.StagedLineBreak;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.StagedText;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.StagedUnmanagedBox;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
@@ -135,7 +136,7 @@ public class FlowInlineLayout {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    UnmanagedBoxFragment floatFragment = FloatLayout.renderFloat(
+    UnmanagedBoxFragment<?> floatFragment = FloatLayout.renderFloat(
       elementBox, widthConstraint, heightConstraint);
     boolean fitsInLine = FloatLayout.addFloat(
       rootContent, floatFragment, widthConstraint, heightConstraint, activeInlineContext.lineBox().totalWidth());
@@ -173,8 +174,9 @@ public class FlowInlineLayout {
       FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
         parentHeightConstraint, parentWidthConstraint, childBox);
 
-    BoxFragment newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
-      new UnmanagedBoxFragment(
+    FragmentFactory fragmentFactory = rootContent.rootBox().layoutContext().global().fragmentFactory();
+    BoxFragment<?> newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
+      fragmentFactory.createGenericUnmanagedBox(
         FlowUtil.constraintWidth(childBox, parentWidthConstraint),
         FlowUtil.constraintHeight(childBox, parentHeightConstraint),
         childBox) :

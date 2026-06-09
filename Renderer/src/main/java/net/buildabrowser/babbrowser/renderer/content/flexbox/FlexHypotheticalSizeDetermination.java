@@ -10,8 +10,8 @@ import net.buildabrowser.babbrowser.cssbase.property.size.SizeValue;
 import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 
@@ -108,7 +108,7 @@ public final class FlexHypotheticalSizeDetermination {
         LayoutConstraint.of(fitContent) :
         itemCrossSize;
       
-      UnmanagedBoxFragment fragmentAtCross = itemBox.layout(usedCrossSize, LayoutConstraint.AUTO);
+      UnmanagedBoxFragment<?> fragmentAtCross = itemBox.layout(usedCrossSize, LayoutConstraint.AUTO);
       item.setBaseSize(fragmentAtCross.height(Measurement.CONTENT));
     }
     for (FlexItem item: items) {

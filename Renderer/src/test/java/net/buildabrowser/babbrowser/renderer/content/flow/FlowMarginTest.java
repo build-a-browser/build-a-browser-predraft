@@ -25,11 +25,12 @@ import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.TextBox;
 import net.buildabrowser.babbrowser.renderer.box.test.TestTextBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LineBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.TextFragment;
+import net.buildabrowser.babbrowser.renderer.content.common.test.TestManagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
 public class FlowMarginTest {
   
@@ -51,7 +52,7 @@ public class FlowMarginTest {
     Assertions.assertEquals(40, actualFragment.width(Measurement.CONTENT));
     Assertions.assertEquals(35, actualFragment.height(Measurement.CONTENT));
 
-    LayoutFragment innerFragment = ((ManagedBoxFragment) actualFragment).fragments().get(0);
+    LayoutFragment innerFragment = ((ManagedBoxFragment<?>) actualFragment).fragments().get(0);
     Assertions.assertEquals(40, innerFragment.width(Measurement.MARGIN));
     Assertions.assertEquals(35, innerFragment.height(Measurement.MARGIN));
     Assertions.assertEquals(0, innerFragment.posX(Measurement.MARGIN));
@@ -82,13 +83,13 @@ public class FlowMarginTest {
     Assertions.assertEquals(40, actualFragment.width(Measurement.CONTENT));
     Assertions.assertEquals(80, actualFragment.height(Measurement.CONTENT));
 
-    LayoutFragment innerFragment1 = ((ManagedBoxFragment) actualFragment).fragments().get(0);
+    LayoutFragment innerFragment1 = ((ManagedBoxFragment<?>) actualFragment).fragments().get(0);
     Assertions.assertEquals(25, innerFragment1.width(Measurement.CONTENT));
     Assertions.assertEquals(24, innerFragment1.height(Measurement.CONTENT));
     Assertions.assertEquals(0, innerFragment1.posX(Measurement.CONTENT));
     Assertions.assertEquals(11, innerFragment1.posY(Measurement.CONTENT));
 
-    LayoutFragment innerFragment2 = ((ManagedBoxFragment) actualFragment).fragments().get(1);
+    LayoutFragment innerFragment2 = ((ManagedBoxFragment<?>) actualFragment).fragments().get(1);
     Assertions.assertEquals(25, innerFragment2.width(Measurement.CONTENT));
     Assertions.assertEquals(24, innerFragment2.height(Measurement.CONTENT));
     Assertions.assertEquals(0, innerFragment2.posX(Measurement.CONTENT));
@@ -108,7 +109,7 @@ public class FlowMarginTest {
     LayoutFragment actualFragment = doLayout(parentBox);
     Assertions.assertEquals(40, actualFragment.width(Measurement.CONTENT));
 
-    LineBoxFragment lineBoxFragment = (LineBoxFragment) ((ManagedBoxFragment) actualFragment).fragments().get(0);
+    LineBoxFragment lineBoxFragment = (LineBoxFragment) ((ManagedBoxFragment<?>) actualFragment).fragments().get(0);
     Assertions.assertEquals(40, lineBoxFragment.width(Measurement.CONTENT));
 
     LayoutFragment innerFragment = lineBoxFragment.fragments().get(0);
@@ -128,12 +129,10 @@ public class FlowMarginTest {
     TestTextBox childBox2 = new TestTextBox("Off");
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
-    FlowRootContent rootContent = doLayoutSized(parentBox, 80).rootContent();
-
-    LayoutFragment expectedMainFragment = new ManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
+    LayoutFragment expectedMainFragment = new TestManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
       new LineBoxFragment(40, 0, 15, 10, List.of(
         new TextFragment(0, 0, 15, 10, "Off")))));
-    LayoutFragment actualMainFragment = rootContent.rootFragment();
+    LayoutFragment actualMainFragment = doLayoutSized(parentBox, 80).rootFragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
   }
 
@@ -157,13 +156,13 @@ public class FlowMarginTest {
     Assertions.assertEquals(40, actualFragment.width(Measurement.CONTENT));
     Assertions.assertEquals(80, actualFragment.height(Measurement.CONTENT));
 
-    LayoutFragment innerFragment1 = ((ManagedBoxFragment) actualFragment).fragments().get(0);
+    LayoutFragment innerFragment1 = ((ManagedBoxFragment<?>) actualFragment).fragments().get(0);
     Assertions.assertEquals(25, innerFragment1.width(Measurement.CONTENT));
     Assertions.assertEquals(24, innerFragment1.height(Measurement.CONTENT));
     Assertions.assertEquals(0, innerFragment1.posX(Measurement.CONTENT));
     Assertions.assertEquals(11, innerFragment1.posY(Measurement.CONTENT));
 
-    LayoutFragment innerFragment2 = ((ManagedBoxFragment) actualFragment).fragments().get(2);
+    LayoutFragment innerFragment2 = ((ManagedBoxFragment<?>) actualFragment).fragments().get(2);
     Assertions.assertEquals(25, innerFragment2.width(Measurement.CONTENT));
     Assertions.assertEquals(24, innerFragment2.height(Measurement.CONTENT));
     Assertions.assertEquals(0, innerFragment2.posX(Measurement.CONTENT));
@@ -195,13 +194,13 @@ public class FlowMarginTest {
     Assertions.assertEquals(40, actualFragment.width(Measurement.CONTENT));
     Assertions.assertEquals(91, actualFragment.height(Measurement.CONTENT));
 
-    LayoutFragment innerFragment1 = ((ManagedBoxFragment) actualFragment).fragments().get(0);
+    LayoutFragment innerFragment1 = ((ManagedBoxFragment<?>) actualFragment).fragments().get(0);
     Assertions.assertEquals(25, innerFragment1.width(Measurement.CONTENT));
     Assertions.assertEquals(24, innerFragment1.height(Measurement.CONTENT));
     Assertions.assertEquals(0, innerFragment1.posX(Measurement.CONTENT));
     Assertions.assertEquals(11, innerFragment1.posY(Measurement.CONTENT));
 
-    LayoutFragment innerFragment2 = ((ManagedBoxFragment) actualFragment).fragments().get(2);
+    LayoutFragment innerFragment2 = ((ManagedBoxFragment<?>) actualFragment).fragments().get(2);
     Assertions.assertEquals(25, innerFragment2.width(Measurement.CONTENT));
     Assertions.assertEquals(24, innerFragment2.height(Measurement.CONTENT));
     Assertions.assertEquals(0, innerFragment2.posX(Measurement.CONTENT));
@@ -222,11 +221,11 @@ public class FlowMarginTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    LayoutFragment actualFragment = doLayoutSized(parentBox, 80).fragment();
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 80).rootFragment();
     Assertions.assertEquals(80, actualFragment.width(Measurement.CONTENT));
     Assertions.assertEquals(25, actualFragment.height(Measurement.CONTENT));
 
-    LayoutFragment innerFragment = ((ManagedBoxFragment) actualFragment).fragments().get(0);
+    LayoutFragment innerFragment = ((ManagedBoxFragment<?>) actualFragment).fragments().get(0);
     Assertions.assertEquals(26, innerFragment.width(Measurement.CONTENT));
     Assertions.assertEquals(24, innerFragment.height(Measurement.CONTENT));
     Assertions.assertEquals(27, innerFragment.posX(Measurement.CONTENT));
@@ -275,7 +274,7 @@ public class FlowMarginTest {
       ElementBox parentBox = flowBlockBox(List.of(child1, child2));
 
       LayoutFragment actualFragment = doLayout(parentBox);
-      LayoutFragment fragment2 = ((ManagedBoxFragment) actualFragment).fragments().get(1);
+      LayoutFragment fragment2 = ((ManagedBoxFragment<?>) actualFragment).fragments().get(1);
 
       Assertions.assertEquals(72, fragment2.posY(Measurement.CONTENT));
   }

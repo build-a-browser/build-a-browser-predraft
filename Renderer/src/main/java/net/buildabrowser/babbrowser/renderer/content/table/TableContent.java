@@ -12,12 +12,13 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.TableCellUtil;
-import net.buildabrowser.babbrowser.renderer.content.table.imp.TableSeparateBorderPainter;
-import net.buildabrowser.babbrowser.renderer.content.table.imp.collapsed.TableCollapsedBorderPainter;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler;
+import net.buildabrowser.babbrowser.renderer.content.table.imp.border.TableBorderAssignment;
+import net.buildabrowser.babbrowser.renderer.content.table.imp.border.TableCollapsedBorderAssigner;
+import net.buildabrowser.babbrowser.renderer.content.table.imp.border.TableSeparateBorderAssigner;
+import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
@@ -26,13 +27,9 @@ public class TableContent implements BoxContent {
 
   // TODO: Don't forget to handle out-of-flow items
 
-  private static final EventHandler EVENT_HANDLER = new TableEventHandler();
-
-  private final TableContentPainter painter = new TableContentPainter(this);
   private final ElementBox rootBox;
   
   private Table table;
-  private TableBorderPainter borderPainter;
 
   public TableContent(ElementBox rootBox) {
     this.rootBox = rootBox;
@@ -48,32 +45,29 @@ public class TableContent implements BoxContent {
   public void computeMeasures(ElementBox box, LayoutConstraint referenceConstraint) {}
 
   @Override
-  public UnmanagedBoxFragment layout(
+  public UnmanagedBoxFragment<?> layout(
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
+    FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
+
     BorderSpacings borderSpacings = determineBorderSpacing();
     this.table = Table.create(rootBox, borderSpacings);
     TableFormer.formTable(table, rootBox);
     table.createTracks();
 
+    TableCellUtil.forEachCell(table, cell -> PaddingUtil.computePadding(cell.cellBox(), widthConstraint));
+    TableBorderAssignment borderAssignment = assignBorders(widthConstraint);
+
     if (table.width() == 0) {
-      return new UnmanagedBoxFragment(
+      return fragmentFactory.createTableBoxFragment(
         LayoutUtil.constraintOrDim(widthConstraint, 0),
         LayoutUtil.constraintOrDim(heightConstraint, 0),
         0, 0,
-        rootBox, painter);
+        rootBox, table, borderAssignment);
     }
 
     // TODO: Need to merge unspecified columns with only spans
-
-    TableCellUtil.forEachCell(table, cell -> PaddingUtil.computePadding(cell.cellBox(), widthConstraint));
-
-    CSSValue collapseValue = rootBox.properties().get(CSSProperty.BORDER_COLLAPSE);
-    this.borderPainter = collapseValue.equals(BorderCollapseValue.COLLAPSE) ?
-      new TableCollapsedBorderPainter() :
-      new TableSeparateBorderPainter();
-    borderPainter.assignBorders(table, widthConstraint);
 
     List<TableColumn> columns = table.columns();
     List<TableRow> rows = table.rows();
@@ -86,11 +80,11 @@ public class TableContent implements BoxContent {
     if (widthConstraint.isPreLayoutConstraint()) {
       float usedWidth = widthConstraint.type().equals(LayoutConstraintType.MAX_CONTENT) ?
         gridMax : gridMin;
-      return new UnmanagedBoxFragment(
+      return fragmentFactory.createGenericUnmanagedBoxFragment(
         LayoutUtil.constraintOrDim(widthConstraint, usedWidth),
         LayoutUtil.constraintOrDim(heightConstraint, 0),
         usedWidth, 0,
-        rootBox, painter);
+        rootBox);
     }
 
     LayoutConstraint usedConstraint = widthConstraint.value() < gridMin ?
@@ -111,16 +105,11 @@ public class TableContent implements BoxContent {
 
     positionTracksAndTrackGroups(table, inkWidth, totalHeight);
 
-    return new UnmanagedBoxFragment(
+    return fragmentFactory.createTableBoxFragment(
       LayoutUtil.constraintOrDim(usedConstraint, gridMax),
       LayoutUtil.constraintOrDim(heightConstraint, totalHeight),
       inkWidth, totalHeight,
-      rootBox, painter);
-  }
-
-  @Override
-  public EventHandler eventHandler() {
-    return EVENT_HANDLER;
+      rootBox, table, borderAssignment);
   }
 
   @Override
@@ -133,12 +122,12 @@ public class TableContent implements BoxContent {
     // TODO: Implement this
   }
 
-  public Table table() {
-    return this.table;
-  }
-
-  public TableBorderPainter borderPainter() {
-    return this.borderPainter;
+  private TableBorderAssignment assignBorders(LayoutConstraint widthConstraint) {
+    CSSValue collapseValue = rootBox.properties().get(CSSProperty.BORDER_COLLAPSE);
+    TableBorderAssignment borderAssignment = collapseValue.equals(BorderCollapseValue.COLLAPSE) ?
+      TableCollapsedBorderAssigner.assignBorders(table) :
+      TableSeparateBorderAssigner.assignBorders(table, widthConstraint);
+    return borderAssignment;
   }
 
   private void layoutCellsAndHeights(Table table) {
@@ -149,7 +138,7 @@ public class TableContent implements BoxContent {
           TableCell cell = table.cell(x, y, z);
           if (cell.getRelatedFragment() != null) continue;
 
-          UnmanagedBoxFragment fragment = cell.cellBox().layout(
+          UnmanagedBoxFragment<?> fragment = cell.cellBox().layout(
             LayoutConstraint.of(innerCellWidth(table, cell)), LayoutConstraint.AUTO);
           cell.setRelatedFragment(fragment);
 
@@ -193,10 +182,11 @@ public class TableContent implements BoxContent {
     return innerHeight + totalVPadding + totalVBorder;
   }
 
-  private List<UnmanagedBoxFragment> positionTracksAndTrackGroups(
+  private List<UnmanagedBoxFragment<?>> positionTracksAndTrackGroups(
     Table table, float tableWidth, float tableHeight
   ) {
-    List<UnmanagedBoxFragment> fragments = new ArrayList<>();
+    List<UnmanagedBoxFragment<?>> fragments = new ArrayList<>();
+    FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
 
     BorderSpacings borderSpacings = table.spacings();
     float currentX = 0;
@@ -206,8 +196,10 @@ public class TableContent implements BoxContent {
 
       // TODO: Also need to update groups
       ElementBox columnBox = column.columnBox();
-      columnBox.updatePositioningFragment(
-        new UnmanagedBoxFragment(currentX, 0, column.usedWidth(), tableHeight, columnBox));
+      UnmanagedBoxFragment<?> posFragment = fragmentFactory.createGenericUnmanagedBox(
+        column.usedWidth(), tableHeight, columnBox);
+      posFragment.setPos(currentX, 0);
+      columnBox.updatePositioningFragment(posFragment);
       currentX += column.usedWidth();
     }
 
@@ -218,16 +210,18 @@ public class TableContent implements BoxContent {
 
       // TODO: Also need to update groups
       ElementBox rowBox = row.rowBox();
-      rowBox.updatePositioningFragment(
-        new UnmanagedBoxFragment(0, currentY, tableWidth, row.usedHeight(), rowBox));
+      UnmanagedBoxFragment<?> posFragment = fragmentFactory.createGenericUnmanagedBox(
+        tableWidth, row.usedHeight(), rowBox);
+      posFragment.setPos(0, currentY);
+      rowBox.updatePositioningFragment(posFragment);
       currentY += row.usedHeight();
     }
 
     return fragments;
   }
 
-  private List<UnmanagedBoxFragment> positionCells(Table table) {
-    List<UnmanagedBoxFragment> fragments = new ArrayList<>();
+  private List<UnmanagedBoxFragment<?>> positionCells(Table table) {
+    List<UnmanagedBoxFragment<?>> fragments = new ArrayList<>();
 
     BorderSpacings borderSpacings = table.spacings();
     float currentX = 0;

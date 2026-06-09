@@ -9,7 +9,7 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class FlexItem {
@@ -18,7 +18,7 @@ public class FlexItem {
   private final float growFactor;
   private final float shrinkFactor;
 
-  private UnmanagedBoxFragment boxFragment;
+  private UnmanagedBoxFragment<?> boxFragment;
   private float baseSize;
   private float hypotheticalMainSize;
   private float hypotheticalCrossSize;
@@ -135,11 +135,11 @@ public class FlexItem {
     return this.shrinkFactor;
   }
 
-  public void setFragment(UnmanagedBoxFragment boxFragment) {
+  public void setFragment(UnmanagedBoxFragment<?> boxFragment) {
     this.boxFragment = boxFragment;
   }
 
-  public UnmanagedBoxFragment fragment() {
+  public UnmanagedBoxFragment<?> fragment() {
     return this.boxFragment;
   }
 

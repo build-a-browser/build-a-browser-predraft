@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.TextFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
 
 public class FlowTextFragmentBuilder {
   

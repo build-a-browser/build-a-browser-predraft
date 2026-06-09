@@ -6,14 +6,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.flow.BlockFormattingContext;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class FloatTrackerImp implements FloatTracker {
 
-  private static final Comparator<BoxFragment> fragmentComparator = (r1, r2) -> {
+  private static final Comparator<BoxFragment<?>> fragmentComparator = (r1, r2) -> {
     int result = Float.compare(r1.posY(Measurement.MARGIN), r2.posY(Measurement.MARGIN));
     if (result == 0) {
       result = Float.compare(r1.posX(Measurement.MARGIN), r2.posX(Measurement.MARGIN));
@@ -29,9 +29,9 @@ public class FloatTrackerImp implements FloatTracker {
   }
 
   // TreeSet has a ton of overhead, sort on access instead
-  private List<BoxFragment> leftFloats;
-  private List<BoxFragment> rightFloats;
-  private List<BoxFragment> allFloats;
+  private List<BoxFragment<?>> leftFloats;
+  private List<BoxFragment<?>> rightFloats;
+  private List<BoxFragment<?>> allFloats;
 
   private boolean sidesSorted = true;
   private float lineEnd = 0;
@@ -40,7 +40,9 @@ public class FloatTrackerImp implements FloatTracker {
   // TODO: More accurately lay out floats during pre-render. Right now it's a bit hacked together.
 
   @Override
-  public boolean addLineStartFloat(BoxFragment box, LayoutConstraint lineConstraint, float reservedWidth) {
+  public boolean addLineStartFloat(
+    BoxFragment<?> box, LayoutConstraint lineConstraint, float reservedWidth
+  ) {
     if (lineConstraint.isPreLayoutConstraint()) {
       lineConstraint = LayoutConstraint.of(Float.MAX_VALUE);
     }
@@ -66,7 +68,9 @@ public class FloatTrackerImp implements FloatTracker {
   }
 
   @Override
-  public boolean addLineEndFloat(BoxFragment box, LayoutConstraint lineConstraint, float reservedWidth) {
+  public boolean addLineEndFloat(
+    BoxFragment<?> box, LayoutConstraint lineConstraint, float reservedWidth
+  ) {
     if (lineConstraint.isPreLayoutConstraint()) {
       return addLineStartFloat(box, lineConstraint, reservedWidth);
     }
@@ -108,7 +112,7 @@ public class FloatTrackerImp implements FloatTracker {
     if (leftFloats == null) return 0;
 
     float highestOffset = 0;
-    for (BoxFragment box : leftFloats) {
+    for (BoxFragment<?> box : leftFloats) {
       if (posY() >= box.posY(Measurement.MARGIN) && posY() < box.posY(Measurement.MARGIN) + box.height(Measurement.MARGIN)) {
         highestOffset = Math.max(highestOffset, box.posX(Measurement.MARGIN) + box.width(Measurement.MARGIN));
       }
@@ -126,7 +130,7 @@ public class FloatTrackerImp implements FloatTracker {
     if (rightFloats == null) return lineConstraint.value();
 
     float highestOffset = Integer.MAX_VALUE;
-    for (BoxFragment box : rightFloats) {
+    for (BoxFragment<?> box : rightFloats) {
       if (posY() >= box.posY(Measurement.MARGIN) && posY() < box.posY(Measurement.MARGIN) + box.height(Measurement.MARGIN)) {
         highestOffset = Math.min(highestOffset, box.posX(Measurement.MARGIN));
       }
@@ -146,7 +150,7 @@ public class FloatTrackerImp implements FloatTracker {
   }
 
   @Override
-  public List<BoxFragment> allFloats() {
+  public List<BoxFragment<?>> allFloats() {
     if (allFloats == null) return List.of(); // Java caches this
     return this.allFloats;
   }
@@ -169,8 +173,8 @@ public class FloatTrackerImp implements FloatTracker {
     float currentSearchBlockPos = posY();
     float[] nextSearchBlockPos = new float[] { 0 };
 
-    Iterator<BoxFragment> leftFragIt;
-    Iterator<BoxFragment> rightFragIt;
+    Iterator<BoxFragment<?>> leftFragIt;
+    Iterator<BoxFragment<?>> rightFragIt;
     do {
       // TODO: This is very unoptimal, potentially squared, but imagine the case in which a tall float comes before
       // a short float and the [blockStart, blockEnd] of the shorter float is completely contained within the
@@ -200,9 +204,9 @@ public class FloatTrackerImp implements FloatTracker {
     return currentSearchBlockPos;
   }
 
-  private float lastValidInlinePos(Iterator<BoxFragment> fragIt, float blockPos, float initInlinePos, float[] outNextBlockPos) {
+  private float lastValidInlinePos(Iterator<BoxFragment<?>> fragIt, float blockPos, float initInlinePos, float[] outNextBlockPos) {
     boolean isLeftSide = initInlinePos == posX();
-    BoxFragment currentFragment = fragIt.hasNext() ? fragIt.next() : null;
+    BoxFragment<?> currentFragment = fragIt.hasNext() ? fragIt.next() : null;
     float inlinePos = initInlinePos;
     while (currentFragment != null && currentFragment.posY(Measurement.MARGIN) <= blockPos) {
       float fragmentEnd = currentFragment.posY(Measurement.MARGIN) + currentFragment.height(Measurement.MARGIN);
@@ -223,7 +227,7 @@ public class FloatTrackerImp implements FloatTracker {
     return inlinePos;
   }
 
-  private float getFreePosition(float blockStart, List<BoxFragment> floats) {
+  private float getFreePosition(float blockStart, List<BoxFragment<?>> floats) {
     if (floats == null) return blockStart;
 
     if (!sidesSorted) {
@@ -233,7 +237,7 @@ public class FloatTrackerImp implements FloatTracker {
     }
 
     float nextUncheckedY = -1;
-    for (BoxFragment box : floats) {
+    for (BoxFragment<?> box : floats) {
       if (nextUncheckedY >= blockStart && box.posY(Measurement.MARGIN) > nextUncheckedY) {
         return nextUncheckedY;
       } else {

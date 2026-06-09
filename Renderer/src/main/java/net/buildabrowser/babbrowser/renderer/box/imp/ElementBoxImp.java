@@ -12,13 +12,13 @@ import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
 import net.buildabrowser.babbrowser.renderer.content.ReEntrantContent;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexBoxContent;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.renderer.content.image.ImageContent;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.renderer.content.table.TableContent;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class ElementBoxImp extends AbstractElementBoxImp {
@@ -51,12 +51,12 @@ public class ElementBoxImp extends AbstractElementBoxImp {
   }
 
   @Override
-  public UnmanagedBoxFragment layout(
+  public UnmanagedBoxFragment<?> layout(
     LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     BoxContent realContent = content();
     this.content = ReEntrantContent.instance();
-    UnmanagedBoxFragment fragment = layoutWithContent(widthConstraint, heightConstraint, realContent);
+    UnmanagedBoxFragment<?> fragment = layoutWithContent(widthConstraint, heightConstraint, realContent);
     this.content = realContent;
     return fragment;
   }

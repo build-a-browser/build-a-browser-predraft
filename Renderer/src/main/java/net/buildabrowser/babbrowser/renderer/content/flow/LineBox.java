@@ -5,11 +5,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LineBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
+import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowInlineBoxFragment;
 
 public class LineBox {
 
@@ -53,18 +54,18 @@ public class LineBox {
   public ElementBox popElement() {
     commitText();
     LineSegment lineSegment = lineSegments.pop();
-    ManagedBoxFragment managedBoxFragment = new ManagedBoxFragment(
+    FragmentFactory fragmentFactory = lineSegment.box().layoutContext().global().fragmentFactory();
+    FlowInlineBoxFragment inlineBoxFragment = fragmentFactory.createFlowInlineBoxFragment(
       lineSegment.width(), lineSegment.height(),
       lineSegment.inkWidth(), lineSegment.inkHeight(),
-      lineSegment.box(), FlowRootContentPainter.FLOW_INLINE_PAINTER,
-      lineSegment.fragments());
-    lineSegments.peek().addFragment(managedBoxFragment);
+      lineSegment.box(), lineSegment.fragments());
+    lineSegments.peek().addFragment(inlineBoxFragment);
     
     this.totalWidth +=
       lineSegment.box().dimensions().getComputedMargin()[3] +
       lineSegment.box().dimensions().getComputedBorder()[3] +
       lineSegment.box().dimensions().getComputedPadding()[3];
-    return managedBoxFragment.box();
+    return inlineBoxFragment.box();
   }
 
   public float totalWidth() {

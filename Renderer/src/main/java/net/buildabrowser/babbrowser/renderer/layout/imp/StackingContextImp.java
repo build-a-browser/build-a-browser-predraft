@@ -15,10 +15,10 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerEntry;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
-import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 
 // TODO: Some of the positioning code here is quite hacky
@@ -49,7 +49,7 @@ public class StackingContextImp implements StackingContext {
   }
 
   @Override
-  public void addFragment(float posX, float posY, BoxFragment fragment) {
+  public void addFragment(float posX, float posY, BoxFragment<?> fragment) {
     if (this.entries != null && fragment instanceof ScrollBoxFragment) {
       throw new RuntimeException();
     }
@@ -154,7 +154,7 @@ public class StackingContextImp implements StackingContext {
     float maxX = Integer.MIN_VALUE;
     CompositeLayerEntry currentEntry = entries;
     while (currentEntry != null) {
-      BoxFragment fragment = currentEntry.fragment();
+      BoxFragment<?> fragment = currentEntry.fragment();
       float adjustedWidth = fragment.width(Measurement.PADDING);
       minX = Math.min(minX, currentEntry.offsetX());
       maxX = Math.max(maxX, currentEntry.offsetX() + adjustedWidth);
@@ -170,7 +170,7 @@ public class StackingContextImp implements StackingContext {
     float maxY = Integer.MIN_VALUE;
     CompositeLayerEntry currentEntry = entries;
     while (currentEntry != null) {
-      BoxFragment fragment = currentEntry.fragment();
+      BoxFragment<?> fragment = currentEntry.fragment();
       float adjustedHeight = fragment.height(Measurement.PADDING);
       minY = Math.min(minY, currentEntry.offsetY());
       maxY = Math.max(maxY, currentEntry.offsetY() + adjustedHeight);
@@ -194,7 +194,7 @@ public class StackingContextImp implements StackingContext {
       // TODO: Remove this check once every content properly handles positions
       return new float[4];
     }
-    BoxFragment refFragment = elementBox.positioningFragment();
+    BoxFragment<?> refFragment = elementBox.positioningFragment();
     return PositionUtil.computeRelativeInsets(
       refFragment.width(Measurement.CONTENT), refFragment.height(Measurement.CONTENT), relatedBox);
   }

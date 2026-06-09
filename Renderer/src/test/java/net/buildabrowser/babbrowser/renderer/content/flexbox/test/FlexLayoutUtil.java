@@ -3,8 +3,10 @@ package net.buildabrowser.babbrowser.renderer.content.flexbox.test;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexBoxContent;
+import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.flexbox.FlexBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
@@ -17,7 +19,7 @@ public final class FlexLayoutUtil {
   
   private FlexLayoutUtil() {}
 
-  public static UnmanagedBoxFragment doLayout(ElementBox parentBox) {
+  public static UnmanagedBoxFragment<?> doLayout(ElementBox parentBox) {
     return doLayoutConstrained(parentBox, LayoutConstraint.AUTO, LayoutConstraint.AUTO).childFragments();
   }
 
@@ -37,21 +39,22 @@ public final class FlexLayoutUtil {
     FontMetrics testMetrics = TestFontMetrics.create(10, 5);
     ResourceLoader resourceLoader = new TestResourceLoader(() -> testMetrics);
     Viewport viewport = new Viewport(0, 0, (int) widthConstraint.value(), (int) heightConstraint.value());
+    FragmentFactory fragmentFactory = FragmentFactory.createDefault();
     LayoutContext layoutContext = new LayoutContext(
       new GlobalLayoutContext(
         resourceLoader, testMetrics, resourceLoader.fontLoader()::load,
-        viewport, null, null),
+        viewport, null, null, fragmentFactory),
       () -> testMetrics);
     LayoutContextGenerator.generateLayoutContexts(parentBox, layoutContext);
     FlexBoxContent content = (FlexBoxContent) parentBox.content();
 
     content.fixupChildren();
-    UnmanagedBoxFragment dimensionFrag = parentBox.layout(widthConstraint, heightConstraint);
-    return new FlexTestLayoutResult(dimensionFrag, content.fragments(), content);
+    FlexBoxFragment dimensionFrag = (FlexBoxFragment) parentBox.layout(widthConstraint, heightConstraint);
+    return new FlexTestLayoutResult(dimensionFrag, dimensionFrag.fragments(), content);
   }
 
   public static record FlexTestLayoutResult(
-    UnmanagedBoxFragment dimensionFrag, UnmanagedBoxFragment childFragments, FlexBoxContent rootContent
+    FlexBoxFragment flexboxFragment, UnmanagedBoxFragment<?> childFragments, FlexBoxContent rootContent
   ) {}
 
 }

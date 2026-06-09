@@ -14,10 +14,10 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.renderer.box.MutableElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowUtil;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.CachedLayoutResult;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
@@ -33,7 +33,7 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   private BoxLevel boxLevel;
 
   private CachedLayoutResult cache;
-  private BoxFragment positioningFragment;
+  private BoxFragment<?> positioningFragment;
 
   private LayoutContext layoutContext;
   private StackingContext stackingContext;
@@ -123,20 +123,20 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   }
 
   @Override
-  public UnmanagedBoxFragment layout(
+  public UnmanagedBoxFragment<?> layout(
     LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     return layoutWithContent(widthConstraint, heightConstraint, content());
   }
 
-  protected UnmanagedBoxFragment layoutWithContent(
+  protected UnmanagedBoxFragment<?> layoutWithContent(
     LayoutConstraint widthConstraint, LayoutConstraint heightConstraint,
     BoxContent content
   ) {
     CachedLayoutResult current = cache;
     while (current != null) {
       if (current.applies(widthConstraint, heightConstraint)) {
-        UnmanagedBoxFragment fragment = current.fragment();
+        UnmanagedBoxFragment<?> fragment = current.fragment();
         fragment.setNext(null);
         return fragment;
       }
@@ -147,7 +147,7 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
       content.computeIntrinsics();
     }
 
-    UnmanagedBoxFragment layoutResult = content.layout(widthConstraint, heightConstraint);
+    UnmanagedBoxFragment<?> layoutResult = content.layout(widthConstraint, heightConstraint);
     
     this.cache = CachedLayoutResult.create(
       widthConstraint, heightConstraint, layoutResult, cache);
@@ -156,12 +156,12 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
 
   // TODO: This is rather unreliable, find an alternative way
   @Override
-  public void updatePositioningFragment(BoxFragment boxFragment) {
+  public void updatePositioningFragment(BoxFragment<?> boxFragment) {
     this.positioningFragment = boxFragment;
   }
 
   @Override
-  public BoxFragment positioningFragment() {
+  public BoxFragment<?> positioningFragment() {
     return this.positioningFragment;
   }
 

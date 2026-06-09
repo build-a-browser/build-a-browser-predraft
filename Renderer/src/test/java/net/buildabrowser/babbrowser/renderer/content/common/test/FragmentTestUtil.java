@@ -6,13 +6,13 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LineBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.TextFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
 public final class FragmentTestUtil {
   
@@ -24,8 +24,8 @@ public final class FragmentTestUtil {
     Assertions.assertEquals(expected.width(Measurement.CONTENT), actual.width(Measurement.CONTENT));
     Assertions.assertEquals(expected.height(Measurement.CONTENT), actual.height(Measurement.CONTENT));
     switch (expected) {
-      case ManagedBoxFragment fragment -> assertFragmentEquals(fragment, actual);
-      case UnmanagedBoxFragment fragment -> assertFragmentEquals(fragment, actual);
+      case ManagedBoxFragment<?> fragment -> assertFragmentEquals(fragment, actual);
+      case UnmanagedBoxFragment<?> fragment -> assertFragmentEquals(fragment, actual);
       case TextFragment fragment -> assertFragmentEquals(fragment, actual);
       case LineBoxFragment fragment -> assertFragmentEquals(fragment, actual);
       default -> throw new IllegalArgumentException("Unexpected fragment type!");
@@ -40,7 +40,7 @@ public final class FragmentTestUtil {
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static void assertFragmentListEqualsC(List<LayoutFragment> expected, List<BoxFragment> actual) {
+  public static void assertFragmentListEqualsC(List<LayoutFragment> expected, List<BoxFragment<?>> actual) {
     assertFragmentListEquals(expected, (List<LayoutFragment>) (List) actual);
   }
 
@@ -60,9 +60,9 @@ public final class FragmentTestUtil {
     }
   }
 
-  private static void assertFragmentEquals(ManagedBoxFragment expected, LayoutFragment actual) {
+  private static void assertFragmentEquals(ManagedBoxFragment<?> expected, LayoutFragment actual) {
     Assertions.assertInstanceOf(ManagedBoxFragment.class, actual);
-    ManagedBoxFragment actualFragment = (ManagedBoxFragment) actual;
+    ManagedBoxFragment<?> actualFragment = (ManagedBoxFragment<?>) actual;
     Assertions.assertEquals(expected.box(), actualFragment.box());
     Assertions.assertEquals(IntrusiveList._testingOnlySize(expected.fragments()), IntrusiveList._testingOnlySize(actualFragment.fragments()));
 
@@ -75,9 +75,9 @@ public final class FragmentTestUtil {
     }
   }
 
-  private static void assertFragmentEquals(UnmanagedBoxFragment expected, LayoutFragment actual) {
+  private static void assertFragmentEquals(UnmanagedBoxFragment<?> expected, LayoutFragment actual) {
     Assertions.assertInstanceOf(UnmanagedBoxFragment.class, actual);
-    UnmanagedBoxFragment actualFragment = (UnmanagedBoxFragment) actual;
+    UnmanagedBoxFragment<?> actualFragment = (UnmanagedBoxFragment<?>) actual;
     Assertions.assertEquals(expected.width(Measurement.CONTENT), actualFragment.width(Measurement.CONTENT));
     Assertions.assertEquals(expected.height(Measurement.CONTENT), actualFragment.height(Measurement.CONTENT));
     Assertions.assertEquals(expected.box(), actualFragment.box());

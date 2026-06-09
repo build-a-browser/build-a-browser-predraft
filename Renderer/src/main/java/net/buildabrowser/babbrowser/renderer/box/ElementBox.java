@@ -8,8 +8,8 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.imp.AnonymousElementBoxImp;
 import net.buildabrowser.babbrowser.renderer.box.imp.ElementBoxImp;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.content.common.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
@@ -41,11 +41,12 @@ public interface ElementBox extends Box {
 
   void updateDetails(Box parentBox, BoxLevel boxLevel);
 
-  UnmanagedBoxFragment layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
+  UnmanagedBoxFragment<?> layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
 
-  void updatePositioningFragment(BoxFragment boxFragment);
+  // TODO: Audit usage of this method
+  void updatePositioningFragment(BoxFragment<?> boxFragment);
 
-  BoxFragment positioningFragment();
+  BoxFragment<?> positioningFragment();
 
   LayoutContext layoutContext();
 
