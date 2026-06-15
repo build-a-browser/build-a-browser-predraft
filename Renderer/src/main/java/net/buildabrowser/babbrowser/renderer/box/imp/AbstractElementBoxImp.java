@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
-import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
@@ -41,14 +40,11 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   Box childBoxes; // Package-level for the iterator
   Box nextBox;
 
-  public AbstractElementBoxImp(Box parentBox, BoxLevel boxLevel) {
+  public AbstractElementBoxImp(
+    Box parentBox, BoxLevel boxLevel
+  ) {
     this.parentBox = parentBox;
     this.boxLevel = boxLevel;
-  }
-
-  @Override
-  public HTMLElement element() {
-    throw new UnsupportedOperationException("Anonymous box is not associated with an element!");
   }
 
   @Override

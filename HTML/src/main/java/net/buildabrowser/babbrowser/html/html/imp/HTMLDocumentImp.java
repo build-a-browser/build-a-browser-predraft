@@ -3,8 +3,6 @@ package net.buildabrowser.babbrowser.html.html.imp;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
-import net.buildabrowser.babbrowser.cssbase.cssom.extra.Invalidatable;
-import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.dom.imp.DocumentImp;
@@ -42,18 +40,6 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
   @Override
   public void setTitleElement(HTMLElement titleElement) {
     this.titleElement = titleElement;
-  }
-
-  @Override
-  public Node appendChild(Node node) {
-    super.appendChild(node);
-
-    if (node instanceof Invalidatable invalidatable) {
-      invalidatable.invalidate(InvalidationLevel.BOX);
-    }
-    invalidate(InvalidationLevel.BOX);
-
-    return node;
   }
 
   @Override
@@ -106,24 +92,6 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
   @Override
   public void setWillDeclarativelyRefresh(boolean willDeclarativelyRefresh) {
     this.willDeclarativelyRefresh = willDeclarativelyRefresh;
-  }
-
-  @Override
-  public void invalidate(InvalidationLevel invalidationLevel) {
-    if (renderer != null) {
-      renderer.onDocumentInvalidated(invalidationLevel);
-    }
-  }
-
-  @Override
-  public void validate() {
-    Node currentNode = firstChild();
-    while (currentNode != null) {
-      if (currentNode instanceof Invalidatable invalidatable) {
-        invalidatable.validate();
-      }
-      currentNode = currentNode.nextSibling();
-    }
   }
 
   @Override

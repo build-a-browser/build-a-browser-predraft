@@ -83,7 +83,7 @@ public class ImageContent implements BoxContent {
     URI imageSource = getImageSource(baseURL);
     if (imageSource == null) return null;
     ImageCache imageCache = layoutContext.imageCache();
-    return imageCache.getImage(imageSource, rootBox.element(), InvalidationLevel.LAYOUT);
+    return imageCache.getImage(imageSource, rootBox.context(), InvalidationLevel.LAYOUT);
   }
 
   private URI getImageSource(URI refUrl) {

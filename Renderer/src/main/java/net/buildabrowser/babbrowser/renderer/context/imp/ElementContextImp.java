@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
+import net.buildabrowser.babbrowser.common.datastruct.SlotItem;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesGenerator;
@@ -23,8 +24,10 @@ import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorTarget;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
 import net.buildabrowser.babbrowser.dom.Document;
+import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
+import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHint;
 import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHint.PresentationalHintName;
@@ -39,16 +42,21 @@ public class ElementContextImp implements ElementContext, PropertyContainer {
   // TreeSet has a ton of overhead, sort on access instead
   private final List<WeightedStyleRule> styleRules = new ArrayList<>(1);
   private final HTMLElement element;
+  private final short slotFamilyId;
   // TODO: Remove the need for this field
 
-  private ActiveStyles activeStyles = null;
-  private WeightedStyleRule internalStyleRule = null;
-  private PresentationalHint legacyAttributes = null;
+  private InvalidationLevel invalidationLevel = InvalidationLevel.NONE;
+  private ActiveStyles activeStyles;
+  private WeightedStyleRule internalStyleRule;
+  private PresentationalHint legacyAttributes;
   // ELEMENT is not stored in targetedProperties because it is common, so we avoid the wrapper tax
   private TargetedPropertiesHolder targetedProperties;
+  private ElementBox box;
+  private ElementContext next;
 
-  public ElementContextImp(HTMLElement element) {
+  public ElementContextImp(HTMLElement element, short slotFamily) {
     this.element = element;
+    this.slotFamilyId = slotFamily;
     updateStyle(element.getAttribute("style"));
     // TODO: More efficient iterator (but it does not exist yet)
     for (String attribute: element.getAttributeNames()) {
@@ -128,6 +136,21 @@ public class ElementContextImp implements ElementContext, PropertyContainer {
     if (holder == null) return null;
     assert holder.container() != null;
     return holder.container();
+  }
+
+  @Override
+  public HTMLElement element() {
+    return this.element;
+  }
+
+  @Override
+  public void setBox(ElementBox box) {
+    this.box = box;
+  }
+
+  @Override
+  public ElementBox box() {
+    return this.box;
   }
 
   private void updateLegacyAttrs(String attrName, String newValue) {
@@ -230,7 +253,7 @@ public class ElementContextImp implements ElementContext, PropertyContainer {
 
   private void invalidateIfChangedStyles(ActiveStyles oldStyles, PropertyContainer parentProperties) {
     if (oldStyles == null) {
-      element.invalidate(InvalidationLevel.BOX);
+      invalidate(InvalidationLevel.BOX);
     } else {
       // TODO: This is an inefficient way to do this, but we can't put a change listener on the
       //   ActiveStyles since it is regenerated from scratch (to make sure selector specificity,
@@ -240,7 +263,7 @@ public class ElementContextImp implements ElementContext, PropertyContainer {
         CSSValue newValue = activeStyles.getProperty(parentProperties, property);
         CSSValue oldValue = oldStyles.getProperty(parentProperties, property);
         if (!newValue.equals(oldValue)) {
-          element.invalidate(property.invalidationLevel());
+          invalidate(property.invalidationLevel());
         }
       }
     }
@@ -248,7 +271,7 @@ public class ElementContextImp implements ElementContext, PropertyContainer {
 
   private void invalidateIfChangedProperties(PropertyContainer oldProperties, PropertyContainer newProperties) {
     if (oldProperties == null) {
-      element.invalidate(InvalidationLevel.BOX);
+      invalidate(InvalidationLevel.BOX);
     } else {
       // TODO: Same as above
       for (CSSProperty property : CSSProperty.values()) {
@@ -256,7 +279,7 @@ public class ElementContextImp implements ElementContext, PropertyContainer {
         CSSValue newValue = newProperties.get(property);
         CSSValue oldValue = oldProperties.get(property);
         if (!newValue.equals(oldValue)) {
-          element.invalidate(property.invalidationLevel());
+          invalidate(property.invalidationLevel());
         }
       }
     }
@@ -268,7 +291,7 @@ public class ElementContextImp implements ElementContext, PropertyContainer {
   public PropertyContainer parent() {
     return
       element.parentNode() instanceof HTMLElement parent
-      && parent.getContext() instanceof ElementContext parentContext ?
+      && SlotItem.getExistingById(parent, slotFamilyId) instanceof ElementContext parentContext ?
       parentContext.properties() : null;
   }
 
@@ -285,6 +308,61 @@ public class ElementContextImp implements ElementContext, PropertyContainer {
   @Override
   public CSSValue getCustom(String property) {
     return activeStyles.getCustom(property);
+  }
+
+  // Slottable
+
+  @Override
+  public short familyId() {
+    return this.slotFamilyId;
+  }
+
+  @Override
+  public ElementContext next() {
+    return this.next;
+  }
+
+  @Override
+  public void setNext(ElementContext next) {
+    this.next = next;
+  }
+
+  // Invalidatable
+
+  @Override
+  public void invalidate(InvalidationLevel invalidationLevel) {
+    if (invalidationLevel.ordinal() < this.invalidationLevel.ordinal()) {
+      this.invalidationLevel = invalidationLevel;
+      if (element.parentNode() instanceof HTMLElement htmlElement) {
+        ElementContext context = SlotItem.getExistingById(htmlElement, slotFamilyId);
+        context.invalidate(invalidationLevel);
+      } else if (
+        element.parentNode() instanceof HTMLDocument document
+        && document.renderer() != null
+      ) {
+        document.renderer().onDocumentInvalidated(invalidationLevel);
+      }
+    }
+  }
+
+  @Override
+  public void validate() {
+    if (this.invalidationLevel == InvalidationLevel.NONE) return;
+    
+    this.invalidationLevel = InvalidationLevel.NONE;
+    Node currentNode = element.firstChild();
+    while (currentNode != null) {
+      if (currentNode instanceof HTMLElement htmlElement) {
+        ElementContext context = SlotItem.getExistingById(htmlElement, slotFamilyId);
+        context.validate();
+      }
+      currentNode = currentNode.nextSibling();
+    }
+  }
+
+  @Override
+  public InvalidationLevel invalidationLevel() {
+    return this.invalidationLevel;
   }
   
 }

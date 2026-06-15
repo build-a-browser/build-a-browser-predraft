@@ -4,6 +4,8 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Optional;
 
+import net.buildabrowser.babbrowser.common.datastruct.SlotFamily;
+import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
@@ -13,15 +15,16 @@ import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.link.LinkDocumentChangeListener;
 import net.buildabrowser.babbrowser.html.misc.MetaDocumentChangeListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.painter.core.FontLoader;
+import net.buildabrowser.babbrowser.painter.core.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.painter.core.LoadedFont;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
-import net.buildabrowser.babbrowser.painter.core.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxGenerator;
@@ -30,7 +33,9 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeEventsDispatcher;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionLayout;
+import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.context.ScriptingContext;
+import net.buildabrowser.babbrowser.renderer.context.imp.ElementContextImp;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
@@ -52,8 +57,6 @@ import net.buildabrowser.babbrowser.renderer.style.StyleGenerator;
 
 public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRenderer, EventForwardingTarget {
 
-  private static final BoxGenerator boxGenerator = BoxGenerator.create();
-
   // TODO: Allow specifying the FragmentFactory when instantiating the RenderingEngine instance
   private final FragmentFactory fragmentFactory = FragmentFactory.createDefault();
   private final EventContext eventContext = EventContext.create();
@@ -63,12 +66,14 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private final Navigable navigable;
   private final Painter painter;
 
+  private final BoxGenerator boxGenerator;
   private final StyleSheetList uaStyleSheets;
   private final CSSMatcher cssMatcher;
   private final DocumentBox documentBox;
   private final ScriptingContext scriptingContext;
   private final DocumentChangeListener changeListener;
   private final ImageCache imageCache;
+  private final SlotFamily<HTMLElement, ElementContext> elementContexts;
 
   private volatile InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
   private StackingContext frontLayerRegenContext;
@@ -82,20 +87,24 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   public HTMLGraphicalDocumentRendererImp(
     HTMLDocument document,
     Navigable navigable,
-    Painter painter
+    Painter painter,
+    SlotFamilyFamily slotFamilyFamily
   ) {
     this.document = document;
     this.navigable = navigable;
     this.painter = painter;
 
+    this.elementContexts = slotFamilyFamily.createSlotFamily(ElementContextImp::new);
+    this.boxGenerator = BoxGenerator.create(elementContexts);
     this.uaStyleSheets = navigable.uaNavigableOptions().uaStyleSheets();
-    this.cssMatcher = CSSMatcher.create(new RenderCSSMatcherContext(), uaStyleSheets);
+    this.cssMatcher = CSSMatcher.create(
+      new RenderCSSMatcherContext(elementContexts), uaStyleSheets);
     this.documentBox = DocumentBox.create(document);
 
     FetchEngine fetchEngine = navigable.uaNavigableOptions().fetchEngine();
 
     DocumentChangeListener innerChangeListener = new RenderDocumentChangeListener(
-      cssMatcher.documentChangeListener());
+      cssMatcher.documentChangeListener(), elementContexts);
     innerChangeListener = new LinkDocumentChangeListener(
       fetchEngine, innerChangeListener);
     this.changeListener = new MetaDocumentChangeListener(innerChangeListener);
@@ -128,7 +137,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       // won't be used again
       StyleCache styleCache = StyleCache.create();
       ElementSet changedElements = cssMatcher.changedElements();
-      StyleGenerator.style(document, styleCache, changedElements);
+      StyleGenerator.style(
+        document, styleCache, elementContexts, changedElements);
       PerfLogging.logStyleTime(styleStartTime);
     }
   }
@@ -161,7 +171,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     VpIntersection vpIntersection = new VpIntersection(width, height);
     rootLayerBack.repaint(vpIntersection);
 
-    document.validate();
+    documentBox.htmlBox().context().validate();
     this.invalidationLevel = InvalidationLevel.NONE;
 
     synchronized (frontLayerLock) {

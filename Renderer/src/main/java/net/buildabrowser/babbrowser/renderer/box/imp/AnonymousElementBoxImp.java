@@ -5,6 +5,7 @@ import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowRootContent;
+import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
 public class AnonymousElementBoxImp extends AbstractElementBoxImp {
@@ -12,7 +13,11 @@ public class AnonymousElementBoxImp extends AbstractElementBoxImp {
   private final PropertyContainer properties;
   private final BoxContent content;
 
-  public AnonymousElementBoxImp(PropertyContainer properties, ElementBox parentBox, BoxLevel boxLevel) {
+  public AnonymousElementBoxImp(
+    PropertyContainer properties,
+    ElementBox parentBox,
+    BoxLevel boxLevel
+  ) {
     super(parentBox, boxLevel);
     this.properties = properties;
     this.content = new FlowRootContent(this);
@@ -26,6 +31,12 @@ public class AnonymousElementBoxImp extends AbstractElementBoxImp {
   @Override
   public HTMLElement element() {
     return null;
+  }
+
+  @Override
+  public ElementContext context() {
+    // TODO: Hopefully this is fine
+    return ((ElementBox) parentBox()).context();
   }
 
   @Override

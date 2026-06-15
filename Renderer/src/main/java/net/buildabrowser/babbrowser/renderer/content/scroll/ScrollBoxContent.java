@@ -101,7 +101,7 @@ public class ScrollBoxContent implements BoxContent {
     LayoutConstraint adjustedWidthConstraint
   ) {
     CSSValue overflowX = box.properties().get(CSSProperty.OVERFLOW_X);
-    overflowX = CompositeLayerUtil.adjustOverflowValueIfHTML(box.element(), overflowX, CSSProperty.OVERFLOW_X);
+    overflowX = CompositeLayerUtil.adjustOverflowValueIfHTML(box.context(), overflowX, CSSProperty.OVERFLOW_X);
     if (overflowX.equals(OverflowValue.SCROLL)) return true;
     if (!adjustedWidthConstraint.isBounded()) return false;
     if (!overflowX.equals(OverflowValue.AUTO)) return false;
@@ -114,7 +114,7 @@ public class ScrollBoxContent implements BoxContent {
     LayoutConstraint adjustedHeightConstraint
   ) {
     CSSValue overflowY = box.properties().get(CSSProperty.OVERFLOW_Y);
-    overflowY = CompositeLayerUtil.adjustOverflowValueIfHTML(box.element(), overflowY, CSSProperty.OVERFLOW_Y);
+    overflowY = CompositeLayerUtil.adjustOverflowValueIfHTML(box.context(), overflowY, CSSProperty.OVERFLOW_Y);
     if (overflowY.equals(OverflowValue.SCROLL)) return true;
     if (!adjustedHeightConstraint.isBounded()) return false;
     if (!overflowY.equals(OverflowValue.AUTO)) return false;

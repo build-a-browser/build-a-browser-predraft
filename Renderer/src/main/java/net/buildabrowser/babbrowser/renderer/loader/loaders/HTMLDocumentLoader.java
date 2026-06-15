@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.fetch.FetchResponse;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
@@ -27,7 +28,8 @@ public class HTMLDocumentLoader implements DocumentLoader {
   public HTMLDocument load(
     UANavigableOptions uaNavigableOptions,
     Painter painter,
-    NavigationParams navigationParams
+    NavigationParams navigationParams,
+    SlotFamilyFamily slotFamilyFamily
   ) {
     FetchResponse response = navigationParams.response();
     // TODO: Proper way to obtain a document and its browsing context
@@ -39,7 +41,7 @@ public class HTMLDocumentLoader implements DocumentLoader {
     parseHTMLDocument(response, document);
 
     DocumentRenderer renderer = new HTMLGraphicalDocumentRendererImp(
-      document, navigationParams.navigable(), painter);
+      document, navigationParams.navigable(), painter, slotFamilyFamily);
     document.attachRenderer(renderer);
 
     return document;

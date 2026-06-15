@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.loader;
 
+import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.NavigationParams;
 import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
@@ -10,7 +11,8 @@ public interface DocumentLoader {
   public RenderableDocument load(
     UANavigableOptions uaNavigableOptions,
     Painter painter,
-    NavigationParams navigationParams
+    NavigationParams navigationParams,
+    SlotFamilyFamily slotFamilyFamily
   );
   
 }

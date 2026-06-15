@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.renderer.box.imp;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.buildabrowser.babbrowser.common.datastruct.SlotFamily;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -28,6 +29,15 @@ import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 
 public class BoxGeneratorImp implements BoxGenerator {
+
+  private final SlotFamily<HTMLElement, ElementContext> elementContexts;
+
+
+  public BoxGeneratorImp(
+    SlotFamily<HTMLElement, ElementContext> elementContexts
+  ) {
+    this.elementContexts = elementContexts;
+  }
   
   @Override
   public List<Box> box(Box parentBox, Node node) {
@@ -59,7 +69,7 @@ public class BoxGeneratorImp implements BoxGenerator {
           childBox instanceof ElementBox childElementBox
           && (
             childElementBox.element() == null
-            || childElementBox.element().invalidationLevel().ordinal() <= InvalidationLevel.BOX.ordinal());
+            || childElementBox.context().invalidationLevel().ordinal() <= InvalidationLevel.BOX.ordinal());
         if (involvedFixup || contentChanged || childInvalid) {
           fixup(childBox);
         }
@@ -75,14 +85,14 @@ public class BoxGeneratorImp implements BoxGenerator {
   }
 
   private List<Box> createElementBoxes(Box parentBox, HTMLElement element) {
-    ElementContext context = (ElementContext) element.getContext();
+    ElementContext context = elementContexts.get(element);
     OuterDisplayValue outerDisplayValue = PropertiesUtil.outerDisplayValue(context.properties());
 
     switch (outerDisplayValue) {
       case BLOCK:
         return createElementBox(parentBox, element, BoxLevel.BLOCK_LEVEL);
       case CONTENTS:
-        element.setBox(null);
+        context.setBox(null);
         return createChildBoxes(parentBox, element);
       case INLINE:
         return createElementBox(parentBox, element, BoxLevel.INLINE_LEVEL);
@@ -98,7 +108,8 @@ public class BoxGeneratorImp implements BoxGenerator {
 
   private void clearBoxes(Node node) {
     if (node instanceof HTMLElement element) {
-      element.setBox(null);
+      ElementContext context = elementContexts.get(element);
+      context.setBox(null);
       element.forEachChild(child -> {
         clearBoxes(child);
       });
@@ -108,31 +119,32 @@ public class BoxGeneratorImp implements BoxGenerator {
   }
 
   private List<Box> createElementBox(Box parentBox, HTMLElement element, BoxLevel boxLevel) {
+    ElementContext context = elementContexts.get(element);
     Box adjustedParentBox = parentBox;
     ElementBox scrollBox = null;
-    if (CompositeLayerUtil.hasScrollContent(element)) {
+    if (CompositeLayerUtil.hasScrollContent(context)) {
       if (
-        element.getBox() instanceof ElementBox elementBox
+        context.box() instanceof ElementBox elementBox
         && elementBox.parentBox() instanceof ScrollBox existingScrollBox
         && existingScrollBox.parentBox() == parentBox
       ) {
         adjustedParentBox = scrollBox = existingScrollBox;
       } else {
-        adjustedParentBox = scrollBox = new ScrollBox(element, parentBox, boxLevel);
+        adjustedParentBox = scrollBox = new ScrollBox(context, parentBox, boxLevel);
       }
     }
 
     boolean changedParent =
-      element.getBox() == null
-      || ((ElementBox) element.getBox()).parentBox() != adjustedParentBox;
+      context.box() == null
+      || ((ElementBox) context.box()).parentBox() != adjustedParentBox;
     ElementBox elementBox;
     if (
-      element.getBox() instanceof ElementBox elementBox2
-      && element.invalidationLevel().ordinal() > InvalidationLevel.BOX.ordinal()
+      context.box() instanceof ElementBox elementBox2
+      && context.invalidationLevel().ordinal() > InvalidationLevel.BOX.ordinal()
       && !changedParent
     ) {
       return List.of(scrollBox == null ? elementBox2 : scrollBox);
-    } else if (element.getBox() instanceof ElementBox elementBox2) {
+    } else if (context.box() instanceof ElementBox elementBox2) {
       // TODO: If we disable the fast path, there seems to be a memory leak here
       elementBox = elementBox2;
       elementBox.clearChildren();
@@ -140,11 +152,11 @@ public class BoxGeneratorImp implements BoxGenerator {
       
       // TODO: It's not great to call invalidation while updating, but fixup needs to know if the parent
       // changed despite the box not being invalid. Validation occurs after painting, so the flag will not persist
-      element.invalidate(InvalidationLevel.BOX);
+      context.invalidate(InvalidationLevel.BOX);
     } else {
-      elementBox = ElementBox.create(element, adjustedParentBox, boxLevel);
-      element.setBox(elementBox);
-      element.invalidate(InvalidationLevel.BOX);
+      elementBox = ElementBox.create(context, adjustedParentBox, boxLevel);
+      context.setBox(elementBox);
+      context.invalidate(InvalidationLevel.BOX);
     }
 
     addPseudoBoxIfNeeded(elementBox, SelectorTarget.BEFORE);
@@ -164,8 +176,9 @@ public class BoxGeneratorImp implements BoxGenerator {
     // TODO: Need to call invalidate?
     if (!(
       elementBox.element() instanceof HTMLElement htmlElement
-      && htmlElement.getContext() instanceof ElementContext context
     )) return;
+
+    ElementContext context = elementContexts.get(htmlElement);
 
     PropertyContainer pseudoProperties = context.targetedProperties(target);
     if (pseudoProperties == null) return;

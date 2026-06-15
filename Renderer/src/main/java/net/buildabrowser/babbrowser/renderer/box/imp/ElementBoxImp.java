@@ -23,21 +23,21 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class ElementBoxImp extends AbstractElementBoxImp {
 
-  private final HTMLElement element;
+  private final ElementContext context;
   
   private BoxContent content;
   // TODO: Avoid this extra field
   private InnerDisplayValue prevDisplayValue;
 
-  public ElementBoxImp(HTMLElement element, Box parentBox, BoxLevel boxLevel) {
+  public ElementBoxImp(ElementContext context, Box parentBox, BoxLevel boxLevel) {
     super(parentBox, boxLevel);
-    this.element = element;
+    this.context = context;
     update();
   }
 
   @Override
   public PropertyContainer properties() {
-    return ((ElementContext) element.getContext()).properties();
+    return context.properties();
   }
 
   @Override
@@ -47,7 +47,12 @@ public class ElementBoxImp extends AbstractElementBoxImp {
 
   @Override
   public HTMLElement element() {
-    return this.element;
+    return context.element();
+  }
+
+  @Override
+  public ElementContext context() {
+    return this.context;
   }
 
   @Override
@@ -93,7 +98,7 @@ public class ElementBoxImp extends AbstractElementBoxImp {
   }
 
   private BoxContent createContent(InnerDisplayValue innerDisplay) {
-    if (element.name().equals("img")) {
+    if (element().name().equals("img")) {
       return new ImageContent(this);
     }
   
@@ -114,7 +119,7 @@ public class ElementBoxImp extends AbstractElementBoxImp {
   }
 
   private boolean wouldBeReplaced() {
-    return element.name().equals("img");
+    return element().name().equals("img");
   }
   
 }

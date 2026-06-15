@@ -15,13 +15,13 @@ public class CompositeLayerUtil {
   
   private CompositeLayerUtil() {}
 
-  public static boolean hasScrollContent(HTMLElement element) {
-    PropertyContainer properties = ((ElementContext) element.getContext()).properties();
+  public static boolean hasScrollContent(ElementContext elementContext) {
+    PropertyContainer properties = elementContext.properties();
     CSSValue overflowX = properties.get(CSSProperty.OVERFLOW_X);
     CSSValue overflowY = properties.get(CSSProperty.OVERFLOW_Y);
 
-    overflowX = adjustOverflowValueIfHTML(element, overflowX, CSSProperty.OVERFLOW_X);
-    overflowY = adjustOverflowValueIfHTML(element, overflowY, CSSProperty.OVERFLOW_Y);
+    overflowX = adjustOverflowValueIfHTML(elementContext, overflowX, CSSProperty.OVERFLOW_X);
+    overflowY = adjustOverflowValueIfHTML(elementContext, overflowY, CSSProperty.OVERFLOW_Y);
 
     return causesScrollContent(overflowX) || causesScrollContent(overflowY);
   }
@@ -29,7 +29,7 @@ public class CompositeLayerUtil {
   public static boolean hasScrollContent(ElementBox elementBox) {
     return
       elementBox.element() != null
-      && hasScrollContent(elementBox.element())
+      && hasScrollContent(elementBox.context())
       && elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL);
   }
 
@@ -41,8 +41,9 @@ public class CompositeLayerUtil {
   }
 
   public static CSSValue adjustOverflowValueIfHTML(
-    HTMLElement element, CSSValue guessedValue, CSSProperty relatedProperty
+    ElementContext elementContext, CSSValue guessedValue, CSSProperty relatedProperty
   ) {
+    HTMLElement element = elementContext.element();
     // TODO: instanceof HTMLHtmlElement
     if (
       element == null
@@ -61,7 +62,7 @@ public class CompositeLayerUtil {
         if (!(node instanceof HTMLElement childElement)) continue;
         // TODO: instanceof BodyElement
         if (!childElement.name().equals("body")) continue;
-        PropertyContainer properties = ((ElementContext) childElement.getContext()).properties();
+        PropertyContainer properties = elementContext.properties();
         if (
           properties.get(CSSProperty.DISPLAY).equals(DisplayValue.NONE)
         ) continue;

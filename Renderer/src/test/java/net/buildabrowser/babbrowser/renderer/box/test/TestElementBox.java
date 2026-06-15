@@ -10,6 +10,7 @@ import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.imp.AbstractElementBoxImp;
+import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 
 public class TestElementBox extends AbstractElementBoxImp {
 
@@ -37,6 +38,11 @@ public class TestElementBox extends AbstractElementBoxImp {
 
   @Override
   public HTMLElement element() {
+    return null;
+  }
+
+  @Override
+  public ElementContext context() {
     return null;
   }
 

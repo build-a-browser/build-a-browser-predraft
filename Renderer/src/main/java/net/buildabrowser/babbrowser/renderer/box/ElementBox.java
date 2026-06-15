@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.imp.AnonymousElementBoxImp;
 import net.buildabrowser.babbrowser.renderer.box.imp.ElementBoxImp;
+import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -21,6 +22,8 @@ public interface ElementBox extends Box {
   BoxContent content();
 
   HTMLElement element();
+
+  ElementContext context();
 
   Box parentBox();
 
@@ -64,8 +67,12 @@ public interface ElementBox extends Box {
     return content().isReplaced();
   }
  
-  public static ElementBox create(HTMLElement element, Box parentBox, BoxLevel boxLevel) {
-    return new ElementBoxImp(element, parentBox, boxLevel);
+  public static ElementBox create(
+    ElementContext context,
+    Box parentBox,
+    BoxLevel boxLevel
+  ) {
+    return new ElementBoxImp(context, parentBox, boxLevel);
   }
 
   public static ElementBox createAnonymous(ElementBox parentBox, BoxLevel boxLevel) {

@@ -1,11 +1,11 @@
 package net.buildabrowser.babbrowser.renderer.content.scroll;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
-import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.imp.ElementBoxImp;
+import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 
 public class ScrollBox extends ElementBoxImp {
 
@@ -17,8 +17,8 @@ public class ScrollBox extends ElementBoxImp {
   private int scrollLeft = 0;
   private int scrollTop = 0;
 
-  public ScrollBox(HTMLElement element, Box parentBox, BoxLevel boxLevel) {
-    super(element, parentBox, boxLevel);
+  public ScrollBox(ElementContext context, Box parentBox, BoxLevel boxLevel) {
+    super(context, parentBox, boxLevel);
     this.horizontalScrollState = new ScrollBarState();
     this.verticalScrollState = new ScrollBarState();
   }
@@ -35,12 +35,12 @@ public class ScrollBox extends ElementBoxImp {
 
   public void setRawScrollLeft(int newScrollX) {
     this.scrollLeft = newScrollX;
-    element().invalidate(InvalidationLevel.PAINT);
+    context().invalidate(InvalidationLevel.PAINT);
   }
 
   public void setRawScrollTop(int newScrollY) {
     this.scrollTop = newScrollY;
-    element().invalidate(InvalidationLevel.PAINT);
+    context().invalidate(InvalidationLevel.PAINT);
   }
 
   public int rawScrollLeft() {

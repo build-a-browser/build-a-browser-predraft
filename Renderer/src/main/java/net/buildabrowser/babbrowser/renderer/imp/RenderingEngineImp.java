@@ -7,6 +7,7 @@ import java.net.URI;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
+import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
@@ -23,6 +24,8 @@ import net.buildabrowser.babbrowser.renderer.uistate.Frame;
 
 public class RenderingEngineImp implements RenderingEngine {
 
+  private final SlotFamilyFamily slotFamilyFamily = SlotFamilyFamily.create();
+  
   private final FetchEngine fetchEngine;
   private final Supplier<ExecutorService> threadGroupSupplier;
   private final Painter painter;
@@ -56,7 +59,7 @@ public class RenderingEngineImp implements RenderingEngine {
     Navigable navigable = TraversableUtil.createNewTopLevelTraversable(
       new UANavigableOptionsImp(
         fetchEngine, threadGroupSupplier, this::loadUAStyleSheets,
-        documentLoaderRegistry, painter, eventListener));
+        documentLoaderRegistry, painter, eventListener, slotFamilyFamily));
 
     // TODO: Where does this code actually go?
     Window window = navigable.activeDocument().browsingContext().activeWindow();

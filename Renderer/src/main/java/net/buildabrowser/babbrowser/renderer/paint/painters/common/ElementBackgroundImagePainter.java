@@ -77,7 +77,7 @@ public class ElementBackgroundImagePainter {
       if (imageURL == null) continue;
 
       LoadedImage image = imageCache.getImage(
-        imageURL, fragment.box().element(), InvalidationLevel.PAINT);
+        imageURL, fragment.box().context(), InvalidationLevel.PAINT);
       
       if (image == null) continue;
 

@@ -260,7 +260,7 @@ public class ScrollEventHandler implements EventHandler<ScrollBoxFragment> {
     Navigable navigable = document.nodeNavigable();
     navigable.uaNavigableOptions().requestRepaint();
     EventLoop.queueGlobalTask(TaskSource.USER_INTERACTION, navigable.activeWindow(),
-      () -> scrollBox.element().invalidate(InvalidationLevel.PAINT));
+      () -> scrollBox.context().invalidate(InvalidationLevel.PAINT));
   }
 
 }

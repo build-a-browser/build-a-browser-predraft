@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
+import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.painter.core.Painter;
+import net.buildabrowser.babbrowser.renderer.loader.DocumentLoader;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 import net.buildabrowser.babbrowser.html.navigation.NavigationParams;
 import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
@@ -25,6 +27,7 @@ public class UANavigableOptionsImp implements UANavigableOptions {
   private final DocumentLoaderRegistry documentLoaderRegistry;
   private final Painter painter;
   private final DocumentRendererEventListener eventListener;
+  private final SlotFamilyFamily slotFamilyFamily;
 
   public UANavigableOptionsImp(
     FetchEngine fetchEngine,
@@ -32,7 +35,8 @@ public class UANavigableOptionsImp implements UANavigableOptions {
     Supplier<StyleSheetList> uaStyleSheetsSupplier,
     DocumentLoaderRegistry documentLoaderRegistry,
     Painter painter,
-    DocumentRendererEventListener eventListener
+    DocumentRendererEventListener eventListener,
+    SlotFamilyFamily slotFamilyFamily
   ) {
     this.fetchEngine = fetchEngine;
     this.threadGroupSupplier = threadGroupSupplier;
@@ -40,6 +44,7 @@ public class UANavigableOptionsImp implements UANavigableOptions {
     this.documentLoaderRegistry = documentLoaderRegistry;
     this.painter = painter;
     this.eventListener = eventListener;
+    this.slotFamilyFamily = slotFamilyFamily;
   }
 
   @Override
@@ -55,8 +60,9 @@ public class UANavigableOptionsImp implements UANavigableOptions {
   @Override
   public RenderableDocument loadDocument(NavigationParams navigationParams) {
     // TODO: Use the correct mime
-    RenderableDocument document = documentLoaderRegistry.getByMimeType("text/html").load(
-      this, painter, navigationParams);
+    DocumentLoader documentLoader = documentLoaderRegistry.getByMimeType("text/html");
+    RenderableDocument document = documentLoader.load(
+      this, painter, navigationParams, slotFamilyFamily);
     requestRepaint();
     return document;
   }
