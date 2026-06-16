@@ -11,7 +11,8 @@ public record LengthValue(Number value, boolean integer, LengthType dimension) i
   }
 
   public static enum LengthType {
-    EM, EX, IN, CM, MM, PT, PC, PX,
+    EM, REM, EX, CH,
+    CM, MM, IN, Q, PT, PC, PX,
     VW, VH, VMIN, VMAX
   }
 

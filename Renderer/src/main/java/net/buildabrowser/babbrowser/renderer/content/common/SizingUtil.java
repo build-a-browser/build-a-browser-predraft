@@ -76,21 +76,24 @@ public final class SizingUtil {
   ) {
     Viewport viewport = layoutContext.global().viewport();
     double baseValue = lengthValue.value().doubleValue();
-    double sizeResult = baseValue == 0 ? 0 : switch (lengthValue.dimension()) {
-      // TODO: Use real values for EM, EX
-      case EM -> baseValue * layoutContext.font().metrics().size();
-      case EX -> baseValue * layoutContext.font().metrics().xHeight() / 2;
-      case IN -> baseValue * 96;
-      case CM -> baseValue * 96 / 2.54;
-      case MM -> baseValue * 96 / 2.54 / 100;
-      case PT -> baseValue / 0.75;
-      case PC -> baseValue * 9;
-      case PX -> baseValue;
+    double sizeResult = baseValue == 0 ? 0 : baseValue * switch (lengthValue.dimension()) {
+      case EM -> layoutContext.font().metrics().size();
+      case REM -> layoutContext.global().rootMetrics().size();
+      case EX -> layoutContext.font().metrics().xHeight() / 2;
+      case CH -> layoutContext.font().metrics().stringWidth("0"); // TODO: Check inline direction
 
-      case VW -> baseValue * viewport.width() / 100;
-      case VH -> baseValue * viewport.height() / 100;
-      case VMIN -> baseValue * Math.min(viewport.width(), viewport.height()) / 100;
-      case VMAX -> baseValue * Math.max(viewport.width(), viewport.height()) / 100;
+      case CM -> 96 / 2.54;
+      case MM -> 96 / 2.54 / 10;
+      case Q -> 96 / 2.54 / 40;
+      case IN -> 96;
+      case PT -> 1 / 0.75;
+      case PC -> 9;
+      case PX -> 1;
+
+      case VW -> viewport.width() / 100;
+      case VH -> viewport.height() / 100;
+      case VMIN -> Math.min(viewport.width(), viewport.height()) / 100;
+      case VMAX -> Math.max(viewport.width(), viewport.height()) / 100;
 
       default -> throw new UnsupportedOperationException("Unknown Unit!");
     };

@@ -29,10 +29,14 @@ public class SizeParser implements PropertyValueParser {
 
   private static final Map<String, LengthType> LENGTH_TYPES = CommonUtil.mapOf(
     "em", LengthType.EM,
+    "rem", LengthType.REM,
     "ex", LengthType.EX,
-    "in", LengthType.IN,
+    "ch", LengthType.CH,
+
     "cm", LengthType.CM,
     "mm", LengthType.MM,
+    "Q", LengthType.Q,
+    "in", LengthType.IN,
     "pt", LengthType.PT,
     "pc", LengthType.PC,
     "px", LengthType.PX,
