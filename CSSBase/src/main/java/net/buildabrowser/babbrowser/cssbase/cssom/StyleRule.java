@@ -4,7 +4,9 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 
-public record StyleRule(List<ComplexSelector> complexSelectors, List<Declaration> declarations) implements CSSRule {
-
+public record StyleRule(
+  List<ComplexSelector> complexSelectors,
+  List<Declaration> declarations
+) implements CSSRule {
 
 }

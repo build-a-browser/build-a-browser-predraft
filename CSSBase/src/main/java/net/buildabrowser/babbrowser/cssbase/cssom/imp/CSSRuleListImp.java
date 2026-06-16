@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.cssbase.cssom.imp;
 
+import java.util.Iterator;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
@@ -16,6 +17,11 @@ public record CSSRuleListImp(List<CSSRule> rules) implements CSSRuleList {
   @Override
   public long length() {
     return rules.size();
+  }
+
+  @Override
+  public Iterator<CSSRule> iterator() {
+    return rules.iterator();
   }
   
 }

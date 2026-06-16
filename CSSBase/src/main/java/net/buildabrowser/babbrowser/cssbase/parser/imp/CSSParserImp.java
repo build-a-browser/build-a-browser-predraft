@@ -9,12 +9,16 @@ import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleList;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
+import net.buildabrowser.babbrowser.cssbase.cssom.MediaRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
+import net.buildabrowser.babbrowser.cssbase.media.ast.MediaNode;
+import net.buildabrowser.babbrowser.cssbase.media.parser.CSSMediaQueryParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
+import net.buildabrowser.babbrowser.cssbase.tokens.AtKeywordToken;
 
 public class CSSParserImp implements CSSParser {
 
@@ -55,7 +59,10 @@ public class CSSParserImp implements CSSParser {
     switch (rule) {
       case QualifiedRule qualifiedRule:
         return createStyleRule(source, qualifiedRule);
-      case AtRule _1:
+      case AtRule atRule:
+        if (atRule.name().equals(AtKeywordToken.create("media"))) {
+          return createMediaRule(source, atRule);
+        }
         // TODO
         return null;
       default:
@@ -73,6 +80,17 @@ public class CSSParserImp implements CSSParser {
       ListCSSTokenStream.create(source, qualifiedRule.prelude()));
 
     return new StyleRule(selectors, declarations);
+  }
+
+  private CSSRule createMediaRule(
+    CSSTokenStreamSource source, AtRule atRule
+  ) throws IOException {
+    MediaNode query = CSSMediaQueryParser.parseQuery(
+      ListCSSTokenStream.createWithSkippedWhitespace(source, atRule.prelude()));
+    CSSRuleList innerRules = parseARuleList(
+      ListCSSTokenStream.create(source, atRule.simpleBlock().value()));
+    
+    return new MediaRule(query, innerRules);
   }
   
 }

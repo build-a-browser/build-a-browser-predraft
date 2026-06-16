@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.media.ast.AndMediaNode;
 import net.buildabrowser.babbrowser.cssbase.media.ast.AnyMediaNode;
 import net.buildabrowser.babbrowser.cssbase.media.ast.FeatureComparisonMediaNode;
@@ -15,6 +16,7 @@ import net.buildabrowser.babbrowser.cssbase.media.ast.MediaTypeNode;
 import net.buildabrowser.babbrowser.cssbase.media.ast.NotMediaNode;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.SizeParser;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
@@ -22,7 +24,6 @@ import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LParenToken;
-import net.buildabrowser.babbrowser.cssbase.tokens.RParenToken;
 
 public final class CSSMediaQueryParser {
 
@@ -121,14 +122,18 @@ public final class CSSMediaQueryParser {
     SeekableCSSTokenStream stream
   ) throws IOException {
     if (!(
-      stream.peek() instanceof LParenToken
+      stream.peek() instanceof SimpleBlock simpleBlock
+      && simpleBlock.type() instanceof LParenToken
     )) return null;
     stream.read();
 
+    SeekableCSSTokenStream innerStream = ListCSSTokenStream.createWithSkippedWhitespace(
+      stream.source(), simpleBlock.value());
+
     if (!(
-      stream.peek() instanceof IdentToken identToken
+      innerStream.peek() instanceof IdentToken identToken
     )) return null;
-    stream.read();
+    innerStream.read();
 
     MediaFeatureComparison comparison = MediaFeatureComparison.EQ;
     String name = identToken.value();
@@ -144,25 +149,21 @@ public final class CSSMediaQueryParser {
     if (feature == null) return null;
 
     MediaNode node = null;
-    if (stream.peek() instanceof ColonToken) {
-      stream.read();
+    if (innerStream.peek() instanceof ColonToken) {
+      innerStream.read();
       if (
         !comparison.equals(MediaFeatureComparison.EQ)
         && !feature.allowMinMax()
       ) return null;
       
-      CSSValue targetValue = parseFeatureTarget(feature, stream);
+      CSSValue targetValue = parseFeatureTarget(feature, innerStream);
       node = FeatureComparisonMediaNode.create(
         feature, comparison, targetValue);
     } else if (comparison.equals(MediaFeatureComparison.EQ)) {
       node = FeatureExistsMediaNode.create(feature);
     }
     if (node == null) return null;
-
-    if (!(
-      stream.peek() instanceof RParenToken
-    )) return null;
-    stream.read();
+    if (!(innerStream.peek() instanceof EOFToken)) return null;
 
     return node;
   }

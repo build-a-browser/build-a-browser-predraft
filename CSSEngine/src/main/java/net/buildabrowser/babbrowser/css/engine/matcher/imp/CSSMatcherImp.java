@@ -1,35 +1,39 @@
 package net.buildabrowser.babbrowser.css.engine.matcher.imp;
 
-import static net.buildabrowser.babbrowser.common.util.CompatUtil.getLast;
+import static net.buildabrowser.babbrowser.css.engine.matcher.util.WeightedStyleRuleUtil.createWeightedRule;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.buildabrowser.babbrowser.common.datastruct.SlotFamily;
+import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.simple.SimpleSelectorMatchers;
+import net.buildabrowser.babbrowser.css.engine.matcher.slot.ComplexSelectorSlot;
+import net.buildabrowser.babbrowser.css.engine.matcher.slot.MediaRuleSlot;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleList;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
+import net.buildabrowser.babbrowser.cssbase.cssom.MediaRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule.RuleSource;
-import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
+import net.buildabrowser.babbrowser.cssbase.media.MediaContext;
 import net.buildabrowser.babbrowser.cssbase.selector.ChildCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.Combinator;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
-import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.NextSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
-import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
-import net.buildabrowser.babbrowser.cssbase.selector.SelectorTarget;
 import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
 import net.buildabrowser.babbrowser.cssbase.selector.SubsequentSiblingCombinator;
-import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
@@ -37,6 +41,8 @@ import net.buildabrowser.babbrowser.dom.listener.AbstractDocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
 public class CSSMatcherImp implements CSSMatcher {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(CSSMatcherImp.class);
 
   private final ElementRootSet allElements;
   private final ElementSet changedElements;
@@ -46,8 +52,14 @@ public class CSSMatcherImp implements CSSMatcher {
   
   private final CSSMatcherContext context;
   private final StyleSheetList uaStyleSheets;
+  private final SlotFamily<ComplexSelector, ComplexSelectorSlot> selectorSets;
+  private final SlotFamily<MediaRule, MediaRuleSlot> mediaStates;
 
-  public CSSMatcherImp(CSSMatcherContext context, StyleSheetList uaStyleSheets) {
+  public CSSMatcherImp(
+    CSSMatcherContext context,
+    StyleSheetList uaStyleSheets,
+    SlotFamilyFamily slotFamilyFamily
+  ) {
     this.context = context;
     this.uaStyleSheets = uaStyleSheets;
     this.allElements = ElementSet.createRoot();
@@ -55,6 +67,10 @@ public class CSSMatcherImp implements CSSMatcher {
     this.changedSelectors = new HashSet<>();
     this.matchers = new SimpleSelectorMatchers(allElements, s -> changedSelectors.add(s));
     this.combinatorMatchers = new CombinatorMatchers(allElements);
+    this.selectorSets = slotFamilyFamily.createSlotFamily(
+      (_1, id) -> new ComplexSelectorSlot(allElements.root().createChild(), id));
+    this.mediaStates = slotFamilyFamily.createSlotFamily(
+      (_1, id) -> new MediaRuleSlot(id));
 
     for (CSSStyleSheet styleSheet: uaStyleSheets) {
       onStylesheetAdded(styleSheet);
@@ -62,9 +78,9 @@ public class CSSMatcherImp implements CSSMatcher {
   }
 
   @Override
-  public void applyStylesheets(Document document) {
-    applyStylesheets(uaStyleSheets, RuleSource.USER_AGENT);
-    applyStylesheets(document.styleSheets(), RuleSource.AUTHOR);
+  public void applyStylesheets(Document document, MediaContext mediaContext) {
+    applyStylesheets(uaStyleSheets, RuleSource.USER_AGENT, mediaContext);
+    applyStylesheets(document.styleSheets(), RuleSource.AUTHOR, mediaContext);
     changedSelectors.clear();
   }
 
@@ -105,8 +121,14 @@ public class CSSMatcherImp implements CSSMatcher {
   }
 
   private void registerRule(CSSRule cssRule) {
-    if (!(cssRule instanceof StyleRule styleRule)) return;
+    switch (cssRule) {
+      case StyleRule styleRule -> registerStyleRule(styleRule);
+      case MediaRule mediaRule -> registerMediaRule(mediaRule);
+      default -> LOGGER.warn("Ignoring unknown rule: " + cssRule);
+    }
+  }
 
+  private void registerStyleRule(StyleRule styleRule) {
     for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
       for (SelectorPart selectorPart: complexSelector.parts()) {
         if (selectorPart instanceof SimplePseudoElement) continue;
@@ -115,50 +137,71 @@ public class CSSMatcherImp implements CSSMatcher {
     }
   }
 
-  private void applyStylesheets(StyleSheetList stylesheets, RuleSource source) {
+  private void registerMediaRule(MediaRule mediaRule) {
+    for (CSSRule childRule: mediaRule.innerRules()) {
+      registerRule(childRule);
+    }
+  }
+
+  private void applyStylesheets(
+    StyleSheetList stylesheets,
+    RuleSource source,
+    MediaContext mediaContext
+  ) {
     for (int i = 0; i < stylesheets.length(); i++) {
       CSSStyleSheet styleSheet = stylesheets.item(i);
       CSSRuleList ruleList = styleSheet.cssRules();
-      for (int j = 0; j < ruleList.length(); j++) {
-        applyRule(ruleList.item(j), source, i, j);
+
+      int[] ruleOrdering = new int[1];
+      for (CSSRule rule: ruleList) {
+        applyRule(mediaContext, rule, source, i, ruleOrdering, false);
       }
     }
   }
 
   private void applyRule(
+    MediaContext mediaContext,
     CSSRule cssRule,
     RuleSource ruleSource,
     int sheetOrdering,
-    int ruleOrdering
+    int[] ruleOrdering,
+    boolean forceMatch
   ) {
-    if (!(cssRule instanceof StyleRule styleRule)) return;
+    switch (cssRule) {
+      case StyleRule styleRule -> applyStyleRule(
+        styleRule, ruleSource, sheetOrdering, ruleOrdering, forceMatch);
+      case MediaRule mediaRule -> applyMediaRule(
+        mediaContext, mediaRule, ruleSource,
+        sheetOrdering, ruleOrdering, forceMatch);
+      default -> LOGGER.warn("Ignoring unknown rule: " + cssRule);
+    }
+  }
     
+  private void applyStyleRule(
+    StyleRule styleRule,
+    RuleSource ruleSource,
+    int sheetOrdering,
+    int[] ruleOrdering,
+    boolean forceMatch
+  ) {
     for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
-      boolean needsMatched = needsMatched(complexSelector);
+      boolean needsMatched = forceMatch || needsMatched(complexSelector);
       if (!needsMatched) continue;
 
-      SelectorSpecificity specificity = computeSpecificity(complexSelector);
-      SelectorTarget target = determineTarget(complexSelector);
-      WeightedStyleRule weightedRule = WeightedStyleRule.create(
-        styleRule, specificity, target,
-        ruleSource, sheetOrdering, ruleOrdering);
+      WeightedStyleRule weightedRule = createWeightedRule(
+        styleRule, ruleSource, complexSelector,
+        sheetOrdering, ruleOrdering);
 
+      ElementSet matchNotes = selectorSets.get(complexSelector).matchedElements();
       ElementSet matchedElements = matchElements(complexSelector);
       if (matchedElements == null) {
-        if (complexSelector.dataSlot() != null) {
-          for (Element element: (ElementSet) complexSelector.dataSlot()) {
-            changedElements.add(element);
-            context.onUnmatched(element, weightedRule);
-          }
+        for (Element element: matchNotes) {
+          changedElements.add(element);
+          context.onUnmatched(element, weightedRule);
         }
         continue;
       }
 
-      if (complexSelector.dataSlot() == null) {
-        complexSelector.setDataSlot(matchedElements.root().createChild());
-      }
-
-      ElementSet matchNotes = (ElementSet) complexSelector.dataSlot();
       for (Element element: matchNotes) {
         if (!(matchedElements.contains(element))) {
           changedElements.add(element);
@@ -174,6 +217,92 @@ public class CSSMatcherImp implements CSSMatcher {
         matchNotes.add(element);
       }
     }
+
+    ruleOrdering[0]++;
+  }
+
+  private void applyMediaRule(
+    MediaContext mediaContext,
+    MediaRule mediaRule,
+    RuleSource ruleSource,
+    int sheetOrdering,
+    int[] ruleOrdering,
+    boolean forceMatch
+  ) {
+    boolean isActive = mediaRule.query().resolve(mediaContext);
+    MediaRuleSlot mediaState = mediaStates.get(mediaRule);
+    boolean wasChanged =
+      isActive != mediaState.active()
+      || mediaState.ruleSize() < 0;
+    
+    if (!isActive && !wasChanged) {
+      ruleOrdering[0] += mediaState.ruleSize();
+      return;
+    }
+
+    if (isActive) {
+      int startSize = ruleOrdering[0];
+      for (CSSRule rule: mediaRule.innerRules()) {
+        applyRule(
+          mediaContext, rule, ruleSource,
+          sheetOrdering, ruleOrdering,
+          forceMatch || wasChanged);
+      }
+      mediaState.setRuleSize(ruleOrdering[0] - startSize);
+    } else {
+      deactivateMediaRule(mediaRule, ruleSource, sheetOrdering, ruleOrdering);
+    }
+    mediaState.setActive(isActive);
+  }
+
+  private void deactivateMediaRule(
+    MediaRule mediaRule,
+    RuleSource ruleSource,
+    int sheetOrdering,
+    int[] ruleOrdering
+  ) {
+    MediaRuleSlot mediaState = mediaStates.get(mediaRule);
+    boolean needsDeactivated =
+      mediaState.active()
+      || mediaState.ruleSize() < 0;
+    if (!needsDeactivated) {
+      ruleOrdering[0] += mediaState.ruleSize();
+      return;
+    }
+
+    int startSize = ruleOrdering[0];
+    for (CSSRule rule: mediaRule.innerRules()) {
+      switch (rule) {
+        case MediaRule mediaRule2 -> deactivateMediaRule(
+          mediaRule2, ruleSource, sheetOrdering, ruleOrdering);
+        case StyleRule styleRule -> deactivateStyleRule(
+          styleRule, ruleSource, sheetOrdering, ruleOrdering);
+        default -> LOGGER.warn("Ignoring unknown rule: " + rule);
+      }
+    }
+    mediaState.setRuleSize(ruleOrdering[0] - startSize);
+  }
+
+  private void deactivateStyleRule(
+    StyleRule styleRule,
+    RuleSource ruleSource,
+    int sheetOrdering,
+    int[] ruleOrdering
+  ) {
+    for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
+      WeightedStyleRule weightedRule = createWeightedRule(
+        styleRule, ruleSource, complexSelector,
+        sheetOrdering, ruleOrdering);
+
+      ElementSet matchNotes = selectorSets.get(complexSelector).matchedElements();
+      for (Element element: matchNotes) {
+        changedElements.add(element);
+        context.onUnmatched(element, weightedRule);
+        matchNotes.remove(element);
+      }
+    }
+
+    ruleOrdering[0]++;
   }
 
   private boolean needsMatched(ComplexSelector complexSelector) {
@@ -184,38 +313,6 @@ public class CSSMatcherImp implements CSSMatcher {
     }
 
     return false;
-  }
-
-  private SelectorSpecificity computeSpecificity(ComplexSelector selector) {
-    int numIdSelectors = 0;
-    int numClassSelectors = 0;
-    int numTypeSelectors = 0;
-    for (SelectorPart selectorPart: selector.parts()) {
-      switch (selectorPart) {
-        case IdSelector _1 -> numIdSelectors++;
-        case AttributeSelector _1 -> numClassSelectors++;
-        case TypeSelector _1 -> numTypeSelectors++;
-        default -> {}
-      }
-    }
-
-    return new SelectorSpecificity(numIdSelectors, numClassSelectors, numTypeSelectors);
-  }
-
-  private SelectorTarget determineTarget(ComplexSelector complexSelector) {
-    if (complexSelector.parts().size() == 0) return SelectorTarget.ELEMENT;
-    SelectorPart selectorPart = getLast(complexSelector.parts());
-    if (!(
-      selectorPart instanceof SimplePseudoElement pseudoClass
-    )) return SelectorTarget.ELEMENT;
-
-    // TODO: Is there actually any point in mapping these?
-    return switch (pseudoClass) {
-      case AFTER -> SelectorTarget.AFTER;
-      case BEFORE -> SelectorTarget.BEFORE;
-      default -> throw new UnsupportedOperationException(
-        "Unsupported psuedo class: " + pseudoClass);
-    };
   }
 
   private ElementSet matchElements(ComplexSelector complexSelector) {

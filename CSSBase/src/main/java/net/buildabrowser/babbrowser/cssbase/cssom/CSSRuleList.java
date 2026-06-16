@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.imp.CSSRuleListImp;
 
-public interface CSSRuleList {
+public interface CSSRuleList extends Iterable<CSSRule> {
   
   CSSRule item(long index);
 

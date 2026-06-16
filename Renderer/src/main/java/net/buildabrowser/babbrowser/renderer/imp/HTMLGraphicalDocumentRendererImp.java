@@ -10,6 +10,7 @@ import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
+import net.buildabrowser.babbrowser.cssbase.media.MediaContext;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
@@ -32,6 +33,7 @@ import net.buildabrowser.babbrowser.renderer.box.DocumentBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeEventsDispatcher;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
+import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.context.ScriptingContext;
@@ -83,6 +85,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   // TODO: Switch to AtomicInteger? Synchronize?
   private int width, height;
+  private boolean forceRestyle;
 
   public HTMLGraphicalDocumentRendererImp(
     HTMLDocument document,
@@ -98,7 +101,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     this.boxGenerator = BoxGenerator.create(elementContexts);
     this.uaStyleSheets = navigable.uaNavigableOptions().uaStyleSheets();
     this.cssMatcher = CSSMatcher.create(
-      new RenderCSSMatcherContext(elementContexts), uaStyleSheets);
+      new RenderCSSMatcherContext(elementContexts),
+      uaStyleSheets, slotFamilyFamily);
     this.documentBox = DocumentBox.create(document);
 
     FetchEngine fetchEngine = navigable.uaNavigableOptions().fetchEngine();
@@ -129,9 +133,15 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       // If level is box, either a box was inserted or a property changed to cause that,
       // so restyle is needed regardless
       || invalidationLevel.ordinal() <= InvalidationLevel.BOX.ordinal()
+      || forceRestyle
     ) {
       long styleStartTime = System.currentTimeMillis();
-      cssMatcher.applyStylesheets(document);
+      GlobalLayoutContext globalLayoutContext = createGlobalLayoutContext();
+      LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
+      MediaContext mediaContext = new MediaContext(
+        List.of("screen"), v -> SizingUtil.evaluateBaseSize(
+          layoutContext, LayoutConstraint.AUTO, v), width, height);
+      cssMatcher.applyStylesheets(document, mediaContext);
       // TODO: By making a new StyleCache every round, it prevents ActiveStyles from being used
       // between rounds, but if it was moved to a field, it might hold references to styles that
       // won't be used again
@@ -139,6 +149,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       ElementSet changedElements = cssMatcher.changedElements();
       StyleGenerator.style(
         document, styleCache, elementContexts, changedElements);
+      this.forceRestyle = false;
       PerfLogging.logStyleTime(styleStartTime);
     }
   }
@@ -219,6 +230,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     ) return;
     this.width = width;
     this.height = height;
+    this.forceRestyle = true;
     if (this.invalidationLevel.ordinal() > InvalidationLevel.LAYOUT.ordinal()) {
       this.invalidationLevel = InvalidationLevel.LAYOUT;
     }
@@ -286,19 +298,10 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   }
 
   private void recomputeLayout() {
-    ResourceLoader resourceLoader = painter.resourceLoader();
-    FontLoader fontLoader = resourceLoader.fontLoader();
-    FontCache fontCache = FontCache.create(fontLoader);
-    this.rootFont = fontCache.load(
-      new FontOptions(List.of(fontLoader.sansSerif()), 16, 400));
-
     ElementBox rootBox = documentBox.htmlBox();
     if (rootBox == null) return;
 
-    Viewport viewport = new Viewport(0, 0, width, height);
-    GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
-      painter.resourceLoader(), rootFont.metrics(), fontCache,
-      viewport, scriptingContext, imageCache, fragmentFactory);
+    GlobalLayoutContext globalLayoutContext = createGlobalLayoutContext();
 
     LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
     LayoutContextGenerator.generateLayoutContexts(rootBox, layoutContext);
@@ -321,6 +324,20 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     
     this.rootLayerBack = rootBox.stackingContext().createLayer(painter);
     this.frontLayerRegenContext = rootBox.stackingContext();
+  }
+
+  private GlobalLayoutContext createGlobalLayoutContext() {
+    ResourceLoader resourceLoader = painter.resourceLoader();
+    FontLoader fontLoader = resourceLoader.fontLoader();
+    FontCache fontCache = FontCache.create(fontLoader);
+    this.rootFont = fontCache.load(
+      new FontOptions(List.of(fontLoader.sansSerif()), 16, 400));
+
+    Viewport viewport = new Viewport(0, 0, width, height);
+    GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
+      painter.resourceLoader(), rootFont.metrics(), fontCache,
+      viewport, scriptingContext, imageCache, fragmentFactory);
+    return globalLayoutContext;
   }
 
   private void layoutAbsolute(
