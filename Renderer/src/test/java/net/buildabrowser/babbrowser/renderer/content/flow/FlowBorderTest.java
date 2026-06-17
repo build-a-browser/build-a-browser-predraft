@@ -24,6 +24,7 @@ import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.TextBox;
 import net.buildabrowser.babbrowser.renderer.box.test.TestTextBox;
+import net.buildabrowser.babbrowser.renderer.content.common.test.TestFloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.test.TestManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
@@ -148,6 +149,7 @@ public class FlowBorderTest {
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
 
     LayoutFragment expectedMainFragment = new TestManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
+      new TestFloatRefFragment(childBox1),
       new LineBoxFragment(40, 0, 15, 10, List.of(
         new TextFragment(0, 0, 15, 10, "Off")))));
     LayoutFragment actualMainFragment = doLayoutSized(parentBox, 80).rootFragment();

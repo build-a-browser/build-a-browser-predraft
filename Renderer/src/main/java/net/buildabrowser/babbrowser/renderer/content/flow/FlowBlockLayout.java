@@ -18,6 +18,7 @@ import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.flow.FloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowBlockBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
@@ -86,6 +87,7 @@ public class FlowBlockLayout {
         UnmanagedBoxFragment<?> floatFragment = FloatLayout.renderFloat(
           elementBox, widthConstraint, heightConstraint);
         FloatLayout.addFloat(rootContent, floatFragment, widthConstraint, heightConstraint, 0);
+        activeContext.addFragment(new FloatRefFragment(floatFragment));
       } else if (FlowUtil.isBlockLevel(childBox)) {
         if (isInInline) {
           inlineLayout.stopInline(widthConstraint, heightConstraint, properties);

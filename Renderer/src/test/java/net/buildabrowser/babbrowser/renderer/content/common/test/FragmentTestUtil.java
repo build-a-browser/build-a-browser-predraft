@@ -8,17 +8,27 @@ import org.junit.jupiter.api.Assertions;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.flow.FloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
 public final class FragmentTestUtil {
   
   private FragmentTestUtil() {}
 
   public static void assertFragmentEquals(LayoutFragment expected, LayoutFragment actual) {
+    boolean skipCheck = switch (expected) {
+      case TestFloatRefFragment fragment -> {
+        assertFragmentEquals(fragment, actual);
+        yield true;
+      }
+      default -> false;
+    };
+    if (skipCheck) return;
+
     Assertions.assertEquals(expected.posX(Measurement.BORDER), actual.posX(Measurement.BORDER));
     Assertions.assertEquals(expected.posY(Measurement.BORDER), actual.posY(Measurement.BORDER));
     Assertions.assertEquals(expected.width(Measurement.CONTENT), actual.width(Measurement.CONTENT));
@@ -64,7 +74,9 @@ public final class FragmentTestUtil {
     Assertions.assertInstanceOf(ManagedBoxFragment.class, actual);
     ManagedBoxFragment<?> actualFragment = (ManagedBoxFragment<?>) actual;
     Assertions.assertEquals(expected.box(), actualFragment.box());
-    Assertions.assertEquals(IntrusiveList._testingOnlySize(expected.fragments()), IntrusiveList._testingOnlySize(actualFragment.fragments()));
+    Assertions.assertEquals(
+      IntrusiveList._testingOnlySize(expected.fragments()),
+      IntrusiveList._testingOnlySize(actualFragment.fragments()));
 
     LayoutFragment curExpected = expected.fragments();
     LayoutFragment curActual = actualFragment.fragments();
@@ -92,7 +104,10 @@ public final class FragmentTestUtil {
   public static void assertFragmentEquals(LineBoxFragment expected, LayoutFragment actual) {
     Assertions.assertInstanceOf(LineBoxFragment.class, actual);
     LineBoxFragment actualFragment = (LineBoxFragment) actual;
-
+    Assertions.assertEquals(
+      IntrusiveList._testingOnlySize(expected.fragments()),
+      IntrusiveList._testingOnlySize(actualFragment.fragments()));
+    
     LayoutFragment curExpected = expected.fragments();
     LayoutFragment curActual = actualFragment.fragments();
     while (curExpected != null) {
@@ -100,6 +115,12 @@ public final class FragmentTestUtil {
       curExpected = curExpected.next();
       curActual = curActual.next();
     }
+  }
+
+  private static void assertFragmentEquals(TestFloatRefFragment expected, LayoutFragment actual) {
+    Assertions.assertInstanceOf(FloatRefFragment.class, actual);
+    FloatRefFragment actualFragment = (FloatRefFragment) actual;
+    Assertions.assertEquals(expected.box(), actualFragment.floatFragment().box());
   }
 
 }

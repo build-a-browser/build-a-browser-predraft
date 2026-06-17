@@ -17,7 +17,7 @@ public final class ScrollMath {
     UnmanagedBoxFragment<?> innerFragment = scrollBoxFragment.innerFragment();
 
     float trackHeightReduction = scrollBoxFragment.hasHorizontalScroll() && scrollBoxFragment.hasVerticalScroll() ? 16 : 0;
-    float trackSize = scrollBoxFragment.width(Measurement.CONTENT) - trackHeightReduction;
+    float trackSize = Math.max(scrollBoxFragment.width(Measurement.CONTENT) - trackHeightReduction, 0);
     float contentOffsetX = scrollBoxFragment.posX(Measurement.CONTENT) - scrollBoxFragment.posX(Measurement.BORDER);
     float contentOffsetY = scrollBoxFragment.posY(Measurement.CONTENT) - scrollBoxFragment.posY(Measurement.BORDER);
     float trackX = contentOffsetX;
@@ -33,6 +33,7 @@ public final class ScrollMath {
       scrollerSize = MIN_SCROLLBAR_HEIGHT;
       reducedTrackHeight -= extraHeight;
     }
+    reducedTrackHeight = Math.max(reducedTrackHeight, 0);
     float scrollerPos = scrollBoxFragment.scrollX() / innerFragment.inkWidth(Measurement.CONTENT) * reducedTrackHeight;
 
     return new ScrollMathResult(trackX, trackY, scrollerPos, scrollerSize, trackSize);
@@ -44,7 +45,7 @@ public final class ScrollMath {
     UnmanagedBoxFragment<?> innerFragment = scrollBoxFragment.innerFragment();
 
     float trackHeightReduction = scrollBoxFragment.hasHorizontalScroll() && scrollBoxFragment.hasVerticalScroll() ? 16 : 0;
-    float trackSize = scrollBoxFragment.height(Measurement.CONTENT) - trackHeightReduction;
+    float trackSize = Math.max(scrollBoxFragment.height(Measurement.CONTENT) - trackHeightReduction, 0);
     float contentOffsetX = scrollBoxFragment.posX(Measurement.CONTENT) - scrollBoxFragment.posX(Measurement.BORDER);
     float contentOffsetY = scrollBoxFragment.posY(Measurement.CONTENT) - scrollBoxFragment.posY(Measurement.BORDER);
     float trackX = contentOffsetX + scrollBoxFragment.width(Measurement.CONTENT) - GUTTER_WIDTH;
@@ -60,6 +61,7 @@ public final class ScrollMath {
       scrollerSize = MIN_SCROLLBAR_HEIGHT;
       reducedTrackHeight -= extraHeight;
     }
+    reducedTrackHeight = Math.max(reducedTrackHeight, 0);
     float scrollerPos = scrollBoxFragment.scrollY() / innerFragment.inkHeight(Measurement.CONTENT) * reducedTrackHeight;
 
     return new ScrollMathResult(trackX, trackY, scrollerPos, scrollerSize, trackSize);

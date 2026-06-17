@@ -16,6 +16,7 @@ import net.buildabrowser.babbrowser.cssbase.property.floats.FloatValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.test.TestTextBox;
+import net.buildabrowser.babbrowser.renderer.content.common.test.TestFloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.test.TestManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.content.flow.test.FlowLayoutUtil.FlowTestLayoutResult;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
@@ -99,9 +100,10 @@ public class FlowTextAlignTest {
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);
 
     LayoutFragment expectedMainFragment = new TestManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
+      new TestFloatRefFragment(leftFloatBox),
+      new TestFloatRefFragment(rightFloatBox),
       new LineBoxFragment(25, 0, 20, 10, List.of(
-        new TextFragment(0, 0, 20, 10, "test")))
-    ));
+        new TextFragment(0, 0, 20, 10, "test")))));
     LayoutFragment actualMainFragment = layoutResult.rootFragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
   }

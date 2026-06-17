@@ -25,6 +25,7 @@ import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.flow.FloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
@@ -140,10 +141,12 @@ public class FlowInlineLayout {
       elementBox, widthConstraint, heightConstraint);
     boolean fitsInLine = FloatLayout.addFloat(
       rootContent, floatFragment, widthConstraint, heightConstraint, activeInlineContext.lineBox().totalWidth());
-    if (fitsInLine) return;
+    if (!fitsInLine) {
+      activeInlineContext.nextLine();
+      FloatLayout.addFloat(rootContent, floatFragment, widthConstraint, heightConstraint, 0);
+    }
 
-    activeInlineContext.nextLine();
-    FloatLayout.addFloat(rootContent, floatFragment, widthConstraint, heightConstraint, 0);
+    activeInlineContext.addFragment(new FloatRefFragment(floatFragment));
   }
 
   private void addBlockLevelToInline(

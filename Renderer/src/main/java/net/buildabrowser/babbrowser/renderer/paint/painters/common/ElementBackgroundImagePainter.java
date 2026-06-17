@@ -32,15 +32,15 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 
 public class ElementBackgroundImagePainter {
-  
-  public static void paintBackgroundImages(
+
+  public static void paintBackgroundImagesAdjusted(
     PaintCanvas canvas,
     BoxFragment<?> fragment,
     VpIntersection vpIntersection,
+    PropertyContainer properties,
     float fragmentWidth,
     float fragmentHeight
   ) {
-    PropertyContainer properties = fragment.box().properties();
     ManyResult bgImages = (ManyResult) properties.get(CSSProperty.BACKGROUND_IMAGE);
     ManyResult bgRepeats = (ManyResult) properties.get(CSSProperty.BACKGROUND_REPEAT);
     ManyResult bgAttachments = (ManyResult) properties.get(CSSProperty.BACKGROUND_ATTACHMENT);

@@ -3,38 +3,30 @@ package net.buildabrowser.babbrowser.renderer.paint;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 
 public final class PaintUtil {
   
   private PaintUtil() {}
 
-  public static void maybePaintFragment(
-    BoxFragment<?> fragment, PaintCanvas canvas, VpIntersection vpIntersection, FragmentPaintFunc func
+  public static <T extends LayoutFragment> void maybePaintFragment(
+    T fragment, PaintCanvas canvas, VpIntersection vpIntersection,
+    FragmentPaintFunc<T> func
   ) {
     maybePaintFragment(fragment, canvas, vpIntersection, func, Measurement.CONTENT);
   }
 
-  public static void maybePaintFragment(
-    BoxFragment<?> fragment, PaintCanvas canvas, VpIntersection vpIntersection,
-    FragmentPaintFunc func, Measurement measurement
+  public static <T extends LayoutFragment> void maybePaintFragment(
+    T fragment, PaintCanvas canvas, VpIntersection vpIntersection,
+    FragmentPaintFunc<T> func, Measurement measurement
   ) {
     if (fragment instanceof PosRefBoxFragment) return;
-    if (!aabbFragmentVp(fragment, vpIntersection, measurement)) return;
+    if (
+      fragment instanceof BoxFragment<?> boxFragment
+      && !aabbFragmentVp(boxFragment, vpIntersection, measurement)
+    ) return;
 
-    vpIntersection.enterEl(
-      fragment.posX(measurement),
-      fragment.posY(measurement),
-      vpi -> func.paint(fragment, canvas, vpi));
-  }
-
-  // TODO: Why were maybePaintFragment and maybePaintGenericFragment distinct again?
-  // But this variant does not cull
-  public static <T extends LayoutFragment> void maybePaintGenericFragment(
-    T fragment, PaintCanvas canvas, VpIntersection vpIntersection, GenericFragmentPaintFunc<T> func
-  ) {
-    Measurement measurement = Measurement.CONTENT;
     vpIntersection.enterEl(
       fragment.posX(measurement),
       fragment.posY(measurement),
@@ -54,13 +46,7 @@ public final class PaintUtil {
       && vpIntersection.bufferY() < elPosY + fragment.inkHeight(measurement);
   }
 
-  public static interface FragmentPaintFunc {
-  
-    void paint(BoxFragment<?> fragment, PaintCanvas canvas, VpIntersection vpIntersection);
-
-  }
-
-  public static interface GenericFragmentPaintFunc<T extends LayoutFragment> {
+  public static interface FragmentPaintFunc<T extends LayoutFragment> {
   
     void paint(T fragment, PaintCanvas canvas, VpIntersection vpIntersection);
 

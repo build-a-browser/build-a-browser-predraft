@@ -15,7 +15,6 @@ import net.buildabrowser.babbrowser.renderer.fragment.table.TableBoxFragment;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
 import net.buildabrowser.babbrowser.renderer.paint.PaintUtil;
 import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
-import net.buildabrowser.babbrowser.renderer.paint.painters.common.ElementBackgroundImagePainter;
 import net.buildabrowser.babbrowser.renderer.paint.painters.common.ElementBackgroundPainter;
 import net.buildabrowser.babbrowser.renderer.paint.painters.common.ElementBorderPainter;
 
@@ -40,7 +39,7 @@ public class TableBoxPainter implements BoxPainter<TableBoxFragment> {
   @Override
   public void paintBackground(TableBoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     // TODO: Adjust box to exclude captions
-    ElementBackgroundImagePainter.paintBackgroundImages(
+    ElementBackgroundPainter.paintBackgroundImages(
       canvas, fragment, vpIntersection,
       fragment.width(Measurement.BORDER),
       fragment.height(Measurement.BORDER));
@@ -140,7 +139,7 @@ public class TableBoxPainter implements BoxPainter<TableBoxFragment> {
       t -> t.translate(
         fragment.posX(Measurement.BORDER),
         fragment.posY(Measurement.BORDER)),
-      c -> ElementBackgroundImagePainter.paintBackgroundImages(
+      c -> ElementBackgroundPainter.paintBackgroundImages(
         c, fragment, vpIntersection,
         fragment.width(Measurement.BORDER),
         fragment.height(Measurement.BORDER)));
@@ -158,7 +157,7 @@ public class TableBoxPainter implements BoxPainter<TableBoxFragment> {
       t -> t.translate(
         fragment.posX(Measurement.BORDER),
         fragment.posY(Measurement.BORDER)),
-      c -> ElementBackgroundImagePainter.paintBackgroundImages(
+      c -> ElementBackgroundPainter.paintBackgroundImages(
         c, fragment, vpIntersection,
         TableCellUtil.outerCellWidth(table, cell),
         TableCellUtil.outerCellHeight(table, cell)));

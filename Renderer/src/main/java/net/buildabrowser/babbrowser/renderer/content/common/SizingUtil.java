@@ -79,21 +79,21 @@ public final class SizingUtil {
     double sizeResult = baseValue == 0 ? 0 : baseValue * switch (lengthValue.dimension()) {
       case EM -> layoutContext.font().metrics().size();
       case REM -> layoutContext.global().rootMetrics().size();
-      case EX -> layoutContext.font().metrics().xHeight() / 2;
+      case EX -> layoutContext.font().metrics().xHeight() / 2f;
       case CH -> layoutContext.font().metrics().stringWidth("0"); // TODO: Check inline direction
 
-      case CM -> 96 / 2.54;
-      case MM -> 96 / 2.54 / 10;
-      case Q -> 96 / 2.54 / 40;
-      case IN -> 96;
-      case PT -> 1 / 0.75;
-      case PC -> 9;
-      case PX -> 1;
+      case CM -> 96f / 2.54f;
+      case MM -> 96f / 2.54f / 10f;
+      case Q -> 96f / 2.54f / 40f;
+      case IN -> 96f;
+      case PT -> 1f / 0.75f;
+      case PC -> 9f;
+      case PX -> 1f;
 
-      case VW -> viewport.width() / 100;
-      case VH -> viewport.height() / 100;
-      case VMIN -> Math.min(viewport.width(), viewport.height()) / 100;
-      case VMAX -> Math.max(viewport.width(), viewport.height()) / 100;
+      case VW -> viewport.width() / 100f;
+      case VH -> viewport.height() / 100f;
+      case VMIN -> Math.min(viewport.width(), viewport.height()) / 100f;
+      case VMAX -> Math.max(viewport.width(), viewport.height()) / 100f;
 
       default -> throw new UnsupportedOperationException("Unknown Unit!");
     };

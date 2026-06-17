@@ -146,18 +146,17 @@ public class CompositeLayerImp implements CompositeLayer {
     this.backingX = overscrollX;
     this.backingY = overscrollY;
 
-    backingImage.withCanvas(canvas -> {
+    backingImage.withCanvas(canvas -> canvas.saveTransform(c -> {
       // TODO: These paint checks aren't cool
       if (entries == null) return;
       forEachFragment((fragment, vpi) -> {
-        canvas.withTransform(
+        c.withTransform(
           t -> t.translate(
             fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER) - backingX,
             fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER) - backingY),
-          c -> fragment.withPainterV((p, f) -> p.paint(f, c, vpi)));
+          c2 -> fragment.withPainterV((p, f) -> p.paint(f, c2, vpi)));
       }, canvas, vpIntersection);
-        
-    });
+    }));
   }
 
   @Override
