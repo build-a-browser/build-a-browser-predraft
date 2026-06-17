@@ -7,9 +7,7 @@ import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.imp.HTMLElementImp;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 
-public interface HTMLElement extends Element, Slottable {
-
-  // Extensions
+public interface HTMLElement extends Element, HTMLOrSVGOrMathMLElement, Slottable {
 
   Navigable nodeNavigable();
 

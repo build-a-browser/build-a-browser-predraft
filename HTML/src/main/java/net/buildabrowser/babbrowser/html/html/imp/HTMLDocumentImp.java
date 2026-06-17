@@ -10,6 +10,7 @@ import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchClient;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
+import net.buildabrowser.babbrowser.html.input.FocusManager;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
@@ -17,6 +18,7 @@ import net.buildabrowser.babbrowser.html.navigation.Navigable;
 public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
 
   private final BrowsingContext browsingContext;
+  private final FocusManager focusManager;
 
   private DocumentRenderer renderer;
   private boolean willDeclarativelyRefresh;
@@ -24,6 +26,7 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
 
   public HTMLDocumentImp(BrowsingContext browsingContext) {
     this.browsingContext = browsingContext;
+    this.focusManager = FocusManager.create(this);
   }
 
   @Override
@@ -101,6 +104,11 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
     } else {
       return renderer.changeListener();
     }
+  }
+
+  @Override
+  public FocusManager focusManager() {
+    return this.focusManager;
   }
 
   private void syncStylesheets(DocumentChangeListener changeListener) {

@@ -1,6 +1,9 @@
 package net.buildabrowser.babbrowser.html.html.imp;
 
+import java.util.List;
+
 import net.buildabrowser.babbrowser.common.datastruct.SlotItem;
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.Invalidatable;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.Document;
@@ -9,9 +12,13 @@ import net.buildabrowser.babbrowser.dom.imp.ElementImp;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
+import net.buildabrowser.babbrowser.html.input.FocusOptions;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 
 public class HTMLElementImp extends ElementImp implements HTMLElement {
+
+  private static final List<String> FOCUSABLE_ELEMENTS = List.of(
+    "a", "area", "button", "frame", "iframe", "input", "object", "select", "textarea");
 
   private SlotItem<?> slotItems;
  
@@ -62,6 +69,23 @@ public class HTMLElementImp extends ElementImp implements HTMLElement {
   @Override
   public SlotItem<?> slots() {
     return this.slotItems;
+  }
+
+  @Override
+  public long tabIndex() {
+    String attribute = getAttribute("tabindex");
+    if (attribute != null) {
+      // TODO: Infra util for integer parsing
+      Long parsedValue = CommonUtil.tryOrNull(() -> Long.valueOf(attribute));
+      if (parsedValue != null) return parsedValue;
+    }
+
+    return FOCUSABLE_ELEMENTS.indexOf(name()) != -1 ? 0 : -1;
+  }
+
+  @Override
+  public void focus(FocusOptions options) {
+    ((HTMLDocument) nodeDocument()).focusManager().focus(this, options);
   }
 
 }
