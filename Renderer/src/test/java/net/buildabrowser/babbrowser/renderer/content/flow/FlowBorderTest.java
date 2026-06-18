@@ -14,11 +14,11 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
-import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.floats.FloatValue;
+import net.buildabrowser.babbrowser.cssbase.property.shared.LineStyleValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
@@ -27,10 +27,10 @@ import net.buildabrowser.babbrowser.renderer.box.test.TestTextBox;
 import net.buildabrowser.babbrowser.renderer.content.common.test.TestFloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.test.TestManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
 // Very similar to the padding test, but with bordder
 public class FlowBorderTest {
@@ -41,7 +41,7 @@ public class FlowBorderTest {
     ActiveStyles childStyles = ActiveStyles.create();
     childStyles.setProperty(CSSProperty.WIDTH, LengthValue.create(25, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.HEIGHT, LengthValue.create(25, true, LengthType.PX));
-    setBorderStyles(childStyles, BorderStyleValue.SOLID);
+    setBorderStyles(childStyles, LineStyleValue.SOLID);
     childStyles.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(10, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.BORDER_LEFT_WIDTH, LengthValue.create(15, true, LengthType.PX));
     ElementBox childBox = flowBlockBox(childStyles, List.of());
@@ -69,7 +69,7 @@ public class FlowBorderTest {
     ActiveStyles childStyles = ActiveStyles.create();
     childStyles.setProperty(CSSProperty.WIDTH, LengthValue.create(25, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.HEIGHT, LengthValue.create(25, true, LengthType.PX));
-    setBorderStyles(childStyles, BorderStyleValue.SOLID);
+    setBorderStyles(childStyles, LineStyleValue.SOLID);
     childStyles.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(10, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.BORDER_BOTTOM_WIDTH, LengthValue.create(10, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.BORDER_RIGHT_WIDTH, LengthValue.create(15, true, LengthType.PX));
@@ -108,7 +108,7 @@ public class FlowBorderTest {
   @DisplayName("Can layout inline box with text and border")
   public void canLayoutInlineBoxWithTextAndBorder() {
     ActiveStyles childStyles = ActiveStyles.create();
-    setBorderStyles(childStyles, BorderStyleValue.SOLID);
+    setBorderStyles(childStyles, LineStyleValue.SOLID);
     childStyles.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(10, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.BORDER_LEFT_WIDTH, LengthValue.create(15, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.DISPLAY, DisplayValue.create(OuterDisplayValue.INLINE, InnerDisplayValue.FLOW));
@@ -141,7 +141,7 @@ public class FlowBorderTest {
   public void canLayoutALeftFloatWithBorderAndOffsetOtherText() {
     ActiveStyles childStyles = ActiveStyles.create();
     childStyles.setProperty(CSSProperty.FLOAT, FloatValue.LEFT);
-    setBorderStyles(childStyles, BorderStyleValue.SOLID);
+    setBorderStyles(childStyles, LineStyleValue.SOLID);
     childStyles.setProperty(CSSProperty.BORDER_LEFT_WIDTH, LengthValue.create(15, true, LengthType.PX));
     TestTextBox nestedChildBox1 = new TestTextBox("Hello");
     ElementBox childBox1 = flowInlineBox(childStyles, List.of(nestedChildBox1));
@@ -156,7 +156,7 @@ public class FlowBorderTest {
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
   }
 
-  private void setBorderStyles(ActiveStyles childStyles, BorderStyleValue style) {
+  private void setBorderStyles(ActiveStyles childStyles, LineStyleValue style) {
     childStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, style);
     childStyles.setProperty(CSSProperty.BORDER_BOTTOM_STYLE, style);
     childStyles.setProperty(CSSProperty.BORDER_LEFT_STYLE, style);

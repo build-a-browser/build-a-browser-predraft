@@ -1,7 +1,3 @@
-a {
-  color: #0000FF;
-}
-
 body, html {
   display: block;
 }
@@ -99,3 +95,12 @@ table[align=left] { float: left; }
 table[align=right] { float: right; }
 /* TODO: This should be margin-inline */
 table[align=center] { margin-left: auto; margin-right: auto; }
+
+/* Phrasing Content */
+b, strong { font-weight: bolder; }
+code, kbd, samp, tt { font-family: monospace; }
+big { font-size: larger; }
+small { font-size: smaller; }
+:link { color: #0000EE; }
+/* ... */
+:focus-visible { outline: auto; }

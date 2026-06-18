@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.cssbase.property.border;
+package net.buildabrowser.babbrowser.cssbase.property.shared;
 
 import java.io.IOException;
 
@@ -8,14 +8,13 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.SizeParser;
-import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 
-public class BorderSizeParser implements PropertyValueParser {
+public class LineWidthParser implements PropertyValueParser {
 
   private final SizeParser innerParser;
 
-  public BorderSizeParser(CSSProperty property) {
+  public LineWidthParser(CSSProperty property) {
     this.innerParser = new SizeParser(false, false, false, false, property);
   }
 
@@ -25,9 +24,9 @@ public class BorderSizeParser implements PropertyValueParser {
       CSSValue value = switch (identToken.value()) {
         // More convenient than a dedicated border type
         // Adjust these to preference, it's UA-dependent
-        case "thin" -> LengthValue.create(2, true, LengthType.PX);
-        case "medium" -> LengthValue.create(4, true, LengthType.PX);
-        case "thick" -> LengthValue.create(8, true, LengthType.PX);
+        case "thin" -> LengthValue.THIN;
+        case "medium" -> LengthValue.MEDIUM;
+        case "thick" -> LengthValue.THICK;
         default -> null;
       };
       if (value != null) {

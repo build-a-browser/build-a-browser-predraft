@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.paint.painters.table;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
+import net.buildabrowser.babbrowser.cssbase.property.shared.LineStyleValue;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.content.table.Table;
 import net.buildabrowser.babbrowser.renderer.content.table.TableComputedBorders;
@@ -88,7 +88,7 @@ public class TableCollapsedBorderPainter implements TableBorderPainter {
       canvas,
       0, 0,
       fragmentWidth, borderWidth,
-      (BorderStyleValue) border.borderStyle());
+      (LineStyleValue) border.borderStyle());
   }
 
   private void paintBottomBorder(
@@ -103,7 +103,7 @@ public class TableCollapsedBorderPainter implements TableBorderPainter {
       canvas,
       0, bottomBorderY,
       fragmentWidth, borderWidth,
-      (BorderStyleValue) border.borderStyle());
+      (LineStyleValue) border.borderStyle());
   }
 
   private void paintLeftBorder(
@@ -116,7 +116,7 @@ public class TableCollapsedBorderPainter implements TableBorderPainter {
       canvas,
       0, 0,
       fragmentHeight, borderWidth,
-      (BorderStyleValue) border.borderStyle());
+      (LineStyleValue) border.borderStyle());
   }
 
   private void paintRightBorder(
@@ -131,7 +131,7 @@ public class TableCollapsedBorderPainter implements TableBorderPainter {
       canvas,
       rightBorderX, 0,
       fragmentHeight, borderWidth,
-      (BorderStyleValue) border.borderStyle());
+      (LineStyleValue) border.borderStyle());
   }
   
 }

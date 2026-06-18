@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.cssbase.property.border;
+package net.buildabrowser.babbrowser.cssbase.property.outline;
 
 import java.io.IOException;
 import java.util.Map;
@@ -10,19 +10,13 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.cssbase.property.shared.LineStyleValue;
 
-public class BorderStyleParser implements PropertyValueParser {
-
-  private final CSSProperty relatedProperty;
-
-  public BorderStyleParser(CSSProperty property) {
-    this.relatedProperty = property;
-  }
+public class OutlineStyleParser implements PropertyValueParser {
 
   @Override
   public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
     return PropertyValueParserUtil.parseIdentMap(stream, Map.of(
       "none", CSSValue.NONE,
-      "hidden", LineStyleValue.HIDDEN,
+      "auto", CSSValue.AUTO,
       "dotted", LineStyleValue.DOTTED,
       "dashed", LineStyleValue.DASHED,
       "solid", LineStyleValue.SOLID,
@@ -36,7 +30,7 @@ public class BorderStyleParser implements PropertyValueParser {
 
   @Override
   public CSSProperty relatedProperty() {
-    return this.relatedProperty;
+    return CSSProperty.OUTLINE_STYLE;
   }
   
 }

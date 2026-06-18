@@ -15,11 +15,11 @@ import org.junit.jupiter.api.Test;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.floats.FloatValue;
+import net.buildabrowser.babbrowser.cssbase.property.shared.LineStyleValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
@@ -28,10 +28,10 @@ import net.buildabrowser.babbrowser.renderer.box.test.TestTextBox;
 import net.buildabrowser.babbrowser.renderer.content.common.test.TestFloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.content.common.test.TestManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
 public class FlowMarginTest {
   
@@ -45,7 +45,7 @@ public class FlowMarginTest {
     childStyles.setProperty(CSSProperty.MARGIN_LEFT, LengthValue.create(15, true, LengthType.PX));
     // Set a border to prevent the element itself from being ignored
     childStyles.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(1, true, LengthType.PX));
-    childStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, BorderStyleValue.SOLID);
+    childStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, LineStyleValue.SOLID);
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
@@ -75,7 +75,7 @@ public class FlowMarginTest {
     childStyles.setProperty(CSSProperty.MARGIN_BOTTOM, LengthValue.create(10, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.MARGIN_RIGHT, LengthValue.create(15, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(1, true, LengthType.PX));
-    childStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, BorderStyleValue.SOLID);
+    childStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, LineStyleValue.SOLID);
     ElementBox childBox1 = flowBlockBox(childStyles, List.of());
     ElementBox childBox2 = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox1, childBox2));
@@ -148,7 +148,7 @@ public class FlowMarginTest {
     childStyles.setProperty(CSSProperty.MARGIN_BOTTOM, LengthValue.create(10, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.MARGIN_RIGHT, LengthValue.create(15, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(1, true, LengthType.PX));
-    childStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, BorderStyleValue.SOLID);
+    childStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, LineStyleValue.SOLID);
     ElementBox childBox1 = flowBlockBox(childStyles, List.of());
     ElementBox childBox2 = flowBlockBox(ActiveStyles.create(), List.of());
     ElementBox childBox3 = flowBlockBox(childStyles, List.of());
@@ -181,11 +181,11 @@ public class FlowMarginTest {
     childStyles1.setProperty(CSSProperty.MARGIN_BOTTOM, LengthValue.create(10, true, LengthType.PX));
     childStyles1.setProperty(CSSProperty.MARGIN_RIGHT, LengthValue.create(15, true, LengthType.PX));
     childStyles1.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(1, true, LengthType.PX));
-    childStyles1.setProperty(CSSProperty.BORDER_TOP_STYLE, BorderStyleValue.SOLID);
+    childStyles1.setProperty(CSSProperty.BORDER_TOP_STYLE, LineStyleValue.SOLID);
 
     ActiveStyles childStyles2 = ActiveStyles.create();
     childStyles2.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(1, true, LengthType.PX));
-    childStyles2.setProperty(CSSProperty.BORDER_TOP_STYLE, BorderStyleValue.SOLID);
+    childStyles2.setProperty(CSSProperty.BORDER_TOP_STYLE, LineStyleValue.SOLID);
 
     ElementBox childBox1 = flowBlockBox(childStyles1, List.of());
     ElementBox childBox2 = flowBlockBox(childStyles2, List.of());
@@ -218,7 +218,7 @@ public class FlowMarginTest {
     childStyles.setProperty(CSSProperty.MARGIN_LEFT, CSSValue.AUTO);
     childStyles.setProperty(CSSProperty.MARGIN_RIGHT, CSSValue.AUTO);
     childStyles.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(1, true, LengthType.PX));
-    childStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, BorderStyleValue.SOLID);
+    childStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, LineStyleValue.SOLID);
 
     ElementBox childBox = flowBlockBox(childStyles, List.of());
     ElementBox parentBox = flowBlockBox(List.of(childBox));
@@ -246,7 +246,7 @@ public class FlowMarginTest {
       childStyles.setProperty(CSSProperty.HEIGHT, LengthValue.create(50, true, LengthType.PX));
       childStyles.setProperty(CSSProperty.MARGIN_BOTTOM, LengthValue.create(30, true, LengthType.PX));
       childStyles.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(1, true, LengthType.PX));
-      childStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, BorderStyleValue.SOLID);
+      childStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, LineStyleValue.SOLID);
 
       ElementBox childBox = flowBlockBox(childStyles, List.of());
       ElementBox parentBox = flowBlockBox(parentStyles, List.of(childBox));
@@ -263,13 +263,13 @@ public class FlowMarginTest {
       childStyles1.setProperty(CSSProperty.HEIGHT, LengthValue.create(50, true, LengthType.PX));
       childStyles1.setProperty(CSSProperty.MARGIN_BOTTOM, LengthValue.create(30, true, LengthType.PX));
       childStyles1.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(1, true, LengthType.PX));
-      childStyles1.setProperty(CSSProperty.BORDER_TOP_STYLE, BorderStyleValue.SOLID);
+      childStyles1.setProperty(CSSProperty.BORDER_TOP_STYLE, LineStyleValue.SOLID);
 
       ActiveStyles childStyles2 = ActiveStyles.create();
       childStyles2.setProperty(CSSProperty.HEIGHT, LengthValue.create(50, true, LengthType.PX));
       childStyles2.setProperty(CSSProperty.MARGIN_TOP, LengthValue.create(-10, true, LengthType.PX));
       childStyles2.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(1, true, LengthType.PX));
-      childStyles2.setProperty(CSSProperty.BORDER_TOP_STYLE, BorderStyleValue.SOLID);
+      childStyles2.setProperty(CSSProperty.BORDER_TOP_STYLE, LineStyleValue.SOLID);
 
       ElementBox child1 = flowBlockBox(childStyles1, List.of());
       ElementBox child2 = flowBlockBox(childStyles2, List.of());

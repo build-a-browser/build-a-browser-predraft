@@ -122,6 +122,12 @@ public enum CSSProperty {
   MARGIN_LEFT(nextId(), false, LengthValue.ZERO),
   MARGIN_RIGHT(nextId(), false, LengthValue.ZERO),
   MARGIN(new CSSProperty[] { MARGIN_TOP, MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT }),
+
+  OUTLINE_WIDTH(nextId(), false, InvalidationLevel.PAINT, LengthValue.MEDIUM),
+  OUTLINE_STYLE(nextId(), false, InvalidationLevel.PAINT, CSSValue.NONE),
+  OUTLINE_COLOR(nextId(), false, InvalidationLevel.PAINT, CSSValue.AUTO),
+  OUTLINE_OFFSET(nextId(), false, InvalidationLevel.PAINT, LengthValue.ZERO),
+  OUTLINE(new CSSProperty[] { OUTLINE_WIDTH, OUTLINE_STYLE, OUTLINE_COLOR }),
   
   TOP(nextId(), false, CSSValue.AUTO),
   BOTTOM(nextId(), false, CSSValue.AUTO),

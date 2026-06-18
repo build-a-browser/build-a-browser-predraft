@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.renderer.content.common;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
-import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
+import net.buildabrowser.babbrowser.cssbase.property.shared.LineStyleValue;
 import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -30,7 +30,7 @@ public final class BorderUtil {
     CSSValue property,
     CSSValue styleProperty
   ) {
-    if (styleProperty.equals(CSSValue.NONE) || styleProperty.equals(BorderStyleValue.HIDDEN)) {
+    if (styleProperty.equals(CSSValue.NONE) || styleProperty.equals(LineStyleValue.HIDDEN)) {
       return 0;
     }
     

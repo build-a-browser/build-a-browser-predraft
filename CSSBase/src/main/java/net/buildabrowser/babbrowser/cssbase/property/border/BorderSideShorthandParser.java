@@ -10,10 +10,11 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.AnyOrderResult;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorBaseParser;
+import net.buildabrowser.babbrowser.cssbase.property.shared.LineWidthParser;
 
 public class BorderSideShorthandParser implements PropertyValueParser {
 
-  private static final PropertyValueParser widthParser = new BorderSizeParser(null);
+  private static final PropertyValueParser widthParser = new LineWidthParser(null);
   private static final PropertyValueParser colorParser = new ColorBaseParser();
   private static final PropertyValueParser styleParser = new BorderStyleParser(null);
 

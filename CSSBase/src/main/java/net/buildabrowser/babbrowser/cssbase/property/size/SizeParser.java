@@ -167,6 +167,11 @@ public class SizeParser implements PropertyValueParser {
     return new SizeParser(false, false, unit);
   }
 
+  public static SizeParser forOutline(CSSProperty unit) {
+    return new SizeParser(
+      false, false, false, false, unit);
+  }
+
   public static SizeParser forPosition(CSSProperty unit) {
     return new SizeParser(false, true, unit);
   }

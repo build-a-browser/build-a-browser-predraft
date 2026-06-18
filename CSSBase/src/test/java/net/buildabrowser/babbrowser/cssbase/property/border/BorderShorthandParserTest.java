@@ -11,6 +11,7 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorParserTestUtil;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue.SRGBAColor;
+import net.buildabrowser.babbrowser.cssbase.property.shared.LineStyleValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
@@ -37,7 +38,7 @@ public class BorderShorthandParserTest {
     Assertions.assertEquals(new BorderCompositeValue(
       LengthValue.create(1, true, LengthType.PX),
       SRGBAColor.create(255, 0, 0, 255),
-      BorderStyleValue.SOLID
+      LineStyleValue.SOLID
     ), value);
   }
 
@@ -52,7 +53,7 @@ public class BorderShorthandParserTest {
     Assertions.assertEquals(new BorderCompositeValue(
       null,
       SRGBAColor.create(255, 0, 0, 255),
-      BorderStyleValue.SOLID
+      LineStyleValue.SOLID
     ), value);
   }
 

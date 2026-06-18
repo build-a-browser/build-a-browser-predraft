@@ -38,6 +38,7 @@ public final class ElementBackgroundPainter {
       fragment.height(Measurement.BORDER));
 
     ElementBorderPainter.paintBorders(canvas, fragment);
+    ElementOutlinePainter.paintOutlines(canvas, fragment);
     paintDebugOutlines(canvas, fragment);
   }
 

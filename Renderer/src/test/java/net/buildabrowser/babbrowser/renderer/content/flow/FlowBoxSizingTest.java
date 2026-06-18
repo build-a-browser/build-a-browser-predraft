@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
-import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
+import net.buildabrowser.babbrowser.cssbase.property.shared.LineStyleValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
@@ -28,7 +28,7 @@ public class FlowBoxSizingTest {
     childStyles.setProperty(CSSProperty.WIDTH, LengthValue.create(25, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.HEIGHT, LengthValue.create(25, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.BOX_SIZING, BoxSizingValue.CONTENT_BOX);
-    setBorderStyles(childStyles, BorderStyleValue.SOLID);
+    setBorderStyles(childStyles, LineStyleValue.SOLID);
     childStyles.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(5, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.BORDER_LEFT_WIDTH, LengthValue.create(9, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.PADDING_TOP, LengthValue.create(5, true, LengthType.PX));
@@ -48,7 +48,7 @@ public class FlowBoxSizingTest {
     childStyles.setProperty(CSSProperty.WIDTH, LengthValue.create(25, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.HEIGHT, LengthValue.create(25, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.BOX_SIZING, BoxSizingValue.BORDER_BOX);
-    setBorderStyles(childStyles, BorderStyleValue.SOLID);
+    setBorderStyles(childStyles, LineStyleValue.SOLID);
     childStyles.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(5, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.BORDER_LEFT_WIDTH, LengthValue.create(9, true, LengthType.PX));
     childStyles.setProperty(CSSProperty.PADDING_TOP, LengthValue.create(5, true, LengthType.PX));
@@ -61,7 +61,7 @@ public class FlowBoxSizingTest {
     Assertions.assertEquals(25, actualFragment.height(Measurement.CONTENT));
   }
 
-  private void setBorderStyles(ActiveStyles childStyles, BorderStyleValue style) {
+  private void setBorderStyles(ActiveStyles childStyles, LineStyleValue style) {
     childStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, style);
     childStyles.setProperty(CSSProperty.BORDER_BOTTOM_STYLE, style);
     childStyles.setProperty(CSSProperty.BORDER_LEFT_STYLE, style);

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.shared.LineWidthParser;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
@@ -16,7 +17,7 @@ import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 
 public class BorderSizeParserTest {
   
-  private final BorderSizeParser borderSizeParser = new BorderSizeParser(CSSProperty.BORDER_BOTTOM_WIDTH);
+  private final LineWidthParser borderSizeParser = new LineWidthParser(CSSProperty.BORDER_BOTTOM_WIDTH);
 
   @Test
   @DisplayName("Can parse border with named thickness")

@@ -14,13 +14,13 @@ import org.junit.jupiter.api.Test;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.OrderValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexDirectionValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexGrowValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
+import net.buildabrowser.babbrowser.cssbase.property.shared.LineStyleValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
@@ -284,7 +284,7 @@ public class FlexContentTest {
     setMany(childStyles, LengthValue.create(1, true, LengthType.PX),
       CSSProperty.BORDER_TOP_WIDTH, CSSProperty.BORDER_BOTTOM_WIDTH,
       CSSProperty.BORDER_LEFT_WIDTH, CSSProperty.BORDER_RIGHT_WIDTH);
-    setMany(childStyles, BorderStyleValue.SOLID,
+    setMany(childStyles, LineStyleValue.SOLID,
       CSSProperty.BORDER_TOP_STYLE, CSSProperty.BORDER_BOTTOM_STYLE,
       CSSProperty.BORDER_LEFT_STYLE, CSSProperty.BORDER_RIGHT_STYLE);
 

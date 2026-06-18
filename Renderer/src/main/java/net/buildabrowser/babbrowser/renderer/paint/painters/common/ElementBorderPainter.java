@@ -5,8 +5,8 @@ import java.util.function.Consumer;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
-import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue;
+import net.buildabrowser.babbrowser.cssbase.property.shared.LineStyleValue;
 import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.painter.core.Paint;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
@@ -53,7 +53,7 @@ public final class ElementBorderPainter {
       c -> paintHorizontalBorder(
         c, 0, 0,
         fragmentWidth, topBorderWidth,
-        (BorderStyleValue) topStyle));
+        (LineStyleValue) topStyle));
     
     // Bottom
     float bottomBorderY = fragmentHeight - bottomBorderWidth;
@@ -67,7 +67,7 @@ public final class ElementBorderPainter {
       c -> paintHorizontalBorder(
         c, 0, bottomBorderY,
         fragmentWidth, bottomBorderWidth,
-        (BorderStyleValue) bottomStyle));
+        (LineStyleValue) bottomStyle));
 
     // Left
     withBorderClipAndPaint(
@@ -80,7 +80,7 @@ public final class ElementBorderPainter {
       c -> paintVerticalBorder(
         c, 0, 0,
         fragmentHeight, leftBorderWidth,
-        (BorderStyleValue) leftStyle));
+        (LineStyleValue) leftStyle));
 
     // Right
     float rightBorderX = fragmentWidth - rightBorderWidth;
@@ -94,7 +94,7 @@ public final class ElementBorderPainter {
       c -> paintVerticalBorder(
         c, rightBorderX, 0,
         fragmentHeight, rightBorderWidth,
-        (BorderStyleValue) rightStyle));
+        (LineStyleValue) rightStyle));
   }
 
   // TODO: Need to respect styles
@@ -102,7 +102,7 @@ public final class ElementBorderPainter {
     PaintCanvas canvas,
     float x, float y,
     float run, float thickness,
-    BorderStyleValue borderStyle
+    LineStyleValue borderStyle
   ) {
     if (run <= 0 || thickness <= 0) return;
     canvas.drawBox(x, y, run, thickness);
@@ -112,7 +112,7 @@ public final class ElementBorderPainter {
     PaintCanvas canvas,
     float x, float y,
     float run, float thickness,
-    BorderStyleValue borderStyle
+    LineStyleValue borderStyle
   ) {
     canvas.drawBox(x, y, thickness, run);
   }

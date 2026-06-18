@@ -29,7 +29,6 @@ import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundSizePa
 import net.buildabrowser.babbrowser.cssbase.property.border.BorderColorParser;
 import net.buildabrowser.babbrowser.cssbase.property.border.BorderShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.border.BorderSideShorthandParser;
-import net.buildabrowser.babbrowser.cssbase.property.border.BorderSizeParser;
 import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleParser;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorBaseParser;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorParser;
@@ -53,10 +52,14 @@ import net.buildabrowser.babbrowser.cssbase.property.font.FontFamilyParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontSizeParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightParser;
+import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineColorParser;
+import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineShorthandParser;
+import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineStyleParser;
 import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowParser;
 import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionParser;
 import net.buildabrowser.babbrowser.cssbase.property.position.ZIndexParser;
+import net.buildabrowser.babbrowser.cssbase.property.shared.LineWidthParser;
 import net.buildabrowser.babbrowser.cssbase.property.shared.ManySideShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingParser;
 import net.buildabrowser.babbrowser.cssbase.property.size.SizeParser;
@@ -118,11 +121,11 @@ public final class DeclarationParser {
       new CSSProperty[] { CSSProperty.PADDING_TOP, CSSProperty.PADDING_RIGHT, CSSProperty.PADDING_BOTTOM, CSSProperty.PADDING_LEFT },
       CSSProperty.PADDING),
     
-    "border-top-width", new BorderSizeParser(CSSProperty.BORDER_TOP_WIDTH),
-    "border-bottom-width", new BorderSizeParser(CSSProperty.BORDER_BOTTOM_WIDTH),
-    "border-left-width", new BorderSizeParser(CSSProperty.BORDER_LEFT_WIDTH),
-    "border-right-width", new BorderSizeParser(CSSProperty.BORDER_RIGHT_WIDTH),
-    "border-width", new ManySideShorthandParser(new BorderSizeParser(null),
+    "border-top-width", new LineWidthParser(CSSProperty.BORDER_TOP_WIDTH),
+    "border-bottom-width", new LineWidthParser(CSSProperty.BORDER_BOTTOM_WIDTH),
+    "border-left-width", new LineWidthParser(CSSProperty.BORDER_LEFT_WIDTH),
+    "border-right-width", new LineWidthParser(CSSProperty.BORDER_RIGHT_WIDTH),
+    "border-width", new ManySideShorthandParser(new LineWidthParser(null),
       new CSSProperty[] { CSSProperty.BORDER_TOP_WIDTH, CSSProperty.BORDER_RIGHT_WIDTH, CSSProperty.BORDER_BOTTOM_WIDTH, CSSProperty.BORDER_LEFT_WIDTH },
       CSSProperty.BORDER_WIDTH),
 
@@ -155,6 +158,12 @@ public final class DeclarationParser {
     "margin", new ManySideShorthandParser(new SizeParser(false, true, null),
       new CSSProperty[] { CSSProperty.MARGIN_TOP, CSSProperty.MARGIN_RIGHT, CSSProperty.MARGIN_BOTTOM, CSSProperty.MARGIN_LEFT },
       CSSProperty.MARGIN),
+    
+    "outline-width", new LineWidthParser(CSSProperty.OUTLINE_WIDTH),
+    "outline-style", new OutlineStyleParser(),
+    "outline-color", new OutlineColorParser(),
+    "outline-offset", SizeParser.forOutline(CSSProperty.OUTLINE_OFFSET),
+    "outline", new OutlineShorthandParser(),
     
     "top", SizeParser.forInset(CSSProperty.TOP),
     "bottom", SizeParser.forInset(CSSProperty.BOTTOM),

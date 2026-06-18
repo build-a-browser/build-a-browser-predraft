@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.renderer.content.table.imp.border;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.border.BorderStyleValue;
+import net.buildabrowser.babbrowser.cssbase.property.shared.LineStyleValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.table.TableCell;
 import net.buildabrowser.babbrowser.renderer.content.table.TableComputedBorders;
@@ -13,14 +13,14 @@ import net.buildabrowser.babbrowser.renderer.content.table.TableComputedBorders.
 public class TableCollapsedBorderAssignerUtil {
 
   private static final List<CSSValue> BORDER_STYLE_ORDER = List.of(
-    BorderStyleValue.DOUBLE,
-    BorderStyleValue.SOLID,
-    BorderStyleValue.DASHED,
-    BorderStyleValue.DOTTED,
-    BorderStyleValue.RIDGE,
-    BorderStyleValue.OUTSET,
-    BorderStyleValue.GROOVE,
-    BorderStyleValue.INSET,
+    LineStyleValue.DOUBLE,
+    LineStyleValue.SOLID,
+    LineStyleValue.DASHED,
+    LineStyleValue.DOTTED,
+    LineStyleValue.RIDGE,
+    LineStyleValue.OUTSET,
+    LineStyleValue.GROOVE,
+    LineStyleValue.INSET,
     CSSValue.NONE
   );
   
@@ -51,12 +51,12 @@ public class TableCollapsedBorderAssignerUtil {
     ComputedBorder oldBorder, ComputedBorder currentBorder
   ) {
     if (
-      oldBorder.borderStyle().equals(BorderStyleValue.HIDDEN)
-      && !currentBorder.borderStyle().equals(BorderStyleValue.HIDDEN)
+      oldBorder.borderStyle().equals(LineStyleValue.HIDDEN)
+      && !currentBorder.borderStyle().equals(LineStyleValue.HIDDEN)
     ) return false;
     if (
-      !oldBorder.borderStyle().equals(BorderStyleValue.HIDDEN)
-      && currentBorder.borderStyle().equals(BorderStyleValue.HIDDEN)
+      !oldBorder.borderStyle().equals(LineStyleValue.HIDDEN)
+      && currentBorder.borderStyle().equals(LineStyleValue.HIDDEN)
     ) return true;
 
     if (

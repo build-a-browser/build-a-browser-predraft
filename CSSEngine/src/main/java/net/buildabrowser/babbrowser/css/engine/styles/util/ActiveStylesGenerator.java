@@ -69,7 +69,13 @@ public final class ActiveStylesGenerator {
       case CSSValue.SpecialCSSValue.INHERIT -> activeStyles.inheritProperty(declarationDetails.relatedProperty());
       case CSSValue.SpecialCSSValue.UNSET -> activeStyles.unsetProperty(declarationDetails.relatedProperty());
       case CSSValue.SpecialCSSValue.INVALID -> {}
-      default -> declarationDetails.updateProperty(declValue, activeStyles);
+      default -> {
+        // So that shorthand properties reset unspecified properties
+        if (declarationDetails.relatedProperty().hasExpansion()) {
+          activeStyles.useInitialProperty(declarationDetails.relatedProperty());
+        }
+        declarationDetails.updateProperty(declValue, activeStyles);
+      }
     }
   }
 
