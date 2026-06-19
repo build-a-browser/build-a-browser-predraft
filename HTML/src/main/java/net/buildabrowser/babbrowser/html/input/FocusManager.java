@@ -18,6 +18,9 @@ public interface FocusManager {
 
   void unfocus();
 
+  // TODO: Better way to do this...
+  void attachContext(FocusManagerContext context);
+
   static FocusManager create(Document document) {
     return new FocusManagerImp(document);
   }

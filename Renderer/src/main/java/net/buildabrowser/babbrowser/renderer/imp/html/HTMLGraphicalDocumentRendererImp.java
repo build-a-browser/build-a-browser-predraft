@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.renderer.imp;
+package net.buildabrowser.babbrowser.renderer.imp.html;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -31,19 +31,17 @@ import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxGenerator;
 import net.buildabrowser.babbrowser.renderer.box.DocumentBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.composite.CompositeEventsDispatcher;
-import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.context.ScriptingContext;
 import net.buildabrowser.babbrowser.renderer.context.imp.ElementContextImp;
-import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
-import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.image.ImageCache;
+import net.buildabrowser.babbrowser.renderer.imp.RenderCSSMatcherContext;
+import net.buildabrowser.babbrowser.renderer.imp.RenderDocumentChangeListener;
 import net.buildabrowser.babbrowser.renderer.layout.FontCache;
 import net.buildabrowser.babbrowser.renderer.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -53,16 +51,13 @@ import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContextGenerator;
 import net.buildabrowser.babbrowser.renderer.layout.Viewport;
 import net.buildabrowser.babbrowser.renderer.logging.PerfLogging;
-import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 import net.buildabrowser.babbrowser.renderer.style.StyleCache;
 import net.buildabrowser.babbrowser.renderer.style.StyleGenerator;
 
-public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRenderer, EventForwardingTarget {
+public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRenderer {
 
   // TODO: Allow specifying the FragmentFactory when instantiating the RenderingEngine instance
   private final FragmentFactory fragmentFactory = FragmentFactory.createDefault();
-  private final EventContext eventContext = EventContext.create();
-  private final Object frontLayerLock = new Object();
 
   private final HTMLDocument document;
   private final Navigable navigable;
@@ -76,11 +71,10 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private final DocumentChangeListener changeListener;
   private final ImageCache imageCache;
   private final SlotFamily<HTMLElement, ElementContext> elementContexts;
+  private final HTMLCompositeLayers compositeLayers;
+  private final HTMLEventForwardingTarget eventForwardingTarget;
 
   private volatile InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
-  private StackingContext frontLayerRegenContext;
-  private CompositeLayer rootLayerBack;
-  private CompositeLayer rootLayerFront;
   private LoadedFont rootFont;
 
   // TODO: Switch to AtomicInteger? Synchronize?
@@ -104,19 +98,24 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       new RenderCSSMatcherContext(elementContexts),
       uaStyleSheets, slotFamilyFamily);
     this.documentBox = DocumentBox.create(document);
+    this.compositeLayers = new HTMLCompositeLayers(painter);
+    this.eventForwardingTarget = new HTMLEventForwardingTarget(document, compositeLayers);
 
     FetchEngine fetchEngine = navigable.uaNavigableOptions().fetchEngine();
-
+    
     DocumentChangeListener innerChangeListener = new RenderDocumentChangeListener(
       cssMatcher.documentChangeListener(), elementContexts);
     innerChangeListener = new LinkDocumentChangeListener(
       fetchEngine, innerChangeListener);
+    innerChangeListener = new HTMLEventDocumentChangeListener(document, innerChangeListener);
     this.changeListener = new MetaDocumentChangeListener(innerChangeListener);
     
     this.scriptingContext = ScriptingContext.create(
       fetchEngine,
       document.browsingContext().realm().hostDefined());
     this.imageCache = ImageCache.create(scriptingContext, painter.resourceLoader());
+
+    document.focusManager().attachContext(new HTMLFocusManagerContext(elementContexts));
   }
 
   @Override
@@ -174,27 +173,15 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     boolean needsPaint = invalidationLevel.ordinal() <= InvalidationLevel.PAINT.ordinal();
     if (
       !needsPaint
-      || rootLayerBack == null
+      || documentBox.htmlBox() == null
       || width <= 0 || height <= 0
     ) return;
 
     long paintStartTime = System.currentTimeMillis();
-    VpIntersection vpIntersection = new VpIntersection(width, height);
-    rootLayerBack.repaint(vpIntersection);
-
+    
+    compositeLayers.updateRendering(width, height);
     documentBox.htmlBox().context().validate();
     this.invalidationLevel = InvalidationLevel.NONE;
-
-    synchronized (frontLayerLock) {
-      CompositeLayer oldFrontLayer = rootLayerFront;
-      rootLayerFront = rootLayerBack;
-      rootLayerBack = oldFrontLayer;
-    }
-
-    if (frontLayerRegenContext != null) {
-      this.rootLayerBack = frontLayerRegenContext.createLayer(painter);
-      this.frontLayerRegenContext = null;
-    }
     
     navigable.uaNavigableOptions().requestRepaint();
 
@@ -204,22 +191,13 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   @Override
   public void draw(PaintCanvas canvas) {
     long windowPaintStartTime = System.currentTimeMillis();
-    synchronized (frontLayerLock) {
-      if (
-        this.rootLayerFront == null
-        || this.width <= 0
-        || this.height <= 0
-      ) return;
-
-      canvas.withPaint(
-        p -> p.setColor(0xFFFFFFFF),
-        c -> c.drawBox(0, 0, width, height));
-      // TODO: What if the root layer is updating internally while painting? (sync)
-      VpIntersection vpIntersection = new VpIntersection(width, height);
-      canvas.saveTransform(
-        c -> rootLayerFront.draw(c, vpIntersection));
-    }
+    compositeLayers.draw(canvas, width, height);
     PerfLogging.logWindowPaintTime(windowPaintStartTime);
+  }
+
+  @Override
+  public EventForwardingTarget eventForwardingTarget() {
+    return this.eventForwardingTarget;
   }
 
   @Override
@@ -233,20 +211,6 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     this.forceRestyle = true;
     if (this.invalidationLevel.ordinal() > InvalidationLevel.LAYOUT.ordinal()) {
       this.invalidationLevel = InvalidationLevel.LAYOUT;
-    }
-  }
-
-  @Override
-  public void forwardEvent(RendererMouseEvent mouseEvent) {
-    synchronized (frontLayerLock) {
-      if (rootLayerFront == null) return;
-      // I'm not putting this on the event loop until the spec's dispatcher runs, because
-      // scroll bars need to remain responsive even while something like layout is running
-      // TODO: There *was* a race condition being caused by this, but I can't consistently
-      // reproduce it, so I can't debug it
-      CompositeEventsDispatcher.dispatchMouseEvent(
-        eventContext, rootLayerFront, mouseEvent,
-        mouseEvent.winX(), mouseEvent.winY());
     }
   }
 
@@ -322,8 +286,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       layoutAbsolute(deferredLayout, itemBox);
     }
     
-    this.rootLayerBack = rootBox.stackingContext().createLayer(painter);
-    this.frontLayerRegenContext = rootBox.stackingContext();
+    compositeLayers.regenerate(rootBox.stackingContext());
   }
 
   private GlobalLayoutContext createGlobalLayoutContext() {

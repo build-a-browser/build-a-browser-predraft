@@ -114,7 +114,6 @@ public class FlowFloatTest {
         new TextFragment(0, 0, 70, 10, " text is long!")))
     ));
     LayoutFragment actualMainFragment = layoutResult.rootFragment();
-    System.out.println(actualMainFragment);
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
 
     Assertions.assertEquals(80, layoutResult.flowFragment().width(Measurement.CONTENT));

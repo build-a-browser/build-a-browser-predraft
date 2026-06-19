@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.cssbase.selector;
 
-public record UniversalSelector() implements SelectorPart {
+public record UniversalSelector() implements SimpleSelector {
   
   private static UniversalSelector INSTANCE = new UniversalSelector();
 

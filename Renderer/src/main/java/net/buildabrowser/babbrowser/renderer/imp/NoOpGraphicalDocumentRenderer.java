@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
+import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
 
 public class NoOpGraphicalDocumentRenderer implements GraphicalDocumentRenderer {
 
@@ -28,6 +29,11 @@ public class NoOpGraphicalDocumentRenderer implements GraphicalDocumentRenderer 
 
   @Override
   public void draw(PaintCanvas context) {}
+
+  @Override
+  public EventForwardingTarget eventForwardingTarget() {
+    return new EventForwardingTarget() {};
+  }
 
   @Override
   public Optional<String> title() {

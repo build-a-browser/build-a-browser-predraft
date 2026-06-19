@@ -8,9 +8,8 @@ import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
-import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 
-public class DelegatingGraphicalDocumentRenderer implements GraphicalDocumentRenderer, EventForwardingTarget {
+public class DelegatingGraphicalDocumentRenderer implements GraphicalDocumentRenderer {
 
   private static final GraphicalDocumentRenderer NO_OP_RENDERER = new NoOpGraphicalDocumentRenderer();
 
@@ -66,11 +65,8 @@ public class DelegatingGraphicalDocumentRenderer implements GraphicalDocumentRen
   }
 
   @Override
-  public void forwardEvent(RendererMouseEvent mouseEvent) {
-    GraphicalDocumentRenderer activeRenderer = activeRenderer();
-    if (activeRenderer instanceof EventForwardingTarget target) {
-      target.forwardEvent(mouseEvent);
-    }
+  public EventForwardingTarget eventForwardingTarget() {
+    return activeRenderer().eventForwardingTarget();
   }
 
   @Override

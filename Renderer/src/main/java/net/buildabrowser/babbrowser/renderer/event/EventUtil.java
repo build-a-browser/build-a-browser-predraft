@@ -72,6 +72,23 @@ public final class EventUtil {
       case MOVE -> (PointerEvent) () -> "mousemove";
       default -> null;
     };
+    
+    return forwardElementEvent(event, element);
+  }
+
+  public static EventHandlerResponse forwardElementEvent(
+    RendererMouseEvent mouseEvent,
+    ManagedBoxFragment<?> fragment,
+    TextFragment textFragment,
+    float relX, float relY
+  ) {
+    // TODO: Handle things like text selection
+    return forwardElementEvent(mouseEvent, fragment, relX, relY);
+  }
+  
+  public static EventHandlerResponse forwardElementEvent(
+    Event event, Element element
+  ) {
     if (event == null) return EventHandlerResponse.UNHANDLED;
     // TODO: Will need replaced with a proper MouseEvent
     HTMLDocument document = (HTMLDocument) element.nodeDocument();
@@ -84,16 +101,6 @@ public final class EventUtil {
       });
 
     return EventHandlerResponse.PERFORM_DEFAULT;
-  }
-
-  public static EventHandlerResponse forwardElementEvent(
-    RendererMouseEvent mouseEvent,
-    ManagedBoxFragment<?> fragment,
-    TextFragment textFragment,
-    float relX, float relY
-  ) {
-    // TODO: Handle things like text selection
-    return forwardElementEvent(mouseEvent, fragment, relX, relY);
   }
 
 }

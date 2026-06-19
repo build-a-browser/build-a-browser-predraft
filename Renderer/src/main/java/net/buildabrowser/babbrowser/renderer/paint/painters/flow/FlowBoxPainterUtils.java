@@ -91,6 +91,8 @@ public final class FlowBoxPainterUtils {
     VpIntersection vpIntersection,
     BoxFragment<?> refFragment
   ) {
+    paintManagedBackground(canvas, fragment, vpIntersection);
+
     ElementBox parentBox = fragment.box();
     LayoutFragment curNode = fragment.fragments();
     while (curNode != null) {

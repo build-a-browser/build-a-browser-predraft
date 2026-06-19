@@ -7,6 +7,8 @@ import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.HTMLOrSVGOrMathMLElement;
 import net.buildabrowser.babbrowser.html.input.FocusManager;
+import net.buildabrowser.babbrowser.html.input.FocusManagerContext;
+import net.buildabrowser.babbrowser.html.input.FocusManagerContext.FocusIgnore;
 import net.buildabrowser.babbrowser.html.input.FocusOptions;
 
 public class FocusManagerImp implements FocusManager {
@@ -15,6 +17,7 @@ public class FocusManagerImp implements FocusManager {
 
   private Node focused;
   private FocusOptions focusOptions;
+  private FocusManagerContext focusManagerContext;
 
   public FocusManagerImp(Document document) {
     this.document = document;
@@ -32,8 +35,16 @@ public class FocusManagerImp implements FocusManager {
 
   @Override
   public void focus(Node node, FocusOptions focusOptions) {
+    Node oldFocused = this.focused;
     this.focused = node;
     this.focusOptions = focusOptions;
+
+    if (
+      focusManagerContext != null
+      && oldFocused != focused
+    ) {
+      focusManagerContext.onFocusChanged(oldFocused, focused);
+    }
   }
 
   @Override
@@ -41,7 +52,6 @@ public class FocusManagerImp implements FocusManager {
     FocusOptions focusOptions
   ) {
     List<HTMLOrSVGOrMathMLElement> focusOrder = determineFocusOrder();
-    System.out.println(focusOrder);
     if (focusOrder.isEmpty()) return;
     int elIndex = focused == null ? -1 : focusOrder.indexOf(focused);
     if (
@@ -72,18 +82,30 @@ public class FocusManagerImp implements FocusManager {
     this.focusOptions = null;
   }
 
+  @Override
+  public void attachContext(FocusManagerContext context) {
+    this.focusManagerContext = context;
+  }
+
   // TODO: For performance, create this once in advance, update when document is updated
   private List<HTMLOrSVGOrMathMLElement> determineFocusOrder() {
     Node currentNode = document;
     List<HTMLOrSVGOrMathMLElement> focusOrder = new ArrayList<>();
     while (currentNode != null) {
+      FocusIgnore focusIgnore = focusManagerContext == null ?
+        FocusIgnore.NONE :
+        focusManagerContext.getIgnore(currentNode);
       if (
         currentNode instanceof HTMLOrSVGOrMathMLElement element
         && (element.tabIndex() >= 0 || element == focused)
+        && focusIgnore.equals(FocusIgnore.NONE)
       ) {
         focusOrder.add(element);
       }
-      if (currentNode.firstChild() != null) {
+      if (
+        currentNode.firstChild() != null
+        && !focusIgnore.equals(FocusIgnore.TREE)
+      ) {
         currentNode = currentNode.firstChild();
         continue;
       }
@@ -98,6 +120,13 @@ public class FocusManagerImp implements FocusManager {
       }
     }
 
+    sortFocus(focusOrder);
+    return focusOrder;
+  }
+
+  private void sortFocus(
+    List<HTMLOrSVGOrMathMLElement> focusOrder
+  ) {
     focusOrder.sort((a, b) -> {
       Long aTabIndex = a.tabIndex();
       Long bTabIndex = b.tabIndex();
@@ -110,7 +139,6 @@ public class FocusManagerImp implements FocusManager {
         !isAHigh && isBHigh ? -1 :
         Long.compare(aTabIndex, bTabIndex);
     });
-    return focusOrder;
   }
   
 }

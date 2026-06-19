@@ -4,13 +4,12 @@ import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
-import net.buildabrowser.babbrowser.css.engine.matcher.simple.SimpleSelectorMatcher;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 
-public class RootSelectorMatcher implements SimpleSelectorMatcher<SimplePseudoSelector> {
+public class RootSelectorMatcher implements PseudoSelectorMatcher {
 
   private final ElementSet allElements;
   private final ElementSet matchingElements;

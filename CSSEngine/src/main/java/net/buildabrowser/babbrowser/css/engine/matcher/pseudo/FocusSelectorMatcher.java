@@ -1,7 +1,5 @@
 package net.buildabrowser.babbrowser.css.engine.matcher.pseudo;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
@@ -12,13 +10,13 @@ import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.events.Event;
 
-public class HoverSelectorMatcher implements PseudoSelectorMatcher {
+public class FocusSelectorMatcher implements PseudoSelectorMatcher {
 
   private final ElementSet allElements;
   private final ElementSet matchingElements;
   private final Consumer<SelectorPart> onSelectorChanged;
 
-  public HoverSelectorMatcher(
+  public FocusSelectorMatcher(
     ElementRootSet allElements,
     Consumer<SelectorPart> onSelectorChanged
   ) {
@@ -38,42 +36,44 @@ public class HoverSelectorMatcher implements PseudoSelectorMatcher {
     if (!(node instanceof Element element)) return;
     boolean changed = matchingElements.remove(element);
     if (changed) {
-      onSelectorChanged.accept(SimplePseudoSelector.HOVER);
+      onSelectorChanged.accept(SimplePseudoSelector.FOCUS);
     }
   }
 
   @Override
   public void onElementEvent(Element element, Event event) {
-    if (!event.type().equals("mousemove")) return;
-
-    List<Element> matchedElements = new ArrayList<>();
-    Node currentNode = element;
-    while (currentNode != null) {
-      if (currentNode instanceof Element matchedElement) {
-        matchedElements.add(matchedElement);
-      }
-      currentNode = currentNode.parentNode();
+    switch (event.type()) {
+      case "focus" -> handleFocusEvent(element);
+      case "blur" -> handleBlurEvent(element);
+      default -> {}
     }
+  }
 
+  private void handleFocusEvent(Element element) {
     boolean changed = false;
     for (Element oldElement: matchingElements) {
-      if (!matchedElements.contains(oldElement)) {
+      if (!oldElement.equals(element)) {
         changed |= matchingElements.remove(oldElement);
       }
     }
 
-    for (Element newElement: matchedElements) {
-      changed |= matchingElements.add(newElement);
-    }
+    changed |= matchingElements.add(element);
 
     if (changed) {
-      onSelectorChanged.accept(SimplePseudoSelector.HOVER);
+      onSelectorChanged.accept(SimplePseudoSelector.FOCUS);
+    }
+  }
+
+  private void handleBlurEvent(Element element) {
+    boolean changed = matchingElements.remove(element);
+    if (changed) {
+      onSelectorChanged.accept(SimplePseudoSelector.FOCUS);
     }
   }
 
   @Override
   public ElementSet match(SimplePseudoSelector selector) {
-    if (!(selector.equals(SimplePseudoSelector.HOVER))) {
+    if (!(selector.equals(SimplePseudoSelector.FOCUS))) {
       return allElements.root().createTemporaryChild();
     }
     return matchingElements;

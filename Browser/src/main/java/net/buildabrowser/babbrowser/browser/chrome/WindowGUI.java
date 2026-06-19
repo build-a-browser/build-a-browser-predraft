@@ -4,8 +4,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Collections;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -202,10 +204,18 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
       
     });
 
-    RendererMouseInputAdapter inputHandler = new RendererMouseInputAdapter(() -> activeRenderer());
-    panel.addMouseListener(inputHandler);
-    panel.addMouseMotionListener(inputHandler);
-    panel.addMouseWheelListener(inputHandler);
+    // TODO: Still allow focus to loop at start/end of document
+    panel.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, Collections.emptySet());
+    panel.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.emptySet());
+    panel.setFocusable(true);
+
+    RendererMouseInputAdapter mouseHandler = new RendererMouseInputAdapter(panel, () -> activeRenderer());
+    panel.addMouseListener(mouseHandler);
+    panel.addMouseMotionListener(mouseHandler);
+    panel.addMouseWheelListener(mouseHandler);
+
+    RendererKeyboardInputAdapter keyboardHandler = new RendererKeyboardInputAdapter(() -> activeRenderer());
+    panel.addKeyListener(keyboardHandler);
     
     GridBagConstraints renderedContentConstraints = new GridBagConstraints();
     renderedContentConstraints.fill = GridBagConstraints.BOTH;

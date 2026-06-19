@@ -14,6 +14,7 @@ import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
+import net.buildabrowser.babbrowser.css.engine.matcher.pseudo.PseudoSelectorMatchers;
 import net.buildabrowser.babbrowser.css.engine.matcher.simple.SimpleSelectorMatchers;
 import net.buildabrowser.babbrowser.css.engine.matcher.slot.ComplexSelectorSlot;
 import net.buildabrowser.babbrowser.css.engine.matcher.slot.MediaRuleSlot;
@@ -33,12 +34,14 @@ import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.NextSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
+import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.SimpleSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SubsequentSiblingCombinator;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.listener.AbstractDocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
+import net.buildabrowser.babbrowser.dom.listener.ForkedDocumentChangeListener;
 
 public class CSSMatcherImp implements CSSMatcher {
 
@@ -47,7 +50,8 @@ public class CSSMatcherImp implements CSSMatcher {
   private final ElementRootSet allElements;
   private final ElementSet changedElements;
   private final Set<SelectorPart> changedSelectors;
-  private final SimpleSelectorMatchers matchers;
+  private final SimpleSelectorMatchers simpleMatchers;
+  private final PseudoSelectorMatchers pseudoMatchers;
   private final CombinatorMatchers combinatorMatchers;
   
   private final CSSMatcherContext context;
@@ -65,7 +69,9 @@ public class CSSMatcherImp implements CSSMatcher {
     this.allElements = ElementSet.createRoot();
     this.changedElements = allElements.createChild();
     this.changedSelectors = new HashSet<>();
-    this.matchers = new SimpleSelectorMatchers(allElements, s -> changedSelectors.add(s));
+    this.simpleMatchers = new SimpleSelectorMatchers(allElements, s -> changedSelectors.add(s));
+    this.pseudoMatchers = new PseudoSelectorMatchers(
+      allElements, s -> changedSelectors.add(s), context);
     this.combinatorMatchers = new CombinatorMatchers(allElements);
     this.selectorSets = slotFamilyFamily.createSlotFamily(
       (_1, id) -> new ComplexSelectorSlot(allElements.root().createChild(), id));
@@ -86,17 +92,29 @@ public class CSSMatcherImp implements CSSMatcher {
 
   @Override
   public DocumentChangeListener documentChangeListener() {
-    return new AbstractDocumentChangeListener(matchers) {
+    return new ForkedDocumentChangeListener(
+      simpleMatchers, pseudoMatchers
+    ) {
       @Override
       public void onStylesheetAdded(CSSStyleSheet styleSheet) {
         CSSMatcherImp.this.onStylesheetAdded(styleSheet);
       }
 
+      @Override
       public void onNodeAdded(Node node) {
-        super.onNodeAdded(node);
         if (node instanceof Element element) {
+          allElements.add(element);
           changedElements.add(element);
         }
+        super.onNodeAdded(node);
+      }
+
+      @Override
+      public void onNodeRemoved(Node node) {
+        if (node instanceof Element element) {
+          allElements.remove(element);
+        }
+        super.onNodeAdded(node);
       }
     };
   }
@@ -131,8 +149,14 @@ public class CSSMatcherImp implements CSSMatcher {
   private void registerStyleRule(StyleRule styleRule) {
     for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
       for (SelectorPart selectorPart: complexSelector.parts()) {
-        if (selectorPart instanceof SimplePseudoElement) continue;
-        matchers.addSelectorReference(selectorPart);
+        switch (selectorPart) {
+          case SimpleSelector simpleSelector -> simpleMatchers.addSelectorReference(simpleSelector);
+          case SimplePseudoSelector simplePseudoSelector -> pseudoMatchers.addSelectorReference(simplePseudoSelector);
+          case SimplePseudoElement _1 -> {}
+          case Combinator _1 -> {}
+          default -> throw new UnsupportedOperationException(
+            "Unrecognized selector type: " + selectorPart);
+        }
       }
     }
   }
@@ -318,20 +342,30 @@ public class CSSMatcherImp implements CSSMatcher {
   private ElementSet matchElements(ComplexSelector complexSelector) {
     List<SelectorPart> parts = complexSelector.parts();
     if (parts.size() == 0) return null;
-    ElementSet currentMatched = matchers.match(parts.get(0)).copy();
+    ElementSet currentMatched = match(parts.get(0)).copy();
     for (int i = 1; i < parts.size(); i++) {
       SelectorPart part = parts.get(i);
       if (part instanceof Combinator combinator) {
-        ElementSet nextMatched = matchers.match(parts.get(++i));
+        ElementSet nextMatched = match(parts.get(++i));
         currentMatched = matchCombinator(combinator, currentMatched, nextMatched);
       } else if (part instanceof SimplePseudoElement) {
         if (i != parts.size() - 1) return null;
       } else {
-        currentMatched.intersect(matchers.match(part));
+        currentMatched.intersect(match(part));
       }
     }
 
     return currentMatched;
+  }
+
+  private ElementSet match(SelectorPart selectorPart) {
+    return switch (selectorPart) {
+      case SimpleSelector simpleSelector -> simpleMatchers.match(simpleSelector);
+      case SimplePseudoSelector simplePseudoSelector -> pseudoMatchers.match(simplePseudoSelector);
+      case SimplePseudoElement _1 -> allElements;
+      default -> throw new UnsupportedOperationException(
+        "Unrecognized selector type: " + selectorPart);
+    };
   }
 
   private ElementSet matchCombinator(Combinator combinator, ElementSet currentMatched, ElementSet nextMatched) {

@@ -3,7 +3,9 @@ package net.buildabrowser.babbrowser.renderer.imp;
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamily;
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher.CSSMatcherContext;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
+import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 
@@ -31,6 +33,13 @@ public class RenderCSSMatcherContext implements CSSMatcherContext {
       ElementContext elementContext = elementContexts.get(element);
       elementContext.onCSSRuleUnmatched(matchedRule);
     }
+  }
+
+  @Override
+  public boolean isFocusVisible(Element element) {
+    return
+      element.nodeDocument() instanceof HTMLDocument htmlDocument
+      && htmlDocument.focusManager().focusOptions().focusVisible;
   }
   
 }

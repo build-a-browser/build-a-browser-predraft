@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.media.MediaContext;
 import net.buildabrowser.babbrowser.dom.Document;
+import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
@@ -24,6 +25,10 @@ public interface CSSMatcher {
     void onMatched(Node node, WeightedStyleRule matchedRule);
 
     void onUnmatched(Node node, WeightedStyleRule matchedRule);
+
+    default boolean isFocusVisible(Element element) {
+      return false;
+    }
 
   }
 

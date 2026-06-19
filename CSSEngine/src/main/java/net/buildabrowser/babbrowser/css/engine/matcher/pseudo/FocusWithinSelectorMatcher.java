@@ -12,13 +12,13 @@ import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.events.Event;
 
-public class HoverSelectorMatcher implements PseudoSelectorMatcher {
+public class FocusWithinSelectorMatcher implements PseudoSelectorMatcher {
 
   private final ElementSet allElements;
   private final ElementSet matchingElements;
   private final Consumer<SelectorPart> onSelectorChanged;
 
-  public HoverSelectorMatcher(
+  public FocusWithinSelectorMatcher(
     ElementRootSet allElements,
     Consumer<SelectorPart> onSelectorChanged
   ) {
@@ -38,14 +38,20 @@ public class HoverSelectorMatcher implements PseudoSelectorMatcher {
     if (!(node instanceof Element element)) return;
     boolean changed = matchingElements.remove(element);
     if (changed) {
-      onSelectorChanged.accept(SimplePseudoSelector.HOVER);
+      onSelectorChanged.accept(SimplePseudoSelector.FOCUS_WITHIN);
     }
   }
 
   @Override
   public void onElementEvent(Element element, Event event) {
-    if (!event.type().equals("mousemove")) return;
+    switch (event.type()) {
+      case "focus" -> handleFocusEvent(element);
+      case "blur" -> handleBlurEvent();
+      default -> {}
+    }
+  }
 
+  private void handleFocusEvent(Element element) {
     List<Element> matchedElements = new ArrayList<>();
     Node currentNode = element;
     while (currentNode != null) {
@@ -67,13 +73,24 @@ public class HoverSelectorMatcher implements PseudoSelectorMatcher {
     }
 
     if (changed) {
-      onSelectorChanged.accept(SimplePseudoSelector.HOVER);
+      onSelectorChanged.accept(SimplePseudoSelector.FOCUS_WITHIN);
+    }
+  }
+
+  private void handleBlurEvent() {
+    boolean changed = false;
+    for (Element oldElement: matchingElements) {
+      changed |= matchingElements.remove(oldElement);
+    }
+
+    if (changed) {
+      onSelectorChanged.accept(SimplePseudoSelector.FOCUS_WITHIN);
     }
   }
 
   @Override
   public ElementSet match(SimplePseudoSelector selector) {
-    if (!(selector.equals(SimplePseudoSelector.HOVER))) {
+    if (!(selector.equals(SimplePseudoSelector.FOCUS_WITHIN))) {
       return allElements.root().createTemporaryChild();
     }
     return matchingElements;

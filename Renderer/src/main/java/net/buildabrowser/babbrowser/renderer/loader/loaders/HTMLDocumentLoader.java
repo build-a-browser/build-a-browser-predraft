@@ -15,7 +15,7 @@ import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
 import net.buildabrowser.babbrowser.painter.core.Painter;
-import net.buildabrowser.babbrowser.renderer.imp.HTMLGraphicalDocumentRendererImp;
+import net.buildabrowser.babbrowser.renderer.imp.html.HTMLGraphicalDocumentRendererImp;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoader;
 import net.buildabrowser.babbrowser.renderer.logging.PerfLogging;
 import net.buildabrowser.babbrowser.stream.ReadRequest;
