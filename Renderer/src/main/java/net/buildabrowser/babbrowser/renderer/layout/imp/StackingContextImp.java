@@ -49,13 +49,18 @@ public class StackingContextImp implements StackingContext {
   }
 
   @Override
-  public void addFragment(float posX, float posY, BoxFragment<?> fragment) {
+  public void positionFragment(
+    float posX, float posY,
+    BoxFragment<?> fragment,
+    ChildPositionFunc positionFunc
+  ) {
     if (this.entries != null && fragment instanceof ScrollBoxFragment) {
       throw new RuntimeException();
     }
 
     // Relative/Static layers are initially added with positions preserved since the fragment might be split
     // and each fragment has a different pos (and it is difficult to normalize ahead of time)
+    // TODO: This is really quite hacky
     if (
       this.entries == null &&
       (
@@ -65,9 +70,30 @@ public class StackingContextImp implements StackingContext {
       normalizedX = posX;
       normalizedY = posY;
     }
-        
+
+    float layerX = posX - normalizedX;
+    float layerY = posY - normalizedY;
+    fragment.setLayerPos(layerX, layerY);
     entries = IntrusiveList.add(entries, new CompositeLayerEntry(
-      posX - normalizedX, posY - normalizedY, fragment));
+      layerX, layerY, fragment));
+    positionFunc.position(layerX, layerY);
+  }
+
+  @Override
+  public void positionNormalizedFragment(
+    float posX, float posY,
+    BoxFragment<?> fragment,
+    ChildPositionFunc positionFunc
+  ) {
+    if (Float.isNaN(normalizedX)) {
+      normalizedX = 0;
+    }
+    if (Float.isNaN(normalizedY)) {
+      normalizedX = 0;
+    }
+    positionFragment(
+      normalizedX + posX, normalizedY + posY,
+      fragment, positionFunc);
   }
   
   @Override

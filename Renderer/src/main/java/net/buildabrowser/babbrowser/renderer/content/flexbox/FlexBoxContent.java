@@ -284,14 +284,16 @@ public class FlexBoxContent implements BoxContent {
       ElementBox childBox = childFragment.box();
       float childX = offsetX + childFragment.posX(Measurement.BORDER);
       float childY = offsetY + childFragment.posY(Measurement.BORDER);
+      
       if (childBox.stackingContext() != refContext) {
-        refContext = childBox.stackingContext();
-        refContext.addFragment(childX, childY, childFragment);
-        childX = 0;
-        childY = 0;
+        childBox.stackingContext().positionFragment(
+          childX, childY, childFragment,
+          childBox.content()::positionLayers);
+      } else {
+        childFragment.setLayerPos(layerX, layerY);
+        childBox.content().positionLayers(childX, childY);
       }
-      childFragment.setLayerPos(childX, childY);
-      childBox.content().positionLayers(childX, childY);
+
       childFragment = (UnmanagedBoxFragment<?>) childFragment.next();
     }
   }

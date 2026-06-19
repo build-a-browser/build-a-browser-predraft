@@ -25,7 +25,7 @@ public final class PaintUtil {
     if (
       fragment instanceof BoxFragment<?> boxFragment
       && !aabbFragmentVp(boxFragment, vpIntersection, measurement)
-    ) return;
+    ) {}//return;
 
     vpIntersection.enterEl(
       fragment.posX(measurement),

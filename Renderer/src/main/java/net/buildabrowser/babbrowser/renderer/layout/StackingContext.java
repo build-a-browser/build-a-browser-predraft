@@ -16,7 +16,19 @@ public interface StackingContext {
 
   float[] computeInsets();
 
-  void addFragment(float posX, float posY, BoxFragment<?> fragment);
+  void positionFragment(
+    float posX, float posY,
+    BoxFragment<?> fragment,
+    ChildPositionFunc positionFunc
+  );
+
+  // TODO: I don't really like this method, especially since it
+  // can be called before the normalized bounds are determined
+  void positionNormalizedFragment(
+    float posX, float posY,
+    BoxFragment<?> fragment,
+    ChildPositionFunc positionFunc
+  );
 
   CompositeLayer createLayer(Painter painter);
 
@@ -41,6 +53,12 @@ public interface StackingContext {
   static boolean startsStackingContext(LayoutFragment fragment, BoxFragment<?> refFragment) {
     if (!(fragment instanceof BoxFragment boxFragment)) return false;
     return boxFragment.box().stackingContext() != refFragment.box().stackingContext();
+  }
+
+  static interface ChildPositionFunc {
+  
+    void position(float layerX, float layerY);
+    
   }
 
 }

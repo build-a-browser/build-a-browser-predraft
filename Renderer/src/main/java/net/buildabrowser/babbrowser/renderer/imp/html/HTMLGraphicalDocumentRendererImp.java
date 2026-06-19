@@ -277,9 +277,9 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     fragment.setPos(0, 0);
 
     StackingContextGenerator.generateStackingContextsRoot(rootBox, deferredLayout);
-    rootBox.stackingContext().addFragment(0, 0, fragment);
-    fragment.setLayerPos(0, 0);
-    rootBox.content().positionLayers(0, 0);
+    rootBox.stackingContext().positionFragment(
+      0, 0, fragment,
+      rootBox.content()::positionLayers);
     
     while (!deferredLayout.isEmpty()) {
       ElementBox itemBox = deferredLayout.pop();
@@ -319,9 +319,9 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       insets, itemFragment, refWidth, refHeight);
     
     StackingContextGenerator.generateStackingContextsDeferred(itemBox, deferredLayout);
-    itemFragment.setLayerPos(position[0], position[1]);
-    itemBox.content().positionLayers(position[0], position[1]);
-    ownContext.addFragment(position[0], position[1], itemFragment);
+    ownContext.positionFragment(
+      position[0], position[1], itemFragment,
+      itemBox.content()::positionLayers);
   }
   
 }
