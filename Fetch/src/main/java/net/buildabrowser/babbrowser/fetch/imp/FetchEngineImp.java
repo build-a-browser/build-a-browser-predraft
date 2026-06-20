@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -31,6 +32,7 @@ import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchResponse;
 import net.buildabrowser.babbrowser.stream.ReadableByteStreamController;
 import net.buildabrowser.babbrowser.stream.ReadableStream;
 import net.buildabrowser.babbrowser.stream.ReadableStreamBYOBRequest;
+import net.buildabrowser.babbrowser.stream.ReadableStreamController;
 import net.buildabrowser.babbrowser.stream.ReadableStreamDefaultReader;
 import net.buildabrowser.babbrowser.stream.UnderlyingSource;
 import net.buildabrowser.babbrowser.stream.UnderlyingSource.ReadableStreamType;
@@ -237,34 +239,13 @@ public class FetchEngineImp implements FetchEngine {
       // TODO: The spec defines the stream as a pull source, but it's easier to implement as a push source for now
       // Come back to this later and correct it.
       fetchBackend.makeRequest(response, request, bytesOpt -> {
-        receivedResponse.complete(null);
-        ReadableByteStreamController bsController = (ReadableByteStreamController) controller;
-        if (!bytesOpt.isPresent()) {
-          bsController.close();
-          return;
-        }
-        ByteBuffer bytes = bytesOpt.get();
-
-        int readLen = 0;
-        if (bsController.byobRequest() != null) {
-          ReadableStreamBYOBRequest byobRequest = bsController.byobRequest();
-          ByteBuffer view = byobRequest.view();
-          readLen = Math.min(bytes.remaining(), view.remaining());
-          view.put(slice(bytes, bytes.position(), readLen));
-          ((Buffer) view).flip();
-          ((Buffer) bytes).position(bytes.position() + readLen);
-          bsController.byobRequest().respond(readLen);
-        }
-
-        if (bytes.remaining() > 0) {
-          bsController.enqueue(slice(bytes, bytes.position(), bytes.remaining()));
-          ((Buffer) bytes).position(bytes.limit());
-        }
-
-        if (pullPromise.item != null) {
-          pullPromise.item.complete(null);
-          pullPromise.item = null;
-        }
+        // Avoid race conditions from parallel execution
+        // TODO: Is this fine to move to the fetch task queue?
+        // Since the surrounding code is running in parallel, the CompletableFuture is not a problem
+        // But I don't know if the buffer we have at this point is one that could be overwritten by HttpClient
+        // if there was no decompression processing
+        fetchParams.taskDestination().queueFetchTask(
+          () -> queueChunkToStream(receivedResponse, pullPromise, controller, bytesOpt));
       });
 
       return null;
@@ -281,6 +262,42 @@ public class FetchEngineImp implements FetchEngine {
     CommonUtil.rethrowV(() -> receivedResponse.get());
 
     return response;
+  }
+
+  private void queueChunkToStream(
+    CompletableFuture<Void> receivedResponse,
+    FutureHolder pullPromise,
+    ReadableStreamController controller,
+    Optional<ByteBuffer> bytesOpt
+  ) {
+    receivedResponse.complete(null);
+    ReadableByteStreamController bsController = (ReadableByteStreamController) controller;
+    if (!bytesOpt.isPresent()) {
+      bsController.close();
+      return;
+    }
+    ByteBuffer bytes = bytesOpt.get();
+
+    int readLen = 0;
+    if (bsController.byobRequest() != null) {
+      ReadableStreamBYOBRequest byobRequest = bsController.byobRequest();
+      ByteBuffer view = byobRequest.view();
+      readLen = Math.min(bytes.remaining(), view.remaining());
+      view.put(slice(bytes, bytes.position(), readLen));
+      ((Buffer) view).flip();
+      ((Buffer) bytes).position(bytes.position() + readLen);
+      bsController.byobRequest().respond(readLen);
+    }
+
+    if (bytes.remaining() > 0) {
+      bsController.enqueue(slice(bytes, bytes.position(), bytes.remaining()));
+      ((Buffer) bytes).position(bytes.limit());
+    }
+
+    if (pullPromise.item != null) {
+      pullPromise.item.complete(null);
+      pullPromise.item = null;
+    }
   }
 
   private void fetchResponseHandover(FetchParams fetchParams, FetchResponse response) {

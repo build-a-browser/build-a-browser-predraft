@@ -72,7 +72,9 @@ public enum CSSProperty {
   
   BOX_SIZING(nextId(), false, BoxSizingValue.CONTENT_BOX),
   DISPLAY(nextId(), false, InvalidationLevel.BOX, DisplayValue.create(OuterDisplayValue.INLINE, InnerDisplayValue.FLOW)),
-  FLOAT(nextId(), false, CSSValue.NONE),
+  // Float is BOX because it affects the BoxContent-sharing policy, which is determined at box-time
+  // TODO: Maybe rewrite it so it can invalidate at LAYOUT level
+  FLOAT(nextId(), false, InvalidationLevel.BOX, CSSValue.NONE),
   CLEAR(nextId(), false, CSSValue.NONE),
   WHITE_SPACE_COLLAPSE(nextId(), true, WhitespaceCollapseValue.COLLAPSE),
   TEXT_WRAP_MODE(nextId(), true, TextWrapModeValue.WRAP),
