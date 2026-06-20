@@ -18,6 +18,7 @@ import net.buildabrowser.babbrowser.renderer.content.table.imp.border.TableColla
 import net.buildabrowser.babbrowser.renderer.content.table.imp.border.TableSeparateBorderAssigner;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.table.TableBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
@@ -60,11 +61,13 @@ public class TableContent implements BoxContent {
     TableBorderAssignment borderAssignment = assignBorders(widthConstraint);
 
     if (table.width() == 0) {
-      return fragmentFactory.createTableBoxFragment(
+      TableBoxFragment tableFragment = fragmentFactory.createTableBoxFragment(
         LayoutUtil.constraintOrDim(widthConstraint, 0),
         LayoutUtil.constraintOrDim(heightConstraint, 0),
         0, 0,
         rootBox, table, borderAssignment);
+      rootBox.updatePositioningFragment(tableFragment);
+      return tableFragment;
     }
 
     // TODO: Need to merge unspecified columns with only spans
@@ -105,11 +108,13 @@ public class TableContent implements BoxContent {
 
     positionTracksAndTrackGroups(table, inkWidth, totalHeight);
 
-    return fragmentFactory.createTableBoxFragment(
+    TableBoxFragment tableFragment = fragmentFactory.createTableBoxFragment(
       LayoutUtil.constraintOrDim(usedConstraint, gridMax),
       LayoutUtil.constraintOrDim(heightConstraint, totalHeight),
       inkWidth, totalHeight,
       rootBox, table, borderAssignment);
+    rootBox.updatePositioningFragment(tableFragment);
+    return tableFragment;
   }
 
   @Override
@@ -117,9 +122,12 @@ public class TableContent implements BoxContent {
     return this.rootBox;
   }
 
+  // TODO: Also need to handle things out of flow
   @Override
   public void positionLayers(float layerX, float layerY) {
-    // TODO: Implement this
+    TablePositioner.positionLayers(
+      layerX, layerY,
+      (TableBoxFragment) rootBox.positioningFragment());
   }
 
   private TableBorderAssignment assignBorders(LayoutConstraint widthConstraint) {
