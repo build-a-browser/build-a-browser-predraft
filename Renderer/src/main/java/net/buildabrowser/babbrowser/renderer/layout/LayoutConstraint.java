@@ -9,6 +9,7 @@ public record LayoutConstraint(LayoutConstraintType type, float value) implement
   public static final LayoutConstraint AUTO = new LayoutConstraint(LayoutConstraintType.AUTO, -1);
 
   public static LayoutConstraint of(float value) {
+    assert !Float.isNaN(value);
     return new LayoutConstraint(LayoutConstraintType.BOUNDED, value);
   }
 

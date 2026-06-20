@@ -51,6 +51,7 @@ public class TableColumnImp implements TableColumn {
 
   @Override
   public void setUsedWidth(float usedWidth) {
+    assert !Float.isNaN(usedWidth);
     this.usedWidth = usedWidth;
   }
 
@@ -171,9 +172,10 @@ public class TableColumnImp implements TableColumn {
     }
 
     if (Float.isNaN(this.maxWidths[colSpan - 1])) {
-      return this.maxWidths[colSpan - 1] = colSpan > 1 ?
+      float res = this.maxWidths[colSpan - 1] = colSpan > 1 ?
         maxContentWidthSpan(colSpan) :
         maxContentWidthSingle();
+      return res;
     }
     
     return this.maxWidths[colSpan - 1];

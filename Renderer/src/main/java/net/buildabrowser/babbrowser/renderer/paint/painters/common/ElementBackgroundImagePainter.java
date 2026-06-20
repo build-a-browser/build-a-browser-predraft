@@ -162,7 +162,8 @@ public class ElementBackgroundImagePainter {
         imgX_, imgY_,
         imgW_, imgH_,
         vpIntersection.vpWidth(), vpIntersection.vpHeight(),
-        vpIntersection.elVpX(), vpIntersection.elVpY(),
+        vpIntersection.bufferVpX() + fragment.layerX(Measurement.BORDER),
+        vpIntersection.bufferVpY() + fragment.layerY(Measurement.BORDER),
         fragmentWidth, fragmentHeight));
     } else {
       drawRepeatingImage(

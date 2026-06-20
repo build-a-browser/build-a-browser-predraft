@@ -101,8 +101,8 @@ public class CompositeLayerImp implements CompositeLayer {
     int overscrollWidth = Math.min(backingWidth, vpIntersection.vpWidth() * OVERSCROLL_FACTOR);
     int overscrollHeight = Math.min(backingHeight, vpIntersection.vpHeight() * OVERSCROLL_FACTOR);
     
-    int xPast = Math.max(0, -vpIntersection.elVpX());
-    int yPast = Math.max(0, -vpIntersection.elVpY());
+    int xPast = Math.max(0, -vpIntersection.bufferVpX());
+    int yPast = Math.max(0, -vpIntersection.bufferVpY());
     
     int overscrollXUnclamped = xPast - Math.max(0, (overscrollWidth - vpIntersection.vpWidth()) / 2);
     int overscrollYUnclamped = yPast - Math.max(0, (overscrollHeight - vpIntersection.vpHeight()) / 2);
@@ -110,8 +110,8 @@ public class CompositeLayerImp implements CompositeLayer {
     int overscrollX = mathClamp(overscrollXUnclamped, 0, backingWidth - overscrollWidth);
     int overscrollY = mathClamp(overscrollYUnclamped, 0, backingHeight - overscrollHeight);
     
-    float vpOverscrollX = vpIntersection.elVpX() + overscrollX;
-    float vpOverscrollY = vpIntersection.elVpY() + overscrollY;
+    float vpOverscrollX = vpIntersection.bufferVpX() + overscrollX;
+    float vpOverscrollY = vpIntersection.bufferVpY() + overscrollY;
 
     int nearbyViewportWidth = vpIntersection.vpWidth() * OVERSCROLL_FACTOR;
     int nearbyViewportHeight = vpIntersection.vpHeight() * OVERSCROLL_FACTOR;
@@ -128,15 +128,15 @@ public class CompositeLayerImp implements CompositeLayer {
     }
 
     vpIntersection.enterBuffer(
-      vpOverscrollX, vpOverscrollY,
+      overscrollX, overscrollY,
       overscrollWidth, overscrollHeight,
-      vpi -> makeBackingImage(vpi, overscrollWidth, overscrollHeight, overscrollX, overscrollY));
+      vpi -> makeBackingImage(vpi, overscrollX, overscrollY, overscrollWidth, overscrollHeight));
   }
 
   private void makeBackingImage(
     VpIntersection vpIntersection,
-    int overscrollWidth, int overscrollHeight,
-    int overscrollX, int overscrollY
+    int overscrollX, int overscrollY,
+    int overscrollWidth, int overscrollHeight
   ) {
     this.backingImage = backingPainter.createPaintBitMap(
       // TODO: Hack for it to work when content is above layer start (e.g. negative margin)
@@ -304,13 +304,11 @@ public class CompositeLayerImp implements CompositeLayer {
 
       BoxFragment<?> fragment = currentEntry.fragment();
       
-      vpIntersection.enterOffset(
-        currentEntry.offsetX(), currentEntry.offsetY(), 0, 0,
-        vpi -> canvas.withTransform(
-          t -> t.translate(currentEntry.offsetX(), currentEntry.offsetY()),
-          // TODO: While canvas and _1 are the same right now, this may need refactored in the future
-          _1 -> func.accept(fragment, vpi)
-        ));
+      canvas.withTransform(
+        t -> t.translate(currentEntry.offsetX(), currentEntry.offsetY()),
+        // TODO: While canvas and _1 are the same right now, this may need refactored in the future
+        _1 -> func.accept(fragment, vpIntersection)
+      );
     }
   }
 

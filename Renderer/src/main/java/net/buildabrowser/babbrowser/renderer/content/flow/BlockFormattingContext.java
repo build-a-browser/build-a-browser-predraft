@@ -76,6 +76,8 @@ public class BlockFormattingContext {
   }
 
   public void minWidth(float minWidth, float inkWidth) {
+    assert !Float.isNaN(minWidth);
+    assert !Float.isNaN(inkWidth);
     this.width = Math.max(width, minWidth);
     this.inkWidth = Math.max(this.inkWidth, inkWidth);
   }
@@ -159,6 +161,8 @@ public class BlockFormattingContext {
       heightConstraint.isBounded() ? LayoutConstraint.AUTO : heightConstraint,
       elementBox, LayoutConstraint.of(preclampHeight)).value();
 
+    assert !Float.isNaN(inkWidth);
+    assert !Float.isNaN(contributionW);
     FragmentFactory fragmentFactory = elementBox.layoutContext().global().fragmentFactory();
     return fragmentFactory.createFlowBlockBoxFragment(
       usedWidth, usedHeight,

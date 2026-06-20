@@ -101,7 +101,9 @@ public class TableCellImp implements TableCell {
       0, baselineDiff);
     float colBaselineProduct = colBaselineRatio * colBaselineMul;
 
-    float maxColBaselineRatio = prevMaxContent / baselineMaxContentWidth;
+    float maxColBaselineRatio = baselineMaxContentWidth == 0 ?
+      1f / width : // TODO: The spec doesn't have this fallback, but it was breaking when the baseline was 0
+      prevMaxContent / baselineMaxContentWidth;
     float minMaxDiff = Math.max(
       // But should this *really* be baselineMaxContentWidth? And not min
       outerMinContentWidth() - baselineMaxContentWidth - baselineBorderSpacing, 0);
@@ -118,7 +120,9 @@ public class TableCellImp implements TableCell {
     TableColumn column = table.column(colNum);
     float prevMaxContent = column.maxContentWidth(width - 1);
 
-    float colBaselineRatio = prevMaxContent / baselineMaxContentWidth;
+    float colBaselineRatio = baselineMaxContentWidth == 0 ?
+      1f / width : // TODO: The spec doesn't have this fallback, but it was breaking when the baseline was 0
+      prevMaxContent / baselineMaxContentWidth;
     float maxContentDiff = Math.max(
       outerMaxContentWidth() - baselineMaxContentWidth - baselineBorderSpacing, 0);
     float colBaselineProduct = colBaselineRatio * maxContentDiff;

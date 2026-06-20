@@ -27,23 +27,20 @@ public final class PaintUtil {
       && !aabbFragmentVp(boxFragment, vpIntersection, measurement)
     ) return;
 
-    vpIntersection.enterEl(
-      fragment.posX(measurement),
-      fragment.posY(measurement),
-      vpi -> func.paint(fragment, canvas, vpi));
+    func.paint(fragment, canvas, vpIntersection);
   }
 
   // TODO: Use width instead of inkWidth for clipped elements
   private static boolean aabbFragmentVp(
     BoxFragment<?> fragment, VpIntersection vpIntersection, Measurement measurement
   ) {
-    float elPosX = vpIntersection.elVpX() + fragment.posX(measurement);
-    float elPosY = vpIntersection.elVpY() + fragment.posY(measurement);
+    float elPosX = fragment.layerX(measurement);
+    float elPosY = fragment.layerY(measurement);
     return
-      elPosX < vpIntersection.bufferX() + vpIntersection.bufferWidth()
-      && vpIntersection.bufferX() < elPosX + fragment.inkWidth(measurement)
-      && elPosY < vpIntersection.bufferY() + vpIntersection.bufferHeight()
-      && vpIntersection.bufferY() < elPosY + fragment.inkHeight(measurement);
+      elPosX <= vpIntersection.bufferX() + vpIntersection.bufferWidth()
+      && vpIntersection.bufferX() <= elPosX + fragment.inkWidth(measurement)
+      && elPosY <= vpIntersection.bufferY() + vpIntersection.bufferHeight()
+      && vpIntersection.bufferY() <= elPosY + fragment.inkHeight(measurement);
   }
 
   public static interface FragmentPaintFunc<T extends LayoutFragment> {

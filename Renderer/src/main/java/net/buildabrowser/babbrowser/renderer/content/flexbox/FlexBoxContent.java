@@ -290,7 +290,7 @@ public class FlexBoxContent implements BoxContent {
           childX, childY, childFragment,
           childBox.content()::positionLayers);
       } else {
-        childFragment.setLayerPos(layerX, layerY);
+        childFragment.setLayerPos(childX, childY);
         childBox.content().positionLayers(childX, childY);
       }
 
