@@ -26,4 +26,8 @@ public interface BoxContent {
     return false;
   }
 
+  default boolean hasCustomContent() {
+    return false;
+  }
+
 }

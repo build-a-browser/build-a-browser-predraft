@@ -50,7 +50,7 @@ public final class FlowUtil {
   public static boolean isInFlow(ElementBox elementBox) {
     return
       PropertiesUtil.innerDisplayValue(elementBox.properties()).equals(InnerDisplayValue.FLOW)
-      && !elementBox.isReplaced()
+      && !(elementBox.isReplaced() || elementBox.hasCustomContent())
       && PositionUtil.affectsLayout(elementBox)
       && !CompositeLayerUtil.hasScrollContent(elementBox);
   }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.content.input.InputTypeContent;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.renderer.content.table.Table;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.border.TableBorderAssignment;
@@ -12,6 +13,7 @@ import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowBlockBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowInlineBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowRootBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.image.ImageBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.input.BaseInputFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.table.TableBoxFragment;
 
@@ -55,6 +57,13 @@ public interface FragmentFactory {
     float inkWidth, float inkHeight,
     ElementBox box,
     LoadedImage image, String altText
+  );
+
+  BaseInputFragment<?> createInputBoxFragment(
+    float width, float height,
+    float inkWidth, float inkHeight,
+    ElementBox box,
+    InputTypeContent content
   );
 
   ScrollBoxFragment createScrollBoxFragment(

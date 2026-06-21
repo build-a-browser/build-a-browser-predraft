@@ -66,6 +66,10 @@ public interface ElementBox extends Box {
   default boolean isReplaced() {
     return content().isReplaced();
   }
+
+  default boolean hasCustomContent() {
+    return isReplaced() || content().hasCustomContent();
+  }
  
   public static ElementBox create(
     ElementContext context,

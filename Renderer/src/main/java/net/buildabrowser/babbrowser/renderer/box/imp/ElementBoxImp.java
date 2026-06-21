@@ -15,6 +15,7 @@ import net.buildabrowser.babbrowser.renderer.content.ReEntrantContent;
 import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexBoxContent;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.renderer.content.image.ImageContent;
+import net.buildabrowser.babbrowser.renderer.content.input.InputContent;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.renderer.content.table.TableContent;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
@@ -98,8 +99,14 @@ public class ElementBoxImp extends AbstractElementBoxImp {
   }
 
   private BoxContent createContent(InnerDisplayValue innerDisplay) {
-    if (element().name().equals("img")) {
-      return new ImageContent(this);
+    BoxContent elementContent = switch (element().name()) {
+      case "img" -> new ImageContent(this);
+      case "input" -> new InputContent(this);
+      default -> null;
+    };
+
+    if (elementContent != null) {
+      return elementContent;
     }
   
     return switch (innerDisplay) {
@@ -114,12 +121,15 @@ public class ElementBoxImp extends AbstractElementBoxImp {
     return
       positioning.equals(PositionValue.STATIC)
       && !CompositeLayerUtil.hasScrollContent(this)
-      && !wouldBeReplaced()
+      && !typeAlwaysRoot()
       && !(parentBox() instanceof ScrollBox);
   }
 
-  private boolean wouldBeReplaced() {
-    return element().name().equals("img");
+  private boolean typeAlwaysRoot() {
+    return switch (element().name()) {
+      case "img", "input" -> true;
+      default -> false;
+    };
   }
   
 }

@@ -19,6 +19,10 @@ button {
   text-align: center;
 }
 
+input {
+  border: 1px solid black;
+}
+
 b {
   font-weight: bold;
 }
