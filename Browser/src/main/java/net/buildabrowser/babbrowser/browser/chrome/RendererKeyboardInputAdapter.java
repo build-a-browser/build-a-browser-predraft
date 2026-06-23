@@ -19,6 +19,7 @@ public class RendererKeyboardInputAdapter implements KeyListener {
 
   @Override
   public void keyTyped(KeyEvent e) {
+    if (Character.isISOControl(e.getKeyChar())) return;
     fireKeyEvent(KeyboardEventType.KEY_PRESS, e);
   }
 
@@ -41,6 +42,7 @@ public class RendererKeyboardInputAdapter implements KeyListener {
   }
 
   // TODO: More mappings, use physical keys
+  // TODO: Repeat backspace event
   private RendererKeyboardEvent remapEvent(
     KeyboardEventType type, KeyEvent e
   ) {
@@ -48,6 +50,17 @@ public class RendererKeyboardInputAdapter implements KeyListener {
       case KeyEvent.VK_TAB -> RendererKeyboardEvent.KEY_TAB;
       case KeyEvent.VK_ENTER -> RendererKeyboardEvent.KEY_ENTER;
       case KeyEvent.VK_SPACE -> RendererKeyboardEvent.KEY_SPACE;
+      case KeyEvent.VK_BACK_SPACE -> RendererKeyboardEvent.KEY_BACKSPACE;
+      case KeyEvent.VK_LEFT -> RendererKeyboardEvent.KEY_LEFT_ARROW;
+      case KeyEvent.VK_RIGHT -> RendererKeyboardEvent.KEY_RIGHT_ARROW;
+      case KeyEvent.VK_UP -> RendererKeyboardEvent.KEY_UP_ARROW;
+      case KeyEvent.VK_DOWN -> RendererKeyboardEvent.KEY_DOWN_ARROW;
+      case KeyEvent.VK_HOME -> RendererKeyboardEvent.KEY_HOME;
+      case KeyEvent.VK_END -> RendererKeyboardEvent.KEY_END;
+      case KeyEvent.VK_DELETE -> RendererKeyboardEvent.KEY_DELETE;
+      case KeyEvent.VK_INSERT -> RendererKeyboardEvent.KEY_INSERT;
+      case KeyEvent.VK_PAGE_UP -> RendererKeyboardEvent.KEY_PAGE_UP;
+      case KeyEvent.VK_PAGE_DOWN -> RendererKeyboardEvent.KEY_PAGE_DOWN;
       default -> RendererKeyboardEvent.KEY_UNIDENTIFIED;
     };
 
@@ -58,8 +71,12 @@ public class RendererKeyboardInputAdapter implements KeyListener {
       + (e.isShiftDown() ? RendererKeyboardEvent.MODIFIER_SHIFT : 0));
     // TODO: Check repeat
 
-    // TODO: Key name
-    return new RendererKeyboardEvent("", keyCode, e.getKeyCode(), modifiers, type);
+    // TODO: Use the proper name for non-char characters
+    char keyChar = e.getKeyChar();
+    String keyName = keyChar == KeyEvent.CHAR_UNDEFINED ?
+      "" :
+      Character.toString(keyChar);
+    return new RendererKeyboardEvent(keyName, keyCode, e.getKeyCode(), modifiers, type);
   }
   
 }

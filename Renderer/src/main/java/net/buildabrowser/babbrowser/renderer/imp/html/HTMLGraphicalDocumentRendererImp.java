@@ -17,8 +17,7 @@ import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
-import net.buildabrowser.babbrowser.html.link.LinkDocumentChangeListener;
-import net.buildabrowser.babbrowser.html.misc.MetaDocumentChangeListener;
+import net.buildabrowser.babbrowser.html.misc.ElementDocumentChangeListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.painter.core.FontLoader;
 import net.buildabrowser.babbrowser.painter.core.FontLoader.FontOptions;
@@ -99,16 +98,16 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       uaStyleSheets, slotFamilyFamily);
     this.documentBox = DocumentBox.create(document);
     this.compositeLayers = new HTMLCompositeLayers(painter);
-    this.eventForwardingTarget = new HTMLEventForwardingTarget(document, compositeLayers);
+    this.eventForwardingTarget = new HTMLEventForwardingTarget(
+      document, compositeLayers, elementContexts);
 
     FetchEngine fetchEngine = navigable.uaNavigableOptions().fetchEngine();
     
     DocumentChangeListener innerChangeListener = new RenderDocumentChangeListener(
       cssMatcher.documentChangeListener(), elementContexts);
-    innerChangeListener = new LinkDocumentChangeListener(
+    innerChangeListener = new ElementDocumentChangeListener(
       fetchEngine, innerChangeListener);
-    innerChangeListener = new HTMLEventDocumentChangeListener(document, innerChangeListener);
-    this.changeListener = new MetaDocumentChangeListener(innerChangeListener);
+    this.changeListener = new HTMLEventDocumentChangeListener(document, innerChangeListener);
     
     this.scriptingContext = ScriptingContext.create(
       fetchEngine,

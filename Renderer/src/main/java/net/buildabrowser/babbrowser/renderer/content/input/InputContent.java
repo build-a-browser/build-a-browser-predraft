@@ -2,9 +2,11 @@ package net.buildabrowser.babbrowser.renderer.content.input;
 
 import java.util.Objects;
 
+import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.input.text.TextTypeContent;
+import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
@@ -25,7 +27,6 @@ public class InputContent implements BoxContent {
 
   @Override
   public void computeIntrinsics() {
-    System.out.println("Intrinsics");
     innerContent().computeIntrinsics();
   }
 
@@ -36,13 +37,19 @@ public class InputContent implements BoxContent {
 
   @Override
   public UnmanagedBoxFragment<?> layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
-    System.out.println("Layout");
     return innerContent().layout(widthConstraint, heightConstraint);
   }
 
   @Override
   public void positionLayers(float layerX, float layerY) {
     innerContent().positionLayers(layerX, layerY);
+  }
+
+  @Override
+  public <T extends BoxContent> EventHandlerResponse withFocusEventHandler(
+    FocusEventHandlerFunc<T> withHandlerFunc
+  ) {
+    return innerContent().withFocusEventHandler(withHandlerFunc);
   }
 
   @Override
@@ -64,21 +71,23 @@ public class InputContent implements BoxContent {
   // in the same layout cycle
   // Because layout should never occur at the same time as another task that can
   // change attributes
-  private InputTypeContent innerContent() {
-    String currentType = rootBox.element().getAttribute("type");
-    if (
-      inputContent != null
-      && Objects.equals(lastType, currentType)
-    ) return inputContent;
-
+  @SuppressWarnings("unchecked")
+  public <T extends InputTypeContent> T innerContent() {
+    String currentType = ((HTMLInputElement) rootBox.element()).type();
     if (currentType == null) {
       currentType = "text";
     }
 
-    return inputContent = switch (currentType) {
+    if (
+      inputContent != null
+      && Objects.equals(lastType, currentType)
+    ) return (T) inputContent;
+
+    lastType = currentType;
+    return (T) (inputContent = switch (currentType) {
       case "text" -> new TextTypeContent(rootBox);
       default -> new TextTypeContent(rootBox);
-    };
+    });
   }
   
 }

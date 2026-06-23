@@ -34,7 +34,7 @@ public class SkijaLoadedFont implements LoadedFont {
     Canvas canvas, Paint rawPaint
   ) {
     if (rawFonts.length == 0) {
-      throw new IllegalStateException("Attempt to draw text, but not font was set!");
+      throw new IllegalStateException("Attempt to draw text, but no font was set!");
     }
     if (text.isEmpty()) return;
     

@@ -1,15 +1,19 @@
 package net.buildabrowser.babbrowser.renderer.imp.html;
 
+import net.buildabrowser.babbrowser.common.datastruct.SlotFamily;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.algo.ActivationTarget;
 import net.buildabrowser.babbrowser.dom.events.EventDispatcher;
 import net.buildabrowser.babbrowser.dom.events.PointerEvent;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.input.FocusManager;
 import net.buildabrowser.babbrowser.html.input.FocusOptions;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeEventsDispatcher;
+import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
+import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererKeyboardEvent;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererKeyboardEvent.KeyboardEventType;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
@@ -17,15 +21,19 @@ import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 public class HTMLEventForwardingTarget implements EventForwardingTarget {
   
   private final EventContext eventContext = EventContext.create();
+
   private final HTMLCompositeLayers compositeLayers;
   private final FocusManager focusManager;
+  private final SlotFamily<HTMLElement, ElementContext> elementContexts;
 
   public HTMLEventForwardingTarget(
     HTMLDocument document,
-    HTMLCompositeLayers compositeLayers
+    HTMLCompositeLayers compositeLayers,
+    SlotFamily<HTMLElement, ElementContext> elementContexts
   ) {
     this.compositeLayers = compositeLayers;
     this.focusManager = document.focusManager();
+    this.elementContexts = elementContexts;
   }
 
   @Override
@@ -42,6 +50,19 @@ public class HTMLEventForwardingTarget implements EventForwardingTarget {
 
   @Override
   public void forwardEvent(RendererKeyboardEvent keyEvent) {
+    if (
+      focusManager.focused() instanceof HTMLElement htmlElement
+    ) {
+      ElementContext context = elementContexts.get(htmlElement);
+      if (context.box() != null) {
+        EventHandlerResponse response = context.box().content().withFocusEventHandler(
+          (feh, c) -> feh.handleKeyboardEvent(eventContext, c, keyEvent));
+        if (response.equals(EventHandlerResponse.HANDLED)) {
+          return;
+        }
+      }
+    }
+    
     if (isFocusKey(keyEvent)) {
       cycleFocus(keyEvent);
     } else if (isActivationKey(keyEvent)) {

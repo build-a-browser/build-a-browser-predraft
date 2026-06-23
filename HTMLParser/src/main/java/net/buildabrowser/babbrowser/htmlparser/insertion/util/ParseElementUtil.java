@@ -5,6 +5,7 @@ import net.buildabrowser.babbrowser.dom.Namespace;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.AnchorElement;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
+import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
 import net.buildabrowser.babbrowser.html.html.LinkElement;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
@@ -22,6 +23,7 @@ public final class ParseElementUtil {
     // TODO: Proper DOM create an element
     Element element = switch (token.name()) {
       case "a" -> AnchorElement.create(localName, intendedParent);
+      case "input" -> HTMLInputElement.create(localName, intendedParent);
       case "link" -> LinkElement.create(localName, intendedParent);
       default -> HTMLElement.create(localName, intendedParent);
     };
