@@ -31,13 +31,13 @@ public class FlowMinMaxContentTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of(nestedChildBox));
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    // Renderer does not yet strip the leading space (so width of the second line is 35)
+    // Renderer does not yet strip the trailing space (so width of the first line is 30)
     LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 80, 20, parentBox, List.of(
-      new TestManagedBoxFragment(0, 0, 35, 20, childBox, List.of(
-        new LineBoxFragment(0, 0, 25, 10, List.of(
-          new TextFragment(0, 0, 25, 10, "Hello"))),
-        new LineBoxFragment(0, 10, 35, 10, List.of(
-          new TextFragment(0, 0, 35, 10, " World!")))))));
+      new TestManagedBoxFragment(0, 0, 30, 20, childBox, List.of(
+        new LineBoxFragment(0, 0, 30, 10, List.of(
+          new TextFragment(0, 0, 30, 10, "Hello "))),
+        new LineBoxFragment(0, 10, 30, 10, List.of(
+          new TextFragment(0, 0, 30, 10, "World!")))))));
     LayoutFragment actualFragment = doLayoutSized(parentBox, 80).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }
@@ -68,13 +68,13 @@ public class FlowMinMaxContentTest {
     ElementBox childBox = flowBlockBox(childStyles, List.of(nestedChildBox));
     ElementBox parentBox = flowBlockBox(List.of(childBox));
 
-    // Renderer does not yet strip the leading space (so width of the second line is 35)
+    // Renderer does not yet strip the trailing space (so width of the first line is 30)
     LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 80, 20, parentBox, List.of(
       new TestManagedBoxFragment(0, 0, 40, 20, childBox, List.of(
-        new LineBoxFragment(0, 0, 25, 10, List.of(
-          new TextFragment(0, 0, 25, 10, "Hello"))),
-        new LineBoxFragment(0, 10, 35, 10, List.of(
-          new TextFragment(0, 0, 35, 10, " World!")))))));
+        new LineBoxFragment(0, 0, 30, 10, List.of(
+          new TextFragment(0, 0, 30, 10, "Hello "))),
+        new LineBoxFragment(0, 10, 30, 10, List.of(
+          new TextFragment(0, 0, 30, 10, "World!")))))));
     LayoutFragment actualFragment = doLayoutSized(parentBox, 80).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }
@@ -90,11 +90,11 @@ public class FlowMinMaxContentTest {
 
     // Renderer does not yet strip the leading space (so width of the second line is 35)
     LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 40, 20, parentBox, List.of(
-      new TestManagedBoxFragment(0, 0, 35, 20, childBox, List.of(
-        new LineBoxFragment(0, 0, 25, 10, List.of(
-          new TextFragment(0, 0, 25, 10, "Hello"))),
-        new LineBoxFragment(0, 10, 35, 10, List.of(
-          new TextFragment(0, 0, 35, 10, " World!")))))));
+      new TestManagedBoxFragment(0, 0, 30, 20, childBox, List.of(
+        new LineBoxFragment(0, 0, 30, 10, List.of(
+          new TextFragment(0, 0, 30, 10, "Hello "))),
+        new LineBoxFragment(0, 10, 30, 10, List.of(
+          new TextFragment(0, 0, 30, 10, "World!")))))));
     LayoutFragment actualFragment = doLayoutSized(parentBox, 40).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }

@@ -42,6 +42,7 @@ import net.buildabrowser.babbrowser.renderer.image.ImageCache;
 import net.buildabrowser.babbrowser.renderer.imp.RenderCSSMatcherContext;
 import net.buildabrowser.babbrowser.renderer.imp.RenderDocumentChangeListener;
 import net.buildabrowser.babbrowser.renderer.layout.FontCache;
+import net.buildabrowser.babbrowser.renderer.layout.FontWordWidthCache;
 import net.buildabrowser.babbrowser.renderer.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
@@ -292,12 +293,13 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     ResourceLoader resourceLoader = painter.resourceLoader();
     FontLoader fontLoader = resourceLoader.fontLoader();
     FontCache fontCache = FontCache.create(fontLoader);
+    FontWordWidthCache fontWordWidthCache = FontWordWidthCache.create();
     this.rootFont = fontCache.load(
       new FontOptions(List.of(fontLoader.sansSerif()), 16, 400));
 
     Viewport viewport = new Viewport(0, 0, width, height);
     GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
-      painter.resourceLoader(), rootFont.metrics(), fontCache,
+      painter.resourceLoader(), rootFont.metrics(), fontCache, fontWordWidthCache,
       viewport, scriptingContext, imageCache, fragmentFactory);
     return globalLayoutContext;
   }

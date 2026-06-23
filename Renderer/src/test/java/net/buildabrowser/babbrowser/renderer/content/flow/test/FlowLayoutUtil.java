@@ -42,6 +42,7 @@ public final class FlowLayoutUtil {
     LayoutContext layoutContext = new LayoutContext(
       new GlobalLayoutContext(
         resourceLoader, testMetrics, resourceLoader.fontLoader()::load,
+        (m, s) -> m.stringWidth(s),
         viewport, null, null, fragmentFactory),
       () -> testMetrics);
     LayoutContextGenerator.generateLayoutContexts(parentBox, layoutContext);

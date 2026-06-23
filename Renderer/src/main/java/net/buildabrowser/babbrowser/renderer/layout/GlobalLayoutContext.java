@@ -10,6 +10,7 @@ public record GlobalLayoutContext(
   ResourceLoader resourceLoader,
   FontMetrics rootMetrics,
   FontCache fontCache,
+  FontWordWidthCache fontWordWidthCache,
   Viewport viewport,
   ScriptingContext scriptingContext,
   ImageCache imageCache,

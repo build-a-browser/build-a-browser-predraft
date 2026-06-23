@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.renderer.content.flow;
 
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.StagedText;
+import net.buildabrowser.babbrowser.renderer.layout.FontWordWidthCache;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
 public final class FlowTextLayout {
@@ -32,6 +33,10 @@ public final class FlowTextLayout {
         textCursor++;
       }
 
+      if (textCursor < allText.length()) {
+        textCursor++;
+      }
+
       String selectedText = allText.substring(startCursor, textCursor);
       addTextOrWrap(layoutContext, selectedText, formattingContext, autoWrap);
     }
@@ -42,7 +47,8 @@ public final class FlowTextLayout {
     InlineFormattingContext formattingContext, boolean autoWrap
   ) {
     FontMetrics fontMetrics = layoutContext.font().metrics();
-    float textWidth = fontMetrics.stringWidth(selectedText);
+    FontWordWidthCache widthCache = layoutContext.global().fontWordWidthCache();
+    float textWidth = widthCache.stringWidth(fontMetrics, selectedText);
     float textHeight = fontMetrics.height();
 
     boolean textOverflows = !formattingContext.fits(textWidth, true);

@@ -104,14 +104,14 @@ public class FlowFloatTest {
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);
 
     LayoutFragment expectedMainFragment = new TestManagedBoxFragment(0, 0, 80, 30, parentBox, List.of(
-      new LineBoxFragment(0, 0, 75, 10, List.of(
-        new TextFragment(0, 0, 75, 10, "John is a human"))),
+      new LineBoxFragment(0, 0, 80, 10, List.of(
+        new TextFragment(0, 0, 80, 10, "John is a human "))),
       new LineBoxFragment(25, 10, 40, 10, List.of(
-        new TextFragment(0, 0, 20, 10, " !!!"),
+        new TextFragment(0, 0, 15, 10, "!!!"),
         new TestFloatRefFragment(childBox2),
-        new TextFragment(20, 0, 20, 10, "Wow,"))),
-      new LineBoxFragment(0, 20, 70, 10, List.of(
-        new TextFragment(0, 0, 70, 10, " text is long!")))
+        new TextFragment(15, 0, 25, 10, "Wow, "))),
+      new LineBoxFragment(0, 20, 65, 10, List.of(
+        new TextFragment(0, 0, 65, 10, "text is long!")))
     ));
     LayoutFragment actualMainFragment = layoutResult.rootFragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
@@ -140,14 +140,14 @@ public class FlowFloatTest {
     FlowTestLayoutResult layoutResult = doLayoutSized(parentBox, 80);;
 
     LayoutFragment expectedMainFragment = new TestManagedBoxFragment(0, 0, 80, 30, parentBox, List.of(
-      new LineBoxFragment(0, 0, 75, 10, List.of(
-        new TextFragment(0, 0, 75, 10, "John is a human"))),
+      new LineBoxFragment(0, 0, 80, 10, List.of(
+        new TextFragment(0, 0, 80, 10, "John is a human "))),
       new LineBoxFragment(0, 10, 40, 10, List.of(
-        new TextFragment(0, 0, 20, 10, " !!!"),
+        new TextFragment(0, 0, 15, 10, "!!!"),
         new TestFloatRefFragment(childBox2),
-        new TextFragment(20, 0, 20, 10, "Wow,"))),
-      new LineBoxFragment(0, 20, 70, 10, List.of(
-        new TextFragment(0, 0, 70, 10, " text is long!")))
+        new TextFragment(15, 0, 25, 10, "Wow, "))),
+      new LineBoxFragment(0, 20, 65, 10, List.of(
+        new TextFragment(0, 0, 65, 10, "text is long!")))
     ));
     LayoutFragment actualMainFragment = layoutResult.rootFragment();
     assertFragmentEquals(expectedMainFragment, actualMainFragment);
@@ -294,11 +294,11 @@ public class FlowFloatTest {
       new LineBoxFragment(15, 0, 35, 10, List.of(
         new TextFragment(0, 0, 35, 10, "dragons"))),
       new TestManagedBoxFragment(0, 10, 80, 20, childBox3, List.of(
-        new LineBoxFragment(15, 0, 55, 10, List.of(
-          new TextFragment(0, 0, 55, 10, "baba is you")
+        new LineBoxFragment(15, 0, 60, 10, List.of(
+          new TextFragment(0, 0, 60, 10, "baba is you ")
         )),
-        new LineBoxFragment(0, 10, 65, 10, List.of(
-          new TextFragment(0, 0, 65, 10, " keke is flag")
+        new LineBoxFragment(0, 10, 60, 10, List.of(
+          new TextFragment(0, 0, 60, 10, "keke is flag")
         ))
       ))
     ));
