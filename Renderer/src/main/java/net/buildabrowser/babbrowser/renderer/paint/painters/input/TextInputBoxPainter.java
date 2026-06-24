@@ -34,13 +34,17 @@ public class TextInputBoxPainter implements BoxPainter<TextInputFragment> {
     TextTypeContent content = ((InputContent) box.content()).innerContent();
     LoadedFont font = box.layoutContext().font();
     FontMetrics metrics = font.metrics();
+    String displayValue = content.displayValue();
     float posY = (fragment.height(Measurement.CONTENT) - metrics.height()) / 2;
-    String beforeCursorText = element.value().substring(0, content.cursorX());
+    int codepointPos = displayValue.offsetByCodePoints(0, content.cursorX());
+    String beforeCursorText = displayValue.substring(0, codepointPos);
     float cursorOffset = metrics.stringWidth(beforeCursorText);
-    float caretReplaceWidth = content.cursorX() == content.value().length() ?
+    float caretReplaceWidth = content.cursorX() == displayValue.length() ?
       metrics.stringWidth(TextTypeContent.PLACEHOLDER_CHARACTER) :
-      metrics.stringWidth(content.value().substring(content.cursorX(), content.cursorX() + 1));
+      metrics.stringWidth(displayValue.substring(codepointPos,
+        displayValue.offsetByCodePoints(codepointPos, 1)));
     boolean showCaret = focusManager.focused() == element;
+    
     canvas.withClip(
       0, 0,
       fragment.width(Measurement.CONTENT),
@@ -52,7 +56,7 @@ public class TextInputBoxPainter implements BoxPainter<TextInputFragment> {
         },
         t -> t.translate(-content.scrollX() + HORIZONTAL_PADDING, 0),
         c2 -> {
-          c2.drawText(0, posY, element.value());
+          c2.drawText(0, posY, displayValue);
           // TODO: Make a drawLine?
           if (showCaret && content.isReplaceMode()) {
             c2.drawBox(cursorOffset, posY - metrics.ascent(), caretReplaceWidth, 1);

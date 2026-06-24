@@ -49,8 +49,18 @@ public final class FlowUtil {
 
   public static boolean isInFlow(ElementBox elementBox) {
     return
+      !(elementBox.isReplaced() || elementBox.hasCustomContent())
+      && isInFlowNoContent(elementBox);
+  }
+
+  public static boolean isInFlowNoContent(ElementBox elementBox) {
+    boolean isButton = // TODO: Button has more rules than just this
+      elementBox.element() != null
+      && elementBox.element().name().equals("button");
+
+    return
       PropertiesUtil.innerDisplayValue(elementBox.properties()).equals(InnerDisplayValue.FLOW)
-      && !(elementBox.isReplaced() || elementBox.hasCustomContent())
+      && !isButton
       && PositionUtil.affectsLayout(elementBox)
       && !CompositeLayerUtil.hasScrollContent(elementBox);
   }

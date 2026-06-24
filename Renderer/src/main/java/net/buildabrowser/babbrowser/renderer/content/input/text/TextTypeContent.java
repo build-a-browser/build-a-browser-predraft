@@ -12,14 +12,21 @@ public class TextTypeContent extends InstrinsicSizedInputTypeContent {
 
   public static final String PLACEHOLDER_CHARACTER = "a";
 
+  private static final String PASSWORD_CHARACTER = "\u2219";
   private static TextInputFocusEventHandler TEXT_INPUT_FOCUS_EVENT_HANDLER = new TextInputFocusEventHandler();
+
+  private boolean isHidden = false;
 
   private int cursorX = 0;
   private float scrollX = 0;
   private boolean isReplaceMode = false;
 
-  public TextTypeContent(ElementBox rootBox) {
+  public TextTypeContent(
+    ElementBox rootBox,
+    boolean isHidden
+  ) {
     super(rootBox);
+    this.isHidden = isHidden;
   }
 
   public String value() {
@@ -28,6 +35,13 @@ public class TextTypeContent extends InstrinsicSizedInputTypeContent {
 
   public void setValue(String value) {
     element().setValue(value);
+  }
+
+  public String displayValue() {
+    if (isHidden) {
+      int valueLen = value().length();
+      return PASSWORD_CHARACTER.repeat(valueLen);
+    } else return value();
   }
 
   public int cursorX() {

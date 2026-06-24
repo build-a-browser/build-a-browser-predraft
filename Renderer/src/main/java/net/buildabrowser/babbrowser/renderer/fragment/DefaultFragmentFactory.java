@@ -5,6 +5,8 @@ import java.util.List;
 import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.input.InputTypeContent;
+import net.buildabrowser.babbrowser.renderer.content.input.hidden.HiddenTypeContent;
+import net.buildabrowser.babbrowser.renderer.content.input.text.TextTypeContent;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.renderer.content.table.Table;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.border.TableBorderAssignment;
@@ -19,6 +21,8 @@ import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowRootBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.image.DefaultImageBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.image.ImageBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.input.BaseInputFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.input.DefaultButtonInputFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.input.DefaultHiddenInputFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.input.DefaultTextInputFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.DefaultScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
@@ -99,8 +103,25 @@ public class DefaultFragmentFactory implements FragmentFactory {
     InputTypeContent content
   ) {
     // TODO: Other input types
-    return new DefaultTextInputFragment(
-      width, height, inkWidth, inkHeight, box);
+    return switch (content) {
+      case HiddenTypeContent _1 -> new DefaultHiddenInputFragment(
+        width, height, inkWidth, inkHeight, box);
+      case TextTypeContent _1 -> new DefaultTextInputFragment(
+        width, height, inkWidth, inkHeight, box);
+      default -> throw new UnsupportedOperationException(
+        "Unrecognized content: " + content);
+    };
+  }
+
+  public UnmanagedBoxFragment<?> createButtonBoxFragment(
+    float width, float height,
+    float inkWidth, float inkHeight,
+    ElementBox rootBox,
+    UnmanagedBoxFragment<?> innerFragment
+  ) {
+    return new DefaultButtonInputFragment(
+      width, height, inkWidth, inkHeight,
+      rootBox, innerFragment);
   }
 
   public ScrollBoxFragment createScrollBoxFragment(

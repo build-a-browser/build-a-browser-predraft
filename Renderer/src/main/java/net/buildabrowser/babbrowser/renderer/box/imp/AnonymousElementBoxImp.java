@@ -1,10 +1,11 @@
 package net.buildabrowser.babbrowser.renderer.box.imp;
 
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
+import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
@@ -20,7 +21,10 @@ public class AnonymousElementBoxImp extends AbstractElementBoxImp {
   ) {
     super(parentBox, boxLevel);
     this.properties = properties;
-    this.content = new FlowRootContent(this);
+
+    InnerDisplayValue innerDisplay = PropertiesUtil
+      .innerDisplayValue(properties());
+    this.content = createSpecifiedContent(innerDisplay);
   }
 
   @Override

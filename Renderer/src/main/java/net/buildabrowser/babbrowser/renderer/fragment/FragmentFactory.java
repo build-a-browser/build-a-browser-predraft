@@ -66,6 +66,13 @@ public interface FragmentFactory {
     InputTypeContent content
   );
 
+  UnmanagedBoxFragment<?> createButtonBoxFragment(
+    float width, float height,
+    float inkWidth, float inkHeight,
+    ElementBox rootBox,
+    UnmanagedBoxFragment<?> innerFragment
+  );
+
   ScrollBoxFragment createScrollBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,

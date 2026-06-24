@@ -12,12 +12,9 @@ import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
 import net.buildabrowser.babbrowser.renderer.content.ReEntrantContent;
-import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexBoxContent;
-import net.buildabrowser.babbrowser.renderer.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.renderer.content.image.ImageContent;
 import net.buildabrowser.babbrowser.renderer.content.input.InputContent;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
-import net.buildabrowser.babbrowser.renderer.content.table.TableContent;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -109,11 +106,7 @@ public class ElementBoxImp extends AbstractElementBoxImp {
       return elementContent;
     }
   
-    return switch (innerDisplay) {
-      case TABLE -> new TableContent(this);
-      case FLEX -> new FlexBoxContent(this);
-      default -> new FlowRootContent(this);
-    };
+    return createSpecifiedContent(innerDisplay);
   }
 
   private boolean canShareContent() {

@@ -5,6 +5,8 @@ import java.util.Objects;
 import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.content.input.button.ButtonTypeContent;
+import net.buildabrowser.babbrowser.renderer.content.input.hidden.HiddenTypeContent;
 import net.buildabrowser.babbrowser.renderer.content.input.text.TextTypeContent;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
@@ -85,8 +87,12 @@ public class InputContent implements BoxContent {
 
     lastType = currentType;
     return (T) (inputContent = switch (currentType) {
-      case "text" -> new TextTypeContent(rootBox);
-      default -> new TextTypeContent(rootBox);
+      case "hidden" -> new HiddenTypeContent(rootBox);
+      case "text" -> new TextTypeContent(rootBox, false);
+      case "password" -> new TextTypeContent(rootBox, true);
+      case "submit" -> new ButtonTypeContent(rootBox, "Submit");
+      case "button" -> new ButtonTypeContent(rootBox, "");
+      default -> new TextTypeContent(rootBox, false);
     });
   }
   

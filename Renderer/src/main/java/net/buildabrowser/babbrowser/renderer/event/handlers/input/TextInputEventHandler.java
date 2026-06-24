@@ -37,7 +37,8 @@ public class TextInputEventHandler implements EventHandler<TextInputFragment> {
   private void determineCursorX(TextInputFragment fragment, float relX) {
     FontMetrics fontMetrics = fragment.box().layoutContext().font().metrics();
     TextTypeContent content = ((InputContent) fragment.box().content()).innerContent();
-    String value = content.value();
+    String value = content.displayValue();
+    int cursorX = 0;
     int charNum = 0;
     float adjustedRelX = relX + content.scrollX() - TextInputBoxPainter.HORIZONTAL_PADDING;
     while (
@@ -47,8 +48,11 @@ public class TextInputEventHandler implements EventHandler<TextInputFragment> {
       && valueWidth(fontMetrics, value, charNum) / 2
         + valueWidth(fontMetrics, value, charNum + 1) / 2
         <= adjustedRelX
-    ) charNum++;
-    content.setCursorX(charNum);
+    ) {
+      cursorX++;
+      charNum += Character.charCount(value.codePointAt(charNum));
+    }
+    content.setCursorX(cursorX);
     fragment.box().context().invalidate(InvalidationLevel.PAINT);
   }
 

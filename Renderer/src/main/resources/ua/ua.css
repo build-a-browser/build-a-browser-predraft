@@ -2,10 +2,6 @@ body, html {
   display: block;
 }
 
-head, style, script {
-  display: none;
-}
-
 button {
   display: inline-block;
 }
@@ -15,12 +11,24 @@ img {
   display: inline-block;
 }
 
-button {
-  text-align: center;
-}
-
 input {
   border: 1px solid black;
+}
+
+button,
+input[type=button],
+input[type=submit] {
+  background-color: #EEE;
+  border: solid 1px #333;
+  text-align: center;
+  padding: 1px 6px;
+  font-size: .85rem;
+}
+
+button:hover,
+input[type=button]:hover,
+input[type=submit]:hover {
+  background-color: #DDD;
 }
 
 b {
@@ -108,3 +116,19 @@ small { font-size: smaller; }
 :link { color: #0000EE; }
 /* ... */
 :focus-visible { outline: auto; }
+
+/* Hidden Elements*/
+area, base, basefont, datalist, head, link, meta, noembed,
+noframes, param, rp, script, style, template, title {
+  display: none;
+}
+
+/* TODO: Some other stuff */
+
+/* TODO: :not() conditions */
+[hidden] {
+  display: none;
+}
+
+/* TODO: [type=hidden i] */
+input[type=hidden] { display: none !important; }

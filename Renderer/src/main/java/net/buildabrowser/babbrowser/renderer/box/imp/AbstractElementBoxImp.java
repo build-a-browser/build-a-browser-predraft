@@ -5,16 +5,16 @@ import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
-import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.renderer.box.MutableElementBoxDimensions;
-import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
+import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexBoxContent;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowUtil;
+import net.buildabrowser.babbrowser.renderer.content.table.TableContent;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.CachedLayoutResult;
@@ -187,15 +187,20 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
 
   @Override
   public boolean sharesContent(ElementBox elementBox) {
-    // TODO: Can't use FlowUtil.isInFlow here because isReplaced() requires content
-    InnerDisplayValue otherInnerDisplay = PropertiesUtil.innerDisplayValue(elementBox.properties());
     boolean canShareFlow =
       content() instanceof FlowRootContent
-      && otherInnerDisplay.equals(InnerDisplayValue.FLOW)
       && !FlowUtil.isFloat(elementBox)
-      && !CompositeLayerUtil.hasScrollContent(this); // If a flow box is nested in a scrollbox
+      && FlowUtil.isInFlowNoContent(elementBox);
 
     return canShareFlow;
+  }
+
+  protected BoxContent createSpecifiedContent(InnerDisplayValue innerDisplay) {
+    return switch (innerDisplay) {
+      case TABLE -> new TableContent(this);
+      case FLEX -> new FlexBoxContent(this);
+      default -> new FlowRootContent(this);
+    };
   }
 
 }
