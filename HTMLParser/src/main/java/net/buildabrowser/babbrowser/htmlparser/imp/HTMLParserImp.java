@@ -1,14 +1,10 @@
 package net.buildabrowser.babbrowser.htmlparser.imp;
 
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
-import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.htmlparser.HTMLParser;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
@@ -21,10 +17,12 @@ public class HTMLParserImp implements HTMLParser {
 
   private static final int EOF = -1;
 
+  private final CharBuffer chars = CharBuffer.allocate(2048);
+
   private final TokenizeContext tokenizeContext;
   private final ParseContext parseContext;
   private final TokenizeBuffer tokenizeBuffer;
-  private final CharsetDecoder charsetDecoder;
+  private final RollingCharsetDecoder charsetDecoder;
 
   private boolean didUseCharsetDecoder = false;
   private int[] pushbackBuffer = new int[16];
@@ -34,16 +32,16 @@ public class HTMLParserImp implements HTMLParser {
     this.tokenizeContext = TokenizeContext.create(this::pushback);
     this.parseContext = ParseContext.create(document, tokenizeContext);
     this.tokenizeBuffer = TokenizeBuffer.create();
-    this.charsetDecoder = charset.newDecoder()
+    this.charsetDecoder = new RollingCharsetDecoder(charset.newDecoder()
       .onMalformedInput(CodingErrorAction.REPLACE)
-      .onUnmappableCharacter(CodingErrorAction.REPLACE);
+      .onUnmappableCharacter(CodingErrorAction.REPLACE));
   }
 
   @Override
   public void parse(ByteBuffer buffer) {
     this.didUseCharsetDecoder = true;
-    CharBuffer chars = CommonUtil.rethrow(() -> charsetDecoder.decode(buffer));
-    parseCharBuffer(chars);
+    charsetDecoder.decode(buffer, chars,
+      () -> parseCharBuffer(chars));
   }
 
   @Override
@@ -72,13 +70,8 @@ public class HTMLParserImp implements HTMLParser {
 
   @Override
   public void done() {
-    CoderResult lastResult = CoderResult.OVERFLOW;
-    while (lastResult.equals(CoderResult.OVERFLOW) && didUseCharsetDecoder) {
-      // Should really only run once, so the allocation should be fine
-      CharBuffer chars = CharBuffer.allocate(16);
-      lastResult = CommonUtil.rethrow(() -> charsetDecoder.flush(chars));
-      ((Buffer) chars).flip();
-      parseCharBuffer(chars);
+    if (didUseCharsetDecoder) {
+      charsetDecoder.flush(chars, () -> parseCharBuffer(chars));
     }
     
     parse(EOF);
