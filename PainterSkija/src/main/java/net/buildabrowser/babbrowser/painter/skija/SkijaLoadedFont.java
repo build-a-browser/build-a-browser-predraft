@@ -1,11 +1,14 @@
 package net.buildabrowser.babbrowser.painter.skija;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.Font;
+import io.github.humbleui.skija.FontMgr;
 import io.github.humbleui.skija.Paint;
 import io.github.humbleui.skija.TextBlob;
+import io.github.humbleui.skija.Typeface;
 import io.github.humbleui.skija.shaper.Shaper;
 import net.buildabrowser.babbrowser.painter.core.FontLoader.FontOptions;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
@@ -14,17 +17,21 @@ import net.buildabrowser.babbrowser.painter.core.LoadedFont;
 public class SkijaLoadedFont implements LoadedFont {
 
   private final Shaper shaper = Shaper.makeShapeDontWrapOrReorder();
-  private final Font[] rawFonts;
+  private final List<SkijaFontEntry> rawFonts;
   private final FontMetrics metrics;
 
   // TODO: Optimize for fonts outside of the ASCII range
-  private final Font[] effectiveFontCache = new Font[256];
+  private final SkijaFontEntry[] effectiveFontCache = new SkijaFontEntry[256];
 
   public SkijaLoadedFont(Font[] rawFonts, FontOptions options) {
-    this.rawFonts = rawFonts;
-    this.metrics =  rawFonts.length > 0 ?
+    this.rawFonts = new ArrayList<>(rawFonts.length);
+    this.metrics = rawFonts.length > 0 ?
       new SkijaFontMetrics(rawFonts, this, options) :
       new SkijaNoOpFontMetrics();
+
+    for (Font rawFont: rawFonts) {
+      this.rawFonts.add(new SkijaFontEntry(rawFont));
+    }
   }
 
   @Override
@@ -47,22 +54,23 @@ public class SkijaLoadedFont implements LoadedFont {
     float x, float y, String text,
     TextLinePosConsumer linePosConsumer
   ) {
-    if (rawFonts.length == 0) {
+    if (rawFonts.isEmpty()) {
       throw new IllegalStateException("Attempt to draw or measure text, but no font was set!");
     }
     if (text.isEmpty()) return 0;
     
     int windowStart = 0;
     float currentX = x;
-    float adjustedY = y;// - metrics.ascent();
+    float adjustedY = y - metrics.ascent();
+    float[] runSize = new float[1];
     while (windowStart < text.length()) {
-      Font currentFont = glyphFont(text.codePointAt(windowStart));
+      SkijaFontEntry currentFont = glyphFont(text.codePointAt(windowStart));
       int windowEnd = endOfConsecutiveFontChars(text, windowStart);
       String windowText = text.substring(windowStart, windowEnd + 1);
 
-      TextBlob line = shaper.shape(windowText, currentFont);
+      TextBlob line = SkijaHarfBuzzShaper.shape(windowText, currentFont, runSize);
       linePosConsumer.accept(line, currentX, adjustedY);
-      currentX += line.getBlockBounds().getWidth();
+      currentX += runSize[0];
       windowStart = windowEnd + 1;
     }
 
@@ -71,10 +79,10 @@ public class SkijaLoadedFont implements LoadedFont {
 
   private int endOfConsecutiveFontChars(String text, int windowStart) {
     int firstCodepoint = text.codePointAt(windowStart);
-    Font initialFont = glyphFont(text.codePointAt(windowStart));
+    SkijaFontEntry initialFont = glyphFont(text.codePointAt(windowStart));
     int windowEnd = windowStart + Character.charCount(firstCodepoint);
     while (windowEnd < text.length()) {
-      Font font = glyphFont(text.codePointAt(windowEnd));
+      SkijaFontEntry font = glyphFont(text.codePointAt(windowEnd));
       if (font != initialFont) {
         return windowEnd - 1;
       }
@@ -85,7 +93,7 @@ public class SkijaLoadedFont implements LoadedFont {
     return windowEnd - 1;
   }
 
-  private Font glyphFont(int codePoint) {
+  private SkijaFontEntry glyphFont(int codePoint) {
     // TODO: Look into caching codepoints outside of this, for better i18n performance
     if (
       codePoint < 256
@@ -94,7 +102,7 @@ public class SkijaLoadedFont implements LoadedFont {
       return effectiveFontCache[codePoint];
     }
 
-    Font rawFont = glyphFontRaw(codePoint);
+    SkijaFontEntry rawFont = glyphFontRaw(codePoint);
     if (codePoint < 256) {
       effectiveFontCache[codePoint] = rawFont;
     }
@@ -102,13 +110,32 @@ public class SkijaLoadedFont implements LoadedFont {
     return rawFont;
   }
 
-  private Font glyphFontRaw(int codePoint) {
-    for (Font rawFont: rawFonts) {
-      short glyph = rawFont.getUTF32Glyph(codePoint);
-      if (glyph != 0) return rawFont;
+  private SkijaFontEntry glyphFontRaw(int codePoint) {
+    for (SkijaFontEntry fontEntry: rawFonts) {
+      short glyph = fontEntry.font().getUTF32Glyph(codePoint);
+      if (glyph != 0) return fontEntry;
     }
 
-    return rawFonts[0];
+    SkijaFontEntry fallbackFont = findFallbackFont(codePoint);
+    if (fallbackFont != null) return fallbackFont;
+
+    return rawFonts.get(0);
+  }
+
+  private SkijaFontEntry findFallbackFont(int codePoint) {
+    Typeface primaryTypeface = rawFonts.get(0).font().getTypeface();
+    Typeface fallback = FontMgr.getDefault().matchFamilyStyleCharacter(
+      primaryTypeface.getFamilyName(),
+      primaryTypeface.getFontStyle(),
+      null, // TODO: Use lang attribute
+      codePoint
+    );
+
+    if (fallback == null) return null;
+    Font fallbackFont = new Font(fallback, metrics.size());
+    SkijaFontEntry fallbackEntry = new SkijaFontEntry(fallbackFont);
+    rawFonts.add(fallbackEntry);
+    return fallbackEntry;
   }
 
   public static SkijaLoadedFont noFont() {
