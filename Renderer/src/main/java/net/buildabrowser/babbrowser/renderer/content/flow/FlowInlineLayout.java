@@ -112,15 +112,8 @@ public class FlowInlineLayout {
         case StagedLineBreak stagedBreak -> addBreakToInline(stagedBreak.layoutContext());
         case StagedFloatBox stagedFloat -> addFloatAroundInline(
           stagedFloat.elementBox(), widthConstraint, heightConstraint);
-        case StagedUnmanagedBox stagedUnmanagedBox -> {
-          if (PositionUtil.affectsLayout(stagedUnmanagedBox.elementBox())) {
-            addUnmanagedBlockToInline(
-              stagedUnmanagedBox.elementBox(), widthConstraint, heightConstraint);
-          } else {
-            LayoutFragment newFragment = PositionLayout.layout(stagedUnmanagedBox.elementBox());
-            activeInlineContext.addFragment(newFragment);
-          }
-        }
+        case StagedUnmanagedBox stagedUnmanagedBox -> addUnmanagedToInline(
+          stagedUnmanagedBox.elementBox(), widthConstraint, heightConstraint);
         case StagedBlockLevelBox stagedBlockLevelBox -> addBlockLevelToInline(
           stagedBlockLevelBox.elementBox(), widthConstraint, heightConstraint);
         case ManagedBoxEntryMarker marker -> activeInlineContext.pushElement(marker.elementBox());
@@ -147,6 +140,22 @@ public class FlowInlineLayout {
     }
 
     activeInlineContext.addFragment(new FloatRefFragment(floatFragment));
+  }
+
+  private void addUnmanagedToInline(
+    ElementBox elementBox,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
+  ) {
+    if (PositionUtil.affectsLayout(elementBox)) {
+      addUnmanagedBlockToInline(
+        elementBox, widthConstraint, heightConstraint);
+    } else if (elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)) {
+      activeInlineContext.queuedPositioned(elementBox);
+    } else {
+      LayoutFragment newFragment = PositionLayout.layout(elementBox);
+      activeInlineContext.addFragment(newFragment);
+    }
   }
 
   private void addBlockLevelToInline(

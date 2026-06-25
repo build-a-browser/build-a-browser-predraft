@@ -2,6 +2,8 @@ body, html {
   display: block;
 }
 
+body { margin: 8px; }
+
 button {
   display: inline-block;
 }

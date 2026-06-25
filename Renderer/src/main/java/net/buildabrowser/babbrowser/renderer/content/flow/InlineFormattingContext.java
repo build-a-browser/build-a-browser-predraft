@@ -1,7 +1,9 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
@@ -16,6 +18,7 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
   private final LayoutConstraint inlineConstraint;
   private final InlineStagingArea stagingArea;
   private final Deque<PropertyContainer> stylesStack;
+  private final List<ElementBox> positionedQueue;
 
   private InlineFormattingContext next;
   private LineBox activeLineBox;
@@ -39,6 +42,7 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
     this.inlineConstraint = inlineConstraint;
     this.stagingArea = new InlineStagingArea();
     this.stylesStack = stylesStack;
+    this.positionedQueue = new ArrayList<>();
     this.activeLineBox = firstLineBox;
   }
 
@@ -67,6 +71,7 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
   public void closeLine() {
     rootContent.inlineLayout().positionLine(
       activeLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
+    drainPositionedQueue();
   }
 
   public void nextLine() {
@@ -74,6 +79,7 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
     this.activeLineBox = activeLineBox.split();
     rootContent.inlineLayout().positionLine(
       oldLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
+    drainPositionedQueue();
   }
 
   public boolean fits(float itemSize, boolean forceFirst) {
@@ -91,6 +97,10 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
     };
   }
 
+  public void queuedPositioned(ElementBox box) {
+    positionedQueue.add(box);
+  }
+
   public PropertyContainer properties() {
     return stylesStack.peek();
   }
@@ -103,6 +113,13 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
   @Override
   public void setNext(InlineFormattingContext nextNode) {
     this.next = nextNode;
+  }
+
+  private void drainPositionedQueue() {
+    for (ElementBox positioned: positionedQueue) {
+      rootContent.blockLayout().addPositionedToBlock(positioned);
+    }
+    positionedQueue.clear();
   }
 
 }

@@ -72,7 +72,11 @@ public class FlowBlockLayout {
         childBox instanceof ElementBox elementBox
         && !PositionUtil.affectsLayout(elementBox)
       ) {
-        addPositionedToBlock(elementBox);
+        if (isInInline) {
+          inlineLayout.stageInline(box.layoutContext(), childBox);
+        } else {
+          addPositionedToBlock(elementBox);
+        }
       } else if (
         childBox instanceof ElementBox elementBox
         && FlowUtil.isFloat(elementBox)
@@ -240,7 +244,7 @@ public class FlowBlockLayout {
     addFinishedFragment(newFragment, Math.max(alignStart, leftContent), parentWidthConstraint);
   }
 
-  private void addPositionedToBlock(ElementBox childBox) {
+  public void addPositionedToBlock(ElementBox childBox) {
     BlockFormattingContext parentContext = activeContext;
 
     float estimatedAboveMargin = parentContext.currentMaxMargin() + parentContext.currentMinMargin();
