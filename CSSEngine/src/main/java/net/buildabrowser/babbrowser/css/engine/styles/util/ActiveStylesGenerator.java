@@ -5,7 +5,6 @@ import java.util.Collection;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
-import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
@@ -28,25 +27,40 @@ public final class ActiveStylesGenerator {
   ) {
     ActiveStyles activeStyles = ActiveStyles.create();
     PropertyContainer asPropertyView = ActiveStyles.parentStyles(parentProperties, activeStyles);
-    for (WeightedStyleRule styleRule: styleRules) {
-      addToActiveStyles(activeStyles, styleRule.rule(), asPropertyView);
-    }
+    addCustomDeclarations(styleRules, activeStyles, false);
+    addCustomDeclarations(styleRules, activeStyles, true);
+    addNormalDeclarations(styleRules, activeStyles, asPropertyView, false);
+    addNormalDeclarations(styleRules, activeStyles, asPropertyView, true);
 
     return activeStyles;
   }
 
-  private static void addToActiveStyles(
+  private static void addNormalDeclarations(
+    Collection<WeightedStyleRule> styleRules,
     ActiveStyles activeStyles,
-    StyleRule styleRule,
-    PropertyContainer asPropertyView
+    PropertyContainer asPropertyView,
+    boolean important
   ) {
-    for (Declaration declaration: styleRule.declarations()) {
-      if (!declaration.name().startsWith("--")) continue;
-      parseCustomDeclaration(activeStyles, declaration);
+    for (WeightedStyleRule styleRule: styleRules) {
+      for (Declaration declaration: styleRule.rule().declarations()) {
+        if (declaration.name().startsWith("--")) continue;
+        if (declaration.important() != important) continue;
+        parseDeclaration(declaration, activeStyles, asPropertyView);
+      }
     }
-    for (Declaration declaration: styleRule.declarations()) {
-      if (declaration.name().startsWith("--")) continue;
-      parseDeclaration(declaration, activeStyles, asPropertyView);
+  }
+
+  private static void addCustomDeclarations(
+    Collection<WeightedStyleRule> styleRules,
+    ActiveStyles activeStyles,
+    boolean important
+  ) {
+    for (WeightedStyleRule styleRule: styleRules) {
+      for (Declaration declaration: styleRule.rule().declarations()) {
+        if (!declaration.name().startsWith("--")) continue;
+        if (declaration.important() != important) continue;
+        parseCustomDeclaration(activeStyles, declaration);
+      }
     }
   }
 

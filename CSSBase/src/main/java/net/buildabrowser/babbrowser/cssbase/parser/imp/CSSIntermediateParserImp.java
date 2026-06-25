@@ -16,6 +16,7 @@ import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.AtKeywordToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.FunctionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -168,14 +169,33 @@ public class CSSIntermediateParserImp {
       declValue.add(consumeAComponentValue(stream));
     }
 
-    // TODO: !important
+    boolean important = removeImportant(declValue);
+
     if (declValue.isEmpty()) return null;
     while (getLast(declValue) instanceof WhitespaceToken) {
       removeLast(declValue);
     }
 
     return Declaration.create(
-      stream.source(), nameToken.value(), declValue, false);
+      stream.source(), nameToken.value(), declValue, important);
+  }
+
+  private boolean removeImportant(List<Token> declValue) {
+    boolean important = false;
+    int lastNonWhitespace1 = lastNonWhitespace(declValue, declValue.size() - 1);
+    int lastNonWhitespace2 = lastNonWhitespace(declValue, lastNonWhitespace1 - 1);
+    if (
+      lastNonWhitespace2 != -1
+      && declValue.get(lastNonWhitespace2) instanceof DelimToken delimToken
+      && delimToken.ch() == '!'
+      && declValue.get(lastNonWhitespace1) instanceof IdentToken identToken
+      && identToken.value().equals("important")
+    ) {
+      important = true;
+      declValue.remove(lastNonWhitespace1);
+      declValue.remove(lastNonWhitespace2);
+    }
+    return important;
   }
 
   private Token consumeAComponentValue(CSSTokenStream stream) throws IOException {
@@ -228,6 +248,16 @@ public class CSSIntermediateParserImp {
         function.value().add(consumeAComponentValue(stream));
       }
     }
+  }
+
+  private int lastNonWhitespace(List<Token> declValue, int i) {
+    for (int j = i; j >= 0; j--) {
+      if (!(
+        declValue.get(i) instanceof WhitespaceToken
+      )) return j;
+    }
+
+    return -1;
   }
   
 }

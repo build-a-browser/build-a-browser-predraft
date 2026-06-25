@@ -19,6 +19,7 @@ import net.buildabrowser.babbrowser.cssbase.parser.imp.CSSIntermediateParserImp;
 import net.buildabrowser.babbrowser.cssbase.tokens.AtKeywordToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.FunctionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -131,6 +132,18 @@ public class CSSIntermediateParserTest {
     ));
     Assertions.assertEquals(List.of(
       Declaration.create(TEST_SOURCE, "color", List.of(IdentToken.create("red")), false)
+    ), contents);
+  }
+  
+  @Test
+  @DisplayName("Can parse the contents of a style rule with a declaration that is important")
+  public void canParseTheContentsOfAStyleRuleWithADeclarationThatIsImportant() throws IOException {
+    List<Declaration> contents = parser.consumeAStyleBlocksContents(CSSTokenStream.createForTesting(
+      IdentToken.create("color"), ColonToken.create(), IdentToken.create("red"),
+      DelimToken.create('!'), IdentToken.create("important"), SemicolonToken.create()
+    ));
+    Assertions.assertEquals(List.of(
+      Declaration.create(TEST_SOURCE, "color", List.of(IdentToken.create("red")), true)
     ), contents);
   }
 
