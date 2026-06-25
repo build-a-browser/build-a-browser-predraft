@@ -1,9 +1,9 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.util;
 
 import net.buildabrowser.babbrowser.dom.Document;
-import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.html.html.HTMLText;
+import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseElementUtil.AdjustedInsertionLocation;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 
 public final class ParseTextUtil {
@@ -11,27 +11,29 @@ public final class ParseTextUtil {
   private ParseTextUtil() {}
 
   public static void insertACharacter(ParseContext parseContext, int ch) {
-    Node adjustedInsertionLocation = ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, null);
-    if (adjustedInsertionLocation instanceof Document) return;
+    AdjustedInsertionLocation adjustedInsertionLocation =
+      ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, null);
+    if (adjustedInsertionLocation.parentNode() instanceof Document) return;
 
-    if (adjustedInsertionLocation.lastChild() instanceof Text text) {
+    if (adjustedInsertionLocation.afterNode() instanceof Text text) {
       text.appendCharacter(ch);
     } else {
       Text text = HTMLText.create("");
-      adjustedInsertionLocation.appendChild(text);
+      ParseElementUtil.insertNodeAt(text, adjustedInsertionLocation);
       text.appendCharacter(ch);
     }
   }
 
   public static void insertAString(ParseContext parseContext, String data) {
-    Node adjustedInsertionLocation = ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, null);
-    if (adjustedInsertionLocation instanceof Document) return;
+    AdjustedInsertionLocation adjustedInsertionLocation =
+      ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, null);
+    if (adjustedInsertionLocation.parentNode() instanceof Document) return;
 
-    if (adjustedInsertionLocation.lastChild() instanceof Text text) {
+    if (adjustedInsertionLocation.afterNode() instanceof Text text) {
       text.appendString(data);
     } else {
       Text text = HTMLText.create("");
-      adjustedInsertionLocation.appendChild(text);
+      ParseElementUtil.insertNodeAt(text, adjustedInsertionLocation);
       text.appendString(data);
     }
   }

@@ -12,6 +12,7 @@ import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.table.TableBoxFragment;
+import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
 import net.buildabrowser.babbrowser.renderer.paint.PaintUtil;
 import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
@@ -101,6 +102,7 @@ public class TableBoxPainter implements BoxPainter<TableBoxFragment> {
     PaintCanvas canvas,
     VpIntersection vpIntersection
   ) {
+    StackingContext refContext = tableFragment.box().stackingContext();
     TableBorderPainter borderPainter = tableFragment.borderAssignment() == null ?
       SEPARATE_PAINTER : COLLAPSED_PAINTER;
 
@@ -108,6 +110,7 @@ public class TableBoxPainter implements BoxPainter<TableBoxFragment> {
     TableCellUtil.forEachCell(table, cell -> {
       UnmanagedBoxFragment<?> cellFragment = cell.getRelatedFragment();
       if (cellFragment == null) return;
+      if (cellFragment.box().stackingContext() != refContext) return;
       paintCellBackground(canvas, cellFragment, vpIntersection, table, cell);
       borderPainter.paintCellBorders(canvas, table, cell, cellFragment);
       // TODO: Also paint outline
@@ -117,15 +120,16 @@ public class TableBoxPainter implements BoxPainter<TableBoxFragment> {
       canvas, tableFragment.borderAssignment(), table);
 
     TableCellUtil.forEachCell(table, cell -> {
-      UnmanagedBoxFragment<?> childFragment = cell.getRelatedFragment();
-      if (childFragment == null) return;
+      UnmanagedBoxFragment<?> cellFragment = cell.getRelatedFragment();
+      if (cellFragment == null) return;
+      if (cellFragment.box().stackingContext() != refContext) return;
       // TODO: Skip if context differs
       canvas.withTransform(
         t -> t.translate(
-          childFragment.posX(Measurement.CONTENT),
-          childFragment.posY(Measurement.CONTENT)),
+          cellFragment.posX(Measurement.CONTENT),
+          cellFragment.posY(Measurement.CONTENT)),
         c -> PaintUtil.maybePaintFragment(
-          childFragment, c, vpIntersection,
+          cellFragment, c, vpIntersection,
           (f, c2, vpi) -> f.withPainterV((p, f2) -> p.paint(f2, c, vpi))));
     });
   }

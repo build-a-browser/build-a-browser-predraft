@@ -3,12 +3,14 @@ package net.buildabrowser.babbrowser.renderer.content.table;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.TableCellUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.table.TableBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 
 public final class TablePositioner {
 
+  // TODO: Also need to handle things out of flow
   private TablePositioner() {}
 
   public static void positionLayers(
@@ -22,6 +24,10 @@ public final class TablePositioner {
     float offsetY = layerY + (fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER));
     TableCellUtil.forEachCell(fragment.table(), cell ->
       positionCell(offsetX, offsetY, refContext, cell));
+    for (PosRefBoxFragment posRefBoxFragment: fragment.outOfTableFragments()) {
+      posRefBoxFragment.box().alterDimensions(false,
+        d -> d.setStaticPosition(offsetX, offsetY));
+    }
   }
 
   private static void positionCell(
@@ -31,11 +37,14 @@ public final class TablePositioner {
   ) {
     ElementBox box = cell.cellBox();
     BoxFragment<?> boxFragment = cell.getRelatedFragment();
+    if (boxFragment == null) return;
 
     layerX += boxFragment.posX(Measurement.BORDER);
     layerY += boxFragment.posY(Measurement.BORDER);
 
     if (box.stackingContext() != refContext) {
+      float layerX_ = layerX, layerY_ = layerY;
+      box.alterDimensions(false, d -> d.setStaticPosition(layerX_, layerY_));
       box.stackingContext().positionFragment(
         layerX, layerY, boxFragment,
         box.content()::positionLayers);

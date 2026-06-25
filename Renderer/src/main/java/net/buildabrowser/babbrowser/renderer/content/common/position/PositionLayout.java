@@ -10,11 +10,11 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.MarginUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
+import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 
 public final class PositionLayout {
   
@@ -45,11 +45,9 @@ public final class PositionLayout {
     // TODO: Also clamp to max width and min width
     float fitContentWidth = mathClamp(
       containingWidth,
-      EBDimensionsUtil.preferredWidthConstraint(refBox),
-      EBDimensionsUtil.preferredMinWidthConstraint(refBox));
-    float usedWidth = baseWidth.type().equals(LayoutConstraintType.AUTO) ?
-      fitContentWidth :
-      baseWidth.value();
+      EBDimensionsUtil.preferredMinWidthConstraint(refBox),
+      EBDimensionsUtil.preferredWidthConstraint(refBox));
+    float usedWidth = LayoutUtil.constraintOrDim(baseWidth, fitContentWidth);
     LayoutConstraint usedWidthConstraint = SizingHeightUtil.clampHeight(
       LayoutConstraint.of(containingWidth), refBox, LayoutConstraint.of(usedWidth));
     
@@ -82,9 +80,11 @@ public final class PositionLayout {
 
     float leftPos = positionAbsoluteAxis(
       leftInsetIsAuto, rightInsetIsAuto, insets, 2,
+      computedFragment.box().dimensions().staticX(),
       computedFragment.width(Measurement.BORDER), refWidth);
     float topPos = positionAbsoluteAxis(
       topInsetIsAuto, bottomInsetIsAuto, insets, 0,
+      computedFragment.box().dimensions().staticY(),
       computedFragment.height(Measurement.BORDER), refHeight);
 
     return new float[] {
@@ -98,11 +98,12 @@ public final class PositionLayout {
     boolean bottomInsetIsAuto,
     float[] insets,
     int conIndex,
+    float staticPos,
     float itemSize,
     float axisSize
   ) {
     if (bottomInsetIsAuto && topInsetIsAuto) {
-      return 0; // TODO: What is the correct thing to return?
+      return staticPos;
     } else if (bottomInsetIsAuto) {
       // TODO: Account for writing mode
       return insets[conIndex];

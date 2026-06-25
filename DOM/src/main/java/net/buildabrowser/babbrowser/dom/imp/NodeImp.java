@@ -54,18 +54,46 @@ public abstract class NodeImp implements Node {
   }
 
   @Override
+  public Node insertBefore(Node node, Node child) {
+    // TODO: Use the spec method
+    if (child == null) {
+      return appendChild(node);
+    }
+
+    if (child.parentNode() != this) {
+      throw new IllegalStateException("Child not in tree!");
+    }
+
+    NodeImp mutNode = (NodeImp) node;
+    NodeImp mutChild = (NodeImp) child;
+    if (child.previousSibling() != null) {
+      NodeImp mutPrev = (NodeImp) child.previousSibling();
+      mutPrev.nextSibling = mutNode;
+      mutNode.previousSibling = mutPrev;
+    } else {
+      this.firstChild = mutNode;
+    }
+    mutChild.previousSibling = mutNode;
+    mutNode.nextSibling = mutChild;
+    mutNode.parentNode = this;
+
+    nodeDocument().changeListener().onNodeAdded(node); // Custom addition
+    return node;
+  }
+
+  @Override
   public Node appendChild(Node node) {
     // TODO: Use the spec method. Also, the cast is not so great
-    NodeImp Node = (NodeImp) node;
+    NodeImp mutNode = (NodeImp) node;
     if (this.lastChild != null) {
-      this.lastChild.nextSibling = Node;
+      this.lastChild.nextSibling = mutNode;
     }
-    Node.previousSibling = this.lastChild;
-    this.lastChild = Node;
+    mutNode.previousSibling = this.lastChild;
+    this.lastChild = mutNode;
     if (this.firstChild == null) {
-      this.firstChild = Node;
+      this.firstChild = mutNode;
     }
-    Node.parentNode = this;
+    mutNode.parentNode = this;
 
     nodeDocument().changeListener().onNodeAdded(node); // Custom addition
     return node;

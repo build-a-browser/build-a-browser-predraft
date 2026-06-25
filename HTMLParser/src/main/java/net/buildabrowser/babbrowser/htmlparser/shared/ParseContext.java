@@ -49,6 +49,8 @@ public interface ParseContext {
 
   void setFosterParentingEnabled(boolean b);
 
+  boolean fosterParentingEnabled();
+
   void stopParsing();
 
   TokenizeContext tokenizeContext();

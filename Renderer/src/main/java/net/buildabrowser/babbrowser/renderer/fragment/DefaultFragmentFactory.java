@@ -77,11 +77,13 @@ public class DefaultFragmentFactory implements FragmentFactory {
     float inkWidth, float inkHeight,
     ElementBox box,
     Table table,
-    TableBorderAssignment borderAssignment
+    TableBorderAssignment borderAssignment,
+    List<PosRefBoxFragment> outOfTableFragments
   ) {
     return new DefaultTableBoxFragment(
       width, height, inkWidth, inkHeight,
-      box, table, borderAssignment);
+      box, table, borderAssignment,
+      outOfTableFragments);
   }
 
   public ImageBoxFragment createImageBoxFragment(

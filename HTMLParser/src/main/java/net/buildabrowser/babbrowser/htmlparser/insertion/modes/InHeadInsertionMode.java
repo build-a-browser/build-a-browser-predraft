@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseCommentUtil;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseElementUtil;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseTextUtil;
+import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseElementUtil.AdjustedInsertionLocation;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
 import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
@@ -80,10 +81,12 @@ public class InHeadInsertionMode implements InsertionMode {
         ParseElementUtil.startGenericRawTextElementParsingAlgorithm(parseContext, tagToken);
         return false;
       case "script":
-        Node adjustedInsertionLocation = ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, null);
-        Node newEl = ParseElementUtil.createAnElementForAToken(tagToken, Namespace.HTML_NAMESPACE, adjustedInsertionLocation);
+        AdjustedInsertionLocation adjustedInsertionLocation =
+          ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, null);
+        Node newEl = ParseElementUtil.createAnElementForAToken(
+          tagToken, Namespace.HTML_NAMESPACE, adjustedInsertionLocation.parentNode());
         // TODO: JS stuff...
-        adjustedInsertionLocation.appendChild(newEl);
+        ParseElementUtil.insertNodeAt(newEl, adjustedInsertionLocation);
         parseContext.openElementStack().pushNode(newEl);
         parseContext.tokenizeContext().setTokenizeState(TokenizeStates.scriptDataState);
         parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());

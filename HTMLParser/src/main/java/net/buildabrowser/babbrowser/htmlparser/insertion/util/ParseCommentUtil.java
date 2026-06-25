@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.htmlparser.insertion.util;
 
 import net.buildabrowser.babbrowser.dom.Comment;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseElementUtil.AdjustedInsertionLocation;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
 
@@ -15,9 +16,10 @@ public final class ParseCommentUtil {
 
   public static void insertAComment(ParseContext parseContext, CommentToken commentToken, Node targetOverride) {
     String data = commentToken.data();
-    Node adjustedInsertionLocation = ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, targetOverride);
+    AdjustedInsertionLocation adjustedInsertionLocation =
+      ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, targetOverride);
     Comment comment = Comment.create(data);
-    adjustedInsertionLocation.appendChild(comment);
+    ParseElementUtil.insertNodeAt(comment, adjustedInsertionLocation);
   }
 
 }

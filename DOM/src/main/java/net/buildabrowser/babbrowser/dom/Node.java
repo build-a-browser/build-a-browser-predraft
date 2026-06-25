@@ -20,6 +20,8 @@ public interface Node extends EventTarget {
 
   Node previousSibling();
 
+  Node insertBefore(Node node, Node child);
+
   Node appendChild(Node node);
 
   default EventTarget getTheParent() {

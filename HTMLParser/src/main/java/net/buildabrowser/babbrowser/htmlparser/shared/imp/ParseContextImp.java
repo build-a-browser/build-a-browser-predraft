@@ -21,8 +21,8 @@ public class ParseContextImp implements ParseContext {
   private InsertionMode currentInsertionMode;
   private InsertionMode originalInsertionMode;
   private Element headElementPointer;
-
   private String lastTagTokenName;
+  private boolean fosterParentingEnabled;
 
   public ParseContextImp(Document document, TokenizeContext tokenizeContext) {
     this.document = document;
@@ -136,7 +136,12 @@ public class ParseContextImp implements ParseContext {
 
   @Override
   public void setFosterParentingEnabled(boolean b) {
-    // TODO: Implement
+    this.fosterParentingEnabled = b;
+  }
+
+  @Override
+  public boolean fosterParentingEnabled() {
+    return this.fosterParentingEnabled;
   }
 
   @Override

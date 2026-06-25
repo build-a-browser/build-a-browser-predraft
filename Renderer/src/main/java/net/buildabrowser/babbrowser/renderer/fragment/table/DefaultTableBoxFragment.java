@@ -1,10 +1,13 @@
 package net.buildabrowser.babbrowser.renderer.fragment.table;
 
+import java.util.List;
+
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.table.Table;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.border.TableBorderAssignment;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler;
 import net.buildabrowser.babbrowser.renderer.event.handlers.table.TableEventHandler;
+import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
 import net.buildabrowser.babbrowser.renderer.paint.painters.table.TableBoxPainter;
 
@@ -18,11 +21,13 @@ public class DefaultTableBoxFragment extends TableBoxFragment {
     float inkWidth, float inkHeight,
     ElementBox box,
     Table table,
-    TableBorderAssignment borderAssignment
+    TableBorderAssignment borderAssignment,
+    List<PosRefBoxFragment> outOfTableFragments
   ) {
     super(
       width, height, inkWidth, inkHeight,
-      box, table, borderAssignment);
+      box, table, borderAssignment,
+      outOfTableFragments);
   }
 
   @Override

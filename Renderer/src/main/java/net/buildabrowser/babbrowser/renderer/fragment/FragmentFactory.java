@@ -49,7 +49,8 @@ public interface FragmentFactory {
     float inkWidth, float inkHeight,
     ElementBox box,
     Table table,
-    TableBorderAssignment borderAssignment
+    TableBorderAssignment borderAssignment,
+    List<PosRefBoxFragment> outOfTableFragments
   );
 
   ImageBoxFragment createImageBoxFragment(

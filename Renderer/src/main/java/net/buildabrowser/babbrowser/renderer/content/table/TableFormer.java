@@ -10,17 +10,20 @@ import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.content.common.position.PositionLayout;
+import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.content.table.Table.RowGroup;
+import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 
 public final class TableFormer {
   
   private TableFormer() {}
 
-  public static Table formTable(Table table, ElementBox refBox) {
+  public static TableFormingResult formTable(Table table, ElementBox refBox) {
     ListIterator<Box> childIt = refBox.childBoxes();
     if (!childIt.hasNext()) {
       table.markSize(0, 0);
-      return table;
+      return new TableFormingResult(table, List.of());
     }
 
     TableFormerBookkeeping bookkeeping = new TableFormerBookkeeping();
@@ -30,7 +33,8 @@ public final class TableFormer {
       currentElement = advanceOrFinish(childIt, table, bookkeeping);
       if (currentElement == null) {
         table.markSize(0, 0);
-        return table;
+        return new TableFormingResult(
+          table, bookkeeping.outOfTableFragments);
       }
     }
 
@@ -58,7 +62,8 @@ public final class TableFormer {
     }
 
     table.markSize(bookkeeping.xWidth, bookkeeping.yHeight);
-    return table;
+    return new TableFormingResult(
+      table, bookkeeping.outOfTableFragments);
   }
 
   private static void processRowGroup(
@@ -68,6 +73,7 @@ public final class TableFormer {
     for (Box childBox: refBox.childBoxes()) {
       if (
         childBox instanceof ElementBox elementBox
+        && !layoutIfOutOfTable(elementBox, bookkeeping)
         && TableBoxUtil.isTableRow(elementBox)
       ) {
         processRow(table, bookkeeping, elementBox);
@@ -105,6 +111,12 @@ public final class TableFormer {
       if (xCurrent == bookkeeping.xWidth) {
         bookkeeping.xWidth++;
       }
+      
+      if (layoutIfOutOfTable(currentCell, bookkeeping)) {
+        bookkeeping.xWidth = Math.max(bookkeeping.xWidth, ++xCurrent);
+        continue;
+      }
+
       // TODO: Parse span attributes
       int colspan = parseSpan(currentCell.element(), "colspan", 1000);
       int rowspan = parseSpan(currentCell.element(), "rowspan", 65534);
@@ -137,14 +149,15 @@ public final class TableFormer {
   private static Box advanceOrFinish(
     ListIterator<Box> childIt, Table table, TableFormerBookkeeping bookkeeping
   ) {
-    if (!childIt.hasNext()) {
-      finish(table, bookkeeping);
-      return null;
+    while (childIt.hasNext()) {
+      Box nextBox = childIt.next();
+      if (layoutIfOutOfTable(nextBox, bookkeeping)) continue;
+      // TODO: This would be a good spot to associate the caption
+      return nextBox;
     }
 
-    Box nextBox = childIt.next();
-    // TODO: This would be a good spot to associate the caption
-    return nextBox;
+    finish(table, bookkeeping);
+    return null;
   }
 
   private static void finish(Table table, TableFormerBookkeeping bookkeeping) {
@@ -183,12 +196,30 @@ public final class TableFormer {
     return Math.min(span, limit);
   }
 
+  private static boolean layoutIfOutOfTable(
+    Box box, TableFormerBookkeeping bookkeeping
+  ) {
+    if (!(box instanceof ElementBox elementBox)) return false;
+    boolean isOutOfTable = !PositionUtil.affectsLayout(elementBox);
+    if (isOutOfTable) {
+      bookkeeping.outOfTableFragments.add(PositionLayout.layout(elementBox));
+    }
+    return isOutOfTable;
+  }
+
   private static class TableFormerBookkeeping {
+    // outOfTableFragments is nospec for tracking absolute/fixed/sticky fragments
+    private final List<PosRefBoxFragment> outOfTableFragments = new ArrayList<>();
     private final List<ElementBox> pendingTfootElements = new ArrayList<>();
     private final List<TableCell> downwardGrowingCells = new ArrayList<>();
     private int xWidth = 0;
     private int yHeight = 0;
     private int yCurrent = 0;
   }
+
+  public static record TableFormingResult(
+    Table table,
+    List<PosRefBoxFragment> outOfTableFragments
+  ) {}
 
 }

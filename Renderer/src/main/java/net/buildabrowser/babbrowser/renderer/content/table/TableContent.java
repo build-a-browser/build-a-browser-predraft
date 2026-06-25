@@ -12,14 +12,15 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
+import net.buildabrowser.babbrowser.renderer.content.table.TableFormer.TableFormingResult;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.TableCellUtil;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.border.TableBorderAssignment;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.border.TableCollapsedBorderAssigner;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.border.TableSeparateBorderAssigner;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.fragment.table.TableBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.table.TableBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
@@ -54,7 +55,7 @@ public class TableContent implements BoxContent {
 
     BorderSpacings borderSpacings = determineBorderSpacing();
     this.table = Table.create(rootBox, borderSpacings);
-    TableFormer.formTable(table, rootBox);
+    TableFormingResult formingResult = TableFormer.formTable(table, rootBox);
     table.createTracks();
 
     TableCellUtil.forEachCell(table, cell -> PaddingUtil.computePadding(cell.cellBox(), widthConstraint));
@@ -65,7 +66,8 @@ public class TableContent implements BoxContent {
         LayoutUtil.constraintOrDim(widthConstraint, 0),
         LayoutUtil.constraintOrDim(heightConstraint, 0),
         0, 0,
-        rootBox, table, borderAssignment);
+        rootBox, table, borderAssignment,
+        formingResult.outOfTableFragments());
       rootBox.updatePositioningFragment(tableFragment);
       return tableFragment;
     }
@@ -112,7 +114,8 @@ public class TableContent implements BoxContent {
       LayoutUtil.constraintOrDim(usedConstraint, gridMax),
       LayoutUtil.constraintOrDim(heightConstraint, totalHeight),
       inkWidth, totalHeight,
-      rootBox, table, borderAssignment);
+      rootBox, table, borderAssignment,
+      formingResult.outOfTableFragments());
     rootBox.updatePositioningFragment(tableFragment);
     return tableFragment;
   }
@@ -122,7 +125,6 @@ public class TableContent implements BoxContent {
     return this.rootBox;
   }
 
-  // TODO: Also need to handle things out of flow
   @Override
   public void positionLayers(float layerX, float layerY) {
     TablePositioner.positionLayers(

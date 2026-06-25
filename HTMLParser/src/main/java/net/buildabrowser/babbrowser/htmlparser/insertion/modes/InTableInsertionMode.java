@@ -34,16 +34,28 @@ public class InTableInsertionMode implements InsertionMode {
     } else {
       parseContext.parseError();
       parseContext.setFosterParentingEnabled(true);
-      InsertionModes.inBodyInsertionMode.emitCharacterToken(parseContext, ch);
+      boolean reprocess = InsertionModes.inBodyInsertionMode.emitCharacterToken(parseContext, ch);
       parseContext.setFosterParentingEnabled(false);
-      return false;
+      return reprocess;
     }
   }
 
   @Override
   public boolean emitOptimizedString(ParseContext parseContext, String data) {
-    // TODO
-    return false;
+    String elName = parseContext.openElementStack().peek() instanceof Element el ?
+      el.name() : null;
+    if (elName != null && TEXT_TARGETS.contains(elName)) {
+      // TODO: Pending table character tokens
+      parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());
+      parseContext.setInsertionMode(InsertionModes.inTableTextInsertionMode);
+      return true;
+    } else {
+      parseContext.parseError();
+      parseContext.setFosterParentingEnabled(true);
+      boolean reprocess = InsertionModes.inBodyInsertionMode.emitOptimizedString(parseContext, data);
+      parseContext.setFosterParentingEnabled(false);
+      return reprocess;
+    }
   }
 
   @Override
@@ -131,6 +143,7 @@ public class InTableInsertionMode implements InsertionMode {
       if (tagToken.isSelfClosing()) {
         tagToken.acknowledgeSelfClosingFlag();
       }
+      return false;
     default:
       return handleAnythingElseTag(parseContext, tagToken);
     }
@@ -163,9 +176,9 @@ public class InTableInsertionMode implements InsertionMode {
   private boolean handleAnythingElseTag(ParseContext parseContext, TagToken tagToken) {
     parseContext.parseError();
     parseContext.setFosterParentingEnabled(true);
-    InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
+    boolean reprocess = InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
     parseContext.setFosterParentingEnabled(false);
-    return false;
+    return reprocess;
   }
 
   private void clearStackBackToTableContext(ParseContext parseContext) {
