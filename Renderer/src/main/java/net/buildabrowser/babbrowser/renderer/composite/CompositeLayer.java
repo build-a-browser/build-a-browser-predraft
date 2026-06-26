@@ -2,10 +2,10 @@ package net.buildabrowser.babbrowser.renderer.composite;
 
 import java.util.List;
 
-import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.composite.imp.CompositeLayerImp;
+import net.buildabrowser.babbrowser.renderer.layout.StackingContextPosition;
 import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 
 public interface CompositeLayer {
@@ -19,11 +19,7 @@ public interface CompositeLayer {
 
   void draw(PaintCanvas canvas, VpIntersection vpIntersection);
 
-  PositionValue positioning();
-
-  float posX();
-
-  float posY();
+  StackingContextPosition position();
 
   int zIndex();
 
@@ -35,12 +31,10 @@ public interface CompositeLayer {
 
   static CompositeLayer create(
     Painter painter,
-    PositionValue positioning,
-    float offsetX, float offsetY,
+    StackingContextPosition position,
     int zIndex
   ) {
-    return new CompositeLayerImp(
-      painter, positioning, offsetX, offsetY, zIndex);
+    return new CompositeLayerImp(painter, position, zIndex);
   }
 
 }

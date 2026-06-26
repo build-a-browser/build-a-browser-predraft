@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 public class VpIntersection {
   
   private final int vpW, vpH;
-  private int vpScrollX, vpScrollY;
   private int bufferVpX, bufferVpY;
   private int bufferX, bufferY;
   private int bufferW, bufferH;
@@ -25,20 +24,12 @@ public class VpIntersection {
     return this.vpH;
   }
 
-  public int vpScrollX() {
-    return this.vpScrollX;
-  }
-
-  public int vpScrollY() {
-    return this.vpScrollY;
-  }
-
   public int bufferVpX() {
-    return this.bufferVpX - this.vpScrollX;
+    return this.bufferVpX;
   }
 
   public int bufferVpY() {
-    return this.bufferVpY - this.vpScrollY;
+    return this.bufferVpY;
   }
 
   public int bufferX() {
@@ -57,19 +48,15 @@ public class VpIntersection {
     return this.bufferH;
   }
 
-  public void enterOffset(
-    float x, float y, float scrollX, float scrollY,
+  public void enterLayer(
+    float x, float y,
     Consumer<VpIntersection> elFunc
   ) {
-    int oldScrollX = vpScrollX, oldScrollY = vpScrollY;
     int oldBufferVpX = bufferVpX, oldBufferVpY = bufferVpY;
-    vpScrollX += scrollX;
-    vpScrollY += scrollY;
     bufferVpX += x;
     bufferVpY += y;
     elFunc.accept(this);
     bufferVpX = oldBufferVpX; bufferVpY = oldBufferVpY;
-    vpScrollX = oldScrollX; vpScrollY = oldScrollY;
   }
 
   public void enterBuffer(

@@ -5,7 +5,6 @@ import java.util.ListIterator;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.EventUtil;
@@ -35,20 +34,22 @@ public final class CompositeEventsDispatcher {
     CompositeLayer layer, RendererMouseEvent mouseEvent,
     float relX, float relY
   ) {
-    TranslatedRel translatedRel = translateRel(layer, relX, relY);
+    float layerRelX = relX - layer.position().vpX();
+    float layerRelY = relY - layer.position().vpY();
+
     EventHandlerResponse mouseEventResponse = handleMouseEventForChildren(
       eventContext, layer, mouseEvent,
-      translatedRel.childRelX(), translatedRel.childRelY(), true);
+      relX, relY, true);
     if (!mouseEventResponse.isUnhandled()) return mouseEventResponse;
 
     mouseEventResponse = handleMouseEventForSelf(
       eventContext, layer, mouseEvent,
-      translatedRel.relX(), translatedRel.relY());
+      layerRelX, layerRelY);
     if (!mouseEventResponse.isUnhandled()) return mouseEventResponse;
 
     return handleMouseEventForChildren(
       eventContext, layer, mouseEvent,
-      translatedRel.childRelX(), translatedRel.childRelY(), false);
+      relX, relY, false);
   }
 
   private static EventHandlerResponse handleMouseEventForChildren(
@@ -100,18 +101,29 @@ public final class CompositeEventsDispatcher {
     float relX, float relY,
     boolean preventedDefault
   ) {
-    TranslatedRel translatedRel = translateRel(layer, relX, relY);
+    float layerRelX = relX - layer.position().vpX();
+    float layerRelY = relY - layer.position().vpY();
+
+    CompositeLayerEntry entries = layer.entries();
+    ScrollBoxFragment scrollBoxFragment =
+      entries != null
+      && entries.next() == null
+      && entries.fragment() instanceof ScrollBoxFragment scrollBoxFragment_
+      ? scrollBoxFragment_ : null;
+    float scrollX = scrollBoxFragment != null ? scrollBoxFragment.scrollX() : 0;
+    float scrollY = scrollBoxFragment != null ? scrollBoxFragment.scrollX() : 0;
     
     for (CompositeLayer child: layer.childLayers()) {
       observeEvent(
         eventContext, child, mouseEvent,
-        translatedRel.childRelX(), translatedRel.childRelY(),
+        relX, relY,
         preventedDefault);
     }
 
     // TODO: Why is entries sometimes null??
     StackingContext layerContext = layer.entries() == null ? null :
       layer.entries().fragment().box().stackingContext();
+      
     for (ElementBox observerBox: eventContext.eventObservers()) {
       StackingContext observerContext = observerBox.stackingContext();
       if (observerContext != layerContext) continue;
@@ -123,49 +135,15 @@ public final class CompositeEventsDispatcher {
       // things like scrollbars while the event loop is busy
       if (observerFragment == null) return;
       
-      float childRelX = -observerFragment.layerX(Measurement.BORDER) +
-        (observerBox instanceof ScrollBox ?
-          translatedRel.relX() : translatedRel.childRelX());
-      float childRelY = -observerFragment.layerY(Measurement.BORDER) +
-        (observerBox instanceof ScrollBox ?
-          translatedRel.relY() : translatedRel.childRelY());
+      float childRelX =
+        layerRelX - observerFragment.layerX(Measurement.BORDER) + scrollX;
+      float childRelY =
+        layerRelY - observerFragment.layerY(Measurement.BORDER) + scrollY;
 
       observerFragment.withEventHandlerV((eh, f) -> eh.observeMouseEvent(
         eventContext, mouseEvent, f,
         childRelX, childRelY, preventedDefault));
     }
   }
-
-  private static TranslatedRel translateRel(CompositeLayer layer, float relX, float relY) {
-    switch (layer.positioning()) {
-      case STATIC, RELATIVE, ABSOLUTE -> {
-        relX -= layer.posX();
-        relY -= layer.posY();
-      }
-      case FIXED -> { /* TODO: Implement */ }
-      case STICKY -> { /* TODO: Implement */ }
-      default -> throw new IllegalArgumentException("Unexpected value: " + layer.positioning());
-    }
-
-    float childRelX = relX;
-    float childRelY = relY;
-
-    CompositeLayerEntry entries = layer.entries();
-    if (
-      entries != null
-      && entries.next() == null
-      && entries.fragment() instanceof ScrollBoxFragment scrollBoxFragment
-    ) {
-      childRelX += scrollBoxFragment.scrollX();
-      childRelY += scrollBoxFragment.scrollY();
-    }
-
-    return new TranslatedRel(relX, relY, childRelX, childRelY);
-  }
-
-  private record TranslatedRel(
-    float relX, float relY,
-    float childRelX, float childRelY
-  ) {}
 
 }

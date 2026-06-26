@@ -16,6 +16,10 @@ public interface StackingContext {
 
   float[] computeInsets();
 
+  void setAbsolutePosition(float[] position); // TODO: Not the cleanest method
+
+  float[] computedBorder(); // TODO: Also not very clean
+
   void positionFragment(
     float posX, float posY,
     BoxFragment<?> fragment,
@@ -35,7 +39,7 @@ public interface StackingContext {
   void addLayer(
     Consumer<CompositeLayer> addFunc,
     Painter painter,
-    float offsetX, float offsetY
+    StackingContextPosition parentPosition
   );
 
   StackingContext parentContext();

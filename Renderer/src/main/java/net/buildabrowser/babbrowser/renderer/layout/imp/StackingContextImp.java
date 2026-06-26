@@ -20,6 +20,8 @@ import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
+import net.buildabrowser.babbrowser.renderer.layout.StackingContextPosition;
+import net.buildabrowser.babbrowser.renderer.layout.StackingContextPosition.ScrollGetter;
 
 // TODO: Some of the positioning code here is quite hacky
 public class StackingContextImp implements StackingContext {
@@ -31,6 +33,7 @@ public class StackingContextImp implements StackingContext {
   private final boolean isPassthrough;
 
   private float[] insets;
+  private float[] absolutePosition;
   private SinglyLinkedList<StackingContext> childContexts;
   private SinglyLinkedList<StackingContext> lastContext;
   private CompositeLayerEntry entries;
@@ -113,12 +116,25 @@ public class StackingContextImp implements StackingContext {
   }
 
   @Override
+  public void setAbsolutePosition(float[] position) {
+    this.absolutePosition = position;
+  }
+
+  @Override
+  public float[] computedBorder() {
+    return relatedBox.dimensions().getComputedBorder();
+  }
+
+  @Override
   public CompositeLayer createLayer(Painter painter) {
     assert insets != null;
-    CompositeLayer layer = createLayer(painter, normalizedX, normalizedY);
+    StackingContextPosition ownPosition = StackingContextPosition.root();
+    CompositeLayer layer = createLayer(painter, ownPosition);
     SinglyLinkedList<StackingContext> childContext = childContexts;
     while (childContext != null) {
-      childContext.item().addLayer(layer::addChild, painter, 0, 0);
+      StackingContextPosition childPosition = positionChild(
+        ownPosition, childContext.item());
+      childContext.item().addLayer(layer::addChild, painter, childPosition);
       childContext = childContext.next();
     }
 
@@ -129,37 +145,33 @@ public class StackingContextImp implements StackingContext {
   public void addLayer(
     Consumer<CompositeLayer> addFunc,
     Painter painter,
-    float offsetX, float offsetY
+    StackingContextPosition parentPosition
   ) {
     assert insets != null;
 
-    boolean useInsets = positioning.equals(PositionValue.RELATIVE);
-    float myOffsetX = offsetX + (useInsets ? insets[2] : 0) + normalizedX;
-    float myOffsetY = offsetY + (useInsets ? insets[0] : 0) + normalizedY;
+    StackingContextPosition ownPosition = positionSelf(parentPosition);
     
-    float[] border = relatedBox.dimensions().getComputedBorder();
-    
-    CompositeLayer ownLayer = createLayer(painter, myOffsetX, myOffsetY);
+    CompositeLayer ownLayer = createLayer(painter, ownPosition);
     addFunc.accept(ownLayer);
     SinglyLinkedList<StackingContext> childContext = childContexts;
     while (childContext != null) {
-      // Absolutely positioned layers need to be inside the border box
-      boolean useAbsOffset = childContext.item().positioning().equals(PositionValue.ABSOLUTE);
-      float absOffsetX = useAbsOffset ? border[2] : 0;
-      float absOffsetY = useAbsOffset ? border[0] : 0;
+      StackingContextPosition childPosition = positionChild(
+        ownPosition, childContext.item());
       if (isPassthrough) {
-        childContext.item().addLayer(addFunc, painter, myOffsetX + absOffsetX, myOffsetY + absOffsetY);
+        childContext.item().addLayer(addFunc, painter, childPosition);
       } else {
-        childContext.item().addLayer(ownLayer::addChild, painter, absOffsetX, absOffsetY);
+        childContext.item().addLayer(ownLayer::addChild, painter, childPosition);
       }
       childContext = childContext.next();
     }
   }
 
-  private CompositeLayer createLayer(Painter painter, float offsetX, float offsetY) {
+  private CompositeLayer createLayer(
+    Painter painter,
+    StackingContextPosition position
+  ) {
     CompositeLayer layer = CompositeLayer.create(
-      painter,
-      positioning, offsetX, offsetY, zIndexOrder);
+      painter, position, zIndexOrder);
     layer.addEntries(entries);
     return layer;
   }
@@ -231,6 +243,42 @@ public class StackingContextImp implements StackingContext {
     float refHeight = parentContext.innerHeight();
     return PositionUtil.computeAbsoluteInsets(
       relatedBox, refWidth, refHeight);
+  }
+
+  private StackingContextPosition positionSelf(
+    StackingContextPosition parentPosition
+  ) {
+    return switch (positioning) {
+      case STATIC -> parentPosition.relative(0, 0, normalizedX, normalizedY);
+      case RELATIVE -> parentPosition.relative(insets[2], insets[0], normalizedX, normalizedY);
+      case ABSOLUTE -> parentPosition.absolute(absolutePosition[0], absolutePosition[1]);
+      // TODO: Fixed, sticky
+      default -> parentPosition.relative(0, 0, normalizedX, normalizedY);
+    };
+  }
+
+  private StackingContextPosition positionChild(
+    StackingContextPosition parentPosition,
+    StackingContext childContext
+  ) {
+    float[] border = relatedBox.dimensions().getComputedBorder();
+    StackingContextPosition childPosition = switch (childContext.positioning()) {
+      case ABSOLUTE -> parentPosition.absolute(border[2], border[0]);
+      default -> parentPosition;
+    };
+
+    ScrollBoxFragment scrollBoxFragment = relatedScrollBox();
+    if (scrollBoxFragment == null) return childPosition;
+    ScrollGetter scrollGetterX = () -> scrollBoxFragment.scrollX();
+    ScrollGetter scrollGetterY = () -> scrollBoxFragment.scrollY();
+    return childPosition.scroll(scrollGetterX, scrollGetterY);
+  }
+
+  private ScrollBoxFragment relatedScrollBox() {
+    return entries != null
+      && entries.next() == null
+      && entries.fragment() instanceof ScrollBoxFragment scrollBoxFragment_
+      ? scrollBoxFragment_ : null;
   }
 
   private void addChild(StackingContext childContext) {

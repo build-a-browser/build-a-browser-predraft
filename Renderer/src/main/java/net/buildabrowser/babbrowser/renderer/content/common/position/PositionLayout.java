@@ -70,7 +70,8 @@ public final class PositionLayout {
   public static float[] positionAbsolute(
     float[] insets,
     UnmanagedBoxFragment<?> computedFragment,
-    float refWidth, float refHeight
+    float refWidth, float refHeight,
+    float[] parentBorder
   ) {
     PropertyContainer properties = computedFragment.box().properties();
     boolean topInsetIsAuto = properties.get(CSSProperty.TOP).equals(CSSValue.AUTO);
@@ -80,16 +81,17 @@ public final class PositionLayout {
 
     float leftPos = positionAbsoluteAxis(
       leftInsetIsAuto, rightInsetIsAuto, insets, 2,
-      computedFragment.box().dimensions().staticX(),
+      computedFragment.box().dimensions().staticX() - parentBorder[2],
       computedFragment.width(Measurement.BORDER), refWidth);
     float topPos = positionAbsoluteAxis(
       topInsetIsAuto, bottomInsetIsAuto, insets, 0,
-      computedFragment.box().dimensions().staticY(),
+      computedFragment.box().dimensions().staticY() - parentBorder[0],
       computedFragment.height(Measurement.BORDER), refHeight);
 
+    float[] margin = computedFragment.box().dimensions().getComputedMargin();
     return new float[] {
-      leftPos + computedFragment.posX(Measurement.BORDER),
-      topPos + computedFragment.posY(Measurement.BORDER)
+      leftPos + margin[2],
+      topPos + margin[0]
     };
   }
 

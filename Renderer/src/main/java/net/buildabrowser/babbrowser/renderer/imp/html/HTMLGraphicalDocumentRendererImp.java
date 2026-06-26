@@ -312,17 +312,18 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     StackingContext ownContext = itemBox.stackingContext();
     StackingContext parentContext = ownContext.parentContext();
     float[] insets = ownContext.computeInsets();
+    float[] parentBorders = parentContext.computedBorder();
     float refWidth = parentContext.innerWidth();
     float refHeight = parentContext.innerHeight();
     UnmanagedBoxFragment<?> itemFragment = PositionLayout.actuallyLayoutAbsolute(
       itemBox, refWidth, refHeight, insets);
     float[] position = PositionLayout.positionAbsolute(
-      insets, itemFragment, refWidth, refHeight);
+      insets, itemFragment, refWidth, refHeight, parentBorders);
+    ownContext.setAbsolutePosition(position);
     
     StackingContextGenerator.generateStackingContextsDeferred(itemBox, deferredLayout);
     ownContext.positionFragment(
-      position[0], position[1], itemFragment,
-      itemBox.content()::positionLayers);
+      0, 0, itemFragment, itemBox.content()::positionLayers);
   }
   
 }
