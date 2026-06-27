@@ -48,7 +48,7 @@ public final class PositionLayout {
       EBDimensionsUtil.preferredMinWidthConstraint(refBox),
       EBDimensionsUtil.preferredWidthConstraint(refBox));
     float usedWidth = LayoutUtil.constraintOrDim(baseWidth, fitContentWidth);
-    LayoutConstraint usedWidthConstraint = SizingHeightUtil.clampHeight(
+    LayoutConstraint usedWidthConstraint = SizingWidthUtil.clampWidth(
       LayoutConstraint.of(containingWidth), refBox, LayoutConstraint.of(usedWidth));
     
     // TODO: Actually determine a height to use

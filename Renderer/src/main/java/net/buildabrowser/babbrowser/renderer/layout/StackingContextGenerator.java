@@ -55,11 +55,12 @@ public final class StackingContextGenerator {
     boolean isScrollable = elementBox instanceof ScrollBox;
     boolean hasFixedAttachment = hasFixedAttachment(elementBox.properties());
 
-    if (positioning.equals(PositionValue.ABSOLUTE)) {
+    if (isDeferred(positioning)) {
       parentContext = parentContext.createChild(elementBox);
       deferredBoxes.add(elementBox);
     } else if (
       positioning.equals(PositionValue.RELATIVE)
+      || positioning.equals(PositionValue.STICKY)
       || isScrollable || hasFixedAttachment
     ) {
       parentContext = parentContext.createChild(elementBox);
@@ -68,11 +69,17 @@ public final class StackingContextGenerator {
     elementBox.setStackingContext(parentContext);
 
     ElementBoxIterator childIt = elementBox.childBoxes();
-    if (!positioning.equals(PositionValue.ABSOLUTE)) {
+    if (!isDeferred(positioning)) {
       while (childIt.hasNext()) {
         generateStackingContexts(childIt.next(), parentContext, deferredBoxes);
       }
     }
+  }
+
+  private static boolean isDeferred(CSSValue positioning) {
+    return
+      positioning.equals(PositionValue.ABSOLUTE)
+      || positioning.equals(PositionValue.FIXED);
   }
 
   private static void generateScrollChildStackingContexts(

@@ -1,6 +1,5 @@
 package net.buildabrowser.babbrowser.renderer.imp.html;
 
-import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,24 +30,21 @@ import net.buildabrowser.babbrowser.renderer.box.BoxGenerator;
 import net.buildabrowser.babbrowser.renderer.box.DocumentBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.context.ScriptingContext;
 import net.buildabrowser.babbrowser.renderer.context.imp.ElementContextImp;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
-import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.image.ImageCache;
 import net.buildabrowser.babbrowser.renderer.imp.RenderCSSMatcherContext;
 import net.buildabrowser.babbrowser.renderer.imp.RenderDocumentChangeListener;
 import net.buildabrowser.babbrowser.renderer.layout.FontCache;
 import net.buildabrowser.babbrowser.renderer.layout.FontWordWidthCache;
 import net.buildabrowser.babbrowser.renderer.layout.GlobalLayoutContext;
+import net.buildabrowser.babbrowser.renderer.layout.HTMLLayout;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContextGenerator;
-import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
-import net.buildabrowser.babbrowser.renderer.layout.StackingContextGenerator;
 import net.buildabrowser.babbrowser.renderer.layout.Viewport;
 import net.buildabrowser.babbrowser.renderer.logging.PerfLogging;
 import net.buildabrowser.babbrowser.renderer.style.StyleCache;
@@ -269,22 +265,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
     LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
     LayoutContextGenerator.generateLayoutContexts(rootBox, layoutContext);
-    ArrayDeque<ElementBox> deferredLayout = new ArrayDeque<>();
 
-    UnmanagedBoxFragment<?> fragment = rootBox.layout(
-      LayoutConstraint.of(width),
-      LayoutConstraint.of(height));
-    fragment.setPos(0, 0);
-
-    StackingContextGenerator.generateStackingContextsRoot(rootBox, deferredLayout);
-    rootBox.stackingContext().positionFragment(
-      0, 0, fragment,
-      rootBox.content()::positionLayers);
-    
-    while (!deferredLayout.isEmpty()) {
-      ElementBox itemBox = deferredLayout.pop();
-      layoutAbsolute(deferredLayout, itemBox);
-    }
+    HTMLLayout.doLayout(rootBox, width, height);
     
     compositeLayers.regenerate(rootBox.stackingContext());
   }
@@ -302,28 +284,6 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       painter.resourceLoader(), rootFont.metrics(), fontCache, fontWordWidthCache,
       viewport, scriptingContext, imageCache, fragmentFactory);
     return globalLayoutContext;
-  }
-
-  private void layoutAbsolute(
-    ArrayDeque<ElementBox> deferredLayout,
-    ElementBox itemBox
-  ) {
-    // TODO: Need to use proper layout context for item
-    StackingContext ownContext = itemBox.stackingContext();
-    StackingContext parentContext = ownContext.parentContext();
-    float[] insets = ownContext.computeInsets();
-    float[] parentBorders = parentContext.computedBorder();
-    float refWidth = parentContext.innerWidth();
-    float refHeight = parentContext.innerHeight();
-    UnmanagedBoxFragment<?> itemFragment = PositionLayout.actuallyLayoutAbsolute(
-      itemBox, refWidth, refHeight, insets);
-    float[] position = PositionLayout.positionAbsolute(
-      insets, itemFragment, refWidth, refHeight, parentBorders);
-    ownContext.setAbsolutePosition(position);
-    
-    StackingContextGenerator.generateStackingContextsDeferred(itemBox, deferredLayout);
-    ownContext.positionFragment(
-      0, 0, itemFragment, itemBox.content()::positionLayers);
   }
   
 }

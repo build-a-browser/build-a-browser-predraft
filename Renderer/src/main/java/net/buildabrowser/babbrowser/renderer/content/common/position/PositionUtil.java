@@ -12,12 +12,16 @@ import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
+import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 
 public final class PositionUtil {
 
   public static boolean affectsLayout(ElementBox box) {
     CSSValue position = box.properties().get(CSSProperty.POSITION);
-    return position.equals(PositionValue.STATIC) || position.equals(PositionValue.RELATIVE) || position.equals(PositionValue.STICKY);
+    return
+      position.equals(PositionValue.STATIC)
+      || position.equals(PositionValue.RELATIVE)
+      || position.equals(PositionValue.STICKY);
   }
 
   public static boolean affectsLayout(LayoutFragment fragment) {
@@ -63,6 +67,31 @@ public final class PositionUtil {
     }
   }
 
+  public static float[] computeStickyInsets(
+    ElementBox childBox, float parentWidth, float parentHeight
+  ) {
+    LayoutConstraint heightConstraint = LayoutConstraint.of(parentHeight);
+    LayoutConstraint widthConstraint = LayoutConstraint.of(parentWidth);
+    return new float[] {
+      computeStickyInset(CSSProperty.TOP, childBox, heightConstraint),
+      computeStickyInset(CSSProperty.BOTTOM, childBox, heightConstraint),
+      computeStickyInset(CSSProperty.LEFT, childBox, widthConstraint),
+      computeStickyInset(CSSProperty.RIGHT, childBox, widthConstraint)
+    };
+  }
+
+  private static float computeStickyInset(
+    CSSProperty property,
+    ElementBox childBox,
+    LayoutConstraint referenceConstraint
+  ) {
+    CSSValue propertyValue = childBox.properties().get(property);
+    LayoutContext layoutContext = childBox.layoutContext();
+    LayoutConstraint startConstraint = SizingUtil.evaluateBaseSize(
+      layoutContext, referenceConstraint, propertyValue);
+    return LayoutUtil.constraintOrDim(startConstraint, Float.NaN);
+  }
+
   // TODO: Respect self-alignment
   public static float[] computeAbsoluteInsets(
     ElementBox box, float refWidth, float refHeight
@@ -92,7 +121,21 @@ public final class PositionUtil {
       
     return adjustedConstraints;
   }
-    
+
+  public static boolean isStaticX(ElementBox box) {
+    PropertyContainer properties = box.properties();
+    boolean leftInsetIsAuto = properties.get(CSSProperty.LEFT).equals(CSSValue.AUTO);
+    boolean rightInsetIsAuto = properties.get(CSSProperty.RIGHT).equals(CSSValue.AUTO);
+    return leftInsetIsAuto && rightInsetIsAuto;
+  }
+  
+  public static boolean isStaticY(ElementBox box) {
+    PropertyContainer properties = box.properties();
+    boolean topInsetIsAuto = properties.get(CSSProperty.TOP).equals(CSSValue.AUTO);
+    boolean bottomInsetIsAuto = properties.get(CSSProperty.BOTTOM).equals(CSSValue.AUTO);
+    return topInsetIsAuto && bottomInsetIsAuto;
+  }
+  
   private static void adjustAbsoluteConstraints(
     float[] adjustedConstraints,
     LayoutConstraint[] initConstraints,

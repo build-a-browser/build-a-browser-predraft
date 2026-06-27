@@ -19,8 +19,10 @@ import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUti
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
+import net.buildabrowser.babbrowser.renderer.layout.ScrollPort;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContextPosition;
+import net.buildabrowser.babbrowser.renderer.layout.Viewport;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContextPosition.ScrollGetter;
 
 // TODO: Some of the positioning code here is quite hacky
@@ -68,6 +70,7 @@ public class StackingContextImp implements StackingContext {
       this.entries == null &&
       (
         positioning.equals(PositionValue.RELATIVE)
+        || positioning.equals(PositionValue.STICKY)
         || positioning.equals(PositionValue.STATIC))
     ) {
       normalizedX = posX;
@@ -108,10 +111,11 @@ public class StackingContextImp implements StackingContext {
 
   @Override
   public float[] computeInsets() {
-    CSSValue position = relatedBox.properties().get(CSSProperty.POSITION);
     return this.insets =
-      position.equals(PositionValue.RELATIVE) ? determineRelativeInsets() :
-      position.equals(PositionValue.ABSOLUTE) ? determineAbsoluteInsets() :
+      positioning.equals(PositionValue.RELATIVE) ? determineRelativeInsets() :
+      positioning.equals(PositionValue.STICKY) ? determineStickyInsets() :
+      positioning.equals(PositionValue.ABSOLUTE) ? determineAbsoluteInsets() :
+      positioning.equals(PositionValue.FIXED) ? determineAbsoluteInsets() :
       new float[4];
   }
 
@@ -129,12 +133,16 @@ public class StackingContextImp implements StackingContext {
   public CompositeLayer createLayer(Painter painter) {
     assert insets != null;
     StackingContextPosition ownPosition = StackingContextPosition.root();
+    Viewport viewport = relatedBox.layoutContext().global().viewport();
+    ScrollPort scrollPort = new ScrollPort(
+      ownPosition, viewport.width(), viewport.height());
     CompositeLayer layer = createLayer(painter, ownPosition);
     SinglyLinkedList<StackingContext> childContext = childContexts;
     while (childContext != null) {
       StackingContextPosition childPosition = positionChild(
         ownPosition, childContext.item());
-      childContext.item().addLayer(layer::addChild, painter, childPosition);
+      childContext.item().addLayer(
+        layer::addChild, painter, childPosition, scrollPort);
       childContext = childContext.next();
     }
 
@@ -145,11 +153,15 @@ public class StackingContextImp implements StackingContext {
   public void addLayer(
     Consumer<CompositeLayer> addFunc,
     Painter painter,
-    StackingContextPosition parentPosition
+    StackingContextPosition parentPosition,
+    ScrollPort scrollPort
   ) {
     assert insets != null;
 
-    StackingContextPosition ownPosition = positionSelf(parentPosition);
+    StackingContextPosition ownPosition = positionSelf(
+      parentPosition, scrollPort);
+    ScrollPort childScrollPort = determineChildScrollPort(
+      ownPosition, scrollPort);
     
     CompositeLayer ownLayer = createLayer(painter, ownPosition);
     addFunc.accept(ownLayer);
@@ -158,9 +170,9 @@ public class StackingContextImp implements StackingContext {
       StackingContextPosition childPosition = positionChild(
         ownPosition, childContext.item());
       if (isPassthrough) {
-        childContext.item().addLayer(addFunc, painter, childPosition);
+        childContext.item().addLayer(addFunc, painter, childPosition, childScrollPort);
       } else {
-        childContext.item().addLayer(ownLayer::addChild, painter, childPosition);
+        childContext.item().addLayer(ownLayer::addChild, painter, childPosition, childScrollPort);
       }
       childContext = childContext.next();
     }
@@ -217,7 +229,7 @@ public class StackingContextImp implements StackingContext {
 
     return Math.max(0, maxY - minY);
   }
-
+  
   private float[] determineRelativeInsets() {
     Box refBox = relatedBox.parentBox();
     while (
@@ -237,6 +249,14 @@ public class StackingContextImp implements StackingContext {
       refFragment.width(Measurement.CONTENT), refFragment.height(Measurement.CONTENT), relatedBox);
   }
 
+  private float[] determineStickyInsets() {
+    if (parentContext == null) return new float[4];
+    float refWidth = parentContext.innerWidth();
+    float refHeight = parentContext.innerHeight();
+    return PositionUtil.computeStickyInsets(
+      relatedBox, refWidth, refHeight);
+  }
+
   private float[] determineAbsoluteInsets() {
     if (parentContext == null) return new float[4];
     float refWidth = parentContext.innerWidth();
@@ -246,13 +266,22 @@ public class StackingContextImp implements StackingContext {
   }
 
   private StackingContextPosition positionSelf(
-    StackingContextPosition parentPosition
+    StackingContextPosition parentPosition,
+    ScrollPort scrollPort
   ) {
     return switch (positioning) {
       case STATIC -> parentPosition.relative(0, 0, normalizedX, normalizedY);
       case RELATIVE -> parentPosition.relative(insets[2], insets[0], normalizedX, normalizedY);
+      case STICKY -> parentPosition.sticky(
+        normalizedX, normalizedY,
+        innerWidth(), innerHeight(),
+        insets, scrollPort);
       case ABSOLUTE -> parentPosition.absolute(absolutePosition[0], absolutePosition[1]);
-      // TODO: Fixed, sticky
+      case FIXED -> parentPosition.fixed(
+        absolutePosition[0], absolutePosition[1],
+        PositionUtil.isStaticX(relatedBox),
+        PositionUtil.isStaticY(relatedBox));
+      // TODO: Sticky
       default -> parentPosition.relative(0, 0, normalizedX, normalizedY);
     };
   }
@@ -272,6 +301,16 @@ public class StackingContextImp implements StackingContext {
     ScrollGetter scrollGetterX = () -> scrollBoxFragment.scrollX();
     ScrollGetter scrollGetterY = () -> scrollBoxFragment.scrollY();
     return childPosition.scroll(scrollGetterX, scrollGetterY);
+  }
+
+  private ScrollPort determineChildScrollPort(
+    StackingContextPosition ownPosition,
+    ScrollPort scrollPort
+  ) {
+    ScrollBoxFragment scrollBoxFragment = relatedScrollBox();
+    if (scrollBoxFragment == null) return scrollPort;
+    return new ScrollPort(
+      ownPosition, innerWidth(), innerHeight());
   }
 
   private ScrollBoxFragment relatedScrollBox() {

@@ -39,7 +39,8 @@ public interface StackingContext {
   void addLayer(
     Consumer<CompositeLayer> addFunc,
     Painter painter,
-    StackingContextPosition parentPosition
+    StackingContextPosition parentPosition,
+    ScrollPort scrollPort
   );
 
   StackingContext parentContext();
