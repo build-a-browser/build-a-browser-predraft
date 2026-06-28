@@ -5,7 +5,8 @@ include(
   ':Common', ':Infra',
   ':CSSBase', ':CSSEngine', ':PainterCore', ':Renderer',
   ':PainterSkija', ':PainterJava2D',
-  ':DOM', ':HTML', ':HTMLParser',':Browser', ':Network',
+  ':DOM', ':HTML', ':HTMLParser', ':A11YCore',
+  ':Browser', ':Network',
   ':Stream', ':Fetch')
 
 // Copied from Brotli4J website (https://github.com/hyperxpro/Brotli4j/blob/main/LICENSE)
