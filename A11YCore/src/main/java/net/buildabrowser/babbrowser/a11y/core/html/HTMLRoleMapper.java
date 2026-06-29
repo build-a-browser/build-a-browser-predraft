@@ -5,6 +5,7 @@ import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Namespace;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.Text;
 
 public final class HTMLRoleMapper {
   
@@ -13,6 +14,8 @@ public final class HTMLRoleMapper {
   public static AriaRole mapNode(Node node) {
     if (node instanceof Document) {
       return AriaRole.DOCUMENT;
+    } else if (node instanceof Text) {
+      return AriaRole.STATICTEXT;
     }
 
     // TODO: What is the proper role to return in cases where currently none

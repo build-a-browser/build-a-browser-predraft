@@ -6,6 +6,11 @@ import net.buildabrowser.babbrowser.dom.NodeList;
 
 public abstract class NodeImp implements Node {
 
+  // TODO: There's no way we can overflow this long... right?
+  private static long nextAriaId = 0;
+
+  private final long ariaId = nextAriaId++;
+
   private NodeList nodeList;
 
   protected Node parentNode;
@@ -97,6 +102,11 @@ public abstract class NodeImp implements Node {
 
     nodeDocument().changeListener().onNodeAdded(node); // Custom addition
     return node;
+  }
+
+  @Override
+  public long ariaId() {
+    return this.ariaId;
   }
 
 }

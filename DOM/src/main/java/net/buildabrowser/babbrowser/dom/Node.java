@@ -28,6 +28,11 @@ public interface Node extends EventTarget {
     return parentNode();
   }
 
+  // Extensions
+  // TODO: Having these on the base node interface is not great
+
+  long ariaId();
+
   default void forEachChild(Consumer<Node> itFunc) {
     Node currentNode = firstChild();
     while (currentNode != null) {
