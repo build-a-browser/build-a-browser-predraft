@@ -9,34 +9,26 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 
 public class HiddenTypeContent implements InputTypeContent {
   
-  private ElementBox rootBox;
-
-  public HiddenTypeContent(
-    ElementBox rootBox
-  ) {
-    this.rootBox = rootBox;
-  }
-
   @Override
-  public UnmanagedBoxFragment<?> layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
+  public UnmanagedBoxFragment<?> layout(
+    ElementBox rootBox,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
+  ) {
     float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, 0);
     float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, 0);
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
-    UnmanagedBoxFragment<?> inputFragment = fragmentFactory.createInputBoxFragment(
+    return fragmentFactory.createInputBoxFragment(
       usedWidth, usedHeight, usedWidth, usedHeight,
       rootBox, this);
-    rootBox.updatePositioningFragment(inputFragment);
-    return inputFragment;
   }
 
   @Override
-  public void positionLayers(float layerX, float layerY) {
-    rootBox.positioningFragment().setLayerPos(layerX, layerY);
-  }
-
-  @Override
-  public ElementBox rootBox() {
-    return this.rootBox;
+  public void positionLayers(
+    UnmanagedBoxFragment<?> fragment,
+    float layerX, float layerY
+  ) {
+    fragment.setLayerPos(layerX, layerY);
   }
 
 }

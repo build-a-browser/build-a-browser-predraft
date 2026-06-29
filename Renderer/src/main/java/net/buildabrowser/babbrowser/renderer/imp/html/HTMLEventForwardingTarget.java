@@ -56,7 +56,9 @@ public class HTMLEventForwardingTarget implements EventForwardingTarget {
       ElementContext context = elementContexts.get(htmlElement);
       if (context.box() != null) {
         EventHandlerResponse response = context.box().content().withFocusEventHandler(
-          (feh, c) -> feh.handleKeyboardEvent(eventContext, c, keyEvent));
+          context.box(),
+          (feh, c) -> feh.handleKeyboardEvent(
+            eventContext, context.box(), c, keyEvent));
         if (response.equals(EventHandlerResponse.HANDLED)) {
           return;
         }

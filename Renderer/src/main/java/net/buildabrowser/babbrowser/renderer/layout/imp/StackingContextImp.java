@@ -54,10 +54,10 @@ public class StackingContextImp implements StackingContext {
   }
 
   @Override
-  public void positionFragment(
+  public <T extends BoxFragment<?>> void positionFragment(
     float posX, float posY,
-    BoxFragment<?> fragment,
-    ChildPositionFunc positionFunc
+    T fragment,
+    ChildPositionFunc<T> positionFunc
   ) {
     if (this.entries != null && fragment instanceof ScrollBoxFragment) {
       throw new RuntimeException();
@@ -82,14 +82,14 @@ public class StackingContextImp implements StackingContext {
     fragment.setLayerPos(layerX, layerY);
     entries = IntrusiveList.add(entries, new CompositeLayerEntry(
       layerX, layerY, fragment));
-    positionFunc.position(layerX, layerY);
+    positionFunc.position(fragment, layerX, layerY);
   }
 
   @Override
-  public void positionNormalizedFragment(
+  public <T extends BoxFragment<?>> void positionNormalizedFragment(
     float posX, float posY,
-    BoxFragment<?> fragment,
-    ChildPositionFunc positionFunc
+    T fragment,
+    ChildPositionFunc<T> positionFunc
   ) {
     if (Float.isNaN(normalizedX)) {
       normalizedX = 0;

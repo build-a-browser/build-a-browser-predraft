@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.event;
 
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
+import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererKeyboardEvent;
 
@@ -8,6 +9,7 @@ public interface FocusEventHandler<T extends BoxContent> {
   
   default EventHandlerResponse handleKeyboardEvent(
     EventContext eventContext,
+    ElementBox box,
     T content,
     RendererKeyboardEvent event
   ) {

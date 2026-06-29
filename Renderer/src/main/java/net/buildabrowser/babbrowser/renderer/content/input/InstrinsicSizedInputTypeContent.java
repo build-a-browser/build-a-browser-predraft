@@ -10,18 +10,10 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 
 public class InstrinsicSizedInputTypeContent implements InputTypeContent {
 
-  private ElementBox rootBox;
-
-  public InstrinsicSizedInputTypeContent(
-    ElementBox rootBox
-  ) {
-    this.rootBox = rootBox;
-  }
-
   // TODO: Support field-sizing
   // TODO: Support size attribute
   @Override
-  public void computeIntrinsics() {
+  public void computeIntrinsics(ElementBox rootBox) {
     FontMetrics fontMetrics = rootBox.layoutContext().font().metrics();
     float intrinsicWidth = convertACharacterWidthToPixels(fontMetrics, 20);
     float intrinsicHeight = fontMetrics.height(); // TODO: Use line-height instead
@@ -32,28 +24,28 @@ public class InstrinsicSizedInputTypeContent implements InputTypeContent {
   }
 
   @Override
-  public UnmanagedBoxFragment<?> layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
+  public UnmanagedBoxFragment<?> layout(
+    ElementBox rootBox,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
+  ) {
     ElementBoxDimensions dimensions = rootBox.dimensions();
     float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, dimensions.intrinsicWidth());
     float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.intrinsicHeight());
     float inkWidth = Math.max(usedWidth, dimensions.intrinsicWidth());
     float inkHeight = Math.max(usedWidth, dimensions.intrinsicHeight());
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
-    UnmanagedBoxFragment<?> inputFragment = fragmentFactory.createInputBoxFragment(
+    return fragmentFactory.createInputBoxFragment(
       usedWidth, usedHeight, inkWidth, inkHeight,
       rootBox, this);
-    rootBox.updatePositioningFragment(inputFragment);
-    return inputFragment;
   }
 
   @Override
-  public void positionLayers(float layerX, float layerY) {
-    rootBox.positioningFragment().setLayerPos(layerX, layerY);
-  }
-
-  @Override
-  public ElementBox rootBox() {
-    return this.rootBox;
+  public void positionLayers(
+    UnmanagedBoxFragment<?> fragment,
+    float layerX, float layerY
+  ) {
+    fragment.setLayerPos(layerX, layerY);
   }
 
   private float convertACharacterWidthToPixels(FontMetrics fontMetrics, int size) {

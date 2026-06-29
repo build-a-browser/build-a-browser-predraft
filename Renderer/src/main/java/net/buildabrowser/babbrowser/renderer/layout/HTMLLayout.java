@@ -75,7 +75,8 @@ public final class HTMLLayout {
     
     StackingContextGenerator.generateStackingContextsDeferred(itemBox, deferredLayout);
     ownContext.positionFragment(
-      0, 0, itemFragment, itemBox.content()::positionLayers);
+      0, 0, itemFragment,
+      itemBox.content()::positionLayers);
   }
 
 }

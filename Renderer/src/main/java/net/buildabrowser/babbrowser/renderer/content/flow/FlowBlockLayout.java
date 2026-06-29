@@ -24,17 +24,19 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class FlowBlockLayout {
 
-  private final FlowRootContent rootContent;
+  private final FlowContext flowContext;
 
   private BlockFormattingContext rootContext;
   private BlockFormattingContext activeContext;
 
-  public FlowBlockLayout(FlowRootContent rootContent) {
-    this.rootContent = rootContent;
+  public FlowBlockLayout(FlowContext context) {
+    this.flowContext = context;
   }
 
-  public void reset(
-    ElementBox rootBox, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+  public void setup(
+    ElementBox rootBox,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
   ) {
     this.rootContext = new BlockFormattingContext(
       rootBox, widthConstraint, heightConstraint, null,null);
@@ -47,8 +49,8 @@ public class FlowBlockLayout {
     rootContext.collapse();
     return rootContext.close(
       widthConstraint, heightConstraint,
-      rootContent.floatTracker().contentWidth(),
-      rootContent.floatTracker().contentHeight());
+      flowContext.floatTracker().contentWidth(),
+      flowContext.floatTracker().contentHeight());
   }
 
   public BlockFormattingContext activeContext() {
@@ -60,7 +62,7 @@ public class FlowBlockLayout {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    FlowInlineLayout inlineLayout = rootContent.inlineLayout();
+    FlowInlineLayout inlineLayout = flowContext.inlineLayout();
     PropertyContainer properties = box.properties();
 
     boolean isInInline = false;
@@ -90,7 +92,7 @@ public class FlowBlockLayout {
         ackFloatClear(elementBox);
         UnmanagedBoxFragment<?> floatFragment = FloatLayout.renderFloat(
           elementBox, widthConstraint, heightConstraint);
-        FloatLayout.addFloat(rootContent, floatFragment, widthConstraint, heightConstraint, 0);
+        FloatLayout.addFloat(flowContext, floatFragment, widthConstraint, heightConstraint, 0);
         activeContext.addFragment(new FloatRefFragment(floatFragment));
       } else if (FlowUtil.isBlockLevel(childBox)) {
         if (isInInline) {
@@ -182,7 +184,7 @@ public class FlowBlockLayout {
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint
   ) {
-    FloatTracker floatTracker = rootContent.floatTracker();
+    FloatTracker floatTracker = flowContext.floatTracker();
     float leftContent = floatTracker.lineStartPos();
     float rightContent = parentWidthConstraint.isBounded() ?
       floatTracker.lineEndPos(parentWidthConstraint) : 0;
@@ -231,7 +233,7 @@ public class FlowBlockLayout {
     activeContext.recordMargin(Math.max(margin[0], minClear));
     activeContext.collapse();
 
-    FragmentFactory fragmentFactory = rootContent.rootBox().layoutContext().global().fragmentFactory();
+    FragmentFactory fragmentFactory = childBox.layoutContext().global().fragmentFactory();
     UnmanagedBoxFragment<?> newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
       fragmentFactory.createGenericUnmanagedBox(
         FlowUtil.constraintWidth(childBox, childWidthConstraint),
@@ -282,8 +284,8 @@ public class FlowBlockLayout {
   private void ackFloatClear(ElementBox elementBox) {
     CSSValue clearValue = elementBox.properties().get(CSSProperty.CLEAR);
     if (clearValue.equals(CSSValue.NONE)) return;
-    float leftClear = clearValue.equals(ClearValue.RIGHT) ? 0 : rootContent.floatTracker().clearedLineStartPosition();
-    float rightClear = clearValue.equals(ClearValue.LEFT) ? 0 : rootContent.floatTracker().clearedLineEndPosition();
+    float leftClear = clearValue.equals(ClearValue.RIGHT) ? 0 : flowContext.floatTracker().clearedLineStartPosition();
+    float rightClear = clearValue.equals(ClearValue.LEFT) ? 0 : flowContext.floatTracker().clearedLineEndPosition();
     float totalClear = Math.max(leftClear, rightClear);
     activeContext.increaseY(totalClear, totalClear);
   }

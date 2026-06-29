@@ -2,9 +2,9 @@ package net.buildabrowser.babbrowser.renderer.content.table;
 
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.table.imp.TableCellUtil;
-import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.table.TableBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 
@@ -36,7 +36,7 @@ public final class TablePositioner {
     TableCell cell
   ) {
     ElementBox box = cell.cellBox();
-    BoxFragment<?> boxFragment = cell.getRelatedFragment();
+    UnmanagedBoxFragment<?> boxFragment = cell.getRelatedFragment();
     if (boxFragment == null) return;
 
     layerX += boxFragment.posX(Measurement.BORDER);
@@ -50,7 +50,8 @@ public final class TablePositioner {
         box.content()::positionLayers);
     } else {
       boxFragment.setLayerPos(layerX, layerY);
-      box.content().positionLayers(layerX, layerY);
+      box.content().positionLayers(
+        boxFragment, layerX, layerY);
     }
   }
 

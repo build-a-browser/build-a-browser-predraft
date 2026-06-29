@@ -8,40 +8,37 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 
 public class TestFixedSizeReplacedContent implements BoxContent {
-
-  private final ElementBox box;
+  
   private final float width;
   private final float height;
 
-  public TestFixedSizeReplacedContent(ElementBox box, float width, float height) {
-    this.box = box;
+  public TestFixedSizeReplacedContent(float width, float height) {
     this.width = width;
     this.height = height;
   }
 
   @Override
   public UnmanagedBoxFragment<?> layout(
+    ElementBox rootBox,
     LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, width);
     float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, height);
     
-    return new TestUnmanagedBoxFragment(0, 0, usedWidth, usedHeight, box);
+    return new TestUnmanagedBoxFragment(0, 0, usedWidth, usedHeight,rootBox);
   }
 
   @Override
-  public boolean isReplaced() {
+  public boolean isReplaced(ElementBox box) {
     return true;
   }
 
   @Override
-  public void positionLayers(float layerX, float layerY) {
+  public void positionLayers(
+    UnmanagedBoxFragment<?> fragment,
+    float layerX, float layerY
+  ) {
     
-  }
-
-  @Override
-  public ElementBox rootBox() {
-    return this.box;
   }
   
 }

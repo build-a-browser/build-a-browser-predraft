@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.renderer.event.handlers.input;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
+import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.input.InputContent;
 import net.buildabrowser.babbrowser.renderer.content.input.text.TextTypeContent;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
@@ -35,8 +36,9 @@ public class TextInputEventHandler implements EventHandler<TextInputFragment> {
   }
 
   private void determineCursorX(TextInputFragment fragment, float relX) {
-    FontMetrics fontMetrics = fragment.box().layoutContext().font().metrics();
-    TextTypeContent content = ((InputContent) fragment.box().content()).innerContent();
+    ElementBox box = fragment.box();
+    FontMetrics fontMetrics = box.layoutContext().font().metrics();
+    TextTypeContent content = ((InputContent) box.content()).innerContent(box);
     String value = content.displayValue();
     int cursorX = 0;
     int charNum = 0;
@@ -53,7 +55,7 @@ public class TextInputEventHandler implements EventHandler<TextInputFragment> {
       charNum += Character.charCount(value.codePointAt(charNum));
     }
     content.setCursorX(cursorX);
-    fragment.box().context().invalidate(InvalidationLevel.PAINT);
+    box.context().invalidate(InvalidationLevel.PAINT);
   }
 
   private float valueWidth(FontMetrics fontMetrics, String value, int charNum) {

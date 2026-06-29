@@ -14,59 +14,60 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class InputContent implements BoxContent {
 
-  private ElementBox rootBox;
   private String lastType;
   private InputTypeContent inputContent;
-
-  public InputContent(ElementBox rootBox) {
-    this.rootBox = rootBox;
-  }
   
   @Override
-  public void fixupChildren() {
-    innerContent().fixupChildren();
+  public void fixupChildren(ElementBox box) {
+    innerContent(box).fixupChildren(box);
   }
 
   @Override
-  public void computeIntrinsics() {
-    innerContent().computeIntrinsics();
+  public void computeIntrinsics(ElementBox box) {
+    innerContent(box).computeIntrinsics(box);
   }
 
   @Override
-  public void computeMeasures(ElementBox box, LayoutConstraint referenceConstraint) {
-    innerContent().computeMeasures(box, referenceConstraint);
+  public void computeMeasures(
+    ElementBox box,
+    LayoutConstraint referenceConstraint
+  ) {
+    innerContent(box).computeMeasures(box, referenceConstraint);
   }
 
   @Override
-  public UnmanagedBoxFragment<?> layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
-    return innerContent().layout(widthConstraint, heightConstraint);
+  public UnmanagedBoxFragment<?> layout(
+    ElementBox box,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
+  ) {
+    return innerContent(box).layout(box, widthConstraint, heightConstraint);
   }
 
   @Override
-  public void positionLayers(float layerX, float layerY) {
-    innerContent().positionLayers(layerX, layerY);
+  public void positionLayers(
+    UnmanagedBoxFragment<?> fragment,
+    float layerX, float layerY
+  ) {
+    innerContent(fragment.box()).positionLayers(fragment, layerX, layerY);
   }
 
   @Override
   public <T extends BoxContent> EventHandlerResponse withFocusEventHandler(
+    ElementBox box,
     FocusEventHandlerFunc<T> withHandlerFunc
   ) {
-    return innerContent().withFocusEventHandler(withHandlerFunc);
+    return innerContent(box).withFocusEventHandler(box, withHandlerFunc);
   }
 
   @Override
-  public boolean isReplaced() {
-    return innerContent().isReplaced();
+  public boolean isReplaced(ElementBox box) {
+    return innerContent(box).isReplaced(box);
   }
 
   @Override
-  public boolean hasCustomContent() {
+  public boolean hasCustomContent(ElementBox box) {
     return true;
-  }
-
-  @Override
-  public ElementBox rootBox() {
-    return this.rootBox;
   }
 
   // The input type should not change between the calls of the above methods
@@ -74,8 +75,9 @@ public class InputContent implements BoxContent {
   // Because layout should never occur at the same time as another task that can
   // change attributes
   @SuppressWarnings("unchecked")
-  public <T extends InputTypeContent> T innerContent() {
-    String currentType = ((HTMLInputElement) rootBox.element()).type();
+  public <T extends InputTypeContent> T innerContent(ElementBox rootBox) {
+    HTMLInputElement element = (HTMLInputElement) rootBox.element();
+    String currentType = element.type();
     if (currentType == null) {
       currentType = "text";
     }
@@ -87,12 +89,12 @@ public class InputContent implements BoxContent {
 
     lastType = currentType;
     return (T) (inputContent = switch (currentType) {
-      case "hidden" -> new HiddenTypeContent(rootBox);
-      case "text" -> new TextTypeContent(rootBox, false);
-      case "password" -> new TextTypeContent(rootBox, true);
-      case "submit" -> new ButtonTypeContent(rootBox, "Submit");
-      case "button" -> new ButtonTypeContent(rootBox, "");
-      default -> new TextTypeContent(rootBox, false);
+      case "hidden" -> new HiddenTypeContent();
+      case "text" -> new TextTypeContent(element, false);
+      case "password" -> new TextTypeContent(element, true);
+      case "submit" -> new ButtonTypeContent("Submit");
+      case "button" -> new ButtonTypeContent("");
+      default -> new TextTypeContent(element, false);
     });
   }
   

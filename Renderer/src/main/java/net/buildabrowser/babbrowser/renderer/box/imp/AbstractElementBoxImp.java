@@ -140,10 +140,11 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
     }
 
     if (cache == null) {
-      content.computeIntrinsics();
+      content.computeIntrinsics(this);
     }
 
-    UnmanagedBoxFragment<?> layoutResult = content.layout(widthConstraint, heightConstraint);
+    UnmanagedBoxFragment<?> layoutResult = content.layout(
+      this, widthConstraint, heightConstraint);
     
     this.cache = CachedLayoutResult.create(
       widthConstraint, heightConstraint, layoutResult, cache);
@@ -197,9 +198,9 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
 
   protected BoxContent createSpecifiedContent(InnerDisplayValue innerDisplay) {
     return switch (innerDisplay) {
-      case TABLE -> new TableContent(this);
-      case FLEX -> new FlexBoxContent(this);
-      default -> new FlowRootContent(this);
+      case TABLE -> TableContent.get();
+      case FLEX -> FlexBoxContent.get();
+      default -> FlowRootContent.get();
     };
   }
 

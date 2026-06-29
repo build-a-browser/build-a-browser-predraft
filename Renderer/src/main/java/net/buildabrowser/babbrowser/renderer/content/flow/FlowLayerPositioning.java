@@ -1,16 +1,17 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
+import java.util.List;
+
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.fragment.flow.FloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.flow.FloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 
 public final class FlowLayerPositioning {
@@ -20,7 +21,7 @@ public final class FlowLayerPositioning {
   public static void positionLayers(
     float layerX, float layerY,
     ManagedBoxFragment<?> rootFragment,
-    FloatTracker floatTracker
+    List<BoxFragment<?>> floats
   ) {
     rootFragment.setLayerPos(layerX, layerY);
 
@@ -29,11 +30,12 @@ public final class FlowLayerPositioning {
       layerX, layerY, 0, 0,
       rootFragment, rootBox.stackingContext());
 
-    for (BoxFragment<?> floatFragment: floatTracker.allFloats()) {
+    for (BoxFragment<?> floatFragment: floats) {
       positionFloatLayers(
         layerX + floatFragment.layerX(Measurement.BORDER),
         layerY + floatFragment.layerY(Measurement.BORDER),
-        floatFragment, rootBox.stackingContext());
+        // TODO: Make FloatTracker only take UnmanagedBoxFragment<?>
+        (UnmanagedBoxFragment<?>) floatFragment, rootBox.stackingContext());
     }
   }
 
@@ -50,7 +52,7 @@ public final class FlowLayerPositioning {
       case LineBoxFragment lineBoxFragment -> recursePositionLineBoxFragment(
         layerX, layerY, layerStartX, layerStartY, refContext, lineBoxFragment);
       case ManagedBoxFragment<?> boxFragment -> recursePositionManagedBoxFragment(
-        layerX, layerY, layerStartX, layerStartY, fragment, refContext, boxFragment);
+        layerX, layerY, layerStartX, layerStartY, refContext, boxFragment);
       case UnmanagedBoxFragment<?> boxFragment -> recursePositionUnmanagedBoxFragment(
         layerX, layerY, refContext, boxFragment);
       case FloatRefFragment floatRefFragment -> floatRefFragment.setFloatLayerStartPos(layerStartX, layerStartY);
@@ -78,42 +80,41 @@ public final class FlowLayerPositioning {
   private static void recursePositionManagedBoxFragment(
     float layerX, float layerY,
     float layerStartX, float layerStartY,
-    LayoutFragment fragment, StackingContext refContext,
+    StackingContext refContext,
     ManagedBoxFragment<?> boxFragment
   ) {
     if (boxFragment.box().stackingContext() != refContext) {
       boxFragment.box().stackingContext().positionFragment(
         layerX, layerY, boxFragment,
-        (childLayerX, childLayerY) -> recursePositionManagedBoxFragmentInner(
+        (f, childLayerX, childLayerY) -> recursePositionManagedBoxFragmentInner(
           childLayerX, childLayerY,
           layerStartX + layerX - childLayerX,
           layerStartY + layerY - childLayerY,
-          fragment, boxFragment));
+          f));
     } else {
       boxFragment.setLayerPos(layerX, layerY);
       recursePositionManagedBoxFragmentInner(
         layerX, layerY,
         layerStartX, layerStartY,
-        fragment, boxFragment);
+        boxFragment);
     }
   }
 
   private static void recursePositionManagedBoxFragmentInner(
     float layerX, float layerY,
     float layerStartX, float layerStartY,
-    LayoutFragment fragment,
-    ManagedBoxFragment<?> boxFragment
+    ManagedBoxFragment<?> fragment
   ) {
     float offsetX = layerX + (fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER));
     float offsetY = layerY + (fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER));
     
-    LayoutFragment child = boxFragment.fragments();
+    LayoutFragment child = fragment.fragments();
     while (child != null) {
       recursePositionLayers(
         offsetX + child.posX(Measurement.BORDER),
         offsetY + child.posY(Measurement.BORDER),
         layerStartX, layerStartY,
-        child, boxFragment.box().stackingContext());
+        child, fragment.box().stackingContext());
       child = child.next();
     }
   }
@@ -123,13 +124,14 @@ public final class FlowLayerPositioning {
     StackingContext refContext,
     UnmanagedBoxFragment<?> boxFragment
   ) {
-    if (boxFragment.box().stackingContext() != refContext) {
-      boxFragment.box().stackingContext().positionFragment(
+    ElementBox box = boxFragment.box();
+    if (box.stackingContext() != refContext) {
+      box.stackingContext().positionFragment(
         layerX, layerY, boxFragment,
-        boxFragment.box().content()::positionLayers);
+        box.content()::positionLayers);
     } else {
       boxFragment.setLayerPos(layerX, layerY);
-      boxFragment.box().content().positionLayers(layerX, layerY);
+      box.content().positionLayers(boxFragment, layerX, layerY);
     }
   }
 
@@ -138,16 +140,17 @@ public final class FlowLayerPositioning {
   // But changes should also not cause regressions on Acid2
   private static void positionFloatLayers(
     float layerX, float layerY,
-    BoxFragment<?> boxFragment,
+    UnmanagedBoxFragment<?> boxFragment,
     StackingContext refContext
   ) {
-    if (boxFragment.box().stackingContext() != refContext) {
-      boxFragment.box().stackingContext().positionNormalizedFragment(
+    ElementBox box = boxFragment.box();
+    if (box.stackingContext() != refContext) {
+      box.stackingContext().positionNormalizedFragment(
         layerX, layerY, boxFragment,
-        boxFragment.box().content()::positionLayers);
+        box.content()::positionLayers);
     } else {
       boxFragment.setLayerPos(layerX, layerY);
-      boxFragment.box().content().positionLayers(layerX, layerY);
+      box.content().positionLayers(boxFragment, layerX, layerY);
     }
   }
 

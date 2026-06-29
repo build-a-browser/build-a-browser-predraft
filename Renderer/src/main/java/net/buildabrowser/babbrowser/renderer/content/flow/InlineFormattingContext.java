@@ -14,7 +14,7 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class InlineFormattingContext implements IntrusiveList<InlineFormattingContext> {
  
-  private final FlowRootContent rootContent;
+  private final FlowContext flowContext;
   private final LayoutConstraint inlineConstraint;
   private final InlineStagingArea stagingArea;
   private final Deque<PropertyContainer> stylesStack;
@@ -24,21 +24,21 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
   private LineBox activeLineBox;
 
   public InlineFormattingContext(
-    FlowRootContent rootContent,
+    FlowContext flowContext,
     LayoutConstraint inlineConstraint,
     PropertyContainer properties
   ) {
-    this(rootContent, inlineConstraint, new LineBox(), new LinkedList<>());
+    this(flowContext, inlineConstraint, new LineBox(), new LinkedList<>());
     stylesStack.push(properties);
   }
 
   private InlineFormattingContext(
-    FlowRootContent rootContent,
+    FlowContext flowContext,
     LayoutConstraint inlineConstraint,
     LineBox firstLineBox,
     Deque<PropertyContainer> stylesStack
   ) {
-    this.rootContent = rootContent;
+    this.flowContext = flowContext;
     this.inlineConstraint = inlineConstraint;
     this.stagingArea = new InlineStagingArea();
     this.stylesStack = stylesStack;
@@ -69,7 +69,7 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
   }
 
   public void closeLine() {
-    rootContent.inlineLayout().positionLine(
+    flowContext.inlineLayout().positionLine(
       activeLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
     drainPositionedQueue();
   }
@@ -77,7 +77,7 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
   public void nextLine() {
     LineBox oldLineBox = this.activeLineBox;
     this.activeLineBox = activeLineBox.split();
-    rootContent.inlineLayout().positionLine(
+    flowContext.inlineLayout().positionLine(
       oldLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
     drainPositionedQueue();
   }
@@ -87,7 +87,7 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
       return true;
     }
     
-    FloatTracker floatTracker = rootContent.floatTracker();
+    FloatTracker floatTracker = flowContext.floatTracker();
     return switch (inlineConstraint.type()) {
       case MIN_CONTENT -> false;
       case MAX_CONTENT, AUTO -> true;
@@ -117,7 +117,7 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
 
   private void drainPositionedQueue() {
     for (ElementBox positioned: positionedQueue) {
-      rootContent.blockLayout().addPositionedToBlock(positioned);
+      flowContext.blockLayout().addPositionedToBlock(positioned);
     }
     positionedQueue.clear();
   }

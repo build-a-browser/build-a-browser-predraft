@@ -15,26 +15,27 @@ public class TextTypeContent extends InstrinsicSizedInputTypeContent {
   private static final String PASSWORD_CHARACTER = "\u2219";
   private static TextInputFocusEventHandler TEXT_INPUT_FOCUS_EVENT_HANDLER = new TextInputFocusEventHandler();
 
-  private boolean isHidden = false;
+  private final HTMLInputElement element;
+  private final boolean isHidden;
 
   private int cursorX = 0;
   private float scrollX = 0;
   private boolean isReplaceMode = false;
 
   public TextTypeContent(
-    ElementBox rootBox,
+    HTMLInputElement element,
     boolean isHidden
   ) {
-    super(rootBox);
+    this.element = element;
     this.isHidden = isHidden;
   }
 
   public String value() {
-    return element().value();
+    return element.value();
   }
 
   public void setValue(String value) {
-    element().setValue(value);
+    element.setValue(value);
   }
 
   public String displayValue() {
@@ -68,13 +69,10 @@ public class TextTypeContent extends InstrinsicSizedInputTypeContent {
     this.isReplaceMode = isReplaceMode;
   }
 
-  private HTMLInputElement element() {
-    return (HTMLInputElement) rootBox().element();
-  }
-
   @Override
   @SuppressWarnings("unchecked")
   public <T extends BoxContent> EventHandlerResponse withFocusEventHandler(
+    ElementBox box,
     FocusEventHandlerFunc<T> withHandlerFunc
   ) {
     return withHandlerFunc.apply(

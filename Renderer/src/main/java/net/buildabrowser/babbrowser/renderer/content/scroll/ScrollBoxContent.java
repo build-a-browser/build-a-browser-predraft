@@ -17,15 +17,11 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 
 public class ScrollBoxContent implements BoxContent {
 
-  private final ScrollBox rootBox;
-
-  public ScrollBoxContent(ScrollBox scrollBox) {
-    this.rootBox = scrollBox;
-  }
-
   @Override
   public ScrollBoxFragment layout(
-    LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+    ElementBox rootBox,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
   ) {
     // TODO: This algorithm could have exponential runtime for nested scroll containers.
     // Hopefully the cache helps enough...
@@ -34,15 +30,18 @@ public class ScrollBoxContent implements BoxContent {
     boolean addedHorizontalScrollbars = false;
     boolean addedVerticalScrollbars = false;
 
-    BoxContent innerContent = ((ElementBox) rootBox.childBoxes().next()).content();
+    ElementBox innerBox = (ElementBox) rootBox.childBoxes().next();
+    BoxContent innerContent = innerBox.content();
     boolean isPreLayout = widthConstraint.isPreLayoutConstraint() || heightConstraint.isPreLayoutConstraint();
-    UnmanagedBoxFragment<?> innerLayout = innerContent.layout(adjustedWidthConstraint, adjustedHeightConstraint);
+    UnmanagedBoxFragment<?> innerLayout = innerContent.layout(
+      innerBox, adjustedWidthConstraint, adjustedHeightConstraint);
 
     if (needXScrollbars(rootBox, innerLayout, adjustedWidthConstraint)) {
       adjustedHeightConstraint = subtractGutterWidth(adjustedHeightConstraint);
       addedHorizontalScrollbars = true;
       if (!isPreLayout) {
-        innerLayout = innerContent.layout(adjustedWidthConstraint, adjustedHeightConstraint);
+        innerLayout = innerContent.layout(
+          innerBox, adjustedWidthConstraint, adjustedHeightConstraint);
       }
     }
 
@@ -50,7 +49,8 @@ public class ScrollBoxContent implements BoxContent {
       adjustedWidthConstraint = subtractGutterWidth(adjustedWidthConstraint);
       addedVerticalScrollbars = true;
       if (!isPreLayout) {
-        innerLayout = innerContent.layout(adjustedWidthConstraint, adjustedHeightConstraint);
+        innerLayout = innerContent.layout(
+          innerBox, adjustedWidthConstraint, adjustedHeightConstraint);
       }
     }
     
@@ -61,7 +61,8 @@ public class ScrollBoxContent implements BoxContent {
       adjustedHeightConstraint = subtractGutterWidth(adjustedHeightConstraint);
       addedHorizontalScrollbars = true;
       if (!isPreLayout) {
-        innerLayout = innerContent.layout(adjustedWidthConstraint, adjustedHeightConstraint);
+        innerLayout = innerContent.layout(
+          innerBox, adjustedWidthConstraint, adjustedHeightConstraint);
       }
     }
 
@@ -77,7 +78,7 @@ public class ScrollBoxContent implements BoxContent {
       outerWidth, outerHeight,
       addedHorizontalScrollbars,
       addedVerticalScrollbars,
-      rootBox, innerLayout);
+      (ScrollBox) rootBox, innerLayout);
     scrollBoxFragment.setLayerPos(0, 0);
     // TODO: I believe this gets replaced by a PosRefBox on one site, I don't recall which
     // Does that break things?
@@ -86,8 +87,13 @@ public class ScrollBoxContent implements BoxContent {
   }
 
   @Override
-  public void positionLayers(float layerX, float layerY) {
-    ((ElementBox) rootBox.childBoxes().next()).content().positionLayers(0, 0);
+  public void positionLayers(
+    UnmanagedBoxFragment<?> fragment,
+    float layerX, float layerY
+  ) {
+    ScrollBoxFragment scrollBox = (ScrollBoxFragment) fragment;
+    ElementBox childBox = (ElementBox) scrollBox.box().childBoxes().next();
+    childBox.content().positionLayers(scrollBox.innerFragment(), 0, 0);
   }
 
   private static LayoutConstraint subtractGutterWidth(LayoutConstraint origConstraint) {
@@ -119,11 +125,6 @@ public class ScrollBoxContent implements BoxContent {
     if (!adjustedHeightConstraint.isBounded()) return false;
     if (!overflowY.equals(OverflowValue.AUTO)) return false;
     return adjustedHeightConstraint.value() < innerLayout.inkHeight(Measurement.CONTENT);
-  }
-
-  @Override
-  public ElementBox rootBox() {
-    return this.rootBox;
   }
   
 }

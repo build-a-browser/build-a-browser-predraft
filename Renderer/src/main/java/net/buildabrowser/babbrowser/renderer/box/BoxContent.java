@@ -9,34 +9,41 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public interface BoxContent {
 
-  default void fixupChildren() {}
+  default void fixupChildren(ElementBox box) {}
 
-  default void computeIntrinsics() {}
+  default void computeIntrinsics(ElementBox box) {}
 
   default void computeMeasures(ElementBox box, LayoutConstraint referenceConstraint) {
     PaddingUtil.computePadding(box, referenceConstraint);
     BorderUtil.computeBorder(box);
   }
   
-  UnmanagedBoxFragment<?> layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
+  UnmanagedBoxFragment<?> layout(
+    ElementBox box,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
+  );
 
-  void positionLayers(float layerX, float layerY);
-
-  ElementBox rootBox();
+  void positionLayers(
+    UnmanagedBoxFragment<?> fragment, // TODO: Make fragment a generic?
+    float layerX,
+    float layerY
+  );
 
   // TODO: The generic should be on BoxContent itself, but I don't
   // feel like adding generics everywhere right now
   default <T extends BoxContent> EventHandlerResponse withFocusEventHandler(
+    ElementBox box,
     FocusEventHandlerFunc<T> withHandlerFunc
   ) {
     return EventHandlerResponse.UNHANDLED;
   }
 
-  default boolean isReplaced() {
+  default boolean isReplaced(ElementBox box) {
     return false;
   }
 
-  default boolean hasCustomContent() {
+  default boolean hasCustomContent(ElementBox box) {
     return false;
   }
 

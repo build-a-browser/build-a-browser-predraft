@@ -64,11 +64,11 @@ public interface ElementBox extends Box {
   boolean sharesContent(ElementBox elementBox);
 
   default boolean isReplaced() {
-    return content().isReplaced();
+    return content().isReplaced(this);
   }
 
   default boolean hasCustomContent() {
-    return isReplaced() || content().hasCustomContent();
+    return isReplaced() || content().hasCustomContent(this);
   }
  
   public static ElementBox create(

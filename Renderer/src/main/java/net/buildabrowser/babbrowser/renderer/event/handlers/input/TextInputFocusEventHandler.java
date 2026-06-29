@@ -20,11 +20,12 @@ public class TextInputFocusEventHandler implements FocusEventHandler<TextTypeCon
   @Override
   public EventHandlerResponse handleKeyboardEvent(
     EventContext eventContext,
+    ElementBox box,
     TextTypeContent content,
     RendererKeyboardEvent event
   ) {
     // TODO: Support more keys like ctrl, insert, and support text selection
-    content.rootBox().context().invalidate(InvalidationLevel.PAINT);
+    box.context().invalidate(InvalidationLevel.PAINT);
     if (event.code().equals(RendererKeyboardEvent.KEY_TAB)) {
       return EventHandlerResponse.PERFORM_DEFAULT;
     } else if (
@@ -40,11 +41,11 @@ public class TextInputFocusEventHandler implements FocusEventHandler<TextTypeCon
         case RendererKeyboardEvent.KEY_INSERT -> toggleInsertMode(content);
         default -> {}
       }
-      scrollToCursor(content);
+      scrollToCursor(box, content);
       return EventHandlerResponse.HANDLED;
     } else if (event.type().equals(KeyboardEventType.KEY_PRESS)) {
       insertOrReplaceText(content, event.key());
-      scrollToCursor(content);
+      scrollToCursor(box, content);
       return EventHandlerResponse.HANDLED;
     } else {
       return EventHandlerResponse.HANDLED;
@@ -107,13 +108,12 @@ public class TextInputFocusEventHandler implements FocusEventHandler<TextTypeCon
     content.setIsReplaceMode(!content.isReplaceMode());
   }
 
-  private void scrollToCursor(TextTypeContent content) {
-    ElementBox rootBox = content.rootBox();
-    BoxFragment<?> fragment = rootBox.positioningFragment();
+  private void scrollToCursor(ElementBox scrollBox, TextTypeContent content) {
+    BoxFragment<?> fragment = scrollBox.positioningFragment();
     if (fragment == null) return;
     
     String value = content.value();
-    FontMetrics fontMetrics = content.rootBox().layoutContext().font().metrics();
+    FontMetrics fontMetrics = scrollBox.layoutContext().font().metrics();
     float adjustedWidth = Math.max(0, fragment.width(Measurement.CONTENT) - TextInputBoxPainter.HORIZONTAL_PADDING);
     float scrollX = content.scrollX();
     float valueWidth = fontMetrics.stringWidth(value);
