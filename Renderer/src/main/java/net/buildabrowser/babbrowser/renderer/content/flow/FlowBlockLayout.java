@@ -195,7 +195,7 @@ public class FlowBlockLayout {
 
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
       FlowWidthUtil.determineBlockReplacedWidthAndMargins(
-        parentWidthConstraint, childBox) :
+        parentWidthConstraint, parentHeightConstraint, childBox) :
       FlowWidthUtil.evaluateNonReplacedBlockWidthAndMargins(
         parentWidthConstraint, childBox,
         leftContent, rightExtraMargin);
@@ -219,7 +219,7 @@ public class FlowBlockLayout {
       rightContent = parentWidthConstraint.value();
       childWidthConstraint = childBox.isReplaced() ?
         FlowWidthUtil.determineBlockReplacedWidthAndMargins(
-          parentWidthConstraint, childBox) :
+          parentWidthConstraint, parentHeightConstraint, childBox) :
         FlowWidthUtil.evaluateNonReplacedBlockWidthAndMargins(
           parentWidthConstraint, childBox,
           leftContent, rightExtraMargin);

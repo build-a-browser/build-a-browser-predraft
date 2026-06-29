@@ -17,7 +17,6 @@ public class IdentTokenizer {
   public Token consumeAnIdentLikeToken(CSSTokenizerInput stream) throws IOException {
     String string = consumeIdentSequence(stream);
 
-    // TODO: Handle URL
     if (
       string.equalsIgnoreCase("url")
       && stream.peek() == '('
@@ -29,7 +28,8 @@ public class IdentTokenizer {
         TokenizerUtil.isWhiteSpace(ch1)
         && TokenizerUtil.isWhiteSpace(ch2)
       ) {
-       stream.read(); 
+        ch1 = stream.read();
+        ch2 = stream.peek();
       }
       stream.unread(ch1);
       if (

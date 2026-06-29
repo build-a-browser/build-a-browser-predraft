@@ -172,7 +172,7 @@ public class FlowInlineLayout {
   ) {
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
       FlowWidthUtil.determineBlockReplacedWidthAndMargins(
-        parentWidthConstraint, childBox) :
+        parentWidthConstraint, parentHeightConstraint, childBox) :
       FlowWidthUtil.determineInlineBlockNonReplacedWidthAndMargins(
         parentWidthConstraint, childBox);
     LayoutConstraint childHeightContraint = childBox.isReplaced() ?

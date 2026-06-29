@@ -92,7 +92,7 @@ public final class SizingWidthUtil {
     ElementBox referenceBox,
     CSSValue sizeValue
   ) {
-    // TODO: Is this a good way to handle prelayout?
+    // Pre-layout
     if (
       parentConstraint.isPreLayoutConstraint()
       && sizeValue instanceof SizeValue.FitContent fitContent
@@ -114,9 +114,9 @@ public final class SizingWidthUtil {
       return LayoutConstraint.MAX_CONTENT;
     } else if (parentConstraint.isPreLayoutConstraint()) {
       return evaluateBaseSizeRaw(layoutContext, parentConstraint, sizeValue);
-    }
-
-    if (sizeValue.equals(SizeValue.MIN_CONTENT)) {
+    
+    // Normal layout
+    } else if (sizeValue.equals(SizeValue.MIN_CONTENT)) {
       return LayoutConstraint.of(EBDimensionsUtil.preferredMinWidthConstraint(referenceBox));
     } else if (sizeValue.equals(SizeValue.MAX_CONTENT)) {
       return LayoutConstraint.of(EBDimensionsUtil.preferredWidthConstraint(referenceBox));

@@ -20,7 +20,7 @@ public final class FloatLayout {
     // TODO: Check height calculation
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
       FlowWidthUtil.determineBlockReplacedWidthAndMargins(
-        parentWidthConstraint, childBox) :
+        parentWidthConstraint, parentHeightConstraint, childBox) :
       FlowWidthUtil.determineFloatNonReplacedWidthAndMargins(
         parentWidthConstraint, childBox);
     LayoutConstraint childHeightContraint = childBox.isReplaced() ?

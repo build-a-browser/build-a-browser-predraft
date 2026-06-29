@@ -4,10 +4,12 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.renderer.content.table.TableContent;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
+import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 
 public final class FlowWidthUtil {
@@ -16,38 +18,50 @@ public final class FlowWidthUtil {
 
   // TODO: Account for items with an intrisic size, width/height constraints auto, and a min/max constraint
   public static LayoutConstraint determineBlockReplacedWidthAndMargins(
-    LayoutConstraint parentConstraint, ElementBox childBox
+    LayoutConstraint parentWidthConstraint,
+    LayoutConstraint parentHeightConstraint,
+    ElementBox childBox
   ) {
-    computeHorizontalMarginsOrZero(parentConstraint, childBox);
+    // TODO: computeIntrinsics is not great to call here, but it's usually not called until
+    // the child is being layed out (too late)
+    childBox.content().computeIntrinsics(childBox);
+    computeHorizontalMarginsOrZero(parentWidthConstraint, childBox);
     LayoutConstraint baseWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
-      parentConstraint, childBox);
+      parentWidthConstraint, childBox);
+    LayoutConstraint baseHeight = SizingHeightUtil.evaluateAdjustedHeightSize(
+      parentHeightConstraint, childBox);
+    boolean isHeightAuto = !baseHeight.isBounded();
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {
-      return SizingWidthUtil.clampWidth(parentConstraint, childBox, baseWidth);
+      return SizingWidthUtil.clampWidth(parentWidthConstraint, childBox, baseWidth);
     }
 
-    if (parentConstraint.isPreLayoutConstraint()) {
-      return parentConstraint;
+    if (parentWidthConstraint.isPreLayoutConstraint()) {
+      return parentWidthConstraint;
     }
 
     ElementBoxDimensions boxDimensions = childBox.dimensions();
 
     LayoutConstraint chosenConstraint = null;
     if (
-      boxDimensions.intrinsicWidth() != -1
-      && boxDimensions.intrinsicHeight() != -1
+      isHeightAuto
+      && boxDimensions.intrinsicWidth() != -1
     ) {
       chosenConstraint = LayoutConstraint.of(boxDimensions.intrinsicWidth());
     } else if (
       boxDimensions.intrinsicRatio() != -1
-      && boxDimensions.intrinsicHeight() != -1
-    ) { // TODO: Also consider specified height
-      float usedHeight = boxDimensions.intrinsicHeight();
+      && (
+        boxDimensions.intrinsicHeight() != -1
+        || !isHeightAuto
+    )) { // TODO: Also consider specified height
+      float usedHeight = LayoutUtil.constraintOrDim(
+        baseHeight, boxDimensions.intrinsicHeight());
       float usedWidth = (int) (usedHeight * boxDimensions.intrinsicRatio());
       chosenConstraint = LayoutConstraint.of(usedWidth);
     } else if (boxDimensions.intrinsicRatio() != -1) {
       // TODO: Compute as for block non-replaced
-      chosenConstraint = LayoutConstraint.of(EBDimensionsUtil.preferredWidthConstraint(childBox));
+      chosenConstraint = LayoutConstraint.of(
+        EBDimensionsUtil.preferredWidthConstraint(childBox));
     } else if (boxDimensions.intrinsicWidth() != -1) {
       chosenConstraint = LayoutConstraint.of(boxDimensions.intrinsicWidth());
     } else {
@@ -55,7 +69,7 @@ public final class FlowWidthUtil {
       chosenConstraint = LayoutConstraint.of(300);
     }
 
-    return SizingWidthUtil.clampWidth(parentConstraint, childBox, chosenConstraint);
+    return SizingWidthUtil.clampWidth(parentWidthConstraint, childBox, chosenConstraint);
   }
 
   public static LayoutConstraint evaluateNonReplacedBlockWidthAndMargins(

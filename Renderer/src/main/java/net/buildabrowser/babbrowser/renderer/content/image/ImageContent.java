@@ -18,7 +18,6 @@ import net.buildabrowser.babbrowser.renderer.image.ImageCache;
 import net.buildabrowser.babbrowser.renderer.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
-import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 
 public class ImageContent implements BoxContent {
 
@@ -59,8 +58,14 @@ public class ImageContent implements BoxContent {
     LayoutConstraint heightConstraint
   ) {
     ElementBoxDimensions dimensions = rootBox.dimensions();
-    float realWidth = LayoutUtil.constraintOrDim(widthConstraint, dimensions.intrinsicWidth());
-    float realHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.intrinsicHeight());
+    float realWidth =
+      widthConstraint.isBounded() ? widthConstraint.floatValue() :
+      heightConstraint.isBounded() && image != null ? dimensions.intrinsicRatio() * heightConstraint.value() :
+      dimensions.intrinsicWidth();
+    float realHeight =
+      heightConstraint.isBounded() ? heightConstraint.floatValue() :
+      widthConstraint.isBounded() && image != null ? widthConstraint.value() / dimensions.intrinsicRatio() :
+      dimensions.intrinsicHeight();
     
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
     return fragmentFactory.createImageBoxFragment(

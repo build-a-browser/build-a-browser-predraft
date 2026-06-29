@@ -11,6 +11,7 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.renderer.box.MutableElementBoxDimensions;
+import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
 import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexBoxContent;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowUtil;
@@ -191,7 +192,8 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
     boolean canShareFlow =
       content() instanceof FlowRootContent
       && !FlowUtil.isFloat(elementBox)
-      && FlowUtil.isInFlowNoContent(elementBox);
+      && FlowUtil.isInFlowNoContent(elementBox)
+      && !CompositeLayerUtil.hasScrollContent(this); // If a flow box is nested in a scrollbox
 
     return canShareFlow;
   }

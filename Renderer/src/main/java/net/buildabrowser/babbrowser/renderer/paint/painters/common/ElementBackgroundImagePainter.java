@@ -203,15 +203,18 @@ public class ElementBackgroundImagePainter {
     float vpW, float vpH,
     boolean isWidth
   ) {
-    float widthAtVP = image.width() / image.height() * vpH;
-    float heightAtVP = image.height() / image.width() * vpW;
     if (sizeValue.equals(BackgroundSizeValue.CONTAIN)) {
+      float widthAtVP = image.width() / image.height() * vpH;
+      float heightAtVP = image.height() / image.width() * vpW;
       float selectedWidth = Math.min(widthAtVP, vpW);
       float selectedHeight = Math.min(heightAtVP, vpH);
       return isWidth ? selectedWidth : selectedHeight;
     } else if (sizeValue.equals(BackgroundSizeValue.COVER)) {
-      float selectedWidth = Math.max(widthAtVP, vpW);
-      float selectedHeight = Math.max(heightAtVP, vpH);
+      float usedScaling = Math.max(
+        vpW / image.width(),
+        vpH / image.height());
+      float selectedWidth = usedScaling * image.width();
+      float selectedHeight = usedScaling * image.height();
       return isWidth ? selectedWidth : selectedHeight;
     }
 
