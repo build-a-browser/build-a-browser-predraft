@@ -32,25 +32,32 @@ public final class ElementBackgroundPainter {
     BoxFragment<?> fragment,
     VpIntersection vpIntersection
   ) {
+    float fragmentWidth = Math.max(0, fragment.width(Measurement.BORDER));
+    float fragmentHeight = Math.max(0, fragment.height(Measurement.BORDER));
+
     paintBackgroundImages(
       canvas, fragment, vpIntersection,
-      fragment.width(Measurement.BORDER),
-      fragment.height(Measurement.BORDER));
+      fragmentWidth, fragmentHeight);
 
-    ElementBorderPainter.paintBorders(canvas, fragment);
-    ElementOutlinePainter.paintOutlines(canvas, fragment);
-    paintDebugOutlines(canvas, fragment);
+    ElementBorderPainter.paintBorders(
+      canvas, fragment,
+      fragmentWidth, fragmentHeight);
+    ElementOutlinePainter.paintOutlines(
+      canvas, fragment, fragmentWidth, fragmentHeight);
+    paintDebugOutlines(canvas, fragmentWidth, fragmentHeight);
   }
 
-  public static void paintDebugOutlines(PaintCanvas canvas, BoxFragment<?> fragment) {
+  public static void paintDebugOutlines(
+    PaintCanvas canvas, float fragmentWidth, float fragmentHeight
+  ) {
     if (!DEBUG_OUTLINES) return;
     canvas.withPaint(
       p -> p.setColor(0xFFFF00FF),
       c -> {
-        c.drawBox(0, 0, fragment.width(Measurement.BORDER), 1);
-        c.drawBox(0, fragment.height(Measurement.BORDER) - 1, fragment.width(Measurement.BORDER), 1);
-        c.drawBox(0, 0, 1, fragment.height(Measurement.BORDER));
-        c.drawBox(fragment.width(Measurement.BORDER) - 1, 0, 1, fragment.height(Measurement.BORDER));
+        c.drawBox(0, 0, fragmentWidth, 1);
+        c.drawBox(0, fragmentHeight - 1, fragmentWidth, 1);
+        c.drawBox(0, 0, 1, fragmentHeight);
+        c.drawBox(fragmentWidth - 1, 0, 1, fragmentHeight);
       });
   }
 

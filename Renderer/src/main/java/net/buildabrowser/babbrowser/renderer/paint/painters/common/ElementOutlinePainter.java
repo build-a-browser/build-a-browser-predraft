@@ -9,21 +9,12 @@ import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
 public final class ElementOutlinePainter {
   
   private ElementOutlinePainter() {}
-
-  public static void paintOutlines(
-    PaintCanvas canvas, BoxFragment<?> fragment
-  ) {
-    float fragmentWidth = fragment.width(Measurement.BORDER);
-    float fragmentHeight = fragment.height(Measurement.BORDER);
-    paintOutlines(canvas, fragment, fragmentWidth, fragmentHeight);
-  }
 
   public static void paintOutlines(
     PaintCanvas canvas, BoxFragment<?> fragment,

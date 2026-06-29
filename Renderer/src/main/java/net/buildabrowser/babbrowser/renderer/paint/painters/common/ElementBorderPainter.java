@@ -11,19 +11,10 @@ import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.painter.core.Paint;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
 public final class ElementBorderPainter {
   
   private ElementBorderPainter() {}
-
-  public static void paintBorders(
-    PaintCanvas canvas, BoxFragment<?> fragment
-  ) {
-    float fragmentWidth = fragment.width(Measurement.BORDER);
-    float fragmentHeight = fragment.height(Measurement.BORDER);
-    paintBorders(canvas, fragment, fragmentWidth, fragmentHeight);
-  }
 
   public static void paintBorders(
     PaintCanvas canvas, BoxFragment<?> fragment,

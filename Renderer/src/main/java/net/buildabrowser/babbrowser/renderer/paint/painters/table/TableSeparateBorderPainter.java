@@ -27,7 +27,10 @@ public class TableSeparateBorderPainter implements TableBorderPainter {
           canvas, childFragment,
           TableCellUtil.outerCellWidth(table, cell),
           TableCellUtil.outerCellHeight(table, cell));
-        ElementBackgroundPainter.paintDebugOutlines(canvas, childFragment);
+        ElementBackgroundPainter.paintDebugOutlines(
+          canvas,
+          childFragment.width(Measurement.BORDER),
+          childFragment.height(Measurement.BORDER));
       });
   }
 

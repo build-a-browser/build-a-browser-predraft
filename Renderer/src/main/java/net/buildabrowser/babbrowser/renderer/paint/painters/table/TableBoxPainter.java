@@ -40,13 +40,18 @@ public class TableBoxPainter implements BoxPainter<TableBoxFragment> {
   @Override
   public void paintBackground(TableBoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     // TODO: Adjust box to exclude captions
+    float fragmentWidth = Math.max(0, fragment.width(Measurement.BORDER));
+    float fragmentHeight = Math.max(0, fragment.height(Measurement.BORDER));
+
     ElementBackgroundPainter.paintBackgroundImages(
       canvas, fragment, vpIntersection,
-      fragment.width(Measurement.BORDER),
-      fragment.height(Measurement.BORDER));
+      fragmentWidth, fragmentHeight);
 
-    ElementBorderPainter.paintBorders(canvas, fragment);
-    ElementBackgroundPainter.paintDebugOutlines(canvas, fragment);
+    ElementBorderPainter.paintBorders(
+      canvas, fragment,
+      fragmentWidth, fragmentHeight);
+    ElementBackgroundPainter.paintDebugOutlines(
+      canvas, fragmentWidth, fragmentHeight);
   }
 
   private void paintColumnGroups(
