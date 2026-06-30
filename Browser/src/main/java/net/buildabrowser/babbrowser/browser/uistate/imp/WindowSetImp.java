@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.uistate.imp;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ public class WindowSetImp implements WindowSet {
   }
   
   @Override
-  public void close() {
+  public void close() throws IOException {
     for (Window window: List.copyOf(windows)) {
       window.close();
     }

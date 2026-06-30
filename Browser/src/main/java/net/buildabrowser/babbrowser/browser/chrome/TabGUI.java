@@ -28,6 +28,14 @@ public class TabGUI extends JPanel implements TabMutationEventListener {
     addURLBar();
   }
 
+  @Override
+  public void onClose(Tab tab) {
+    // URLBarGUI can remain connected to GC root via XClipboard
+    // Need to make sure TabGUI can be GC'd
+    remove(urlBarGUI);
+    tab.removeTabMutationEventListener(this);
+  };
+
   public Tab tab() {
     return this.tab;
   }

@@ -8,6 +8,7 @@ subprojects {
 	apply plugin: 'java'
 
 	repositories {
+		maven { url 'https://jitpack.io' }
 		mavenCentral()
 	}
 
@@ -23,7 +24,9 @@ subprojects {
 		useJUnitPlatform()
 	}
 
-	def desktopModules = [':Browser', ':PainterSkija', ':PainterJava2D']
+	def desktopModules = [
+		':Browser', ':PainterSkija', ':PainterJava2D',
+		':A11YAccessKit']
 
 	if (!desktopModules.contains(project.path)) {
 		apply plugin: 'ru.vyarus.animalsniffer'

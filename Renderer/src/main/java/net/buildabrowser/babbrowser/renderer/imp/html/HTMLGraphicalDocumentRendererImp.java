@@ -1,8 +1,11 @@
 package net.buildabrowser.babbrowser.renderer.imp.html;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import net.buildabrowser.babbrowser.a11y.core.A11YFrame;
+import net.buildabrowser.babbrowser.a11y.core.A11YProvider;
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamily;
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
@@ -58,6 +61,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private final HTMLDocument document;
   private final Navigable navigable;
   private final Painter painter;
+  private final A11YFrame a11yFrame;
 
   private final BoxGenerator boxGenerator;
   private final StyleSheetList uaStyleSheets;
@@ -81,13 +85,15 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     HTMLDocument document,
     Navigable navigable,
     Painter painter,
+    A11YProvider a11yProvider,
     SlotFamilyFamily slotFamilyFamily
-  ) {
+  ) throws IOException {
     this.document = document;
     this.navigable = navigable;
     this.painter = painter;
 
     this.elementContexts = slotFamilyFamily.createSlotFamily(ElementContextImp::new);
+    this.a11yFrame = a11yProvider.createFrame(new HTMLA11YOps(elementContexts));
     this.boxGenerator = BoxGenerator.create(elementContexts);
     this.uaStyleSheets = navigable.uaNavigableOptions().uaStyleSheets();
     this.cssMatcher = CSSMatcher.create(
@@ -161,6 +167,10 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       recomputeLayout();
       this.invalidationLevel = InvalidationLevel.PAINT;
       PerfLogging.logLayoutTime(layoutStartTime);
+
+      long a11yStartTime = System.currentTimeMillis();
+      a11yFrame.update(document);
+      PerfLogging.logA11YTime(a11yStartTime);
     }
   }
 
@@ -240,6 +250,11 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     if (invalidationLevel.ordinal() < this.invalidationLevel.ordinal()) {
       this.invalidationLevel = invalidationLevel;
     }
+  }
+
+  @Override
+  public void close() throws IOException {
+    a11yFrame.close();
   }
 
   private void recomputeBoxes() {

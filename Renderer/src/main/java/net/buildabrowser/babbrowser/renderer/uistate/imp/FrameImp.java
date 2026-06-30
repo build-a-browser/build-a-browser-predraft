@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.uistate.imp;
 
+import java.io.IOException;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
@@ -11,6 +12,7 @@ import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine.NavigableRendererPair;
+import net.buildabrowser.babbrowser.renderer.imp.DelegatingGraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.renderer.uistate.Frame;
 import net.buildabrowser.babbrowser.renderer.uistate.event.BrowserEventDispatcher;
 import net.buildabrowser.babbrowser.renderer.uistate.event.FrameEventListener;
@@ -20,9 +22,11 @@ public class FrameImp implements Frame {
   private final BrowserEventDispatcher<FrameEventListener> eventDispatcher = BrowserEventDispatcher.create();
 
   private final Navigable navigable;
-  private final GraphicalDocumentRenderer renderer;
+  private final DelegatingGraphicalDocumentRenderer renderer;
 
-  public FrameImp(RenderingEngine renderingEngine) {
+  public FrameImp(
+    RenderingEngine renderingEngine
+  ) throws IOException {
     NavigableRendererPair navigableRendererPair = renderingEngine.createNavigable(
       new DocumentRendererEventListener() {
 
@@ -30,6 +34,7 @@ public class FrameImp implements Frame {
         public void onNavigate(URI url) {
           eventDispatcher.fire(l -> l.onURLChange(url));
           eventDispatcher.fire(listener -> listener.onTitleChange(getTitle()));
+          renderer.onInnerRendererChanged();
         }
 
         @Override
@@ -40,7 +45,8 @@ public class FrameImp implements Frame {
       });
       
     this.navigable = navigableRendererPair.navigable();
-    this.renderer = navigableRendererPair.renderer();
+    // TODO: This is not great
+    this.renderer = (DelegatingGraphicalDocumentRenderer) navigableRendererPair.renderer();
   }
 
   @Override
@@ -70,7 +76,7 @@ public class FrameImp implements Frame {
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     renderer.close();
 
     Window window = navigable.activeDocument().browsingContext().activeWindow();

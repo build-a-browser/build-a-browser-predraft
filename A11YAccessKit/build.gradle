@@ -1,0 +1,9 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    api project(':A11YCore')
+
+    implementation 'com.github.BuildABrowser:AK4J:-SNAPSHOT'
+}

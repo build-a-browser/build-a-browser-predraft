@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.html.navigation;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
 
@@ -23,7 +24,7 @@ public interface DocumentRenderer extends Closeable {
   
   void onDocumentInvalidated(InvalidationLevel invalidationLevel);
 
-  default void close() {}
+  default void close() throws IOException {}
 
   interface DocumentRendererEventListener {
 

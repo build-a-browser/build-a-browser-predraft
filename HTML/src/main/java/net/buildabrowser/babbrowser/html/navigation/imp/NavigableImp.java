@@ -2,9 +2,11 @@ package net.buildabrowser.babbrowser.html.navigation.imp;
 
 import java.net.URI;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
+import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.DocumentState;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.NavigateParameters;
@@ -71,11 +73,18 @@ public class NavigableImp implements Navigable {
         navigateParameters.userInvolvement,
         navigationParams,
         () -> {
+          closeActiveRenderer();
           activeSessionHistory = historyEntry; // TODO: Proper way
           uaNavigableOptions.onNavigate(activeDocument().url());
         });
       uaNavigableOptions.onNavigate(historyEntry.url());
     });
+  }
+
+  private void closeActiveRenderer() {
+    DocumentRenderer renderer = activeSessionHistory.getDocument().renderer();
+    if (renderer == null) return;
+    CommonUtil.rethrowV(() -> renderer.close());
   }
 
 }

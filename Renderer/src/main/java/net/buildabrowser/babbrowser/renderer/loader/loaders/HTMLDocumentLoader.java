@@ -1,9 +1,11 @@
 package net.buildabrowser.babbrowser.renderer.loader.loaders;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.buildabrowser.babbrowser.a11y.core.A11YProvider;
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.fetch.FetchResponse;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
@@ -28,9 +30,10 @@ public class HTMLDocumentLoader implements DocumentLoader {
   public HTMLDocument load(
     UANavigableOptions uaNavigableOptions,
     Painter painter,
+    A11YProvider a11yProvider,
     NavigationParams navigationParams,
     SlotFamilyFamily slotFamilyFamily
-  ) {
+  ) throws IOException {
     FetchResponse response = navigationParams.response();
     // TODO: Proper way to obtain a document and its browsing context
     HTMLDocument document = HTMLDocument.create(
@@ -41,7 +44,7 @@ public class HTMLDocumentLoader implements DocumentLoader {
     parseHTMLDocument(response, document);
 
     DocumentRenderer renderer = new HTMLGraphicalDocumentRendererImp(
-      document, navigationParams.navigable(), painter, slotFamilyFamily);
+      document, navigationParams.navigable(), painter, a11yProvider, slotFamilyFamily);
     document.attachRenderer(renderer);
 
     return document;

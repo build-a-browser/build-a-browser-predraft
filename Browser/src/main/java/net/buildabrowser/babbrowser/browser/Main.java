@@ -9,6 +9,8 @@ import java.util.concurrent.Executors;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import net.buildabrowser.babbrowser.a11y.accesskit.AKA11YProvider;
+import net.buildabrowser.babbrowser.a11y.core.A11YProvider;
 import net.buildabrowser.babbrowser.browser.chrome.WindowSetGUI;
 import net.buildabrowser.babbrowser.browser.net.imp.FetchBackendImp;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
@@ -40,6 +42,9 @@ public class Main {
       new Java2DPainter() :
       new SkijaAWTPainter(isSoftwareRendered, false);
 
+    // TODO: Allow disabling a11y support
+    A11YProvider a11yProvider = new AKA11YProvider();
+
     DocumentLoaderRegistry loaderRegistry = DocumentLoaderRegistry.createDefault();
     ContentEncodingRegistry registry = ContentEncodingRegistry.createDefault();
     FetchBackend fetchBackend = new FetchBackendImp(registry);
@@ -48,6 +53,7 @@ public class Main {
       fetchBackend,
       Executors::newVirtualThreadPerTaskExecutor,
       painter,
+      a11yProvider,
       loaderRegistry,
       ClassLoader.getSystemClassLoader()::getResourceAsStream);
     BrowserInstance browserInstance = BrowserInstance.create(renderingEngine);

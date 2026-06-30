@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.html.navigation;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.ExecutorService;
 
@@ -14,7 +15,9 @@ public interface UANavigableOptions {
 
   ExecutorService createThreadGroup();
 
-  RenderableDocument loadDocument(NavigationParams navigationParams);
+  RenderableDocument loadDocument(
+    NavigationParams navigationParams
+  ) throws IOException;
 
   StyleSheetList uaStyleSheets();
 

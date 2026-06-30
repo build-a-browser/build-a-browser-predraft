@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.uistate.imp;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class WindowImp implements Window {
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     mutationEventDispatcher.fire(listener -> listener.onClose(this));
     for (Tab tab: tabs) {
       tab.close();

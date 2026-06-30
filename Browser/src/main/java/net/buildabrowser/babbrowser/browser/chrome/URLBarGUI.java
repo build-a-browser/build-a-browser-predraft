@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.browser.chrome;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -25,15 +26,17 @@ public class URLBarGUI extends JPanel implements TabMutationEventListener {
   private final JTextField urlField = new JTextField();
   private final JButton navButton = new JButton("GO");
 
-  private final Tab tab;
+  // Sometimes the URLBarGUI is held in the clipboard after the tab is closed
+  // which leads to tab not being garbage collected
+  private final WeakReference<Tab> tab;
 
   private URLBarGUI(Tab tab) {
-    this.tab = tab;
+    this.tab = new WeakReference<>(tab);
     this.setLayout(new GridBagLayout());
 
-    addButton(backButton, () -> tab.getFrame().back());
-    addButton(reloadButton, () -> tab.getFrame().reload());
-    addButton(forwardButton, () -> tab.getFrame().forward());
+    addButton(backButton, () -> this.tab.get().getFrame().back());
+    addButton(reloadButton, () -> this.tab.get().getFrame().reload());
+    addButton(forwardButton, () -> this.tab.get().getFrame().forward());
     addURLField();
     addButton(navButton, this::navigateToURL);
     tab.addTabMutationEventListener(this, true);
@@ -85,7 +88,7 @@ public class URLBarGUI extends JPanel implements TabMutationEventListener {
       uri = CommonUtil.rethrow(() -> URLUtil.createURL(searchURL));
     }
 
-    tab.navigate(uri);
+    tab.get().navigate(uri);
   }
 
   public static URLBarGUI create(Tab tab) {

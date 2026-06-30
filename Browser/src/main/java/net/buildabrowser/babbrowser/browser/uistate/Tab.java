@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.uistate;
 
+import java.io.Closeable;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
@@ -7,9 +8,7 @@ import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListen
 import net.buildabrowser.babbrowser.browser.uistate.imp.TabImp;
 import net.buildabrowser.babbrowser.renderer.uistate.Frame;
 
-public interface Tab {
-  
-  void close();
+public interface Tab extends Closeable {
   
   String getTitle();
   

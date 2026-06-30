@@ -7,7 +7,7 @@ import net.buildabrowser.babbrowser.dom.NodeList;
 public abstract class NodeImp implements Node {
 
   // TODO: There's no way we can overflow this long... right?
-  private static long nextAriaId = 0;
+  private static long nextAriaId = 1;
 
   private final long ariaId = nextAriaId++;
 

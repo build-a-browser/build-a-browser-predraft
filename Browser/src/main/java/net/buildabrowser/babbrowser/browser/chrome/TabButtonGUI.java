@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 
 import net.buildabrowser.babbrowser.browser.uistate.Tab;
 import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListener;
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 
 public class TabButtonGUI extends JPanel implements TabMutationEventListener {
   
@@ -21,7 +22,7 @@ public class TabButtonGUI extends JPanel implements TabMutationEventListener {
 
     closeButton.setMargin(new Insets(0, 0, 0, 0));
     closeButton.setPreferredSize(new Dimension(16, 16));
-    closeButton.addActionListener(_ -> tab.close());
+    closeButton.addActionListener(_ -> CommonUtil.rethrowV(() -> tab.close()));
 
     titleLabel.setText(tab.getTitle());
     tab.addTabMutationEventListener(this, true);

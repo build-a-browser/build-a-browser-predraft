@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.a11y.core;
+package net.buildabrowser.babbrowser.a11y.core.aom;
 
 import java.util.HashMap;
 import java.util.Map;

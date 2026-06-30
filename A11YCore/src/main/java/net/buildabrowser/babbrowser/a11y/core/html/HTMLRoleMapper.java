@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.a11y.core.html;
 
-import net.buildabrowser.babbrowser.a11y.core.AriaRole;
+import net.buildabrowser.babbrowser.a11y.core.aom.AriaRole;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Namespace;

@@ -1,21 +1,23 @@
 package net.buildabrowser.babbrowser.renderer.imp;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
+import net.buildabrowser.babbrowser.a11y.core.A11YProvider;
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
+import net.buildabrowser.babbrowser.html.navigation.NavigationParams;
+import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoader;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
-import net.buildabrowser.babbrowser.html.navigation.NavigationParams;
-import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 
 public class UANavigableOptionsImp implements UANavigableOptions {
 
@@ -26,6 +28,7 @@ public class UANavigableOptionsImp implements UANavigableOptions {
   private final Supplier<StyleSheetList> uaStyleSheetsSupplier;
   private final DocumentLoaderRegistry documentLoaderRegistry;
   private final Painter painter;
+  private final A11YProvider a11yProvider;
   private final DocumentRendererEventListener eventListener;
   private final SlotFamilyFamily slotFamilyFamily;
 
@@ -35,6 +38,7 @@ public class UANavigableOptionsImp implements UANavigableOptions {
     Supplier<StyleSheetList> uaStyleSheetsSupplier,
     DocumentLoaderRegistry documentLoaderRegistry,
     Painter painter,
+    A11YProvider a11yProvider,
     DocumentRendererEventListener eventListener,
     SlotFamilyFamily slotFamilyFamily
   ) {
@@ -43,6 +47,7 @@ public class UANavigableOptionsImp implements UANavigableOptions {
     this.uaStyleSheetsSupplier = uaStyleSheetsSupplier;
     this.documentLoaderRegistry = documentLoaderRegistry;
     this.painter = painter;
+    this.a11yProvider = a11yProvider;
     this.eventListener = eventListener;
     this.slotFamilyFamily = slotFamilyFamily;
   }
@@ -58,11 +63,13 @@ public class UANavigableOptionsImp implements UANavigableOptions {
   }
 
   @Override
-  public RenderableDocument loadDocument(NavigationParams navigationParams) {
+  public RenderableDocument loadDocument(
+    NavigationParams navigationParams
+  ) throws IOException {
     // TODO: Use the correct mime
     DocumentLoader documentLoader = documentLoaderRegistry.getByMimeType("text/html");
     RenderableDocument document = documentLoader.load(
-      this, painter, navigationParams, slotFamilyFamily);
+      this, painter, a11yProvider, navigationParams, slotFamilyFamily);
     requestRepaint();
     return document;
   }

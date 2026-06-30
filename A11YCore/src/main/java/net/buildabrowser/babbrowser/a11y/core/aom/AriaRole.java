@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.a11y.core;
+package net.buildabrowser.babbrowser.a11y.core.aom;
 
 public enum AriaRole {
 

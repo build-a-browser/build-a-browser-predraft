@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.imp;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
@@ -14,6 +15,8 @@ public class DelegatingGraphicalDocumentRenderer implements GraphicalDocumentRen
   private static final GraphicalDocumentRenderer NO_OP_RENDERER = new NoOpGraphicalDocumentRenderer();
 
   private final Navigable navigable;
+
+  private int width, height;
 
   public DelegatingGraphicalDocumentRenderer(Navigable navigable) {
     this.navigable = navigable;
@@ -41,6 +44,8 @@ public class DelegatingGraphicalDocumentRenderer implements GraphicalDocumentRen
 
   @Override
   public void resize(int width, int height) {
+    this.width = width;
+    this.height = height;
     activeRenderer().resize(width, height);
   }
 
@@ -77,6 +82,15 @@ public class DelegatingGraphicalDocumentRenderer implements GraphicalDocumentRen
   @Override
   public void removeRepaintListener(Runnable repaintListener) {
     navigable.uaNavigableOptions().removeRepaintListener(repaintListener);
+  }
+
+  @Override
+  public void close() throws IOException {
+    activeRenderer().close();
+  }
+
+  public void onInnerRendererChanged() {
+    resize(width, height);
   }
 
   private GraphicalDocumentRenderer activeRenderer() {

@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.html.navigation.imp;
 
 import java.net.URI;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.fetch.FetchUtil;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
@@ -63,7 +64,8 @@ public class SessionHistoryEntryImp implements SessionHistoryEntry {
     NavigationParams navigationParams_ = navigationParams; // Java annoyance
     EventLoop.queueGlobalTask(TaskSource.NAVIGATION, navigable.activeWindow(), () -> {
       // TODO: Some stuff
-      RenderableDocument loadedDocument = uaNavigableOptions.loadDocument(navigationParams_);
+      RenderableDocument loadedDocument = CommonUtil.rethrow(
+        () -> uaNavigableOptions.loadDocument(navigationParams_));
       documentState.setDocument(loadedDocument);
 
       if (completionSteps != null) {

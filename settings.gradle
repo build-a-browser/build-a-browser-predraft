@@ -5,7 +5,8 @@ include(
   ':Common', ':Infra',
   ':CSSBase', ':CSSEngine', ':PainterCore', ':Renderer',
   ':PainterSkija', ':PainterJava2D',
-  ':DOM', ':HTML', ':HTMLParser', ':A11YCore',
+  ':DOM', ':HTML', ':HTMLParser',
+  ':A11YCore', ':A11YAccessKit',
   ':Browser', ':Network',
   ':Stream', ':Fetch')
 

@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.browser.uistate;
 
+import java.io.Closeable;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
@@ -7,9 +8,7 @@ import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.event.WindowSetMutationEventListener;
 import net.buildabrowser.babbrowser.browser.uistate.imp.WindowSetImp;
 
-public interface WindowSet {
-
-  void close();
+public interface WindowSet extends Closeable {
   
   void open(URI url);
   

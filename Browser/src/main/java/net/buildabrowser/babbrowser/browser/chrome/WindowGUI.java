@@ -61,7 +61,8 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
     this.addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
-        window.close();
+        CommonUtil.rethrowV(
+          () -> window.close());
       }
     });
 
@@ -121,11 +122,13 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
     menu.add(newWindowItem);
 
     JMenuItem closeWindowItem = new JMenuItem("Close Window");
-    closeWindowItem.addActionListener(_ -> window.close());
+    closeWindowItem.addActionListener(_ -> CommonUtil.rethrowV(
+      () -> window.close()));
     menu.add(closeWindowItem);
 
     JMenuItem exitItem = new JMenuItem("Exit");
-    exitItem.addActionListener(_ -> window.relatedWindowSet().close());
+    exitItem.addActionListener(_ -> CommonUtil.rethrowV(
+      () -> window.relatedWindowSet().close()));
     menu.add(exitItem);
 
     setJMenuBar(menuBar);
@@ -152,7 +155,7 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
     int tabIndex = tabbedPane.getSelectedIndex();
     Component tabComponent = tabbedPane.getComponentAt(tabIndex);
     if (!(tabComponent instanceof TabGUI tabGUI)) return;
-    tabGUI.tab().close();
+    CommonUtil.rethrowV(() -> tabGUI.tab().close());
   }
 
   private JTabbedPane createTabPane() {

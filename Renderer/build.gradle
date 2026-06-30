@@ -8,6 +8,7 @@ dependencies {
     api project(':Fetch')
     api project(':CSSBase')
     api project(':HTML')
+    api project(':A11YCore')
     implementation project(':Common')
     implementation project(':HTMLParser')
     implementation project(':CSSEngine')

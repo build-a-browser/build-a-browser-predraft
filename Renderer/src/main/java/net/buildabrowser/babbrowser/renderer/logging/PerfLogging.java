@@ -10,6 +10,7 @@ public final class PerfLogging {
   private static final long LONG_BOX_TIME = 100;
   private static final long LONG_STYLE_TIME = 100;
   private static final long LONG_LAYOUT_TIME = 100;
+  private static final long LONG_A11Y_TIME = 100;
   private static final long LONG_PAINT_TIME = 100;
   private static final long LONG_WINDOW_PAINT_TIME = 16;
 
@@ -50,6 +51,15 @@ public final class PerfLogging {
       LOGGER.warn("Long layout cycle took {} ms", elapsedTime);
     } else {
       LOGGER.trace("Layout cycle took {} ms", elapsedTime);
+    }
+  }
+  
+  public static void logA11YTime(long layoutStartTime) {
+    long elapsedTime = System.currentTimeMillis() - layoutStartTime;
+    if (elapsedTime > LONG_A11Y_TIME) {
+      LOGGER.warn("Long AOM generation cycle took {} ms", elapsedTime);
+    } else {
+      LOGGER.trace("AOM generation cycle took {} ms", elapsedTime);
     }
   }
 

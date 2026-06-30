@@ -1,10 +1,12 @@
 package net.buildabrowser.babbrowser.browser.uistate.imp;
 
+import java.io.IOException;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
 import net.buildabrowser.babbrowser.browser.uistate.Tab;
 import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListener;
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.renderer.uistate.Frame;
 import net.buildabrowser.babbrowser.renderer.uistate.event.BrowserEventDispatcher;
 import net.buildabrowser.babbrowser.renderer.uistate.event.FrameEventListener;
@@ -16,7 +18,8 @@ public class TabImp implements Tab {
   private final BrowserEventDispatcher<TabMutationEventListener> mutationEventDispatcher = BrowserEventDispatcher.create();
 
   public TabImp(BrowserInstance browserInstance) {
-    this.frame = browserInstance.getRenderingEngine().createFrame();
+    this.frame = CommonUtil.rethrow(() ->
+      browserInstance.getRenderingEngine().createFrame());
 
     frame.addEventListener(
       new FrameEventListener() {
@@ -34,7 +37,7 @@ public class TabImp implements Tab {
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     this.frame.close();
     mutationEventDispatcher.fire(l -> l.onClose(this));
   }

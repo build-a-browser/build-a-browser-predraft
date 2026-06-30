@@ -1,12 +1,12 @@
 package net.buildabrowser.babbrowser.browser.uistate;
 
+import java.io.Closeable;
+
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
 import net.buildabrowser.babbrowser.browser.uistate.event.WindowMutationEventListener;
 import net.buildabrowser.babbrowser.browser.uistate.imp.WindowImp;
 
-public interface Window {
-  
-  void close();
+public interface Window extends Closeable {
 
   boolean isPrivate();
   

@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.uistate;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
@@ -7,7 +9,7 @@ import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 import net.buildabrowser.babbrowser.renderer.uistate.event.FrameEventListener;
 import net.buildabrowser.babbrowser.renderer.uistate.imp.FrameImp;
 
-public interface Frame {
+public interface Frame extends Closeable {
 
   GraphicalDocumentRenderer getRenderer();
 
@@ -23,11 +25,11 @@ public interface Frame {
 
   void forward();
 
-  void close();
-
   void addEventListener(FrameEventListener listener, boolean sync);
 
-  static Frame create(RenderingEngine renderingEngine) {
+  static Frame create(
+    RenderingEngine renderingEngine
+  ) throws IOException {
     return new FrameImp(renderingEngine);
   }
   
