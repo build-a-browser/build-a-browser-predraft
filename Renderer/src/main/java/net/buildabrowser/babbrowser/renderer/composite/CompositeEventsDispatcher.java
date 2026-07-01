@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.ListIterator;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.visibility.VisibilityValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
@@ -85,6 +88,9 @@ public final class CompositeEventsDispatcher {
       CompositeLayerEntry entry = childIt.previous();
       BoxFragment<?> fragment = entry.fragment();
       if (!EventUtil.aabb(fragment, relX, relY)) continue;
+
+      CSSValue visibility = fragment.box().properties().get(CSSProperty.VISIBILITY);
+    if (!visibility.equals(VisibilityValue.VISIBLE)) continue;
 
       EventHandlerResponse mouseEventResponse = fragment.withEventHandler((eh, f) -> eh.handleMouseEvent(
         eventContext, mouseEvent, f, relX, relY));

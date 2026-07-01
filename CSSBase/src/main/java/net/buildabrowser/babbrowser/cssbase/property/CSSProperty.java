@@ -39,6 +39,7 @@ import net.buildabrowser.babbrowser.cssbase.property.table.CaptionSideValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.LineHeightValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
+import net.buildabrowser.babbrowser.cssbase.property.visibility.VisibilityValue;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
 
 public enum CSSProperty {
@@ -72,6 +73,7 @@ public enum CSSProperty {
   
   BOX_SIZING(nextId(), false, BoxSizingValue.CONTENT_BOX),
   DISPLAY(nextId(), false, InvalidationLevel.BOX, DisplayValue.create(OuterDisplayValue.INLINE, InnerDisplayValue.FLOW)),
+  VISIBILITY(nextId(), true, InvalidationLevel.PAINT, VisibilityValue.VISIBLE),
   // Float is BOX because it affects the BoxContent-sharing policy, which is determined at box-time
   // TODO: Maybe rewrite it so it can invalidate at LAYOUT level
   FLOAT(nextId(), false, InvalidationLevel.BOX, CSSValue.NONE),

@@ -58,6 +58,7 @@ import net.buildabrowser.babbrowser.cssbase.property.table.TableLayoutParser;
 import net.buildabrowser.babbrowser.cssbase.property.text.LineHeightParser;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignParser;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeParser;
+import net.buildabrowser.babbrowser.cssbase.property.visibility.VisibilityParser;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValueParser;
 
 public final class PropertyParsers {
@@ -82,6 +83,7 @@ public final class PropertyParsers {
     "float", new FloatParser(),
 
     "display", new DisplayParser(),
+    "visibility", new VisibilityParser(),
 
     "width", SizeParser.forNormal(CSSProperty.WIDTH),
     "min-width", SizeParser.forMin(CSSProperty.MIN_WIDTH),

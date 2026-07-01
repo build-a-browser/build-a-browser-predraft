@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.paint;
 
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.visibility.VisibilityValue;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
@@ -24,8 +26,12 @@ public final class PaintUtil {
     if (fragment instanceof PosRefBoxFragment) return;
     if (
       fragment instanceof BoxFragment<?> boxFragment
-      && !aabbFragmentVp(boxFragment, vpIntersection, measurement)
-    ) return;
+      && (
+        !aabbFragmentVp(boxFragment, vpIntersection, measurement)
+        // TODO: Special handling for COLLAPSE.
+        // TODO: Also the spec says in some cases visible children of a hidden element may be shown
+        || !boxFragment.box().properties().get(CSSProperty.VISIBILITY).equals(VisibilityValue.VISIBLE)
+    )) return;
 
     func.paint(fragment, canvas, vpIntersection);
   }

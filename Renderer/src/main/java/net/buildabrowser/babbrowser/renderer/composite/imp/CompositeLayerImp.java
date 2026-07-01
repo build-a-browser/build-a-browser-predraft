@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.visibility.VisibilityValue;
 import net.buildabrowser.babbrowser.painter.core.PaintBitMap;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.painter.core.Painter;
@@ -208,8 +211,11 @@ public class CompositeLayerImp implements CompositeLayer {
 
 
   private void drawScrollable(PaintCanvas canvas, VpIntersection vpIntersection, ScrollBoxFragment scrollBoxFragment) {
-    int scrollX = scrollBoxFragment == null ? 0 : scrollBoxFragment.scrollX();
-    int scrollY = scrollBoxFragment == null ? 0 : scrollBoxFragment.scrollY();
+    CSSValue visibility = scrollBoxFragment.box().properties().get(CSSProperty.VISIBILITY);
+    if (!visibility.equals(VisibilityValue.VISIBLE)) return;
+
+    int scrollX = scrollBoxFragment.scrollX();
+    int scrollY = scrollBoxFragment.scrollY();
 
     // TODO: Also need to clip passed-through layers
     canvas.withClip(

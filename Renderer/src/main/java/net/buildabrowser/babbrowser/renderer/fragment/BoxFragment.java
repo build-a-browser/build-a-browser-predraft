@@ -3,8 +3,12 @@ package net.buildabrowser.babbrowser.renderer.fragment;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.visibility.VisibilityValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler;
+import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
 
 public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragment {
@@ -84,11 +88,16 @@ public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragme
   
   @SuppressWarnings("unchecked")
   public <U> U withEventHandler(BiFunction<EventHandler<T>, T, U> eventFunc) {
+    CSSValue visibility = box().properties().get(CSSProperty.VISIBILITY);
+    // TODO: What if the return type is not EventHandlerResponse?
+    if (!visibility.equals(VisibilityValue.VISIBLE)) return (U) EventHandlerResponse.UNHANDLED;
     return eventFunc.apply(eventHandler(), (T) this);
   }
   
   @SuppressWarnings("unchecked")
   public void withEventHandlerV(BiConsumer<EventHandler<T>, T> eventFunc) {
+    CSSValue visibility = box().properties().get(CSSProperty.VISIBILITY);
+    if (!visibility.equals(VisibilityValue.VISIBLE)) return;
     eventFunc.accept(eventHandler(), (T) this);
   }
 
