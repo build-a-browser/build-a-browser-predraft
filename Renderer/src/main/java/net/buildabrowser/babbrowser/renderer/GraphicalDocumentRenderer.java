@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.renderer;
 
+import net.buildabrowser.babbrowser.debugger.core.DebugContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
@@ -12,8 +13,10 @@ public interface GraphicalDocumentRenderer extends DocumentRenderer {
 
   EventForwardingTarget eventForwardingTarget();
 
-  void addRepaintListener(Runnable repaintListener);
+  interface DebuggableDocumentRendererEventListener extends DocumentRendererEventListener {
 
-  void removeRepaintListener(Runnable repaintListener);
+    void update(DebugContext debugContext);
+
+  }
 
 }

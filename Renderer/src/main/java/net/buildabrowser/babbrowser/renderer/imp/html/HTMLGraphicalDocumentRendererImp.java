@@ -10,6 +10,7 @@ import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.media.MediaContext;
+import net.buildabrowser.babbrowser.debugger.core.DebugContext;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
@@ -69,6 +70,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private final SlotFamily<HTMLElement, ElementContext> elementContexts;
   private final HTMLCompositeLayers compositeLayers;
   private final HTMLEventForwardingTarget eventForwardingTarget;
+  private final DebugContext debugContext;
 
   private volatile InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
   private LoadedFont rootFont;
@@ -97,6 +99,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     this.compositeLayers = new HTMLCompositeLayers(painter);
     this.eventForwardingTarget = new HTMLEventForwardingTarget(
       document, compositeLayers, elementContexts);
+    this.debugContext = new HTMLDebugContext(document);
 
     FetchEngine fetchEngine = navigable.uaNavigableOptions().fetchEngine();
     
@@ -116,6 +119,9 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   @Override
   public boolean shouldRender() {
+    // Hackily need to place this here, because debugger might need to update any frame
+    // and other methods on the event loop may not run
+    updateDebugger();
     return
       !invalidationLevel.equals(InvalidationLevel.NONE)
       || cssMatcher.changed();
@@ -155,12 +161,14 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       long boxStartTime = System.currentTimeMillis();
       recomputeBoxes();
       PerfLogging.logBoxTime(boxStartTime);
+      updateDebugger();
     }
     if (invalidationLevel.ordinal() <= InvalidationLevel.LAYOUT.ordinal()) {
       long layoutStartTime = System.currentTimeMillis();
       recomputeLayout();
       this.invalidationLevel = InvalidationLevel.PAINT;
       PerfLogging.logLayoutTime(layoutStartTime);
+      updateDebugger();
     }
   }
 
@@ -182,6 +190,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     navigable.uaNavigableOptions().requestRepaint();
 
     PerfLogging.logPaintTime(paintStartTime);
+
+    updateDebugger();
   }
 
   @Override
@@ -223,16 +233,6 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   @Override
   public DocumentChangeListener changeListener() {
     return this.changeListener;
-  }
-
-  @Override
-  public void addRepaintListener(Runnable repaintListener) {
-    navigable.uaNavigableOptions().addRepaintListener(repaintListener);
-  }
-
-  @Override
-  public void removeRepaintListener(Runnable repaintListener) {
-    navigable.uaNavigableOptions().addRepaintListener(repaintListener);
   }
 
   @Override
@@ -284,6 +284,15 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       painter.resourceLoader(), rootFont.metrics(), fontCache, fontWordWidthCache,
       viewport, scriptingContext, imageCache, fragmentFactory);
     return globalLayoutContext;
+  }
+
+  private void updateDebugger() {
+    if (
+      navigable.uaNavigableOptions().eventListener()
+        instanceof DebuggableDocumentRendererEventListener debuggableEventListener
+    ) {
+      debuggableEventListener.update(debugContext);
+    }
   }
   
 }

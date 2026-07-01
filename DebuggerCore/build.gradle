@@ -1,0 +1,10 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    api project(':CSSBase')
+    api project(':HTML')
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.1'
+}

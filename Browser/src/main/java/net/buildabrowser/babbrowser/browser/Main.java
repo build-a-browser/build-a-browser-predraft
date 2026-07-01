@@ -14,6 +14,8 @@ import net.buildabrowser.babbrowser.browser.net.imp.FetchBackendImp;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
+import net.buildabrowser.babbrowser.debugger.core.Debugger;
+import net.buildabrowser.babbrowser.debugger.swing.SwingDebugger;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
 import net.buildabrowser.babbrowser.painter.core.ComponentPainter;
@@ -40,6 +42,8 @@ public class Main {
       new Java2DPainter() :
       new SkijaAWTPainter(isSoftwareRendered, false);
 
+    Debugger debugger = new SwingDebugger();
+
     DocumentLoaderRegistry loaderRegistry = DocumentLoaderRegistry.createDefault();
     ContentEncodingRegistry registry = ContentEncodingRegistry.createDefault();
     FetchBackend fetchBackend = new FetchBackendImp(registry);
@@ -60,7 +64,7 @@ public class Main {
       window.openTab().navigate(url);
     }
 
-    WindowSetGUI.create(windowSet, painter);
+    WindowSetGUI.create(windowSet, painter, debugger);
   }
 
   private static void setLookAndFeel() {

@@ -46,12 +46,6 @@ public class NoOpGraphicalDocumentRenderer implements GraphicalDocumentRenderer 
   }
 
   @Override
-  public void addRepaintListener(Runnable repaintListener) {}
-
-  @Override
-  public void removeRepaintListener(Runnable repaintListener) {}
-
-  @Override
   public void onDocumentInvalidated(InvalidationLevel invalidationLevel) {}
   
 }

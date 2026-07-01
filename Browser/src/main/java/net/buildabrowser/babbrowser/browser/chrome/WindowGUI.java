@@ -27,12 +27,14 @@ import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.event.TabMutationEventListener;
 import net.buildabrowser.babbrowser.browser.uistate.event.WindowMutationEventListener;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
+import net.buildabrowser.babbrowser.debugger.core.Debugger;
 import net.buildabrowser.babbrowser.network.URLUtil;
 import net.buildabrowser.babbrowser.painter.core.CanvasCallbacks;
 import net.buildabrowser.babbrowser.painter.core.ComponentPainter;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.renderer.imp.NoOpGraphicalDocumentRenderer;
+import net.buildabrowser.babbrowser.renderer.uistate.DebuggableFrame;
 
 public class WindowGUI extends JFrame implements WindowMutationEventListener {
 
@@ -43,14 +45,17 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
   private final JTabbedPane tabbedPane;
 
   private final Window window;
+  private final Debugger debugger;
   private final Component sharedRenderedContent;
 
   private WindowGUI(
     Window window,
-    ComponentPainter<Component> painter
+    ComponentPainter<Component> painter,
+    Debugger debugger
   ) {
     super("BuildABrowser Test Program");
     this.window = window;
+    this.debugger = debugger;
 
     this.setLayout(new GridBagLayout());
     this.setSize(new Dimension(800, 500));
@@ -116,6 +121,12 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
 
     menu.add(new JSeparator());
 
+    JMenuItem attachDebuggerItem = new JMenuItem("Attach Debugger");
+    attachDebuggerItem.addActionListener(_ -> attachDebugger());
+    menu.add(attachDebuggerItem);
+
+    menu.add(new JSeparator());
+
     JMenuItem newWindowItem = new JMenuItem("New Window");
     newWindowItem.addActionListener(_ -> window.relatedWindowSet().openWindow(new WindowOptions(false)));
     menu.add(newWindowItem);
@@ -153,6 +164,16 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
     Component tabComponent = tabbedPane.getComponentAt(tabIndex);
     if (!(tabComponent instanceof TabGUI tabGUI)) return;
     tabGUI.tab().close();
+  }
+
+  private void attachDebugger() {
+    int tabIndex = tabbedPane.getSelectedIndex();
+    Component tabComponent = tabbedPane.getComponentAt(tabIndex);
+    if (!(tabComponent instanceof TabGUI tabGUI)) return;
+    if (tabGUI.tab().getFrame() instanceof DebuggableFrame debuggableFrame) {
+      debuggableFrame.attachDebugger(debugger);
+    }
+    // TODO: Tell user if debugger can't be opened
   }
 
   private JTabbedPane createTabPane() {
@@ -238,10 +259,11 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
 
   public static WindowGUI create(
     Window window,
-    ComponentPainter<Component> painter
+    ComponentPainter<Component> painter,
+    Debugger debugger
   ) {
     JFrame.setDefaultLookAndFeelDecorated(true);
-    return new WindowGUI(window, painter);
+    return new WindowGUI(window, painter, debugger);
   }
 
 }

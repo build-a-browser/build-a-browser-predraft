@@ -1,40 +1,56 @@
 package net.buildabrowser.babbrowser.renderer.uistate.imp;
 
 import java.net.URI;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
+import net.buildabrowser.babbrowser.debugger.core.DebugContext;
+import net.buildabrowser.babbrowser.debugger.core.Debugger;
+import net.buildabrowser.babbrowser.debugger.core.FrameDebugger;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
-import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.NavigateParameters;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
 import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
+import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer.DebuggableDocumentRendererEventListener;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine.NavigableRendererPair;
-import net.buildabrowser.babbrowser.renderer.uistate.Frame;
+import net.buildabrowser.babbrowser.renderer.uistate.DebuggableFrame;
 import net.buildabrowser.babbrowser.renderer.uistate.event.BrowserEventDispatcher;
 import net.buildabrowser.babbrowser.renderer.uistate.event.FrameEventListener;
 
-public class FrameImp implements Frame {
+public class FrameImp implements DebuggableFrame {
 
   private final BrowserEventDispatcher<FrameEventListener> eventDispatcher = BrowserEventDispatcher.create();
 
   private final Navigable navigable;
   private final GraphicalDocumentRenderer renderer;
 
+  private List<FrameDebugger> attachedDebuggers = new LinkedList<>();
+
   public FrameImp(RenderingEngine renderingEngine) {
     NavigableRendererPair navigableRendererPair = renderingEngine.createNavigable(
-      new DocumentRendererEventListener() {
+      new DebuggableDocumentRendererEventListener() {
 
         @Override
         public void onNavigate(URI url) {
           eventDispatcher.fire(l -> l.onURLChange(url));
           eventDispatcher.fire(listener -> listener.onTitleChange(getTitle()));
+          updateDebuggers();
         }
 
         @Override
         public void onTitleChanged(String title) {
           eventDispatcher.fire(listener -> listener.onTitleChange(getTitle()));
+        }
+
+        @Override
+        public void update(DebugContext debugContext) {
+          for (FrameDebugger debugger: attachedDebuggers) {
+            debugger.update(debugContext);
+          }
         }
         
       });
@@ -99,6 +115,38 @@ public class FrameImp implements Frame {
     if (sync) {
       listener.onTitleChange(navigable.activeDocument().title());
       listener.onURLChange(navigable.activeDocument().url());
+    }
+  }
+
+  @Override
+  public void addRepaintListener(Runnable repaintListener) {
+    navigable.uaNavigableOptions().addRepaintListener(repaintListener);
+  }
+
+  @Override
+  public void removeRepaintListener(Runnable repaintListener) {
+    navigable.uaNavigableOptions().addRepaintListener(repaintListener);
+  }
+
+  @Override
+  public void attachDebugger(Debugger debugger) {
+    FrameDebugger frameDebugger = debugger.create();
+    attachedDebuggers.add(frameDebugger);
+  }
+
+  @Override
+  public void detachDebugger(Debugger debugger) {
+    ListIterator<FrameDebugger> debuggerIt = attachedDebuggers.listIterator();
+    while (debuggerIt.hasNext()) {
+      if (debuggerIt.next().relatedDebugger() != debugger) {
+        debuggerIt.remove();
+      }
+    }
+  }
+
+  private void updateDebuggers() {
+    for (FrameDebugger debugger: attachedDebuggers) {
+      debugger.reset();
     }
   }
 
