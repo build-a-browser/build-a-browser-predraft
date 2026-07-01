@@ -107,7 +107,8 @@ public final class FlexBoxContent implements BoxContent {
       item.computeMinMaxSizes(mainSize, isVertical);
     }
 
-    FlexHypotheticalSizeDetermination.determineBaseAndHypotheticalSizes(items, mainSize, crossSize, isVertical);
+    FlexHypotheticalSizeDetermination.determineBaseAndHypotheticalSizes(
+      rootBox, items, mainSize, crossSize, isVertical);
     float mainGap = mainGap(rootBox, isVertical, mainSize);
     List<FlexLine> lines = collectFlexItemsIntoFlexLines(rootBox, mainSize, items, mainGap);
     for (FlexLine line: lines) {
@@ -115,9 +116,9 @@ public final class FlexBoxContent implements BoxContent {
     }
 
     UnmanagedBoxFragment<?> fragments = null;
-    if (!widthConstraint.isPreLayoutConstraint()) {
-      FlexCrossSizeDetermination.determineCrossSize(rootBox, lines, crossSize, isVertical);
+    FlexCrossSizeDetermination.determineCrossSize(rootBox, lines, crossSize, isVertical);
 
+    if (!widthConstraint.isPreLayoutConstraint()) {
       alignMainAxis(rootBox, flexDirection, isVertical, mainSize, lines);
       alignCrossAxis(rootBox, isVertical, mainSize, crossSize, lines);
 
@@ -184,6 +185,7 @@ public final class FlexBoxContent implements BoxContent {
   ) {
     float mainGap = mainGap(rootBox, isVertical, mainSize);
     JustifyContentValue contentJustification = (JustifyContentValue) rootBox.properties().get(CSSProperty.JUSTIFY_CONTENT);
+    if (!mainSize.isBounded()) contentJustification = JustifyContentValue.FLEX_START;
     boolean isReverse =
       flexDirection.equals(FlexDirectionValue.ROW_REVERSE)
       || flexDirection.equals(FlexDirectionValue.COLUMN_REVERSE);
@@ -198,6 +200,7 @@ public final class FlexBoxContent implements BoxContent {
   ) {
     float crossGap = crossGap(rootBox, isVertical, mainSize);
     AlignContentValue alignContent = (AlignContentValue) rootBox.properties().get(CSSProperty.ALIGN_CONTENT);
+    if (!crossSize.isBounded()) alignContent = AlignContentValue.FLEX_START;
     FlexCrossAlignment.alignCrossAxis(
       new CrossAlignmentContext(crossSize, isVertical, alignContent, crossGap),
       lines);
