@@ -16,7 +16,7 @@ public class NodeTreeOps implements TreeOps<Node> {
   public String name(Node node) {
     if (node == null) return "NULL";
     return switch (node) {
-      case Document _1 -> "Document";
+      case Document _ -> "Document";
       case Element element -> formatElement(element); // TODO: Include ID
       case Text text -> '"' + text.data() + '"'; // TODO: Truncate
       case Comment comment -> "<!--" + comment.data() + "-->";

@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.input.text;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.stringRepeat;
+
 import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
@@ -41,7 +43,7 @@ public class TextTypeContent extends InstrinsicSizedInputTypeContent {
   public String displayValue() {
     if (isHidden) {
       int valueLen = value().length();
-      return PASSWORD_CHARACTER.repeat(valueLen);
+      return stringRepeat(PASSWORD_CHARACTER, valueLen);
     } else return value();
   }
 

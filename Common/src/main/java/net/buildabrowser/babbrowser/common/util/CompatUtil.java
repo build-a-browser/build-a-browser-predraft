@@ -61,4 +61,13 @@ public final class CompatUtil {
     }
   }
 
+  public static String stringRepeat(String string, int times) {
+    StringBuilder stringBuilder = new StringBuilder();
+    for (int i = 0; i < times; i++) {
+      stringBuilder.append(string);
+    }
+    
+    return stringBuilder.toString();
+  }
+
 }

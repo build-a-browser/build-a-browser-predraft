@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -132,12 +133,19 @@ public final class FlexCrossSizeDetermination {
     if (
       itemAlignmentValue.equals(AlignItemsValue.STRETCH)
       && !itemCrossConstraint.isBounded()
+      && containerCrossSize.isBounded()
       // TODO: Other checks
     ) {
       // TODO: Clamp
       // TODO: Need to account for margin
+      ElementBoxDimensions dimensions = item.box().dimensions();
+      float[] margin = dimensions.getComputedMargin();
+      float decorSize = isVertical ?
+        dimensions.decorHeight() + margin[0] + margin[1] :
+        dimensions.decorWidth() + margin[2] + margin[3];
       item.setCrossSize(itemLine.crossSize());
-      itemCrossConstraint = LayoutConstraint.of(itemLine.crossSize());
+      itemCrossConstraint = LayoutConstraint.of(
+        Math.max(0, itemLine.crossSize() - decorSize));
 
       UnmanagedBoxFragment<?> boxFragment = item.box().layout(
         isVertical ? itemCrossConstraint : itemMainConstraint,

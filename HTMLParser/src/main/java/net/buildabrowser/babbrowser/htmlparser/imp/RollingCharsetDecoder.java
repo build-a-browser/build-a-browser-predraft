@@ -23,13 +23,13 @@ public class RollingCharsetDecoder {
     }
 
 
-    leftoverBuffer.clear();
+    ((Buffer) leftoverBuffer).clear();
     CoderResult lastResult = CoderResult.OVERFLOW;
     while (lastResult.equals(CoderResult.OVERFLOW)) {
       lastResult = innerDecoder.decode(in, out, false);
       ((Buffer) out).flip();
       onChunkAvailable.run();
-      out.clear();
+      ((Buffer) out).clear();
     }
 
     if (lastResult.equals(CoderResult.UNDERFLOW)) {
@@ -42,18 +42,18 @@ public class RollingCharsetDecoder {
     int oldInLimit = in.limit();
     int oldLeftoverPosition = leftoverBuffer.position();
     int bytesToCopy = leftoverBuffer.remaining();
-    in.limit(in.position() + bytesToCopy);
+    ((Buffer) in).limit(in.position() + bytesToCopy);
     leftoverBuffer.put(in);
-    leftoverBuffer.flip();
+    ((Buffer) leftoverBuffer).flip();
     innerDecoder.decode(leftoverBuffer, out, false);
     int positionInc = Math.max(0, leftoverBuffer.position() - oldLeftoverPosition);
     leftoverBuffer.compact();
-    in.limit(oldInLimit);
-    in.position(oldInPosition + positionInc);
+    ((Buffer) in).limit(oldInLimit);
+    ((Buffer) in).position(oldInPosition + positionInc);
 
     ((Buffer) out).flip();
     onChunkAvailable.run();
-    out.clear();
+    ((Buffer) out).clear();
 
     return positionInc > 0;
   }
@@ -64,7 +64,7 @@ public class RollingCharsetDecoder {
       lastResult = innerDecoder.decode(leftoverBuffer, out, true);
       ((Buffer) out).flip();
       onChunkAvailable.run();
-      out.clear();
+      ((Buffer) out).clear();
     }
 
     lastResult = CoderResult.OVERFLOW;
@@ -72,7 +72,7 @@ public class RollingCharsetDecoder {
       lastResult = innerDecoder.flush(out);
       ((Buffer) out).flip();
       onChunkAvailable.run();
-      out.clear();
+      ((Buffer) out).clear();
     }
   }
   

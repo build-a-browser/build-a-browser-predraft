@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
@@ -26,7 +27,7 @@ public class FlexParserTest {
       FlexValue.create(
         FlexGrowValue.create(2),
         FlexShrinkValue.create(1),
-        CSSValue.AUTO),
+        LengthValue.ZERO),
       value);
   }
 
