@@ -1,6 +1,9 @@
 package net.buildabrowser.babbrowser.cssbase.selector;
 
 public record SelectorSpecificity(boolean isAttr, int numIdSelectors, int numClassSelectors, int numTypeSelectors) {
+
+  public static final SelectorSpecificity ZERO_SPECIFICITY =
+    new SelectorSpecificity(0, 0, 0);
   
   public SelectorSpecificity(int numIdSelectors, int numClassSelectors, int numTypeSelectors) {
     this(false, numIdSelectors, numClassSelectors, numTypeSelectors);

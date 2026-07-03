@@ -10,7 +10,7 @@ import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.events.Event;
 
-public class FocusSelectorMatcher implements PseudoSelectorMatcher {
+public class FocusSelectorMatcher implements SimplePseudoSelectorMatcher {
 
   private final ElementSet allElements;
   private final ElementSet matchingElements;

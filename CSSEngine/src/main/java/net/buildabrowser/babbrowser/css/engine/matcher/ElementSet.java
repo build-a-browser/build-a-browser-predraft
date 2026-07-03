@@ -27,6 +27,8 @@ public interface ElementSet extends Iterable<Element> {
 
   void union(ElementSet other);
 
+  void difference(ElementSet other);
+
   void forEachElementId(IntConsumer iterator);
 
   ElementRootSet root();

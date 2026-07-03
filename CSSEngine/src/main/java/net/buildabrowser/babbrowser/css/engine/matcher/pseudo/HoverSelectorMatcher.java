@@ -12,7 +12,7 @@ import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.events.Event;
 
-public class HoverSelectorMatcher implements PseudoSelectorMatcher {
+public class HoverSelectorMatcher implements SimplePseudoSelectorMatcher {
 
   private final ElementSet allElements;
   private final ElementSet matchingElements;

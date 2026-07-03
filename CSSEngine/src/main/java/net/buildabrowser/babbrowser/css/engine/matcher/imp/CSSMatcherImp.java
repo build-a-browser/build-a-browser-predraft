@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.css.engine.matcher.imp;
 import static net.buildabrowser.babbrowser.css.engine.matcher.util.WeightedStyleRuleUtil.createWeightedRule;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -27,16 +26,9 @@ import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule.RuleSource;
 import net.buildabrowser.babbrowser.cssbase.media.MediaContext;
-import net.buildabrowser.babbrowser.cssbase.selector.ChildCombinator;
-import net.buildabrowser.babbrowser.cssbase.selector.Combinator;
+import net.buildabrowser.babbrowser.cssbase.selector.LogicalPseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
-import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
-import net.buildabrowser.babbrowser.cssbase.selector.NextSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
-import net.buildabrowser.babbrowser.cssbase.selector.SimpleSelector;
-import net.buildabrowser.babbrowser.cssbase.selector.SubsequentSiblingCombinator;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
@@ -52,7 +44,7 @@ public class CSSMatcherImp implements CSSMatcher {
   private final Set<SelectorPart> changedSelectors;
   private final SimpleSelectorMatchers simpleMatchers;
   private final PseudoSelectorMatchers pseudoMatchers;
-  private final CombinatorMatchers combinatorMatchers;
+  private final CSSSelectorMatcher selectorMatcher;
   
   private final CSSMatcherContext context;
   private final StyleSheetList uaStyleSheets;
@@ -72,11 +64,13 @@ public class CSSMatcherImp implements CSSMatcher {
     this.simpleMatchers = new SimpleSelectorMatchers(allElements, s -> changedSelectors.add(s));
     this.pseudoMatchers = new PseudoSelectorMatchers(
       allElements, s -> changedSelectors.add(s), context);
-    this.combinatorMatchers = new CombinatorMatchers(allElements);
     this.selectorSets = slotFamilyFamily.createSlotFamily(
       (_1, id) -> new ComplexSelectorSlot(allElements.root().createChild(), id));
     this.mediaStates = slotFamilyFamily.createSlotFamily(
       (_1, id) -> new MediaRuleSlot(id));
+
+    this.selectorMatcher = new CSSSelectorMatcher(
+      allElements, simpleMatchers, pseudoMatchers);
 
     for (CSSStyleSheet styleSheet: uaStyleSheets) {
       onStylesheetAdded(styleSheet);
@@ -148,16 +142,7 @@ public class CSSMatcherImp implements CSSMatcher {
 
   private void registerStyleRule(StyleRule styleRule) {
     for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
-      for (SelectorPart selectorPart: complexSelector.parts()) {
-        switch (selectorPart) {
-          case SimpleSelector simpleSelector -> simpleMatchers.addSelectorReference(simpleSelector);
-          case SimplePseudoSelector simplePseudoSelector -> pseudoMatchers.addSelectorReference(simplePseudoSelector);
-          case SimplePseudoElement _1 -> {}
-          case Combinator _1 -> {}
-          default -> throw new UnsupportedOperationException(
-            "Unrecognized selector type: " + selectorPart);
-        }
-      }
+      selectorMatcher.registerSelector(complexSelector);
     }
   }
 
@@ -214,10 +199,11 @@ public class CSSMatcherImp implements CSSMatcher {
 
       WeightedStyleRule weightedRule = createWeightedRule(
         styleRule, ruleSource, complexSelector,
+        selectorMatcher.computeSpecificity(complexSelector),
         sheetOrdering, ruleOrdering);
 
       ElementSet matchNotes = selectorSets.get(complexSelector).matchedElements();
-      ElementSet matchedElements = matchElements(complexSelector);
+      ElementSet matchedElements = selectorMatcher.matchElements(complexSelector);
       if (matchedElements == null) {
         for (Element element: matchNotes) {
           changedElements.add(element);
@@ -316,6 +302,7 @@ public class CSSMatcherImp implements CSSMatcher {
     for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
       WeightedStyleRule weightedRule = createWeightedRule(
         styleRule, ruleSource, complexSelector,
+        selectorMatcher.computeSpecificity(complexSelector),
         sheetOrdering, ruleOrdering);
 
       ElementSet matchNotes = selectorSets.get(complexSelector).matchedElements();
@@ -334,48 +321,17 @@ public class CSSMatcherImp implements CSSMatcher {
       if (changedSelectors.contains(selectorPart)) {
         return true;
       }
-    }
 
-    return false;
-  }
-
-  private ElementSet matchElements(ComplexSelector complexSelector) {
-    List<SelectorPart> parts = complexSelector.parts();
-    if (parts.size() == 0) return null;
-    ElementSet currentMatched = match(parts.get(0)).copy();
-    for (int i = 1; i < parts.size(); i++) {
-      SelectorPart part = parts.get(i);
-      if (part instanceof Combinator combinator) {
-        ElementSet nextMatched = match(parts.get(++i));
-        currentMatched = matchCombinator(combinator, currentMatched, nextMatched);
-      } else if (part instanceof SimplePseudoElement) {
-        if (i != parts.size() - 1) return null;
-      } else {
-        currentMatched.intersect(match(part));
+      if (selectorPart instanceof LogicalPseudoSelector complexPseudoSelector) {
+        for (ComplexSelector subSelector: complexPseudoSelector.complexSelectors()) {
+          if (needsMatched(subSelector)) {
+            return true;
+          }
+        }
       }
     }
 
-    return currentMatched;
-  }
-
-  private ElementSet match(SelectorPart selectorPart) {
-    return switch (selectorPart) {
-      case SimpleSelector simpleSelector -> simpleMatchers.match(simpleSelector);
-      case SimplePseudoSelector simplePseudoSelector -> pseudoMatchers.match(simplePseudoSelector);
-      case SimplePseudoElement _1 -> allElements;
-      default -> throw new UnsupportedOperationException(
-        "Unrecognized selector type: " + selectorPart);
-    };
-  }
-
-  private ElementSet matchCombinator(Combinator combinator, ElementSet currentMatched, ElementSet nextMatched) {
-    return switch (combinator) {
-      case DescendantCombinator _1 -> combinatorMatchers.matchDescendants(currentMatched, nextMatched);
-      case ChildCombinator _1 -> combinatorMatchers.matchChild(currentMatched, nextMatched);
-      case NextSiblingCombinator _1 -> combinatorMatchers.matchNextSibling(currentMatched, nextMatched);
-      case SubsequentSiblingCombinator _1 -> combinatorMatchers.matchSubsequentSibling(currentMatched, nextMatched);
-      default -> throw new IllegalArgumentException();
-    };
+    return false;
   }
 
 }

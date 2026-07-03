@@ -237,9 +237,37 @@ public class ComplexSelectorParserTest {
     Assertions.assertEquals(expectedSelectors, actualSelectors);
   }
   
+  @Test
+  @DisplayName("Can parse relative selector with descendant combinator")
+  public void canParseRelativeSelectorWithDescendantCombinator() throws IOException {
+    List<ComplexSelector> actualSelectors = parseTokensRelative(
+      IdentToken.create("span"));
+    List<ComplexSelector> expectedSelectors = oneSelector(
+      DescendantCombinator.create(),
+      TypeSelector.create("span"));
+    Assertions.assertEquals(expectedSelectors, actualSelectors);
+  }
+
+  @Test
+  @DisplayName("Can parse relative selector with symbol combinator")
+  public void canParseRelativeSelectorWithSymbolCombinator() throws IOException {
+    List<ComplexSelector> actualSelectors = parseTokensRelative(
+      DelimToken.create('>'),
+      IdentToken.create("span"));
+    List<ComplexSelector> expectedSelectors = oneSelector(
+      ChildCombinator.create(),
+      TypeSelector.create("span"));
+    Assertions.assertEquals(expectedSelectors, actualSelectors);
+  }
+  
   private List<ComplexSelector> parseTokens(Token... tokens) throws IOException {
     return ComplexSelectorParser.parseComplexSelectors(
-      CSSTokenStream.createForTesting(tokens));
+      CSSTokenStream.createForTesting(tokens), false);
+  }
+  
+  private List<ComplexSelector> parseTokensRelative(Token... tokens) throws IOException {
+    return ComplexSelectorParser.parseComplexSelectors(
+      CSSTokenStream.createForTesting(tokens), true);
   }
 
   private List<ComplexSelector> oneSelector(SelectorPart... parts) {

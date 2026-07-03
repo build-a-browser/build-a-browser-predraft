@@ -5,14 +5,11 @@ import static net.buildabrowser.babbrowser.common.util.CompatUtil.getLast;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule.RuleSource;
-import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
-import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorTarget;
 import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
-import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 
 public final class WeightedStyleRuleUtil {
   
@@ -22,31 +19,15 @@ public final class WeightedStyleRuleUtil {
     StyleRule styleRule,
     RuleSource ruleSource,
     ComplexSelector complexSelector,
+    SelectorSpecificity specificity,
     int sheetOrdering,
     int[] ruleOrdering
   ) {
-    SelectorSpecificity specificity = computeSpecificity(complexSelector);
     SelectorTarget target = determineTarget(complexSelector);
     WeightedStyleRule weightedRule = WeightedStyleRule.create(
       styleRule, specificity, target,
       ruleSource, sheetOrdering, ruleOrdering[0]);
     return weightedRule;
-  }
-
-  private static SelectorSpecificity computeSpecificity(ComplexSelector selector) {
-    int numIdSelectors = 0;
-    int numClassSelectors = 0;
-    int numTypeSelectors = 0;
-    for (SelectorPart selectorPart: selector.parts()) {
-      switch (selectorPart) {
-        case IdSelector _1 -> numIdSelectors++;
-        case AttributeSelector _1 -> numClassSelectors++;
-        case TypeSelector _1 -> numTypeSelectors++;
-        default -> {}
-      }
-    }
-
-    return new SelectorSpecificity(numIdSelectors, numClassSelectors, numTypeSelectors);
   }
 
   private static SelectorTarget determineTarget(ComplexSelector complexSelector) {

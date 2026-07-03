@@ -14,9 +14,6 @@ public final class PresentationalHintResolver {
 
   // TODO: Only accept legacy attrs on specific elements
 
-  private static final SelectorSpecificity ZERO_SPECIFICITY =
-    new SelectorSpecificity(0, 0, 0);
-
   private PresentationalHintResolver() {}
 
   // TODO: elName should be a qualified name
@@ -47,7 +44,7 @@ public final class PresentationalHintResolver {
       // TODO: Get the actual source to pass in
       Declaration.create(null, propName, value, false)));
     WeightedStyleRule weightedStyleRule = WeightedStyleRule.create(
-      styleRule, ZERO_SPECIFICITY, RuleSource.AUTHOR, 0, 0);
+      styleRule, SelectorSpecificity.ZERO_SPECIFICITY, RuleSource.AUTHOR, 0, 0);
     return new PresentationalHint(name, weightedStyleRule);
   }
 

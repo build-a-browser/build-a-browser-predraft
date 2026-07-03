@@ -8,16 +8,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
+import net.buildabrowser.babbrowser.cssbase.selector.LogicalPseudoSelector.LogicalPseudoSelectorType;
 import net.buildabrowser.babbrowser.cssbase.selector.ChildCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.Combinator;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.LogicalPseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.NextSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
@@ -38,18 +41,21 @@ import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
 
 public final class ComplexSelectorParser {
 
-  private static final Set<String> LEGACY_PSUEDO_ELEMENTS = Set.of(
+  private static final Set<String> LEGACY_PSEUDO_ELEMENTS = Set.of(
     "first-line", "first-letter", "before", "after");
   
   private ComplexSelectorParser() {}
 
   public static List<ComplexSelector> parseComplexSelectors(
-    CSSTokenStream tokenStream
+    CSSTokenStream tokenStream, boolean isRelative
   ) throws IOException {
     List<ComplexSelector> selectors = new ArrayList<>(1);
     while (!(tokenStream.peek() instanceof EOFToken)) {
-      ComplexSelector selector = parseComplexSelector(tokenStream);
-      if (selector != null) {
+      ComplexSelector selector = parseComplexSelector(tokenStream, isRelative);
+      if (
+        selector != null
+        && verifyComplexSelector(selector, isRelative)
+      ) {
         selectors.add(selector);
       }
       if (tokenStream.peek() instanceof CommaToken) {
@@ -59,9 +65,12 @@ public final class ComplexSelectorParser {
 
     return selectors;
   }
-
-  private static ComplexSelector parseComplexSelector(CSSTokenStream tokenStream) throws IOException {
-    boolean didEncounterWhitespace = false;
+  
+  private static ComplexSelector parseComplexSelector(
+    CSSTokenStream tokenStream,
+    boolean isRelative
+  ) throws IOException {
+    boolean didEncounterWhitespace = isRelative;
     boolean didEncounterCombinator = false;
     boolean isInvalid = false;
     List<SelectorPart> parts = new ArrayList<>(1);
@@ -77,7 +86,10 @@ public final class ComplexSelectorParser {
       didEncounterWhitespace |= isWhitespace;
       didEncounterCombinator |= isCombinatorDelim;
       if (!isCombinatorDelim && !isWhitespace) {
-        if (didEncounterWhitespace && !didEncounterCombinator && !parts.isEmpty()) {
+        if (
+          didEncounterWhitespace && !didEncounterCombinator
+          && (isRelative || !parts.isEmpty())
+        ) {
           parts.add(DescendantCombinator.create());
         }
         didEncounterWhitespace = false;
@@ -86,12 +98,17 @@ public final class ComplexSelectorParser {
       isInvalid |= parseSelectorPart(currentToken, tokenStream, parts);
     }
 
-    if (parts.isEmpty()) return null;
-    isInvalid |= getFirst(parts) instanceof Combinator;
-    isInvalid |= getLast(parts) instanceof Combinator;
-    if (isInvalid) return null;
-
+    if (isInvalid || parts.isEmpty()) return null;
     return new ComplexSelector(parts);
+  }
+
+  private static boolean verifyComplexSelector(
+    ComplexSelector complexSelector, boolean isRelative
+  ) throws IOException {
+    List<SelectorPart> parts = complexSelector.parts();
+    return
+      getFirst(parts) instanceof Combinator == isRelative
+      && !(getLast(parts) instanceof Combinator);
   }
 
   private static boolean parseSelectorPart(
@@ -108,7 +125,7 @@ public final class ComplexSelectorParser {
           isInvalid = true;
         }
       }
-      case ColonToken _1 -> isInvalid |= parsePsuedoSelector(tokenStream, parts);
+      case ColonToken _1 -> isInvalid |= parsePseudoSelector(tokenStream, parts);
       case SimpleBlock simpleBlock -> isInvalid |= parseAttributeSelector(
         tokenStream.source(), simpleBlock, parts);
       case WhitespaceToken _1 -> {}
@@ -192,38 +209,73 @@ public final class ComplexSelectorParser {
     return false;
   }
 
-  private static boolean parsePsuedoSelector(
+  private static boolean parsePseudoSelector(
     CSSTokenStream tokenStream, List<SelectorPart> parts
   ) throws IOException {
     Token nextToken = tokenStream.peek();
     if (nextToken instanceof ColonToken) {
       tokenStream.read();
-      return parsePsuedoElement(tokenStream, parts);
+      return parsePseudoElement(tokenStream, parts);
+    } else if (nextToken instanceof FunctionValue functionValue) {
+      tokenStream.read();
+      return parseComplexPseudoSelector(functionValue, parts, tokenStream.source());
     }
     if (!(nextToken instanceof IdentToken identToken)) return true;
     String selectorName = identToken.value();
-    SimplePseudoSelector matchingSimplePsuedoSelector = SimplePseudoSelector.lookupType(selectorName);
-    if (matchingSimplePsuedoSelector == null) {
-      if (LEGACY_PSUEDO_ELEMENTS.contains(selectorName)) {
-        return parsePsuedoElement(tokenStream, parts);
+    SimplePseudoSelector matchingSimplePseudoSelector = SimplePseudoSelector.lookupType(selectorName);
+    if (matchingSimplePseudoSelector == null) {
+      if (LEGACY_PSEUDO_ELEMENTS.contains(selectorName)) {
+        return parsePseudoElement(tokenStream, parts);
       }
       return true;
     }
     tokenStream.read();
-    parts.add(matchingSimplePsuedoSelector);
+    parts.add(matchingSimplePseudoSelector);
     return false;
   }
 
-  private static boolean parsePsuedoElement(
+  private static boolean parsePseudoElement(
     CSSTokenStream tokenStream, List<SelectorPart> parts
   ) throws IOException {
     Token nextToken = tokenStream.read();
     // TODO: Another : means pseudo-class
     if (!(nextToken instanceof IdentToken identToken)) return true;
     String className = identToken.value();
-    SimplePseudoElement matchingSimplePsuedoClass = SimplePseudoElement.lookupType(className);
-    if (matchingSimplePsuedoClass == null) return true;
-    parts.add(matchingSimplePsuedoClass);
+    SimplePseudoElement matchingSimplePseudoClass = SimplePseudoElement.lookupType(className);
+    if (matchingSimplePseudoClass == null) return true;
+    parts.add(matchingSimplePseudoClass);
+    return false;
+  }
+
+  private static boolean parseComplexPseudoSelector(
+    FunctionValue functionValue, List<SelectorPart> parts,
+    CSSTokenStreamSource source
+  ) throws IOException {
+    return switch (functionValue.name()) {
+      case "is", "where", "not", "has" -> parseLogicalPseudoSelector(functionValue, parts, source);
+      default -> true;
+    };
+  }
+
+  private static boolean parseLogicalPseudoSelector(
+    FunctionValue functionValue, List<SelectorPart> parts,
+    CSSTokenStreamSource source
+  ) throws IOException {
+    CSSTokenStream tokenStream = CSSTokenStream.create(source, functionValue.value());
+    LogicalPseudoSelectorType type = switch (functionValue.name()) {
+      case "is" -> LogicalPseudoSelectorType.IS;
+      case "where" -> LogicalPseudoSelectorType.WHERE;
+      case "not" -> LogicalPseudoSelectorType.NOT;
+      case "has" -> LogicalPseudoSelectorType.HAS;
+      default -> null;
+    };
+    if (type == null) return true;
+
+    List<ComplexSelector> subSelectors = parseComplexSelectors(
+      tokenStream,
+      type.equals(LogicalPseudoSelectorType.HAS));
+
+    parts.add(new LogicalPseudoSelector(type, subSelectors));
     return false;
   }
 
