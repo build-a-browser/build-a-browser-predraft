@@ -14,6 +14,7 @@ import net.buildabrowser.babbrowser.renderer.box.test.TestElementBox;
 import net.buildabrowser.babbrowser.renderer.box.test.TestFixedSizeReplacedContent;
 import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexBoxContent;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowRootContent;
+import net.buildabrowser.babbrowser.renderer.content.table.TableContent;
 
 public final class CommonBoxTestUtil {
   
@@ -89,6 +90,18 @@ public final class CommonBoxTestUtil {
   public static ElementBox flexBlockBox(ActiveStyles styles, List<Box> children) {
     ElementBox parentBox = new TestElementBox(
       box -> FlexBoxContent.get(),
+      BoxLevel.BLOCK_LEVEL, styles, children);
+
+    return parentBox;
+  }
+
+  public static ElementBox tableBlockBox(List<Box> children) {
+    return tableBlockBox(ActiveStyles.create(), children);
+  }
+
+  public static ElementBox tableBlockBox(ActiveStyles styles, List<Box> children) {
+    ElementBox parentBox = new TestElementBox(
+      box -> TableContent.get(),
       BoxLevel.BLOCK_LEVEL, styles, children);
 
     return parentBox;

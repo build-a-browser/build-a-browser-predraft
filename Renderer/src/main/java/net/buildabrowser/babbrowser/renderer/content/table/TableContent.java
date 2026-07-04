@@ -145,11 +145,11 @@ public final class TableContent implements BoxContent {
       for (int x = 0; x < table.width(); x++) {
         for (int z = 0; table.cell(x, y, z) != null; z++) {
           TableCell cell = table.cell(x, y, z);
-          if (cell.getRelatedFragment() != null) continue;
-
-          UnmanagedBoxFragment<?> fragment = cell.cellBox().layout(
-            LayoutConstraint.of(innerCellWidth(table, cell)), LayoutConstraint.AUTO);
-          cell.setRelatedFragment(fragment);
+          if (cell.getRelatedFragment() == null) {
+            UnmanagedBoxFragment<?> fragment = cell.cellBox().layout(
+              LayoutConstraint.of(innerCellWidth(table, cell)), LayoutConstraint.AUTO);
+            cell.setRelatedFragment(fragment);
+          }
 
           LayoutConstraint fragmentHeight = SizingHeightUtil.evaluateAdjustedHeightSize(
             LayoutConstraint.AUTO, cell.cellBox());
