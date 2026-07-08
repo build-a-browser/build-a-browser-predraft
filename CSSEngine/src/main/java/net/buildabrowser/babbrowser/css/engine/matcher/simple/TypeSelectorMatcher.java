@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
+import net.buildabrowser.babbrowser.css.engine.matcher.util.QualifiedNameUtil;
 import net.buildabrowser.babbrowser.css.engine.matcher.util.RefCounted;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
@@ -86,7 +87,7 @@ public class TypeSelectorMatcher implements SimpleSelectorMatcher<TypeSelector> 
   }
 
   private boolean matches(Element element, TypeSelector ref) {
-    return element.name().equals(ref.tagName());
+    return QualifiedNameUtil.nameMatches(ref.tagName(), element);
   }
 
 }

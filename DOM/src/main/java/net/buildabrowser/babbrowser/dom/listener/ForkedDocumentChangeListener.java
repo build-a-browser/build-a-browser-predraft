@@ -7,7 +7,7 @@ import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.events.Event;
 
-public abstract class ForkedDocumentChangeListener implements DocumentChangeListener {
+public class ForkedDocumentChangeListener implements DocumentChangeListener {
  
   private final List<DocumentChangeListener> nextListeners;
 

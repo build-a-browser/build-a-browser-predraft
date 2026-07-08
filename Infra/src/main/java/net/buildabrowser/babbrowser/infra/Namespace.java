@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.dom;
+package net.buildabrowser.babbrowser.infra;
 
 // TODO: Move to common infra
 public final class Namespace {

@@ -5,6 +5,7 @@ plugins {
 dependencies {
     api project(':DOM')
     api project(':HTML')
+    implementation project(':Infra')
 
     implementation("com.google.code.gson:gson:2.13.2")
 }

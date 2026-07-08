@@ -6,25 +6,19 @@ import static net.buildabrowser.babbrowser.common.util.CompatUtil.getLast;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector.AttributeType;
-import net.buildabrowser.babbrowser.cssbase.selector.LogicalPseudoSelector.LogicalPseudoSelectorType;
 import net.buildabrowser.babbrowser.cssbase.selector.ChildCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.Combinator;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
-import net.buildabrowser.babbrowser.cssbase.selector.LogicalPseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.NextSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SubsequentSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
@@ -40,9 +34,6 @@ import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
 
 public final class ComplexSelectorParser {
-
-  private static final Set<String> LEGACY_PSEUDO_ELEMENTS = Set.of(
-    "first-line", "first-letter", "before", "after");
   
   private ComplexSelectorParser() {}
 
@@ -66,7 +57,7 @@ public final class ComplexSelectorParser {
     return selectors;
   }
   
-  private static ComplexSelector parseComplexSelector(
+  public static ComplexSelector parseComplexSelector(
     CSSTokenStream tokenStream,
     boolean isRelative
   ) throws IOException {
@@ -125,7 +116,7 @@ public final class ComplexSelectorParser {
           isInvalid = true;
         }
       }
-      case ColonToken _1 -> isInvalid |= parsePseudoSelector(tokenStream, parts);
+      case ColonToken _1 -> isInvalid |= ComplexPseudoSelectorParser.parsePseudoSelector(tokenStream, parts);
       case SimpleBlock simpleBlock -> isInvalid |= parseAttributeSelector(
         tokenStream.source(), simpleBlock, parts);
       case WhitespaceToken _1 -> {}
@@ -209,76 +200,6 @@ public final class ComplexSelectorParser {
     return false;
   }
 
-  private static boolean parsePseudoSelector(
-    CSSTokenStream tokenStream, List<SelectorPart> parts
-  ) throws IOException {
-    Token nextToken = tokenStream.peek();
-    if (nextToken instanceof ColonToken) {
-      tokenStream.read();
-      return parsePseudoElement(tokenStream, parts);
-    } else if (nextToken instanceof FunctionValue functionValue) {
-      tokenStream.read();
-      return parseComplexPseudoSelector(functionValue, parts, tokenStream.source());
-    }
-    if (!(nextToken instanceof IdentToken identToken)) return true;
-    String selectorName = identToken.value();
-    SimplePseudoSelector matchingSimplePseudoSelector = SimplePseudoSelector.lookupType(selectorName);
-    if (matchingSimplePseudoSelector == null) {
-      if (LEGACY_PSEUDO_ELEMENTS.contains(selectorName)) {
-        return parsePseudoElement(tokenStream, parts);
-      }
-      return true;
-    }
-    tokenStream.read();
-    parts.add(matchingSimplePseudoSelector);
-    return false;
-  }
-
-  private static boolean parsePseudoElement(
-    CSSTokenStream tokenStream, List<SelectorPart> parts
-  ) throws IOException {
-    Token nextToken = tokenStream.read();
-    // TODO: Another : means pseudo-class
-    if (!(nextToken instanceof IdentToken identToken)) return true;
-    String className = identToken.value();
-    SimplePseudoElement matchingSimplePseudoClass = SimplePseudoElement.lookupType(className);
-    if (matchingSimplePseudoClass == null) return true;
-    parts.add(matchingSimplePseudoClass);
-    return false;
-  }
-
-  private static boolean parseComplexPseudoSelector(
-    FunctionValue functionValue, List<SelectorPart> parts,
-    CSSTokenStreamSource source
-  ) throws IOException {
-    return switch (functionValue.name()) {
-      case "is", "where", "not", "has" -> parseLogicalPseudoSelector(functionValue, parts, source);
-      default -> true;
-    };
-  }
-
-  private static boolean parseLogicalPseudoSelector(
-    FunctionValue functionValue, List<SelectorPart> parts,
-    CSSTokenStreamSource source
-  ) throws IOException {
-    CSSTokenStream tokenStream = CSSTokenStream.create(source, functionValue.value());
-    LogicalPseudoSelectorType type = switch (functionValue.name()) {
-      case "is" -> LogicalPseudoSelectorType.IS;
-      case "where" -> LogicalPseudoSelectorType.WHERE;
-      case "not" -> LogicalPseudoSelectorType.NOT;
-      case "has" -> LogicalPseudoSelectorType.HAS;
-      default -> null;
-    };
-    if (type == null) return true;
-
-    List<ComplexSelector> subSelectors = parseComplexSelectors(
-      tokenStream,
-      type.equals(LogicalPseudoSelectorType.HAS));
-
-    parts.add(new LogicalPseudoSelector(type, subSelectors));
-    return false;
-  }
-
   private static String parseIdentOrString(CSSTokenStream tokenStream) throws IOException {
     Token token = tokenStream.peek();
     if (token instanceof IdentToken identToken) {
@@ -292,7 +213,7 @@ public final class ComplexSelectorParser {
     }
   }
 
-  private static void ignoreWhitespace(CSSTokenStream tokenStream) throws IOException {
+  public static void ignoreWhitespace(CSSTokenStream tokenStream) throws IOException {
     while (tokenStream.peek() instanceof WhitespaceToken) {
       tokenStream.read();
     }
