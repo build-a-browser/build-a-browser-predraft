@@ -8,6 +8,14 @@ public interface DocumentState {
   RenderableDocument document();
 
   void setDocument(RenderableDocument document);
+
+  boolean reloadPending();
+
+  void setReloadPending(boolean reloadPending);
+
+  boolean everPopulated();
+
+  void setEverPopulated(boolean everPopulated);
  
   public static DocumentState create() {
     return new DocumentStateImp();

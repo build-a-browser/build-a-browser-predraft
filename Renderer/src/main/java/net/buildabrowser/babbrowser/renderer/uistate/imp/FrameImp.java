@@ -96,17 +96,17 @@ public class FrameImp implements DebuggableFrame {
 
   @Override
   public void reload() {
-    // TODO: Implement
+    navigable.reload(UserNavigationInvolvement.BROWSER_UI);
   }
 
   @Override
   public void back() {
-    // TODO: Implement
+    navigable.traversable().traverseHistoryByDelta(-1, null);
   }
 
   @Override
   public void forward() {
-    // TODO: Implement
+    navigable.traversable().traverseHistoryByDelta(1, null);
   }
 
   @Override

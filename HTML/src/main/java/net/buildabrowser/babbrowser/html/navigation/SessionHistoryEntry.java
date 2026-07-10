@@ -13,16 +13,22 @@ public interface SessionHistoryEntry {
 
   DocumentState documentState();
 
+  int step();
+
+  void setStep(int step);
+
   void populate(
     UANavigableOptions uaNavigableOptions, // Has extra UA-specific arguments
     Navigable navigable,
     SourceSnapshotParams sourceSnapshotParams,
+    TargetSnapshotParams targetSnapshotParams,
     UserNavigationInvolvement userInvolvement,
     NavigationParams navigationParams,
+    boolean allowPost,
     Runnable completionSteps
   );
   
-  default RenderableDocument getDocument() {
+  default RenderableDocument document() {
     return documentState().document();
   }
 
