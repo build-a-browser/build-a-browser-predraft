@@ -9,8 +9,15 @@ import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.html.scripting.PlatformObject;
+import net.buildabrowser.babbrowser.html.selection.Selection;
 
 public interface HTMLDocument extends RenderableDocument, Document, PlatformObject {
+
+  // TODO: This should be in base Document, but Selection is not exposed there
+
+  Selection getSelection();
+
+  //
 
   void setTitleElement(HTMLElement titleElement);
 

@@ -15,12 +15,14 @@ import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
+import net.buildabrowser.babbrowser.html.selection.Selection;
 
 public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
 
   private final UANavigableOptions uaNavigableOptions;
   private final BrowsingContext browsingContext;
   private final FocusManager focusManager;
+  private final Selection selection;
 
   private DocumentRenderer renderer;
   private boolean willDeclarativelyRefresh;
@@ -33,6 +35,12 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
     this.uaNavigableOptions = uaNavigableOptions;
     this.browsingContext = browsingContext;
     this.focusManager = FocusManager.create(this);
+    this.selection = Selection.create(this);
+  }
+
+  @Override
+  public Selection getSelection() {
+    return this.selection;
   }
 
   @Override
