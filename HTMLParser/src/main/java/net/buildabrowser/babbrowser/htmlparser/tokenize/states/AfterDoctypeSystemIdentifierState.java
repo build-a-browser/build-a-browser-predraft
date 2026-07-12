@@ -15,7 +15,7 @@ public class AfterDoctypeSystemIdentifierState implements TokenizeState {
       case '\t', '\n', '\f', ' ':
         break;
       case '>':
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitDoctypeToken(doctypeToken);
         break;
       case TokenizeContext.EOF:
@@ -26,7 +26,7 @@ public class AfterDoctypeSystemIdentifierState implements TokenizeState {
         break;
       default:
         parseContext.parseError();
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.bogusDoctypeState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.BOGUS_DOCTYPE_STATE);
         break;
     }
   }

@@ -20,7 +20,7 @@ public class AfterAfterBodyInsertionMode implements InsertionMode {
   public boolean emitCharacterToken(ParseContext parseContext, int ch) {
     switch (ch) {
       case '\t', '\n', '\f', '\r', ' ':
-        return InsertionModes.inBodyInsertionMode.emitCharacterToken(parseContext, ch);
+        return InsertionModes.IN_BODY_INSERTION_MODE.emitCharacterToken(parseContext, ch);
       default:
         return handleAnythingElse(parseContext);
     }
@@ -33,7 +33,7 @@ public class AfterAfterBodyInsertionMode implements InsertionMode {
 
   @Override
   public boolean emitDoctypeToken(ParseContext parseContext, DoctypeToken doctypeToken) {
-    InsertionModes.inBodyInsertionMode.emitDoctypeToken(parseContext, doctypeToken);
+    InsertionModes.IN_BODY_INSERTION_MODE.emitDoctypeToken(parseContext, doctypeToken);
     return false;
   }
 
@@ -46,7 +46,7 @@ public class AfterAfterBodyInsertionMode implements InsertionMode {
   @Override
   public boolean emitTagToken(ParseContext parseContext, TagToken tagToken) {
     if (tagToken.isStartTag() && tagToken.name().equals("html")) {
-      return InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
+      return InsertionModes.IN_BODY_INSERTION_MODE.emitTagToken(parseContext, tagToken);
     } else {
       return handleAnythingElse(parseContext);
     }
@@ -54,7 +54,7 @@ public class AfterAfterBodyInsertionMode implements InsertionMode {
 
   private boolean handleAnythingElse(ParseContext parseContext) {
     parseContext.parseError();
-    parseContext.setInsertionMode(InsertionModes.inBodyInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.IN_BODY_INSERTION_MODE);
     return true;
   }
   

@@ -12,10 +12,10 @@ public class DoctypeState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     switch (ch) {
       case '\t', '\n', '\f', ' ':
-        tokenizeContext.setTokenizeState(TokenizeStates.beforeDoctypeNameState);
+        tokenizeContext.setTokenizeState(TokenizeStates.BEFORE_DOCTYPE_NAME_STATE);
         break;
       case '>':
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.beforeDoctypeNameState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.BEFORE_DOCTYPE_NAME_STATE);
         break;
       case TokenizeContext.EOF:
         parseContext.parseError();
@@ -26,7 +26,7 @@ public class DoctypeState implements TokenizeState {
         break;
       default:
         parseContext.parseError();
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.beforeDoctypeNameState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.BEFORE_DOCTYPE_NAME_STATE);
     }
   }
 

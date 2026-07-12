@@ -63,7 +63,7 @@ public class InHeadInsertionMode implements InsertionMode {
     // TODO: More start tag cases
     switch (tagToken.name()) {
       case "html":
-        return InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
+        return InsertionModes.IN_BODY_INSERTION_MODE.emitTagToken(parseContext, tagToken);
       case "base", "basefont", "bgsound", "link":
         ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
         parseContext.openElementStack().popNode();
@@ -88,9 +88,9 @@ public class InHeadInsertionMode implements InsertionMode {
         // TODO: JS stuff...
         ParseElementUtil.insertNodeAt(newEl, adjustedInsertionLocation);
         parseContext.openElementStack().pushNode(newEl);
-        parseContext.tokenizeContext().setTokenizeState(TokenizeStates.scriptDataState);
+        parseContext.tokenizeContext().setTokenizeState(TokenizeStates.SCRIPT_DATA_STATE);
         parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());
-        parseContext.setInsertionMode(InsertionModes.textInsertionMode);
+        parseContext.setInsertionMode(InsertionModes.TEXT_INSERTION_MODE);
         return false;
       case "head":
         parseContext.parseError();
@@ -105,7 +105,7 @@ public class InHeadInsertionMode implements InsertionMode {
       case "head":
         Node popped = parseContext.openElementStack().popNode();
         assert(popped instanceof Element poppedElement && poppedElement.name().equals("head"));
-        parseContext.setInsertionMode(InsertionModes.afterHeadInsertionMode);
+        parseContext.setInsertionMode(InsertionModes.AFTER_HEAD_INSERTION_MODE);
         return false;
       case "body", "html", "br":
         return handleAnythingElse(parseContext);
@@ -119,7 +119,7 @@ public class InHeadInsertionMode implements InsertionMode {
   private boolean handleAnythingElse(ParseContext parseContext) {
     Node popped = parseContext.openElementStack().popNode();
     assert(popped instanceof Element poppedElement && poppedElement.name().equals("head"));
-    parseContext.setInsertionMode(InsertionModes.afterHeadInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.AFTER_HEAD_INSERTION_MODE);
     return true;
   }
   

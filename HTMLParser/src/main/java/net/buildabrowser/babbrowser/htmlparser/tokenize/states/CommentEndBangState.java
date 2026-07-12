@@ -14,11 +14,11 @@ public class CommentEndBangState implements TokenizeState {
         tokenizeContext.currentCommentToken().appendCodePointToData('-');
         tokenizeContext.currentCommentToken().appendCodePointToData('-');
         tokenizeContext.currentCommentToken().appendCodePointToData('!');
-        tokenizeContext.setTokenizeState(TokenizeStates.commentEndDashState);
+        tokenizeContext.setTokenizeState(TokenizeStates.COMMENT_END_DASH_STATE);
         break;
       case '>':
         parseContext.parseError();
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitCommentToken(tokenizeContext.currentCommentToken());
         break;
       case TokenizeContext.EOF:
@@ -30,7 +30,7 @@ public class CommentEndBangState implements TokenizeState {
         tokenizeContext.currentCommentToken().appendCodePointToData('-');
         tokenizeContext.currentCommentToken().appendCodePointToData('-');
         tokenizeContext.currentCommentToken().appendCodePointToData('!');
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.commentState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.COMMENT_STATE);
         break;
     }
   }

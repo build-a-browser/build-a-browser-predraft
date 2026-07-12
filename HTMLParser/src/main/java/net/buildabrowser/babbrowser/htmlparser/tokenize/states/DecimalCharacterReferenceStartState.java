@@ -11,7 +11,7 @@ public class DecimalCharacterReferenceStartState implements TokenizeState {
   @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     if (ASCIIUtil.isDigit(ch)) {
-      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.decimalCharacterReferenceState);
+      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.DECIMAL_CHARACTER_REFERENCE_STATE);
     } else {
       parseContext.parseError();
       tokenizeContext.flushCodePointsConsumedAsACharacterReference(parseContext);

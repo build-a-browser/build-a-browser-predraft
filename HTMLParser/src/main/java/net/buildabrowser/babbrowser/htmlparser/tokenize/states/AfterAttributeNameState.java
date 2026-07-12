@@ -13,14 +13,14 @@ public class AfterAttributeNameState implements TokenizeState {
       case '\t', '\n', '\f', ' ':
         break;
       case '/':
-        tokenizeContext.setTokenizeState(TokenizeStates.selfClosingStartTagState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SELF_CLOSING_START_TAG_STATE);
         break;
       case '=':
-        tokenizeContext.setTokenizeState(TokenizeStates.beforeAttributeValueState);
+        tokenizeContext.setTokenizeState(TokenizeStates.BEFORE_ATTRIBUTE_VALUE_STATE);
         parseContext.emitTagToken(tokenizeContext.currentTagToken());
         break;
       case '>':
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitTagToken(tokenizeContext.currentTagToken());
         break;
       case TokenizeContext.EOF:
@@ -29,7 +29,7 @@ public class AfterAttributeNameState implements TokenizeState {
         break;
       default:
         tokenizeContext.currentTagToken().startNewAttribute();
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.attributeNameState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.ATTRIBUTE_NAME_STATE);
     }
   }
   

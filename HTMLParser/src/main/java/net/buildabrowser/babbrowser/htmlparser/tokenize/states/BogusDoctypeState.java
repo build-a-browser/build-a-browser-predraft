@@ -11,7 +11,7 @@ public class BogusDoctypeState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     switch (ch) {
       case '>':
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitDoctypeToken(tokenizeContext.currentDoctypeToken());
         break;
       case 0:

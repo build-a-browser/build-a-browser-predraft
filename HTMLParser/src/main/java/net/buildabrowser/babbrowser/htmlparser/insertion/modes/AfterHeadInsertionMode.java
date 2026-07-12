@@ -59,15 +59,15 @@ public class AfterHeadInsertionMode implements InsertionMode {
       case "title", "base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template":
         parseContext.parseError();
         parseContext.openElementStack().pushNode(parseContext.headElementPointer());
-        InsertionModes.inHeadInsertionMode.emitTagToken(parseContext, tagToken);
+        InsertionModes.IN_HEAD_INSERTION_MODE.emitTagToken(parseContext, tagToken);
         parseContext.openElementStack().removeSpecificNode(parseContext.headElementPointer());
         return false;
       case "html":
-        return InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
+        return InsertionModes.IN_BODY_INSERTION_MODE.emitTagToken(parseContext, tagToken);
       case "body":
         ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
         parseContext.setFramesetOk(false);
-        parseContext.setInsertionMode(InsertionModes.inBodyInsertionMode);
+        parseContext.setInsertionMode(InsertionModes.IN_BODY_INSERTION_MODE);
         return false;
       // TODO: Frameset
       // TODO: Many others
@@ -82,7 +82,7 @@ public class AfterHeadInsertionMode implements InsertionMode {
   private boolean emitEndTagToken(ParseContext parseContext, TagToken tagToken) {
     switch (tagToken.name()) {
       case "template":
-        return InsertionModes.inHeadInsertionMode.emitTagToken(parseContext, tagToken);
+        return InsertionModes.IN_HEAD_INSERTION_MODE.emitTagToken(parseContext, tagToken);
       case "body", "html", "br":
         return handleAnythingElse(parseContext);
       default:
@@ -93,7 +93,7 @@ public class AfterHeadInsertionMode implements InsertionMode {
 
   private boolean handleAnythingElse(ParseContext parseContext) {
     ParseElementUtil.insertAnHTMLElement(parseContext, TagToken.create(true, "body"));
-    parseContext.setInsertionMode(InsertionModes.inBodyInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.IN_BODY_INSERTION_MODE);
     return true;
   }
   

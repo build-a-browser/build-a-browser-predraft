@@ -75,7 +75,7 @@ public class InBodyInsertionMode implements InsertionMode {
   private boolean emitStartTagToken(ParseContext parseContext, TagToken tagToken) {
     switch (tagToken.name()) {
       case "base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template", "title":
-        return InsertionModes.inHeadInsertionMode.emitTagToken(parseContext, tagToken);
+        return InsertionModes.IN_HEAD_INSERTION_MODE.emitTagToken(parseContext, tagToken);
       case "address", "article", "aside", "blockquote", "center", "details", "dialog", "dir", "div", "dl",
       "fieldset", "figcaption", "figure", "footer", "header", "hgroup", "main", "menu", "nav", "ol", "p",
       "search", "section", "summary", "ul":
@@ -90,7 +90,7 @@ public class InBodyInsertionMode implements InsertionMode {
         }
         ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
         parseContext.setFramesetOk(false);
-        parseContext.setInsertionMode(InsertionModes.inTableInsertionMode);
+        parseContext.setInsertionMode(InsertionModes.IN_TABLE_INSERTION_MODE);
         return false;
       case "area", "br", "embed", "img", "keygen", "wbr":
         ParseTextUtil.reconstructTheActiveFormattingElements(parseContext);
@@ -117,7 +117,7 @@ public class InBodyInsertionMode implements InsertionMode {
     switch (tagToken.name()) {
       case "body":
         // TODO: Other stuff
-        parseContext.setInsertionMode(InsertionModes.afterBodyInsertionMode);
+        parseContext.setInsertionMode(InsertionModes.AFTER_BODY_INSERTION_MODE);
         return false;
       case "br":
         parseContext.parseError();

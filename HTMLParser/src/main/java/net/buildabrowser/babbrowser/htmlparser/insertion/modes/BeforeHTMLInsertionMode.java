@@ -52,7 +52,7 @@ public class BeforeHTMLInsertionMode implements InsertionMode {
       Element element = ParseElementUtil.createAnElementForAToken(tagToken, Namespace.HTML_NAMESPACE, parseContext.document());
       parseContext.document().appendChild(element);
       parseContext.openElementStack().pushNode(element);
-      parseContext.setInsertionMode(InsertionModes.beforeHeadInsertionMode);
+      parseContext.setInsertionMode(InsertionModes.BEFORE_HEAD_INSERTION_MODE);
 
       return false;
     } else if (!tagToken.isStartTag()) {
@@ -73,7 +73,7 @@ public class BeforeHTMLInsertionMode implements InsertionMode {
     parseContext.document().appendChild(element);
     parseContext.openElementStack().pushNode(element);
 
-    parseContext.setInsertionMode(InsertionModes.beforeHeadInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.BEFORE_HEAD_INSERTION_MODE);
     
     return true;
   }

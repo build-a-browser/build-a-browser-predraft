@@ -12,11 +12,11 @@ public class AttributeValueSingleQuotedState implements TokenizeState {
     switch (ch) {
       // TODO: Other cases
       case '\'':
-        tokenizeContext.setTokenizeState(TokenizeStates.afterAttributeValueQuotedState);
+        tokenizeContext.setTokenizeState(TokenizeStates.AFTER_ATTRIBUTE_VALUE_QUOTED_STATE);
         break;
       case '&':
         tokenizeContext.setReturnState(this);
-        tokenizeContext.setTokenizeState(TokenizeStates.characterReferenceState);
+        tokenizeContext.setTokenizeState(TokenizeStates.CHARACTER_REFERENCE_STATE);
         break;
       case 0:
         parseContext.parseError();

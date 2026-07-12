@@ -24,10 +24,10 @@ public class MarkupDeclarationOpenState implements TokenizeState {
     switch (value.toUpperCase()) {
       case "--":
         tokenizeContext.beginCommentToken();
-        tokenizeContext.setTokenizeState(TokenizeStates.commentStartState);
+        tokenizeContext.setTokenizeState(TokenizeStates.COMMENT_START_STATE);
         return true;
       case "DOCTYPE":
-        tokenizeContext.setTokenizeState(TokenizeStates.doctypeState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DOCTYPE_STATE);
         return true;
       default:
         throw new UnsupportedOperationException("Not yet implemented!");

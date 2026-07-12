@@ -14,15 +14,15 @@ public class ScriptDataEscapedDashDashState implements TokenizeState {
         parseContext.emitCharacterToken('-');
         break;
       case '<':
-        tokenizeContext.setTokenizeState(TokenizeStates.scriptDataEscapedLessThanSignState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE);
         break;
       case '>':
-        tokenizeContext.setTokenizeState(TokenizeStates.scriptDataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_STATE);
         parseContext.emitCharacterToken('>');
         break;
       case 0:
         parseContext.parseError();
-        tokenizeContext.setTokenizeState(TokenizeStates.scriptDataEscapedState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_ESCAPED_STATE);
         parseContext.emitCharacterToken(0xFFFD);
         break;
       case TokenizeContext.EOF:
@@ -30,7 +30,7 @@ public class ScriptDataEscapedDashDashState implements TokenizeState {
         parseContext.emitEOFToken();
         break;
       default:
-        tokenizeContext.setTokenizeState(TokenizeStates.scriptDataEscapedState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_ESCAPED_STATE);
         parseContext.emitCharacterToken(ch);
         break;
     }

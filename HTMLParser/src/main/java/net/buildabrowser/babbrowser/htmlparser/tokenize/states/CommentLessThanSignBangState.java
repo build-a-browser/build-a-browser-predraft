@@ -11,10 +11,10 @@ public class CommentLessThanSignBangState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     switch (ch) {
       case '-':
-        tokenizeContext.setTokenizeState(TokenizeStates.commentLessThanSignBangDashState);
+        tokenizeContext.setTokenizeState(TokenizeStates.COMMENT_LESS_THAN_SIGN_BANG_DASH_STATE);
         break;
       default:
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.commentState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.COMMENT_STATE);
         break;
     }
   }

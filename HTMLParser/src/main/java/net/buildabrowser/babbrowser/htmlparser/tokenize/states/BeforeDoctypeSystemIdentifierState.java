@@ -16,16 +16,16 @@ public class BeforeDoctypeSystemIdentifierState implements TokenizeState {
         break;
       case '"':
         doctypeToken.setSystemIdentifier("");
-        tokenizeContext.setTokenizeState(TokenizeStates.doctypeSystemIdentifierDoubleQuotedState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE);
         break;
       case '\'':
         doctypeToken.setSystemIdentifier("");
-        tokenizeContext.setTokenizeState(TokenizeStates.doctypeSystemIdentifierSingleQuotedState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE);
         break;
       case '>':
         parseContext.parseError();
         doctypeToken.setForceQuirks(true);
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitDoctypeToken(doctypeToken);
         break;
       case TokenizeContext.EOF:
@@ -37,7 +37,7 @@ public class BeforeDoctypeSystemIdentifierState implements TokenizeState {
       default:
         parseContext.parseError();
         doctypeToken.setForceQuirks(true);
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.bogusDoctypeState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.BOGUS_DOCTYPE_STATE);
         break;
     }
   }

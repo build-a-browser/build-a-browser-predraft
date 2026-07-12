@@ -11,11 +11,11 @@ public class CommentEndState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     switch (ch) {
       case '>':
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitCommentToken(tokenizeContext.currentCommentToken());
         break;
       case '!':
-        tokenizeContext.setTokenizeState(TokenizeStates.commentEndBangState);
+        tokenizeContext.setTokenizeState(TokenizeStates.COMMENT_END_BANG_STATE);
         break;
       case '-':
         tokenizeContext.currentCommentToken().appendCodePointToData('-');
@@ -28,7 +28,7 @@ public class CommentEndState implements TokenizeState {
       default:
         tokenizeContext.currentCommentToken().appendCodePointToData('-');
         tokenizeContext.currentCommentToken().appendCodePointToData('-');
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.commentState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.COMMENT_STATE);
     }
   }
   

@@ -19,7 +19,7 @@ public class AfterDoctypeNameState implements TokenizeState {
       case '\t', '\n', '\f', ' ':
         break;
       case '>':
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitDoctypeToken(tokenizeContext.currentDoctypeToken());
       case TokenizeContext.EOF:
         parseContext.parseError();
@@ -31,7 +31,7 @@ public class AfterDoctypeNameState implements TokenizeState {
       default:
         parseContext.parseError();
         tokenizeContext.currentDoctypeToken().setForceQuirks(true);
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.bogusDoctypeState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.BOGUS_DOCTYPE_STATE);
         break;
     }
   }
@@ -39,10 +39,10 @@ public class AfterDoctypeNameState implements TokenizeState {
   @Override
   public boolean lookaheadMatched(String value, TokenizeContext tokenizeContext, ParseContext parseContext) {
     if (value.toUpperCase().equals("PUBLIC")) {
-      tokenizeContext.setTokenizeState(TokenizeStates.afterDoctypePublicKeywordState);
+      tokenizeContext.setTokenizeState(TokenizeStates.AFTER_DOCTYPE_PUBLIC_KEYWORD_STATE);
       return true;
     } else if (value.toUpperCase().equals("SYSTEM")) {
-      tokenizeContext.setTokenizeState(TokenizeStates.afterDoctypeSystemKeywordState);
+      tokenizeContext.setTokenizeState(TokenizeStates.AFTER_DOCTYPE_SYSTEM_KEYWORD_STATE);
       return true;
     } else {
       return false;

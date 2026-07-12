@@ -13,7 +13,7 @@ public class SelfClosingStartTagState implements TokenizeState {
       // TODO: Other cases
       case '>':
         tokenizeContext.currentTagToken().setSelfClosing(true);
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitTagToken(tokenizeContext.currentTagToken());
         break;
       default:

@@ -18,10 +18,10 @@ public class DoctypeNameState implements TokenizeState {
 
     switch (ch) {
       case '\t', '\n', '\f', ' ':
-        tokenizeContext.setTokenizeState(TokenizeStates.afterDoctypeNameState);
+        tokenizeContext.setTokenizeState(TokenizeStates.AFTER_DOCTYPE_NAME_STATE);
         break;
       case '>':
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitDoctypeToken(tokenizeContext.currentDoctypeToken());
         break;
       case 0:

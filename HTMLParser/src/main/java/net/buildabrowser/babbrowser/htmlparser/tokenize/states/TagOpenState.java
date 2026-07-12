@@ -11,15 +11,15 @@ public class TagOpenState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     switch (ch) {
       case '!':
-        tokenizeContext.setTokenizeState(TokenizeStates.markupDeclarationOpenState);
+        tokenizeContext.setTokenizeState(TokenizeStates.MARKUP_DECLARATION_OPEN_STATE);
         break;
       case '/':
-        tokenizeContext.setTokenizeState(TokenizeStates.endTagOpenState);
+        tokenizeContext.setTokenizeState(TokenizeStates.END_TAG_OPEN_STATE);
         break;
       default:
         // TODO: Proper Alpha check, other cases
         tokenizeContext.beginTagToken(true);
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.tagNameState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.TAG_NAME_STATE);
         break;
     }
   }

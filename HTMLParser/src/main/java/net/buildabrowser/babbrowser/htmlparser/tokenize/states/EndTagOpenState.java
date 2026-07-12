@@ -13,7 +13,7 @@ public class EndTagOpenState implements TokenizeState {
       default:
         // TODO: Proper Alpha check, other cases
         tokenizeContext.beginTagToken(false);
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.tagNameState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.TAG_NAME_STATE);
     }
   }
 

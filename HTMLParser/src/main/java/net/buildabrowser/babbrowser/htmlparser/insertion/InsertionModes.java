@@ -21,21 +21,22 @@ public final class InsertionModes {
   
   private InsertionModes() {}
 
-  public static final InsertionMode initialInsertionMode = new InitialInsertionMode();
-  public static final InsertionMode beforeHTMLInsertionMode = new BeforeHTMLInsertionMode();
-  public static final InsertionMode beforeHeadInsertionMode = new BeforeHeadInsertionMode();
-  public static final InsertionMode inHeadInsertionMode = new InHeadInsertionMode();
-  public static final InsertionMode afterHeadInsertionMode = new AfterHeadInsertionMode();
-  public static final InsertionMode inBodyInsertionMode = new InBodyInsertionMode();
-  public static final InsertionMode textInsertionMode = new TextInsertionMode();
-  public static final InsertionMode inTableInsertionMode = new InTableInsertionMode();
-  public static final InsertionMode inTableTextInsertionMode = new InTableTextInsertionMode();
-  public static final InsertionMode inCaptionInsertionMode = new InCaptionInsertionMode();
-  public static final InsertionMode inColumnGroupInsertionMode = new InColumnGroupInsertionMode();
-  public static final InsertionMode inTableBodyInsertionMode = new InTableBodyInsertionMode();
-  public static final InsertionMode inRowInsertionMode = new InRowInsertionMode();
-  public static final InsertionMode inCellInsertionMode = new InCellInsertionMode();
+  public static final InsertionMode INITIAL_INSERTION_MODE = new InitialInsertionMode();
+  public static final InsertionMode BEFORE_HTML_INSERTION_MODE = new BeforeHTMLInsertionMode();
+  public static final InsertionMode BEFORE_HEAD_INSERTION_MODE = new BeforeHeadInsertionMode();
+  public static final InsertionMode IN_HEAD_INSERTION_MODE = new InHeadInsertionMode();
+  public static final InsertionMode AFTER_HEAD_INSERTION_MODE = new AfterHeadInsertionMode();
+  public static final InsertionMode IN_BODY_INSERTION_MODE = new InBodyInsertionMode();
+  public static final InsertionMode TEXT_INSERTION_MODE = new TextInsertionMode();
+  public static final InsertionMode IN_TABLE_INSERTION_MODE = new InTableInsertionMode();
+  public static final InsertionMode IN_TABLE_TEXT_INSERTION_MODE = new InTableTextInsertionMode();
+  public static final InsertionMode IN_CAPTION_INSERTION_MODE = new InCaptionInsertionMode();
+  public static final InsertionMode IN_COLUMN_GROUP_INSERTION_MODE = new InColumnGroupInsertionMode();
+  public static final InsertionMode IN_TABLE_BODY_INSERTION_MODE = new InTableBodyInsertionMode();
+  public static final InsertionMode IN_ROW_INSERTION_MODE = new InRowInsertionMode();
+  public static final InsertionMode IN_CELL_INSERTION_MODE = new InCellInsertionMode();
 
-  public static final InsertionMode afterBodyInsertionMode = new AfterBodyInsertionMode();
-  public static final InsertionMode afterAfterBodyInsertionMode = new AfterAfterBodyInsertionMode();
+  public static final InsertionMode AFTER_BODY_INSERTION_MODE = new AfterBodyInsertionMode();
+  public static final InsertionMode AFTER_AFTER_BODY_INSERTION_MODE = new AfterAfterBodyInsertionMode();
+
 }

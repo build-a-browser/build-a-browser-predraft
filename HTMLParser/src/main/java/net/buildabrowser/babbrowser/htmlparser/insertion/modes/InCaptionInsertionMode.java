@@ -15,17 +15,17 @@ public class InCaptionInsertionMode implements InsertionMode {
 
   @Override
   public boolean emitCharacterToken(ParseContext parseContext, int ch) {
-    return InsertionModes.inBodyInsertionMode.emitCharacterToken(parseContext, ch);
+    return InsertionModes.IN_BODY_INSERTION_MODE.emitCharacterToken(parseContext, ch);
   }
 
   @Override
   public boolean emitOptimizedString(ParseContext parseContext, String data) {
-    return InsertionModes.inBodyInsertionMode.emitOptimizedString(parseContext, data);
+    return InsertionModes.IN_BODY_INSERTION_MODE.emitOptimizedString(parseContext, data);
   }
 
   @Override
   public boolean emitEOFToken(ParseContext parseContext) {
-    return InsertionModes.inBodyInsertionMode.emitEOFToken(parseContext);
+    return InsertionModes.IN_BODY_INSERTION_MODE.emitEOFToken(parseContext);
   }
 
   @Override
@@ -39,12 +39,12 @@ public class InCaptionInsertionMode implements InsertionMode {
 
   @Override
   public boolean emitDoctypeToken(ParseContext parseContext, DoctypeToken doctypeToken) {
-    return InsertionModes.inBodyInsertionMode.emitDoctypeToken(parseContext, doctypeToken);
+    return InsertionModes.IN_BODY_INSERTION_MODE.emitDoctypeToken(parseContext, doctypeToken);
   }
 
   @Override
   public boolean emitCommentToken(ParseContext parseContext, CommentToken commentToken) {
-    return InsertionModes.inBodyInsertionMode.emitCommentToken(parseContext, commentToken);
+    return InsertionModes.IN_BODY_INSERTION_MODE.emitCommentToken(parseContext, commentToken);
   }
 
   private boolean handleStartTagToken(ParseContext parseContext, TagToken tagToken) {
@@ -52,7 +52,7 @@ public class InCaptionInsertionMode implements InsertionMode {
     case "caption", "col", "colgroup", "tbody", "td", "tfoot", "th", "thead", "tr":
       return closeCaption(parseContext, true);
     default:
-      return InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
+      return InsertionModes.IN_BODY_INSERTION_MODE.emitTagToken(parseContext, tagToken);
     }
   }
 
@@ -66,7 +66,7 @@ public class InCaptionInsertionMode implements InsertionMode {
       parseContext.parseError();
       return false;
     default:
-      return InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
+      return InsertionModes.IN_BODY_INSERTION_MODE.emitTagToken(parseContext, tagToken);
     }
   }
 
@@ -86,7 +86,7 @@ public class InCaptionInsertionMode implements InsertionMode {
     ParseAdjustUtil.popUntil(stack, "caption");
 
     ParseTextUtil.clearActiveFormattingElementsToLastMarker(parseContext);
-    parseContext.setInsertionMode(InsertionModes.inTableInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.IN_TABLE_INSERTION_MODE);
 
     return reprocess;
   }

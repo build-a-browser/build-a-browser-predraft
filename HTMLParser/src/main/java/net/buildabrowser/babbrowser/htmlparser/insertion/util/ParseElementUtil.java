@@ -125,17 +125,17 @@ public final class ParseElementUtil {
   public static void startGenericRawTextElementParsingAlgorithm(ParseContext parseContext, TagToken tagToken) {
     assert tagToken.isStartTag();
     insertAnHTMLElement(parseContext, tagToken);
-    parseContext.tokenizeContext().setTokenizeState(TokenizeStates.rawTextState);
+    parseContext.tokenizeContext().setTokenizeState(TokenizeStates.RAW_TEXT_STATE);
     parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());
-    parseContext.setInsertionMode(InsertionModes.textInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.TEXT_INSERTION_MODE);
   }
 
   public static void startGenericRCDataElementParsingAlgorithm(ParseContext parseContext, TagToken tagToken) {
     assert tagToken.isStartTag();
     insertAnHTMLElement(parseContext, tagToken);
-    parseContext.tokenizeContext().setTokenizeState(TokenizeStates.rcdataState);
+    parseContext.tokenizeContext().setTokenizeState(TokenizeStates.RCDATA_STATE);
     parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());
-    parseContext.setInsertionMode(InsertionModes.textInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.TEXT_INSERTION_MODE);
   }
 
   private static Node lastHTMLNamed(

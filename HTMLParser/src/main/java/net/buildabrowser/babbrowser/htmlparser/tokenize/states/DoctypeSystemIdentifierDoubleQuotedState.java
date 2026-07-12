@@ -13,7 +13,7 @@ public class DoctypeSystemIdentifierDoubleQuotedState implements TokenizeState {
     DoctypeToken doctypeToken = tokenizeContext.currentDoctypeToken();
     switch (ch) {
       case '"':
-        tokenizeContext.setTokenizeState(TokenizeStates.afterDoctypeSystemIdentifierState);
+        tokenizeContext.setTokenizeState(TokenizeStates.AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE);
         break;
       case 0:
         parseContext.parseError();
@@ -22,7 +22,7 @@ public class DoctypeSystemIdentifierDoubleQuotedState implements TokenizeState {
       case '>':
         parseContext.parseError();
         doctypeToken.setForceQuirks(true);
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitDoctypeToken(doctypeToken);
         break;
       case TokenizeContext.EOF:

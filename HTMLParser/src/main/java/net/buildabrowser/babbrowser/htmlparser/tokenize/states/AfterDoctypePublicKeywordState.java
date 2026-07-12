@@ -11,22 +11,22 @@ public class AfterDoctypePublicKeywordState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     switch (ch) {
       case '\t', '\n', '\f', ' ':
-        tokenizeContext.setTokenizeState(TokenizeStates.beforeDoctypePublicIdentifierState);
+        tokenizeContext.setTokenizeState(TokenizeStates.BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE);
         break;
       case '"':
         parseContext.parseError();
         tokenizeContext.currentDoctypeToken().setPublicIdentifier("");
-        tokenizeContext.setTokenizeState(TokenizeStates.doctypePublicIdentifierDoubleQuotedState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE);
         break;
       case '\'':
         parseContext.parseError();
         tokenizeContext.currentDoctypeToken().setPublicIdentifier("");
-        tokenizeContext.setTokenizeState(TokenizeStates.doctypePublicIdentifierSingleQuotedState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE);
         break;
       case '>':
         parseContext.parseError();
         tokenizeContext.currentDoctypeToken().setForceQuirks(true);
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitDoctypeToken(tokenizeContext.currentDoctypeToken());
         break;
       case TokenizeContext.EOF:
@@ -38,7 +38,7 @@ public class AfterDoctypePublicKeywordState implements TokenizeState {
       default:
         parseContext.parseError();
         tokenizeContext.currentDoctypeToken().setForceQuirks(true);
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.bogusDoctypeState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.BOGUS_DOCTYPE_STATE);
         break;
     }
   }

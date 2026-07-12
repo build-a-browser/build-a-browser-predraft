@@ -24,27 +24,27 @@ public class InTableBodyInsertionMode implements InsertionMode {
 
   @Override
   public boolean emitCharacterToken(ParseContext parseContext, int ch) {
-    return InsertionModes.inTableInsertionMode.emitCharacterToken(parseContext, ch);
+    return InsertionModes.IN_TABLE_INSERTION_MODE.emitCharacterToken(parseContext, ch);
   }
 
   @Override
   public boolean emitOptimizedString(ParseContext parseContext, String data) {
-    return InsertionModes.inTableInsertionMode.emitOptimizedString(parseContext, data);
+    return InsertionModes.IN_TABLE_INSERTION_MODE.emitOptimizedString(parseContext, data);
   }
 
   @Override
   public boolean emitEOFToken(ParseContext parseContext) {
-    return InsertionModes.inTableInsertionMode.emitEOFToken(parseContext);
+    return InsertionModes.IN_TABLE_INSERTION_MODE.emitEOFToken(parseContext);
   }
 
   @Override
   public boolean emitDoctypeToken(ParseContext parseContext, DoctypeToken doctypeToken) {
-    return InsertionModes.inTableInsertionMode.emitDoctypeToken(parseContext, doctypeToken);
+    return InsertionModes.IN_TABLE_INSERTION_MODE.emitDoctypeToken(parseContext, doctypeToken);
   }
 
   @Override
   public boolean emitCommentToken(ParseContext parseContext, CommentToken commentToken) {
-    return InsertionModes.inTableInsertionMode.emitCommentToken(parseContext, commentToken);
+    return InsertionModes.IN_TABLE_INSERTION_MODE.emitCommentToken(parseContext, commentToken);
   }
 
   private boolean emitStartTagToken(ParseContext parseContext, TagToken tagToken) {
@@ -52,19 +52,19 @@ public class InTableBodyInsertionMode implements InsertionMode {
     case "tr":
       clearStackBackToTableContext(parseContext);
       ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
-      parseContext.setInsertionMode(InsertionModes.inRowInsertionMode);
+      parseContext.setInsertionMode(InsertionModes.IN_ROW_INSERTION_MODE);
       return false;
     case "th", "td":
       parseContext.parseError();
       clearStackBackToTableContext(parseContext);
       ParseElementUtil.insertAnHTMLElement(
         parseContext, TagToken.create(true, "tr"));
-      parseContext.setInsertionMode(InsertionModes.inRowInsertionMode);
+      parseContext.setInsertionMode(InsertionModes.IN_ROW_INSERTION_MODE);
       return true;
     case "caption", "col", "colgroup", "tbody", "tfoot", "thead":
       return closeTableBody(parseContext, true);
     default:
-      return InsertionModes.inTableInsertionMode.emitTagToken(parseContext, tagToken);
+      return InsertionModes.IN_TABLE_INSERTION_MODE.emitTagToken(parseContext, tagToken);
     }
   }
 
@@ -78,7 +78,7 @@ public class InTableBodyInsertionMode implements InsertionMode {
       parseContext.parseError();
       return false;
     default:
-      return InsertionModes.inTableInsertionMode.emitTagToken(parseContext, tagToken);
+      return InsertionModes.IN_TABLE_INSERTION_MODE.emitTagToken(parseContext, tagToken);
     }
   }
 
@@ -95,7 +95,7 @@ public class InTableBodyInsertionMode implements InsertionMode {
 
     clearStackBackToTableContext(parseContext);
     stack.popNode();
-    parseContext.setInsertionMode(InsertionModes.inTableInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.IN_TABLE_INSERTION_MODE);
 
     return shouldReconsume;
   }

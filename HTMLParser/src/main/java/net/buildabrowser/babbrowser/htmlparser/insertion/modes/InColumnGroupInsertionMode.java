@@ -52,13 +52,13 @@ public class InColumnGroupInsertionMode implements InsertionMode {
 
   @Override
   public boolean emitEOFToken(ParseContext parseContext) {
-    return InsertionModes.inBodyInsertionMode.emitEOFToken(parseContext);
+    return InsertionModes.IN_BODY_INSERTION_MODE.emitEOFToken(parseContext);
   }
 
   private boolean emitStartTagToken(ParseContext parseContext, TagToken tagToken) {
     switch (tagToken.name()) {
     case "html":
-      return InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
+      return InsertionModes.IN_BODY_INSERTION_MODE.emitTagToken(parseContext, tagToken);
     case "col":
       ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
       parseContext.openElementStack().popNode();
@@ -67,7 +67,7 @@ public class InColumnGroupInsertionMode implements InsertionMode {
       }
       return false;
     case "template":
-      return InsertionModes.inHeadInsertionMode.emitTagToken(parseContext, tagToken);
+      return InsertionModes.IN_HEAD_INSERTION_MODE.emitTagToken(parseContext, tagToken);
     default:
       return handleAnythingElse(parseContext);
     }
@@ -83,7 +83,7 @@ public class InColumnGroupInsertionMode implements InsertionMode {
       parseContext.parseError();
       return false;
     case "template":
-      return InsertionModes.inHeadInsertionMode.emitTagToken(parseContext, tagToken);
+      return InsertionModes.IN_HEAD_INSERTION_MODE.emitTagToken(parseContext, tagToken);
     default:
       return handleAnythingElse(parseContext);
     }
@@ -99,7 +99,7 @@ public class InColumnGroupInsertionMode implements InsertionMode {
     }
 
     parseContext.openElementStack().popNode();
-    parseContext.setInsertionMode(InsertionModes.inTableInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.IN_TABLE_INSERTION_MODE);
     return true;
   }
   

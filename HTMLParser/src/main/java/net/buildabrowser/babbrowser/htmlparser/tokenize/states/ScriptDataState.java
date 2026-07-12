@@ -11,7 +11,7 @@ public class ScriptDataState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     switch (ch) {
       case '<':
-        tokenizeContext.setTokenizeState(TokenizeStates.scriptDataLessThanSignState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_LESS_THAN_SIGN_STATE);
         break;
       case 0:
         parseContext.parseError();

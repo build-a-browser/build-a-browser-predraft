@@ -13,18 +13,18 @@ public class BeforeAttributeValueState implements TokenizeState {
       case '\t', '\n', '\f', ' ':
         break;
       case '"':
-        tokenizeContext.setTokenizeState(TokenizeStates.attributeValueDoubleQuotedState);
+        tokenizeContext.setTokenizeState(TokenizeStates.ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE);
         break;
       case '\'':
-        tokenizeContext.setTokenizeState(TokenizeStates.attributeValueSingleQuotedState);
+        tokenizeContext.setTokenizeState(TokenizeStates.ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE);
         break;
       case '>':
         parseContext.parseError();
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitTagToken(tokenizeContext.currentTagToken());
         break;
       default:
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.attributeValueUnquotedState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.ATTRIBUTE_VALUE_UNQUOTED_STATE);
         break;
     }
   }

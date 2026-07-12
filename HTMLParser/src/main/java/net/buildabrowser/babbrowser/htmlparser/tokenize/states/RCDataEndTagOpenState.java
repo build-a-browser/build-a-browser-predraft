@@ -12,11 +12,11 @@ public class RCDataEndTagOpenState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     if (ASCIIUtil.isAlpha(ch)) {
       tokenizeContext.beginTagToken(false);
-      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.rcdataEngTagNameState);
+      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.RCDATA_END_TAG_NAME_STATE);
     } else {
       parseContext.emitCharacterToken('<');
       parseContext.emitCharacterToken('/');
-      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.rcdataState);
+      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.RCDATA_STATE);
     }
   }
   

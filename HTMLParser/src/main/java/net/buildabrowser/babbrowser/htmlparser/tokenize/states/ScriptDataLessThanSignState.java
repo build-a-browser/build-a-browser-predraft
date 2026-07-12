@@ -12,16 +12,16 @@ public class ScriptDataLessThanSignState implements TokenizeState {
     switch (ch) {
       case '/':
         tokenizeContext.temporaryBuffer().clear();
-        tokenizeContext.setTokenizeState(TokenizeStates.scriptDataEndTagOpenState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_END_TAG_OPEN_STATE);
         break;
       case '!':
-        tokenizeContext.setTokenizeState(TokenizeStates.scriptDataEscapeStartState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_ESCAPE_START_STATE);
         parseContext.emitCharacterToken('<');
         parseContext.emitCharacterToken('!');
         break;
       default:
         parseContext.emitCharacterToken('<');
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.scriptDataState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.SCRIPT_DATA_STATE);
         break;
     }
   }

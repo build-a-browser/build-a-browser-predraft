@@ -14,13 +14,13 @@ public class ScriptDataEscapedEndTagNameState implements TokenizeState {
     if (parseContext.isAppropriateEndTagToken(tokenizeContext.currentTagToken())) {
       switch (ch) {
         case '\t', '\n', '\f', ' ':
-          tokenizeContext.setTokenizeState(TokenizeStates.beforeAttributeNameState);
+          tokenizeContext.setTokenizeState(TokenizeStates.BEFORE_ATTRIBUTE_NAME_STATE);
           return;
         case '/':
-          tokenizeContext.setTokenizeState(TokenizeStates.selfClosingStartTagState);
+          tokenizeContext.setTokenizeState(TokenizeStates.SELF_CLOSING_START_TAG_STATE);
           return;
         case '>':
-          tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+          tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
           parseContext.emitTagToken(tokenizeContext.currentTagToken());
           return;
         default:
@@ -37,7 +37,7 @@ public class ScriptDataEscapedEndTagNameState implements TokenizeState {
     parseContext.emitCharacterToken('<');
     parseContext.emitCharacterToken('/');
     TokenizeUtil.emitTemporaryBuffer(tokenizeContext, parseContext);
-    tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.scriptDataEscapedState);
+    tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.SCRIPT_DATA_ESCAPED_STATE);
   }
   
 }

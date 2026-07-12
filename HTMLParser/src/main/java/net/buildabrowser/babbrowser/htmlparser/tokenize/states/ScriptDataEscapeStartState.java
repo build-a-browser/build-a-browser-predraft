@@ -10,10 +10,10 @@ public class ScriptDataEscapeStartState implements TokenizeState {
   @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     if (ch == '-') {
-      tokenizeContext.setTokenizeState(TokenizeStates.scriptDataEscapeStartDashState);
+      tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_ESCAPE_START_DASH_STATE);
       parseContext.emitCharacterToken('-');
     } else {
-      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.scriptDataState);
+      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.SCRIPT_DATA_STATE);
     }
   }
   
