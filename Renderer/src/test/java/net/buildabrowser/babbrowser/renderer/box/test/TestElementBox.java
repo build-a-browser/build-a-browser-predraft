@@ -16,14 +16,31 @@ public class TestElementBox extends AbstractElementBoxImp {
 
   private final BoxContent content;
   private final PropertyContainer properties;
+  private final HTMLElement element;
 
-  public TestElementBox(Function<ElementBox, BoxContent> contentFunc, BoxLevel boxLevel, ActiveStyles activeStyles, List<Box> childBoxes) {
+  public TestElementBox(
+    Function<ElementBox, BoxContent> contentFunc,
+    BoxLevel boxLevel,
+    ActiveStyles activeStyles,
+    List<Box> childBoxes,
+    HTMLElement element
+  ) {
     super(null, boxLevel);
     for (Box childBox: childBoxes) {
       addChild(childBox);
     }
     this.properties = ActiveStyles.unparentedStyles(activeStyles);
     this.content = contentFunc.apply(this);
+    this.element = element;
+  }
+
+  public TestElementBox(
+    Function<ElementBox, BoxContent> contentFunc,
+    BoxLevel boxLevel,
+    ActiveStyles activeStyles,
+    List<Box> childBoxes
+  ) {
+    this(contentFunc, boxLevel, activeStyles, childBoxes, null);
   }
 
   @Override
@@ -38,7 +55,7 @@ public class TestElementBox extends AbstractElementBoxImp {
 
   @Override
   public HTMLElement element() {
-    return null;
+    return this.element;
   }
 
   @Override
