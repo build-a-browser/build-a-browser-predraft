@@ -67,7 +67,7 @@ public class OpenElementStackImp implements OpenElementStack {
     if (!(node.nodeDocument() instanceof HTMLDocument document)) return;
     document.setTitleElement((HTMLElement) node);
     DocumentRendererEventListener eventListener = document
-      .nodeNavigable().uaNavigableOptions().eventListener();
+      .uaNavigableOptions().eventListener();
     if (eventListener != null) {
       eventListener.onTitleChanged(document.title());
     }

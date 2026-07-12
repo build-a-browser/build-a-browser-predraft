@@ -1,10 +1,13 @@
 package net.buildabrowser.babbrowser.css.engine.matcher.imp;
 
 import java.util.List;
+import java.util.function.Consumer;
 
+import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher.CSSMatcherContext;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.pseudo.LogicalPseudoSelectorMatcher;
+import net.buildabrowser.babbrowser.css.engine.matcher.pseudo.NthChildPseudoSelectorMatcher;
 import net.buildabrowser.babbrowser.css.engine.matcher.pseudo.PseudoSelectorMatchers;
 import net.buildabrowser.babbrowser.css.engine.matcher.simple.SimpleSelectorMatchers;
 import net.buildabrowser.babbrowser.cssbase.selector.AttributeSelector;
@@ -15,6 +18,7 @@ import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.LogicalPseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.NextSiblingCombinator;
+import net.buildabrowser.babbrowser.cssbase.selector.NthChildPseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
 import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
@@ -22,6 +26,8 @@ import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SimpleSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SubsequentSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
+import net.buildabrowser.babbrowser.dom.listener.ForkedDocumentChangeListener;
 
 public class CSSSelectorMatcher {
   
@@ -29,17 +35,22 @@ public class CSSSelectorMatcher {
   private final SimpleSelectorMatchers simpleMatchers;
   private final PseudoSelectorMatchers pseudoMatchers;
   private final LogicalPseudoSelectorMatcher logicalPseudoMatchers;
+  private final NthChildPseudoSelectorMatcher childPseudoMatchers;
   private final CombinatorMatchers combinatorMatchers;
 
   public CSSSelectorMatcher(
     ElementRootSet allElements,
-    SimpleSelectorMatchers simpleMatchers,
-    PseudoSelectorMatchers pseudoMatchers
+    CSSMatcherContext context,
+    Consumer<SelectorPart> onSelectorChanged
   ) {
     this.allElements = allElements;
-    this.simpleMatchers = simpleMatchers;
-    this.pseudoMatchers = pseudoMatchers;
+    this.simpleMatchers = new SimpleSelectorMatchers(allElements,
+      onSelectorChanged);
+    this.pseudoMatchers = new PseudoSelectorMatchers(
+      allElements, onSelectorChanged, context);
     this.logicalPseudoMatchers = new LogicalPseudoSelectorMatcher(allElements, this);
+    this.childPseudoMatchers = new NthChildPseudoSelectorMatcher(
+      allElements, this, onSelectorChanged);
     this.combinatorMatchers = new CombinatorMatchers(allElements);;
   }
 
@@ -96,6 +107,7 @@ public class CSSSelectorMatcher {
           numClassSelectors += subSpecificity.numClassSelectors();
           numTypeSelectors += subSpecificity.numTypeSelectors();
         }
+        // TODO: nth-child?
         default -> {}
       }
     }
@@ -109,6 +121,7 @@ public class CSSSelectorMatcher {
         case SimpleSelector simpleSelector -> simpleMatchers.addSelectorReference(simpleSelector);
         case SimplePseudoSelector simplePseudoSelector -> pseudoMatchers.addSelectorReference(simplePseudoSelector);
         case LogicalPseudoSelector logicalPseudoSelector -> logicalPseudoMatchers.addSelectorReference(logicalPseudoSelector);
+        case NthChildPseudoSelector nthChildPseudoSelector -> childPseudoMatchers.addSelectorReference(nthChildPseudoSelector);
         case SimplePseudoElement _1 -> {}
         case Combinator _1 -> {}
         default -> throw new UnsupportedOperationException(
@@ -123,6 +136,7 @@ public class CSSSelectorMatcher {
         case SimpleSelector simpleSelector -> simpleMatchers.removeSelectorReference(simpleSelector);
         case SimplePseudoSelector simplePseudoSelector -> pseudoMatchers.removeSelectorReference(simplePseudoSelector);
         case LogicalPseudoSelector logicalPseudoSelector -> logicalPseudoMatchers.removeSelectorReference(logicalPseudoSelector);
+        case NthChildPseudoSelector nthChildPseudoSelector -> childPseudoMatchers.removeSelectorReference(nthChildPseudoSelector);
         case SimplePseudoElement _1 -> {}
         case Combinator _1 -> {}
         default -> throw new UnsupportedOperationException(
@@ -131,11 +145,20 @@ public class CSSSelectorMatcher {
     }
   }
 
+  public DocumentChangeListener documentChangeListener() {
+    return new ForkedDocumentChangeListener(
+      simpleMatchers,
+      pseudoMatchers,
+      childPseudoMatchers
+    );
+  }
+
   private ElementSet match(SelectorPart selectorPart) {
     return switch (selectorPart) {
       case SimpleSelector simpleSelector -> simpleMatchers.match(simpleSelector);
       case SimplePseudoSelector simplePseudoSelector -> pseudoMatchers.match(simplePseudoSelector);
       case LogicalPseudoSelector logicalPseudoSelector -> logicalPseudoMatchers.match(logicalPseudoSelector);
+      case NthChildPseudoSelector nthChildPseudoSelector -> childPseudoMatchers.match(nthChildPseudoSelector);
       case SimplePseudoElement _1 -> allElements;
       case Combinator _1 -> allElements.createTemporaryChild();
       default -> throw new UnsupportedOperationException(
@@ -162,6 +185,15 @@ public class CSSSelectorMatcher {
       case SubsequentSiblingCombinator _1 -> matchers.matchSubsequentSibling(currentMatched);
       default -> throw new IllegalArgumentException();
     };
+  }
+
+  // For testing
+  public LogicalPseudoSelectorMatcher logicalPseudoMatchers() {
+    return this.logicalPseudoMatchers;
+  }
+
+  public NthChildPseudoSelectorMatcher childPseudoMatchers() {
+    return this.childPseudoMatchers;
   }
 
 }

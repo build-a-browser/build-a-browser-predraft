@@ -16,11 +16,8 @@ import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
-import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.HashToken;
@@ -204,36 +201,6 @@ public class ComplexSelectorParserTest {
       IdentToken.create("input"));
     List<ComplexSelector> expectedSelectors = oneSelector(
       TypeSelector.create("input"));
-    Assertions.assertEquals(expectedSelectors, actualSelectors);
-  }
-
-  @Test
-  @DisplayName("Can parse simple pseudo selector")
-  public void canParseSimplePsuedoSelector() throws IOException {
-    List<ComplexSelector> actualSelectors = parseTokens(
-      ColonToken.create(), IdentToken.create("root"));
-    List<ComplexSelector> expectedSelectors = oneSelector(
-      SimplePseudoSelector.ROOT);
-    Assertions.assertEquals(expectedSelectors, actualSelectors);
-  }
-
-  @Test
-  @DisplayName("Can parse simple pseudo element")
-  public void canParseSimplePsuedoElement() throws IOException {
-    List<ComplexSelector> actualSelectors = parseTokens(
-      ColonToken.create(), ColonToken.create(), IdentToken.create("before"));
-    List<ComplexSelector> expectedSelectors = oneSelector(
-      SimplePseudoElement.BEFORE);
-    Assertions.assertEquals(expectedSelectors, actualSelectors);
-  }
-
-  @Test
-  @DisplayName("Can parse simple pseudo element in legacy format")
-  public void canParseSimplePsuedoElementInLegacyFormat() throws IOException {
-    List<ComplexSelector> actualSelectors = parseTokens(
-      ColonToken.create(), IdentToken.create("after"));
-    List<ComplexSelector> expectedSelectors = oneSelector(
-      SimplePseudoElement.AFTER);
     Assertions.assertEquals(expectedSelectors, actualSelectors);
   }
   

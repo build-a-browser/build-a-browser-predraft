@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.dom;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.dom.imp.ElementImp;
+import net.buildabrowser.babbrowser.infra.Namespace;
 
 public interface Element extends Node {
 

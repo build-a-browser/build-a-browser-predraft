@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.dom.Element;
-import net.buildabrowser.babbrowser.dom.Namespace;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.AnchorElement;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
@@ -15,6 +14,7 @@ import net.buildabrowser.babbrowser.htmlparser.insertion.OpenElementStack;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
+import net.buildabrowser.babbrowser.infra.Namespace;
 
 public final class ParseElementUtil {
 

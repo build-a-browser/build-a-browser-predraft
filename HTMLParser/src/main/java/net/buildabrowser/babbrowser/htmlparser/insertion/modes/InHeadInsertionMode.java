@@ -1,6 +1,5 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
-import net.buildabrowser.babbrowser.dom.Namespace;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
@@ -14,6 +13,7 @@ import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
 import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
+import net.buildabrowser.babbrowser.infra.Namespace;
 
 public class InHeadInsertionMode implements InsertionMode {
 

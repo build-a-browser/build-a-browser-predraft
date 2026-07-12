@@ -1,8 +1,8 @@
 package net.buildabrowser.babbrowser.html.html;
 
-import net.buildabrowser.babbrowser.dom.Namespace;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.imp.AnchorElementImp;
+import net.buildabrowser.babbrowser.infra.Namespace;
 
 public interface AnchorElement extends HTMLElement {
 

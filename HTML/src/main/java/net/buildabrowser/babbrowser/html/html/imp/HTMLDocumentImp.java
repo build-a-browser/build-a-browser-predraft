@@ -14,9 +14,11 @@ import net.buildabrowser.babbrowser.html.input.FocusManager;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
+import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 
 public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
 
+  private final UANavigableOptions uaNavigableOptions;
   private final BrowsingContext browsingContext;
   private final FocusManager focusManager;
 
@@ -24,7 +26,11 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
   private boolean willDeclarativelyRefresh;
   private HTMLElement titleElement;
 
-  public HTMLDocumentImp(BrowsingContext browsingContext) {
+  public HTMLDocumentImp(
+    UANavigableOptions uaNavigableOptions,
+    BrowsingContext browsingContext
+  ) {
+    this.uaNavigableOptions = uaNavigableOptions;
     this.browsingContext = browsingContext;
     this.focusManager = FocusManager.create(this);
   }
@@ -109,6 +115,11 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
   @Override
   public FocusManager focusManager() {
     return this.focusManager;
+  }
+
+  @Override
+  public UANavigableOptions uaNavigableOptions() {
+    return this.uaNavigableOptions;
   }
 
   private void syncStylesheets(DocumentChangeListener changeListener) {

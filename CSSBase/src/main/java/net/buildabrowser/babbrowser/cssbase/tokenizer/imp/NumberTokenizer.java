@@ -37,7 +37,8 @@ public class NumberTokenizer {
     StringBuilder repr = new StringBuilder();
     
     int ch = stream.peek();
-    if (ch == '+' || ch == '-') {
+    boolean isSigned = ch == '+' || ch == '-';
+    if (isSigned) {
       repr.appendCodePoint(stream.read());
     }
 
@@ -85,7 +86,7 @@ public class NumberTokenizer {
       value = Double.valueOf(repr.toString());
     }
 
-    return NumberToken.create(value, isInteger);
+    return NumberToken.create(value, isInteger, isSigned);
   }
 
   public boolean startsWithANumber(int ch1, int ch2, int ch3) {

@@ -13,8 +13,6 @@ import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
-import net.buildabrowser.babbrowser.css.engine.matcher.pseudo.PseudoSelectorMatchers;
-import net.buildabrowser.babbrowser.css.engine.matcher.simple.SimpleSelectorMatchers;
 import net.buildabrowser.babbrowser.css.engine.matcher.slot.ComplexSelectorSlot;
 import net.buildabrowser.babbrowser.css.engine.matcher.slot.MediaRuleSlot;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
@@ -26,14 +24,14 @@ import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule.RuleSource;
 import net.buildabrowser.babbrowser.cssbase.media.MediaContext;
-import net.buildabrowser.babbrowser.cssbase.selector.LogicalPseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.LogicalPseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.listener.AbstractDocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
-import net.buildabrowser.babbrowser.dom.listener.ForkedDocumentChangeListener;
 
 public class CSSMatcherImp implements CSSMatcher {
 
@@ -42,8 +40,6 @@ public class CSSMatcherImp implements CSSMatcher {
   private final ElementRootSet allElements;
   private final ElementSet changedElements;
   private final Set<SelectorPart> changedSelectors;
-  private final SimpleSelectorMatchers simpleMatchers;
-  private final PseudoSelectorMatchers pseudoMatchers;
   private final CSSSelectorMatcher selectorMatcher;
   
   private final CSSMatcherContext context;
@@ -61,16 +57,12 @@ public class CSSMatcherImp implements CSSMatcher {
     this.allElements = ElementSet.createRoot();
     this.changedElements = allElements.createChild();
     this.changedSelectors = new HashSet<>();
-    this.simpleMatchers = new SimpleSelectorMatchers(allElements, s -> changedSelectors.add(s));
-    this.pseudoMatchers = new PseudoSelectorMatchers(
-      allElements, s -> changedSelectors.add(s), context);
     this.selectorSets = slotFamilyFamily.createSlotFamily(
       (_1, id) -> new ComplexSelectorSlot(allElements.root().createChild(), id));
     this.mediaStates = slotFamilyFamily.createSlotFamily(
       (_1, id) -> new MediaRuleSlot(id));
-
     this.selectorMatcher = new CSSSelectorMatcher(
-      allElements, simpleMatchers, pseudoMatchers);
+      allElements, context, s -> changedSelectors.add(s));
 
     for (CSSStyleSheet styleSheet: uaStyleSheets) {
       onStylesheetAdded(styleSheet);
@@ -86,9 +78,7 @@ public class CSSMatcherImp implements CSSMatcher {
 
   @Override
   public DocumentChangeListener documentChangeListener() {
-    return new ForkedDocumentChangeListener(
-      simpleMatchers, pseudoMatchers
-    ) {
+    return new AbstractDocumentChangeListener(selectorMatcher.documentChangeListener()) {
       @Override
       public void onStylesheetAdded(CSSStyleSheet styleSheet) {
         CSSMatcherImp.this.onStylesheetAdded(styleSheet);

@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.html.html.imp.HTMLDocumentImp;
 import net.buildabrowser.babbrowser.html.input.FocusManager;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
+import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.html.scripting.PlatformObject;
 
 public interface HTMLDocument extends RenderableDocument, Document, PlatformObject {
@@ -25,8 +26,13 @@ public interface HTMLDocument extends RenderableDocument, Document, PlatformObje
 
   FocusManager focusManager();
 
-  static HTMLDocument create(BrowsingContext browsingContext) {
-    return new HTMLDocumentImp(browsingContext);
+  UANavigableOptions uaNavigableOptions();
+
+  static HTMLDocument create(
+    UANavigableOptions uaNavigableOptions,
+    BrowsingContext browsingContext
+  ) {
+    return new HTMLDocumentImp(uaNavigableOptions, browsingContext);
   }
 
 }

@@ -61,7 +61,7 @@ public class URLBarGUI extends JPanel implements TabMutationEventListener {
     buttonConstraints.weighty = 1;
     this.add(button, buttonConstraints);
 
-    navButton.addActionListener(_ -> action.run());
+    button.addActionListener(_ -> action.run());
   }
 
   private void navigateToURL() {
