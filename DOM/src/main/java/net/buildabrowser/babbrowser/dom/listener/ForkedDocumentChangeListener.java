@@ -48,10 +48,12 @@ public class ForkedDocumentChangeListener implements DocumentChangeListener {
   }
 
   @Override
-  public void onElementEvent(Element element, Event event) {
+  public boolean onElementEvent(Element element, Event event, boolean allowDefault) {
     for (DocumentChangeListener nextListener: nextListeners) {
-      nextListener.onElementEvent(element, event);
+      allowDefault = nextListener.onElementEvent(element, event, allowDefault);
     }
+
+    return allowDefault;
   }
 
 }

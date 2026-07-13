@@ -5,8 +5,12 @@ import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 
 public interface EventForwardingTarget {
   
-  default void forwardEvent(RendererMouseEvent event) {}
+  default EventHandlerResponse forwardEvent(RendererMouseEvent event) {
+    return EventHandlerResponse.UNHANDLED;
+  }
 
-  default void forwardEvent(RendererKeyboardEvent event) {}
+  default EventHandlerResponse forwardEvent(RendererKeyboardEvent event) {
+    return EventHandlerResponse.UNHANDLED;
+  }
 
 }

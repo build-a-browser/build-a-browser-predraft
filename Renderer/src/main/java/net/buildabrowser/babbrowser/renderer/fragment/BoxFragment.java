@@ -8,7 +8,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.visibility.VisibilityValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
 
 public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragment {

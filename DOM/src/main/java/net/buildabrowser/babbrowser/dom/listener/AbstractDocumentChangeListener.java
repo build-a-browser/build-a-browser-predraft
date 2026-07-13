@@ -40,9 +40,11 @@ public abstract class AbstractDocumentChangeListener implements DocumentChangeLi
   }
 
   @Override
-  public void onElementEvent(Element element, Event event) {
-    if (nextListener == null) return;
-    nextListener.onElementEvent(element, event);
+  public boolean onElementEvent(
+    Element element, Event event, boolean allowDefault
+  ) {
+    if (nextListener == null) return allowDefault;
+    return nextListener.onElementEvent(element, event, allowDefault);
   }
 
 }

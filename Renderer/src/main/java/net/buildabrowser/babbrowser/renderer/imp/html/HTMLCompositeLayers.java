@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.imp.html;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.painter.core.Painter;
@@ -63,10 +64,17 @@ public class HTMLCompositeLayers {
     }
   }
 
-  public void withFrontLayer(Consumer<CompositeLayer> layerFunc) {
+  public void withFrontLayerV(Consumer<CompositeLayer> layerFunc) {
     synchronized (frontLayerLock) {
       if (rootLayerFront == null) return;
       layerFunc.accept(rootLayerFront);
+    }
+  }
+
+  public <T> T withFrontLayer(Function<CompositeLayer, T> layerFunc) {
+    synchronized (frontLayerLock) {
+      if (rootLayerFront == null) return null;
+      return layerFunc.apply(rootLayerFront);
     }
   }
 

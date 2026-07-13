@@ -62,10 +62,14 @@ public class PseudoSelectorMatchers implements DocumentChangeListener {
   }
 
   @Override
-  public void onElementEvent(Element element, Event event) {
+  public boolean onElementEvent(
+    Element element, Event event, boolean allowDefault
+  ) {
     for (SimplePseudoSelectorMatcher matcher: matchers.values()) {
-      matcher.onElementEvent(element, event);
+      allowDefault = matcher.onElementEvent(element, event, allowDefault);
     }
+
+    return allowDefault;
   }
 
   public ElementSet match(SimplePseudoSelector selectorPart) {

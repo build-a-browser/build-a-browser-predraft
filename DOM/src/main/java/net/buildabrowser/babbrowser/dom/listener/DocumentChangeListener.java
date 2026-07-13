@@ -15,6 +15,10 @@ public interface DocumentChangeListener {
 
   default void onStylesheetAdded(CSSStyleSheet styleSheet) {}
 
-  default void onElementEvent(Element element, Event event) {}
+  default boolean onElementEvent(
+    Element element, Event event, boolean allowDefault
+  ) {
+    return allowDefault;
+  }
 
 }

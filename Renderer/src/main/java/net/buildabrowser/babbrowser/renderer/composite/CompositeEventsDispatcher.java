@@ -9,7 +9,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.visibility.VisibilityValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.EventUtil;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
@@ -21,7 +21,7 @@ public final class CompositeEventsDispatcher {
   
   private CompositeEventsDispatcher() {}
 
-  public static void dispatchMouseEvent(
+  public static EventHandlerResponse dispatchMouseEvent(
     EventContext eventContext,
     CompositeLayer rootLayer, RendererMouseEvent mouseEvent,
     float winX, float winY
@@ -30,6 +30,8 @@ public final class CompositeEventsDispatcher {
       eventContext, rootLayer, mouseEvent, winX, winY);
     boolean preventedDefault = eventResponse.equals(EventHandlerResponse.HANDLED);
     observeEvent(eventContext, rootLayer, mouseEvent, winX, winY, preventedDefault);
+
+    return eventResponse;
   }
 
   public static EventHandlerResponse handleMouseEvent(

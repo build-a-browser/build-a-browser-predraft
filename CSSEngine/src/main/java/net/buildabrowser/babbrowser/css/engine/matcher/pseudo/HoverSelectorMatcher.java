@@ -43,8 +43,10 @@ public class HoverSelectorMatcher implements SimplePseudoSelectorMatcher {
   }
 
   @Override
-  public void onElementEvent(Element element, Event event) {
-    if (!event.type().equals("mousemove")) return;
+  public boolean onElementEvent(
+    Element element, Event event, boolean allowDefault
+  ) {
+    if (!event.type().equals("mousemove")) return allowDefault;
 
     List<Element> matchedElements = new ArrayList<>();
     Node currentNode = element;
@@ -69,6 +71,8 @@ public class HoverSelectorMatcher implements SimplePseudoSelectorMatcher {
     if (changed) {
       onSelectorChanged.accept(SimplePseudoSelector.HOVER);
     }
+
+    return allowDefault;
   }
 
   @Override

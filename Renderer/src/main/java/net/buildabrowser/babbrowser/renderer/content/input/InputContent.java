@@ -8,7 +8,7 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.input.button.ButtonTypeContent;
 import net.buildabrowser.babbrowser.renderer.content.input.hidden.HiddenTypeContent;
 import net.buildabrowser.babbrowser.renderer.content.input.text.TextTypeContent;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 

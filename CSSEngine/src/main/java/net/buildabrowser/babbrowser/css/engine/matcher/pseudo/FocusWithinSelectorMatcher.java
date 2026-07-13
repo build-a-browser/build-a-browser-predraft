@@ -43,12 +43,16 @@ public class FocusWithinSelectorMatcher implements SimplePseudoSelectorMatcher {
   }
 
   @Override
-  public void onElementEvent(Element element, Event event) {
+  public boolean onElementEvent(
+    Element element, Event event, boolean allowDefault
+  ) {
     switch (event.type()) {
       case "focus" -> handleFocusEvent(element);
       case "blur" -> handleBlurEvent();
       default -> {}
     }
+
+    return allowDefault;
   }
 
   private void handleFocusEvent(Element element) {

@@ -13,7 +13,7 @@ import net.buildabrowser.babbrowser.renderer.composite.CompositeEventsDispatcher
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererKeyboardEvent;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererKeyboardEvent.KeyboardEventType;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
@@ -37,39 +37,45 @@ public class HTMLEventForwardingTarget implements EventForwardingTarget {
   }
 
   @Override
-  public void forwardEvent(RendererMouseEvent mouseEvent) {
+  public EventHandlerResponse forwardEvent(RendererMouseEvent mouseEvent) {
     // I'm not putting this on the event loop until the spec's dispatcher runs, because
     // scroll bars need to remain responsive even while something like layout is running
     // TODO: There *was* a race condition being caused by this, but I can't consistently
     // reproduce it, so I can't debug it
-    compositeLayers.withFrontLayer(frontLayer ->
+    EventHandlerResponse response = compositeLayers.withFrontLayer(frontLayer ->
       CompositeEventsDispatcher.dispatchMouseEvent(
         eventContext, frontLayer, mouseEvent,
         mouseEvent.winX(), mouseEvent.winY()));
+    if (response == null) return EventHandlerResponse.UNHANDLED;
+    return response;
   }
 
   @Override
-  public void forwardEvent(RendererKeyboardEvent keyEvent) {
+  public EventHandlerResponse forwardEvent(RendererKeyboardEvent keyEvent) {
+    EventHandlerResponse response = EventHandlerResponse.UNHANDLED;
     if (
       focusManager.focused() instanceof HTMLElement htmlElement
     ) {
       ElementContext context = elementContexts.get(htmlElement);
       if (context.box() != null) {
-        EventHandlerResponse response = context.box().content().withFocusEventHandler(
+        response = context.box().content().withFocusEventHandler(
           context.box(),
           (feh, c) -> feh.handleKeyboardEvent(
             eventContext, context.box(), c, keyEvent));
-        if (response.equals(EventHandlerResponse.HANDLED)) {
-          return;
-        }
       }
     }
     
-    if (isFocusKey(keyEvent)) {
-      cycleFocus(keyEvent);
-    } else if (isActivationKey(keyEvent)) {
-      triggerActivation();
-    }
+    return response.thenDefault(syncResponse -> {
+      if (isFocusKey(keyEvent)) {
+        cycleFocus(keyEvent);
+        return EventHandlerResponse.HANDLED;
+      } else if (isActivationKey(keyEvent)) {
+        triggerActivation();
+        return EventHandlerResponse.HANDLED;
+      }
+
+      return syncResponse;
+    });
   }
 
   private boolean isFocusKey(RendererKeyboardEvent keyEvent) {

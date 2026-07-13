@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.event;
 
+import java.util.concurrent.CompletableFuture;
+
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.events.Event;
 import net.buildabrowser.babbrowser.dom.events.EventDispatcher;
@@ -10,14 +12,15 @@ import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.imp.AnonymousElementBoxImp;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse.AsyncEventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse.SyncEventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
 public final class EventUtil {
   
@@ -65,7 +68,11 @@ public final class EventUtil {
     while (
       relatedBox instanceof AnonymousElementBoxImp anonBox
     ) relatedBox = anonBox.parentBox();
-    if (!(relatedBox instanceof ElementBox elementBox)) return EventHandlerResponse.UNHANDLED;
+    if (!(
+      relatedBox instanceof ElementBox elementBox
+    )) {
+      return EventHandlerResponse.UNHANDLED;
+    }
     Element element = elementBox.element();
     Event event = switch (mouseEvent.event()) {
       case CLICK -> (PointerEvent) () -> "click";
@@ -89,18 +96,26 @@ public final class EventUtil {
   public static EventHandlerResponse forwardElementEvent(
     Event event, Element element
   ) {
-    if (event == null) return EventHandlerResponse.UNHANDLED;
-    // TODO: Will need replaced with a proper MouseEvent
+    if (event == null) {
+      return EventHandlerResponse.UNHANDLED;
+    }
+
+    CompletableFuture<SyncEventHandlerResponse> future = new CompletableFuture<>();
     HTMLDocument document = (HTMLDocument) element.nodeDocument();
     EventLoop.queueGlobalTask(
       TaskSource.USER_INTERACTION,
       document.nodeNavigable().activeWindow(),
       () -> {
-        element.nodeDocument().changeListener().onElementEvent(element, event);
-        EventDispatcher.dispatch(event, element);
+        boolean allowDefault = EventDispatcher.dispatch(event, element);
+        allowDefault = element.nodeDocument().changeListener().onElementEvent(
+          element, event, allowDefault);
+        SyncEventHandlerResponse response = allowDefault ?
+          EventHandlerResponse.PERFORM_DEFAULT :
+          EventHandlerResponse.HANDLED;
+        future.complete(response);
       });
 
-    return EventHandlerResponse.PERFORM_DEFAULT;
+    return new AsyncEventHandlerResponse(future);
   }
 
 }

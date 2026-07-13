@@ -15,12 +15,4 @@ public interface EventHandler<T extends BoxFragment<T>> {
     T fragment, float relX, float relY, boolean preventedDefault
   ) {}
 
-  static enum EventHandlerResponse {
-    UNHANDLED, HANDLED, PERFORM_DEFAULT;
-
-    public boolean isUnhandled() {
-      return this.equals(UNHANDLED);
-    }
-  }
-
 }
