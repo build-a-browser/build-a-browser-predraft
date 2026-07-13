@@ -20,9 +20,6 @@ public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragme
   private final float firstBaseline;
   private final float lastBaseline;
 
-  private float layerX = Float.NaN;
-  private float layerY = Float.NaN;
-
   public BoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
@@ -82,18 +79,11 @@ public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragme
   }
 
   public float layerX(Measurement type) {
-    assert !Float.isNaN(this.layerX);
-    return adjustCoord(this.layerX, 2, type);
+    return adjustCoord(super.layerX(type), 2, type);
   }
 
   public float layerY(Measurement type) {
-    assert !Float.isNaN(this.layerY);
-    return adjustCoord(this.layerY, 0, type);
-  }
-
-  public void setLayerPos(float docX, float docY) {
-    this.layerX = docX;
-    this.layerY = docY;
+    return adjustCoord(super.layerY(type), 0, type);
   }
 
   @SuppressWarnings("unchecked")

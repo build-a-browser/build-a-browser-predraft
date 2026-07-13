@@ -27,36 +27,26 @@ public final class EventUtil {
   private EventUtil() {}
 
   public static boolean aabb(
-    BoxFragment<?> fragment,
+    LayoutFragment fragment,
     float posX, float posY
   ) {
     if (fragment instanceof PosRefBoxFragment) return false;
 
     float layerX = fragment.layerX(Measurement.BORDER);
     float layerY = fragment.layerY(Measurement.BORDER);
+    return aabb(fragment, posX, posY, layerX, layerY);
+  }
+  
+  private static boolean aabb(
+    LayoutFragment fragment,
+    float posX, float posY,
+    float layerX, float layerY
+  ) {
     return
       posX >= layerX
       && posX < layerX + fragment.width(Measurement.BORDER)
       && posY >= layerY
       && posY < layerY + fragment.height(Measurement.BORDER);
-  }
-
-  public static boolean aabb(
-    BoxFragment<?> parentFragment,
-    LayoutFragment thisFragment,
-    float posX, float posY
-  ) {
-    if (thisFragment instanceof BoxFragment boxFragment) {
-      return aabb(boxFragment, posX, posY);
-    }
-
-    float docX = parentFragment.layerX(Measurement.CONTENT) + thisFragment.posX(Measurement.BORDER);
-    float docY = parentFragment.layerY(Measurement.CONTENT) + thisFragment.posY(Measurement.BORDER);
-    return
-      posX >= docX
-      && posX < docX + thisFragment.width(Measurement.BORDER)
-      && posY >= docY
-      && posY < docY + thisFragment.height(Measurement.BORDER);
   }
 
   public static EventHandlerResponse forwardElementEvent(

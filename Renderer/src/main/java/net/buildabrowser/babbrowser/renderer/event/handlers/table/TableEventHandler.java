@@ -47,7 +47,7 @@ public class TableEventHandler implements EventHandler<TableBoxFragment> {
       && !parentFragment.box().stackingContext().equals(cellFragment.box().stackingContext())
     ) return EventHandlerResponse.UNHANDLED;
     if (
-      !EventUtil.aabb(parentFragment, cellFragment, relX, relY)
+      !EventUtil.aabb(cellFragment, relX, relY)
     ) return EventHandlerResponse.UNHANDLED;
 
     return cellFragment.withEventHandler((eh, f) -> eh.handleMouseEvent(

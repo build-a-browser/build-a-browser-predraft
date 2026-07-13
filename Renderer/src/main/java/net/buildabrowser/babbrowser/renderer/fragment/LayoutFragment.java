@@ -10,6 +10,8 @@ public abstract class LayoutFragment implements IntrusiveList<LayoutFragment> {
   private LayoutFragment nextFragment;
   private float posX = Float.NaN;
   private float posY = Float.NaN;
+  private float layerX = Float.NaN;
+  private float layerY = Float.NaN;
 
   public LayoutFragment(float width, float height) {
     this.width = width;
@@ -40,6 +42,21 @@ public abstract class LayoutFragment implements IntrusiveList<LayoutFragment> {
   public float posY(Measurement type) {
     assert !Float.isNaN(this.posX);
     return this.posY;
+  }
+
+  public void setLayerPos(float layerX, float layerY) {
+    this.layerX = layerX;
+    this.layerY = layerY;
+  }
+
+  public float layerX(Measurement type) {
+    assert !Float.isNaN(this.layerX);
+    return this.layerX;
+  }
+
+  public float layerY(Measurement type) {
+    assert !Float.isNaN(this.layerY);
+    return this.layerY;
   }
 
   public float width(Measurement type) {

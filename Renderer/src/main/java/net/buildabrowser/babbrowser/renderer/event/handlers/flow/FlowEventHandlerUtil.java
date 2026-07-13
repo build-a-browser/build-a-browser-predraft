@@ -101,7 +101,7 @@ public final class FlowEventHandlerUtil {
         && !boxFragment.box().stackingContext().equals(parentFragment.box().stackingContext())
       ) continue;
 
-      if (EventUtil.aabb(parentFragment, currentFragment, relX, relY)) {
+      if (EventUtil.aabb(currentFragment, relX, relY)) {
         selectedFragment = currentFragment;
       }
     }

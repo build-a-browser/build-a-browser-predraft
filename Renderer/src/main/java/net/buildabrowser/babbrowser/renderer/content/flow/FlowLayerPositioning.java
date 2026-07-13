@@ -44,8 +44,9 @@ public final class FlowLayerPositioning {
     float layerStartX, float layerStartY,
     LayoutFragment fragment, StackingContext refContext
   ) {
+    fragment.setLayerPos(layerX, layerY);
     switch (fragment) {
-      case TextFragment _1 -> {}
+      case TextFragment textFragment -> textFragment.setLayerPos(layerX, layerY);
       case PosRefBoxFragment posRef -> {
         posRef.box().alterDimensions(false, d -> d.setStaticPosition(layerX, layerY));
       }
@@ -92,7 +93,6 @@ public final class FlowLayerPositioning {
           layerStartY + layerY - childLayerY,
           f));
     } else {
-      boxFragment.setLayerPos(layerX, layerY);
       recursePositionManagedBoxFragmentInner(
         layerX, layerY,
         layerStartX, layerStartY,
@@ -130,7 +130,6 @@ public final class FlowLayerPositioning {
         layerX, layerY, boxFragment,
         box.content()::positionLayers);
     } else {
-      boxFragment.setLayerPos(layerX, layerY);
       box.content().positionLayers(boxFragment, layerX, layerY);
     }
   }
