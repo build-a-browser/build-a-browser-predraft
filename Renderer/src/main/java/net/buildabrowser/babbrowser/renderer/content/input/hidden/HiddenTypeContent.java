@@ -20,6 +20,7 @@ public class HiddenTypeContent implements InputTypeContent {
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
     return fragmentFactory.createInputBoxFragment(
       usedWidth, usedHeight, usedWidth, usedHeight,
+      0, 0, // TODO: Compute baselines
       rootBox, this);
   }
 

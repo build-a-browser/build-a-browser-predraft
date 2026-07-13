@@ -270,6 +270,7 @@ public final class FlexBoxContent implements BoxContent {
       isVertical ? resolvedMain : resolvedCross,
       isVertical ? totalLineCross : largestLineMain,
       isVertical ? largestLineMain : totalLineCross,
+      0, 0, // TODO: Compute baselines
       rootBox, childFragments);
   }
 

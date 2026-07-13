@@ -17,6 +17,8 @@ public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragme
 
   private final float inkWidth;
   private final float inkHeight;
+  private final float firstBaseline;
+  private final float lastBaseline;
 
   private float layerX = Float.NaN;
   private float layerY = Float.NaN;
@@ -24,12 +26,15 @@ public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragme
   public BoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box
   ) {
     super(width, height);
     this.box = box;
     this.inkWidth = inkWidth;
     this.inkHeight = inkHeight;
+    this.firstBaseline = firstBaseline;
+    this.lastBaseline = lastBaseline;
   }
 
   public ElementBox box() {
@@ -64,6 +69,16 @@ public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragme
   @Override
   public float inkHeight(Measurement type) {
     return adjustInk(height(type), inkHeight, 0, type);
+  }
+
+  @Override
+  public float firstBaseline(Measurement type) {
+    return adjustInk(0, firstBaseline, 0, type);
+  }
+
+  @Override
+  public float lastBaseline(Measurement type) {
+    return adjustInk(0, lastBaseline, 1, type);
   }
 
   public float layerX(Measurement type) {

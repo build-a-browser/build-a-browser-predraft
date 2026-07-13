@@ -29,24 +29,28 @@ public interface FragmentFactory {
   FlowBlockBoxFragment createFlowBlockBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box, LayoutFragment fragments
   );
 
   FlowInlineBoxFragment createFlowInlineBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box, LayoutFragment fragments
   );
 
   FlexBoxFragment createFlexBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box, UnmanagedBoxFragment<?> fragments
   );
 
   TableBoxFragment createTableBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box,
     Table table,
     TableBorderAssignment borderAssignment,
@@ -63,6 +67,7 @@ public interface FragmentFactory {
   BaseInputFragment<?> createInputBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box,
     InputTypeContent content
   );
@@ -70,6 +75,7 @@ public interface FragmentFactory {
   UnmanagedBoxFragment<?> createButtonBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox rootBox,
     UnmanagedBoxFragment<?> innerFragment
   );
@@ -85,6 +91,7 @@ public interface FragmentFactory {
   UnmanagedBoxFragment<?> createGenericUnmanagedBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box
   );
 
@@ -92,7 +99,8 @@ public interface FragmentFactory {
     float width, float height,
     ElementBox box
   ) {
-    return createGenericUnmanagedBoxFragment(width, height, width, height, box);
+    return createGenericUnmanagedBoxFragment(
+      width, height, width, 0, 0, height, box);
   }
 
   static DefaultFragmentFactory createDefault() {

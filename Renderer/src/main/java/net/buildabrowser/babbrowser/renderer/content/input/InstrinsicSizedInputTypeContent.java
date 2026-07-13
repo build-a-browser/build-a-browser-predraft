@@ -37,6 +37,7 @@ public class InstrinsicSizedInputTypeContent implements InputTypeContent {
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
     return fragmentFactory.createInputBoxFragment(
       usedWidth, usedHeight, inkWidth, inkHeight,
+      0, 0, // TODO: Compute baselines
       rootBox, this);
   }
 

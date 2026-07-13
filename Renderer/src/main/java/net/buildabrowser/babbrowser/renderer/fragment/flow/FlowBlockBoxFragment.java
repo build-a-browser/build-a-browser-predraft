@@ -9,10 +9,12 @@ public abstract class FlowBlockBoxFragment extends ManagedBoxFragment<FlowBlockB
   public FlowBlockBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box, LayoutFragment fragments
   ) {
     super(
       width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
       box, fragments);
   }
   

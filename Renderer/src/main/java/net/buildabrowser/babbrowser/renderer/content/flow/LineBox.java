@@ -4,9 +4,9 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
-import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
@@ -18,9 +18,9 @@ public class LineBox {
   
   private final Deque<LineSegment> lineSegments;
 
-  public LineBox() {
+  public LineBox(ElementBox rootBox) {
     this.lineSegments = new LinkedList<>();
-    lineSegments.push(new LineSegment(null));
+    lineSegments.push(new LineSegment(rootBox));
   }
 
   private LineBox(Deque<LineSegment> segments) {
@@ -54,11 +54,7 @@ public class LineBox {
   public ElementBox popElement() {
     commitText();
     LineSegment lineSegment = lineSegments.pop();
-    FragmentFactory fragmentFactory = lineSegment.box().layoutContext().global().fragmentFactory();
-    FlowInlineBoxFragment inlineBoxFragment = fragmentFactory.createFlowInlineBoxFragment(
-      lineSegment.width(), lineSegment.height(),
-      lineSegment.inkWidth(), lineSegment.inkHeight(),
-      lineSegment.box(), lineSegment.fragments());
+    FlowInlineBoxFragment inlineBoxFragment = lineSegment.toFragment();
     lineSegments.peek().addFragment(inlineBoxFragment);
     
     this.totalWidth +=
@@ -72,20 +68,17 @@ public class LineBox {
     return this.totalWidth;
   }
 
-  // TODO: This is surely wrong...
-  public float totalHeight() {
-    float totalHeight = textBuilder.height();
-    for (LineSegment segment: this.lineSegments) {
-      totalHeight = Math.max(totalHeight, segment.height());
-    }
-
-    return totalHeight;
-  }
-
   public LineBoxFragment toFragment() {
     commitText();
     LineSegment activeSegment = lineSegments.peek();
-    return new LineBoxFragment(totalWidth, activeSegment.height(), activeSegment.fragments());
+    FlowInlineBoxFragment inlineBoxFragment = activeSegment.toFragment();
+    // TODO: Why wasn't LineBoxFragment tracking the ink size?
+    return new LineBoxFragment(
+      inlineBoxFragment.width(Measurement.CONTENT),
+      inlineBoxFragment.height(Measurement.CONTENT),
+      inlineBoxFragment.firstBaseline(Measurement.CONTENT),
+      inlineBoxFragment.lastBaseline(Measurement.CONTENT),
+      inlineBoxFragment.fragments());
   }
 
   public LineBox split() {
@@ -107,7 +100,8 @@ public class LineBox {
 
   private void commitText() {
     if (!textBuilder.isEmpty()) {
-      lineSegments.peek().addFragment(textBuilder.commit());
+      FontMetrics metrics = lineSegments.peek().box().layoutContext().font().metrics();
+      lineSegments.peek().addFragment(textBuilder.commit(metrics));
     }
   }
 

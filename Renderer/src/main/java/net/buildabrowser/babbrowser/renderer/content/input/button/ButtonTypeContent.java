@@ -64,6 +64,9 @@ public class ButtonTypeContent implements InputTypeContent {
     float inkHeight = Math.max(usedHeight, innerFragment.inkHeight(Measurement.CONTENT));
     UnmanagedBoxFragment<?> buttonFragment = fragmentFactory.createButtonBoxFragment(
       usedWidth, usedHeight, inkWidth, inkHeight,
+      // TODO: Properly compute baselines
+      innerFragment.firstBaseline(Measurement.MARGIN),
+      innerFragment.lastBaseline(Measurement.MARGIN),
       rootBox, innerFragment);
     buttonFragment.setPos(0, 0);
     return buttonFragment;

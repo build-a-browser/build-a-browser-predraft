@@ -167,9 +167,9 @@ public class FlowRootContentTest {
     // TODO: This text might actually rely on the text's vertical alignment...
     LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 60, 20, parentBox, List.of(
       new LineBoxFragment(0, 0, 60, 20, List.of(
-        new TextFragment(0, 0, 25, 10, "Hello"),
+        new TextFragment(0, 10, 25, 10, "Hello"),
         new TestUnmanagedBoxFragment(25, 0, 10, 20, childBox2),
-        new TextFragment(35, 0, 25, 10, "World")))));
+        new TextFragment(35, 10, 25, 10, "World")))));
     LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
@@ -187,9 +187,9 @@ public class FlowRootContentTest {
     // TODO: Find a way to test the inner box's layout
     LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 70, 50, parentBox, List.of(
       new LineBoxFragment(0, 0, 70, 50, List.of(
-        new TextFragment(0, 0, 25, 10, "Hello"),
+        new TextFragment(0, 40, 25, 10, "Hello"),
         new TestUnmanagedBoxFragment(25, 0, 20, 50, childBox2),
-        new TextFragment(45, 0, 25, 10, "World")))));
+        new TextFragment(45, 40, 25, 10, "World")))));
     LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
@@ -262,7 +262,7 @@ public class FlowRootContentTest {
     LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 80, 10, parentBox, List.of(
       new LineBoxFragment(0, 0, 45, 10, List.of(
         new TextFragment(0, 0, 25, 10, "Hello"),
-        new TestUnmanagedBoxFragment(25, 0, 20, 0, childBox2)))));
+        new TestUnmanagedBoxFragment(25, 10, 20, 0, childBox2)))));
     LayoutFragment actualFragment = doLayoutSized(parentBox, 80).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }
@@ -279,7 +279,7 @@ public class FlowRootContentTest {
 
     LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 80, 40, parentBox, List.of(
       new LineBoxFragment(0, 0, 45, 40, List.of(
-        new TextFragment(0, 0, 25, 10, "Hello"),
+        new TextFragment(0, 30, 25, 10, "Hello"),
         new TestUnmanagedBoxFragment(25, 0, 20, 40, childBox2)))));
     LayoutFragment actualFragment = doLayoutSized(parentBox, 80).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
@@ -311,7 +311,7 @@ public class FlowRootContentTest {
 
     LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 80, 15, parentBox, List.of(
       new LineBoxFragment(0, 0, 30, 15, List.of(
-        new TextFragment(0, 0, 25, 10, "Hello"),
+        new TextFragment(0, 5, 25, 10, "Hello"),
         new TestUnmanagedBoxFragment(25, 0, 5, 15, childBox2)))));
     LayoutFragment actualFragment = doLayoutSized(parentBox, 80).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);

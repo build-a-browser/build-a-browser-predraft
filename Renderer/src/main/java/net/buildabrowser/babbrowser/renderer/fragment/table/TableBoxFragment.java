@@ -17,11 +17,15 @@ public abstract class TableBoxFragment extends UnmanagedBoxFragment<TableBoxFrag
   public TableBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box, Table table,
     TableBorderAssignment borderAssignment,
     List<PosRefBoxFragment> outOfTableFragments
   ) {
-    super(width, height, inkWidth, inkHeight, box);
+    super(
+      width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
+      box);
     this.table = table;
     this.borderAssignment = borderAssignment;
     this.outOfTableFragments = outOfTableFragments;

@@ -58,6 +58,16 @@ public abstract class LayoutFragment implements IntrusiveList<LayoutFragment> {
     return this.height;
   }
 
+  // Measured from box top
+  public float firstBaseline(Measurement type) {
+    return 0;
+  }
+
+  // Measured from box bottom
+  public float lastBaseline(Measurement type) {
+    return 0;
+  }
+
   public static enum Measurement {
     MARGIN, BORDER, PADDING, CONTENT
   }

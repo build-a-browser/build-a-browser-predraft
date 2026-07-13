@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
+import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
 
 public class FlowTextFragmentBuilder {
@@ -23,8 +24,12 @@ public class FlowTextFragmentBuilder {
     return this.height;
   }
 
-  public TextFragment commit() {
-    TextFragment result = new TextFragment(width, height, textBuilder.toString());
+  public TextFragment commit(FontMetrics fontMetrics) {
+    float firstBaseline = 0; // TODO: Compute first baseline
+    float lastBaseline = fontMetrics.descent(); // TODO: Respect fallback fonts
+    TextFragment result = new TextFragment(
+      width, height, textBuilder.toString(),
+      firstBaseline, lastBaseline);
     this.width = 0;
     this.height = 0;
     textBuilder.setLength(0);

@@ -63,6 +63,7 @@ public final class TableContent implements BoxContent {
         LayoutUtil.constraintOrDim(widthConstraint, 0),
         LayoutUtil.constraintOrDim(heightConstraint, 0),
         0, 0,
+        0, 0,
         rootBox, table, borderAssignment,
         formingResult.outOfTableFragments());
       rootBox.updatePositioningFragment(tableFragment);
@@ -86,6 +87,7 @@ public final class TableContent implements BoxContent {
         LayoutUtil.constraintOrDim(widthConstraint, usedWidth),
         LayoutUtil.constraintOrDim(heightConstraint, 0),
         usedWidth, 0,
+        0, 0, // TODO: Compute baselines
         rootBox);
     }
 
@@ -111,6 +113,7 @@ public final class TableContent implements BoxContent {
       LayoutUtil.constraintOrDim(usedConstraint, gridMax),
       LayoutUtil.constraintOrDim(heightConstraint, totalHeight),
       inkWidth, totalHeight,
+      0, 0, // TODO: Compute baselines
       rootBox, table, borderAssignment,
       formingResult.outOfTableFragments());
     rootBox.updatePositioningFragment(tableFragment);

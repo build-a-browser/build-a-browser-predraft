@@ -22,8 +22,6 @@ import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.flow.FloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -54,12 +52,12 @@ public class FlowInlineLayout {
   }
 
   public void startInline(
-    PropertyContainer properties,
+    ElementBox rootBox,
     LayoutConstraint widthConstraint
   ) {
     activeInlineContext = IntrusiveList.push(
       activeInlineContext,
-      new InlineFormattingContext(flowContext, widthConstraint, properties));
+      new InlineFormattingContext(flowContext, widthConstraint, rootBox));
   }
 
   // #region Staging
@@ -209,55 +207,7 @@ public class FlowInlineLayout {
   }
 
   private void addBreakToInline(LayoutContext layoutContext) {
-    InlineFormattingContext inlineContext = activeInlineContext;
-    if (inlineContext.lineBox().totalHeight() == 0) {
-      inlineContext.lineBox().appendText("\u200B", 0, layoutContext.font().metrics().height());
-    }
-    inlineContext.nextLine();
-  }
-
-  // #region Positioning
-  
-  public void positionLine(
-    LineBoxFragment fragment,
-    LayoutConstraint inlineConstraint,
-    PropertyContainer lineProperties
-  ) {
-    positionFragmentElements(fragment.fragments(), inlineConstraint);
-    float startPos = flowContext.floatTracker().lineStartPos();
-    float inlineOffset = inlineConstraint.isBounded() ?
-      FlowAlignUtil.alignFragment(
-        lineProperties, startPos,
-        flowContext.floatTracker().lineEndPos(inlineConstraint),
-        fragment.width(Measurement.CONTENT)) :
-      startPos;
-    flowContext.blockLayout().addFinishedFragment(
-      fragment, inlineOffset, inlineConstraint);
-  }
-
-  private void positionFragmentElements(
-    LayoutFragment fragments,
-    LayoutConstraint relatedConstraint
-  ) {
-    float x = 0;
-
-    LayoutFragment nextChild = fragments;
-    while (nextChild != null) {
-      LayoutFragment child = nextChild;
-      nextChild = nextChild.next();
-
-      child.setPos(0, 0); // Cheat to disable unset X assertions for next line
-      float marginX = child.posX(Measurement.BORDER) - child.posX(Measurement.MARGIN);
-      // TODO: Is this the correct way to compute vertical positioning?
-      float marginY = child.posY(Measurement.BORDER) - child.posY(Measurement.MARGIN);
-      child.setPos(x + marginX, marginY);
-
-      if (!PositionUtil.affectsLayout(child)) continue;
-      x += child.width(Measurement.MARGIN);
-      if (child instanceof ManagedBoxFragment managedBoxFragment) {
-        positionFragmentElements(managedBoxFragment.fragments(), relatedConstraint);
-      }
-    }
+    activeInlineContext.nextLine();
   }
 
 }

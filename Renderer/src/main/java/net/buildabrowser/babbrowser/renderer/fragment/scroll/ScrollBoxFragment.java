@@ -21,7 +21,11 @@ public abstract class ScrollBoxFragment extends UnmanagedBoxFragment<ScrollBoxFr
     boolean hasHorizontalScroll, boolean hasVerticalScroll,
     ScrollBox box, UnmanagedBoxFragment<?> innerFragment
   ) {
-    super(width, height, inkWidth, inkHeight, box);
+    super(
+      width, height, inkWidth, inkHeight,
+      innerFragment.firstBaseline(Measurement.CONTENT),
+      innerFragment.lastBaseline(Measurement.CONTENT),
+      box);
     this.hasHorizontalScroll = hasHorizontalScroll;
     this.hasVerticalScroll = hasVerticalScroll;
     this.innerFragment = innerFragment;

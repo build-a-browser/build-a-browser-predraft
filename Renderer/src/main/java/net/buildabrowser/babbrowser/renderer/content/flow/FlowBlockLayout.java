@@ -105,7 +105,7 @@ public class FlowBlockLayout {
       } else {
         activeContext.collapse();
         if (!isInInline) {
-          inlineLayout.startInline(properties, widthConstraint);
+          inlineLayout.startInline(box, widthConstraint);
           isInInline = true;
         }
         inlineLayout.stageInline(box.layoutContext(), childBox);

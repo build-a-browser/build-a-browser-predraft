@@ -26,10 +26,10 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
   public InlineFormattingContext(
     FlowContext flowContext,
     LayoutConstraint inlineConstraint,
-    PropertyContainer properties
+    ElementBox rootBox
   ) {
-    this(flowContext, inlineConstraint, new LineBox(), new LinkedList<>());
-    stylesStack.push(properties);
+    this(flowContext, inlineConstraint, new LineBox(rootBox), new LinkedList<>());
+    stylesStack.push(rootBox.properties());
   }
 
   private InlineFormattingContext(
@@ -69,16 +69,16 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
   }
 
   public void closeLine() {
-    flowContext.inlineLayout().positionLine(
-      activeLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
+    FlowLinePositioner.positionLine(
+      flowContext, activeLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
     drainPositionedQueue();
   }
 
   public void nextLine() {
     LineBox oldLineBox = this.activeLineBox;
     this.activeLineBox = activeLineBox.split();
-    flowContext.inlineLayout().positionLine(
-      oldLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
+    FlowLinePositioner.positionLine(
+      flowContext, oldLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
     drainPositionedQueue();
   }
 

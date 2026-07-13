@@ -14,4 +14,6 @@ public interface FontMetrics {
 
   float ascent();
 
+  float descent();
+
 }

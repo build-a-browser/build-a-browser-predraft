@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowBlockBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
@@ -168,7 +169,10 @@ public class BlockFormattingContext {
       usedWidth, usedHeight,
       Math.max(inkWidth, contributionW),
       Math.max(inkY, contributionH),
-      elementBox, fragments);
+      fragments == null ? 0 : fragments.firstBaseline(Measurement.MARGIN),
+      nextFragment == null ? 0 : nextFragment.lastBaseline(Measurement.MARGIN),
+      elementBox,
+      fragments);
   }
 
   public PropertyContainer properties() {

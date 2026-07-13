@@ -38,4 +38,9 @@ public record TestFontMetrics(float height, float charWidth) implements FontMetr
     return -height;
   }
 
+  @Override
+  public float descent() {
+    return 0;
+  }
+
 }

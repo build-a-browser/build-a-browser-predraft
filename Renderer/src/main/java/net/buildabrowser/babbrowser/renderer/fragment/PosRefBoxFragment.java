@@ -15,7 +15,7 @@ public class PosRefBoxFragment extends BoxFragment<PosRefBoxFragment> {
   private final BoxPainter<PosRefBoxFragment> unreachablePainter;
 
   public PosRefBoxFragment(ElementBox refBox) {
-    super(0, 0, 0, 0, refBox);
+    super(0, 0, 0, 0, 0, 0, refBox);
     this.unreachablePainter = UnreachableBoxPainter.create(refBox.element());
   }
 

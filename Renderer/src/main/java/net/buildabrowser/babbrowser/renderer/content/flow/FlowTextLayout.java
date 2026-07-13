@@ -49,7 +49,7 @@ public final class FlowTextLayout {
     FontMetrics fontMetrics = layoutContext.font().metrics();
     FontWordWidthCache widthCache = layoutContext.global().fontWordWidthCache();
     float textWidth = widthCache.stringWidth(fontMetrics, selectedText);
-    float textHeight = fontMetrics.height();
+    float textHeight = fontMetrics.height(); // TODO: Need to check against fallbacks
 
     boolean textOverflows = !formattingContext.fits(textWidth, true);
     boolean shouldWrap = autoWrap && textOverflows;

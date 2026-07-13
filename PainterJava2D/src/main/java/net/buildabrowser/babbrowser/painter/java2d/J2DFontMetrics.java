@@ -35,6 +35,11 @@ public class J2DFontMetrics implements FontMetrics {
   }
 
   @Override
+  public float descent() {
+    return innerFontMetrics.getDescent();
+  }
+
+  @Override
   public float size() {
     return fontOptions.size();
   }
