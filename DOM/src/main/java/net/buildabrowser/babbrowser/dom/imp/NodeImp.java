@@ -16,6 +16,7 @@ public abstract class NodeImp implements Node {
 
   @Override
   public Document nodeDocument() {
+    if (parentNode == null) return null;
     return parentNode.nodeDocument();
   }
 

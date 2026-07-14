@@ -20,17 +20,19 @@ import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 
 public class HTMLEventForwardingTarget implements EventForwardingTarget {
   
-  private final EventContext eventContext = EventContext.create();
+  private final EventContext eventContext;
 
   private final HTMLCompositeLayers compositeLayers;
   private final FocusManager focusManager;
   private final SlotFamily<HTMLElement, ElementContext> elementContexts;
 
   public HTMLEventForwardingTarget(
+    EventContext eventContext,
     HTMLDocument document,
     HTMLCompositeLayers compositeLayers,
     SlotFamily<HTMLElement, ElementContext> elementContexts
   ) {
+    this.eventContext = eventContext;
     this.compositeLayers = compositeLayers;
     this.focusManager = document.focusManager();
     this.elementContexts = elementContexts;
@@ -110,7 +112,7 @@ public class HTMLEventForwardingTarget implements EventForwardingTarget {
     }
     if (currentNode == null) return;
     // TODO: Need to add dummy pointer data
-    EventDispatcher.dispatch((PointerEvent) () -> "click", currentNode);
+    EventDispatcher.dispatch(PointerEvent.createGeneric("click"), currentNode);
   }
 
 }

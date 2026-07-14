@@ -44,7 +44,7 @@ public final class FlexLayoutUtil {
       new GlobalLayoutContext(
         resourceLoader, testMetrics, resourceLoader.fontLoader()::load,
         (m, s) -> m.stringWidth(s),
-        viewport, null, null, fragmentFactory),
+        viewport, null, null, null, fragmentFactory),
       () -> testMetrics);
     LayoutContextGenerator.generateLayoutContexts(parentBox, layoutContext);
     FlexBoxContent content = (FlexBoxContent) parentBox.content();

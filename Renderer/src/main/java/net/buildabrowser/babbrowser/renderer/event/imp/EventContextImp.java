@@ -12,8 +12,10 @@ public class EventContextImp implements EventContext {
   // A proper Set<WeakReference<ElementBox>> would retain internal set nodes.
   private WeakHashMap<ElementBox, Boolean> observerBoxes = new WeakHashMap<>();
 
+  private boolean preventDefault = false;
+
   @Override
-  public void registerEventObserver(ElementBox observerBox) {
+  public void registerEventInterceptor(ElementBox observerBox) {
     observerBoxes.put(observerBox, true);
   }
 
@@ -25,6 +27,16 @@ public class EventContextImp implements EventContext {
   @Override
   public Set<ElementBox> eventObservers() {
     return observerBoxes.keySet();
+  }
+
+  @Override
+  public void setPreventDefault(boolean preventDefault) {
+    this.preventDefault = preventDefault;
+  }
+
+  @Override
+  public boolean isPreventDefault() {
+    return this.preventDefault;
   }
   
 }

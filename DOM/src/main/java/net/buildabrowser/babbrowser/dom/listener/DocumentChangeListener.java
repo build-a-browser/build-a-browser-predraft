@@ -21,4 +21,6 @@ public interface DocumentChangeListener {
     return allowDefault;
   }
 
+  default void onSelectionChanged() {}
+
 }

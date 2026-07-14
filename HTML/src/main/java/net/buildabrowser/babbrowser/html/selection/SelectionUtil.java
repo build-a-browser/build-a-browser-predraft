@@ -17,12 +17,33 @@ public final class SelectionUtil {
 
     Node anchorNode = selection.anchorNode();
     Node focusNode = selection.focusNode();
+    if (anchorNode == focusNode) {
+      return selection.focusOffset() < selection.anchorOffset() ?
+        SelectionDirection.BACKWARD :
+        SelectionDirection.FORWARD;
+    }
+
     Node commonParent = determineCommonParent(anchorNode, focusNode);
-    SelectionDirection direction = traverseForDirection(
-      commonParent, anchorNode, focusNode);
-    return direction == null ?
-      SelectionDirection.FORWARD :
-      direction;
+    Node adjustedAnchorNode = ancestorWithParent(anchorNode, commonParent);
+    Node adjustedFocusNode = ancestorWithParent(focusNode, commonParent);
+
+    if (
+      commonParent == null
+      || adjustedAnchorNode == null
+      || adjustedFocusNode == null
+    ) return SelectionDirection.FORWARD;
+
+    Node currentNode = commonParent.firstChild();
+    while (currentNode != null) {
+      if (currentNode == adjustedAnchorNode) {
+        return SelectionDirection.FORWARD;
+      } else if (currentNode == adjustedFocusNode) {
+        return SelectionDirection.BACKWARD;
+      }
+      currentNode = currentNode.nextSibling();
+    }
+
+    return SelectionDirection.FORWARD;
   }
 
   // TODO: Ignore items that are not displayed?
@@ -48,28 +69,15 @@ public final class SelectionUtil {
       SelectionSearchState.SCAN, callbacks);
   }
 
-  private static SelectionDirection traverseForDirection(
-    Node currentNode,
-    Node anchorNode,
-    Node focusNode
-  ) {
-    if (currentNode == anchorNode) {
-      return SelectionDirection.FORWARD;
-    } else if (
-      currentNode == focusNode
+  public static Node ancestorWithParent(Node currentNode, Node parentNode) {
+    while (
+      currentNode != null
+      && currentNode.parentNode() != parentNode
     ) {
-      return SelectionDirection.BACKWARD;
+      currentNode = currentNode.parentNode();
     }
 
-    Node innerNode = currentNode.firstChild();
-    while (innerNode != null) {
-      SelectionDirection direction = traverseForDirection(
-        innerNode, anchorNode, focusNode);
-      if (direction != null) return direction;
-      innerNode = innerNode.nextSibling();
-    }
-
-    return null;
+    return currentNode;
   }
 
   private static SelectionSearchState traverseForSelection(

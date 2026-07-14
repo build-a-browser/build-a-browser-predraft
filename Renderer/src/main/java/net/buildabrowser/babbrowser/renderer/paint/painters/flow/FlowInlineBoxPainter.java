@@ -12,7 +12,7 @@ public class FlowInlineBoxPainter implements BoxPainter<FlowInlineBoxFragment> {
   
   @Override
     public void paint(FlowInlineBoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
-      paintInlineManagedBoxFragment(fragment, canvas, vpIntersection, fragment);
+      paintInlineManagedBoxFragment(fragment, canvas, vpIntersection);
     }
 
     @Override

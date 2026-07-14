@@ -26,10 +26,11 @@ public final class CompositeEventsDispatcher {
     CompositeLayer rootLayer, RendererMouseEvent mouseEvent,
     float winX, float winY
   ) {
+    eventContext.setPreventDefault(false);
+    boolean preventDefault = interceptEvent(eventContext, rootLayer, mouseEvent, winX, winY);
+    eventContext.setPreventDefault(preventDefault || eventContext.isPreventDefault());
     EventHandlerResponse eventResponse = handleMouseEvent(
       eventContext, rootLayer, mouseEvent, winX, winY);
-    boolean preventedDefault = eventResponse.equals(EventHandlerResponse.HANDLED);
-    observeEvent(eventContext, rootLayer, mouseEvent, winX, winY, preventedDefault);
 
     return eventResponse;
   }
@@ -102,12 +103,11 @@ public final class CompositeEventsDispatcher {
     return EventHandlerResponse.UNHANDLED;
   }
 
-  private static void observeEvent(
+  private static boolean interceptEvent(
     EventContext eventContext,
     CompositeLayer layer,
     RendererMouseEvent mouseEvent,
-    float relX, float relY,
-    boolean preventedDefault
+    float relX, float relY
   ) {
     float layerRelX = relX - layer.position().vpX();
     float layerRelY = relY - layer.position().vpY();
@@ -119,19 +119,19 @@ public final class CompositeEventsDispatcher {
       && entries.fragment() instanceof ScrollBoxFragment scrollBoxFragment_
       ? scrollBoxFragment_ : null;
     float scrollX = scrollBoxFragment != null ? scrollBoxFragment.scrollX() : 0;
-    float scrollY = scrollBoxFragment != null ? scrollBoxFragment.scrollX() : 0;
+    float scrollY = scrollBoxFragment != null ? scrollBoxFragment.scrollY() : 0;
     
     for (CompositeLayer child: layer.childLayers()) {
-      observeEvent(
+      interceptEvent(
         eventContext, child, mouseEvent,
-        relX, relY,
-        preventedDefault);
+        relX, relY);
     }
 
     // TODO: Why is entries sometimes null??
     StackingContext layerContext = layer.entries() == null ? null :
       layer.entries().fragment().box().stackingContext();
       
+    boolean preventedDefault = false;
     for (ElementBox observerBox: eventContext.eventObservers()) {
       StackingContext observerContext = observerBox.stackingContext();
       if (observerContext != layerContext) continue;
@@ -141,17 +141,19 @@ public final class CompositeEventsDispatcher {
       // TODO: This can happen if an event is handled mid-layout (it is racey)
       // But we can't sync, the whole point of not being on the event loop is to handle
       // things like scrollbars while the event loop is busy
-      if (observerFragment == null) return;
+      if (observerFragment == null) return false;
       
       float childRelX =
         layerRelX - observerFragment.layerX(Measurement.BORDER) + scrollX;
       float childRelY =
         layerRelY - observerFragment.layerY(Measurement.BORDER) + scrollY;
 
-      observerFragment.withEventHandlerV((eh, f) -> eh.observeMouseEvent(
+      preventedDefault |= observerFragment.withEventHandler((eh, f) -> eh.interceptMouseEvent(
         eventContext, mouseEvent, f,
-        childRelX, childRelY, preventedDefault));
+        childRelX, childRelY));
     }
+
+    return preventedDefault;
   }
 
 }

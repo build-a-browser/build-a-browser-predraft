@@ -56,4 +56,11 @@ public class ForkedDocumentChangeListener implements DocumentChangeListener {
     return allowDefault;
   }
 
+  @Override
+  public void onSelectionChanged() {
+    for (DocumentChangeListener nextListener: nextListeners) {
+      nextListener.onSelectionChanged();;
+    }
+  }
+
 }

@@ -60,7 +60,7 @@ public final class TableLayoutUtil {
       new GlobalLayoutContext(
         resourceLoader, testMetrics, resourceLoader.fontLoader()::load,
         (m, s) -> m.stringWidth(s),
-        viewport, null, null, fragmentFactory),
+        viewport, null, null, null, fragmentFactory),
       () -> testMetrics);
     LayoutContextGenerator.generateLayoutContexts(parentBox, layoutContext);
     TableContent content = (TableContent) parentBox.content();

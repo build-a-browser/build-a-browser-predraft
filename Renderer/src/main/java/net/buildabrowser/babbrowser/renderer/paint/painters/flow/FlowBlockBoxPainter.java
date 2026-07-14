@@ -12,12 +12,12 @@ public class FlowBlockBoxPainter implements BoxPainter<FlowBlockBoxFragment> {
   
     @Override
     public void paint(FlowBlockBoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
-      paintManagedBoxFragment(fragment, canvas, vpIntersection, fragment);
+      paintManagedBoxFragment(fragment, canvas, vpIntersection);
     }
 
     @Override
     public void paintBackground(FlowBlockBoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
-      paintBlockBackground(fragment, canvas, vpIntersection, fragment);
+      paintBlockBackground(fragment, canvas, vpIntersection);
     }
 
 }

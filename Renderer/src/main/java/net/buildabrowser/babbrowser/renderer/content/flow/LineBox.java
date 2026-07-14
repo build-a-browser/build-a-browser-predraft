@@ -4,6 +4,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
@@ -37,9 +38,18 @@ public class LineBox {
     lineSegments.peek().addFragment(fragment);
   }
 
-  public void appendText(String text, float width, float height) {
+  public void appendText(
+    Node sourceNode, String text, int sourceIndex,
+    float width, float height
+  ) {
     this.totalWidth += width;
-    textBuilder.addText(text, width, height);
+    if (
+      textBuilder.lastNode() != null
+      && sourceNode != textBuilder.lastNode()
+    ) {
+      commitText();
+    }
+    textBuilder.addText(sourceNode, text, sourceIndex, width, height);
   }
 
   public void pushElement(ElementBox elementBox) {

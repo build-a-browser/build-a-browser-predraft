@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
+import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.StagedText;
 import net.buildabrowser.babbrowser.renderer.layout.FontWordWidthCache;
@@ -14,6 +15,7 @@ public final class FlowTextLayout {
     InlineFormattingContext formattingContext, boolean autoWrap
   ) {
     // TODO: Properly handle whitespace at line start/end, and break-word
+    Text textNode = stagedText.boxRef().textNode();
     String allText = stagedText.currentText();
     int textCursor = 0;
     while (textCursor < allText.length()) {
@@ -38,17 +40,21 @@ public final class FlowTextLayout {
       }
 
       String selectedText = allText.substring(startCursor, textCursor);
-      addTextOrWrap(layoutContext, selectedText, formattingContext, autoWrap);
+      addTextOrWrap(
+        layoutContext,
+        textNode, selectedText, startCursor,
+        formattingContext, autoWrap);
     }
   }
 
   private static void addTextOrWrap(
-    LayoutContext layoutContext, String selectedText,
+    LayoutContext layoutContext,
+    Text sourceText, String text, int sourceIndex,
     InlineFormattingContext formattingContext, boolean autoWrap
   ) {
     FontMetrics fontMetrics = layoutContext.font().metrics();
     FontWordWidthCache widthCache = layoutContext.global().fontWordWidthCache();
-    float textWidth = widthCache.stringWidth(fontMetrics, selectedText);
+    float textWidth = widthCache.stringWidth(fontMetrics, text);
     float textHeight = fontMetrics.height(); // TODO: Need to check against fallbacks
 
     boolean textOverflows = !formattingContext.fits(textWidth, true);
@@ -58,7 +64,9 @@ public final class FlowTextLayout {
       formattingContext.nextLine();
     }
 
-    formattingContext.lineBox().appendText(selectedText, textWidth, textHeight);
+    formattingContext.lineBox().appendText(
+      sourceText, text, sourceIndex,
+      textWidth, textHeight);
   }
 
   private static boolean isForcedLineBreak(int codepoint) {

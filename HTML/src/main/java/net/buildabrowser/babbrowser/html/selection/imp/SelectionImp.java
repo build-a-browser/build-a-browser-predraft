@@ -61,6 +61,7 @@ public class SelectionImp implements Selection {
     this.focusNode = focusNode;
     this.focusOffset = focusOffset;
     this.direction = SelectionUtil.determineSelectionDirection(this);
+    nodeDocument.changeListener().onSelectionChanged();
   }
 
   private boolean nodeValid(Node node) {

@@ -18,6 +18,8 @@ public interface CSSMatcher {
 
   ElementSet changedElements();
 
+  ElementRootSet allElements();
+
   boolean changed();
 
   interface CSSMatcherContext {

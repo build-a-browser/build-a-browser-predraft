@@ -33,7 +33,9 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.context.ScriptingContext;
+import net.buildabrowser.babbrowser.renderer.context.SelectionContext;
 import net.buildabrowser.babbrowser.renderer.context.imp.ElementContextImp;
+import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.image.ImageCache;
@@ -70,6 +72,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private final SlotFamily<HTMLElement, ElementContext> elementContexts;
   private final HTMLCompositeLayers compositeLayers;
   private final HTMLEventForwardingTarget eventForwardingTarget;
+  private final SelectionContext selectionContext;
   private final DebugContext debugContext;
 
   private volatile InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
@@ -89,6 +92,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     this.navigable = navigable;
     this.painter = painter;
 
+    EventContext eventContext = EventContext.create();
     this.elementContexts = slotFamilyFamily.createSlotFamily(ElementContextImp::new);
     this.boxGenerator = BoxGenerator.create(elementContexts);
     this.uaStyleSheets = navigable.uaNavigableOptions().uaStyleSheets();
@@ -98,7 +102,11 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     this.documentBox = DocumentBox.create(document);
     this.compositeLayers = new HTMLCompositeLayers(painter);
     this.eventForwardingTarget = new HTMLEventForwardingTarget(
-      document, compositeLayers, elementContexts);
+      eventContext, document, compositeLayers, elementContexts);
+    this.selectionContext = SelectionContext.create(
+      document.getSelection(),
+      // TODO: Not so great to leech off of the CSS module
+      cssMatcher.allElements().createChild());
     this.debugContext = new HTMLDebugContext(document);
 
     FetchEngine fetchEngine = navigable.uaNavigableOptions().fetchEngine();
@@ -107,14 +115,18 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       cssMatcher.documentChangeListener(), elementContexts);
     innerChangeListener = new ElementDocumentChangeListener(
       fetchEngine, innerChangeListener);
-    this.changeListener = new HTMLEventDocumentChangeListener(document, innerChangeListener);
+    innerChangeListener = new HTMLEventDocumentChangeListener(
+      document, innerChangeListener);
+    this.changeListener = new HTMLSelectionDocumentChangeListener(
+      document, selectionContext, innerChangeListener);
     
     this.scriptingContext = ScriptingContext.create(
       fetchEngine,
       document.browsingContext().realm().hostDefined());
     this.imageCache = ImageCache.create(scriptingContext, painter.resourceLoader());
 
-    document.focusManager().attachContext(new HTMLFocusManagerContext(elementContexts));
+    document.focusManager().attachContext(
+      new HTMLFocusManagerContext(eventContext, elementContexts));
   }
 
   @Override
@@ -255,6 +267,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     }
     if (child == null) return;
     documentBox.setChild((ElementBox) child);
+
+    selectionContext.updateSelection();
   }
 
   private void recomputeLayout() {
@@ -282,7 +296,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     Viewport viewport = new Viewport(0, 0, width, height);
     GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
       painter.resourceLoader(), rootFont.metrics(), fontCache, fontWordWidthCache,
-      viewport, scriptingContext, imageCache, fragmentFactory);
+      viewport, scriptingContext, selectionContext, imageCache, fragmentFactory);
     return globalLayoutContext;
   }
 

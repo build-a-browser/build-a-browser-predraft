@@ -115,6 +115,11 @@ public class CSSMatcherImp implements CSSMatcher {
     return changed;
   }
 
+  @Override
+  public ElementRootSet allElements() {
+    return this.allElements;
+  }
+
   private void onStylesheetAdded(CSSStyleSheet styleSheet) {
     CSSRuleList ruleList = styleSheet.cssRules();
     for (int j = 0; j < ruleList.length(); j++) {

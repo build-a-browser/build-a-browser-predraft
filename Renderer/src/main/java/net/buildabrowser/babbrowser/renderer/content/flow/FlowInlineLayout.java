@@ -77,7 +77,7 @@ public class FlowInlineLayout {
         stagingArea.pushStagedElement(new StagedFloatBox(elementBox));
       } else if (elementBox.element() != null && elementBox.element().name().equals("br")) {
         // TODO: The spec says br is display-outside: newline, but that is not a valid display mode
-        stagingArea.pushStagedElement(new StagedLineBreak(elementBox.layoutContext()));
+        stagingArea.pushStagedElement(StagedLineBreak.create());
       } else if (elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)) {
         stagingArea.pushStagedElement(new StagedBlockLevelBox(elementBox));
       } else if (!FlowUtil.isInFlow(elementBox)) {
@@ -103,7 +103,7 @@ public class FlowInlineLayout {
     while (!stagingArea.done()) {
       switch (stagingArea.next()) {
         case StagedText stagedText -> addTextToInline(stagedText.layoutContext(), parentProperties, stagedText);
-        case StagedLineBreak stagedBreak -> addBreakToInline(stagedBreak.layoutContext());
+        case StagedLineBreak stagedBreak -> addBreakToInline();
         case StagedFloatBox stagedFloat -> addFloatAroundInline(
           stagedFloat.elementBox(), widthConstraint, heightConstraint);
         case StagedUnmanagedBox stagedUnmanagedBox -> addUnmanagedToInline(
@@ -206,7 +206,7 @@ public class FlowInlineLayout {
     FlowTextLayout.layoutText(layoutContext, stagedText, activeInlineContext, autoWrap);
   }
 
-  private void addBreakToInline(LayoutContext layoutContext) {
+  private void addBreakToInline() {
     activeInlineContext.nextLine();
   }
 

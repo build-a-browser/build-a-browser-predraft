@@ -29,7 +29,8 @@ public class ButtonInputEventHandler implements EventHandler<ButtonInputFragment
       }
     }
 
-    return EventUtil.forwardElementEvent(mouseEvent, fragment, relX, relY);
+    return EventUtil.forwardElementEvent(
+      eventContext, mouseEvent, fragment, relX, relY);
   }
   
 }

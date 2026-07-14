@@ -32,7 +32,8 @@ public class TableEventHandler implements EventHandler<TableBoxFragment> {
       }
     }
 
-    return EventUtil.forwardElementEvent(mouseEvent, fragment, relX, relY);
+    return EventUtil.forwardElementEvent(
+      eventContext, mouseEvent, fragment, relX, relY);
   }
 
   private static EventHandlerResponse handleCellMouseEvent(

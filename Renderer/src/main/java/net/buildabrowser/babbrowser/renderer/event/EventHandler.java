@@ -10,9 +10,12 @@ public interface EventHandler<T extends BoxFragment<T>> {
     T fragment, float relX, float relY
   );
 
-  default void observeMouseEvent(
+  // Returns boolean to prevent default
+  default boolean interceptMouseEvent(
     EventContext eventContext, RendererMouseEvent mouseEvent,
-    T fragment, float relX, float relY, boolean preventedDefault
-  ) {}
+    T fragment, float relX, float relY
+  ) {
+    return false;
+  }
 
 }

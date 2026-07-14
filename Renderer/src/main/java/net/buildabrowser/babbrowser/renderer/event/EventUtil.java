@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.events.Event;
 import net.buildabrowser.babbrowser.dom.events.EventDispatcher;
 import net.buildabrowser.babbrowser.dom.events.PointerEvent;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
@@ -18,9 +19,7 @@ import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
 
 public final class EventUtil {
   
@@ -50,11 +49,24 @@ public final class EventUtil {
   }
 
   public static EventHandlerResponse forwardElementEvent(
+    EventContext eventContext,
     RendererMouseEvent mouseEvent,
     BoxFragment<?> fragment,
     float posX, float posY
   ) {
-    Box relatedBox = fragment.box();
+    return forwardElementEvent(
+      eventContext, mouseEvent,
+      fragment, fragment, posX, posY);
+  }
+  
+  public static EventHandlerResponse forwardElementEvent(
+    EventContext eventContext,
+    RendererMouseEvent mouseEvent,
+    BoxFragment<?> refFragment,
+    LayoutFragment targetFragment,
+    float posX, float posY
+  ) {
+    Box relatedBox = refFragment.box();
     while (
       relatedBox instanceof AnonymousElementBoxImp anonBox
     ) relatedBox = anonBox.parentBox();
@@ -65,31 +77,37 @@ public final class EventUtil {
     }
     Element element = elementBox.element();
     Event event = switch (mouseEvent.event()) {
-      case CLICK -> (PointerEvent) () -> "click";
-      case MOVE -> (PointerEvent) () -> "mousemove";
+      case DOWN -> PointerEvent.create("mousedown", posX, posY);
+      case UP -> PointerEvent.create("mouseup", posX, posY);
+      case CLICK -> PointerEvent.create("click", posX, posY);
+      case MOVE -> PointerEvent.create("mousemove", posX, posY);
       default -> null;
     };
     
-    return forwardElementEvent(event, element);
+    return forwardElementEvent(
+      eventContext, event,
+      element, refFragment, targetFragment);
   }
 
   public static EventHandlerResponse forwardElementEvent(
-    RendererMouseEvent mouseEvent,
-    ManagedBoxFragment<?> fragment,
-    TextFragment textFragment,
-    float relX, float relY
+    EventContext eventContext,
+    Event event, Element element
   ) {
-    // TODO: Handle things like text selection
-    return forwardElementEvent(mouseEvent, fragment, relX, relY);
+    return forwardElementEvent(
+      eventContext, event, element, null, null);
   }
   
   public static EventHandlerResponse forwardElementEvent(
-    Event event, Element element
+    EventContext eventContext,
+    Event event, Element element,
+    BoxFragment<?> refFragment,
+    LayoutFragment targetFragment
   ) {
     if (event == null) {
       return EventHandlerResponse.UNHANDLED;
     }
 
+    boolean contextPreventDefault = eventContext.isPreventDefault();
     CompletableFuture<SyncEventHandlerResponse> future = new CompletableFuture<>();
     HTMLDocument document = (HTMLDocument) element.nodeDocument();
     EventLoop.queueGlobalTask(
@@ -97,7 +115,16 @@ public final class EventUtil {
       document.nodeNavigable().activeWindow(),
       () -> {
         boolean allowDefault = EventDispatcher.dispatch(event, element);
-        allowDefault = element.nodeDocument().changeListener().onElementEvent(
+        allowDefault &= !contextPreventDefault;
+        DocumentChangeListener changeListener = element.nodeDocument().changeListener();
+        if (
+          targetFragment != null
+          && changeListener instanceof RendererDocumentChangeListener rendererListener
+        ) {
+          allowDefault = rendererListener.onFragmentEvent(
+            element, event, refFragment, targetFragment, allowDefault);
+        }
+        allowDefault = changeListener.onElementEvent(
           element, event, allowDefault);
         SyncEventHandlerResponse response = allowDefault ?
           EventHandlerResponse.PERFORM_DEFAULT :

@@ -35,7 +35,7 @@ public class HoverSelectorMatcherTest {
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
     matcher.onElementEvent(
-      element, (PointerEvent) () -> "mousemove", false);
+      element, PointerEvent.createGeneric("mousemove"), false);
     Assertions.assertEquals(Set.of(element), matcher.match(selector).asSet());
   }
 
@@ -64,9 +64,9 @@ public class HoverSelectorMatcherTest {
     matcher.onNodeAdded(element2);
     matcher.addSelectorReference(selector);
     matcher.onElementEvent(
-      element1, (PointerEvent) () -> "mousemove", false);
+      element1, PointerEvent.createGeneric("mousemove"), false);
     matcher.onElementEvent(
-      element2, (PointerEvent) () -> "mousemove", false);
+      element2, PointerEvent.createGeneric("mousemove"), false);
     Assertions.assertEquals(Set.of(element2), matcher.match(selector).asSet());
   }
 
@@ -83,7 +83,7 @@ public class HoverSelectorMatcherTest {
     matcher.onNodeAdded(element2);
     matcher.addSelectorReference(selector);
     matcher.onElementEvent(
-      element2, (PointerEvent) () -> "mousemove", false);
+      element2, PointerEvent.createGeneric("mousemove"), false);
     Assertions.assertEquals(Set.of(element1, element2), matcher.match(selector).asSet());
   }
 

@@ -10,25 +10,31 @@ import net.buildabrowser.babbrowser.dom.events.FocusEvent;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.input.FocusManagerContext;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventUtil;
 
 public class HTMLFocusManagerContext implements FocusManagerContext {
 
+  private final EventContext eventContext;
   private final SlotFamily<HTMLElement, ElementContext> elementContexts;
 
   public HTMLFocusManagerContext(
+    EventContext eventContext,
     SlotFamily<HTMLElement, ElementContext> elementContexts
   ) {
+    this.eventContext = eventContext;
     this.elementContexts = elementContexts;
   }
 
   @Override
   public void onFocusChanged(Node oldFocused, Node newFocused) {
     if (oldFocused instanceof Element element) {
-      EventUtil.forwardElementEvent((FocusEvent) () -> "blur", element);
+      eventContext.setPreventDefault(false);
+      EventUtil.forwardElementEvent(eventContext, (FocusEvent) () -> "blur", element);
     }
     if (newFocused instanceof Element element) {
-      EventUtil.forwardElementEvent((FocusEvent) () -> "focus", element);
+      eventContext.setPreventDefault(false);
+      EventUtil.forwardElementEvent(eventContext, (FocusEvent) () -> "focus", element);
     }
   }
 

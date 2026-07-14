@@ -22,9 +22,9 @@ public class FlowRootBoxPainter implements BoxPainter<FlowRootBoxFragment> {
   @Override
   public void paint(FlowRootBoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     ManagedBoxFragment<?> baseFragment = fragment.rootFragment();
-    paintBlockLevelBackgrounds(baseFragment, canvas, vpIntersection, baseFragment);
+    paintBlockLevelBackgrounds(baseFragment, canvas, vpIntersection);
     paintFloats(fragment.floats(), canvas, vpIntersection, baseFragment);
-    paintManagedBoxFragment(baseFragment, canvas, vpIntersection, baseFragment);
+    paintManagedBoxFragment(baseFragment, canvas, vpIntersection);
   }
 
   @Override

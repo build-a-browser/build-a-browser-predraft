@@ -18,7 +18,8 @@ public class HiddenInputEventHandler implements EventHandler<HiddenInputFragment
     relX -= fragment.posX(Measurement.BORDER);
     relY -= fragment.posY(Measurement.BORDER);
 
-    return EventUtil.forwardElementEvent(mouseEvent, fragment, relX, relY);
+    return EventUtil.forwardElementEvent(
+      eventContext, mouseEvent, fragment, relX, relY);
   }
   
 }

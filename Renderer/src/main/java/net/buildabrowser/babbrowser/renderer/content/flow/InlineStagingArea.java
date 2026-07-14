@@ -77,7 +77,15 @@ public class InlineStagingArea {
 
   public record StagedText(LayoutContext layoutContext, TextBox boxRef, String currentText) implements StagingElement {}
 
-  public record StagedLineBreak(LayoutContext layoutContext) implements StagingElement {}
+  public record StagedLineBreak() implements StagingElement {
+
+    private static final StagedLineBreak INSTANCE = new StagedLineBreak();
+
+    public static StagingElement create() {
+      return INSTANCE;
+    }
+  
+  }
 
   public record StagedFloatBox(ElementBox elementBox) implements StagingElement {}
 
