@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererKeyboardEvent;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererKeyboardEvent.KeyboardEventType;
 
@@ -38,7 +39,7 @@ public class RendererKeyboardInputAdapter implements KeyListener {
     e.consume();
 
     EventForwardingTarget eventForwardingTarget = rendererSupplier.get().eventForwardingTarget();
-    eventForwardingTarget.forwardEvent(event);
+    eventForwardingTarget.forwardEvent(event, EventHandlerResponse.UNHANDLED);
   }
 
   // TODO: More mappings, use physical keys
@@ -61,6 +62,8 @@ public class RendererKeyboardInputAdapter implements KeyListener {
       case KeyEvent.VK_INSERT -> RendererKeyboardEvent.KEY_INSERT;
       case KeyEvent.VK_PAGE_UP -> RendererKeyboardEvent.KEY_PAGE_UP;
       case KeyEvent.VK_PAGE_DOWN -> RendererKeyboardEvent.KEY_PAGE_DOWN;
+
+      case KeyEvent.VK_C -> RendererKeyboardEvent.KEY_C;
       default -> RendererKeyboardEvent.KEY_UNIDENTIFIED;
     };
 

@@ -26,6 +26,7 @@ import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
+import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxGenerator;
 import net.buildabrowser.babbrowser.renderer.box.DocumentBox;
@@ -85,24 +86,22 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   public HTMLGraphicalDocumentRendererImp(
     HTMLDocument document,
     Navigable navigable,
-    Painter painter,
+    RenderingEngine renderingEngine,
     SlotFamilyFamily slotFamilyFamily
   ) {
     this.document = document;
     this.navigable = navigable;
-    this.painter = painter;
+    this.painter = renderingEngine.painter();
 
     EventContext eventContext = EventContext.create();
     this.elementContexts = slotFamilyFamily.createSlotFamily(ElementContextImp::new);
     this.boxGenerator = BoxGenerator.create(elementContexts);
-    this.uaStyleSheets = navigable.uaNavigableOptions().uaStyleSheets();
+    this.uaStyleSheets = renderingEngine.uaStyleSheets();
     this.cssMatcher = CSSMatcher.create(
       new RenderCSSMatcherContext(elementContexts),
       uaStyleSheets, slotFamilyFamily);
     this.documentBox = DocumentBox.create(document);
     this.compositeLayers = new HTMLCompositeLayers(painter);
-    this.eventForwardingTarget = new HTMLEventForwardingTarget(
-      eventContext, document, compositeLayers, elementContexts);
     this.selectionContext = SelectionContext.create(
       document.getSelection(),
       // TODO: Not so great to leech off of the CSS module
@@ -120,6 +119,12 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     this.changeListener = new HTMLSelectionDocumentChangeListener(
       document, selectionContext, innerChangeListener);
     
+    EventForwardingTarget eventForwardingTarget = new HTMLSelectionEventForwardingTarget<>(
+      document, selectionContext, renderingEngine.clipboardProvider(), null);
+    this.eventForwardingTarget = new HTMLEventForwardingTarget(
+      eventContext, document, compositeLayers, elementContexts,
+      eventForwardingTarget);
+
     this.scriptingContext = ScriptingContext.create(
       fetchEngine,
       document.browsingContext().realm().hostDefined());

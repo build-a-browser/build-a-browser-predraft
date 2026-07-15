@@ -23,6 +23,8 @@ public record RendererKeyboardEvent(
   public static final String KEY_PAGE_DOWN = "PageDown";
   public static final String KEY_UNIDENTIFIED = "Unidentified";
 
+  public static final String KEY_C = "KeyC";
+
   public static final short MODIFIER_ALT = 1 << 0;
   public static final short MODIFIER_CTRL = 1 << 1;
   public static final short MODIFIER_META = 1 << 2;

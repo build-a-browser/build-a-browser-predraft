@@ -7,15 +7,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
-import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
-import net.buildabrowser.babbrowser.painter.core.Painter;
-import net.buildabrowser.babbrowser.renderer.loader.DocumentLoader;
-import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 import net.buildabrowser.babbrowser.html.navigation.NavigationParams;
 import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
+import net.buildabrowser.babbrowser.renderer.RenderingEngine;
+import net.buildabrowser.babbrowser.renderer.loader.DocumentLoader;
+import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 
 public class UANavigableOptionsImp implements UANavigableOptions {
 
@@ -23,26 +22,23 @@ public class UANavigableOptionsImp implements UANavigableOptions {
 
   private final FetchEngine fetchEngine;
   private final Supplier<ExecutorService> threadGroupSupplier;
-  private final Supplier<StyleSheetList> uaStyleSheetsSupplier;
   private final DocumentLoaderRegistry documentLoaderRegistry;
-  private final Painter painter;
+  private final RenderingEngine renderingEngine;
   private final DocumentRendererEventListener eventListener;
   private final SlotFamilyFamily slotFamilyFamily;
 
   public UANavigableOptionsImp(
     FetchEngine fetchEngine,
     Supplier<ExecutorService> threadGroupSupplier,
-    Supplier<StyleSheetList> uaStyleSheetsSupplier,
     DocumentLoaderRegistry documentLoaderRegistry,
-    Painter painter,
+    RenderingEngine renderingEngine,
     DocumentRendererEventListener eventListener,
     SlotFamilyFamily slotFamilyFamily
   ) {
     this.fetchEngine = fetchEngine;
     this.threadGroupSupplier = threadGroupSupplier;
-    this.uaStyleSheetsSupplier = uaStyleSheetsSupplier;
     this.documentLoaderRegistry = documentLoaderRegistry;
-    this.painter = painter;
+    this.renderingEngine = renderingEngine;
     this.eventListener = eventListener;
     this.slotFamilyFamily = slotFamilyFamily;
   }
@@ -62,14 +58,9 @@ public class UANavigableOptionsImp implements UANavigableOptions {
     // TODO: Use the correct mime
     DocumentLoader documentLoader = documentLoaderRegistry.getByMimeType("text/html");
     RenderableDocument document = documentLoader.load(
-      this, painter, navigationParams, slotFamilyFamily);
+      this, renderingEngine, navigationParams, slotFamilyFamily);
     requestRepaint();
     return document;
-  }
-
-  @Override
-  public StyleSheetList uaStyleSheets() {
-    return this.uaStyleSheetsSupplier.get();
   }
 
   @Override

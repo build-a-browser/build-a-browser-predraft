@@ -16,11 +16,6 @@ public class TextImp extends NodeImp implements Text {
   }
 
   @Override
-  public String toString() {
-    return this.data.toString();
-  }
-
-  @Override
   public void appendCharacter(int ch) {
     data.appendCodePoint(ch);
   }

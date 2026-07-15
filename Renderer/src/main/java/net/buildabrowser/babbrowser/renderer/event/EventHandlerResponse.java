@@ -6,20 +6,26 @@ import java.util.function.Function;
 public sealed interface EventHandlerResponse 
   permits EventHandlerResponse.SyncEventHandlerResponse, EventHandlerResponse.AsyncEventHandlerResponse {
 
-  public static final SyncEventHandlerResponse UNHANDLED = SyncEventHandlerResponse.UNHANDLED;
-  public static final SyncEventHandlerResponse HANDLED = SyncEventHandlerResponse.HANDLED;
-  public static final SyncEventHandlerResponse PERFORM_DEFAULT = SyncEventHandlerResponse.PERFORM_DEFAULT;
+  public static final SyncEventHandlerResponse UNHANDLED = Holder.UNHANDLED;
+  public static final SyncEventHandlerResponse HANDLED = Holder.HANDLED;
+  public static final SyncEventHandlerResponse PERFORM_DEFAULT = Holder.PERFORM_DEFAULT;
+
+  static class Holder {
+    private static final SyncEventHandlerResponse UNHANDLED = SyncEventHandlerResponse.UNHANDLED;
+    private static final SyncEventHandlerResponse HANDLED = SyncEventHandlerResponse.HANDLED;
+    private static final SyncEventHandlerResponse PERFORM_DEFAULT = SyncEventHandlerResponse.PERFORM_DEFAULT;
+  }
 
   default boolean isUnhandled() {
     return this.equals(SyncEventHandlerResponse.UNHANDLED);
   }
 
   EventHandlerResponse then(
-    Function<SyncEventHandlerResponse, SyncEventHandlerResponse> onResponse
+    Function<SyncEventHandlerResponse, EventHandlerResponse> onResponse
   );
 
   default EventHandlerResponse thenDefault(
-    Function<SyncEventHandlerResponse, SyncEventHandlerResponse> onResponse
+    Function<SyncEventHandlerResponse, EventHandlerResponse> onResponse
   ) {
     return then(syncResponse -> {
       if (
@@ -35,7 +41,7 @@ public sealed interface EventHandlerResponse
 
     @Override
     public EventHandlerResponse then(
-      Function<SyncEventHandlerResponse, SyncEventHandlerResponse> onResponse
+      Function<SyncEventHandlerResponse, EventHandlerResponse> onResponse
     ) {
       return onResponse.apply(this);
     }
@@ -47,9 +53,16 @@ public sealed interface EventHandlerResponse
 
     @Override
     public EventHandlerResponse then(
-      Function<SyncEventHandlerResponse, SyncEventHandlerResponse> onResponse
+      Function<SyncEventHandlerResponse, EventHandlerResponse> onResponse
     ) {
-      CompletableFuture<SyncEventHandlerResponse> newFuture = future.thenApply(onResponse);
+      CompletableFuture<SyncEventHandlerResponse> newFuture = future.thenCompose(prevResponse -> {
+        EventHandlerResponse newResponse = onResponse.apply(prevResponse);
+        if (newResponse instanceof AsyncEventHandlerResponse asyncEventHandlerResponse) {
+          return asyncEventHandlerResponse.future();
+        } else {
+          return CompletableFuture.completedFuture((SyncEventHandlerResponse) newResponse);
+        }
+      });
       return new AsyncEventHandlerResponse(newFuture);
     }
     

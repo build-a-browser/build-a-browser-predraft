@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.renderer.content.flow;
 import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.StagedText;
+import net.buildabrowser.babbrowser.renderer.content.flow.mapping.MappingRLEBuffer;
 import net.buildabrowser.babbrowser.renderer.layout.FontWordWidthCache;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
@@ -16,6 +17,11 @@ public final class FlowTextLayout {
   ) {
     // TODO: Properly handle whitespace at line start/end, and break-word
     Text textNode = stagedText.boxRef().textNode();
+    MappingRLEBuffer mappingRLEBuffer = stagedText.sourceRunsRef() == null ?
+      null : stagedText.sourceRunsRef().clone();
+    formattingContext.lineBox().startText(
+      textNode, mappingRLEBuffer);
+
     String allText = stagedText.currentText();
     int textCursor = 0;
     while (textCursor < allText.length()) {
@@ -65,8 +71,7 @@ public final class FlowTextLayout {
     }
 
     formattingContext.lineBox().appendText(
-      sourceText, text, sourceIndex,
-      textWidth, textHeight);
+      text, sourceIndex, textWidth, textHeight);
   }
 
   private static boolean isForcedLineBreak(int codepoint) {

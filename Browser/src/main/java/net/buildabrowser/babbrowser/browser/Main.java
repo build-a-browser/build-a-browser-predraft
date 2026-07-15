@@ -10,6 +10,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import net.buildabrowser.babbrowser.browser.chrome.WindowSetGUI;
+import net.buildabrowser.babbrowser.browser.clipboard.AWTClipboardProvider;
 import net.buildabrowser.babbrowser.browser.net.imp.FetchBackendImp;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
@@ -22,6 +23,7 @@ import net.buildabrowser.babbrowser.painter.core.ComponentPainter;
 import net.buildabrowser.babbrowser.painter.java2d.Java2DPainter;
 import net.buildabrowser.babbrowser.painter.skija.SkijaAWTPainter;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
+import net.buildabrowser.babbrowser.renderer.clipboard.ClipboardProvider;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 
 public class Main {
@@ -42,6 +44,7 @@ public class Main {
       new Java2DPainter() :
       new SkijaAWTPainter(isSoftwareRendered, false);
 
+    ClipboardProvider<?> clipboardProvider = new AWTClipboardProvider();
     Debugger debugger = new SwingDebugger();
 
     DocumentLoaderRegistry loaderRegistry = DocumentLoaderRegistry.createDefault();
@@ -53,7 +56,8 @@ public class Main {
       Executors::newVirtualThreadPerTaskExecutor,
       painter,
       loaderRegistry,
-      ClassLoader.getSystemClassLoader()::getResourceAsStream);
+      ClassLoader.getSystemClassLoader()::getResourceAsStream,
+      clipboardProvider);
     BrowserInstance browserInstance = BrowserInstance.create(renderingEngine);
   
     WindowSet windowSet = WindowSet.create(browserInstance);

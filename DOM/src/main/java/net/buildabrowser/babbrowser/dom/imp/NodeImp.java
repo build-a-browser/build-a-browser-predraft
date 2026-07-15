@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.dom.imp;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.NodeList;
+import net.buildabrowser.babbrowser.dom.util.HTMLSerializerUtil;
 
 public abstract class NodeImp implements Node {
 
@@ -98,6 +99,11 @@ public abstract class NodeImp implements Node {
 
     nodeDocument().changeListener().onNodeAdded(node); // Custom addition
     return node;
+  }
+
+  @Override
+  public String toString() {
+    return HTMLSerializerUtil.serializeNode(this);
   }
 
 }

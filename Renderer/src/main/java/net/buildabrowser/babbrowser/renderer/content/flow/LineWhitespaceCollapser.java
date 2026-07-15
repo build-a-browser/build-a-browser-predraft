@@ -9,6 +9,7 @@ import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollap
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.ManagedBoxEntryMarker;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.ManagedBoxExitMarker;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.StagedText;
+import net.buildabrowser.babbrowser.renderer.content.flow.mapping.MappedStringBuilder;
 
 public final class LineWhitespaceCollapser {
   
@@ -21,7 +22,7 @@ public final class LineWhitespaceCollapser {
 
     boolean lastTextWhitespaceTrailed = false;
     stagingArea.resetCursor();
-    StringBuilder newText = new StringBuilder();
+    MappedStringBuilder newText = new MappedStringBuilder();
     while (!stagingArea.done()) {
       int nextText = stagingArea.cursorPos();
       switch (stagingArea.next()) {
@@ -45,12 +46,11 @@ public final class LineWhitespaceCollapser {
   }
 
   private static boolean collapseWhitespaceInner(
-    InlineStagingArea stagingArea, int nextText, StringBuilder newText,
+    InlineStagingArea stagingArea, int nextText, MappedStringBuilder newText,
     WhitespaceCollapseValue collapseValue, boolean lastTextWhitespaceTrailed
   ) {
       String originalText = stagingArea.textAt(nextText);
-      newText.setLength(0);
-      newText.append(originalText);
+      newText.restart(originalText);
       collapseAroundSegment(newText);
       if (collapseValue.equals(WhitespaceCollapseValue.COLLAPSE)) {
         collapseSegmentBreaks(newText);
@@ -59,7 +59,9 @@ public final class LineWhitespaceCollapser {
       lastTextWhitespaceTrailed = collapseSpaceStrings(newText, lastTextWhitespaceTrailed);
       
       String finalText = newText.toString();
-      stagingArea.setText(nextText, finalText);
+      stagingArea.setText(
+        nextText, finalText,
+        newText.rleBuffer().clone());
 
       return lastTextWhitespaceTrailed;
   }
@@ -69,14 +71,14 @@ public final class LineWhitespaceCollapser {
     String transformedText = originalText
       .replace('\t', ' ')
       .replace('\n', ' ');
-    stagingArea.setText(nextText, transformedText);
+    stagingArea.setTextPreserveMappings(nextText, transformedText);
 
     return transformedText.isEmpty() ?
       lastTextWhitespaceTrailed :
       transformedText.endsWith(" ");
   }
 
-  private static void collapseAroundSegment(StringBuilder newText) {
+  private static void collapseAroundSegment(MappedStringBuilder newText) {
     int activeSpaceIndex = -1;
     boolean sawSegmentBreak = false;
     for (int i = 0; i < newText.length(); i++) {
@@ -100,7 +102,7 @@ public final class LineWhitespaceCollapser {
     }
   }
 
-  private static void collapseSegmentBreaks(StringBuilder newText) {
+  private static void collapseSegmentBreaks(MappedStringBuilder newText) {
     boolean wasSegmentBreak = false;
     for (int i = 0; i < newText.length(); i++) {
       boolean isSegmentBreak = newText.codePointAt(i) == '\n';
@@ -114,7 +116,7 @@ public final class LineWhitespaceCollapser {
     }
   }
 
-  private static void collapseTabs(StringBuilder newText) {
+  private static void collapseTabs(MappedStringBuilder newText) {
     for (int i = 0; i < newText.length(); i++) {
       if (newText.codePointAt(i) == '\t') {
         newText.setCharAt(i, ' ');
@@ -122,7 +124,7 @@ public final class LineWhitespaceCollapser {
     }
   }
 
-  private static boolean collapseSpaceStrings(StringBuilder newText, boolean wasSpace) {
+  private static boolean collapseSpaceStrings(MappedStringBuilder newText, boolean wasSpace) {
     for (int i = 0; i < newText.length(); i++) {
       boolean isSpace = newText.codePointAt(i) == ' ';
       if (isSpace && wasSpace) {

@@ -31,4 +31,10 @@ public interface Element extends Node {
     return new ElementImp(name, Namespace.HTML_NAMESPACE, parentNode);
   }
 
+  public static Element create(
+    String name, String namespace, Node parentNode
+  ) {
+    return new ElementImp(name, namespace, parentNode);
+  }
+
 }

@@ -87,7 +87,8 @@ public class FlowRootContentTest {
 
     LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 50, 10, parentBox, List.of(
       new LineBoxFragment(0, 0, 50, 10, List.of(
-        new TextFragment(0, 0, 50, 10, "HelloWorld")))));
+        new TextFragment(0, 0, 25, 10, "Hello"),
+        new TextFragment(25, 0, 25, 10, "World")))));
     LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
@@ -135,7 +136,8 @@ public class FlowRootContentTest {
       new TestUnmanagedBoxFragment(0, 0, 50, 50, childBox1),
       new TestUnmanagedBoxFragment(0, 50, 50, 50, childBox2),
       new LineBoxFragment(0, 100, 50, 10, List.of(
-        new TextFragment(0, 0, 50, 10, "HelloWorld")))));
+        new TextFragment(0, 0, 25, 10, "Hello"),
+        new TextFragment(25, 0, 25, 10, "World")))));
     LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
@@ -151,7 +153,8 @@ public class FlowRootContentTest {
     LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 50, 10, parentBox, List.of(
       new LineBoxFragment(0, 0, 50, 10, List.of(
         new TestManagedBoxFragment(0, 0, 50, 10, nestingBox, List.of(
-          new TextFragment(0, 0, 50, 10, "HelloWorld")))))));
+          new TextFragment(0, 0, 25, 10, "Hello"),
+          new TextFragment(25, 0, 25, 10, "World")))))));
     LayoutFragment actualFragment = doLayout(parentBox);
     assertFragmentEquals(expectedFragment, actualFragment);
   }
@@ -210,7 +213,8 @@ public class FlowRootContentTest {
       new LineBoxFragment(0, 0, 50, 10, List.of(
         new TestManagedBoxFragment(0, 0, 50, 10, outerBox, List.of(
           new TestManagedBoxFragment(0, 0, 50, 10, intermediateBox1, List.of(
-            new TextFragment(0, 0, 50, 10, "HelloWorld"))))))),
+            new TextFragment(0, 0, 25, 10, "Hello"),
+            new TextFragment(25, 0, 25, 10, "World"))))))),
       // Importantly, this is reparented to parentBox
       new TestManagedBoxFragment(0, 10, 25, 10, intermediateBox2, List.of(
         new LineBoxFragment(0, 0, 25, 10, List.of(

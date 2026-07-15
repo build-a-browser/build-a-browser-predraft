@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.TextBox;
+import net.buildabrowser.babbrowser.renderer.content.flow.mapping.MappingRLEBuffer;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
 public class InlineStagingArea {
@@ -54,10 +55,26 @@ public class InlineStagingArea {
     return ((StagedText) stagedElements.get(i)).currentText();
   }
 
-  public void setText(int i, String text) {
-    StagedText oldStagedText = (StagedText) stagedElements.get(i);
-    stagedElements.set(i, new StagedText(
-      oldStagedText.layoutContext(), oldStagedText.boxRef(), text));
+  public void setText(
+    int index,
+    String text,
+    MappingRLEBuffer sourceRunsRef
+  ) {
+    StagedText oldStagedText = (StagedText) stagedElements.get(index);
+    stagedElements.set(index, new StagedText(
+      oldStagedText.layoutContext(),
+      oldStagedText.boxRef(),
+      text,
+      sourceRunsRef));
+  }
+
+  public void setTextPreserveMappings(int index, String text) {
+    StagedText oldStagedText = (StagedText) stagedElements.get(index);
+    stagedElements.set(index, new StagedText(
+      oldStagedText.layoutContext(),
+      oldStagedText.boxRef(),
+      text,
+      oldStagedText.sourceRunsRef()));
   }
 
   public StagingElement stagingElementAt(int i) {
@@ -75,7 +92,12 @@ public class InlineStagingArea {
 
   public static interface StagingElement {}
 
-  public record StagedText(LayoutContext layoutContext, TextBox boxRef, String currentText) implements StagingElement {}
+  public record StagedText(
+    LayoutContext layoutContext,
+    TextBox boxRef,
+    String currentText,
+    MappingRLEBuffer sourceRunsRef
+  ) implements StagingElement {}
 
   public record StagedLineBreak() implements StagingElement {
 

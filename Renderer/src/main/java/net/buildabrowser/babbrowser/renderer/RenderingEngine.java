@@ -4,11 +4,13 @@ import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
+import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.painter.core.Painter;
+import net.buildabrowser.babbrowser.renderer.clipboard.ClipboardProvider;
 import net.buildabrowser.babbrowser.renderer.imp.RenderingEngineImp;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 import net.buildabrowser.babbrowser.renderer.uistate.Frame;
@@ -26,13 +28,21 @@ public interface RenderingEngine {
     Supplier<ExecutorService> threadGroupSupplier,
     Painter painter,
     DocumentLoaderRegistry documentLoaderRegistry,
-    ResourceResolver resourceResolver
+    ResourceResolver resourceResolver,
+    ClipboardProvider<?> clipboardProvider
   ) {
     return new RenderingEngineImp(
       FetchEngine.create(fetchBackend),
       threadGroupSupplier, painter,
-      documentLoaderRegistry, resourceResolver);
+      documentLoaderRegistry, resourceResolver,
+      clipboardProvider);
   }
+
+  Painter painter();
+
+  ClipboardProvider<?> clipboardProvider();
+
+  StyleSheetList uaStyleSheets();
 
   static record NavigableRendererPair(
     Navigable navigable,

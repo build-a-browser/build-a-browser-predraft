@@ -65,7 +65,8 @@ public class FlowInlineLayout {
   public void stageInline(LayoutContext parentContext, Box box) {
     InlineStagingArea stagingArea = activeInlineContext.stagingArea();
     if (box instanceof TextBox textBox) {
-      stagingArea.pushStagedElement(new StagedText(parentContext, textBox, textBox.text()));
+      stagingArea.pushStagedElement(new StagedText(
+        parentContext, textBox, textBox.text(), null));
     } else if (box instanceof ElementBox elementBox) {
       // Might get computed twice for outer box, doesn't really matter
       LayoutConstraint widthConstraint = flowContext.blockLayout().activeContext().innerWidthConstraint();

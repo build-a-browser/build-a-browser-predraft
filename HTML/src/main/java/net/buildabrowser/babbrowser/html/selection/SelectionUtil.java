@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.html.selection;
 
+import java.util.LinkedList;
+
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.selection.Selection.SelectionDirection;
 
@@ -66,6 +68,7 @@ public final class SelectionUtil {
     Node commonParent = determineCommonParent(sourceNode, targetNode);
     traverseForSelection(
       commonParent, sourceNode, targetNode,
+      new LinkedList<>(),
       SelectionSearchState.SCAN, callbacks);
   }
 
@@ -84,39 +87,49 @@ public final class SelectionUtil {
     Node currentNode,
     Node sourceNode,
     Node targetNode,
+    LinkedList<Node> enteredNodes,
     SelectionSearchState state,
     SelectionUtilCallbacks callbacks
   ) {
-    boolean wasStartIncluded = state.equals(SelectionSearchState.ACTIVE);
-    if (
-      state.equals(SelectionSearchState.SCAN)
-      && currentNode == sourceNode
-    ) {
+    boolean isScan = state.equals(SelectionSearchState.SCAN);
+    if (isScan) {
+      enteredNodes.push(currentNode);
+    }
+    if (isScan && currentNode == sourceNode) {
       state = SelectionSearchState.ACTIVE;
-      // TODO: This is inconsistently called preorder or postorder
+      for (int i = enteredNodes.size() - 1; i >= 0; i--) {
+        callbacks.onNodeEntered(enteredNodes.get(i));
+      }
+    }
+
+    if (state.equals(SelectionSearchState.ACTIVE)) {
       callbacks.onNodeSelected(currentNode);
     }
 
     Node innerNode = currentNode.firstChild();
     while (innerNode != null) {
+      if (state.equals(SelectionSearchState.ACTIVE)) {
+        callbacks.onNodeEntered(innerNode);
+      }
+
       state = traverseForSelection(
         innerNode, sourceNode, targetNode,
-        state, callbacks);
+        enteredNodes, state, callbacks);
+
+      if (state.equals(SelectionSearchState.SCAN)) {
+        enteredNodes.pop();
+      } else if (
+        state.equals(SelectionSearchState.ACTIVE)
+        || state.equals(SelectionSearchState.EXIT)
+      ) {
+        callbacks.onNodeExited(innerNode);
+      }
+
       if (
         state.equals(SelectionSearchState.EXIT)
       ) return state;
+      
       innerNode = innerNode.nextSibling();
-    }
-
-    boolean isTargetButNotSource = 
-      currentNode == targetNode
-      && currentNode != sourceNode;
-    boolean isFullyIncluded =
-      wasStartIncluded
-      && state.equals(SelectionSearchState.ACTIVE);
-
-    if (isTargetButNotSource || isFullyIncluded) {
-      callbacks.onNodeSelected(currentNode);
     }
 
     if (currentNode == targetNode) {
@@ -126,7 +139,7 @@ public final class SelectionUtil {
     return state;
   }
 
-  private static Node determineCommonParent(Node sourceNode, Node targetNode) {
+  public static Node determineCommonParent(Node sourceNode, Node targetNode) {
     int sourceDepth = nodeDepth(sourceNode);
     int targetDepth = nodeDepth(targetNode);
     if (sourceDepth > targetDepth) {
@@ -166,6 +179,10 @@ public final class SelectionUtil {
   public static interface SelectionUtilCallbacks {
   
     void onNodeSelected(Node node);
+
+    default void onNodeEntered(Node node) {}
+
+    default void onNodeExited(Node node) {}
     
   }
 

@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
+import net.buildabrowser.babbrowser.renderer.content.flow.mapping.MappingRLEBuffer;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
@@ -15,16 +16,21 @@ import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowInlineBoxFragment
 
 public class LineBox {
 
-  private final FlowTextFragmentBuilder textBuilder = new FlowTextFragmentBuilder();
+  private final FlowTextFragmentBuilder textBuilder;
   
   private final Deque<LineSegment> lineSegments;
 
   public LineBox(ElementBox rootBox) {
+    this.textBuilder = new FlowTextFragmentBuilder();
     this.lineSegments = new LinkedList<>();
     lineSegments.push(new LineSegment(rootBox));
   }
 
-  private LineBox(Deque<LineSegment> segments) {
+  private LineBox(
+    FlowTextFragmentBuilder textBuilder,
+    Deque<LineSegment> segments
+  ) {
+    this.textBuilder = textBuilder;
     this.lineSegments = segments;
   }
 
@@ -38,18 +44,20 @@ public class LineBox {
     lineSegments.peek().addFragment(fragment);
   }
 
+  public void startText(
+    Node sourceNode,
+    MappingRLEBuffer buffer
+  ) {
+    commitText();
+    textBuilder.startText(sourceNode, buffer);
+  }
+
   public void appendText(
-    Node sourceNode, String text, int sourceIndex,
+    String text, int sourceIndex,
     float width, float height
   ) {
     this.totalWidth += width;
-    if (
-      textBuilder.lastNode() != null
-      && sourceNode != textBuilder.lastNode()
-    ) {
-      commitText();
-    }
-    textBuilder.addText(sourceNode, text, sourceIndex, width, height);
+    textBuilder.addText(text, sourceIndex, width, height);
   }
 
   public void pushElement(ElementBox elementBox) {
@@ -105,7 +113,7 @@ public class LineBox {
       popElement();
     }
 
-    return new LineBox(newSegments);
+    return new LineBox(textBuilder, newSegments);
   }
 
   private void commitText() {

@@ -54,15 +54,5 @@ public class DocumentImp extends NodeImp implements Document {
   public void setURL(URI url) {
     this.url = url;
   }
-  
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    forEachChild(child -> {
-      builder.append(child.toString());
-    });
-    
-    return builder.toString();
-  }
 
 }

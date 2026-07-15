@@ -19,7 +19,7 @@ public class TestTextBox extends AbstractBoxImp implements TextBox {
 
   @Override
   public Text textNode() {
-    throw new UnsupportedOperationException();
+    return null;
   }
   
 }

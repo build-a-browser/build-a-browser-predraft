@@ -144,7 +144,7 @@ public class SelectionUtilTest {
     SelectionUtil.determineSelectedNodes(selection, actual::add);
 
     Set<Node> expected = Set.of(
-      firstNode, secondNode, thirdNodeFirstChild, thirdNodeSecondChild);
+      firstNode, secondNode, thirdNode, thirdNodeFirstChild, thirdNodeSecondChild);
     
     Assertions.assertEquals(expected, actual);
   }
