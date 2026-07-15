@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.LineHeightValue;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
@@ -24,9 +25,11 @@ public class LineSegment {
   private float width = 0;
   private float inkWidth = 0;
   private float largestTextHeight = 0;
+  private boolean isEmpty = true;
 
   public LineSegment(ElementBox box) {
     this.box = box;
+    this.isEmpty |= boxHasDecor(box);
   }
 
   public ElementBox box() {
@@ -46,13 +49,17 @@ public class LineSegment {
   }
 
   public float height() {
+    if (isEmpty) return 0;
+
     float lineHeight = computeLineHeight();
-    float contentHeight = computeContentHeight();    
+    float contentHeight = computeContentHeight();
 
     return Math.max(lineHeight, contentHeight);
   }
 
   public float inkHeight() {
+    if (isEmpty) return 0;
+
     float height = computeLineHeight();
 
     LayoutFragment curNode = fragments;
@@ -64,7 +71,7 @@ public class LineSegment {
     return height;
   }
 
-  public void addFragment(LayoutFragment managedBoxFragment) {
+  public void addFragment(LayoutFragment managedBoxFragment, boolean isEmpty) {
     LayoutFragment newFragment = IntrusiveList.add(nextFragment, managedBoxFragment);
     if (fragments == null) {
       fragments = newFragment;
@@ -73,6 +80,7 @@ public class LineSegment {
     nextFragment = nextFragment == null ? newFragment : nextFragment.next();
 
     if (!PositionUtil.affectsLayout(managedBoxFragment)) return;
+    this.isEmpty &= isEmpty;
     inkWidth = Math.max(
       width + managedBoxFragment.inkWidth(Measurement.MARGIN),
       inkWidth);
@@ -95,6 +103,10 @@ public class LineSegment {
       inkWidth(), inkHeight(),
       firstBaseline, lastBaseline,
       box(), fragments());
+  }
+
+  public boolean isEmpty() {
+    return this.isEmpty;
   }
 
   private float computeLineHeight() {
@@ -145,6 +157,24 @@ public class LineSegment {
     }
 
     return desiredHeight + maxBaseline;
+  }
+
+  private static boolean boxHasDecor(ElementBox box) {
+    ElementBoxDimensions dimensions = box.dimensions();
+    float[] margin = dimensions.getComputedMargin();
+    float[] borders = dimensions.getComputedBorder();
+    float[] padding = dimensions.getComputedPadding();
+    return
+      !isZeroArray(margin)
+      || !isZeroArray(borders)
+      || !isZeroArray(padding);
+  }
+
+  private static boolean isZeroArray(float[] arr) {
+    for (float item: arr) {
+      if (item != 0) return false;
+    }
+    return true;
   }
 
 }

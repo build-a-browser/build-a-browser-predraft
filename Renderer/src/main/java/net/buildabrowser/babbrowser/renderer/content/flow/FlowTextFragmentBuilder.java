@@ -23,7 +23,7 @@ public class FlowTextFragmentBuilder {
     Node sourceNode,
     MappingRLEBuffer reference
   ) {
-    assert textBuilder.isEmpty();
+    assert textBuilder.length() == 0;
     textBuilder.setLength(0);
     this.sourceNode = sourceNode;
     this.originalRleBuffer = reference;

@@ -97,16 +97,27 @@ public class NthChildPseudoSelectorMatcher implements DocumentChangeListener {
     if (!hasItemsInQueue) return;
     this.hasItemsInQueue = false;
 
-    queuedElements.forEach(element -> processChildren(element.parentNode()));
+    Map<NthChildPseudoSelector, ElementSet> applicableElementsMap = new HashMap<>();
+    for (NthChildPseudoSelector selector: matchingElements.keySet()) {
+      ElementSet applicableElements = 
+        selectorMatcher.matchElements(selector.selector());
+      applicableElementsMap.put(selector, applicableElements);
+    }
+
+    queuedElements.forEach(element -> processChildren(
+      element.parentNode(), applicableElementsMap));
   }
 
-  private void processChildren(Node parentNode) {
+  private void processChildren(
+    Node parentNode,
+    Map<NthChildPseudoSelector, ElementSet> applicableElementsMap
+  ) {
     for (
       Map.Entry<NthChildPseudoSelector, RefCounted<ElementSet>> entry:
       matchingElements.entrySet()
     ) {
       ElementSet applicableElements = 
-        selectorMatcher.matchElements(entry.getKey().selector());
+        applicableElementsMap.get(entry.getKey());
       processChildren(
         entry.getKey(),
         entry.getValue().object(),

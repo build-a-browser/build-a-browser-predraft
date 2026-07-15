@@ -50,8 +50,11 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
     return this.stagingArea;
   }
 
-  public void addFragment(LayoutFragment flowFragment) {
-    activeLineBox.addFragment(flowFragment);
+  public void addFragment(
+    LayoutFragment flowFragment,
+    boolean isEmpty
+  ) {
+    activeLineBox.addFragment(flowFragment, isEmpty);
   }
 
   public void pushElement(ElementBox elementBox) {

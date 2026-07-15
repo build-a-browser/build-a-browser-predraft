@@ -96,7 +96,7 @@ public final class FlowEventHandlerUtil {
       nextFragment = nextFragment.next();
 
       if (
-        nextFragment instanceof BoxFragment boxFragment
+        currentFragment instanceof BoxFragment boxFragment
         && boxFragment.box().stackingContext() != null
         && !boxFragment.box().stackingContext().equals(parentFragment.box().stackingContext())
       ) continue;

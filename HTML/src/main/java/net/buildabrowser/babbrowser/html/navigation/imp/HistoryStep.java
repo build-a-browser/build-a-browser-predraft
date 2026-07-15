@@ -118,7 +118,7 @@ public class HistoryStep {
 
       if (changingNavigableContinuations.isEmpty()) continue;
       ChangingNavigableContinuationState changingNavigableContinuation
-        = changingNavigableContinuations.removeFirst();
+        = changingNavigableContinuations.remove(0);
 
       RenderableDocument displayedDocument = changingNavigableContinuation.displayedDocument;
       SessionHistoryEntry targetEntry = changingNavigableContinuation.targetEntry;

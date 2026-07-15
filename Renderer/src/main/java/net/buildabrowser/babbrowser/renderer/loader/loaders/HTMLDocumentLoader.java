@@ -35,7 +35,8 @@ public class HTMLDocumentLoader implements DocumentLoader {
     // TODO: Proper way to obtain a document and its browsing context
     HTMLDocument document = HTMLDocument.create(
       uaNavigableOptions,
-      navigationParams.navigable().activeBrowsingContext());
+      navigationParams.navigable().activeBrowsingContext(),
+      navigationParams.navigable());
     document.setURL(response.url());
     // TODO: Populate document
 

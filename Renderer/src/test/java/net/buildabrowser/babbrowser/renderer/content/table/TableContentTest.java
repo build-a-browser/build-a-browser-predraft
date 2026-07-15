@@ -225,7 +225,6 @@ public class TableContentTest {
 
     TableBoxFragment result = doLayout(parentBox);
     Table table = result.table();
-    System.out.println(table.width() + " " + table.height());
     
     TableComparator expectedTable = new TableComparator(
       List.of(2.5f, 2.5f, 5f),

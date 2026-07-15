@@ -12,6 +12,7 @@ import net.buildabrowser.babbrowser.renderer.content.flow.mapping.MappingRLEBuff
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowInlineBoxFragment;
 
 public class LineBox {
@@ -36,12 +37,15 @@ public class LineBox {
 
   private float totalWidth = 0;
   
-  public void addFragment(LayoutFragment fragment) {
+  public void addFragment(
+    LayoutFragment fragment,
+    boolean isEmpty
+  ) {
     commitText();
     if (PositionUtil.affectsLayout(fragment)) {
       this.totalWidth += fragment.width(Measurement.MARGIN);
     }
-    lineSegments.peek().addFragment(fragment);
+    lineSegments.peek().addFragment(fragment, isEmpty);
   }
 
   public void startText(
@@ -73,7 +77,7 @@ public class LineBox {
     commitText();
     LineSegment lineSegment = lineSegments.pop();
     FlowInlineBoxFragment inlineBoxFragment = lineSegment.toFragment();
-    lineSegments.peek().addFragment(inlineBoxFragment);
+    lineSegments.peek().addFragment(inlineBoxFragment, lineSegment.isEmpty());
     
     this.totalWidth +=
       lineSegment.box().dimensions().getComputedMargin()[3] +
@@ -119,7 +123,10 @@ public class LineBox {
   private void commitText() {
     if (!textBuilder.isEmpty()) {
       FontMetrics metrics = lineSegments.peek().box().layoutContext().font().metrics();
-      lineSegments.peek().addFragment(textBuilder.commit(metrics));
+      TextFragment textFragment = textBuilder.commit(metrics);
+      // TODO: Trim removes some control characters that should be kept
+      boolean isEmpty = textFragment.text().trim().length() == 0;
+      lineSegments.peek().addFragment(textFragment, isEmpty);
     }
   }
 

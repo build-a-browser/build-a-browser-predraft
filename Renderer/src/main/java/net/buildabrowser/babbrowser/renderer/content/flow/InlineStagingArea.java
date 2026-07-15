@@ -25,6 +25,10 @@ public class InlineStagingArea {
     return stagedElements.get(cursor++);
   }
 
+  public StagingElement previous() {
+    return stagedElements.get(--cursor);
+  }
+
   public boolean done() {
     return this.cursor == stagedElements.size();
   }

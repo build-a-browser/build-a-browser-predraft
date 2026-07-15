@@ -37,9 +37,11 @@ public interface HTMLDocument extends RenderableDocument, Document, PlatformObje
 
   static HTMLDocument create(
     UANavigableOptions uaNavigableOptions,
-    BrowsingContext browsingContext
+    BrowsingContext browsingContext,
+    Navigable nodeNavigable
   ) {
-    return new HTMLDocumentImp(uaNavigableOptions, browsingContext);
+    return new HTMLDocumentImp(
+      uaNavigableOptions, browsingContext, nodeNavigable);
   }
 
 }

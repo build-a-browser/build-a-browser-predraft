@@ -21,6 +21,7 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
 
   private final UANavigableOptions uaNavigableOptions;
   private final BrowsingContext browsingContext;
+  private final Navigable nodeNavigable; // TODO: Hack because the proper way is NPE-prone
   private final FocusManager focusManager;
   private final Selection selection;
 
@@ -30,10 +31,12 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
 
   public HTMLDocumentImp(
     UANavigableOptions uaNavigableOptions,
-    BrowsingContext browsingContext
+    BrowsingContext browsingContext,
+    Navigable nodeNavigable
   ) {
     this.uaNavigableOptions = uaNavigableOptions;
     this.browsingContext = browsingContext;
+    this.nodeNavigable= nodeNavigable;
     this.focusManager = FocusManager.create(this);
     this.selection = Selection.create(this);
   }
@@ -98,7 +101,9 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
 
   @Override
   public Navigable nodeNavigable() {
-    return browsingContext().activeWindow().agent().eventLoop().getNavigable(this);
+    return nodeNavigable;
+    // TODO: We're supposed to do the below, but it often leads to NPEs during traversal
+    // return browsingContext().activeWindow().agent().eventLoop().getNavigable(this);
   }
 
   @Override

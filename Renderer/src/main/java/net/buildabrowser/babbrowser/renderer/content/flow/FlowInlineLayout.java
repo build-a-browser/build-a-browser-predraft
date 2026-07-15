@@ -134,7 +134,7 @@ public class FlowInlineLayout {
       FloatLayout.addFloat(flowContext, floatFragment, widthConstraint, heightConstraint, 0);
     }
 
-    activeInlineContext.addFragment(new FloatRefFragment(floatFragment));
+    activeInlineContext.addFragment(new FloatRefFragment(floatFragment), true);
   }
 
   private void addUnmanagedToInline(
@@ -149,7 +149,7 @@ public class FlowInlineLayout {
       activeInlineContext.queuedPositioned(elementBox);
     } else {
       LayoutFragment newFragment = PositionLayout.layout(elementBox);
-      activeInlineContext.addFragment(newFragment);
+      activeInlineContext.addFragment(newFragment, false);
     }
   }
 
@@ -192,7 +192,7 @@ public class FlowInlineLayout {
     if (!activeInlineContext.fits(newFragment.width(Measurement.MARGIN), true)) {
       activeInlineContext.nextLine();
     }
-    activeInlineContext.addFragment(newFragment);
+    activeInlineContext.addFragment(newFragment, false);
   }
 
   private void addTextToInline(
@@ -208,6 +208,10 @@ public class FlowInlineLayout {
   }
 
   private void addBreakToInline() {
+    InlineFormattingContext inlineContext = activeInlineContext;
+    inlineContext.lineBox().startText(null, null);
+    inlineContext.lineBox().appendText(
+      "\u200B", 0, 0, 0);
     activeInlineContext.nextLine();
   }
 
