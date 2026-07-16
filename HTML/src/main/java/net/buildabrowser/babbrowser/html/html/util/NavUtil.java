@@ -3,6 +3,8 @@ package net.buildabrowser.babbrowser.html.html.util;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
+import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.html.html.AnchorElement;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
@@ -44,7 +46,15 @@ public final class NavUtil {
     targetNavigable.navigate(URI.create(urlString), navParameters);
   }
 
-  private static Navigable chooseANavigable(
+  public static boolean cannotNavigate(Element element) {
+    // TODO: Check if document is fully active
+    return
+      !(element instanceof AnchorElement)
+      // TODO: Use shadowIncludingRoot
+      && element.nodeDocument() == null;
+  }
+
+  public static Navigable chooseANavigable(
     String targetAttributeValue, Navigable nodeNavigable
   ) {
     // TODO: Proper way to obtain the navigable

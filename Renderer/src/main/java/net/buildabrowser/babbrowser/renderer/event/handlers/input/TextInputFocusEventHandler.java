@@ -3,6 +3,13 @@ package net.buildabrowser.babbrowser.renderer.event.handlers.input;
 import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
+import net.buildabrowser.babbrowser.dom.events.EventDispatcher;
+import net.buildabrowser.babbrowser.dom.events.PointerEvent;
+import net.buildabrowser.babbrowser.html.form.FormSubmissionAlgorithm;
+import net.buildabrowser.babbrowser.html.html.FormAssociatedElement;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
+import net.buildabrowser.babbrowser.html.html.HTMLFormElement;
+import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.input.text.TextTypeContent;
@@ -39,6 +46,7 @@ public class TextInputFocusEventHandler implements FocusEventHandler<TextTypeCon
         case RendererKeyboardEvent.KEY_END -> moveEnd(content);
         case RendererKeyboardEvent.KEY_DELETE -> delete(content);
         case RendererKeyboardEvent.KEY_INSERT -> toggleInsertMode(content);
+        case RendererKeyboardEvent.KEY_ENTER -> submitForm(box.element());
         default -> {}
       }
       scrollToCursor(box, content);
@@ -133,6 +141,29 @@ public class TextInputFocusEventHandler implements FocusEventHandler<TextTypeCon
     }
     scrollX = Math.max(0, Math.min(scrollX, valueWidth - adjustedWidth + letterWidth));
     content.setScrollX(scrollX);
+  }
+
+  private void submitForm(HTMLElement element) {
+    if (!(
+      element instanceof FormAssociatedElement formAssociatedElement
+    )) return;
+
+    HTMLFormElement formOwner = formAssociatedElement.formOwner();
+    if (formOwner == null) return;
+
+    for (FormAssociatedElement submittable: formOwner.submittableElements()) {
+      if (
+        !FormSubmissionAlgorithm.isSubmitButton(submittable)
+      ) continue;
+      EventDispatcher.dispatch(
+        PointerEvent.createGeneric("click"),
+        submittable);
+      return;
+    }
+
+    FormSubmissionAlgorithm.submitAForm(
+      formOwner, element,
+      UserNavigationInvolvement.ACTIVATION);
   }
 
 }

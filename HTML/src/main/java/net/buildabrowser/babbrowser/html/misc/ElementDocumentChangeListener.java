@@ -5,6 +5,7 @@ import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.AbstractDocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
+import net.buildabrowser.babbrowser.html.html.FormAssociatedElement;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
@@ -37,6 +38,11 @@ public class ElementDocumentChangeListener extends AbstractDocumentChangeListene
       && element.name().equals("meta")
     ) {
       handleMeta(element);
+    }
+
+    if (node instanceof FormAssociatedElement formAssociatedElement) {
+      // TODO: Check parser inserted flag
+      formAssociatedElement.resetFormOwner();
     }
 
     super.onNodeAdded(node);
