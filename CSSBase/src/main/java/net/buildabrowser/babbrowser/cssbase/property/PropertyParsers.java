@@ -40,6 +40,7 @@ import net.buildabrowser.babbrowser.cssbase.property.font.FontFamilyParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontSizeParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightParser;
+import net.buildabrowser.babbrowser.cssbase.property.misc.AllParser;
 import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineColorParser;
 import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineStyleParser;
@@ -195,7 +196,9 @@ public final class PropertyParsers {
     "overflow-inline", new OverflowParser(CSSProperty.OVERFLOW_Y),
     "overflow", new OverflowShorthandParser(),
 
-    "content", new ContentParser()
+    "content", new ContentParser(),
+
+    "all", new AllParser()
   );
 
 }

@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.cssbase.property;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
@@ -173,9 +174,13 @@ public enum CSSProperty {
   // TODO: OVERFLOW_INLINE, OVERFLOW_BLOCK
   OVERFLOW(new CSSProperty[] { CSSProperty.OVERFLOW_X, CSSProperty.OVERFLOW_Y }),
   
-  CONTENT(nextId(), false, InvalidationLevel.BOX, ContentValue.NORMAL);
+  CONTENT(nextId(), false, InvalidationLevel.BOX, ContentValue.NORMAL),
+  
+  // Dummy value for ALL, it is computed later
+  ALL(new CSSProperty[0]);
 
   private static int propertyId = 0;
+  private static CSSProperty[] allExpansions;
 
   private final int id;
   private final boolean inherited;
@@ -221,6 +226,12 @@ public enum CSSProperty {
   }
 
   public CSSProperty[] getExpansions() {
+    if (this.equals(CSSProperty.ALL)) {
+      if (allExpansions == null) {
+        allExpansions = all();
+      }
+      return allExpansions;
+    }
     return this.expansions;
   }
 
@@ -244,6 +255,16 @@ public enum CSSProperty {
 
   private static int nextId() {
     return propertyId++;
+  }
+
+  private static CSSProperty[] all() {
+    List<CSSProperty> allProperties = new ArrayList<>();
+    for (CSSProperty property: CSSProperty.values()) {
+      if (!property.hasExpansion()) {
+        allProperties.add(property);
+      }
+    }
+    return allProperties.toArray(CSSProperty[]::new);
   }
 
 }

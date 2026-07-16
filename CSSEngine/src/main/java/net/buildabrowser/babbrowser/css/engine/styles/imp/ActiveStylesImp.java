@@ -84,8 +84,14 @@ public class ActiveStylesImp implements ActiveStyles {
 
   @Override
   public void unsetProperty(CSSProperty property) {
-    removeEntry(property.id());
-    setInheritValue(property.id(), false);
+    if (property.hasExpansion()) {
+      for (CSSProperty expansion: property.getExpansions()) {
+        unsetProperty(expansion);
+      }
+    } else {
+      removeEntry(property.id());
+      setInheritValue(property.id(), false);
+    }
   }
 
   @Override
