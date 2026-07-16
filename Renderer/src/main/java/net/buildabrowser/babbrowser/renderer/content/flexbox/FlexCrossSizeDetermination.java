@@ -113,18 +113,24 @@ public final class FlexCrossSizeDetermination {
     ElementBox rootBox, List<FlexLine> lines,
     LayoutConstraint containerCrossSize, boolean isVertical
   ) {
+    AlignItemsValue alignItemsValue = (AlignItemsValue) rootBox.properties()
+      .get(CSSProperty.ALIGN_ITEMS);
     for (FlexLine line: lines) {
       for (FlexItem item: line.items()) {
-        determineItemCrossSize(rootBox, item, line, containerCrossSize, isVertical);
+        determineItemCrossSize(
+          rootBox, item, line, alignItemsValue,
+          containerCrossSize, isVertical);
       }
     }
   }
 
   private static void determineItemCrossSize(
     ElementBox rootBox, FlexItem item, FlexLine itemLine,
+    AlignItemsValue alignItemsValue,
     LayoutConstraint containerCrossSize, boolean isVertical
   ) {
-    CSSValue itemAlignmentValue = getItemAlignment(rootBox, item.box());
+    CSSValue itemAlignmentValue = FlexItemCrossAlignment.getItemAlignment(
+      alignItemsValue, item);
 
     LayoutConstraint itemMainConstraint = LayoutConstraint.of(item.mainSize());
     LayoutConstraint itemCrossConstraint = FlexUtil.boxCrossSize(
@@ -133,11 +139,13 @@ public final class FlexCrossSizeDetermination {
     if (
       itemAlignmentValue.equals(AlignItemsValue.STRETCH)
       && !itemCrossConstraint.isBounded()
-      && containerCrossSize.isBounded()
       // TODO: Other checks
     ) {
       // TODO: Clamp
-      // TODO: Need to account for margin
+      if (
+        FlexItemCrossAlignment.hasCrossAutoMargin(isVertical, item)
+      ) return;
+
       ElementBoxDimensions dimensions = item.box().dimensions();
       float[] margin = dimensions.getComputedMargin();
       float decorSize = isVertical ?

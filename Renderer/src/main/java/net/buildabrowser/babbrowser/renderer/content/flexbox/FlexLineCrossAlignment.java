@@ -3,21 +3,15 @@ package net.buildabrowser.babbrowser.renderer.content.flexbox;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
+import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsValue;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
-public class FlexCrossAlignment {
+public class FlexLineCrossAlignment {
   
-  private FlexCrossAlignment() {}
+  private FlexLineCrossAlignment() {}
 
-  public static void alignCrossAxis(
-    CrossAlignmentContext alignmentContext, List<FlexLine> lines
-  ) {
-    alignLines(alignmentContext, lines);
-    // TODO: Align items within the lines
-  }
-
-  private static void alignLines(
+  public static void alignLines(
     CrossAlignmentContext alignmentContext, List<FlexLine> lines
   ) {
     // TODO: But does the align affect overflow?
@@ -99,7 +93,11 @@ public class FlexCrossAlignment {
   }
 
   public static record CrossAlignmentContext(
-    LayoutConstraint crossSize, boolean isVertical, AlignContentValue alignContent, float crossGap
+    LayoutConstraint crossSize,
+    boolean isVertical,
+    AlignItemsValue alignItems,
+    AlignContentValue alignContent,
+    float crossGap
   ) {}
 
 }

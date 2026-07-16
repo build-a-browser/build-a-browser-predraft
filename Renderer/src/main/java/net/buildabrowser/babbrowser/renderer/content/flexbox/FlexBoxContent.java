@@ -12,6 +12,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.display.OrderValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
+import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexDirectionValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
@@ -24,7 +25,7 @@ import net.buildabrowser.babbrowser.renderer.box.TextBox;
 import net.buildabrowser.babbrowser.renderer.content.common.MarginUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
-import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexCrossAlignment.CrossAlignmentContext;
+import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexLineCrossAlignment.CrossAlignmentContext;
 import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexMainAlignment.MainAlignmentContext;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
@@ -199,11 +200,14 @@ public final class FlexBoxContent implements BoxContent {
     boolean isVertical, LayoutConstraint mainSize, LayoutConstraint crossSize, List<FlexLine> lines
   ) {
     float crossGap = crossGap(rootBox, isVertical, mainSize);
+    AlignItemsValue alignItems = (AlignItemsValue) rootBox.properties().get(CSSProperty.ALIGN_ITEMS);
     AlignContentValue alignContent = (AlignContentValue) rootBox.properties().get(CSSProperty.ALIGN_CONTENT);
     if (!crossSize.isBounded()) alignContent = AlignContentValue.FLEX_START;
-    FlexCrossAlignment.alignCrossAxis(
-      new CrossAlignmentContext(crossSize, isVertical, alignContent, crossGap),
-      lines);
+
+    CrossAlignmentContext alignmentContext = new CrossAlignmentContext(
+      crossSize, isVertical, alignItems, alignContent, crossGap);
+    FlexItemCrossAlignment.alignItems(alignmentContext, lines);
+    FlexLineCrossAlignment.alignLines(alignmentContext, lines);
   }
 
   private float mainGap(

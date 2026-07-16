@@ -16,6 +16,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.OrderValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
+import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexDirectionValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexGrowValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
@@ -291,15 +292,18 @@ public class FlexContentTest {
     setMany(childStyles, LengthValue.create(1, true, LengthType.EM),
       CSSProperty.MARGIN_TOP, CSSProperty.MARGIN_BOTTOM, CSSProperty.MARGIN_LEFT, CSSProperty.MARGIN_RIGHT);
 
-    childStyles.setProperty(CSSProperty.PADDING_TOP, LengthValue.create(0.5f, false, LengthType.EM));  
-    childStyles.setProperty(CSSProperty.PADDING_BOTTOM, LengthValue.create(0.5f, false, LengthType.EM));  
-    childStyles.setProperty(CSSProperty.PADDING_LEFT, LengthValue.create(1, true, LengthType.EM));  
-    childStyles.setProperty(CSSProperty.PADDING_RIGHT, LengthValue.create(1, true, LengthType.EM));  
+    childStyles.setProperty(CSSProperty.PADDING_TOP, LengthValue.create(0.5f, false, LengthType.EM));
+    childStyles.setProperty(CSSProperty.PADDING_BOTTOM, LengthValue.create(0.5f, false, LengthType.EM));
+    childStyles.setProperty(CSSProperty.PADDING_LEFT, LengthValue.create(1, true, LengthType.EM));
+    childStyles.setProperty(CSSProperty.PADDING_RIGHT, LengthValue.create(1, true, LengthType.EM));
 
     ElementBox child1 = flowBlockBox(childStyles, List.of(new TestTextBox("Red")));
     ElementBox child2 = flowBlockBox(childStyles, List.of(new TestTextBox("Green")));
     ElementBox child3 = flowBlockBox(childStyles, List.of(new TestTextBox("Blue")));
-    ElementBox parentBox = flexBlockBox(List.of(child1, child2, child3));
+
+    ActiveStyles parentStyles = ActiveStyles.create();
+    parentStyles.setProperty(CSSProperty.ALIGN_ITEMS, AlignItemsValue.FLEX_START);
+    ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2, child3));
 
     // x, y use border bounds, but width/height use content bounds
     // Horizontal Offset (to content edge) = 1px border + 1em (10px) margin + 1em (10px) padding = 21px
@@ -321,6 +325,30 @@ public class FlexContentTest {
     Assertions.assertEquals(22, actualFragments.height(Measurement.BORDER));
 
     Assertions.assertEquals(16 + 10 + 16, layoutResult.flexboxFragment().height(Measurement.CONTENT));
+  }
+
+  @Test
+  @DisplayName("Can layout flexbox with vertical alignment")
+  public void canLayoutFlexboxWithVerticalAlignment() {
+    ActiveStyles child1Styles = ActiveStyles.create();
+    child1Styles.setProperty(CSSProperty.HEIGHT, LengthValue.create(20, true, LengthType.PX));
+    ElementBox child1 = flowBlockBox(child1Styles, List.of(new TestTextBox("Red")));
+
+    ActiveStyles child2Styles = ActiveStyles.create();
+    child2Styles.setProperty(CSSProperty.HEIGHT, LengthValue.create(10, true, LengthType.PX));
+    ElementBox child2 = flowBlockBox(child2Styles, List.of(new TestTextBox("Green")));
+
+    ActiveStyles parentStyles = ActiveStyles.create();
+    parentStyles.setProperty(CSSProperty.ALIGN_ITEMS, AlignItemsValue.CENTER);
+    ElementBox parentBox = flexBlockBox(parentStyles, List.of(child1, child2));
+
+    List<LayoutFragment> expectedFragments = List.of(
+      new TestUnmanagedBoxFragment(0, 0, 15, 20, child1),
+      new TestUnmanagedBoxFragment(15, 5, 25, 10, child2)
+    );
+
+    LayoutFragment actualFragments = doLayoutSized(parentBox, 40).childFragments();
+    assertFragmentListEquals(expectedFragments, actualFragments);
   }
 
   @Test
