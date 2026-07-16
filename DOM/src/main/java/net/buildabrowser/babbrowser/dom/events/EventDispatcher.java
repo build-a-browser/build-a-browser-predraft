@@ -11,7 +11,11 @@ public final class EventDispatcher {
     ActivationTarget activationTarget = null;
     // TODO: A ton of steps and stuff
     boolean isActivationEvent = event instanceof MouseEvent && event.type().equals("click");
-    if (isActivationEvent && target instanceof ActivationTarget newActivationTarget) {
+    if (
+      isActivationEvent
+      && target instanceof ActivationTarget newActivationTarget
+      && newActivationTarget.canBeActivated()
+    ) {
       activationTarget = newActivationTarget;
     }
 
@@ -21,7 +25,8 @@ public final class EventDispatcher {
       if (
         isActivationEvent
         && activationTarget == null
-        && parent instanceof ActivationTarget newActivationTarget
+        && target instanceof ActivationTarget newActivationTarget
+        && newActivationTarget.canBeActivated()
       ) {
         activationTarget = newActivationTarget;
       }

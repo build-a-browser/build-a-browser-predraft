@@ -5,6 +5,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
+
 public final class XWWWFormURLEncodedSerializer {
   
   private XWWWFormURLEncodedSerializer() {}
@@ -42,7 +44,8 @@ public final class XWWWFormURLEncodedSerializer {
   private static String percentEncodeAfterEncoding(
     String value, Charset encoding
   ) {
-    return URLEncoder.encode(value, encoding);
+    return CommonUtil.rethrow(() ->
+      URLEncoder.encode(value, encoding.toString()));
   }
 
 }

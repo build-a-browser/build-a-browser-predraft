@@ -126,7 +126,7 @@ public final class FlexBoxContent implements BoxContent {
     }
 
     return createRootFragment(
-      rootBox, isVertical, mainSize, crossSize, lines, fragments);
+      rootBox, items, isVertical, mainSize, crossSize, lines, fragments);
   }
 
   private List<FlexItem> collectFlexItems(ElementBox rootBox) {
@@ -246,7 +246,7 @@ public final class FlexBoxContent implements BoxContent {
   }
 
   private FlexBoxFragment createRootFragment(
-    ElementBox rootBox,
+    ElementBox rootBox, List<FlexItem> items,
     boolean isVertical, LayoutConstraint mainSize, LayoutConstraint crossSize,
     List<FlexLine> lines, UnmanagedBoxFragment<?> childFragments
   ) {
@@ -264,13 +264,18 @@ public final class FlexBoxContent implements BoxContent {
     float resolvedMain = LayoutUtil.constraintOrDim(mainSize, largestLineMain);
     float resolvedCross = LayoutUtil.constraintOrDim(crossSize, totalLineCross);
 
+    float firstBaseline = items.size() > 0 ?
+      items.get(0).fragment().firstBaseline(Measurement.MARGIN) : 0;
+    float lastBaseline = items.size() > 0 ?
+      items.get(items.size() - 1).fragment().lastBaseline(Measurement.MARGIN) : 0;
+    
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
     return fragmentFactory.createFlexBoxFragment(
       isVertical ? resolvedCross : resolvedMain,
       isVertical ? resolvedMain : resolvedCross,
       isVertical ? totalLineCross : largestLineMain,
       isVertical ? largestLineMain : totalLineCross,
-      0, 0, // TODO: Compute baselines
+      firstBaseline, lastBaseline,
       rootBox, childFragments);
   }
 

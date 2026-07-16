@@ -27,6 +27,13 @@ public class HTMLButtonElementImp extends HTMLElementImp implements HTMLButtonEl
   }
 
   @Override
+  public boolean canBeActivated() {
+    return
+      formOwner != null
+      && FormSubmissionAlgorithm.isSubmitButton(this);
+  }
+
+  @Override
   public String value() {
     return "";
   }

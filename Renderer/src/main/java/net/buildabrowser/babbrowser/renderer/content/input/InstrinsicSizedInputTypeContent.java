@@ -34,10 +34,12 @@ public class InstrinsicSizedInputTypeContent implements InputTypeContent {
     float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.intrinsicHeight());
     float inkWidth = Math.max(usedWidth, dimensions.intrinsicWidth());
     float inkHeight = Math.max(usedWidth, dimensions.intrinsicHeight());
+    FontMetrics fontMetrics = rootBox.layoutContext().font().metrics();
+    float lastBaseline = fontMetrics.descent();
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
     return fragmentFactory.createInputBoxFragment(
       usedWidth, usedHeight, inkWidth, inkHeight,
-      0, 0, // TODO: Compute baselines
+      0, lastBaseline, // TODO: Compute baselines
       rootBox, this);
   }
 

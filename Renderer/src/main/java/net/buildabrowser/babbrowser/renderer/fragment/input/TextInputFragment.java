@@ -6,8 +6,8 @@ public abstract class TextInputFragment extends BaseInputFragment<TextInputFragm
 
   public TextInputFragment(
     float width, float height,
-    float firstBaseline, float lastBaseline,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box
   ) {
     super(

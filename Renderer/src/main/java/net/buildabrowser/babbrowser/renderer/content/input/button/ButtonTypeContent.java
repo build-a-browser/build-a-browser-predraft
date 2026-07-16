@@ -68,7 +68,6 @@ public class ButtonTypeContent implements InputTypeContent {
       innerFragment.firstBaseline(Measurement.MARGIN),
       innerFragment.lastBaseline(Measurement.MARGIN),
       rootBox, innerFragment);
-    buttonFragment.setPos(0, 0);
     return buttonFragment;
   }
 
