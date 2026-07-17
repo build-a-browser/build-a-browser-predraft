@@ -36,7 +36,7 @@ public final class PositionLayout {
     float containingWidth = refWidth - insets[2] - insets[3];
     float containingHeight = refHeight - insets[0] - insets[1];
 
-    LayoutConstraint baseWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
+    LayoutConstraint baseWidth = SizingWidthUtil.evaluateWidthSize(
       LayoutConstraint.of(containingWidth), refBox);
     LayoutConstraint baseHeight = SizingHeightUtil.evaluateAdjustedHeightSize(
       LayoutConstraint.of(containingHeight), refBox);

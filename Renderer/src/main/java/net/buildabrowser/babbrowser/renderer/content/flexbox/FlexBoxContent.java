@@ -117,9 +117,8 @@ public final class FlexBoxContent implements BoxContent {
     }
 
     UnmanagedBoxFragment<?> fragments = null;
-    FlexCrossSizeDetermination.determineCrossSize(rootBox, lines, crossSize, isVertical);
-
     if (!widthConstraint.isPreLayoutConstraint()) {
+      FlexCrossSizeDetermination.determineCrossSize(rootBox, lines, crossSize, isVertical);
       alignMainAxis(rootBox, flexDirection, isVertical, mainSize, lines);
       alignCrossAxis(rootBox, isVertical, mainSize, crossSize, lines);
 
@@ -258,7 +257,7 @@ public final class FlexBoxContent implements BoxContent {
     float crossGap = crossGap(rootBox, isVertical, mainSize);
 
     float largestLineMain = 0;
-    float totalLineCross = 0;
+    float totalLineCross =  0;
     for (FlexLine line: lines) {
       largestLineMain = Math.max(line.sumHypotheticalMainSizes(mainGap), largestLineMain);
       totalLineCross += line.crossSize();
@@ -268,9 +267,11 @@ public final class FlexBoxContent implements BoxContent {
     float resolvedMain = LayoutUtil.constraintOrDim(mainSize, largestLineMain);
     float resolvedCross = LayoutUtil.constraintOrDim(crossSize, totalLineCross);
 
-    float firstBaseline = items.size() > 0 ?
+    // TODO: Properly compute baselines during pre-layout
+    boolean skippedLayout = items.size() == 0 || items.get(0).fragment() == null;
+    float firstBaseline = !skippedLayout ?
       items.get(0).fragment().firstBaseline(Measurement.MARGIN) : 0;
-    float lastBaseline = items.size() > 0 ?
+    float lastBaseline = !skippedLayout ?
       items.get(items.size() - 1).fragment().lastBaseline(Measurement.MARGIN) : 0;
     
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();

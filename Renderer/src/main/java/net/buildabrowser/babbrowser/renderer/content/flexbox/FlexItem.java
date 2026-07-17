@@ -50,7 +50,7 @@ public class FlexItem {
       properties.get(CSSProperty.MIN_WIDTH);
     LayoutConstraint minMainSizeC = isVertical ?
       SizingHeightUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, minSizeValue) :
-      SizingWidthUtil.evaluateAdjustedWidthSize(refMainSize, itemBox, minSizeValue);
+      SizingWidthUtil.evaluateWidthSize(refMainSize, itemBox, minSizeValue);
     if (minMainSizeC.isBounded()) {
       this.minMainSize = minMainSizeC.value();
     }
@@ -60,7 +60,7 @@ public class FlexItem {
       properties.get(CSSProperty.MAX_WIDTH);
     LayoutConstraint maxMainSizeC = isVertical ?
       SizingHeightUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, maxSizeValue) :
-      SizingWidthUtil.evaluateAdjustedWidthSize(refMainSize, itemBox, maxSizeValue);
+      SizingWidthUtil.evaluateWidthSize(refMainSize, itemBox, maxSizeValue);
     if (maxMainSizeC.isBounded()) {
       this.maxMainSize = maxMainSizeC.value();
     }

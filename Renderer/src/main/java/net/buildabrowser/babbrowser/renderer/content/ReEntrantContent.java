@@ -9,17 +9,13 @@ public class ReEntrantContent implements BoxContent {
 
   private static final ReEntrantContent INSTANCE = new ReEntrantContent();
 
-  private ReEntrantContent() {}
-
   @Override
   public UnmanagedBoxFragment<?> layout(
     ElementBox rootBox,
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    throw new IllegalStateException(
-      "Re-Entrant Layout Cycle Detected\n" +
-      "This is a known bug, try reloading. See the comment in ReEntrantContent.java for more details");
+    throw new IllegalStateException("Re-Entrant Layout Cycle Detected");
   }
 
   @Override

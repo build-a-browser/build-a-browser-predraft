@@ -24,7 +24,7 @@ public final class FlexUtil {
       return SizingHeightUtil.evaluateAdjustedHeightSize(
         parentMainSize, box, flexBasis);
     } else {
-      return SizingWidthUtil.evaluateAdjustedWidthSize(
+      return SizingWidthUtil.evaluateWidthSize(
         parentMainSize, box, flexBasis);
     }
   }
@@ -36,7 +36,7 @@ public final class FlexUtil {
     boolean isVertical
   ) {
     if (isVertical) {
-      LayoutConstraint crossSize = SizingWidthUtil.evaluateAdjustedWidthSize(parentCrossSize, box);
+      LayoutConstraint crossSize = SizingWidthUtil.evaluateWidthSize(parentCrossSize, box);
       crossSize = chooseCrossSize(rootBox, box, crossSize, parentCrossSize, isVertical);
       return SizingWidthUtil.clampWidth(parentCrossSize, box, crossSize);
     } else {
