@@ -3,11 +3,13 @@ package net.buildabrowser.babbrowser.renderer.content.flow.mapping;
 public class MappedStringBuilder {
 
   private final StringBuilder stringBuilder = new StringBuilder();
-  private final MappingRLEBuffer rleBuffer = new MappingRLEBuffer();
+
+  private MappingRLEBuffer rleBuffer;
 
   public void restart(String text) {
     stringBuilder.setLength(0);  
     stringBuilder.append(text);
+    this.rleBuffer = new MappingRLEBuffer();
     rleBuffer.pushRLE(0);
     rleBuffer.pushRLE(text.length());
   }
@@ -36,6 +38,10 @@ public class MappedStringBuilder {
 
   public MappingRLEBuffer rleBuffer() {
     return rleBuffer;
+  }
+
+  public StringBuilder raw() {
+    return this.stringBuilder;
   }
 
   @Override

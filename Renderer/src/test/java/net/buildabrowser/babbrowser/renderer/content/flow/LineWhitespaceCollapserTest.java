@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
+import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhiteSpaceCollapseValue;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.StagedText;
 
 public class LineWhitespaceCollapserTest {
@@ -16,7 +16,7 @@ public class LineWhitespaceCollapserTest {
   @DisplayName("Can preserve spaces")
   public void canPreserveSpaces() {
     InlineStagingArea staged = stageText("HELLO\n\t WORLD!");
-    LineWhitespaceCollapser.collapseWhitespace(staged, WhitespaceCollapseValue.PRESERVE_SPACES);
+    LineWhiteSpaceCollapser.collapseWhiteSpace(staged, WhiteSpaceCollapseValue.PRESERVE_SPACES);
 
     List<String> expectedText = List.of("HELLO   WORLD!");
     List<String> actualText = collectText(staged);
@@ -27,7 +27,7 @@ public class LineWhitespaceCollapserTest {
   @DisplayName("Can collapse tabs and newlines")
   public void canCollapseTabsAndNewlines() {
     InlineStagingArea staged = stageText("Kitsunes are\tsuper\ncool!");
-    LineWhitespaceCollapser.collapseWhitespace(staged, WhitespaceCollapseValue.COLLAPSE);
+    LineWhiteSpaceCollapser.collapseWhiteSpace(staged, WhiteSpaceCollapseValue.COLLAPSE);
 
     List<String> expectedText = List.of("Kitsunes are super cool!");
     List<String> actualText = collectText(staged);
@@ -38,7 +38,7 @@ public class LineWhitespaceCollapserTest {
   @DisplayName("Can collapse extra spacing")
   public void canCollapseExtraSpacing() {
     InlineStagingArea staged = stageText(" \n\tGoodbye   Cruel\n\nWorld!\t");
-    LineWhitespaceCollapser.collapseWhitespace(staged, WhitespaceCollapseValue.COLLAPSE);
+    LineWhiteSpaceCollapser.collapseWhiteSpace(staged, WhiteSpaceCollapseValue.COLLAPSE);
 
     List<String> expectedText = List.of(" Goodbye \u200B\u200BCruel World! ");
     List<String> actualText = collectText(staged);

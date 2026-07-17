@@ -1,15 +1,13 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
-import static net.buildabrowser.babbrowser.common.util.CompatUtil.isBlank;
-
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.floats.ClearValue;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.renderer.box.TextBox;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.content.flow.floatbox.FloatTracker;
@@ -65,6 +63,8 @@ public class FlowBlockLayout {
     FlowInlineLayout inlineLayout = flowContext.inlineLayout();
     PropertyContainer properties = box.properties();
 
+    ElementBox inlineBox = maybeWrapInline(box);
+
     boolean isInInline = false;
     for (Box childBox: box.childBoxes()) {
       if (childBox instanceof ElementBox elementBox) {
@@ -88,7 +88,6 @@ public class FlowBlockLayout {
           continue;
         }
         
-        activeContext.collapse();
         ackFloatClear(elementBox);
         UnmanagedBoxFragment<?> floatFragment = FloatLayout.renderFloat(
           elementBox, widthConstraint, heightConstraint);
@@ -100,12 +99,9 @@ public class FlowBlockLayout {
           isInInline = false;
         }
         addToBlock((ElementBox) childBox, widthConstraint, heightConstraint);
-      } else if (childBox instanceof TextBox textBox && isBlank(textBox.text())) {
-        continue; // TODO: Check the actual spec-compliant way to handle this
       } else {
-        activeContext.collapse();
         if (!isInInline) {
-          inlineLayout.startInline(box, widthConstraint);
+          inlineLayout.startInline(inlineBox, widthConstraint);
           isInInline = true;
         }
         inlineLayout.stageInline(box.layoutContext(), childBox);
@@ -279,6 +275,26 @@ public class FlowBlockLayout {
     ) {
       boxFragment.box().updatePositioningFragment(boxFragment);
     }
+  }
+
+  private ElementBox maybeWrapInline(ElementBox box) {
+    boolean isInlineAnonymous = false;
+    for (Box childBox: box.childBoxes()) {
+      if (
+        childBox instanceof ElementBox elementBox
+        && elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)
+        && PositionUtil.affectsLayout(elementBox)
+        && !FlowUtil.isFloat(elementBox)
+      ) {
+        isInlineAnonymous = true;
+        break;
+      }
+    }
+    
+    ElementBox inlineBox = isInlineAnonymous ?
+      ElementBox.createAnonymous(box, BoxLevel.BLOCK_LEVEL) :
+      box;
+    return inlineBox;
   }
 
   private void ackFloatClear(ElementBox elementBox) {

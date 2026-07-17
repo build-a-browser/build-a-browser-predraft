@@ -10,15 +10,15 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 
 
-public class WhitespaceCollapseValueParser implements PropertyValueParser {
+public class WhiteSpaceCollapseParser implements PropertyValueParser {
 
   private static final Map<String, CSSValue> COLLAPSE_VALUES = Map.of(
-    "collapse", WhitespaceCollapseValue.COLLAPSE,
-    "discard", WhitespaceCollapseValue.DISCARD,
-    "preserve", WhitespaceCollapseValue.PRESERVE,
-    "preserve-breaks", WhitespaceCollapseValue.PRESERVE_BREAKS,
-    "preserve-spaces", WhitespaceCollapseValue.PRESERVE_SPACES,
-    "break-spaces", WhitespaceCollapseValue.PRESERVE_SPACES
+    "collapse", WhiteSpaceCollapseValue.COLLAPSE,
+    "discard", WhiteSpaceCollapseValue.DISCARD,
+    "preserve", WhiteSpaceCollapseValue.PRESERVE,
+    "preserve-breaks", WhiteSpaceCollapseValue.PRESERVE_BREAKS,
+    "preserve-spaces", WhiteSpaceCollapseValue.PRESERVE_SPACES,
+    "break-spaces", WhiteSpaceCollapseValue.PRESERVE_SPACES
   );
 
   @Override

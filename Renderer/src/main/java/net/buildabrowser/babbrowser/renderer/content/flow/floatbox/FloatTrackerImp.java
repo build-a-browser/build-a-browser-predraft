@@ -250,7 +250,7 @@ public class FloatTrackerImp implements FloatTracker {
   }
 
   private float posY() {
-    return activeFormattingContext.get().estimateAbsY();
+    return activeFormattingContext.get().estimateAbsY(true);
   }
 
 }

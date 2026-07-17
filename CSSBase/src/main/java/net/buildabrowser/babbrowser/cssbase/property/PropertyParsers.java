@@ -60,7 +60,8 @@ import net.buildabrowser.babbrowser.cssbase.property.text.LineHeightParser;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignParser;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeParser;
 import net.buildabrowser.babbrowser.cssbase.property.visibility.VisibilityParser;
-import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValueParser;
+import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhiteSpaceCollapseParser;
+import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhiteSpaceParser;
 
 public final class PropertyParsers {
   
@@ -161,8 +162,9 @@ public final class PropertyParsers {
     "position", new PositionParser(),
     "z-index", new ZIndexParser(),
 
-    "white-space-collapse", new WhitespaceCollapseValueParser(),
+    "white-space-collapse", new WhiteSpaceCollapseParser(),
     "text-wrap-mode", new TextWrapModeParser(),
+    "white-space", new WhiteSpaceParser(),
     "line-height", new LineHeightParser(),
     "text-align", new TextAlignParser(),
 

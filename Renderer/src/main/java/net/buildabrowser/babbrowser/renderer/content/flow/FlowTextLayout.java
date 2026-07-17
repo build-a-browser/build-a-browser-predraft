@@ -41,15 +41,21 @@ public final class FlowTextLayout {
         textCursor++;
       }
 
+      boolean isForcedLineBreak = isForcedLineBreak(ch);
       if (textCursor < allText.length()) {
         textCursor++;
       }
 
-      String selectedText = allText.substring(startCursor, textCursor);
+      String selectedText = allText.substring(
+        startCursor, textCursor + (isForcedLineBreak ? -1 : 0));
       addTextOrWrap(
         layoutContext,
         textNode, selectedText, startCursor,
         formattingContext, autoWrap);
+      
+      if (isForcedLineBreak) {
+        formattingContext.nextLine();
+      }
     }
   }
 

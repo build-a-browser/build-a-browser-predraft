@@ -4,7 +4,7 @@ import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
-import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
+import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhiteSpaceCollapseValue;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
@@ -43,9 +43,9 @@ public class FlowInlineLayout {
     LayoutConstraint heightConstraint,
     PropertyContainer properties
   ) {
-    LineWhitespaceCollapser.collapseWhitespace(
+    LineWhiteSpaceCollapser.collapseWhiteSpace(
       activeInlineContext.stagingArea(),
-      (WhitespaceCollapseValue) properties.get(CSSProperty.WHITE_SPACE_COLLAPSE));
+      (WhiteSpaceCollapseValue) properties.get(CSSProperty.WHITE_SPACE_COLLAPSE));
     addStagedElements(widthConstraint, heightConstraint);
     activeInlineContext.closeLine();
     activeInlineContext = activeInlineContext.next();

@@ -16,7 +16,9 @@ public record LengthValue(Number value, boolean integer, LengthType dimension) i
   public static enum LengthType {
     EM, REM, EX, CH,
     CM, MM, IN, Q, PT, PC, PX,
-    VW, VH, VMIN, VMAX
+    VW, VH, VMIN, VMAX,
+
+    FR // Extension for Grid
   }
 
 }

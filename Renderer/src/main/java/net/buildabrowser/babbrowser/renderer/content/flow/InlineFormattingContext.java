@@ -10,6 +10,7 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class InlineFormattingContext implements IntrusiveList<InlineFormattingContext> {
@@ -72,16 +73,14 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
   }
 
   public void closeLine() {
-    FlowLinePositioner.positionLine(
-      flowContext, activeLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
+    addLineToBox(activeLineBox);
     drainPositionedQueue();
   }
 
   public void nextLine() {
     LineBox oldLineBox = this.activeLineBox;
     this.activeLineBox = activeLineBox.split();
-    FlowLinePositioner.positionLine(
-      flowContext, oldLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
+    addLineToBox(oldLineBox);
     drainPositionedQueue();
   }
 
@@ -118,7 +117,24 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
     this.next = nextNode;
   }
 
+  private void addLineToBox(LineBox lineBox) {
+    LineBoxFragment lineBoxFragment = lineBox.toFragment();
+    if (!lineBox.isEmpty()) {
+      flowContext.blockLayout().activeContext().collapse();
+    }
+
+    FlowLinePositioner.positionLine(
+      flowContext,
+      lineBoxFragment,
+      inlineConstraint,
+      stylesStack.getFirst());
+  }
+
   private void drainPositionedQueue() {
+    if (positionedQueue.size() > 0) {
+      flowContext.blockLayout().activeContext().collapse();
+    }
+
     for (ElementBox positioned: positionedQueue) {
       flowContext.blockLayout().addPositionedToBlock(positioned);
     }

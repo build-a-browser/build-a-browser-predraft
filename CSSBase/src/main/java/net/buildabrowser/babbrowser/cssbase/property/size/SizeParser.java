@@ -53,7 +53,25 @@ public class SizeParser implements PropertyValueParser {
   private final boolean allowAuto;
   private final boolean allowPercent;
   private final boolean allowMinMax;
+  private final boolean allowFitContent;
   private final CSSProperty property;
+
+  public SizeParser(
+    boolean allowNone,
+    boolean allowAuto,
+    boolean allowPercent,
+    boolean allowMinMax,
+    boolean allowFitContent,
+    CSSProperty property
+  ) {
+    this.allowNone = allowNone;
+    this.allowAuto = allowAuto;
+    this.allowPercent = allowPercent;
+    this.allowMinMax = allowMinMax;
+    this.allowFitContent = allowFitContent;
+    this.property = property;
+    this.calcParser = new CalcParser(property, this::parseInner);
+  }
 
   public SizeParser(
     boolean allowNone,
@@ -62,16 +80,15 @@ public class SizeParser implements PropertyValueParser {
     boolean allowMinMax,
     CSSProperty property
   ) {
-    this.allowNone = allowNone;
-    this.allowAuto = allowAuto;
-    this.allowPercent = allowPercent;
-    this.allowMinMax = allowMinMax;
-    this.property = property;
-    this.calcParser = new CalcParser(property, this::parseInner);
+    this(
+      allowNone, allowAuto, allowPercent,
+      allowMinMax, allowMinMax, property);
   }
 
   public SizeParser(boolean allowNone, boolean allowAuto, CSSProperty property) {
-    this(allowNone, allowAuto, true, false, property);
+    this(
+      allowNone, allowAuto, true,
+      false, false, property);
   }
 
   @Override
@@ -132,7 +149,7 @@ public class SizeParser implements PropertyValueParser {
     ) {
       return SizeValue.MAX_CONTENT;
     } else if (
-      allowMinMax
+      allowFitContent
       && token instanceof FunctionValue funcValue
       && funcValue.name().equals("fit-content")
     ) {

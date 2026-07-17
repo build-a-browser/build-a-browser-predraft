@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
@@ -120,12 +121,21 @@ public class LineBox {
     return new LineBox(textBuilder, newSegments);
   }
 
+  public boolean isEmpty() {
+    return lineSegments.peek().isEmpty();
+  }
+
   private void commitText() {
     if (!textBuilder.isEmpty()) {
       FontMetrics metrics = lineSegments.peek().box().layoutContext().font().metrics();
       TextFragment textFragment = textBuilder.commit(metrics);
       // TODO: Trim removes some control characters that should be kept
-      boolean isEmpty = textFragment.text().trim().length() == 0;
+      boolean isEmpty =
+        textFragment.text().trim().length() == 0
+        // Because whitespace collapse might insert \u200B
+        || (
+          textFragment.sourceNode() instanceof Text text
+          && text.data().trim().length() == 0);
       lineSegments.peek().addFragment(textFragment, isEmpty);
     }
   }

@@ -6,7 +6,6 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.LineHeightValue;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
@@ -29,7 +28,7 @@ public class LineSegment {
 
   public LineSegment(ElementBox box) {
     this.box = box;
-    this.isEmpty |= boxHasDecor(box);
+    this.isEmpty = !FlowUtil.boxHasDecor(box);
   }
 
   public ElementBox box() {
@@ -157,24 +156,6 @@ public class LineSegment {
     }
 
     return desiredHeight + maxBaseline;
-  }
-
-  private static boolean boxHasDecor(ElementBox box) {
-    ElementBoxDimensions dimensions = box.dimensions();
-    float[] margin = dimensions.getComputedMargin();
-    float[] borders = dimensions.getComputedBorder();
-    float[] padding = dimensions.getComputedPadding();
-    return
-      !isZeroArray(margin)
-      || !isZeroArray(borders)
-      || !isZeroArray(padding);
-  }
-
-  private static boolean isZeroArray(float[] arr) {
-    for (float item: arr) {
-      if (item != 0) return false;
-    }
-    return true;
   }
 
 }

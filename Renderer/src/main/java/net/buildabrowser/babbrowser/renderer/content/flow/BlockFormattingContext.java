@@ -66,13 +66,14 @@ public class BlockFormattingContext {
     }
   }
 
-  public float estimateAbsY() {
+  public float estimateAbsY(boolean asIfCollapsed) {
     if (parentContext == null) {
       return this.y;
     } else {
+      float extra = asIfCollapsed ? maxMargin + minMargin : 0;
       float[] border = elementBox.dimensions().getComputedBorder();
       float[] padding = elementBox.dimensions().getComputedPadding();
-      return this.y + border[0] + padding[0] + parentContext.estimateAbsY();
+      return this.y + extra + border[0] + padding[0] + parentContext.estimateAbsY(asIfCollapsed);
     }
   }
 
