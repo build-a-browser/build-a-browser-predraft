@@ -32,6 +32,33 @@ public class AttributeOneOfSelectorMatcherTest {
     Element element = Element.create("a", Document.create(matcher));
     allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
+      "v", "john", AttributeType.ONE_OF);
+    matcher.onNodeAdded(element);
+    matcher.addSelectorReference(selector);
+    element.addAttribute("v", "adam john avery");
+    Assertions.assertEquals(Set.of(element), matcher.match(selector).asSet());
+  }
+
+  @Test
+  @DisplayName("Can not match invalid attributes")
+  @SuppressWarnings("deprecation")
+  public void cannotMatchInvalidAttributes() {
+    Element element = Element.create("b", Document.create(matcher));
+    allElements.add(element);
+    AttributeSelector selector = AttributeSelector.create(
+      "v", "john", AttributeType.ONE_OF);
+    matcher.onNodeAdded(element);
+    matcher.addSelectorReference(selector);
+    Assertions.assertEquals(Set.of(), matcher.match(selector).asSet());
+  }
+
+  @Test
+  @DisplayName("Can match valid class attributes")
+  @SuppressWarnings("deprecation")
+  public void canMatchValidClassAttributes() {
+    Element element = Element.create("a", Document.create(matcher));
+    allElements.add(element);
+    AttributeSelector selector = AttributeSelector.create(
       "class", "john", AttributeType.ONE_OF);
     matcher.onNodeAdded(element);
     matcher.addSelectorReference(selector);
@@ -40,9 +67,9 @@ public class AttributeOneOfSelectorMatcherTest {
   }
 
   @Test
-  @DisplayName("Can not match invalid attributes")
+  @DisplayName("Can not match invalid class attributes")
   @SuppressWarnings("deprecation")
-  public void cannotMatchInvalidValidAttributes() {
+  public void cannotMatchInvalidClassAttributes() {
     Element element = Element.create("b", Document.create(matcher));
     allElements.add(element);
     AttributeSelector selector = AttributeSelector.create(
