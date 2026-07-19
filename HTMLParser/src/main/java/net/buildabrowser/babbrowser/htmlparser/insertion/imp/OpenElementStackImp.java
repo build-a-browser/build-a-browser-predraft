@@ -21,7 +21,6 @@ public class OpenElementStackImp implements OpenElementStack {
 
   private final List<Node> stack = new LinkedList<>();
 
-  @Override
   public void pushNode(Node node) {
     stack.add(0, node);
   }

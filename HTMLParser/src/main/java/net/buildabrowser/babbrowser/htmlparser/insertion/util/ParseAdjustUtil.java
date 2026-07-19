@@ -20,8 +20,8 @@ public final class ParseAdjustUtil {
     "applet", "caption", "html", "table", "td", "th", "marquee", "object",
     "select", "template");
 
+  private static final Set<String> LI_SCOPE = mergeSet(DEFAULT_SCOPE, Set.of("ol", "ul"));
   private static final Set<String> BUTTON_SCOPE = mergeSet(DEFAULT_SCOPE, Set.of("button"));
-
   private static final Set<String> TABLE_SCOPE = Set.of("html", "table", "template");
 
   private ParseAdjustUtil() {}
@@ -69,7 +69,7 @@ public final class ParseAdjustUtil {
   }
 
   // TODO: Use qualified names
-  public static boolean hasInScope(
+  private static boolean hasInScopeRaw(
     OpenElementStack openElementStack, Set<String> elementTypes, String elementName
   ) {
     Iterator<Node> stackIt = openElementStack.iterator();
@@ -88,12 +88,20 @@ public final class ParseAdjustUtil {
     return false;
   }
 
+  public static boolean hasInScope(OpenElementStack openElementStack, String elementName) {
+    return hasInScopeRaw(openElementStack, DEFAULT_SCOPE, elementName);
+  }
+
+  public static boolean hasInListItemScope(OpenElementStack openElementStack, String elementName) {
+    return hasInScopeRaw(openElementStack, LI_SCOPE, elementName);
+  }
+
   public static boolean hasInButtonScope(OpenElementStack openElementStack, String elementName) {
-    return hasInScope(openElementStack, BUTTON_SCOPE, elementName);
+    return hasInScopeRaw(openElementStack, BUTTON_SCOPE, elementName);
   }
 
   public static boolean hasInTableScope(OpenElementStack openElementStack, String elementName) {
-    return hasInScope(openElementStack, TABLE_SCOPE, elementName);
+    return hasInScopeRaw(openElementStack, TABLE_SCOPE, elementName);
   }
 
   public static void popUntil(OpenElementStack openElementStack, String elementName) {

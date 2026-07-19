@@ -272,4 +272,40 @@ public class HTMLParserTest {
       document);
   }
 
+  @Test
+  @DisplayName("Can parse document with implied dd/dt end tags")
+  public void canParseDocumentWithImpliedDdDtEndTags() throws IOException {
+    Document document = HTMLParser.parse(new StringReader("<dd>Text<dt>Text 2<dd>Text 3"));
+    assertTreeMatches(
+      testDocumentToBody(
+        testElement("dd", testText("Text")),
+        testElement("dt", testText("Text 2")),
+        testElement("dd", testText("Text 3"))),
+      document);
+  }
+
+  @Test
+  @DisplayName("Can parse document with implied li end tags")
+  public void canParseDocumentWithImpliedLiEndTags() throws IOException {
+    Document document = HTMLParser.parse(new StringReader("<li>Text<li>Text 2"));
+    assertTreeMatches(
+      testDocumentToBody(
+        testElement("li", testText("Text")),
+        testElement("li", testText("Text 2"))),
+      document);
+  }
+
+  @Test
+  @DisplayName("Can parse document with self-closing hr tags")
+  public void canParseDocumentWithSelfClosingHrTags() throws IOException {
+    Document document = HTMLParser.parse(new StringReader("<hr/>Text<hr/>Text 2"));
+    assertTreeMatches(
+      testDocumentToBody(
+        testElement("hr"),
+        testText("Text"),
+        testElement("hr"),
+        testText("Text 2")),
+      document);
+  }
+
 }
