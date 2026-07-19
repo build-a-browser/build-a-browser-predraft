@@ -149,6 +149,24 @@ public class SizeParser implements PropertyValueParser {
     ) {
       return SizeValue.MAX_CONTENT;
     } else if (
+      allowMinMax
+      && token instanceof IdentToken identToken
+      && identToken.value().equals("stretch")
+    ) {
+      return SizeValue.STRETCH;
+    } else if (
+      allowMinMax
+      && token instanceof IdentToken identToken
+      && identToken.value().equals("fit-content")
+    ) {
+      return SizeValue.FIT_CONTENT;
+    } else if (
+      allowMinMax
+      && token instanceof IdentToken identToken
+      && identToken.value().equals("contain")
+    ) {
+      return SizeValue.CONTAIN;
+    } else if (
       allowFitContent
       && token instanceof FunctionValue funcValue
       && funcValue.name().equals("fit-content")
