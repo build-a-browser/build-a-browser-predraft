@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import net.buildabrowser.babbrowser.common.util.CommonUtil;
+import net.buildabrowser.babbrowser.common.util.NumberUtil;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
@@ -188,7 +188,7 @@ public final class TableFormer {
     )) return 1;
     String spanAttr = element.getAttribute(name);
     // TODO: Proper way to parse a number
-    Integer span = CommonUtil.tryOrNull(() -> Integer.valueOf(spanAttr));
+    Integer span = spanAttr == null ? null : NumberUtil.parseInteger(spanAttr);
     if (span == null || span < 0) {
       span = 1;
     }
