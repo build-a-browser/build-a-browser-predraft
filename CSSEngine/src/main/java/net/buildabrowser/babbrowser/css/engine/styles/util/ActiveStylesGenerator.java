@@ -31,6 +31,7 @@ public final class ActiveStylesGenerator {
     addCustomDeclarations(styleRules, activeStyles, true);
     addNormalDeclarations(styleRules, activeStyles, asPropertyView, false);
     addNormalDeclarations(styleRules, activeStyles, asPropertyView, true);
+    activeStyles.freeze();
 
     return activeStyles;
   }

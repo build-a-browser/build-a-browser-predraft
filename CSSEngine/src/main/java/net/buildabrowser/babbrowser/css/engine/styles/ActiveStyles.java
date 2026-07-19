@@ -20,6 +20,8 @@ public interface ActiveStyles extends MutablePropertyContainer {
 
   boolean isReusable();
 
+  void freeze();
+
   static ActiveStyles create() {
     return new ActiveStylesImp();
   }
