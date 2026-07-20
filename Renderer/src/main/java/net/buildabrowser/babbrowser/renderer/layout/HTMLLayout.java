@@ -41,15 +41,10 @@ public final class HTMLLayout {
     ElementBox itemBox
   ) {
     StackingContext ownContext = itemBox.stackingContext();
-    StackingContext parentContext = ownContext.parentContext();
     float[] insets = ownContext.computeInsets();
-    float[] parentBorders = parentContext.computedBorder();
-    float refWidth = parentContext.innerWidth();
-    float refHeight = parentContext.innerHeight();
     UnmanagedBoxFragment<?> itemFragment = PositionLayout.actuallyLayoutAbsolute(
-      itemBox, refWidth, refHeight, insets);
-    float[] position = PositionLayout.positionAbsolute(
-      insets, itemFragment, refWidth, refHeight, parentBorders);
+      itemBox, insets);
+    float[] position = PositionLayout.positionAbsolute(insets, itemFragment);
     ownContext.setAbsolutePosition(position);
     
     StackingContextGenerator.generateStackingContextsDeferred(itemBox, deferredLayout);
@@ -64,13 +59,9 @@ public final class HTMLLayout {
   ) {
     StackingContext ownContext = itemBox.stackingContext();
     float[] insets = ownContext.computeInsets();
-    Viewport viewport = itemBox.layoutContext().global().viewport();
-    float refWidth = viewport.width();
-    float refHeight = viewport.height();
     UnmanagedBoxFragment<?> itemFragment = PositionLayout.actuallyLayoutAbsolute(
-      itemBox, refWidth, refHeight, insets);
-    float[] position = PositionLayout.positionAbsolute(
-      insets, itemFragment, refWidth, refHeight, new float[4]);
+      itemBox, insets);
+    float[] position = PositionLayout.positionAbsolute(insets, itemFragment);
     ownContext.setAbsolutePosition(position);
     
     StackingContextGenerator.generateStackingContextsDeferred(itemBox, deferredLayout);
