@@ -6,7 +6,6 @@ import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
-import net.buildabrowser.babbrowser.renderer.content.ReEntrantContent;
 import net.buildabrowser.babbrowser.renderer.content.image.ImageContent;
 import net.buildabrowser.babbrowser.renderer.content.input.InputContent;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
@@ -52,10 +51,9 @@ public class ElementBoxImp extends AbstractElementBoxImp {
     LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     BoxContent realContent = content();
-    this.content = ReEntrantContent.instance();
-    UnmanagedBoxFragment<?> fragment = layoutWithContent(widthConstraint, heightConstraint, realContent);
-    this.content = realContent;
-    return fragment;
+    // TODO: There was previously a re-entrancy check here, but it interfered with clamp-width evaluating
+    // min/max sizes on self
+    return layoutWithContent(widthConstraint, heightConstraint, realContent);
   }
   
   // As of writing, children are cleared before the update, so don't worry about that yet

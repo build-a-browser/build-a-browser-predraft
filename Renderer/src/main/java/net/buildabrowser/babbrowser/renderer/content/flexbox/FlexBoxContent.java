@@ -117,8 +117,8 @@ public final class FlexBoxContent implements BoxContent {
     }
 
     UnmanagedBoxFragment<?> fragments = null;
+    FlexCrossSizeDetermination.determineCrossSize(rootBox, lines, crossSize, isVertical);
     if (!widthConstraint.isPreLayoutConstraint()) {
-      FlexCrossSizeDetermination.determineCrossSize(rootBox, lines, crossSize, isVertical);
       alignMainAxis(rootBox, flexDirection, isVertical, mainSize, lines);
       alignCrossAxis(rootBox, isVertical, mainSize, crossSize, lines);
 
@@ -162,7 +162,9 @@ public final class FlexBoxContent implements BoxContent {
       for (FlexItem item: flexItems) {
         if (
           !activeLine.isEmpty()
-          && !mainConstraint.type().equals(LayoutConstraintType.MAX_CONTENT)
+          && (
+            mainConstraint.isBounded()
+            || mainConstraint.type().equals(LayoutConstraintType.MIN_CONTENT))
           && lineSize + item.outerSize(item.hypotheticalMainSize()) > mainConstraint.value()
         ) {
           lines.add(activeLine);
@@ -257,7 +259,7 @@ public final class FlexBoxContent implements BoxContent {
     float crossGap = crossGap(rootBox, isVertical, mainSize);
 
     float largestLineMain = 0;
-    float totalLineCross =  0;
+    float totalLineCross = 0;
     for (FlexLine line: lines) {
       largestLineMain = Math.max(line.sumHypotheticalMainSizes(mainGap), largestLineMain);
       totalLineCross += line.crossSize();

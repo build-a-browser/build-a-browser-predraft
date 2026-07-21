@@ -31,8 +31,10 @@ public final class FlexCrossSizeDetermination {
 
     handleStretch(rootBox, lines, containerCrossSize);
 
-    // TODO: Handle align-content: stretch and visibility: collapse
-    determineItemCrossSizes(rootBox, lines, containerCrossSize, isVertical);
+    // TODO: Handle visibility: collapse
+    if (!containerCrossSize.isPreLayoutConstraint()) {
+      determineItemCrossSizes(rootBox, lines, containerCrossSize, isVertical);
+    }
   }
 
   public static CSSValue getItemAlignment(ElementBox rootBox, ElementBox itemBox) {

@@ -6,7 +6,7 @@ import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSDeferred;
@@ -95,7 +95,7 @@ public final class ActiveStylesGenerator {
   }
 
   private static void parseCustomDeclaration(ActiveStyles activeStyles, Declaration declaration) {
-    CSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(
+    SeekableCSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(
       declaration.source(), declaration.value());
     boolean isValidCustomPropertyValue = CommonUtil.rethrow(
       () -> CustomPropertyParser.isValidCustomPropertyValue(tokenStream, true));
