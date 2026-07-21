@@ -10,18 +10,27 @@ import org.junit.jupiter.api.Test;
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.microsyntax.ANPlusB;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ComplexSelectorParser;
+import net.buildabrowser.babbrowser.cssbase.selector.ChildCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
+import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.LogicalPseudoSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.LogicalPseudoSelector.LogicalPseudoSelectorType;
 import net.buildabrowser.babbrowser.cssbase.selector.NthChildPseudoSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.NthChildPseudoSelector.NthChildPseudoSelectorType;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
 import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
-import net.buildabrowser.babbrowser.cssbase.selector.NthChildPseudoSelector.NthChildPseudoSelectorType;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.HashToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
+import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
 
 public class ComplexPseudoSelectorTest {
 
@@ -54,8 +63,57 @@ public class ComplexPseudoSelectorTest {
       SimplePseudoElement.AFTER);
     Assertions.assertEquals(expectedSelectors, actualSelectors);
   }
-
-  // TODO: Write tests for logical selectors
+  
+  @Test
+  @DisplayName("Can parse normal logical selector")
+  public void canParseNormalLogicalSelector() throws IOException {
+    List<ComplexSelector> actualSelectors = parseTokens(
+      ColonToken.create(),
+      new FunctionValue("is", List.of(
+        IdentToken.create("span"),
+        WhitespaceToken.create(),
+        HashToken.create("id_a", HashToken.Type.ID),
+        CommaToken.create(),
+        IdentToken.create("div"))));
+    List<ComplexSelector> expectedSelectors = oneSelector(
+      new LogicalPseudoSelector(
+        LogicalPseudoSelectorType.IS,
+        List.of(
+          ComplexSelector.create(List.of(
+            TypeSelector.create("span"),
+            DescendantCombinator.create(),
+            IdSelector.create("id_a"))),
+          ComplexSelector.create(List.of(
+            TypeSelector.create("div")))
+        )));
+    System.out.println(expectedSelectors.get(0) + " " + actualSelectors.get(0));
+    Assertions.assertEquals(expectedSelectors, actualSelectors);
+  }
+  
+  @Test
+  @DisplayName("Can parse relative logical selector")
+  public void canParseRelativeLogicalSelector() throws IOException {
+    List<ComplexSelector> actualSelectors = parseTokens(
+      ColonToken.create(),
+      new FunctionValue("has", List.of(
+        DelimToken.create('>'),
+        HashToken.create("id_a", HashToken.Type.ID),
+        CommaToken.create(),
+        IdentToken.create("div"))));
+    List<ComplexSelector> expectedSelectors = oneSelector(
+      new LogicalPseudoSelector(
+        LogicalPseudoSelectorType.HAS,
+        List.of(
+          ComplexSelector.create(List.of(
+            ChildCombinator.create(),
+            IdSelector.create("id_a"))),
+          ComplexSelector.create(List.of(
+            DescendantCombinator.create(),
+            TypeSelector.create("div")))
+        )));
+    System.out.println(expectedSelectors.get(0) + " " + actualSelectors.get(0));
+    Assertions.assertEquals(expectedSelectors, actualSelectors);
+  }
 
   @Test
   @DisplayName("Can parse nth-child pseudo-selector")
