@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.imp.StackingContextImp;
 
 public interface StackingContext {
@@ -47,9 +48,15 @@ public interface StackingContext {
 
   PositionValue positioning();
 
+  // TODO: Hackily exposed for fragment navigation
+  StackingContextPosition position();
+
   float innerWidth();
 
   float innerHeight();
+
+  // TODO: Hackily exposed for fragment navigation
+  ScrollBoxFragment relatedScrollBox();
 
   static StackingContext createRoot(ElementBox relatedBox) {
     return new StackingContextImp(null, relatedBox);

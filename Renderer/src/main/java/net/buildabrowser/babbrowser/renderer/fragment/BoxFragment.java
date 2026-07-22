@@ -9,6 +9,7 @@ import net.buildabrowser.babbrowser.cssbase.property.visibility.VisibilityValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler;
 import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.RendererDocumentChangeListener;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
 
 public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragment {
@@ -32,6 +33,14 @@ public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragme
     this.inkHeight = inkHeight;
     this.firstBaseline = firstBaseline;
     this.lastBaseline = lastBaseline;
+
+    if (
+      box.element() != null
+      && box.element().nodeDocument().changeListener()
+        instanceof RendererDocumentChangeListener changeListener
+    ) {
+      changeListener.onBoxFragmentAdded(this);
+    }
   }
 
   public ElementBox box() {

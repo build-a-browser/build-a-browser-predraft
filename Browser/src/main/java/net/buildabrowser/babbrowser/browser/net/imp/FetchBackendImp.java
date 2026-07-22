@@ -25,6 +25,7 @@ import net.buildabrowser.babbrowser.fetch.HeaderList;
 import net.buildabrowser.babbrowser.fetch.imp.FetchImpUtil;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchResponse;
 import net.buildabrowser.babbrowser.network.ExtensionUtil;
+import net.buildabrowser.babbrowser.network.URLUtil;
 import net.buildabrowser.babbrowser.network.encoding.ContentDecoder;
 import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
 
@@ -88,7 +89,8 @@ public class FetchBackendImp implements FetchBackend {
   @Override
   public FetchResponse fetchFile(FetchRequest request) {
     // TODO: Improve security
-    File file = CommonUtil.tryOrNull(() -> new File(request.url()));
+    
+    File file = CommonUtil.tryOrNull(() -> new File(URLUtil.stripFragment(request.url())));
     if (file == null || !file.exists() || file.isDirectory()) {
       return FetchResponse.createNetworkError();
     }

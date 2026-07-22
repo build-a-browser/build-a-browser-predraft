@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.dom.listener;
 
+import java.net.URI;
+
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
@@ -15,12 +17,14 @@ public interface DocumentChangeListener {
 
   default void onStylesheetAdded(CSSStyleSheet styleSheet) {}
 
+  default void onSelectionChanged() {}
+
+  default void onURLChanged(URI prevURL, URI newURL) {}
+
   default boolean onElementEvent(
     Element element, Event event, boolean allowDefault
   ) {
     return allowDefault;
   }
-
-  default void onSelectionChanged() {}
 
 }

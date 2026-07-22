@@ -20,4 +20,6 @@ public interface RenderableDocument {
 
   void attachRenderer(DocumentRenderer renderer);
 
+  void setURL(URI url);
+
 }

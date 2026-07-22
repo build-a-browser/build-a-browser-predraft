@@ -116,8 +116,12 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       fetchEngine, innerChangeListener);
     innerChangeListener = new HTMLEventDocumentChangeListener(
       document, innerChangeListener);
+    innerChangeListener = new HTMLFragmentNavigationDocumentChangeListener(
+      innerChangeListener);
     this.changeListener = new HTMLSelectionDocumentChangeListener(
       document, selectionContext, innerChangeListener);
+    
+    changeListener.onURLChanged(null, document.url());
     
     EventForwardingTarget eventForwardingTarget = new HTMLSelectionEventForwardingTarget<>(
       document, selectionContext, renderingEngine.clipboardProvider(), null);

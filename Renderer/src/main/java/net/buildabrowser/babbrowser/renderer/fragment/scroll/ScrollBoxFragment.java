@@ -73,15 +73,15 @@ public abstract class ScrollBoxFragment extends UnmanagedBoxFragment<ScrollBoxFr
       0, inkHeight(Measurement.CONTENT) - height(Measurement.CONTENT))));
   }
 
+  // TODO: Temporarily removed the hasScroll checks because it prevented hidden scroll
+  // Need separate checks for hasScroll and hasVisibleScroll
   public int scrollX() {
-    if (!hasHorizontalScroll()) return 0;
     return (int) Math.min(
       box().rawScrollLeft(),
       inkWidth(Measurement.CONTENT) - width(Measurement.CONTENT));
   }
 
   public int scrollY() {
-    if (!hasVerticalScroll()) return 0;
     return (int) Math.min(
       box().rawScrollTop(),
       inkHeight(Measurement.CONTENT) - height(Measurement.CONTENT));

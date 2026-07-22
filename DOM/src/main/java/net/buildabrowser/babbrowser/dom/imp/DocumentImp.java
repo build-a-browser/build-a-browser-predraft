@@ -52,6 +52,12 @@ public class DocumentImp extends NodeImp implements Document {
 
   @Override
   public void setURL(URI url) {
+    URI oldURL = this.url;
+    this.url = url;
+    changeListener.onURLChanged(oldURL, url);
+  }
+
+  protected void setURLRaw(URI url) {
     this.url = url;
   }
 

@@ -86,7 +86,6 @@ public class ComplexPseudoSelectorTest {
           ComplexSelector.create(List.of(
             TypeSelector.create("div")))
         )));
-    System.out.println(expectedSelectors.get(0) + " " + actualSelectors.get(0));
     Assertions.assertEquals(expectedSelectors, actualSelectors);
   }
   
@@ -111,7 +110,6 @@ public class ComplexPseudoSelectorTest {
             DescendantCombinator.create(),
             TypeSelector.create("div")))
         )));
-    System.out.println(expectedSelectors.get(0) + " " + actualSelectors.get(0));
     Assertions.assertEquals(expectedSelectors, actualSelectors);
   }
 

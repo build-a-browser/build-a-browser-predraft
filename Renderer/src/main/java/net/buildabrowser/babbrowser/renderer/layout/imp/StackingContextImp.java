@@ -40,6 +40,7 @@ public class StackingContextImp implements StackingContext {
   private SinglyLinkedList<StackingContext> childContexts;
   private SinglyLinkedList<StackingContext> lastContext;
   private CompositeLayerEntry entries;
+  private StackingContextPosition position;
 
   private float normalizedX = 0;
   private float normalizedY = 0;
@@ -186,6 +187,7 @@ public class StackingContextImp implements StackingContext {
     CompositeLayer layer = CompositeLayer.create(
       painter, position, zIndexOrder);
     layer.addEntries(entries);
+    this.position = position;
     return layer;
   }
 
@@ -197,6 +199,11 @@ public class StackingContextImp implements StackingContext {
   @Override
   public PositionValue positioning() {
     return this.positioning;
+  }
+
+  @Override
+  public StackingContextPosition position() {
+    return this.position;
   }
 
   @Override
@@ -314,7 +321,8 @@ public class StackingContextImp implements StackingContext {
       ownPosition, innerWidth(), innerHeight());
   }
 
-  private ScrollBoxFragment relatedScrollBox() {
+  @Override
+  public ScrollBoxFragment relatedScrollBox() {
     return entries != null
       && entries.next() == null
       && entries.fragment() instanceof ScrollBoxFragment scrollBoxFragment_

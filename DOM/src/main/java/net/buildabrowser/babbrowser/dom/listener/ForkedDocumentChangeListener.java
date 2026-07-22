@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.dom.listener;
 
+import java.net.URI;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
@@ -60,6 +61,13 @@ public class ForkedDocumentChangeListener implements DocumentChangeListener {
   public void onSelectionChanged() {
     for (DocumentChangeListener nextListener: nextListeners) {
       nextListener.onSelectionChanged();;
+    }
+  }
+
+  @Override
+  public void onURLChanged(URI prevURL, URI newURL) {
+    for (DocumentChangeListener nextListener: nextListeners) {
+      nextListener.onURLChanged(prevURL, newURL);
     }
   }
 

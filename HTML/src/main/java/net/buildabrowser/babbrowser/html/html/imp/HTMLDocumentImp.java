@@ -135,6 +135,14 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
     return this.uaNavigableOptions;
   }
 
+  @Override
+  public void setURL(URI url) {
+    URI oldURL = url();
+    super.setURLRaw(url);
+    if (renderer == null) return;
+    renderer.changeListener().onURLChanged(oldURL, url);
+  }
+
   private void syncStylesheets(DocumentChangeListener changeListener) {
     for (CSSStyleSheet styleSheet: styleSheets()) {
       changeListener.onStylesheetAdded(styleSheet);

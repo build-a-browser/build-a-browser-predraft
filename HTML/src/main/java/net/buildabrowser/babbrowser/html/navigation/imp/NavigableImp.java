@@ -2,7 +2,9 @@ package net.buildabrowser.babbrowser.html.navigation.imp;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
+import net.buildabrowser.babbrowser.common.util.URLUtil2;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
@@ -17,6 +19,7 @@ import net.buildabrowser.babbrowser.html.navigation.TargetSnapshotParams;
 import net.buildabrowser.babbrowser.html.navigation.TraversableNavigable;
 import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
+import net.buildabrowser.babbrowser.html.navigation.imp.util.DocumentNavigationUtil;
 import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
 
 public class NavigableImp implements Navigable {
@@ -74,6 +77,7 @@ public class NavigableImp implements Navigable {
     SourceSnapshotParams sourceSnapshotParams = SourceSnapshotParams.snapshot(
       navigateParameters.sourceDocument);
     // TODO: A lot of random steps
+    String navigationId = UUID.randomUUID().toString();
     if (navigateParameters.historyHandling.equals(NavigationHistoryBehavior.AUTO)) {
       // TODO: Check origin
       navigateParameters.historyHandling = url.equals(activeDocument().url()) ?
@@ -81,7 +85,20 @@ public class NavigableImp implements Navigable {
         NavigationHistoryBehavior.PUSH;
     }
     // TODO: Check must be a replace
-    // TODO: Step 15 is navigate to fragment
+    if (
+      // TODO: Check documentResource, response
+      URLUtil2.equals(url, activeSessionHistory.url(), true)
+      && url.getFragment() != null
+      // NOSPEC: Refresh fragment page via URL bar
+      && (
+        !navigateParameters.userInvolvement.equals(UserNavigationInvolvement.BROWSER_UI)
+        || !URLUtil2.equals(url, activeSessionHistory.url(), false))
+    ) {
+      navigateToAFragment(url, navigateParameters, navigationId);
+      return;
+    }
+
+    setOngoingNavigation(navigationId);
 
     TargetSnapshotParams targetSnapshotParams = TargetSnapshotParams.snapshot(this);
     EventLoop eventLoop = activeWindow().agent().eventLoop();
@@ -150,6 +167,33 @@ public class NavigableImp implements Navigable {
     traversable.applyPushReplaceHistoryStep(targetStep, historyHandling, userInvolvement);
   }
 
+  private void finalizeASameDocumentNavigation(
+    TraversableNavigable traversable,
+    SessionHistoryEntry targetEntry,
+    SessionHistoryEntry entryToReplace,
+    NavigationHistoryBehavior historyHandling,
+    UserNavigationInvolvement userInvolvement
+  ) {
+    // TODO: Assert queue
+    if (activeSessionHistory != targetEntry) return;;
+    int targetStep = -1;
+    List<SessionHistoryEntry> targetEntries = getSessionHistoryEntries();
+    if (entryToReplace == null) {
+      traversable.clearForwardSessionHistory();
+      targetStep = traversable.currentSessionHistoryStep() + 1;
+      targetEntry.setStep(targetStep);
+      targetEntries.add(targetEntry);
+    } else {
+      int replaceIndex = targetEntries.indexOf(entryToReplace);
+      assert replaceIndex != -1;
+      targetEntries.set(replaceIndex, targetEntry);
+      targetEntry.setStep(entryToReplace.step());
+      // TODO: Update navigation API key
+      targetStep = traversable.currentSessionHistoryStep();
+    }
+    traversable.applyPushReplaceHistoryStep(targetStep, historyHandling, userInvolvement);
+  }
+
   @Override
   public List<SessionHistoryEntry> getSessionHistoryEntries() {
     throw new UnsupportedOperationException("Nested histories not implemented");
@@ -207,6 +251,39 @@ public class NavigableImp implements Navigable {
   public void setOngoingNavigation(String newValue) {
     this.ongoingNavigation = newValue;
     // TODO: Inform the navigation API
+  }
+
+  // TODO: More parameters
+  private void navigateToAFragment(
+    URI url,
+    NavigateParameters navigateParameters,
+    String navigationId
+  ) {
+    // TODO: More steps
+    SessionHistoryEntry historyEntry = SessionHistoryEntry.create(
+      url, activeSessionHistory.documentState());
+    SessionHistoryEntry entryToReplace = navigateParameters
+      .historyHandling.equals(NavigationHistoryBehavior.REPLACE) ?
+      activeSessionHistory : null;
+    // TODO: More steps
+    activeDocument().setURL(url);
+    uaNavigableOptions.onNavigate(url);
+    this.activeSessionHistory = historyEntry;
+    DocumentNavigationUtil.updateDocumentForHistoryStepApplication(
+      activeDocument(), historyEntry, true,
+      0, 0, // TODO: Pass proper values
+      navigateParameters.historyHandling.toNavigationType(),
+      null, null);
+    // Scroll to fragment will be handled by the listener
+    TraversableNavigable traversable = traversable();
+    traversable().appendSessionHistoryTraversalSteps(() -> {
+      finalizeASameDocumentNavigation(
+        traversable,
+        historyEntry,
+        entryToReplace,
+        navigateParameters.historyHandling,
+        navigateParameters.userInvolvement);
+    });
   }
 
 }

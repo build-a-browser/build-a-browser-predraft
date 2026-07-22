@@ -15,6 +15,15 @@ public class AbstractRendererDocumentChangeListener
   }
 
   @Override
+  public void onBoxFragmentAdded(
+    BoxFragment<?> fragment
+  ) {
+    if (nextListener() instanceof RendererDocumentChangeListener nextListener) {
+      nextListener.onBoxFragmentAdded(fragment);
+    }
+  }
+
+  @Override
   public boolean onFragmentEvent(
     Element element, Event event,
     BoxFragment<?> refFragment,

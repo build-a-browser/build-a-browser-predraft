@@ -20,6 +20,7 @@ import net.buildabrowser.babbrowser.html.navigation.SessionHistoryTraversalParal
 import net.buildabrowser.babbrowser.html.navigation.SourceSnapshotParams;
 import net.buildabrowser.babbrowser.html.navigation.TargetSnapshotParams;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
+import net.buildabrowser.babbrowser.html.navigation.imp.util.DocumentNavigationUtil;
 
 public class HistoryStep {
 
@@ -136,7 +137,7 @@ public class HistoryStep {
         if (!changingNavigableContinuation.updateOnly) {
           navigable.activateHistoryEntry(targetEntry);
         }
-        Runnable updateDocument = () -> updateDocumentForHistoryStepApplication(
+        Runnable updateDocument = () -> DocumentNavigationUtil.updateDocumentForHistoryStepApplication(
           targetEntry.document(), targetEntry, changingNavigableContinuation.updateOnly,
           scriptHistoryLength, scriptHistoryIndex, navigationType,
           // TODO: Navigation API entries
@@ -258,19 +259,6 @@ public class HistoryStep {
   }
 
   // Stuff not split out
-
-  private void updateDocumentForHistoryStepApplication(
-    RenderableDocument document,
-    SessionHistoryEntry entry,
-    boolean doNotReactivate,
-    int scriptHistoryLength,
-    int scriptHistoryIndex,
-    NavigationType navigationType,
-    List<SessionHistoryEntry> entriesForNavigationAPI,
-    SessionHistoryEntry previousEntryForActivation
-  ) {
-    // TODO: Implement
-  }
 
   // TODO: Move somewhere more suitable
   private void deactivateDocument(
