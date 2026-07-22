@@ -20,18 +20,18 @@ public interface StackingContext {
 
   float[] computedBorder(); // TODO: Also not very clean
 
-  void positionFragment(
+  <T extends BoxFragment<?>> void positionFragment(
     float posX, float posY,
-    BoxFragment<?> fragment,
-    ChildPositionFunc positionFunc
+    T fragment,
+    ChildPositionFunc<T> positionFunc
   );
 
   // TODO: I don't really like this method, especially since it
   // can be called before the normalized bounds are determined
-  void positionNormalizedFragment(
+  <T extends BoxFragment<?>> void positionNormalizedFragment(
     float posX, float posY,
-    BoxFragment<?> fragment,
-    ChildPositionFunc positionFunc
+    T fragment,
+    ChildPositionFunc<T> positionFunc
   );
 
   CompositeLayer createLayer(Painter painter);
@@ -60,9 +60,12 @@ public interface StackingContext {
     return boxFragment.box().stackingContext() != refFragment.box().stackingContext();
   }
 
-  static interface ChildPositionFunc {
+  static interface ChildPositionFunc<T extends BoxFragment<?>> {
   
-    void position(float layerX, float layerY);
+    void position(
+      T fragment,
+      float layerX, float layerY
+    );
     
   }
 

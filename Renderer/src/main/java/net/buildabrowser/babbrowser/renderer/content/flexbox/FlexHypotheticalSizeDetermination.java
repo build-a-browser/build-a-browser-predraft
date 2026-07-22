@@ -10,8 +10,8 @@ import net.buildabrowser.babbrowser.cssbase.property.size.SizeValue;
 import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 
@@ -20,7 +20,7 @@ public final class FlexHypotheticalSizeDetermination {
   private FlexHypotheticalSizeDetermination() {}
 
   public static void determineBaseAndHypotheticalSizes(
-    List<FlexItem> items,
+    ElementBox rootBox, List<FlexItem> items,
     LayoutConstraint mainSize, LayoutConstraint crossSize,
     boolean isVertical
   ) {
@@ -36,7 +36,8 @@ public final class FlexHypotheticalSizeDetermination {
         continue;
       }
 
-      LayoutConstraint itemCrossSize = FlexUtil.boxCrossSize(itemBox, crossSize, isVertical);
+      LayoutConstraint itemCrossSize = FlexUtil.boxCrossSize(
+        rootBox, itemBox, crossSize, isVertical);
       if (
         flexBasis.equals(FlexBasisValue.CONTENT)
         && itemCrossSize.isBounded()

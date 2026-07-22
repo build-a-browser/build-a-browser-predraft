@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.dom.imp;
 import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.NodeList;
+import net.buildabrowser.babbrowser.dom.util.HTMLSerializerUtil;
 
 public abstract class NodeImp implements Node {
 
@@ -21,6 +22,7 @@ public abstract class NodeImp implements Node {
 
   @Override
   public Document nodeDocument() {
+    if (parentNode == null) return null;
     return parentNode.nodeDocument();
   }
 
@@ -107,6 +109,10 @@ public abstract class NodeImp implements Node {
   @Override
   public long ariaId() {
     return this.ariaId;
+  }
+  
+  public String toString() {
+    return HTMLSerializerUtil.serializeNode(this);
   }
 
 }

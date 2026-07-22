@@ -3,8 +3,6 @@ package net.buildabrowser.babbrowser.css.engine.styles.imp;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
-import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -26,10 +24,10 @@ public class ActiveStylesImp implements ActiveStyles {
   private long inheritValues1, inheritValues2;
   private long hasOwnValues1, hasOwnValues2;
 
-  // TODO: Switch to an IntrusiveList?
-  private SinglyLinkedList<CSSValue> activeProperties;
+  private CSSValue[] activeProperties = new CSSValue[CSSProperty.idCount()];
   private Map<String, CSSValue> customProperties;
   private boolean isReusable = true;
+  private boolean isFrozen = false;
 
   @Override
   public void setProperty(CSSProperty property, CSSValue value) {
@@ -84,8 +82,14 @@ public class ActiveStylesImp implements ActiveStyles {
 
   @Override
   public void unsetProperty(CSSProperty property) {
-    removeEntry(property.id());
-    setInheritValue(property.id(), false);
+    if (property.hasExpansion()) {
+      for (CSSProperty expansion: property.getExpansions()) {
+        unsetProperty(expansion);
+      }
+    } else {
+      removeEntry(property.id());
+      setInheritValue(property.id(), false);
+    }
   }
 
   @Override
@@ -131,31 +135,54 @@ public class ActiveStylesImp implements ActiveStyles {
     return this.isReusable;
   }
 
+  @Override
+  public void freeze() {
+    int numProperties = Long.bitCount(hasOwnValues1) + Long.bitCount(hasOwnValues2);
+    CSSValue[] denseProperties = new CSSValue[numProperties];
+    int i = 0;
+    
+    long bits1 = hasOwnValues1;
+    while (bits1 != 0) {
+      int id = Long.numberOfTrailingZeros(bits1);
+      denseProperties[i++] = activeProperties[id];
+      bits1 &= (bits1 - 1);
+    }
+    
+    long bits2 = hasOwnValues2;
+    while (bits2 != 0) {
+      int id = 64 + Long.numberOfTrailingZeros(bits2);
+      denseProperties[i++] = activeProperties[id];
+      bits2 &= (bits2 - 1);
+    }
+    
+    this.activeProperties = denseProperties;
+    this.isFrozen=  true;
+  }
+
   private CSSValue scanValue(int id) {
     if (!getHasOwnValue(id)) return null;
+    if (!isFrozen) return activeProperties[id];
     int listPos = getPropertyPos(id);
-    return IntrusiveList.get(activeProperties, listPos).item();
+    return activeProperties[listPos];
   }
   
   private void addEntry(int id, CSSValue value) {
+    ensureNotFrozen();
     assert value != null;
-    boolean wasPresent = getHasOwnValue(id);
-    int listPos = getPropertyPos(id);
-
-    if (wasPresent) {
-      activeProperties = IntrusiveList.replace(activeProperties, listPos, new SinglyLinkedList<>(value));
-    } else {
-      activeProperties = IntrusiveList.insert(activeProperties, listPos, new SinglyLinkedList<>(value));
-    }
     setHasOwnValue(id, true);
+    activeProperties[id] = value;
   }
 
   private void removeEntry(int id) {
+    ensureNotFrozen();
     if (!getHasOwnValue(id)) return;
     setHasOwnValue(id, false);
+  }
 
-    int listPos = getPropertyPos(id);
-    activeProperties = IntrusiveList.remove(activeProperties, listPos);
+  private void ensureNotFrozen() {
+    if (isFrozen) {
+      throw new IllegalStateException("Attempt to mutate frozen active styles!");
+    }
   }
 
   private void lazilyInitCustomProperties() {

@@ -7,7 +7,7 @@ import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.events.Event;
 
-public abstract class ForkedDocumentChangeListener implements DocumentChangeListener {
+public class ForkedDocumentChangeListener implements DocumentChangeListener {
  
   private final List<DocumentChangeListener> nextListeners;
 
@@ -48,9 +48,18 @@ public abstract class ForkedDocumentChangeListener implements DocumentChangeList
   }
 
   @Override
-  public void onElementEvent(Element element, Event event) {
+  public boolean onElementEvent(Element element, Event event, boolean allowDefault) {
     for (DocumentChangeListener nextListener: nextListeners) {
-      nextListener.onElementEvent(element, event);
+      allowDefault = nextListener.onElementEvent(element, event, allowDefault);
+    }
+
+    return allowDefault;
+  }
+
+  @Override
+  public void onSelectionChanged() {
+    for (DocumentChangeListener nextListener: nextListeners) {
+      nextListener.onSelectionChanged();;
     }
   }
 

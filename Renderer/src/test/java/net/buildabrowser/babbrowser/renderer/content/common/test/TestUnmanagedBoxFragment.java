@@ -12,7 +12,10 @@ public class TestUnmanagedBoxFragment extends UnmanagedBoxFragment<TestUnmanaged
     float width, float height,
     ElementBox box
   ) {
-    super(width, height, width, height, box);
+    super(
+      width, height, width, height,
+      0, 0,
+      box);
     this.setPos(x, y);
   }
 

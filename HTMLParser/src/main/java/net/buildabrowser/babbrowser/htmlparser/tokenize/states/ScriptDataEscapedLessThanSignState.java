@@ -12,14 +12,14 @@ public class ScriptDataEscapedLessThanSignState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     if (ch == '/') {
       tokenizeContext.temporaryBuffer().clear();
-      tokenizeContext.setTokenizeState(TokenizeStates.scriptDataEscapedEndTagOpenState);
+      tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE);
     } else if (ASCIIUtil.isAlpha(ch)) {
       tokenizeContext.temporaryBuffer().clear();
       parseContext.emitCharacterToken('<');
-      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.scriptDataDoubleEscapeStartState);
+      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE);
     } else {
       parseContext.emitCharacterToken('<');
-      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.scriptDataEscapedState);
+      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.SCRIPT_DATA_ESCAPED_STATE);
     }
   }
   

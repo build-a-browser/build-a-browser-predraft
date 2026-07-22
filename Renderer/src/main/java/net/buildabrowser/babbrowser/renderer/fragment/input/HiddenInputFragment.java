@@ -9,7 +9,9 @@ public abstract class HiddenInputFragment extends BaseInputFragment<HiddenInputF
     float inkWidth, float inkHeight,
     ElementBox box
   ) {
-    super(width, height, inkWidth, inkHeight, box);
+    super(
+      width, height, inkWidth, inkHeight,
+      0, 0, box);
   }
   
 }

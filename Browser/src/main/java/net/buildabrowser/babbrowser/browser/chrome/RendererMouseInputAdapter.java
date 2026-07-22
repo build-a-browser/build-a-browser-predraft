@@ -9,6 +9,7 @@ import javax.swing.event.MouseInputAdapter;
 
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent.MouseEventType;
 
@@ -73,7 +74,7 @@ public class RendererMouseInputAdapter extends MouseInputAdapter {
       RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), MouseEventType.SCROLL, e.getUnitsToScroll() * SCROLL_AMOUNT, 0) :
       RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), MouseEventType.SCROLL, 0, e.getUnitsToScroll() * SCROLL_AMOUNT);
     EventForwardingTarget target = rendererSupplier.get().eventForwardingTarget();
-    target.forwardEvent(mouseEvent);
+    target.forwardEvent(mouseEvent, EventHandlerResponse.UNHANDLED);
   }
 
   private void handleGeneric(MouseEvent e, MouseEventType type) {
@@ -81,7 +82,7 @@ public class RendererMouseInputAdapter extends MouseInputAdapter {
     e.consume();
     RendererMouseEvent mouseEvent = RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), type);
     EventForwardingTarget target = rendererSupplier.get().eventForwardingTarget();
-    target.forwardEvent(mouseEvent);
+    target.forwardEvent(mouseEvent, EventHandlerResponse.UNHANDLED);
   }
   
 }

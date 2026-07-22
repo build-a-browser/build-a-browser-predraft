@@ -2,12 +2,14 @@ package net.buildabrowser.babbrowser.htmlparser.insertion.util;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import net.buildabrowser.babbrowser.dom.Element;
-import net.buildabrowser.babbrowser.dom.Namespace;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.AnchorElement;
+import net.buildabrowser.babbrowser.html.html.HTMLButtonElement;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
+import net.buildabrowser.babbrowser.html.html.HTMLFormElement;
 import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
 import net.buildabrowser.babbrowser.html.html.LinkElement;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
@@ -15,11 +17,24 @@ import net.buildabrowser.babbrowser.htmlparser.insertion.OpenElementStack;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
 import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
+import net.buildabrowser.babbrowser.infra.Namespace;
 
 public final class ParseElementUtil {
 
   private static final List<String> TABLE_ELEMENTS = List.of(
     "table", "tbody", "tfoot", "thead", "tr");
+  private static final Set<String> SPECIAL_HTML = Set.of(
+    "address", "applet", "area", "article", "aside", "base",
+    "basefont", "bgsound", "blockquote", "body", "br", "button", "caption",
+    "center", "col", "colgroup", "dd", "details", "dir", "div", "dl", "dt",
+    "embed", "fieldset", "figcaption", "figure", "footer", "form", "frame",
+    "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header",
+    "hgroup", "hr", "html", "iframe", "img", "input", "keygen", "li",
+    "link", "listing", "main", "marquee", "menu", "meta", "nav", "noembed",
+    "noframes", "noscript", "object", "ol", "p", "param", "plaintext",
+    "pre", "script", "search", "section", "select", "source", "style",
+    "summary", "table", "tbody", "td", "template", "textarea", "tfoot",
+    "th", "thead", "title", "tr", "track", "ul", "wbr", "xmp");
   
   private ParseElementUtil() {}
 
@@ -30,6 +45,8 @@ public final class ParseElementUtil {
     // TODO: Proper DOM create an element
     Element element = switch (token.name()) {
       case "a" -> AnchorElement.create(localName, intendedParent);
+      case "button" -> HTMLButtonElement.create(localName, intendedParent);
+      case "form" -> HTMLFormElement.create(localName, intendedParent);
       case "input" -> HTMLInputElement.create(localName, intendedParent);
       case "link" -> LinkElement.create(localName, intendedParent);
       default -> HTMLElement.create(localName, intendedParent);
@@ -125,17 +142,27 @@ public final class ParseElementUtil {
   public static void startGenericRawTextElementParsingAlgorithm(ParseContext parseContext, TagToken tagToken) {
     assert tagToken.isStartTag();
     insertAnHTMLElement(parseContext, tagToken);
-    parseContext.tokenizeContext().setTokenizeState(TokenizeStates.rawTextState);
+    parseContext.tokenizeContext().setTokenizeState(TokenizeStates.RAW_TEXT_STATE);
     parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());
-    parseContext.setInsertionMode(InsertionModes.textInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.TEXT_INSERTION_MODE);
   }
 
   public static void startGenericRCDataElementParsingAlgorithm(ParseContext parseContext, TagToken tagToken) {
     assert tagToken.isStartTag();
     insertAnHTMLElement(parseContext, tagToken);
-    parseContext.tokenizeContext().setTokenizeState(TokenizeStates.rcdataState);
+    parseContext.tokenizeContext().setTokenizeState(TokenizeStates.RCDATA_STATE);
     parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());
-    parseContext.setInsertionMode(InsertionModes.textInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.TEXT_INSERTION_MODE);
+  }
+  
+  public static boolean isSpecial(
+    Node node, Set<String> exceptions
+  ) {
+    // TODO: Other namespaces
+    if (!(node instanceof Element element)) return false;
+    if (!element.namespace().equals(Namespace.HTML_NAMESPACE)) return false;
+    if (exceptions.contains(element.name())) return false;
+    return SPECIAL_HTML.contains(element.name());
   }
 
   private static Node lastHTMLNamed(

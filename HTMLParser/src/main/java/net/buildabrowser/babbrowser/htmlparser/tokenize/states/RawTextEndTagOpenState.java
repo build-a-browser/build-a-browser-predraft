@@ -12,7 +12,7 @@ public class RawTextEndTagOpenState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     if (ASCIIUtil.isAlpha(ch)) {
       tokenizeContext.beginTagToken(false);
-      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.rawTextEndTagNameState);
+      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.RAW_TEXT_END_TAG_NAME_STATE);
     } else {
       parseContext.emitCharacterToken('<');
       parseContext.emitCharacterToken('/');

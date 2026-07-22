@@ -16,11 +16,8 @@ import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
-import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.HashToken;
@@ -206,40 +203,38 @@ public class ComplexSelectorParserTest {
       TypeSelector.create("input"));
     Assertions.assertEquals(expectedSelectors, actualSelectors);
   }
-
+  
   @Test
-  @DisplayName("Can parse simple pseudo selector")
-  public void canParseSimplePsuedoSelector() throws IOException {
-    List<ComplexSelector> actualSelectors = parseTokens(
-      ColonToken.create(), IdentToken.create("root"));
+  @DisplayName("Can parse relative selector with descendant combinator")
+  public void canParseRelativeSelectorWithDescendantCombinator() throws IOException {
+    List<ComplexSelector> actualSelectors = parseTokensRelative(
+      IdentToken.create("span"));
     List<ComplexSelector> expectedSelectors = oneSelector(
-      SimplePseudoSelector.ROOT);
+      DescendantCombinator.create(),
+      TypeSelector.create("span"));
     Assertions.assertEquals(expectedSelectors, actualSelectors);
   }
 
   @Test
-  @DisplayName("Can parse simple pseudo element")
-  public void canParseSimplePsuedoElement() throws IOException {
-    List<ComplexSelector> actualSelectors = parseTokens(
-      ColonToken.create(), ColonToken.create(), IdentToken.create("before"));
+  @DisplayName("Can parse relative selector with symbol combinator")
+  public void canParseRelativeSelectorWithSymbolCombinator() throws IOException {
+    List<ComplexSelector> actualSelectors = parseTokensRelative(
+      DelimToken.create('>'),
+      IdentToken.create("span"));
     List<ComplexSelector> expectedSelectors = oneSelector(
-      SimplePseudoElement.BEFORE);
-    Assertions.assertEquals(expectedSelectors, actualSelectors);
-  }
-
-  @Test
-  @DisplayName("Can parse simple pseudo element in legacy format")
-  public void canParseSimplePsuedoElementInLegacyFormat() throws IOException {
-    List<ComplexSelector> actualSelectors = parseTokens(
-      ColonToken.create(), IdentToken.create("after"));
-    List<ComplexSelector> expectedSelectors = oneSelector(
-      SimplePseudoElement.AFTER);
+      ChildCombinator.create(),
+      TypeSelector.create("span"));
     Assertions.assertEquals(expectedSelectors, actualSelectors);
   }
   
   private List<ComplexSelector> parseTokens(Token... tokens) throws IOException {
     return ComplexSelectorParser.parseComplexSelectors(
-      CSSTokenStream.createForTesting(tokens));
+      CSSTokenStream.createForTesting(tokens), false);
+  }
+  
+  private List<ComplexSelector> parseTokensRelative(Token... tokens) throws IOException {
+    return ComplexSelectorParser.parseComplexSelectors(
+      CSSTokenStream.createForTesting(tokens), true);
   }
 
   private List<ComplexSelector> oneSelector(SelectorPart... parts) {

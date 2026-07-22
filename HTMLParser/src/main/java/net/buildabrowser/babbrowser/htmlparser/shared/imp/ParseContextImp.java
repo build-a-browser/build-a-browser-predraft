@@ -27,7 +27,7 @@ public class ParseContextImp implements ParseContext {
   public ParseContextImp(Document document, TokenizeContext tokenizeContext) {
     this.document = document;
     this.tokenizeContext = tokenizeContext;
-    this.currentInsertionMode = InsertionModes.initialInsertionMode;
+    this.currentInsertionMode = InsertionModes.INITIAL_INSERTION_MODE;
   }
 
   @Override

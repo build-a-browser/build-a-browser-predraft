@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.dom;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.dom.imp.ElementImp;
+import net.buildabrowser.babbrowser.infra.Namespace;
 
 public interface Element extends Node {
 
@@ -28,6 +29,12 @@ public interface Element extends Node {
     String name, Node parentNode
   ) {
     return new ElementImp(name, Namespace.HTML_NAMESPACE, parentNode);
+  }
+
+  public static Element create(
+    String name, String namespace, Node parentNode
+  ) {
+    return new ElementImp(name, namespace, parentNode);
   }
 
 }

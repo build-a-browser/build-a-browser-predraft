@@ -1,20 +1,13 @@
 package net.buildabrowser.babbrowser.renderer.box.imp;
 
-import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
-import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
-import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
-import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
-import net.buildabrowser.babbrowser.renderer.content.ReEntrantContent;
 import net.buildabrowser.babbrowser.renderer.content.image.ImageContent;
 import net.buildabrowser.babbrowser.renderer.content.input.InputContent;
-import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -58,10 +51,9 @@ public class ElementBoxImp extends AbstractElementBoxImp {
     LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
   ) {
     BoxContent realContent = content();
-    this.content = ReEntrantContent.instance();
-    UnmanagedBoxFragment<?> fragment = layoutWithContent(widthConstraint, heightConstraint, realContent);
-    this.content = realContent;
-    return fragment;
+    // TODO: There was previously a re-entrancy check here, but it interfered with clamp-width evaluating
+    // min/max sizes on self
+    return layoutWithContent(widthConstraint, heightConstraint, realContent);
   }
   
   // As of writing, children are cleared before the update, so don't worry about that yet
@@ -71,19 +63,10 @@ public class ElementBoxImp extends AbstractElementBoxImp {
     if (
       this.content == null
       || !innerDisplay.equals(prevDisplayValue)
-      || content.rootBox() != this
     ) {
       this.prevDisplayValue = innerDisplay;
-
-      if (
-        parentBox() instanceof ElementBox parentBox
-        && canShareContent()
-        && parentBox.sharesContent(this)
-      ) {
-        this.content = parentBox.content();
-      } else {
-        this.content = createContent(innerDisplay);
-      }
+      // No longer does content sharing since the main types are singletons now
+      this.content = createContent(innerDisplay);
     }
   }
 
@@ -97,8 +80,8 @@ public class ElementBoxImp extends AbstractElementBoxImp {
 
   private BoxContent createContent(InnerDisplayValue innerDisplay) {
     BoxContent elementContent = switch (element().name()) {
-      case "img" -> new ImageContent(this);
-      case "input" -> new InputContent(this);
+      case "img" -> new ImageContent();
+      case "input" -> new InputContent();
       default -> null;
     };
 
@@ -107,22 +90,6 @@ public class ElementBoxImp extends AbstractElementBoxImp {
     }
   
     return createSpecifiedContent(innerDisplay);
-  }
-
-  private boolean canShareContent() {
-    CSSValue positioning = properties().get(CSSProperty.POSITION);
-    return
-      positioning.equals(PositionValue.STATIC)
-      && !CompositeLayerUtil.hasScrollContent(this)
-      && !typeAlwaysRoot()
-      && !(parentBox() instanceof ScrollBox);
-  }
-
-  private boolean typeAlwaysRoot() {
-    return switch (element().name()) {
-      case "img", "input" -> true;
-      default -> false;
-    };
   }
   
 }

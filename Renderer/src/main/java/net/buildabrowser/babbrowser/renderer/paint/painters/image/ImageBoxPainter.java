@@ -4,6 +4,7 @@ import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.context.SelectionContext;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.image.ImageBoxFragment;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
@@ -27,6 +28,14 @@ public class ImageBoxPainter implements BoxPainter<ImageBoxFragment> {
 
     if (image != null) {
       canvas.drawImage(0, 0, width, height, image);
+
+      SelectionContext selectionContext = box.layoutContext().global().selectionContext();
+      int selectionBgColor = PropertiesUtil.selectionBgColor(box.properties());
+      if (selectionContext.selected(box.element())) {
+        canvas.withPaint(
+        p -> p.setColor(selectionBgColor),
+        c -> c.drawBox(0, 0, width, height));
+      }
       return;
     }
 

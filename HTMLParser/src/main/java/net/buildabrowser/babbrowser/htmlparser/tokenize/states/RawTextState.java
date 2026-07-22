@@ -12,7 +12,7 @@ public class RawTextState implements TokenizeState {
     // TODO: Other cases
     switch (ch) {
       case '<':
-        tokenizeContext.setTokenizeState(TokenizeStates.rawTextLessThanSignState);
+        tokenizeContext.setTokenizeState(TokenizeStates.RAW_TEXT_LESS_THAN_SIGN_STATE);
         break;
       default:
         parseContext.emitCharacterToken(ch);

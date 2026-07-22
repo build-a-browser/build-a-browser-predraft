@@ -9,6 +9,7 @@ dependencies {
     api project(':CSSBase')
     api project(':HTML')
     api project(':A11YCore')
+    api project(':DebuggerCore')
     implementation project(':Common')
     implementation project(':HTMLParser')
     implementation project(':CSSEngine')

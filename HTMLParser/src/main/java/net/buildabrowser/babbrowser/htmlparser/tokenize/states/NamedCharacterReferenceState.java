@@ -51,7 +51,7 @@ public class NamedCharacterReferenceState implements TokenizeState {
     tokenizeContext.flushCodePointsConsumedAsACharacterReference(parseContext);
     // Since this stage technically does not consume unless a match is present,
     // but this method auto-consumes, reconsume.
-    tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.ambiguousAmpersandState);
+    tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.AMBIGUOUS_AMPERSAND_STATE);
   }
 
   @Override

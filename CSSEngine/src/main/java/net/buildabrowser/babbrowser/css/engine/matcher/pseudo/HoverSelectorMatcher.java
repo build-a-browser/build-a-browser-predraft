@@ -12,7 +12,7 @@ import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.events.Event;
 
-public class HoverSelectorMatcher implements PseudoSelectorMatcher {
+public class HoverSelectorMatcher implements SimplePseudoSelectorMatcher {
 
   private final ElementSet allElements;
   private final ElementSet matchingElements;
@@ -43,8 +43,10 @@ public class HoverSelectorMatcher implements PseudoSelectorMatcher {
   }
 
   @Override
-  public void onElementEvent(Element element, Event event) {
-    if (!event.type().equals("mousemove")) return;
+  public boolean onElementEvent(
+    Element element, Event event, boolean allowDefault
+  ) {
+    if (!event.type().equals("mousemove")) return allowDefault;
 
     List<Element> matchedElements = new ArrayList<>();
     Node currentNode = element;
@@ -69,6 +71,8 @@ public class HoverSelectorMatcher implements PseudoSelectorMatcher {
     if (changed) {
       onSelectorChanged.accept(SimplePseudoSelector.HOVER);
     }
+
+    return allowDefault;
   }
 
   @Override

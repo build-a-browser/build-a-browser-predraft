@@ -9,7 +9,7 @@ import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 
 public class ScrollBox extends ElementBoxImp {
 
-  private final ScrollBoxContent SCROLL_BOX_CONTENT = new ScrollBoxContent(this);
+  private final ScrollBoxContent SCROLL_BOX_CONTENT = new ScrollBoxContent();
 
   private final ScrollBarState horizontalScrollState;
   private final ScrollBarState verticalScrollState;

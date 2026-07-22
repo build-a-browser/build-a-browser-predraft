@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
+import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.box.TextBox;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
@@ -67,6 +68,25 @@ public final class FlowUtil {
 
   public static boolean isFloat(ElementBox elementBox) {
     return !elementBox.properties().get(CSSProperty.FLOAT).equals(CSSValue.NONE);
+  }
+
+  public static boolean boxHasDecor(ElementBox box) {
+    if (box.element() == null) return false;
+    ElementBoxDimensions dimensions = box.dimensions();
+    float[] margin = dimensions.getComputedMargin();
+    float[] borders = dimensions.getComputedBorder();
+    float[] padding = dimensions.getComputedPadding();
+    return
+      !isZeroArray(margin)
+      || !isZeroArray(borders)
+      || !isZeroArray(padding);
+  }
+
+  private static boolean isZeroArray(float[] arr) {
+    for (float item: arr) {
+      if (item != 0) return false;
+    }
+    return true;
   }
 
 }

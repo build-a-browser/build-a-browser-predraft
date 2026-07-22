@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
-import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
@@ -53,7 +52,7 @@ public final class DeclarationParser {
       // TODO: Support revert keyword
     }
 
-    CSSTokenStream innerStream = ListCSSTokenStream.createWithSkippedWhitespace(
+    SeekableCSSTokenStream innerStream = ListCSSTokenStream.createWithSkippedWhitespace(
       source, declaration.value());
     Boolean shouldDefer = CustomPropertyParser.hasVarReferences(innerStream);
     if (shouldDefer == null) return CSSValue.SpecialCSSValue.INVALID;

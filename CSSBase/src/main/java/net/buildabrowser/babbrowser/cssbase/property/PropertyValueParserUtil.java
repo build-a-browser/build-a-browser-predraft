@@ -2,7 +2,6 @@ package net.buildabrowser.babbrowser.cssbase.property;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,22 +35,6 @@ public final class PropertyValueParserUtil {
     stream.seek(longestPos);
 
     return longestValue;
-  }
-
-  public static CSSValue parseOneOrMoreComma(SeekableCSSTokenStream stream, PropertyValueParser parser) throws IOException {
-    List<CSSValue> times = new LinkedList<>();
-    CSSValue result = parser.parse(stream);
-    if (result.isFailure()) return result;
-    times.add(result);
-
-    while (stream.peek() instanceof CommaToken) {
-      stream.read();
-      result = parser.parse(stream);
-      if (result.isFailure()) return result;
-      times.add(result);
-    }
-
-    return new ManyResult(times);
   }
 
   public static CSSValue parseIdentMap(SeekableCSSTokenStream stream, Map<String, CSSValue> options) throws IOException {
@@ -88,7 +71,9 @@ public final class PropertyValueParserUtil {
     return NO_VALID_RESULT;
   }
 
-  public static CSSValue parseCommaRepeat(SeekableCSSTokenStream stream, PropertyValueParser parser) throws IOException {
+  public static CSSValue parseCommaRepeat(
+    SeekableCSSTokenStream stream, PropertyValueParser parser
+  ) throws IOException {
     // Assumes whitespace already removed
     CSSValue firstValue = parser.parse(stream);
     if (firstValue.isFailure()) return firstValue;
@@ -105,6 +90,27 @@ public final class PropertyValueParserUtil {
     }
 
     return new ManyResult(relatedValues);
+  }
+
+  public static CSSValue parseOneOrMore(
+    SeekableCSSTokenStream stream, PropertyValueParser parser
+  ) throws IOException {
+    // Assumes whitespace already removed
+    CSSValue firstValue = parser.parse(stream);
+    if (firstValue.isFailure()) return firstValue;
+
+    List<CSSValue> relatedValues = new ArrayList<>();
+    relatedValues.add(firstValue);
+
+    while (true) {
+      int posMark = stream.position();
+      CSSValue nextValue = parser.parse(stream);
+      if (nextValue.isFailure()) {
+        stream.seek(posMark);
+        return new ManyResult(relatedValues);
+      }
+      relatedValues.add(nextValue);
+    }
   }
 
   public static record AnyOrderResult(CSSValue[] values) implements CSSValue {

@@ -13,11 +13,11 @@ public class DataState implements TokenizeState {
       case '&':
         emitDataBuffer(context, parseContext);
         context.setReturnState(this);
-        context.setTokenizeState(TokenizeStates.characterReferenceState);
+        context.setTokenizeState(TokenizeStates.CHARACTER_REFERENCE_STATE);
         break;
       case '<':
         emitDataBuffer(context, parseContext);
-        context.setTokenizeState(TokenizeStates.tagOpenState);
+        context.setTokenizeState(TokenizeStates.TAG_OPEN_STATE);
         break;
       case 0:
         emitDataBuffer(context, parseContext);

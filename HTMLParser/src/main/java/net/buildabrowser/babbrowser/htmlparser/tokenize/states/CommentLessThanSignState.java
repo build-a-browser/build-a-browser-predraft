@@ -12,13 +12,13 @@ public class CommentLessThanSignState implements TokenizeState {
     switch (ch) {
       case '!':
         tokenizeContext.currentCommentToken().appendCodePointToData(ch);
-        tokenizeContext.setTokenizeState(TokenizeStates.commentLessThanSignBangState);
+        tokenizeContext.setTokenizeState(TokenizeStates.COMMENT_LESS_THAN_SIGN_BANG_STATE);
         break;
       case '<':
         tokenizeContext.currentCommentToken().appendCodePointToData(ch);
         break;
       default:
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.commentState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.COMMENT_STATE);
         break;
     }
   }

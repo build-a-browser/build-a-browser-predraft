@@ -35,5 +35,10 @@ public class SkijaNoOpFontMetrics implements FontMetrics {
   public float ascent() {
     throw new UnsupportedOperationException(NO_OP_TEXT);
   }
+
+  @Override
+  public float descent() {
+    throw new UnsupportedOperationException(NO_OP_TEXT);
+  }
   
 }

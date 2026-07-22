@@ -1,0 +1,9 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    api project(':DebuggerCore')
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.1'
+}

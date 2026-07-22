@@ -13,10 +13,10 @@ public class NumericCharacterReferenceState implements TokenizeState {
     switch (ch) {
       case 'x', 'X':
         tokenizeContext.temporaryBuffer().append(ch);
-        tokenizeContext.setTokenizeState(TokenizeStates.hexadecimalCharacterReferenceStartState);
+        tokenizeContext.setTokenizeState(TokenizeStates.HEXADECIMAL_CHARACTER_REFERENCE_START_STATE);
         break;
       default:
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.decimalCharacterReferenceStartState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.DECIMAL_CHARACTER_REFERENCE_START_STATE);
         break;
     }
   }

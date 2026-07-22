@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowBlockBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
@@ -65,13 +66,14 @@ public class BlockFormattingContext {
     }
   }
 
-  public float estimateAbsY() {
+  public float estimateAbsY(boolean asIfCollapsed) {
     if (parentContext == null) {
       return this.y;
     } else {
+      float extra = asIfCollapsed ? maxMargin + minMargin : 0;
       float[] border = elementBox.dimensions().getComputedBorder();
       float[] padding = elementBox.dimensions().getComputedPadding();
-      return this.y + border[0] + padding[0] + parentContext.estimateAbsY();
+      return this.y + extra + border[0] + padding[0] + parentContext.estimateAbsY(asIfCollapsed);
     }
   }
 
@@ -168,7 +170,10 @@ public class BlockFormattingContext {
       usedWidth, usedHeight,
       Math.max(inkWidth, contributionW),
       Math.max(inkY, contributionH),
-      elementBox, fragments);
+      fragments == null ? 0 : fragments.firstBaseline(Measurement.MARGIN),
+      nextFragment == null ? 0 : nextFragment.lastBaseline(Measurement.MARGIN),
+      elementBox,
+      fragments);
   }
 
   public PropertyContainer properties() {

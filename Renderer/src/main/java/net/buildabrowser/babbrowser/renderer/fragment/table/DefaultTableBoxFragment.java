@@ -19,6 +19,7 @@ public class DefaultTableBoxFragment extends TableBoxFragment {
   public DefaultTableBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box,
     Table table,
     TableBorderAssignment borderAssignment,
@@ -26,6 +27,7 @@ public class DefaultTableBoxFragment extends TableBoxFragment {
   ) {
     super(
       width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
       box, table, borderAssignment,
       outOfTableFragments);
   }

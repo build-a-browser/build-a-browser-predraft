@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.event.handlers.flow;
 
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.EventUtil;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
@@ -96,26 +96,28 @@ public final class FlowEventHandlerUtil {
       nextFragment = nextFragment.next();
 
       if (
-        nextFragment instanceof BoxFragment boxFragment
+        currentFragment instanceof BoxFragment boxFragment
         && boxFragment.box().stackingContext() != null
         && !boxFragment.box().stackingContext().equals(parentFragment.box().stackingContext())
       ) continue;
 
-      if (EventUtil.aabb(parentFragment, currentFragment, relX, relY)) {
+      if (EventUtil.aabb(currentFragment, relX, relY)) {
         selectedFragment = currentFragment;
       }
     }
 
     EventHandlerResponse childHandledEvent = EventHandlerResponse.UNHANDLED;
     if (selectedFragment instanceof TextFragment textFragment) {
-      childHandledEvent = EventUtil.forwardElementEvent(mouseEvent, parentFragment, textFragment, relX, relY);
+      childHandledEvent = EventUtil.forwardElementEvent(
+        eventContext, mouseEvent, parentFragment, textFragment, relX, relY);
     } else if (selectedFragment != null) {
       childHandledEvent = handleInnerMouseEvent(
         eventContext, mouseEvent, parentFragment, selectedFragment, relX, relY);
     }
 
     if (childHandledEvent.isUnhandled()) {
-      return EventUtil.forwardElementEvent(mouseEvent, parentFragment, relX, relY);
+      return EventUtil.forwardElementEvent(
+        eventContext, mouseEvent, parentFragment, relX, relY);
     }
 
     return childHandledEvent;

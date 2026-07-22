@@ -10,11 +10,12 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class InlineFormattingContext implements IntrusiveList<InlineFormattingContext> {
  
-  private final FlowRootContent rootContent;
+  private final FlowContext flowContext;
   private final LayoutConstraint inlineConstraint;
   private final InlineStagingArea stagingArea;
   private final Deque<PropertyContainer> stylesStack;
@@ -24,21 +25,21 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
   private LineBox activeLineBox;
 
   public InlineFormattingContext(
-    FlowRootContent rootContent,
+    FlowContext flowContext,
     LayoutConstraint inlineConstraint,
-    PropertyContainer properties
+    ElementBox rootBox
   ) {
-    this(rootContent, inlineConstraint, new LineBox(), new LinkedList<>());
-    stylesStack.push(properties);
+    this(flowContext, inlineConstraint, new LineBox(rootBox), new LinkedList<>());
+    stylesStack.push(rootBox.properties());
   }
 
   private InlineFormattingContext(
-    FlowRootContent rootContent,
+    FlowContext flowContext,
     LayoutConstraint inlineConstraint,
     LineBox firstLineBox,
     Deque<PropertyContainer> stylesStack
   ) {
-    this.rootContent = rootContent;
+    this.flowContext = flowContext;
     this.inlineConstraint = inlineConstraint;
     this.stagingArea = new InlineStagingArea();
     this.stylesStack = stylesStack;
@@ -50,8 +51,11 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
     return this.stagingArea;
   }
 
-  public void addFragment(LayoutFragment flowFragment) {
-    activeLineBox.addFragment(flowFragment);
+  public void addFragment(
+    LayoutFragment flowFragment,
+    boolean isEmpty
+  ) {
+    activeLineBox.addFragment(flowFragment, isEmpty);
   }
 
   public void pushElement(ElementBox elementBox) {
@@ -69,16 +73,14 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
   }
 
   public void closeLine() {
-    rootContent.inlineLayout().positionLine(
-      activeLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
+    addLineToBox(activeLineBox);
     drainPositionedQueue();
   }
 
   public void nextLine() {
     LineBox oldLineBox = this.activeLineBox;
     this.activeLineBox = activeLineBox.split();
-    rootContent.inlineLayout().positionLine(
-      oldLineBox.toFragment(), inlineConstraint, stylesStack.getFirst());
+    addLineToBox(oldLineBox);
     drainPositionedQueue();
   }
 
@@ -87,7 +89,7 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
       return true;
     }
     
-    FloatTracker floatTracker = rootContent.floatTracker();
+    FloatTracker floatTracker = flowContext.floatTracker();
     return switch (inlineConstraint.type()) {
       case MIN_CONTENT -> false;
       case MAX_CONTENT, AUTO -> true;
@@ -115,9 +117,26 @@ public class InlineFormattingContext implements IntrusiveList<InlineFormattingCo
     this.next = nextNode;
   }
 
+  private void addLineToBox(LineBox lineBox) {
+    LineBoxFragment lineBoxFragment = lineBox.toFragment();
+    if (!lineBox.isEmpty()) {
+      flowContext.blockLayout().activeContext().collapse();
+    }
+
+    FlowLinePositioner.positionLine(
+      flowContext,
+      lineBoxFragment,
+      inlineConstraint,
+      stylesStack.getFirst());
+  }
+
   private void drainPositionedQueue() {
+    if (positionedQueue.size() > 0) {
+      flowContext.blockLayout().activeContext().collapse();
+    }
+
     for (ElementBox positioned: positionedQueue) {
-      rootContent.blockLayout().addPositionedToBlock(positioned);
+      flowContext.blockLayout().addPositionedToBlock(positioned);
     }
     positionedQueue.clear();
   }

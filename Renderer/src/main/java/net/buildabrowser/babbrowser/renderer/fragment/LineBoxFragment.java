@@ -6,21 +6,40 @@ import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 
 public class LineBoxFragment extends LayoutFragment {
 
+  private final float firstBaseline;
+  private final float lastBaseline;
   private final LayoutFragment fragments;
 
   public LineBoxFragment(
-    float width, float height, LayoutFragment fragments
+    float width, float height,
+    float firstBaseline, float lastBaseline,
+    LayoutFragment fragments
   ) {
     super(width, height);
+    this.firstBaseline = firstBaseline;
+    this.lastBaseline = lastBaseline;
     this.fragments = fragments;
   }
 
   // This constructor is for testing, not normal code use
   public LineBoxFragment(
-    float x, float y, float width, float height, List<LayoutFragment> fragments
+    float x, float y, float width, float height,
+    List<LayoutFragment> fragments
   ) {
-    this(width, height, IntrusiveList.fromList(fragments));
+    this(
+      width, height, 0, 0,
+      IntrusiveList.fromList(fragments));
     setPos(x, y);
+  }
+
+  @Override
+  public float firstBaseline(Measurement measurement) {
+    return this.firstBaseline;
+  }
+
+  @Override
+  public float lastBaseline(Measurement measurement) {
+    return this.lastBaseline;
   }
 
   public LayoutFragment fragments() {

@@ -3,8 +3,12 @@ package net.buildabrowser.babbrowser.renderer.fragment;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.visibility.VisibilityValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
 
 public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragment {
@@ -13,19 +17,21 @@ public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragme
 
   private final float inkWidth;
   private final float inkHeight;
-
-  private float layerX = Float.NaN;
-  private float layerY = Float.NaN;
+  private final float firstBaseline;
+  private final float lastBaseline;
 
   public BoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box
   ) {
     super(width, height);
     this.box = box;
     this.inkWidth = inkWidth;
     this.inkHeight = inkHeight;
+    this.firstBaseline = firstBaseline;
+    this.lastBaseline = lastBaseline;
   }
 
   public ElementBox box() {
@@ -62,19 +68,22 @@ public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragme
     return adjustInk(height(type), inkHeight, 0, type);
   }
 
+  @Override
+  public float firstBaseline(Measurement type) {
+    return adjustInk(0, firstBaseline, 0, type);
+  }
+
+  @Override
+  public float lastBaseline(Measurement type) {
+    return adjustInk(0, lastBaseline, 1, type);
+  }
+
   public float layerX(Measurement type) {
-    assert !Float.isNaN(this.layerX);
-    return adjustCoord(this.layerX, 2, type);
+    return adjustCoord(super.layerX(type), 2, type);
   }
 
   public float layerY(Measurement type) {
-    assert !Float.isNaN(this.layerY);
-    return adjustCoord(this.layerY, 0, type);
-  }
-
-  public void setLayerPos(float docX, float docY) {
-    this.layerX = docX;
-    this.layerY = docY;
+    return adjustCoord(super.layerY(type), 0, type);
   }
 
   @SuppressWarnings("unchecked")
@@ -84,11 +93,16 @@ public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragme
   
   @SuppressWarnings("unchecked")
   public <U> U withEventHandler(BiFunction<EventHandler<T>, T, U> eventFunc) {
+    CSSValue visibility = box().properties().get(CSSProperty.VISIBILITY);
+    // TODO: What if the return type is not EventHandlerResponse?
+    if (!visibility.equals(VisibilityValue.VISIBLE)) return (U) EventHandlerResponse.UNHANDLED;
     return eventFunc.apply(eventHandler(), (T) this);
   }
   
   @SuppressWarnings("unchecked")
   public void withEventHandlerV(BiConsumer<EventHandler<T>, T> eventFunc) {
+    CSSValue visibility = box().properties().get(CSSProperty.VISIBILITY);
+    if (!visibility.equals(VisibilityValue.VISIBLE)) return;
     eventFunc.accept(eventHandler(), (T) this);
   }
 

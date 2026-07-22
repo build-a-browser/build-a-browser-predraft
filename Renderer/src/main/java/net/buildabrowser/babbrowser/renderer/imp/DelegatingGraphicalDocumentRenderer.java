@@ -75,16 +75,6 @@ public class DelegatingGraphicalDocumentRenderer implements GraphicalDocumentRen
   }
 
   @Override
-  public void addRepaintListener(Runnable repaintListener) {
-    navigable.uaNavigableOptions().addRepaintListener(repaintListener);
-  }
-
-  @Override
-  public void removeRepaintListener(Runnable repaintListener) {
-    navigable.uaNavigableOptions().removeRepaintListener(repaintListener);
-  }
-
-  @Override
   public void close() throws IOException {
     activeRenderer().close();
   }

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import net.buildabrowser.babbrowser.a11y.core.A11YFrame;
-import net.buildabrowser.babbrowser.a11y.core.A11YProvider;
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamily;
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
@@ -13,6 +12,7 @@ import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.media.MediaContext;
+import net.buildabrowser.babbrowser.debugger.core.DebugContext;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
@@ -28,6 +28,7 @@ import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
+import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxGenerator;
 import net.buildabrowser.babbrowser.renderer.box.DocumentBox;
@@ -35,7 +36,9 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.context.ScriptingContext;
+import net.buildabrowser.babbrowser.renderer.context.SelectionContext;
 import net.buildabrowser.babbrowser.renderer.context.imp.ElementContextImp;
+import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.image.ImageCache;
@@ -73,6 +76,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private final SlotFamily<HTMLElement, ElementContext> elementContexts;
   private final HTMLCompositeLayers compositeLayers;
   private final HTMLEventForwardingTarget eventForwardingTarget;
+  private final SelectionContext selectionContext;
+  private final DebugContext debugContext;
 
   private volatile InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
   private LoadedFont rootFont;
@@ -84,25 +89,28 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   public HTMLGraphicalDocumentRendererImp(
     HTMLDocument document,
     Navigable navigable,
-    Painter painter,
-    A11YProvider a11yProvider,
+    RenderingEngine renderingEngine,
     SlotFamilyFamily slotFamilyFamily
   ) throws IOException {
     this.document = document;
     this.navigable = navigable;
-    this.painter = painter;
+    this.painter = renderingEngine.painter();
 
+    EventContext eventContext = EventContext.create();
     this.elementContexts = slotFamilyFamily.createSlotFamily(ElementContextImp::new);
-    this.a11yFrame = a11yProvider.createFrame(new HTMLA11YOps(elementContexts));
+    this.a11yFrame = renderingEngine.a11yProvider().createFrame(new HTMLA11YOps(elementContexts));
     this.boxGenerator = BoxGenerator.create(elementContexts);
-    this.uaStyleSheets = navigable.uaNavigableOptions().uaStyleSheets();
+    this.uaStyleSheets = renderingEngine.uaStyleSheets();
     this.cssMatcher = CSSMatcher.create(
       new RenderCSSMatcherContext(elementContexts),
       uaStyleSheets, slotFamilyFamily);
     this.documentBox = DocumentBox.create(document);
     this.compositeLayers = new HTMLCompositeLayers(painter);
-    this.eventForwardingTarget = new HTMLEventForwardingTarget(
-      document, compositeLayers, elementContexts);
+    this.selectionContext = SelectionContext.create(
+      document.getSelection(),
+      // TODO: Not so great to leech off of the CSS module
+      cssMatcher.allElements().createChild());
+    this.debugContext = new HTMLDebugContext(document);
 
     FetchEngine fetchEngine = navigable.uaNavigableOptions().fetchEngine();
     
@@ -110,18 +118,31 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       cssMatcher.documentChangeListener(), elementContexts);
     innerChangeListener = new ElementDocumentChangeListener(
       fetchEngine, innerChangeListener);
-    this.changeListener = new HTMLEventDocumentChangeListener(document, innerChangeListener);
+    innerChangeListener = new HTMLEventDocumentChangeListener(
+      document, innerChangeListener);
+    this.changeListener = new HTMLSelectionDocumentChangeListener(
+      document, selectionContext, innerChangeListener);
     
+    EventForwardingTarget eventForwardingTarget = new HTMLSelectionEventForwardingTarget<>(
+      document, selectionContext, renderingEngine.clipboardProvider(), null);
+    this.eventForwardingTarget = new HTMLEventForwardingTarget(
+      eventContext, document, compositeLayers, elementContexts,
+      eventForwardingTarget);
+
     this.scriptingContext = ScriptingContext.create(
       fetchEngine,
       document.browsingContext().realm().hostDefined());
     this.imageCache = ImageCache.create(scriptingContext, painter.resourceLoader());
 
-    document.focusManager().attachContext(new HTMLFocusManagerContext(elementContexts));
+    document.focusManager().attachContext(
+      new HTMLFocusManagerContext(eventContext, elementContexts));
   }
 
   @Override
   public boolean shouldRender() {
+    // Hackily need to place this here, because debugger might need to update any frame
+    // and other methods on the event loop may not run
+    updateDebugger();
     return
       !invalidationLevel.equals(InvalidationLevel.NONE)
       || cssMatcher.changed();
@@ -161,6 +182,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       long boxStartTime = System.currentTimeMillis();
       recomputeBoxes();
       PerfLogging.logBoxTime(boxStartTime);
+      updateDebugger();
     }
     if (invalidationLevel.ordinal() <= InvalidationLevel.LAYOUT.ordinal()) {
       long layoutStartTime = System.currentTimeMillis();
@@ -171,6 +193,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       long a11yStartTime = System.currentTimeMillis();
       a11yFrame.update(document);
       PerfLogging.logA11YTime(a11yStartTime);
+      updateDebugger();
     }
   }
 
@@ -192,6 +215,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     navigable.uaNavigableOptions().requestRepaint();
 
     PerfLogging.logPaintTime(paintStartTime);
+
+    updateDebugger();
   }
 
   @Override
@@ -236,16 +261,6 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   }
 
   @Override
-  public void addRepaintListener(Runnable repaintListener) {
-    navigable.uaNavigableOptions().addRepaintListener(repaintListener);
-  }
-
-  @Override
-  public void removeRepaintListener(Runnable repaintListener) {
-    navigable.uaNavigableOptions().addRepaintListener(repaintListener);
-  }
-
-  @Override
   public void onDocumentInvalidated(InvalidationLevel invalidationLevel) {
     if (invalidationLevel.ordinal() < this.invalidationLevel.ordinal()) {
       this.invalidationLevel = invalidationLevel;
@@ -270,6 +285,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     }
     if (child == null) return;
     documentBox.setChild((ElementBox) child);
+
+    selectionContext.updateSelection();
   }
 
   private void recomputeLayout() {
@@ -297,8 +314,17 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     Viewport viewport = new Viewport(0, 0, width, height);
     GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
       painter.resourceLoader(), rootFont.metrics(), fontCache, fontWordWidthCache,
-      viewport, scriptingContext, imageCache, fragmentFactory);
+      viewport, scriptingContext, selectionContext, imageCache, fragmentFactory);
     return globalLayoutContext;
+  }
+
+  private void updateDebugger() {
+    if (
+      navigable.uaNavigableOptions().eventListener()
+        instanceof DebuggableDocumentRendererEventListener debuggableEventListener
+    ) {
+      debuggableEventListener.update(debugContext);
+    }
   }
   
 }

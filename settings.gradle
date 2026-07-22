@@ -3,11 +3,11 @@ import org.gradle.nativeplatform.internal.DefaultTargetMachineFactory
 rootProject.name = 'buildabrowser'
 include(
   ':Common', ':Infra',
-  ':CSSBase', ':CSSEngine', ':PainterCore', ':Renderer',
-  ':PainterSkija', ':PainterJava2D',
-  ':DOM', ':HTML', ':HTMLParser',
+  ':CSSBase', ':CSSEngine', ':Renderer',
+  ':PainterCore', ':PainterSkija', ':PainterJava2D',
+  ':DebuggerCore', ':DebuggerSwing',
+  ':DOM', ':HTML', ':HTMLParser',':Browser', ':Network',
   ':A11YCore', ':A11YAccessKit',
-  ':Browser', ':Network',
   ':Stream', ':Fetch')
 
 // Copied from Brotli4J website (https://github.com/hyperxpro/Brotli4j/blob/main/LICENSE)

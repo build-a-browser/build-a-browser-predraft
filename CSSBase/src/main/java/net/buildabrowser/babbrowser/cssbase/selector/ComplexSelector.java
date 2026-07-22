@@ -20,6 +20,14 @@ public class ComplexSelector implements Slottable {
   }
 
   @Override
+  public String toString() {
+    return new StringBuilder("ComplexSelector[parts=")
+      .append(parts.toString())
+      .append(']')
+      .toString();
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (!(o instanceof ComplexSelector)) return false;
 

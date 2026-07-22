@@ -45,36 +45,43 @@ public class DefaultFragmentFactory implements FragmentFactory {
   public FlowBlockBoxFragment createFlowBlockBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box, LayoutFragment fragments
   ) {
     return new DefaultFlowBlockBoxFragment(
       width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
       box, fragments);
   }
 
   public FlowInlineBoxFragment createFlowInlineBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box, LayoutFragment fragments
   ) {
     return new DefaultFlowInlineBoxFragment(
       width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
       box, fragments);
   }
 
   public FlexBoxFragment createFlexBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box, UnmanagedBoxFragment<?> fragments
   ) {
     return new DefaultFlexBoxFragment(
       width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
       box, fragments);
   }
 
   public TableBoxFragment createTableBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box,
     Table table,
     TableBorderAssignment borderAssignment,
@@ -82,6 +89,7 @@ public class DefaultFragmentFactory implements FragmentFactory {
   ) {
     return new DefaultTableBoxFragment(
       width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
       box, table, borderAssignment,
       outOfTableFragments);
   }
@@ -101,6 +109,7 @@ public class DefaultFragmentFactory implements FragmentFactory {
   public BaseInputFragment<?> createInputBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box,
     InputTypeContent content
   ) {
@@ -109,7 +118,9 @@ public class DefaultFragmentFactory implements FragmentFactory {
       case HiddenTypeContent _1 -> new DefaultHiddenInputFragment(
         width, height, inkWidth, inkHeight, box);
       case TextTypeContent _1 -> new DefaultTextInputFragment(
-        width, height, inkWidth, inkHeight, box);
+        width, height, inkWidth, inkHeight,
+        firstBaseline, lastBaseline,
+        box);
       default -> throw new UnsupportedOperationException(
         "Unrecognized content: " + content);
     };
@@ -118,11 +129,13 @@ public class DefaultFragmentFactory implements FragmentFactory {
   public UnmanagedBoxFragment<?> createButtonBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox rootBox,
     UnmanagedBoxFragment<?> innerFragment
   ) {
     return new DefaultButtonInputFragment(
       width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
       rootBox, innerFragment);
   }
 
@@ -142,9 +155,13 @@ public class DefaultFragmentFactory implements FragmentFactory {
   public UnmanagedBoxFragment<?> createGenericUnmanagedBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box
   ) {
-    return new GenericUnmanagedBoxFragment(width, height, inkWidth, inkHeight, box);
+    return new GenericUnmanagedBoxFragment(
+      width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
+      box);
   }
   
 }

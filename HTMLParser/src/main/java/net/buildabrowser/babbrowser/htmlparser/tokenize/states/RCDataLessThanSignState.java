@@ -12,11 +12,11 @@ public class RCDataLessThanSignState implements TokenizeState {
     switch (ch) {
       case '/':
         tokenizeContext.temporaryBuffer().clear();
-        tokenizeContext.setTokenizeState(TokenizeStates.rcdataEndTagOpenState);
+        tokenizeContext.setTokenizeState(TokenizeStates.RCDATA_END_TAG_OPEN_STATE);
         break;
       default:
         parseContext.emitCharacterToken('<');
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.rcdataState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.RCDATA_STATE);
     }
   }
   

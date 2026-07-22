@@ -29,7 +29,7 @@ public class WindowImp implements Window {
   @Override
   public void close() throws IOException {
     mutationEventDispatcher.fire(listener -> listener.onClose(this));
-    for (Tab tab: tabs) {
+    for (Tab tab: List.copyOf(tabs)) {
       tab.close();
     }
   }

@@ -47,11 +47,11 @@ public class BeforeHeadInsertionMode implements InsertionMode {
   @Override
   public boolean emitTagToken(ParseContext parseContext, TagToken tagToken) {
     if (tagToken.isStartTag() && tagToken.name().equals("html")) {
-      return InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
+      return InsertionModes.IN_BODY_INSERTION_MODE.emitTagToken(parseContext, tagToken);
     } else if (tagToken.isStartTag() && tagToken.name().equals("head")) {
       Element element = ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
       parseContext.setTheHeadElementPointer(element);
-      parseContext.setInsertionMode(InsertionModes.inHeadInsertionMode);
+      parseContext.setInsertionMode(InsertionModes.IN_HEAD_INSERTION_MODE);
       return false;
     } else if (!tagToken.isStartTag()) {
       switch (tagToken.name()) {
@@ -69,7 +69,7 @@ public class BeforeHeadInsertionMode implements InsertionMode {
   private boolean handleAnythingElse(ParseContext parseContext) {
     Element element = ParseElementUtil.insertAnHTMLElement(parseContext, TagToken.create(true, "head"));
     parseContext.setTheHeadElementPointer(element);
-    parseContext.setInsertionMode(InsertionModes.inHeadInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.IN_HEAD_INSERTION_MODE);
     return true;
   }
   

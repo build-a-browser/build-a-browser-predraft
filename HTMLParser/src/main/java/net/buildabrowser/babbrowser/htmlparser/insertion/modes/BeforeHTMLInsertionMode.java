@@ -1,7 +1,6 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
 import net.buildabrowser.babbrowser.dom.Element;
-import net.buildabrowser.babbrowser.dom.Namespace;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
@@ -11,6 +10,7 @@ import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
 import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
+import net.buildabrowser.babbrowser.infra.Namespace;
 
 public class BeforeHTMLInsertionMode implements InsertionMode {
 
@@ -52,7 +52,7 @@ public class BeforeHTMLInsertionMode implements InsertionMode {
       Element element = ParseElementUtil.createAnElementForAToken(tagToken, Namespace.HTML_NAMESPACE, parseContext.document());
       parseContext.document().appendChild(element);
       parseContext.openElementStack().pushNode(element);
-      parseContext.setInsertionMode(InsertionModes.beforeHeadInsertionMode);
+      parseContext.setInsertionMode(InsertionModes.BEFORE_HEAD_INSERTION_MODE);
 
       return false;
     } else if (!tagToken.isStartTag()) {
@@ -73,7 +73,7 @@ public class BeforeHTMLInsertionMode implements InsertionMode {
     parseContext.document().appendChild(element);
     parseContext.openElementStack().pushNode(element);
 
-    parseContext.setInsertionMode(InsertionModes.beforeHeadInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.BEFORE_HEAD_INSERTION_MODE);
     
     return true;
   }

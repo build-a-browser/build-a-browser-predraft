@@ -18,7 +18,7 @@ public class PseudoSelectorMatchers implements DocumentChangeListener {
   private final ElementRootSet allElements;
   private final Consumer<SelectorPart> onSelectorChanged;
 
-  private final Map<SimplePseudoSelector, PseudoSelectorMatcher> matchers;
+  private final Map<SimplePseudoSelector, SimplePseudoSelectorMatcher> matchers;
 
   public PseudoSelectorMatchers(
     ElementRootSet allElements,
@@ -41,14 +41,14 @@ public class PseudoSelectorMatchers implements DocumentChangeListener {
 
   @Override
   public void onNodeAdded(Node node) {
-    for (PseudoSelectorMatcher matcher: matchers.values()) {
+    for (SimplePseudoSelectorMatcher matcher: matchers.values()) {
       matcher.onNodeAdded(node);
     }
   }
 
   @Override
   public void onNodeRemoved(Node node) {
-    for (PseudoSelectorMatcher matcher: matchers.values()) {
+    for (SimplePseudoSelectorMatcher matcher: matchers.values()) {
       matcher.onNodeRemoved(node);
     }
   }
@@ -56,16 +56,20 @@ public class PseudoSelectorMatchers implements DocumentChangeListener {
   @Override
   public void onAttributeChanged(Element element, String attrName, String prevValue, String newValue) {
     allElements.add(element);
-    for (PseudoSelectorMatcher matcher: matchers.values()) {
+    for (SimplePseudoSelectorMatcher matcher: matchers.values()) {
       matcher.onAttributeChanged(element, attrName, prevValue, newValue);
     }
   }
 
   @Override
-  public void onElementEvent(Element element, Event event) {
-    for (PseudoSelectorMatcher matcher: matchers.values()) {
-      matcher.onElementEvent(element, event);
+  public boolean onElementEvent(
+    Element element, Event event, boolean allowDefault
+  ) {
+    for (SimplePseudoSelectorMatcher matcher: matchers.values()) {
+      allowDefault = matcher.onElementEvent(element, event, allowDefault);
     }
+
+    return allowDefault;
   }
 
   public ElementSet match(SimplePseudoSelector selectorPart) {

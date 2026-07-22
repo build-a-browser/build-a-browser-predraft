@@ -4,42 +4,65 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.Text;
+import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
-import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
+import net.buildabrowser.babbrowser.renderer.content.flow.mapping.MappingRLEBuffer;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowInlineBoxFragment;
 
 public class LineBox {
 
-  private final FlowTextFragmentBuilder textBuilder = new FlowTextFragmentBuilder();
+  private final FlowTextFragmentBuilder textBuilder;
   
   private final Deque<LineSegment> lineSegments;
 
-  public LineBox() {
+  public LineBox(ElementBox rootBox) {
+    this.textBuilder = new FlowTextFragmentBuilder();
     this.lineSegments = new LinkedList<>();
-    lineSegments.push(new LineSegment(null));
+    lineSegments.push(new LineSegment(rootBox));
   }
 
-  private LineBox(Deque<LineSegment> segments) {
+  private LineBox(
+    FlowTextFragmentBuilder textBuilder,
+    Deque<LineSegment> segments
+  ) {
+    this.textBuilder = textBuilder;
     this.lineSegments = segments;
   }
 
   private float totalWidth = 0;
   
-  public void addFragment(LayoutFragment fragment) {
+  public void addFragment(
+    LayoutFragment fragment,
+    boolean isEmpty
+  ) {
     commitText();
     if (PositionUtil.affectsLayout(fragment)) {
       this.totalWidth += fragment.width(Measurement.MARGIN);
     }
-    lineSegments.peek().addFragment(fragment);
+    lineSegments.peek().addFragment(fragment, isEmpty);
   }
 
-  public void appendText(String text, float width, float height) {
+  public void startText(
+    Node sourceNode,
+    MappingRLEBuffer buffer
+  ) {
+    commitText();
+    textBuilder.startText(sourceNode, buffer);
+  }
+
+  public void appendText(
+    String text, int sourceIndex,
+    float width, float height
+  ) {
     this.totalWidth += width;
-    textBuilder.addText(text, width, height);
+    textBuilder.addText(text, sourceIndex, width, height);
   }
 
   public void pushElement(ElementBox elementBox) {
@@ -54,12 +77,8 @@ public class LineBox {
   public ElementBox popElement() {
     commitText();
     LineSegment lineSegment = lineSegments.pop();
-    FragmentFactory fragmentFactory = lineSegment.box().layoutContext().global().fragmentFactory();
-    FlowInlineBoxFragment inlineBoxFragment = fragmentFactory.createFlowInlineBoxFragment(
-      lineSegment.width(), lineSegment.height(),
-      lineSegment.inkWidth(), lineSegment.inkHeight(),
-      lineSegment.box(), lineSegment.fragments());
-    lineSegments.peek().addFragment(inlineBoxFragment);
+    FlowInlineBoxFragment inlineBoxFragment = lineSegment.toFragment();
+    lineSegments.peek().addFragment(inlineBoxFragment, lineSegment.isEmpty());
     
     this.totalWidth +=
       lineSegment.box().dimensions().getComputedMargin()[3] +
@@ -72,20 +91,17 @@ public class LineBox {
     return this.totalWidth;
   }
 
-  // TODO: This is surely wrong...
-  public float totalHeight() {
-    float totalHeight = textBuilder.height();
-    for (LineSegment segment: this.lineSegments) {
-      totalHeight = Math.max(totalHeight, segment.height());
-    }
-
-    return totalHeight;
-  }
-
   public LineBoxFragment toFragment() {
     commitText();
     LineSegment activeSegment = lineSegments.peek();
-    return new LineBoxFragment(totalWidth, activeSegment.height(), activeSegment.fragments());
+    FlowInlineBoxFragment inlineBoxFragment = activeSegment.toFragment();
+    // TODO: Why wasn't LineBoxFragment tracking the ink size?
+    return new LineBoxFragment(
+      inlineBoxFragment.width(Measurement.CONTENT),
+      inlineBoxFragment.height(Measurement.CONTENT),
+      inlineBoxFragment.firstBaseline(Measurement.CONTENT),
+      inlineBoxFragment.lastBaseline(Measurement.CONTENT),
+      inlineBoxFragment.fragments());
   }
 
   public LineBox split() {
@@ -102,12 +118,25 @@ public class LineBox {
       popElement();
     }
 
-    return new LineBox(newSegments);
+    return new LineBox(textBuilder, newSegments);
+  }
+
+  public boolean isEmpty() {
+    return lineSegments.peek().isEmpty();
   }
 
   private void commitText() {
     if (!textBuilder.isEmpty()) {
-      lineSegments.peek().addFragment(textBuilder.commit());
+      FontMetrics metrics = lineSegments.peek().box().layoutContext().font().metrics();
+      TextFragment textFragment = textBuilder.commit(metrics);
+      // TODO: Trim removes some control characters that should be kept
+      boolean isEmpty =
+        textFragment.text().trim().length() == 0
+        // Because whitespace collapse might insert \u200B
+        || (
+          textFragment.sourceNode() instanceof Text text
+          && text.data().trim().length() == 0);
+      lineSegments.peek().addFragment(textFragment, isEmpty);
     }
   }
 

@@ -53,4 +53,9 @@ public class SkijaFontMetrics implements FontMetrics {
     return primaryMetrics.getAscent();
   }
 
+  @Override
+  public float descent() {
+    return primaryMetrics.getDescent();
+  }
+
 }

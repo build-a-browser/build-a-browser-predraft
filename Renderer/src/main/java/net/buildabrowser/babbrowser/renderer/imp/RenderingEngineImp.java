@@ -20,6 +20,7 @@ import net.buildabrowser.babbrowser.html.navigation.util.TraversableUtil;
 import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
+import net.buildabrowser.babbrowser.renderer.clipboard.ClipboardProvider;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 import net.buildabrowser.babbrowser.renderer.uistate.Frame;
 
@@ -33,6 +34,7 @@ public class RenderingEngineImp implements RenderingEngine {
   private final A11YProvider a11yProvider;
   private final DocumentLoaderRegistry documentLoaderRegistry;
   private final ResourceResolver resourceResolver;
+  private final ClipboardProvider<?> clipboardProvider;
 
   public RenderingEngineImp(
     FetchEngine fetchEngine,
@@ -40,7 +42,8 @@ public class RenderingEngineImp implements RenderingEngine {
     Painter painter,
     A11YProvider a11yProvider,
     DocumentLoaderRegistry documentLoaderRegistry,
-    ResourceResolver resourceResolver
+    ResourceResolver resourceResolver,
+    ClipboardProvider<?> clipboardProvider
   ) {
     this.fetchEngine = fetchEngine;
     this.threadGroupSupplier = threadGroupSupplier;
@@ -48,6 +51,7 @@ public class RenderingEngineImp implements RenderingEngine {
     this.a11yProvider = a11yProvider;
     this.documentLoaderRegistry = documentLoaderRegistry;
     this.resourceResolver = resourceResolver;
+    this.clipboardProvider = clipboardProvider;
     RenderingEngineInit.init(resourceResolver);
   }
 
@@ -62,8 +66,8 @@ public class RenderingEngineImp implements RenderingEngine {
   ) throws IOException {
     Navigable navigable = TraversableUtil.createNewTopLevelTraversable(
       new UANavigableOptionsImp(
-        fetchEngine, threadGroupSupplier, this::loadUAStyleSheets,
-        documentLoaderRegistry, painter, a11yProvider, eventListener, slotFamilyFamily));
+        fetchEngine, threadGroupSupplier, documentLoaderRegistry,
+        this, eventListener, slotFamilyFamily));
 
     // TODO: Where does this code actually go?
     Window window = navigable.activeDocument().browsingContext().activeWindow();
@@ -75,7 +79,23 @@ public class RenderingEngineImp implements RenderingEngine {
     return new NavigableRendererPair(navigable, new DelegatingGraphicalDocumentRenderer(navigable));
   }
 
-  private StyleSheetList loadUAStyleSheets() {
+  @Override
+  public Painter painter() {
+    return this.painter;
+  }
+
+  @Override
+  public A11YProvider a11yProvider() {
+    return this.a11yProvider;
+  }
+  
+  @Override
+  public ClipboardProvider<?> clipboardProvider() {
+    return this.clipboardProvider;
+  }
+
+  @Override
+  public StyleSheetList uaStyleSheets() {
     try (
       Reader reader = new InputStreamReader(
         resourceResolver.resolve("ua/ua.css"))

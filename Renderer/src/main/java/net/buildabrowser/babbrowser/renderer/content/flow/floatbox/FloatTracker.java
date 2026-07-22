@@ -25,8 +25,6 @@ public interface FloatTracker {
 
   float lineEndPos(LayoutConstraint lineConstraint);
 
-  void reset();
-
   List<BoxFragment<?>> allFloats();
 
   // Exists to min-bound the containing block

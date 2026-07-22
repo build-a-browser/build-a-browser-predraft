@@ -15,10 +15,12 @@ public class DefaultFlexBoxFragment extends FlexBoxFragment {
   public DefaultFlexBoxFragment(
     float usedWidth, float usedHeight,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box, UnmanagedBoxFragment<?> fragments
   ) {
     super(
       usedWidth, usedHeight, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
       box, fragments);
   }
 

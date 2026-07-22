@@ -11,7 +11,7 @@ public class HexadecimalCharacterReferenceStartState implements TokenizeState {
   @Override
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     if (ASCIIUtil.isHexDigit(ch)) {
-      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.hexadecimalCharacterReferenceState);
+      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.HEXADECIMAL_CHARACTER_REFERENCE_STATE);
     } else {
       parseContext.parseError();
       tokenizeContext.flushCodePointsConsumedAsACharacterReference(parseContext);

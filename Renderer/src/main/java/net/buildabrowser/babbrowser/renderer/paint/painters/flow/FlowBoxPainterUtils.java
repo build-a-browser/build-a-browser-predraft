@@ -10,12 +10,12 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.fragment.flow.FloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.flow.FloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.paint.PaintUtil;
 import net.buildabrowser.babbrowser.renderer.paint.PaintUtil.FragmentPaintFunc;
 import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
@@ -33,7 +33,7 @@ public final class FlowBoxPainterUtils {
   ) {
     switch (fragment) {
       case ManagedBoxFragment<?> boxFragment -> paintManagedBoxFragment(
-        boxFragment, canvas, vpIntersection, refFragment);
+        boxFragment, canvas, vpIntersection);
       case UnmanagedBoxFragment<?> boxFragment -> boxFragment.withPainterV(
         (p, f) -> p.paint(f, canvas, vpIntersection));
       // TODO: Make sure it was shifted by line box content
@@ -49,8 +49,7 @@ public final class FlowBoxPainterUtils {
   static void paintManagedBoxFragment(
     ManagedBoxFragment<?> fragment,
     PaintCanvas canvas,
-    VpIntersection vpIntersection,
-    BoxFragment<?> refFragment
+    VpIntersection vpIntersection
   ) {
     ElementBox parentBox = fragment.box();
     
@@ -58,11 +57,11 @@ public final class FlowBoxPainterUtils {
     while (curNode != null) {
       LayoutFragment childFragment = curNode;
       curNode = curNode.next();
-      if (startsStackingContext(childFragment, refFragment)) continue;
+      if (startsStackingContext(childFragment, fragment)) continue;
 
-      withFragmentContent(
-        canvas, vpIntersection, refFragment, parentBox, childFragment,
-        (f, c, vpi) -> paintFragment(f, c, vpi, refFragment));
+      withFragment(
+        canvas, vpIntersection, fragment, parentBox, childFragment, Measurement.CONTENT,
+        (f, c, vpi) -> paintFragment(f, c, vpi, fragment));
     }
   }
 
@@ -77,10 +76,11 @@ public final class FlowBoxPainterUtils {
       case PosRefBoxFragment _1 -> {}
       case FloatRefFragment _1 -> {}
       case ManagedBoxFragment<?> boxFragment -> paintInlineManagedBoxFragment(
-        boxFragment, canvas, vpIntersection, refFragment);
+        boxFragment, canvas, vpIntersection);
       case UnmanagedBoxFragment<?> boxFragment -> paintInlineUnmanagedBoxFragment(
         boxFragment, canvas, vpIntersection);
-      case TextFragment textFragment -> paintTextFragment(canvas, textFragment);
+      case TextFragment textFragment -> FlowTextPainter.paintTextFragment(
+        canvas, refFragment, textFragment);
       default -> throw new UnsupportedOperationException("Unrecognized Fragment Type! " + fragment.getClass());
     }
   }
@@ -88,8 +88,7 @@ public final class FlowBoxPainterUtils {
   static void paintInlineManagedBoxFragment(
     ManagedBoxFragment<?> fragment,
     PaintCanvas canvas,
-    VpIntersection vpIntersection,
-    BoxFragment<?> refFragment
+    VpIntersection vpIntersection
   ) {
     paintManagedBackground(canvas, fragment, vpIntersection);
 
@@ -98,11 +97,11 @@ public final class FlowBoxPainterUtils {
     while (curNode != null) {
       LayoutFragment childFragment = curNode;
       curNode = curNode.next();
-      if (startsStackingContext(childFragment, refFragment)) continue;
+      if (startsStackingContext(childFragment, fragment)) continue;
 
-      withFragmentContent(
-        canvas, vpIntersection, refFragment, parentBox, childFragment,
-        (f, c, vpi) -> paintInlineFragment(f, c, vpi, refFragment));
+      withFragment(
+        canvas, vpIntersection, fragment, parentBox, childFragment, Measurement.BORDER,
+        (f, c, vpi) -> paintInlineFragment(f, c, vpi, fragment));
     }
   }
 
@@ -114,10 +113,6 @@ public final class FlowBoxPainterUtils {
     paintUnmanagedBackgroundThen(
       canvas, fragment, vpIntersection,
       c -> fragment.withPainterV((p, f) -> p.paint(f, c, vpIntersection)));
-  }
-
-  private static void paintTextFragment(PaintCanvas canvas, TextFragment textFragment) {
-    canvas.drawText(0, 0, textFragment.text());
   }
 
   private static void paintLineBoxFragment(
@@ -132,8 +127,8 @@ public final class FlowBoxPainterUtils {
       curNode = curNode.next();
       if (startsStackingContext(childFragment, refFragment)) continue;
 
-      withFragmentContent(
-        canvas, vpIntersection, refFragment, childFragment,
+      withFragment(
+        canvas, vpIntersection, refFragment, childFragment, Measurement.BORDER,
         (f, c, vpi) -> paintInlineFragment(f, c, vpi, refFragment));
     }
   }
@@ -141,8 +136,7 @@ public final class FlowBoxPainterUtils {
   static void paintBlockBackground(
     BoxFragment<?> fragment,
     PaintCanvas canvas,
-    VpIntersection vpIntersection,
-    BoxFragment<?> refFragment
+    VpIntersection vpIntersection
   ) {
     if (!(fragment instanceof ManagedBoxFragment managedBoxFragment)) {
       paintUnmanagedBackground(canvas, fragment, vpIntersection);
@@ -151,26 +145,25 @@ public final class FlowBoxPainterUtils {
     
     paintManagedBackgroundThen(
       canvas, fragment, vpIntersection,
-      c -> paintBlockLevelBackgrounds(managedBoxFragment, c, vpIntersection, refFragment));
+      c -> paintBlockLevelBackgrounds(managedBoxFragment, c, vpIntersection));
   }
 
   static void paintBlockLevelBackgrounds(
     ManagedBoxFragment<?> fragment,
     PaintCanvas canvas,
-    VpIntersection vpIntersection,
-    BoxFragment<?> refFragment
+    VpIntersection vpIntersection
   ) {
     LayoutFragment curNode = fragment.fragments();
     while (curNode != null) {
       LayoutFragment childFragment = curNode;
       curNode = curNode.next();
-      if (startsStackingContext(childFragment, refFragment)) continue;
+      if (startsStackingContext(childFragment, fragment)) continue;
 
       if (childFragment instanceof BoxFragment childBoxFragment) {
         canvas.withTransform(
           t -> t.translate(childFragment.posX(Measurement.BORDER), childFragment.posY(Measurement.BORDER)),
           c -> PaintUtil.maybePaintFragment(childBoxFragment, c, vpIntersection,
-            (f, c2, vpi) -> paintBlockBackground(f, c2, vpi, refFragment)));
+            (f, c2, vpi) -> paintBlockBackground(f, c2, vpi)));
       }
     }
   }
@@ -222,24 +215,26 @@ public final class FlowBoxPainterUtils {
       paintFunc);
   }
 
-  private static <T extends LayoutFragment> void withFragmentContent(
+  private static <T extends LayoutFragment> void withFragment(
     PaintCanvas canvas,
     VpIntersection vpIntersection,
     BoxFragment<?> refFragment,
     T childFragment,
+    Measurement measurement,
     FragmentPaintFunc<T> func
   ) {
     canvas.withTransform(
-      t -> t.translate(childFragment.posX(Measurement.CONTENT), childFragment.posY(Measurement.CONTENT)),
+      t -> t.translate(childFragment.posX(measurement), childFragment.posY(measurement)),
       c -> PaintUtil.maybePaintFragment(childFragment, c, vpIntersection, func));
   }
 
-  private static <T extends LayoutFragment> void withFragmentContent(
+  private static <T extends LayoutFragment> void withFragment(
     PaintCanvas canvas,
     VpIntersection vpIntersection,
     BoxFragment<?> refFragment,
     ElementBox parentBox,
     T childFragment,
+    Measurement measurement,
     FragmentPaintFunc<T> func
   ) {
     canvas.withPaintAndTransform(
@@ -247,7 +242,7 @@ public final class FlowBoxPainterUtils {
         paint.setFont(parentBox.layoutContext().font());
         paint.setColor(PropertiesUtil.textColor(parentBox.properties()));
       },
-      t -> t.translate(childFragment.posX(Measurement.CONTENT), childFragment.posY(Measurement.CONTENT)),
+      t -> t.translate(childFragment.posX(measurement), childFragment.posY(measurement)),
       c -> PaintUtil.maybePaintFragment(childFragment, c, vpIntersection, func));
   }
 

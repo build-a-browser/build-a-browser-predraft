@@ -81,32 +81,6 @@ public class ElementImp extends NodeImp implements Element {
 
     nodeDocument().changeListener().onAttributeChanged(this, name, prevValue, value);
   }
-  
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder("<");
-    builder.append(name);
-
-    AttributeList currentAttribute = attributes;
-    while (currentAttribute != null) {
-      builder.append(' ');
-      builder.append(currentAttribute.name());
-      builder.append("=\"");
-      builder.append(currentAttribute.value());
-      builder.append('"');
-      currentAttribute = currentAttribute.next();
-    }
-    builder.append(">");
-    forEachChild(child -> {
-      builder.append(child.toString());
-    });
-    builder
-      .append("</")
-      .append(name)
-      .append(">");
-    
-    return builder.toString();
-  }
 
   @Override
   public int getId() {

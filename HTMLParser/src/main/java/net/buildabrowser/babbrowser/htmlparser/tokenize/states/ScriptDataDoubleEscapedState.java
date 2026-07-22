@@ -11,11 +11,11 @@ public class ScriptDataDoubleEscapedState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     switch (ch) {
       case '-':
-        tokenizeContext.setTokenizeState(TokenizeStates.scriptDataDoubleEscapedDashState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE);
         parseContext.emitCharacterToken('-');
         break;
       case '<':
-        tokenizeContext.setTokenizeState(TokenizeStates.scriptDataDoubleEscapedLessThanSignState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE);
         parseContext.emitCharacterToken('<');
         break;
       case 0:

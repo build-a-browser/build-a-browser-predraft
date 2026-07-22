@@ -21,7 +21,6 @@ public class OpenElementStackImp implements OpenElementStack {
 
   private final List<Node> stack = new LinkedList<>();
 
-  @Override
   public void pushNode(Node node) {
     stack.add(0, node);
   }
@@ -67,7 +66,7 @@ public class OpenElementStackImp implements OpenElementStack {
     if (!(node.nodeDocument() instanceof HTMLDocument document)) return;
     document.setTitleElement((HTMLElement) node);
     DocumentRendererEventListener eventListener = document
-      .nodeNavigable().uaNavigableOptions().eventListener();
+      .uaNavigableOptions().eventListener();
     if (eventListener != null) {
       eventListener.onTitleChanged(document.title());
     }

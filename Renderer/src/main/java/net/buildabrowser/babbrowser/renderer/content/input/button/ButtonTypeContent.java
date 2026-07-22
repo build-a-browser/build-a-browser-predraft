@@ -20,22 +20,23 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConst
 // TODO: I think buttons should also get their own stacking context
 public class ButtonTypeContent implements InputTypeContent {
   
-  private final ElementBox rootBox;
   private final String defaultValue;
 
   private BoxContent innerContent;
 
   public ButtonTypeContent(
-    ElementBox rootBox,
     String defaultValue
   ) {
-    this.rootBox = rootBox;
     this.defaultValue = defaultValue;
   }
 
   // TODO: Other button-like constraints
   @Override
-  public UnmanagedBoxFragment<?> layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint) {
+  public UnmanagedBoxFragment<?> layout(
+    ElementBox rootBox,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
+  ) {
     String value = rootBox.element().getAttribute("value");
     if (value == null) value = defaultValue;
     // TODO: Cache the box?
@@ -45,7 +46,7 @@ public class ButtonTypeContent implements InputTypeContent {
     ElementBox innerBox = ElementBox.createAnonymous(anonProperties, rootBox, BoxLevel.BLOCK_LEVEL);
     innerBox.addChild(TextBox.create(Text.create(value)));
     this.innerContent = innerBox.content();
-    UnmanagedBoxFragment<?> innerFragment = innerContent.layout(widthConstraint, heightConstraint);
+    UnmanagedBoxFragment<?> innerFragment = innerContent.layout(innerBox, widthConstraint, heightConstraint);
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
 
     float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, innerFragment.width(Measurement.CONTENT));
@@ -63,27 +64,26 @@ public class ButtonTypeContent implements InputTypeContent {
     float inkHeight = Math.max(usedHeight, innerFragment.inkHeight(Measurement.CONTENT));
     UnmanagedBoxFragment<?> buttonFragment = fragmentFactory.createButtonBoxFragment(
       usedWidth, usedHeight, inkWidth, inkHeight,
+      // TODO: Properly compute baselines
+      innerFragment.firstBaseline(Measurement.MARGIN),
+      innerFragment.lastBaseline(Measurement.MARGIN),
       rootBox, innerFragment);
-    buttonFragment.setPos(0, 0);
-    rootBox.updatePositioningFragment(buttonFragment);
     return buttonFragment;
   }
 
   @Override
-  public void positionLayers(float layerX, float layerY) {
-    ButtonInputFragment fragment = (ButtonInputFragment) rootBox.positioningFragment();
+  public void positionLayers(
+    UnmanagedBoxFragment<?> fragment,
+    float layerX, float layerY
+  ) {
     fragment.setLayerPos(layerX, layerY);
     float offsetX = layerX + (fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.BORDER));
     float offsetY = layerY + (fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.BORDER));
 
     // TODO: Why isn't innerContent already doing this?
-    fragment.innerFragment().setLayerPos(offsetX, offsetY);
-    innerContent.positionLayers(offsetX, offsetY);
-  }
-
-  @Override
-  public ElementBox rootBox() {
-    return this.rootBox;
+    UnmanagedBoxFragment<?> innerFragment = ((ButtonInputFragment) fragment).innerFragment();
+    innerFragment.setLayerPos(offsetX, offsetY);
+    innerContent.positionLayers(innerFragment, offsetX, offsetY);
   }
 
 }

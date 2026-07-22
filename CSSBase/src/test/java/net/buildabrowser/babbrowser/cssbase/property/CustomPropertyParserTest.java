@@ -13,6 +13,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
+import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSVarValue;
 import net.buildabrowser.babbrowser.cssbase.property.test.TestPropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
@@ -37,7 +38,7 @@ public class CustomPropertyParserTest {
   @Test
   @DisplayName("Custom property value is valid for empty value")
   public void customPropertyValueIsValidForEmptyValue() throws IOException {
-    CSSTokenStream tokens = CSSTokenStream.createForTesting();
+    SeekableCSSTokenStream tokens = CSSTokenStream.createForTesting();
     boolean isValid = CustomPropertyParser.isValidCustomPropertyValue(tokens, true);
     Assertions.assertTrue(isValid);
   }
@@ -45,7 +46,7 @@ public class CustomPropertyParserTest {
   @Test
   @DisplayName("Custom property value is valid for typical value")
   public void customPropertyValueIsValidForTypicalValue() throws IOException {
-    CSSTokenStream tokens = CSSTokenStream.createForTesting(
+    SeekableCSSTokenStream tokens = CSSTokenStream.createForTesting(
       DimensionToken.create(2, "em"),
       IdentToken.create("solid"),
       HashToken.create("000000", HashToken.Type.UNRESTRICTED)
@@ -57,7 +58,7 @@ public class CustomPropertyParserTest {
   @Test
   @DisplayName("Custom property value is not valid for value with unbalanced right parentheses")
   public void customPropertyValueIsNotValidForValueWithUnbalancedRightParantheses() throws IOException {
-    CSSTokenStream tokens = CSSTokenStream.createForTesting(
+    SeekableCSSTokenStream tokens = CSSTokenStream.createForTesting(
       RParenToken.create()
     );
     boolean isValid = CustomPropertyParser.isValidCustomPropertyValue(tokens, true);
@@ -67,7 +68,7 @@ public class CustomPropertyParserTest {
   @Test
   @DisplayName("Custom property value is valid for nested matched brackets")
   public void customPropertyValueIsValidForNestedMatchedBrackets() throws IOException {
-    CSSTokenStream tokens = CSSTokenStream.createForTesting(
+    SeekableCSSTokenStream tokens = CSSTokenStream.createForTesting(
       LSBracketToken.create(),
       LCBracketToken.create(),
       RCBracketToken.create(),
@@ -80,7 +81,7 @@ public class CustomPropertyParserTest {
   @Test
   @DisplayName("Custom property value is not valid for misnested brackets")
   public void customPropertyValueIsNotValidForMisnestedBrackets() throws IOException {
-    CSSTokenStream tokens = CSSTokenStream.createForTesting(
+    SeekableCSSTokenStream tokens = CSSTokenStream.createForTesting(
       LSBracketToken.create(),
       LCBracketToken.create(),
       RSBracketToken.create(),
@@ -93,7 +94,7 @@ public class CustomPropertyParserTest {
   @Test
   @DisplayName("Custom property value validity check is recursive")
   public void customPropertyValueValidityCheckIsRecursive() throws IOException {
-    CSSTokenStream tokens = CSSTokenStream.createForTesting(
+    SeekableCSSTokenStream tokens = CSSTokenStream.createForTesting(
       new FunctionValue("func", List.of(RParenToken.create()))
     );
     boolean isValid = CustomPropertyParser.isValidCustomPropertyValue(tokens, true);
@@ -103,7 +104,7 @@ public class CustomPropertyParserTest {
   @Test
   @DisplayName("Custom property value is not valid for value with top-level exclamation")
   public void customPropertyValueIsNotValidForValueWithTopLevelExclamation() throws IOException {
-    CSSTokenStream tokens = CSSTokenStream.createForTesting(
+    SeekableCSSTokenStream tokens = CSSTokenStream.createForTesting(
       DelimToken.create('!')
     );
     boolean isValid = CustomPropertyParser.isValidCustomPropertyValue(tokens, true);
@@ -113,7 +114,7 @@ public class CustomPropertyParserTest {
   @Test
   @DisplayName("Custom property value is valid for value with nested exclamation")
   public void customPropertyValueIsValidForValueWithNestedExclamation() throws IOException {
-    CSSTokenStream tokens = CSSTokenStream.createForTesting(
+    SeekableCSSTokenStream tokens = CSSTokenStream.createForTesting(
       new FunctionValue("func", List.of(DelimToken.create('!')))
     );
     boolean isValid = CustomPropertyParser.isValidCustomPropertyValue(tokens, true);
@@ -123,7 +124,7 @@ public class CustomPropertyParserTest {
   @Test
   @DisplayName("Custom property value is not valid for value with malformed var reference")
   public void customPropertyValueIsNotValidForValueWithMalformedVarReference() throws IOException {
-    CSSTokenStream tokens = CSSTokenStream.createForTesting(
+    SeekableCSSTokenStream tokens = CSSTokenStream.createForTesting(
       new FunctionValue("var", List.of())
     );
     boolean isValid = CustomPropertyParser.isValidCustomPropertyValue(tokens, true);
@@ -135,7 +136,7 @@ public class CustomPropertyParserTest {
   @Test
   @DisplayName("Var reference is detected when present")
   public void varReferenceIsDetectedWhenPresent() throws IOException {
-    CSSTokenStream tokens = CSSTokenStream.createForTesting(
+    SeekableCSSTokenStream tokens = CSSTokenStream.createForTesting(
       new FunctionValue("var", List.of(IdentToken.create("--my-var")))
     );
     Boolean isDetected = CustomPropertyParser.hasVarReferences(tokens);
@@ -146,7 +147,7 @@ public class CustomPropertyParserTest {
   @Test
   @DisplayName("Var reference is not detected when not present")
   public void varReferenceIsNotDetectedWhenNotPresent() throws IOException {
-    CSSTokenStream tokens = CSSTokenStream.createForTesting(
+    SeekableCSSTokenStream tokens = CSSTokenStream.createForTesting(
       new FunctionValue("fast", List.of(IdentToken.create("car")))
     );
     Boolean isDetected = CustomPropertyParser.hasVarReferences(tokens);
@@ -157,7 +158,7 @@ public class CustomPropertyParserTest {
   @Test
   @DisplayName("Var reference is detected when nested")
   public void varReferenceIsDetectedWhenNested() throws IOException {
-    CSSTokenStream tokens = CSSTokenStream.createForTesting(
+    SeekableCSSTokenStream tokens = CSSTokenStream.createForTesting(
       new FunctionValue("far", List.of(
         new FunctionValue("var", List.of(IdentToken.create("--my-var")))
       ))
@@ -170,7 +171,7 @@ public class CustomPropertyParserTest {
   @Test
   @DisplayName("Invalid var reference is reported")
   public void invalidVarReferenceIsReported() throws IOException {
-    CSSTokenStream tokens = CSSTokenStream.createForTesting(
+    SeekableCSSTokenStream tokens = CSSTokenStream.createForTesting(
       new FunctionValue("var", List.of(IdentToken.create("my-var")))
     );
     Boolean isDetected = CustomPropertyParser.hasVarReferences(tokens);

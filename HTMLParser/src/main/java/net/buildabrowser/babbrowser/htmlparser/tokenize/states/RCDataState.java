@@ -12,10 +12,10 @@ public class RCDataState implements TokenizeState {
     switch (ch) {
       case '&':
         tokenizeContext.setReturnState(this);
-        tokenizeContext.setTokenizeState(TokenizeStates.characterReferenceState);
+        tokenizeContext.setTokenizeState(TokenizeStates.CHARACTER_REFERENCE_STATE);
         break;
       case '<':
-        tokenizeContext.setTokenizeState(TokenizeStates.rcdataLessThanSignState);
+        tokenizeContext.setTokenizeState(TokenizeStates.RCDATA_LESS_THAN_SIGN_STATE);
         break;
       case 0:
         parseContext.parseError();

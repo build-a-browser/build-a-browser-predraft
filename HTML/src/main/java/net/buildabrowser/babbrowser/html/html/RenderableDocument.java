@@ -4,6 +4,7 @@ import java.net.URI;
 
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
+import net.buildabrowser.babbrowser.html.navigation.Navigable;
 
 public interface RenderableDocument {
  
@@ -14,6 +15,8 @@ public interface RenderableDocument {
   BrowsingContext browsingContext();
 
   DocumentRenderer renderer();
+
+  Navigable nodeNavigable();
 
   void attachRenderer(DocumentRenderer renderer);
 

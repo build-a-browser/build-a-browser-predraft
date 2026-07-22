@@ -13,10 +13,10 @@ public class HexadecimalCharacterReferenceState implements TokenizeState {
     if (ASCIIUtil.isHexDigit(ch)) {
       tokenizeContext.setCharacterReferenceCode(tokenizeContext.getCharacterReferenceCode() * 16 + ASCIIUtil.hexValue(ch));
     } else if (ch == ';') {
-      tokenizeContext.setTokenizeState(TokenizeStates.numericCharacterReferenceEndState);
+      tokenizeContext.setTokenizeState(TokenizeStates.NUMERIC_CHARACTER_REFERENCE_END_STATE);
     } else {
       parseContext.parseError();
-      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.numericCharacterReferenceEndState);
+      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.NUMERIC_CHARACTER_REFERENCE_END_STATE);
     }
   }
   

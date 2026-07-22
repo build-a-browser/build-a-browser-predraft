@@ -35,7 +35,7 @@ public class InitialInsertionMode implements InsertionMode {
   public boolean emitDoctypeToken(ParseContext parseContext, DoctypeToken doctypeToken) {
     // TODO: Append a DocumentType node
     // TODO: Other stuff
-    parseContext.setInsertionMode(InsertionModes.beforeHTMLInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.BEFORE_HTML_INSERTION_MODE);
     return false;
   };
 
@@ -51,7 +51,7 @@ public class InitialInsertionMode implements InsertionMode {
 
   private boolean handleAnythingElse(ParseContext parseContext) {
     // TODO: Handle quirks mode
-    parseContext.setInsertionMode(InsertionModes.beforeHTMLInsertionMode);
+    parseContext.setInsertionMode(InsertionModes.BEFORE_HTML_INSERTION_MODE);
     return true;
   }
   

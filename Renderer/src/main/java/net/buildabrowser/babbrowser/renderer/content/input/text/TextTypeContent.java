@@ -1,10 +1,12 @@
 package net.buildabrowser.babbrowser.renderer.content.input.text;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.stringRepeat;
+
 import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.input.InstrinsicSizedInputTypeContent;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.FocusEventHandler;
 import net.buildabrowser.babbrowser.renderer.event.handlers.input.TextInputFocusEventHandler;
 
@@ -15,32 +17,33 @@ public class TextTypeContent extends InstrinsicSizedInputTypeContent {
   private static final String PASSWORD_CHARACTER = "\u2219";
   private static TextInputFocusEventHandler TEXT_INPUT_FOCUS_EVENT_HANDLER = new TextInputFocusEventHandler();
 
-  private boolean isHidden = false;
+  private final HTMLInputElement element;
+  private final boolean isHidden;
 
   private int cursorX = 0;
   private float scrollX = 0;
   private boolean isReplaceMode = false;
 
   public TextTypeContent(
-    ElementBox rootBox,
+    HTMLInputElement element,
     boolean isHidden
   ) {
-    super(rootBox);
+    this.element = element;
     this.isHidden = isHidden;
   }
 
   public String value() {
-    return element().value();
+    return element.value();
   }
 
   public void setValue(String value) {
-    element().setValue(value);
+    element.setValue(value);
   }
 
   public String displayValue() {
     if (isHidden) {
       int valueLen = value().length();
-      return PASSWORD_CHARACTER.repeat(valueLen);
+      return stringRepeat(PASSWORD_CHARACTER, valueLen);
     } else return value();
   }
 
@@ -68,13 +71,10 @@ public class TextTypeContent extends InstrinsicSizedInputTypeContent {
     this.isReplaceMode = isReplaceMode;
   }
 
-  private HTMLInputElement element() {
-    return (HTMLInputElement) rootBox().element();
-  }
-
   @Override
   @SuppressWarnings("unchecked")
   public <T extends BoxContent> EventHandlerResponse withFocusEventHandler(
+    ElementBox box,
     FocusEventHandlerFunc<T> withHandlerFunc
   ) {
     return withHandlerFunc.apply(

@@ -19,6 +19,14 @@ public final class PropertiesUtil {
     return ((ColorValue) properties.get(CSSProperty.BACKGROUND_COLOR)).asSARGB();
   }
 
+  public static int selectionFgColor(PropertyContainer properties) {
+    return 0xFFFFFFFF;
+  }
+
+  public static int selectionBgColor(PropertyContainer properties) {
+    return 0xAA0000EE;
+  }
+
   public static OuterDisplayValue outerDisplayValue(PropertyContainer properties) {
     return ((DisplayValue) properties.get(CSSProperty.DISPLAY)).outerDisplayValue();
   }

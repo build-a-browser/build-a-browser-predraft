@@ -44,12 +44,12 @@ public final class FlexLayoutUtil {
       new GlobalLayoutContext(
         resourceLoader, testMetrics, resourceLoader.fontLoader()::load,
         (m, s) -> m.stringWidth(s),
-        viewport, null, null, fragmentFactory),
+        viewport, null, null, null, fragmentFactory),
       () -> testMetrics);
     LayoutContextGenerator.generateLayoutContexts(parentBox, layoutContext);
     FlexBoxContent content = (FlexBoxContent) parentBox.content();
 
-    content.fixupChildren();
+    content.fixupChildren(parentBox);
     FlexBoxFragment dimensionFrag = (FlexBoxFragment) parentBox.layout(widthConstraint, heightConstraint);
     return new FlexTestLayoutResult(dimensionFrag, dimensionFrag.fragments(), content);
   }

@@ -10,12 +10,13 @@ public abstract class ManagedBoxFragment<T extends ManagedBoxFragment<T>> extend
   public ManagedBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
-    ElementBox box, 
-    LayoutFragment fragments
+    float firstBaseline, float lastBaseline,
+    ElementBox box, LayoutFragment fragments
   ) {
     super(
       width, height,
       inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
       box);
     this.fragments = fragments;
   }

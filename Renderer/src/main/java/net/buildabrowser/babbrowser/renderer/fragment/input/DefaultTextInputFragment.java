@@ -14,9 +14,13 @@ public class DefaultTextInputFragment extends TextInputFragment {
   public DefaultTextInputFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box
   ) {
-    super(width, height, inkWidth, inkHeight, box);
+    super(
+      width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
+      box);
   }
 
   @Override

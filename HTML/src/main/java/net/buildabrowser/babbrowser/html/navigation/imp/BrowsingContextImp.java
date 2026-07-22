@@ -21,7 +21,8 @@ public class BrowsingContextImp implements BrowsingContext {
     
     // I moved this above some of the other steps because I need a document to
     // create a window
-    HTMLDocument document = HTMLDocument.create(this);
+    HTMLDocument document = HTMLDocument.create(
+      uaNavigableOptions, this, null);
     // TODO: Proper way to obtain a realm.
     Window window = Window.create(() -> agent.eventLoop(), document);
     Realm realm = Realm.create(window);

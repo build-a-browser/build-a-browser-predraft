@@ -86,6 +86,12 @@ public class ElementSetImp implements ElementSet {
   }
 
   @Override
+  @SuppressWarnings("deprecation")
+  public void difference(ElementSet other) {
+    rawSet.andNot(other.raw());
+  }
+
+  @Override
   public void forEachElementId(IntConsumer iterator) {
     for(
       int i = rawSet.nextSetBit(0);

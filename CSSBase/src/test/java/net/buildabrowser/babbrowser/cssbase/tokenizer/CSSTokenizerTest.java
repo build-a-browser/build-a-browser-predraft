@@ -155,7 +155,7 @@ public class CSSTokenizerTest {
   @DisplayName("Can tokenize a floating number token")
   public void canTokenizeAFloatingNumberToken() throws IOException {
     Token token = cssTokenizer.consumeAToken(stringInput("+51.3e-1"));
-    Assertions.assertEquals(NumberToken.create(5.13, false), token);
+    Assertions.assertEquals(NumberToken.create(5.13, false, true), token);
   }
 
   @Test

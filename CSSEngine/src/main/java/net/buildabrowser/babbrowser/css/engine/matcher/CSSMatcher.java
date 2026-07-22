@@ -18,13 +18,15 @@ public interface CSSMatcher {
 
   ElementSet changedElements();
 
+  ElementRootSet allElements();
+
   boolean changed();
 
   interface CSSMatcherContext {
     
-    void onMatched(Node node, WeightedStyleRule matchedRule);
+    default void onMatched(Node node, WeightedStyleRule matchedRule) {};
 
-    void onUnmatched(Node node, WeightedStyleRule matchedRule);
+    default void onUnmatched(Node node, WeightedStyleRule matchedRule) {};
 
     default boolean isFocusVisible(Element element) {
       return false;

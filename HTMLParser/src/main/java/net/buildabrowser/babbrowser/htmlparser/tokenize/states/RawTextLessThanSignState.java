@@ -12,11 +12,11 @@ public class RawTextLessThanSignState implements TokenizeState {
     switch (ch) {
       case '/':
         tokenizeContext.temporaryBuffer().clear();
-        tokenizeContext.setTokenizeState(TokenizeStates.rawTextEndTagOpenState);
+        tokenizeContext.setTokenizeState(TokenizeStates.RAW_TEXT_END_TAG_OPEN_STATE);
         break;
       default:
         parseContext.emitCharacterToken('<');
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.rawTextState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.RAW_TEXT_STATE);
     }
   }
 

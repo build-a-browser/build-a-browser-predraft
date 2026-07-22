@@ -6,4 +6,8 @@ public interface ActivationTarget {
   
   void activate(PointerEvent event);
 
+  default boolean canBeActivated() {
+    return true;
+  }
+
 }

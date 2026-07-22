@@ -13,14 +13,14 @@ public class BeforeAttributeNameState implements TokenizeState {
       case '\t', '\n', '\f', ' ':
         break;
       case '/', '>', TokenizeContext.EOF:
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.afterAttributeNameState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.AFTER_ATTRIBUTE_NAME_STATE);
         break;
       case '=':
-        tokenizeContext.setTokenizeState(TokenizeStates.beforeAttributeValueState);
+        tokenizeContext.setTokenizeState(TokenizeStates.BEFORE_ATTRIBUTE_VALUE_STATE);
         break;
       default:
         tokenizeContext.currentTagToken().startNewAttribute();
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.attributeNameState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.ATTRIBUTE_NAME_STATE);
         break;
     }
   }

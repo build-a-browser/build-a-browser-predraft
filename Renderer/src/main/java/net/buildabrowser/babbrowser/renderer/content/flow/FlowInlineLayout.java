@@ -4,7 +4,7 @@ import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
-import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
+import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhiteSpaceCollapseValue;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
@@ -21,27 +21,21 @@ import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.Stag
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.LineBoxFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.flow.FloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
 public class FlowInlineLayout {
 
-  private final FlowRootContent rootContent;
+  private final FlowContext flowContext;
 
   // Is a stack
   private InlineFormattingContext activeInlineContext;
 
-  public FlowInlineLayout(FlowRootContent rootContent) {
-    this.rootContent = rootContent;
-  }
-
-  public void reset() {
-    this.activeInlineContext = null;
+  public FlowInlineLayout(FlowContext flowContext) {
+    this.flowContext = flowContext;
   }
 
   public void stopInline(
@@ -49,21 +43,21 @@ public class FlowInlineLayout {
     LayoutConstraint heightConstraint,
     PropertyContainer properties
   ) {
-    LineWhitespaceCollapser.collapseWhitespace(
+    LineWhiteSpaceCollapser.collapseWhiteSpace(
       activeInlineContext.stagingArea(),
-      (WhitespaceCollapseValue) properties.get(CSSProperty.WHITE_SPACE_COLLAPSE));
+      (WhiteSpaceCollapseValue) properties.get(CSSProperty.WHITE_SPACE_COLLAPSE));
     addStagedElements(widthConstraint, heightConstraint);
     activeInlineContext.closeLine();
     activeInlineContext = activeInlineContext.next();
   }
 
   public void startInline(
-    PropertyContainer properties,
+    ElementBox rootBox,
     LayoutConstraint widthConstraint
   ) {
     activeInlineContext = IntrusiveList.push(
       activeInlineContext,
-      new InlineFormattingContext(rootContent, widthConstraint, properties));
+      new InlineFormattingContext(flowContext, widthConstraint, rootBox));
   }
 
   // #region Staging
@@ -71,10 +65,11 @@ public class FlowInlineLayout {
   public void stageInline(LayoutContext parentContext, Box box) {
     InlineStagingArea stagingArea = activeInlineContext.stagingArea();
     if (box instanceof TextBox textBox) {
-      stagingArea.pushStagedElement(new StagedText(parentContext, textBox, textBox.text()));
+      stagingArea.pushStagedElement(new StagedText(
+        parentContext, textBox, textBox.text(), null));
     } else if (box instanceof ElementBox elementBox) {
       // Might get computed twice for outer box, doesn't really matter
-      LayoutConstraint widthConstraint = rootContent.blockLayout().activeContext().innerWidthConstraint();
+      LayoutConstraint widthConstraint = flowContext.blockLayout().activeContext().innerWidthConstraint();
       elementBox.content().computeMeasures(elementBox, widthConstraint);
       
       if (!PositionUtil.affectsLayout(elementBox)) {
@@ -83,7 +78,7 @@ public class FlowInlineLayout {
         stagingArea.pushStagedElement(new StagedFloatBox(elementBox));
       } else if (elementBox.element() != null && elementBox.element().name().equals("br")) {
         // TODO: The spec says br is display-outside: newline, but that is not a valid display mode
-        stagingArea.pushStagedElement(new StagedLineBreak(elementBox.layoutContext()));
+        stagingArea.pushStagedElement(StagedLineBreak.create());
       } else if (elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)) {
         stagingArea.pushStagedElement(new StagedBlockLevelBox(elementBox));
       } else if (!FlowUtil.isInFlow(elementBox)) {
@@ -109,7 +104,7 @@ public class FlowInlineLayout {
     while (!stagingArea.done()) {
       switch (stagingArea.next()) {
         case StagedText stagedText -> addTextToInline(stagedText.layoutContext(), parentProperties, stagedText);
-        case StagedLineBreak stagedBreak -> addBreakToInline(stagedBreak.layoutContext());
+        case StagedLineBreak stagedBreak -> addBreakToInline();
         case StagedFloatBox stagedFloat -> addFloatAroundInline(
           stagedFloat.elementBox(), widthConstraint, heightConstraint);
         case StagedUnmanagedBox stagedUnmanagedBox -> addUnmanagedToInline(
@@ -133,13 +128,13 @@ public class FlowInlineLayout {
     UnmanagedBoxFragment<?> floatFragment = FloatLayout.renderFloat(
       elementBox, widthConstraint, heightConstraint);
     boolean fitsInLine = FloatLayout.addFloat(
-      rootContent, floatFragment, widthConstraint, heightConstraint, activeInlineContext.lineBox().totalWidth());
+      flowContext, floatFragment, widthConstraint, heightConstraint, activeInlineContext.lineBox().totalWidth());
     if (!fitsInLine) {
       activeInlineContext.nextLine();
-      FloatLayout.addFloat(rootContent, floatFragment, widthConstraint, heightConstraint, 0);
+      FloatLayout.addFloat(flowContext, floatFragment, widthConstraint, heightConstraint, 0);
     }
 
-    activeInlineContext.addFragment(new FloatRefFragment(floatFragment));
+    activeInlineContext.addFragment(new FloatRefFragment(floatFragment), true);
   }
 
   private void addUnmanagedToInline(
@@ -154,7 +149,7 @@ public class FlowInlineLayout {
       activeInlineContext.queuedPositioned(elementBox);
     } else {
       LayoutFragment newFragment = PositionLayout.layout(elementBox);
-      activeInlineContext.addFragment(newFragment);
+      activeInlineContext.addFragment(newFragment, false);
     }
   }
 
@@ -164,9 +159,9 @@ public class FlowInlineLayout {
     LayoutConstraint heightConstraint
   ) {
     activeInlineContext.nextLine();
-    rootContent.blockLayout().addToBlock(
+    flowContext.blockLayout().addToBlock(
       elementBox, widthConstraint, heightConstraint);
-    rootContent.blockLayout().activeContext().collapse();
+    flowContext.blockLayout().activeContext().collapse();
   }
 
   private void addUnmanagedBlockToInline(
@@ -176,7 +171,7 @@ public class FlowInlineLayout {
   ) {
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
       FlowWidthUtil.determineBlockReplacedWidthAndMargins(
-        parentWidthConstraint, childBox) :
+        parentWidthConstraint, parentHeightConstraint, childBox) :
       FlowWidthUtil.determineInlineBlockNonReplacedWidthAndMargins(
         parentWidthConstraint, childBox);
     LayoutConstraint childHeightContraint = childBox.isReplaced() ?
@@ -186,7 +181,7 @@ public class FlowInlineLayout {
       FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
         parentHeightConstraint, parentWidthConstraint, childBox);
 
-    FragmentFactory fragmentFactory = rootContent.rootBox().layoutContext().global().fragmentFactory();
+    FragmentFactory fragmentFactory = childBox.layoutContext().global().fragmentFactory();
     BoxFragment<?> newFragment = parentWidthConstraint.isPreLayoutConstraint() ?
       fragmentFactory.createGenericUnmanagedBox(
         FlowUtil.constraintWidth(childBox, parentWidthConstraint),
@@ -197,7 +192,7 @@ public class FlowInlineLayout {
     if (!activeInlineContext.fits(newFragment.width(Measurement.MARGIN), true)) {
       activeInlineContext.nextLine();
     }
-    activeInlineContext.addFragment(newFragment);
+    activeInlineContext.addFragment(newFragment, false);
   }
 
   private void addTextToInline(
@@ -212,56 +207,12 @@ public class FlowInlineLayout {
     FlowTextLayout.layoutText(layoutContext, stagedText, activeInlineContext, autoWrap);
   }
 
-  private void addBreakToInline(LayoutContext layoutContext) {
+  private void addBreakToInline() {
     InlineFormattingContext inlineContext = activeInlineContext;
-    if (inlineContext.lineBox().totalHeight() == 0) {
-      inlineContext.lineBox().appendText("\u200B", 0, layoutContext.font().metrics().height());
-    }
-    inlineContext.nextLine();
-  }
-
-  // #region Positioning
-  
-  public void positionLine(
-    LineBoxFragment fragment,
-    LayoutConstraint inlineConstraint,
-    PropertyContainer lineProperties
-  ) {
-    positionFragmentElements(fragment.fragments(), inlineConstraint);
-    float startPos = rootContent.floatTracker().lineStartPos();
-    float inlineOffset = inlineConstraint.isBounded() ?
-      FlowAlignUtil.alignFragment(
-        lineProperties, startPos,
-        rootContent.floatTracker().lineEndPos(inlineConstraint),
-        fragment.width(Measurement.CONTENT)) :
-      startPos;
-    rootContent.blockLayout().addFinishedFragment(
-      fragment, inlineOffset, inlineConstraint);
-  }
-
-  private void positionFragmentElements(
-    LayoutFragment fragments,
-    LayoutConstraint relatedConstraint
-  ) {
-    float x = 0;
-
-    LayoutFragment nextChild = fragments;
-    while (nextChild != null) {
-      LayoutFragment child = nextChild;
-      nextChild = nextChild.next();
-
-      child.setPos(0, 0); // Cheat to disable unset X assertions for next line
-      float marginX = child.posX(Measurement.BORDER) - child.posX(Measurement.MARGIN);
-      // TODO: Is this the correct way to compute vertical positioning?
-      float marginY = child.posY(Measurement.BORDER) - child.posY(Measurement.MARGIN);
-      child.setPos(x + marginX, marginY);
-
-      if (!PositionUtil.affectsLayout(child)) continue;
-      x += child.width(Measurement.MARGIN);
-      if (child instanceof ManagedBoxFragment managedBoxFragment) {
-        positionFragmentElements(managedBoxFragment.fragments(), relatedConstraint);
-      }
-    }
+    inlineContext.lineBox().startText(null, null);
+    inlineContext.lineBox().appendText(
+      "\u200B", 0, 0, 0);
+    activeInlineContext.nextLine();
   }
 
 }

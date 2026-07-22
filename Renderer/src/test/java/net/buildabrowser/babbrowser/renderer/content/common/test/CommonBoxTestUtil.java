@@ -14,6 +14,7 @@ import net.buildabrowser.babbrowser.renderer.box.test.TestElementBox;
 import net.buildabrowser.babbrowser.renderer.box.test.TestFixedSizeReplacedContent;
 import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexBoxContent;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowRootContent;
+import net.buildabrowser.babbrowser.renderer.content.table.TableContent;
 
 public final class CommonBoxTestUtil {
   
@@ -22,7 +23,7 @@ public final class CommonBoxTestUtil {
   public static ElementBox sizedReplacedBlockBox(float width, float height) {
     ActiveStyles childrenStyles = ActiveStyles.create();
     ElementBox myBox = new TestElementBox(
-      box -> new TestFixedSizeReplacedContent(box, width, height), BoxLevel.BLOCK_LEVEL, childrenStyles, List.of());
+      box -> new TestFixedSizeReplacedContent(width, height), BoxLevel.BLOCK_LEVEL, childrenStyles, List.of());
     myBox.alterDimensions(false, d -> {
       d.setIntrinsicWidth(width);
       d.setInstrinsicHeight(height);
@@ -37,7 +38,7 @@ public final class CommonBoxTestUtil {
   public static ElementBox sizedReplacedInlineBlockBox(ActiveStyles styles, float width, float height) {
     styles.setProperty(CSSProperty.DISPLAY, DisplayValue.create(OuterDisplayValue.BLOCK, InnerDisplayValue.FLOW_ROOT));
     TestElementBox myBox = new TestElementBox(
-      box -> new TestFixedSizeReplacedContent(box, width, height), BoxLevel.INLINE_LEVEL, styles, List.of());
+      box -> new TestFixedSizeReplacedContent(width, height), BoxLevel.INLINE_LEVEL, styles, List.of());
     myBox.alterDimensions(false, d -> {
       d.setIntrinsicWidth(width);
       d.setInstrinsicHeight(height);
@@ -51,7 +52,7 @@ public final class CommonBoxTestUtil {
 
   public static ElementBox flowBlockBox(ActiveStyles styles, List<Box> children) {
     ElementBox parentBox = new TestElementBox(
-      box -> new FlowRootContent(box),
+      box -> FlowRootContent.get(),
       BoxLevel.BLOCK_LEVEL, styles, children);
 
     return parentBox;
@@ -63,7 +64,7 @@ public final class CommonBoxTestUtil {
 
   public static ElementBox flowInlineBox(ActiveStyles styles, List<Box> children) {
     ElementBox parentBox = new TestElementBox(
-      box -> new FlowRootContent(box),
+      box -> FlowRootContent.get(),
       BoxLevel.INLINE_LEVEL, styles, children);
 
     return parentBox;
@@ -76,7 +77,7 @@ public final class CommonBoxTestUtil {
   public static ElementBox flowInlineBlockBox(ActiveStyles styles, List<Box> children) {
     styles.setProperty(CSSProperty.DISPLAY, DisplayValue.create(OuterDisplayValue.BLOCK, InnerDisplayValue.FLOW_ROOT));
     ElementBox parentBox = new TestElementBox(
-      box -> new FlowRootContent(box),
+      box -> FlowRootContent.get(),
       BoxLevel.INLINE_LEVEL, styles, children);
 
     return parentBox;
@@ -88,7 +89,19 @@ public final class CommonBoxTestUtil {
 
   public static ElementBox flexBlockBox(ActiveStyles styles, List<Box> children) {
     ElementBox parentBox = new TestElementBox(
-      box -> new FlexBoxContent(box),
+      box -> FlexBoxContent.get(),
+      BoxLevel.BLOCK_LEVEL, styles, children);
+
+    return parentBox;
+  }
+
+  public static ElementBox tableBlockBox(List<Box> children) {
+    return tableBlockBox(ActiveStyles.create(), children);
+  }
+
+  public static ElementBox tableBlockBox(ActiveStyles styles, List<Box> children) {
+    ElementBox parentBox = new TestElementBox(
+      box -> TableContent.get(),
       BoxLevel.BLOCK_LEVEL, styles, children);
 
     return parentBox;

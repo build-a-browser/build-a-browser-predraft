@@ -82,10 +82,14 @@ public class SimpleSelectorMatchers implements DocumentChangeListener {
   }
 
   @Override
-  public void onElementEvent(Element element, Event event) {
+  public boolean onElementEvent(
+    Element element, Event event, boolean allowDefault
+  ) {
     for (SimpleSelectorMatcher<?> matcher: allMatchers) {
-      matcher.onElementEvent(element, event);
+      matcher.onElementEvent(element, event, allowDefault);
     }
+
+    return allowDefault;
   }
 
   public ElementSet match(SimpleSelector selectorPart) {

@@ -10,9 +10,13 @@ public abstract class FlexBoxFragment extends UnmanagedBoxFragment<FlexBoxFragme
   public FlexBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box, UnmanagedBoxFragment<?> fragments
   ) {
-    super(width, height, inkWidth, inkHeight, box);
+    super(
+      width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
+      box);
     this.fragments = fragments;
   }
 

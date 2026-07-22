@@ -14,10 +14,5 @@ public class CommentImp extends NodeImp implements Comment {
   public String data() {
     return this.data;
   }
-
-  @Override
-  public String toString() {
-    return "<!--" + this.data.toString() + "-->";
-  }
   
 }

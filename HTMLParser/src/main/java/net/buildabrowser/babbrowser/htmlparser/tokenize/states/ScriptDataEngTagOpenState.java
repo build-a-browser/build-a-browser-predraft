@@ -12,11 +12,11 @@ public class ScriptDataEngTagOpenState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     if (ASCIIUtil.isAlpha(ch)) {
       tokenizeContext.beginTagToken(false);
-      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.scriptDataEndTagNameState);
+      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.SCRIPT_DATA_END_TAG_NAME_STATE);
     } else {
       parseContext.emitCharacterToken('<');
       parseContext.emitCharacterToken('/');
-      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.scriptDataState);
+      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.SCRIPT_DATA_STATE);
     }
   }
   

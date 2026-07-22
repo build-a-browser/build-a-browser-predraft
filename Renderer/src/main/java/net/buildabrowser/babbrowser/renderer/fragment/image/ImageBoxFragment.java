@@ -15,7 +15,10 @@ public abstract class ImageBoxFragment extends UnmanagedBoxFragment<ImageBoxFrag
     ElementBox box,
     LoadedImage image, String altText
   ) {
-    super(width, height, inkWidth, inkHeight, box);
+    super(
+      width, height, inkWidth, inkHeight,
+      // TODO: Is this baseline right?
+      0, 0, box);
     this.image = image;
     this.altText = altText;
   }

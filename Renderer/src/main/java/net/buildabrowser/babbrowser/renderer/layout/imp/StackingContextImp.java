@@ -15,6 +15,7 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerEntry;
+import net.buildabrowser.babbrowser.renderer.content.common.position.AbsolutePositionUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
@@ -22,8 +23,8 @@ import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.ScrollPort;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContextPosition;
-import net.buildabrowser.babbrowser.renderer.layout.Viewport;
 import net.buildabrowser.babbrowser.renderer.layout.StackingContextPosition.ScrollGetter;
+import net.buildabrowser.babbrowser.renderer.layout.Viewport;
 
 // TODO: Some of the positioning code here is quite hacky
 public class StackingContextImp implements StackingContext {
@@ -54,10 +55,10 @@ public class StackingContextImp implements StackingContext {
   }
 
   @Override
-  public void positionFragment(
+  public <T extends BoxFragment<?>> void positionFragment(
     float posX, float posY,
-    BoxFragment<?> fragment,
-    ChildPositionFunc positionFunc
+    T fragment,
+    ChildPositionFunc<T> positionFunc
   ) {
     if (this.entries != null && fragment instanceof ScrollBoxFragment) {
       throw new RuntimeException();
@@ -82,14 +83,14 @@ public class StackingContextImp implements StackingContext {
     fragment.setLayerPos(layerX, layerY);
     entries = IntrusiveList.add(entries, new CompositeLayerEntry(
       layerX, layerY, fragment));
-    positionFunc.position(layerX, layerY);
+    positionFunc.position(fragment, layerX, layerY);
   }
 
   @Override
-  public void positionNormalizedFragment(
+  public <T extends BoxFragment<?>> void positionNormalizedFragment(
     float posX, float posY,
-    BoxFragment<?> fragment,
-    ChildPositionFunc positionFunc
+    T fragment,
+    ChildPositionFunc<T> positionFunc
   ) {
     if (Float.isNaN(normalizedX)) {
       normalizedX = 0;
@@ -261,8 +262,8 @@ public class StackingContextImp implements StackingContext {
     if (parentContext == null) return new float[4];
     float refWidth = parentContext.innerWidth();
     float refHeight = parentContext.innerHeight();
-    return PositionUtil.computeAbsoluteInsets(
-      relatedBox, refWidth, refHeight);
+    return AbsolutePositionUtil.computeAbsoluteInsets(
+      relatedBox, refWidth, refHeight, parentContext.computedBorder());
   }
 
   private StackingContextPosition positionSelf(

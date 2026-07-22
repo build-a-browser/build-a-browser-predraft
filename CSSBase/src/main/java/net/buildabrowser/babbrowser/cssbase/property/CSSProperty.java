@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.cssbase.property;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
@@ -39,7 +40,8 @@ import net.buildabrowser.babbrowser.cssbase.property.table.CaptionSideValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.LineHeightValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
-import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValue;
+import net.buildabrowser.babbrowser.cssbase.property.visibility.VisibilityValue;
+import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhiteSpaceCollapseValue;
 
 public enum CSSProperty {
   
@@ -72,12 +74,17 @@ public enum CSSProperty {
   
   BOX_SIZING(nextId(), false, BoxSizingValue.CONTENT_BOX),
   DISPLAY(nextId(), false, InvalidationLevel.BOX, DisplayValue.create(OuterDisplayValue.INLINE, InnerDisplayValue.FLOW)),
+  VISIBILITY(nextId(), true, InvalidationLevel.PAINT, VisibilityValue.VISIBLE),
   // Float is BOX because it affects the BoxContent-sharing policy, which is determined at box-time
   // TODO: Maybe rewrite it so it can invalidate at LAYOUT level
   FLOAT(nextId(), false, InvalidationLevel.BOX, CSSValue.NONE),
   CLEAR(nextId(), false, CSSValue.NONE),
-  WHITE_SPACE_COLLAPSE(nextId(), true, WhitespaceCollapseValue.COLLAPSE),
+
+  WHITE_SPACE_COLLAPSE(nextId(), true, WhiteSpaceCollapseValue.COLLAPSE),
   TEXT_WRAP_MODE(nextId(), true, TextWrapModeValue.WRAP),
+  WHITE_SPACE_TRIM(nextId(), false, CSSValue.NONE),
+  WHITE_SPACE(new CSSProperty[] {
+    WHITE_SPACE_COLLAPSE, TEXT_WRAP_MODE}), // TODO: WHITE_SPACE_TRIM
   LINE_HEIGHT(nextId(), true, LineHeightValue.NORMAL),
   TEXT_ALIGN(nextId(), true, TextAlignValue.START),
 
@@ -171,9 +178,13 @@ public enum CSSProperty {
   // TODO: OVERFLOW_INLINE, OVERFLOW_BLOCK
   OVERFLOW(new CSSProperty[] { CSSProperty.OVERFLOW_X, CSSProperty.OVERFLOW_Y }),
   
-  CONTENT(nextId(), false, InvalidationLevel.BOX, ContentValue.NORMAL);
+  CONTENT(nextId(), false, InvalidationLevel.BOX, ContentValue.NORMAL),
+  
+  // Dummy value for ALL, it is computed later
+  ALL(new CSSProperty[0]);
 
   private static int propertyId = 0;
+  private static CSSProperty[] allExpansions;
 
   private final int id;
   private final boolean inherited;
@@ -219,6 +230,12 @@ public enum CSSProperty {
   }
 
   public CSSProperty[] getExpansions() {
+    if (this.equals(CSSProperty.ALL)) {
+      if (allExpansions == null) {
+        allExpansions = all();
+      }
+      return allExpansions;
+    }
     return this.expansions;
   }
 
@@ -242,6 +259,16 @@ public enum CSSProperty {
 
   private static int nextId() {
     return propertyId++;
+  }
+
+  private static CSSProperty[] all() {
+    List<CSSProperty> allProperties = new ArrayList<>();
+    for (CSSProperty property: CSSProperty.values()) {
+      if (!property.hasExpansion()) {
+        allProperties.add(property);
+      }
+    }
+    return allProperties.toArray(new CSSProperty[0]);
   }
 
 }

@@ -24,7 +24,7 @@ public class FontFamilyParser implements PropertyValueParser {
 
   @Override
   public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
-    return PropertyValueParserUtil.parseOneOrMoreComma(stream, this::parseInner);
+    return PropertyValueParserUtil.parseCommaRepeat(stream, this::parseInner);
   }
 
   @Override

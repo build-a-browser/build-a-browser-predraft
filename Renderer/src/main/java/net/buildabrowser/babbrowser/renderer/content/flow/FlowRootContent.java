@@ -6,38 +6,30 @@ import net.buildabrowser.babbrowser.renderer.content.flow.floatbox.FloatTracker;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowRootBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
-public class FlowRootContent implements BoxContent {
+public final class FlowRootContent implements BoxContent {
 
-  private final ElementBox rootBox;
+  public static final FlowRootContent INSTANCE = new FlowRootContent();
 
-  private final FlowBlockLayout blockLayout;
-  private final FlowInlineLayout inlineLayout;
-  private final FloatTracker floatTracker;
-
-  private ManagedBoxFragment<?> rootFragment;
-
-  public FlowRootContent(ElementBox box) {
-    this.rootBox = box;
-    this.blockLayout = new FlowBlockLayout(this);
-    this.inlineLayout = new FlowInlineLayout(this);
-    this.floatTracker = FloatTracker.createForFlow(() -> blockLayout.activeContext());
-  }
+  private FlowRootContent() {}
 
   @Override
   public FlowRootBoxFragment layout(
-    LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+    ElementBox rootBox,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
   ) {
-    floatTracker.reset();
-
-    blockLayout.reset(rootBox, widthConstraint, heightConstraint);
-    inlineLayout.reset();
+    FlowContext flowContext = new FlowContext();
+    FlowBlockLayout blockLayout = flowContext.blockLayout();
+    FloatTracker floatTracker = flowContext.floatTracker();
     
+    blockLayout.setup(rootBox, widthConstraint, heightConstraint);
     blockLayout.addChildrenToBlock(rootBox, widthConstraint, heightConstraint);
 
-    this.rootFragment = blockLayout.close(widthConstraint, heightConstraint);
+    ManagedBoxFragment<?> rootFragment = blockLayout.close(widthConstraint, heightConstraint);
     rootFragment.setPos(0, 0);
 
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
@@ -50,26 +42,18 @@ public class FlowRootContent implements BoxContent {
   }
 
   @Override
-  public void positionLayers(float layerX, float layerY) {
+  public void positionLayers(
+    UnmanagedBoxFragment<?> fragment,
+    float layerX, float layerY
+  ) {
+    FlowRootBoxFragment flowFragment = (FlowRootBoxFragment) fragment;
+    ManagedBoxFragment<?> rootFragment = flowFragment.rootFragment();
     FlowLayerPositioning.positionLayers(
-      layerX, layerY, rootFragment, floatTracker);
+      layerX, layerY, rootFragment, flowFragment.floats());
   }
 
-  @Override
-  public ElementBox rootBox() {
-    return this.rootBox;
-  }
-
-  FlowBlockLayout blockLayout() {
-    return this.blockLayout;
-  }
-
-  FlowInlineLayout inlineLayout() {
-    return this.inlineLayout;
-  }
-
-  FloatTracker floatTracker() {
-    return this.floatTracker;
+  public static FlowRootContent get() {
+    return INSTANCE;
   }
 
 }

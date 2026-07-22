@@ -1,36 +1,46 @@
 package net.buildabrowser.babbrowser.renderer.event;
 
+import java.util.concurrent.CompletableFuture;
+
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.events.Event;
 import net.buildabrowser.babbrowser.dom.events.EventDispatcher;
 import net.buildabrowser.babbrowser.dom.events.PointerEvent;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.events.TaskSource;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.imp.AnonymousElementBoxImp;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse.AsyncEventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse.SyncEventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.ManagedBoxFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
-import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 
 public final class EventUtil {
   
   private EventUtil() {}
 
   public static boolean aabb(
-    BoxFragment<?> fragment,
+    LayoutFragment fragment,
     float posX, float posY
   ) {
     if (fragment instanceof PosRefBoxFragment) return false;
 
     float layerX = fragment.layerX(Measurement.BORDER);
     float layerY = fragment.layerY(Measurement.BORDER);
+    return aabb(fragment, posX, posY, layerX, layerY);
+  }
+  
+  private static boolean aabb(
+    LayoutFragment fragment,
+    float posX, float posY,
+    float layerX, float layerY
+  ) {
     return
       posX >= layerX
       && posX < layerX + fragment.width(Measurement.BORDER)
@@ -38,69 +48,91 @@ public final class EventUtil {
       && posY < layerY + fragment.height(Measurement.BORDER);
   }
 
-  public static boolean aabb(
-    BoxFragment<?> parentFragment,
-    LayoutFragment thisFragment,
-    float posX, float posY
-  ) {
-    if (thisFragment instanceof BoxFragment boxFragment) {
-      return aabb(boxFragment, posX, posY);
-    }
-
-    float docX = parentFragment.layerX(Measurement.CONTENT) + thisFragment.posX(Measurement.BORDER);
-    float docY = parentFragment.layerY(Measurement.CONTENT) + thisFragment.posY(Measurement.BORDER);
-    return
-      posX >= docX
-      && posX < docX + thisFragment.width(Measurement.BORDER)
-      && posY >= docY
-      && posY < docY + thisFragment.height(Measurement.BORDER);
-  }
-
   public static EventHandlerResponse forwardElementEvent(
+    EventContext eventContext,
     RendererMouseEvent mouseEvent,
     BoxFragment<?> fragment,
     float posX, float posY
   ) {
-    Box relatedBox = fragment.box();
-    while (
-      relatedBox instanceof AnonymousElementBoxImp anonBox
-    ) relatedBox = anonBox.parentBox();
-    if (!(relatedBox instanceof ElementBox elementBox)) return EventHandlerResponse.UNHANDLED;
-    Element element = elementBox.element();
-    Event event = switch (mouseEvent.event()) {
-      case CLICK -> (PointerEvent) () -> "click";
-      case MOVE -> (PointerEvent) () -> "mousemove";
-      default -> null;
-    };
-    
-    return forwardElementEvent(event, element);
-  }
-
-  public static EventHandlerResponse forwardElementEvent(
-    RendererMouseEvent mouseEvent,
-    ManagedBoxFragment<?> fragment,
-    TextFragment textFragment,
-    float relX, float relY
-  ) {
-    // TODO: Handle things like text selection
-    return forwardElementEvent(mouseEvent, fragment, relX, relY);
+    return forwardElementEvent(
+      eventContext, mouseEvent,
+      fragment, fragment, posX, posY);
   }
   
   public static EventHandlerResponse forwardElementEvent(
+    EventContext eventContext,
+    RendererMouseEvent mouseEvent,
+    BoxFragment<?> refFragment,
+    LayoutFragment targetFragment,
+    float posX, float posY
+  ) {
+    Box relatedBox = refFragment.box();
+    while (
+      relatedBox instanceof AnonymousElementBoxImp anonBox
+    ) relatedBox = anonBox.parentBox();
+    if (!(
+      relatedBox instanceof ElementBox elementBox
+    )) {
+      return EventHandlerResponse.UNHANDLED;
+    }
+    Element element = elementBox.element();
+    Event event = switch (mouseEvent.event()) {
+      case DOWN -> PointerEvent.create("mousedown", posX, posY);
+      case UP -> PointerEvent.create("mouseup", posX, posY);
+      case CLICK -> PointerEvent.create("click", posX, posY);
+      case MOVE -> PointerEvent.create("mousemove", posX, posY);
+      default -> null;
+    };
+    
+    return forwardElementEvent(
+      eventContext, event,
+      element, refFragment, targetFragment);
+  }
+
+  public static EventHandlerResponse forwardElementEvent(
+    EventContext eventContext,
     Event event, Element element
   ) {
-    if (event == null) return EventHandlerResponse.UNHANDLED;
-    // TODO: Will need replaced with a proper MouseEvent
+    return forwardElementEvent(
+      eventContext, event, element, null, null);
+  }
+  
+  public static EventHandlerResponse forwardElementEvent(
+    EventContext eventContext,
+    Event event, Element element,
+    BoxFragment<?> refFragment,
+    LayoutFragment targetFragment
+  ) {
+    if (event == null) {
+      return EventHandlerResponse.UNHANDLED;
+    }
+
+    boolean contextPreventDefault = eventContext.isPreventDefault();
+    CompletableFuture<SyncEventHandlerResponse> future = new CompletableFuture<>();
     HTMLDocument document = (HTMLDocument) element.nodeDocument();
     EventLoop.queueGlobalTask(
       TaskSource.USER_INTERACTION,
       document.nodeNavigable().activeWindow(),
       () -> {
-        element.nodeDocument().changeListener().onElementEvent(element, event);
-        EventDispatcher.dispatch(event, element);
+        boolean allowDefault = EventDispatcher.dispatch(event, element);
+        allowDefault &= !contextPreventDefault;
+        DocumentChangeListener changeListener = element.nodeDocument().changeListener();
+        if (
+          targetFragment != null
+          && changeListener instanceof RendererDocumentChangeListener rendererListener
+        ) {
+          allowDefault = rendererListener.onFragmentEvent(
+            element, event, refFragment, targetFragment, allowDefault);
+        }
+        allowDefault = changeListener.onElementEvent(
+          element, event, allowDefault);
+        SyncEventHandlerResponse response = allowDefault ?
+          EventHandlerResponse.PERFORM_DEFAULT :
+          EventHandlerResponse.HANDLED;
+        future.complete(response);
       });
 
-    return EventHandlerResponse.PERFORM_DEFAULT;
+    return new AsyncEventHandlerResponse(future);
   }
 
 }

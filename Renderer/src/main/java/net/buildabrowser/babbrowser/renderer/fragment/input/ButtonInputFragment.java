@@ -10,10 +10,14 @@ public abstract class ButtonInputFragment extends BaseInputFragment<ButtonInputF
   public ButtonInputFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box,
     UnmanagedBoxFragment<?> innerFragment
   ) {
-    super(width, height, inkWidth, inkHeight, box);
+    super(
+      width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
+      box);
     this.innerFragment = innerFragment;
   }
 

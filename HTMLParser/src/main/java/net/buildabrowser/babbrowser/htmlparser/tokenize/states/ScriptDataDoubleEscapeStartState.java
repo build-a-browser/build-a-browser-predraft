@@ -13,9 +13,9 @@ public class ScriptDataDoubleEscapeStartState implements TokenizeState {
     switch (ch) {
       case '\t', '\n', '\f', ' ', '/', '>':
         if (tokenizeContext.temporaryBuffer().get().equals("script")) {
-          tokenizeContext.setTokenizeState(TokenizeStates.scriptDataDoubleEscapedState);
+          tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_DOUBLE_ESCAPED_STATE);
         } else {
-          tokenizeContext.setTokenizeState(TokenizeStates.scriptDataEscapedState);
+          tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_ESCAPED_STATE);
         }
         parseContext.emitCharacterToken(ch);
         return;
@@ -27,7 +27,7 @@ public class ScriptDataDoubleEscapeStartState implements TokenizeState {
       tokenizeContext.temporaryBuffer().append(ASCIIUtil.toLower(ch));
       parseContext.emitCharacterToken(ch);
     } else {
-      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.scriptDataEscapedState);
+      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.SCRIPT_DATA_ESCAPED_STATE);
     }
   }
   

@@ -29,12 +29,12 @@ public class InTableInsertionMode implements InsertionMode {
     if (elName != null && TEXT_TARGETS.contains(elName)) {
       // TODO: Pending table character tokens
       parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());
-      parseContext.setInsertionMode(InsertionModes.inTableTextInsertionMode);
+      parseContext.setInsertionMode(InsertionModes.IN_TABLE_TEXT_INSERTION_MODE);
       return true;
     } else {
       parseContext.parseError();
       parseContext.setFosterParentingEnabled(true);
-      boolean reprocess = InsertionModes.inBodyInsertionMode.emitCharacterToken(parseContext, ch);
+      boolean reprocess = InsertionModes.IN_BODY_INSERTION_MODE.emitCharacterToken(parseContext, ch);
       parseContext.setFosterParentingEnabled(false);
       return reprocess;
     }
@@ -47,12 +47,12 @@ public class InTableInsertionMode implements InsertionMode {
     if (elName != null && TEXT_TARGETS.contains(elName)) {
       // TODO: Pending table character tokens
       parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());
-      parseContext.setInsertionMode(InsertionModes.inTableTextInsertionMode);
+      parseContext.setInsertionMode(InsertionModes.IN_TABLE_TEXT_INSERTION_MODE);
       return true;
     } else {
       parseContext.parseError();
       parseContext.setFosterParentingEnabled(true);
-      boolean reprocess = InsertionModes.inBodyInsertionMode.emitOptimizedString(parseContext, data);
+      boolean reprocess = InsertionModes.IN_BODY_INSERTION_MODE.emitOptimizedString(parseContext, data);
       parseContext.setFosterParentingEnabled(false);
       return reprocess;
     }
@@ -81,7 +81,7 @@ public class InTableInsertionMode implements InsertionMode {
 
   @Override
   public boolean emitEOFToken(ParseContext parseContext) {
-    InsertionModes.inBodyInsertionMode.emitEOFToken(parseContext);
+    InsertionModes.IN_BODY_INSERTION_MODE.emitEOFToken(parseContext);
     return false;
   }
 
@@ -91,29 +91,29 @@ public class InTableInsertionMode implements InsertionMode {
       clearStackBackToTableContext(parseContext);
       // TODO: Insert a marker
       ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
-      parseContext.setInsertionMode(InsertionModes.inCaptionInsertionMode);
+      parseContext.setInsertionMode(InsertionModes.IN_CAPTION_INSERTION_MODE);
       return false;
     case "colgroup":
       clearStackBackToTableContext(parseContext);
       ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
-      parseContext.setInsertionMode(InsertionModes.inColumnGroupInsertionMode);
+      parseContext.setInsertionMode(InsertionModes.IN_COLUMN_GROUP_INSERTION_MODE);
       return false;
     case "col":
       clearStackBackToTableContext(parseContext);
       ParseElementUtil.insertAnHTMLElement(parseContext,
         TagToken.create(true, "colgroup"));
-      parseContext.setInsertionMode(InsertionModes.inColumnGroupInsertionMode);
+      parseContext.setInsertionMode(InsertionModes.IN_COLUMN_GROUP_INSERTION_MODE);
       return true;
     case "tbody", "tfoot", "thead":
       clearStackBackToTableContext(parseContext);
       ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
-      parseContext.setInsertionMode(InsertionModes.inTableBodyInsertionMode);
+      parseContext.setInsertionMode(InsertionModes.IN_TABLE_BODY_INSERTION_MODE);
       return false;
     case "td", "th", "tr":
       clearStackBackToTableContext(parseContext);
       ParseElementUtil.insertAnHTMLElement(parseContext,
         TagToken.create(true, "tbody"));
-      parseContext.setInsertionMode(InsertionModes.inTableBodyInsertionMode);
+      parseContext.setInsertionMode(InsertionModes.IN_TABLE_BODY_INSERTION_MODE);
       return true;
     case "table":
       parseContext.parseError();
@@ -126,7 +126,7 @@ public class InTableInsertionMode implements InsertionMode {
       }
       return false;
     case "style", "script", "template":
-      InsertionModes.inHeadInsertionMode.emitTagToken(parseContext, tagToken);
+      InsertionModes.IN_HEAD_INSERTION_MODE.emitTagToken(parseContext, tagToken);
       return false;
     case "input":
       String typeAttr = tagToken.attribute("type");
@@ -166,7 +166,7 @@ public class InTableInsertionMode implements InsertionMode {
       parseContext.parseError();
       return false;
     case "template":
-      InsertionModes.inHeadInsertionMode.emitTagToken(parseContext, tagToken);
+      InsertionModes.IN_HEAD_INSERTION_MODE.emitTagToken(parseContext, tagToken);
       return false;
     default:
       return handleAnythingElseTag(parseContext, tagToken);
@@ -176,7 +176,7 @@ public class InTableInsertionMode implements InsertionMode {
   private boolean handleAnythingElseTag(ParseContext parseContext, TagToken tagToken) {
     parseContext.parseError();
     parseContext.setFosterParentingEnabled(true);
-    boolean reprocess = InsertionModes.inBodyInsertionMode.emitTagToken(parseContext, tagToken);
+    boolean reprocess = InsertionModes.IN_BODY_INSERTION_MODE.emitTagToken(parseContext, tagToken);
     parseContext.setFosterParentingEnabled(false);
     return reprocess;
   }

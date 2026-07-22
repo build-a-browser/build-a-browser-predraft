@@ -46,6 +46,9 @@ public final class SizingHeightUtil {
     if (
       sizeValue.equals(SizeValue.MIN_CONTENT)
       || sizeValue.equals(SizeValue.MAX_CONTENT)
+      || sizeValue.equals(SizeValue.STRETCH)
+      || sizeValue.equals(SizeValue.FIT_CONTENT)
+      || sizeValue.equals(SizeValue.CONTAIN)
       || sizeValue instanceof SizeValue.FitContent
     ) {
       return LayoutConstraint.AUTO;

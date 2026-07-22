@@ -11,6 +11,7 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.content.ContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.content.ContentValue.StringContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
+import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorTarget;
 import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.dom.Comment;
@@ -58,9 +59,9 @@ public class BoxGeneratorImp implements BoxGenerator {
 
       boolean involvedFixup = !(
         elementBox.parentBox() instanceof ElementBox elParentBox
-        && elementBox.content() == elParentBox.content());
+        && isSameContent(elementBox, elParentBox));
       if (involvedFixup) {
-        elementBox.content().fixupChildren();
+        elementBox.content().fixupChildren(elementBox);
       }
 
       boolean contentChanged = oldContent != elementBox.content();
@@ -223,6 +224,28 @@ public class BoxGeneratorImp implements BoxGenerator {
     });
 
     return childBoxes;
+  }
+
+  // Moved here because it is now used solely for determining if fixup is needed
+  // (content sharing is no longer needed since the main types are now singletons)
+  private boolean isSameContent(
+    ElementBox box, ElementBox parentBox
+  ) {
+    CSSValue positioning = box.properties().get(CSSProperty.POSITION);
+    return 
+      box.element() != null
+      && positioning.equals(PositionValue.STATIC)
+      && !CompositeLayerUtil.hasScrollContent(box)
+      && !typeAlwaysRoot(box)
+      && !(parentBox instanceof ScrollBox)
+      && parentBox.sharesContent(box);
+  }
+
+  private boolean typeAlwaysRoot(ElementBox box) {
+    return switch (box.element().name()) {
+      case "img", "input" -> true;
+      default -> false;
+    };
   }
 
 }

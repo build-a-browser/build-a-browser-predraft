@@ -11,63 +11,94 @@ import net.buildabrowser.babbrowser.html.input.FocusManager;
 import net.buildabrowser.babbrowser.html.input.FocusOptions;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeEventsDispatcher;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.event.AbstractEventForwardingTarget;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
-import net.buildabrowser.babbrowser.renderer.event.EventHandler.EventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse.SyncEventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererKeyboardEvent;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererKeyboardEvent.KeyboardEventType;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 
-public class HTMLEventForwardingTarget implements EventForwardingTarget {
+public class HTMLEventForwardingTarget extends AbstractEventForwardingTarget {
   
-  private final EventContext eventContext = EventContext.create();
+  private final EventContext eventContext;
 
   private final HTMLCompositeLayers compositeLayers;
   private final FocusManager focusManager;
   private final SlotFamily<HTMLElement, ElementContext> elementContexts;
 
   public HTMLEventForwardingTarget(
+    EventContext eventContext,
     HTMLDocument document,
     HTMLCompositeLayers compositeLayers,
-    SlotFamily<HTMLElement, ElementContext> elementContexts
+    SlotFamily<HTMLElement, ElementContext> elementContexts,
+    EventForwardingTarget nextForwardingTarget
   ) {
+    super(nextForwardingTarget);
+    this.eventContext = eventContext;
     this.compositeLayers = compositeLayers;
     this.focusManager = document.focusManager();
     this.elementContexts = elementContexts;
   }
 
   @Override
-  public void forwardEvent(RendererMouseEvent mouseEvent) {
+  public EventHandlerResponse forwardEvent(
+    RendererMouseEvent mouseEvent,
+    SyncEventHandlerResponse prevResponse
+  ) {
+    if (!prevResponse.isUnhandled()) {
+      return super.forwardEvent(mouseEvent, prevResponse);
+    }
+
     // I'm not putting this on the event loop until the spec's dispatcher runs, because
     // scroll bars need to remain responsive even while something like layout is running
     // TODO: There *was* a race condition being caused by this, but I can't consistently
     // reproduce it, so I can't debug it
-    compositeLayers.withFrontLayer(frontLayer ->
+    EventHandlerResponse response = compositeLayers.withFrontLayer(frontLayer ->
       CompositeEventsDispatcher.dispatchMouseEvent(
         eventContext, frontLayer, mouseEvent,
         mouseEvent.winX(), mouseEvent.winY()));
+    if (response == null) {
+      response = EventHandlerResponse.UNHANDLED;
+    }
+
+    return response.then(r -> super.forwardEvent(mouseEvent, r));
   }
 
   @Override
-  public void forwardEvent(RendererKeyboardEvent keyEvent) {
+  public EventHandlerResponse forwardEvent(
+    RendererKeyboardEvent keyEvent,
+    SyncEventHandlerResponse prevResponse
+  ) {
+    if (!prevResponse.isUnhandled()) {
+      return super.forwardEvent(keyEvent, prevResponse);
+    }
+
+    EventHandlerResponse response = EventHandlerResponse.UNHANDLED;
     if (
       focusManager.focused() instanceof HTMLElement htmlElement
     ) {
       ElementContext context = elementContexts.get(htmlElement);
       if (context.box() != null) {
-        EventHandlerResponse response = context.box().content().withFocusEventHandler(
-          (feh, c) -> feh.handleKeyboardEvent(eventContext, c, keyEvent));
-        if (response.equals(EventHandlerResponse.HANDLED)) {
-          return;
-        }
+        response = context.box().content().withFocusEventHandler(
+          context.box(),
+          (feh, c) -> feh.handleKeyboardEvent(
+            eventContext, context.box(), c, keyEvent));
       }
     }
     
-    if (isFocusKey(keyEvent)) {
-      cycleFocus(keyEvent);
-    } else if (isActivationKey(keyEvent)) {
-      triggerActivation();
-    }
+    return response.thenDefault(syncResponse -> {
+      if (isFocusKey(keyEvent)) {
+        cycleFocus(keyEvent);
+        return EventHandlerResponse.HANDLED;
+      } else if (isActivationKey(keyEvent)) {
+        triggerActivation();
+        return EventHandlerResponse.HANDLED;
+      }
+
+      return syncResponse;
+    }).then(r -> super.forwardEvent(keyEvent, r));
   }
 
   private boolean isFocusKey(RendererKeyboardEvent keyEvent) {
@@ -102,7 +133,7 @@ public class HTMLEventForwardingTarget implements EventForwardingTarget {
     }
     if (currentNode == null) return;
     // TODO: Need to add dummy pointer data
-    EventDispatcher.dispatch((PointerEvent) () -> "click", currentNode);
+    EventDispatcher.dispatch(PointerEvent.createGeneric("click"), currentNode);
   }
 
 }

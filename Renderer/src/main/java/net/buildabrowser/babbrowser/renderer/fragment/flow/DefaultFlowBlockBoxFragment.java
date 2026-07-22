@@ -16,10 +16,12 @@ public class DefaultFlowBlockBoxFragment extends FlowBlockBoxFragment {
   public DefaultFlowBlockBoxFragment(
     float usedWidth, float usedHeight,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box, LayoutFragment fragments
   ) {
     super(
       usedWidth, usedHeight, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
       box, fragments);
   }
 

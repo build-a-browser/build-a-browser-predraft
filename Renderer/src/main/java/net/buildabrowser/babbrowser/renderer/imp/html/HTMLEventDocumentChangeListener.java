@@ -23,13 +23,15 @@ public class HTMLEventDocumentChangeListener extends AbstractDocumentChangeListe
   }
   
   @Override
-  public void onElementEvent(Element element, Event event) {
+  public boolean onElementEvent(
+    Element element, Event event, boolean allowDefault
+  ) {
     if (event.type().equals("click")) {
       Element targetedElement = findFocusableElement(element);
       FocusOptions focusOptions = new FocusOptions();
       focusManager.focus(targetedElement, focusOptions);
     }
-    super.onElementEvent(element, event);
+    return super.onElementEvent(element, event, allowDefault);
   }
 
   private Element findFocusableElement(Node currentTarget) {

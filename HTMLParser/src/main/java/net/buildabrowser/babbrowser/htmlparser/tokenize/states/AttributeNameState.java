@@ -13,10 +13,10 @@ public class AttributeNameState implements TokenizeState {
     switch (ch) {
       // TODO: Other cases
       case '\t', '\n', '\f', ' ', '/', '>', TokenizeContext.EOF:
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.afterAttributeNameState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.AFTER_ATTRIBUTE_NAME_STATE);
         break;
       case '=':
-        tokenizeContext.setTokenizeState(TokenizeStates.beforeAttributeValueState);
+        tokenizeContext.setTokenizeState(TokenizeStates.BEFORE_ATTRIBUTE_VALUE_STATE);
         break;
       case 0:
         tokenizeContext.currentTagToken().appendToAttributeName(0xFFFD);

@@ -6,11 +6,16 @@ public final class EventDispatcher {
   
   private EventDispatcher() {}
 
-  public static void dispatch(Event event, EventTarget target) {
+  // Returns boolean allowDefault
+  public static boolean dispatch(Event event, EventTarget target) {
     ActivationTarget activationTarget = null;
     // TODO: A ton of steps and stuff
     boolean isActivationEvent = event instanceof MouseEvent && event.type().equals("click");
-    if (isActivationEvent && target instanceof ActivationTarget newActivationTarget) {
+    if (
+      isActivationEvent
+      && target instanceof ActivationTarget newActivationTarget
+      && newActivationTarget.canBeActivated()
+    ) {
       activationTarget = newActivationTarget;
     }
 
@@ -20,7 +25,8 @@ public final class EventDispatcher {
       if (
         isActivationEvent
         && activationTarget == null
-        && parent instanceof ActivationTarget newActivationTarget
+        && target instanceof ActivationTarget newActivationTarget
+        && newActivationTarget.canBeActivated()
       ) {
         activationTarget = newActivationTarget;
       }
@@ -34,7 +40,10 @@ public final class EventDispatcher {
     if (activationTarget != null) {
       // TODO: Check cancelled flag
       activationTarget.activate((PointerEvent) event);
+      return false;
     }
+
+    return true;
   }
 
 }

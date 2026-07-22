@@ -14,7 +14,7 @@ public class AmbiguousAmpersandState implements TokenizeState {
       parseContext.parseError();
       tokenizeContext.reconsumeInTokenizeState(ch, tokenizeContext.getReturnState());
     } else if (ASCIIUtil.isAlpha(ch)) {
-      if (tokenizeContext.getReturnState().equals(TokenizeStates.dataState)) {
+      if (tokenizeContext.getReturnState().equals(TokenizeStates.DATA_STATE)) {
         parseContext.emitCharacterToken(ch);
       } else {
         tokenizeContext.currentTagToken().appendToAttributeValue(ch);

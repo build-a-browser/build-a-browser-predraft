@@ -16,9 +16,9 @@ public class CharacterReferenceState implements TokenizeState {
     temporaryBuffer.append('&');
     if (ch == '#') {
       temporaryBuffer.append(ch);
-      tokenizeContext.setTokenizeState(TokenizeStates.numericCharacterReferenceState);
+      tokenizeContext.setTokenizeState(TokenizeStates.NUMERIC_CHARACTER_REFERENCE_STATE);
     } else if (ASCIIUtil.isAlpha(ch)) {
-      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.namedCharacterReferenceState);
+      tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.NAMED_CHARACTER_REFERENCE_STATE);
     } else {
       tokenizeContext.flushCodePointsConsumedAsACharacterReference(parseContext);
       tokenizeContext.reconsumeInTokenizeState(ch, tokenizeContext.getReturnState());

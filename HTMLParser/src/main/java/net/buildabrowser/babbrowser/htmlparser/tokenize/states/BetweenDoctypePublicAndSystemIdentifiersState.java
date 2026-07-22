@@ -15,16 +15,16 @@ public class BetweenDoctypePublicAndSystemIdentifiersState implements TokenizeSt
       case '\t', '\n', '\f', ' ':
         break;
       case '>':
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitDoctypeToken(doctypeToken);
         break;
       case '"':
         doctypeToken.setSystemIdentifier("");
-        tokenizeContext.setTokenizeState(TokenizeStates.doctypeSystemIdentifierDoubleQuotedState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE);
         break;
       case '\'':
         doctypeToken.setSystemIdentifier("");
-        tokenizeContext.setTokenizeState(TokenizeStates.doctypeSystemIdentifierSingleQuotedState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE);
         break;
       case TokenizeContext.EOF:
         parseContext.parseError();
@@ -35,7 +35,7 @@ public class BetweenDoctypePublicAndSystemIdentifiersState implements TokenizeSt
       default:
         parseContext.parseError();
         doctypeToken.setForceQuirks(true);
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.bogusDoctypeState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.BOGUS_DOCTYPE_STATE);
         break;
     }
   }

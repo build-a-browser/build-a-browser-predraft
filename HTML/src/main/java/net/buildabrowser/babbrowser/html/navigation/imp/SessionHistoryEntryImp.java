@@ -12,6 +12,7 @@ import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.NavigationParams;
 import net.buildabrowser.babbrowser.html.navigation.SessionHistoryEntry;
 import net.buildabrowser.babbrowser.html.navigation.SourceSnapshotParams;
+import net.buildabrowser.babbrowser.html.navigation.TargetSnapshotParams;
 import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
 
@@ -19,6 +20,7 @@ public class SessionHistoryEntryImp implements SessionHistoryEntry {
 
   private final DocumentState documentState;
   
+  private int step = -1;
   private URI url;
 
   public SessionHistoryEntryImp(URI url, DocumentState documentState) {
@@ -41,12 +43,15 @@ public class SessionHistoryEntryImp implements SessionHistoryEntry {
     return this.documentState;
   }
 
+  @Override
   public void populate(
     UANavigableOptions uaNavigableOptions, // Has extra UA-specific arguments
     Navigable navigable,
     SourceSnapshotParams sourceSnapshotParams,
+    TargetSnapshotParams targetSnapshotParams,
     UserNavigationInvolvement userInvolvement,
     NavigationParams navigationParams,
+    boolean allowPost,
     Runnable completionSteps
   ) {
     assert navigationParams == null || navigationParams.response() != null;
@@ -68,10 +73,24 @@ public class SessionHistoryEntryImp implements SessionHistoryEntry {
         () -> uaNavigableOptions.loadDocument(navigationParams_));
       documentState.setDocument(loadedDocument);
 
+      if (documentState.document() != null) {
+        documentState.setEverPopulated(true);
+        // TODO: Other stuff
+      }
       if (completionSteps != null) {
         completionSteps.run();
       }
     });
+  }
+
+  @Override
+  public int step() {
+    return this.step;
+  }
+
+  @Override
+  public void setStep(int step) {
+    this.step = step;
   }
   
 }

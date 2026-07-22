@@ -12,9 +12,13 @@ public class GenericUnmanagedBoxFragment extends UnmanagedBoxFragment<GenericUnm
   public GenericUnmanagedBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box
   ) {
-    super(width, height, inkWidth, inkHeight, box);
+    super(
+      width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
+      box);
     this.boxPainter = UnreachableBoxPainter.create(box.element());
   }
 

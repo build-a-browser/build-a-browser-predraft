@@ -12,10 +12,10 @@ public class CommentState implements TokenizeState {
     switch (ch) {
       case '<':
         tokenizeContext.currentCommentToken().appendCodePointToData(ch);
-        tokenizeContext.setTokenizeState(TokenizeStates.commentLessThanSignState);
+        tokenizeContext.setTokenizeState(TokenizeStates.COMMENT_LESS_THAN_SIGN_STATE);
         break;
       case '-':
-        tokenizeContext.setTokenizeState(TokenizeStates.commentEndDashState);
+        tokenizeContext.setTokenizeState(TokenizeStates.COMMENT_END_DASH_STATE);
         break;
       case 0:
         parseContext.parseError();

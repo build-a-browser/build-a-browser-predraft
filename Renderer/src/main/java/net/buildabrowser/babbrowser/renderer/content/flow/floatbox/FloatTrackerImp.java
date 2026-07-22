@@ -140,16 +140,6 @@ public class FloatTrackerImp implements FloatTracker {
   }
 
   @Override
-  public void reset() {
-    this.blockEnd = 0;
-
-    if (allFloats == null) return;
-    leftFloats.clear();
-    rightFloats.clear();
-    allFloats.clear();
-  }
-
-  @Override
   public List<BoxFragment<?>> allFloats() {
     if (allFloats == null) return List.of(); // Java caches this
     return this.allFloats;
@@ -260,7 +250,7 @@ public class FloatTrackerImp implements FloatTracker {
   }
 
   private float posY() {
-    return activeFormattingContext.get().estimateAbsY();
+    return activeFormattingContext.get().estimateAbsY(true);
   }
 
 }

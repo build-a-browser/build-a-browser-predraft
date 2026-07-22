@@ -15,10 +15,14 @@ public class DefaultButtonInputFragment extends ButtonInputFragment {
   public DefaultButtonInputFragment(
     float width, float height,
     float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
     ElementBox box,
     UnmanagedBoxFragment<?> innerFragment
   ) {
-    super(width, height, inkWidth, inkHeight, box, innerFragment);
+    super(
+      width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
+      box, innerFragment);
   }
 
   @Override

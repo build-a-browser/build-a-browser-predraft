@@ -6,7 +6,6 @@ import static net.buildabrowser.babbrowser.common.util.CompatUtil.getLast;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
@@ -20,8 +19,6 @@ import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.NextSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoElement;
-import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SubsequentSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
@@ -37,19 +34,19 @@ import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
 
 public final class ComplexSelectorParser {
-
-  private static final Set<String> LEGACY_PSUEDO_ELEMENTS = Set.of(
-    "first-line", "first-letter", "before", "after");
   
   private ComplexSelectorParser() {}
 
   public static List<ComplexSelector> parseComplexSelectors(
-    CSSTokenStream tokenStream
+    CSSTokenStream tokenStream, boolean isRelative
   ) throws IOException {
     List<ComplexSelector> selectors = new ArrayList<>(1);
     while (!(tokenStream.peek() instanceof EOFToken)) {
-      ComplexSelector selector = parseComplexSelector(tokenStream);
-      if (selector != null) {
+      ComplexSelector selector = parseComplexSelector(tokenStream, isRelative);
+      if (
+        selector != null
+        && verifyComplexSelector(selector, isRelative)
+      ) {
         selectors.add(selector);
       }
       if (tokenStream.peek() instanceof CommaToken) {
@@ -59,9 +56,12 @@ public final class ComplexSelectorParser {
 
     return selectors;
   }
-
-  private static ComplexSelector parseComplexSelector(CSSTokenStream tokenStream) throws IOException {
-    boolean didEncounterWhitespace = false;
+  
+  public static ComplexSelector parseComplexSelector(
+    CSSTokenStream tokenStream,
+    boolean isRelative
+  ) throws IOException {
+    boolean didEncounterWhitespace = isRelative;
     boolean didEncounterCombinator = false;
     boolean isInvalid = false;
     List<SelectorPart> parts = new ArrayList<>(1);
@@ -77,7 +77,10 @@ public final class ComplexSelectorParser {
       didEncounterWhitespace |= isWhitespace;
       didEncounterCombinator |= isCombinatorDelim;
       if (!isCombinatorDelim && !isWhitespace) {
-        if (didEncounterWhitespace && !didEncounterCombinator && !parts.isEmpty()) {
+        if (
+          didEncounterWhitespace && !didEncounterCombinator
+          && (isRelative || !parts.isEmpty())
+        ) {
           parts.add(DescendantCombinator.create());
         }
         didEncounterWhitespace = false;
@@ -86,12 +89,17 @@ public final class ComplexSelectorParser {
       isInvalid |= parseSelectorPart(currentToken, tokenStream, parts);
     }
 
-    if (parts.isEmpty()) return null;
-    isInvalid |= getFirst(parts) instanceof Combinator;
-    isInvalid |= getLast(parts) instanceof Combinator;
-    if (isInvalid) return null;
-
+    if (isInvalid || parts.isEmpty()) return null;
     return new ComplexSelector(parts);
+  }
+
+  private static boolean verifyComplexSelector(
+    ComplexSelector complexSelector, boolean isRelative
+  ) throws IOException {
+    List<SelectorPart> parts = complexSelector.parts();
+    return
+      getFirst(parts) instanceof Combinator == isRelative
+      && !(getLast(parts) instanceof Combinator);
   }
 
   private static boolean parseSelectorPart(
@@ -108,7 +116,7 @@ public final class ComplexSelectorParser {
           isInvalid = true;
         }
       }
-      case ColonToken _1 -> isInvalid |= parsePsuedoSelector(tokenStream, parts);
+      case ColonToken _1 -> isInvalid |= ComplexPseudoSelectorParser.parsePseudoSelector(tokenStream, parts);
       case SimpleBlock simpleBlock -> isInvalid |= parseAttributeSelector(
         tokenStream.source(), simpleBlock, parts);
       case WhitespaceToken _1 -> {}
@@ -192,41 +200,6 @@ public final class ComplexSelectorParser {
     return false;
   }
 
-  private static boolean parsePsuedoSelector(
-    CSSTokenStream tokenStream, List<SelectorPart> parts
-  ) throws IOException {
-    Token nextToken = tokenStream.peek();
-    if (nextToken instanceof ColonToken) {
-      tokenStream.read();
-      return parsePsuedoElement(tokenStream, parts);
-    }
-    if (!(nextToken instanceof IdentToken identToken)) return true;
-    String selectorName = identToken.value();
-    SimplePseudoSelector matchingSimplePsuedoSelector = SimplePseudoSelector.lookupType(selectorName);
-    if (matchingSimplePsuedoSelector == null) {
-      if (LEGACY_PSUEDO_ELEMENTS.contains(selectorName)) {
-        return parsePsuedoElement(tokenStream, parts);
-      }
-      return true;
-    }
-    tokenStream.read();
-    parts.add(matchingSimplePsuedoSelector);
-    return false;
-  }
-
-  private static boolean parsePsuedoElement(
-    CSSTokenStream tokenStream, List<SelectorPart> parts
-  ) throws IOException {
-    Token nextToken = tokenStream.read();
-    // TODO: Another : means pseudo-class
-    if (!(nextToken instanceof IdentToken identToken)) return true;
-    String className = identToken.value();
-    SimplePseudoElement matchingSimplePsuedoClass = SimplePseudoElement.lookupType(className);
-    if (matchingSimplePsuedoClass == null) return true;
-    parts.add(matchingSimplePsuedoClass);
-    return false;
-  }
-
   private static String parseIdentOrString(CSSTokenStream tokenStream) throws IOException {
     Token token = tokenStream.peek();
     if (token instanceof IdentToken identToken) {
@@ -240,7 +213,7 @@ public final class ComplexSelectorParser {
     }
   }
 
-  private static void ignoreWhitespace(CSSTokenStream tokenStream) throws IOException {
+  public static void ignoreWhitespace(CSSTokenStream tokenStream) throws IOException {
     while (tokenStream.peek() instanceof WhitespaceToken) {
       tokenStream.read();
     }

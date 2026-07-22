@@ -48,7 +48,7 @@ public class TabGUI extends JPanel implements TabMutationEventListener {
     // TODO
     if (!addedCallbacks) {
       addedCallbacks = true;
-      tab.getFrame().getRenderer().addRepaintListener(
+      tab.getFrame().addRepaintListener(
         () -> SwingUtilities.invokeLater(() -> {
           renderedContent.revalidate();
           renderedContent.repaint();

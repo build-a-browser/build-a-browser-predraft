@@ -26,7 +26,7 @@ subprojects {
 
 	def desktopModules = [
 		':Browser', ':PainterSkija', ':PainterJava2D',
-		':A11YAccessKit']
+		':DebuggerSwing', ':A11YAccessKit']
 
 	if (!desktopModules.contains(project.path)) {
 		apply plugin: 'ru.vyarus.animalsniffer'

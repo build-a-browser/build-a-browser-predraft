@@ -27,6 +27,10 @@ public interface Frame extends Closeable {
 
   void addEventListener(FrameEventListener listener, boolean sync);
 
+  void addRepaintListener(Runnable repaintListener);
+
+  void removeRepaintListener(Runnable repaintListener);
+
   static Frame create(
     RenderingEngine renderingEngine
   ) throws IOException {

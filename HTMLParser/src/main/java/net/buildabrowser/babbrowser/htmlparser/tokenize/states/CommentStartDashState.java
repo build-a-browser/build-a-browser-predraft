@@ -11,11 +11,11 @@ public class CommentStartDashState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     switch (ch) {
       case '-':
-        tokenizeContext.setTokenizeState(TokenizeStates.commentEndState);
+        tokenizeContext.setTokenizeState(TokenizeStates.COMMENT_END_STATE);
         break;
       case '>':
         parseContext.parseError();
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitCommentToken(tokenizeContext.currentCommentToken());
         break;
       case TokenizeContext.EOF:
@@ -25,7 +25,7 @@ public class CommentStartDashState implements TokenizeState {
         break;
       default:
         tokenizeContext.currentCommentToken().appendCodePointToData('-');
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.commentState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.COMMENT_STATE);
         break;
     }
   }

@@ -10,11 +10,13 @@ public final class CombinatorMatchers {
   // TODO: Better way to obtain new ElementSet
 
   private final ElementIdTreeListener idTree;
+  private final CombinatorMatchersReversed reversedMatchers;
 
   public CombinatorMatchers(ElementRootSet allElements) {
     this.idTree = new ElementIdTreeListener(allElements);
     allElements.addListener(idTree);
     idTree.resync();
+    this.reversedMatchers = new CombinatorMatchersReversed(idTree);
   }
 
   public ElementSet matchDescendants(ElementSet priorMatches, ElementSet nextMatches) {
@@ -87,6 +89,10 @@ public final class CombinatorMatchers {
     }
 
     return newMatches;
+  }
+
+  public CombinatorMatchersReversed reversed() {
+    return this.reversedMatchers;
   }
 
 }

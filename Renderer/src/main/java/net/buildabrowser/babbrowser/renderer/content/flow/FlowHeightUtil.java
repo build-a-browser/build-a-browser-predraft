@@ -21,6 +21,8 @@ public final class FlowHeightUtil {
     LayoutConstraint childWidthConstraint,
     ElementBox childBox
   ) {
+    // TODO: computeIntrinsics is not great to call here, but it's usually not called until
+    // the child is being layed out (too late)
     computeVerticalMarginsOrZero(childBox, parentWidthConstraint);
 
     if (parentHeightConstraint.isPreLayoutConstraint() || childWidthConstraint.isPreLayoutConstraint()) {

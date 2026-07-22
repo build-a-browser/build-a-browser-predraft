@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.renderer.event.handlers.flexbox;
 
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.EventUtil;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
@@ -20,7 +21,8 @@ public class FlexBoxEventHandler implements EventHandler<FlexBoxFragment> {
       eventContext, mouseEvent, fragment, nextFragment, relX, relY);
     if (!childHandledEvent.isUnhandled()) return childHandledEvent;
 
-    return EventUtil.forwardElementEvent(mouseEvent, fragment, relX, relY);
+    return EventUtil.forwardElementEvent(
+      eventContext, mouseEvent, fragment, relX, relY);
   }
 
   private EventHandlerResponse handleChildMouseEvent(

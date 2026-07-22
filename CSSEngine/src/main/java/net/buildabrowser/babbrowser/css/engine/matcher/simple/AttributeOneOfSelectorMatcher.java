@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import net.buildabrowser.babbrowser.common.util.StringUtil;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.util.RefCounted;
@@ -27,11 +28,13 @@ public class AttributeOneOfSelectorMatcher implements SimpleSelectorMatcher<Attr
   ) {
     this.allElements = allElements;
     this.onSelectorChanged = onSelectorChanged;
+    matchingElements.put("class", new HashMap<>());
   }
 
   @Override
   public void addSelectorReference(AttributeSelector ref) {
     if (!ref.type().equals(AttributeType.ONE_OF)) return;
+    if (ref.attrName().equals("class")) return;
 
     RefCounted<ElementSet> setRef = matchingElements
       .computeIfAbsent(ref.attrName(), _1 -> new HashMap<>(4))
@@ -51,6 +54,7 @@ public class AttributeOneOfSelectorMatcher implements SimpleSelectorMatcher<Attr
   @Override
   public void removeSelectorReference(AttributeSelector ref) {
     if (!ref.type().equals(AttributeType.ONE_OF)) return;
+    if (ref.attrName().equals("class")) return;
 
     Map<String, RefCounted<ElementSet>> map = matchingElements.get(ref.attrName());
     if (map == null) return;
@@ -68,12 +72,57 @@ public class AttributeOneOfSelectorMatcher implements SimpleSelectorMatcher<Attr
 
   @Override
   public void onNodeAdded(Node node) {
+    if (
+      node instanceof Element element
+      && element.hasAttribute("class")
+    ) {
+      addElementToClasses(element);
+    }
+
     nodeAction(node, (s, el) -> s.add(el));
   }
 
   @Override
   public void onNodeRemoved(Node node) {
+    if (
+      node instanceof Element element
+      && element.hasAttribute("class")
+    ) {
+      removeElementFromClasses(element);
+    }
+
     nodeAction(node, (s, el) -> s.remove(el));
+  }
+
+  // TODO: Fire onSelectorChanged
+  private void addElementToClasses(Element element) {
+    Map<String, RefCounted<ElementSet>> classMap = matchingElements.get("class");
+    // TODO: Store class list in DOM node
+    String[] classList = StringUtil.spaceSplit(element.getAttribute("class"));
+    for (String value: classList) {
+      RefCounted<ElementSet> setRef = classMap
+        .computeIfAbsent(value, _1 -> RefCounted.create(allElements.createChild()));
+      setRef.incRefCount();
+      setRef.object().add(element);
+      onSelectorChanged.accept(AttributeSelector.create("class", value, AttributeType.ONE_OF));
+    }
+  }
+
+  private void removeElementFromClasses(Element element) {
+    Map<String, RefCounted<ElementSet>> classMap = matchingElements.get("class");
+    String[] classList = StringUtil.spaceSplit(element.getAttribute("class"));
+    for (String value: classList) {
+      RefCounted<ElementSet> counter = classMap.get(value);
+      if (counter == null) return;
+
+      counter.decRefCount();
+      if (!counter.isReferenced()) {
+        classMap.remove(value);
+      } else {
+        counter.object().remove(element);
+      }
+      onSelectorChanged.accept(AttributeSelector.create("class", value, AttributeType.ONE_OF));
+    }
   }
 
   @Override
@@ -81,21 +130,42 @@ public class AttributeOneOfSelectorMatcher implements SimpleSelectorMatcher<Attr
     Map<String, RefCounted<ElementSet>> map = matchingElements.get(attrName);
     if (map == null) return;
     
-    String[] oldValues = (prevValue == null ? "" : prevValue).split(" ");
-    String[] newValues = (newValue == null ? "" : newValue).split(" ");
+    String[] oldValues = prevValue == null ? new String[0] : StringUtil.spaceSplit(prevValue);
+    String[] newValues = newValue == null ? new String[0] : StringUtil.spaceSplit(newValue);
 
+    boolean isClass = attrName.equals("class");
+    boolean changed = false;
     for (String value: oldValues) {
-      if (contains(newValues, value)) continue;
+      if (containsAndRemove(newValues, value)) continue;
       RefCounted<ElementSet> set = map.get(value);
       if (set == null) continue;
-      set.object().remove(element);
+      if (isClass) set.decRefCount();
+      if (isClass && !set.isReferenced()) {
+        map.remove(value);
+      }
+      changed |= changed |= set.object().remove(element);
     }
 
     for (String value: newValues) {
-      if (contains(oldValues, value)) continue;
-      RefCounted<ElementSet> set = map.get(value);
+      if (value == null) continue;
+      if (containsAndRemove(oldValues, value)) continue;
+      RefCounted<ElementSet> set = isClass ?
+        map.computeIfAbsent(value, _1 -> RefCounted.create(allElements.root().createChild())) :
+        map.get(value);
       if (set == null) continue;
-      set.object().add(element);
+      if (isClass) set.incRefCount();
+      changed |= set.object().add(element);
+    }
+
+    if (changed) {
+      for (String value: oldValues) {
+        if (value == null) continue;
+        onSelectorChanged.accept(AttributeSelector.create(attrName, value, AttributeType.ONE_OF));
+      }
+      for (String value: newValues) {
+        if (value == null) continue;
+        onSelectorChanged.accept(AttributeSelector.create(attrName, value, AttributeType.ONE_OF));
+      }
     }
   }
 
@@ -114,7 +184,7 @@ public class AttributeOneOfSelectorMatcher implements SimpleSelectorMatcher<Attr
       String attrValue = element.getAttribute(attrAndMap.getKey());
       if (attrValue == null) continue;
 
-      for (String value: attrValue.split(" ")) {
+      for (String value: StringUtil.spaceSplit(attrValue)) {
         RefCounted<ElementSet> set = attrAndMap.getValue().get(value);
         if (set == null) continue;
         boolean changed = action.apply(set.object(), element);
@@ -140,12 +210,13 @@ public class AttributeOneOfSelectorMatcher implements SimpleSelectorMatcher<Attr
     String attrValue = element.getAttribute(ref.attrName());
     if (attrValue == null) return false;
     
-    return contains(attrValue.split(" "), ref.attrValue());
+    return containsAndRemove(StringUtil.spaceSplit(attrValue), ref.attrValue());
   }
 
-  private boolean contains(String[] arr, String target) {
-    for (String value: arr) {
-      if (value.equals(target)) {
+  private boolean containsAndRemove(String[] arr, String target) {
+    for (int i = 0; i < arr.length; i++) {
+      if (arr[i].equals(target)) {
+        arr[i] = null;
         return true;
       }
     }

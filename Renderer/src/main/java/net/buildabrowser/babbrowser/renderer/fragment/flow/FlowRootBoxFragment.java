@@ -18,7 +18,12 @@ public abstract class FlowRootBoxFragment extends UnmanagedBoxFragment<FlowRootB
     ElementBox rootBox, ManagedBoxFragment<?> rootFragment,
     List<BoxFragment<?>> floats
   ) {
-    super(usedWidth, usedHeight, inkWidth, inkHeight, rootBox);
+    super(
+      usedWidth, usedHeight, inkWidth, inkHeight,
+      // TODO: How do floats affect this?
+      rootFragment.firstBaseline(Measurement.CONTENT),
+      rootFragment.lastBaseline(Measurement.CONTENT),
+      rootBox);
     this.rootFragment = rootFragment;
     this.floats = floats;
   }

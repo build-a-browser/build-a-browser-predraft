@@ -12,13 +12,13 @@ public class AfterAttributeValueQuotedState implements TokenizeState {
     switch (ch) {
       // TODO: Other cases
       case '\t', '\n', '\f', ' ':
-        tokenizeContext.setTokenizeState(TokenizeStates.beforeAttributeNameState);
+        tokenizeContext.setTokenizeState(TokenizeStates.BEFORE_ATTRIBUTE_NAME_STATE);
         break;
       case '/':
-        tokenizeContext.setTokenizeState(TokenizeStates.selfClosingStartTagState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SELF_CLOSING_START_TAG_STATE);
         break;
       case '>':
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitTagToken(tokenizeContext.currentTagToken());
         break;
       case TokenizeContext.EOF:
@@ -26,7 +26,7 @@ public class AfterAttributeValueQuotedState implements TokenizeState {
         break;
       default:
         parseContext.parseError();
-        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.beforeAttributeNameState);
+        tokenizeContext.reconsumeInTokenizeState(ch, TokenizeStates.BEFORE_ATTRIBUTE_NAME_STATE);
     }
   }
 

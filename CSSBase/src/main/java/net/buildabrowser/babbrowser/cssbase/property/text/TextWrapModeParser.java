@@ -14,7 +14,7 @@ public class TextWrapModeParser implements PropertyValueParser {
 
   private static final Map<String, CSSValue> TEXT_WRAP_MODE_VALUES = Map.of(
     "wrap", TextWrapModeValue.WRAP,
-    "nowrap", TextWrapModeValue.NO_WRAP
+    "nowrap", TextWrapModeValue.NOWRAP
   );
 
   @Override

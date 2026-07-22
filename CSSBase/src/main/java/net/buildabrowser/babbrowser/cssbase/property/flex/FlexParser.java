@@ -9,6 +9,7 @@ import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.AnyOrderResult;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 
@@ -35,7 +36,7 @@ public class FlexParser implements PropertyValueParser {
     if (anyOrderValue.isFailure()) return anyOrderValue;
     CSSValue[] innerValues = ((AnyOrderResult) anyOrderValue).values();
 
-    CSSValue basis = innerValues[1] == null ? CSSValue.AUTO : innerValues[1];
+    CSSValue basis = innerValues[1] == null ? LengthValue.ZERO : innerValues[1];
     return innerValues[0] instanceof FlexValue innerFlexValue ?
       FlexValue.create(
         innerFlexValue.flexGrow(),

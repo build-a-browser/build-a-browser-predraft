@@ -11,16 +11,16 @@ public class ScriptDataDoubleEscapedDashState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     switch (ch) {
       case '-':
-        tokenizeContext.setTokenizeState(TokenizeStates.scriptDataDoubleEscapedDashDashState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE);
         parseContext.emitCharacterToken('-');
         break;
       case '<':
-        tokenizeContext.setTokenizeState(TokenizeStates.scriptDataDoubleEscapedLessThanSignState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE);
         parseContext.emitCharacterToken('<');
         break;
       case 0:
         parseContext.parseError();
-        tokenizeContext.setTokenizeState(TokenizeStates.scriptDataDoubleEscapedState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_DOUBLE_ESCAPED_STATE);
         parseContext.emitCharacterToken(0xFFFD);
         break;
       case TokenizeContext.EOF:
@@ -28,7 +28,7 @@ public class ScriptDataDoubleEscapedDashState implements TokenizeState {
         parseContext.emitEOFToken();
         break;
       default:
-        tokenizeContext.setTokenizeState(TokenizeStates.scriptDataDoubleEscapedState);
+        tokenizeContext.setTokenizeState(TokenizeStates.SCRIPT_DATA_DOUBLE_ESCAPED_STATE);
         parseContext.emitCharacterToken(ch);
         break;
     }

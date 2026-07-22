@@ -20,7 +20,7 @@ public final class FloatLayout {
     // TODO: Check height calculation
     LayoutConstraint childWidthConstraint = childBox.isReplaced() ?
       FlowWidthUtil.determineBlockReplacedWidthAndMargins(
-        parentWidthConstraint, childBox) :
+        parentWidthConstraint, parentHeightConstraint, childBox) :
       FlowWidthUtil.determineFloatNonReplacedWidthAndMargins(
         parentWidthConstraint, childBox);
     LayoutConstraint childHeightContraint = childBox.isReplaced() ?
@@ -34,13 +34,13 @@ public final class FloatLayout {
   }
 
   public static boolean addFloat(
-    FlowRootContent rootContent,
+    FlowContext flowContext,
     UnmanagedBoxFragment<?> floatFragment,
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint,
     float reservedWidth
   ) {
-    FloatTracker floatTracker = rootContent.floatTracker();
+    FloatTracker floatTracker = flowContext.floatTracker();
     PropertyContainer properties = floatFragment.box().properties();
 
     return switch (properties.get(CSSProperty.FLOAT)) {

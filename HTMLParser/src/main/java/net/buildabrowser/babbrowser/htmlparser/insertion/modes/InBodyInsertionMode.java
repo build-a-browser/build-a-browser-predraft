@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
 import java.util.Set;
 
+import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
@@ -16,6 +17,9 @@ import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
 
 public class InBodyInsertionMode implements InsertionMode {
+
+  private static final Set<String> DT_SPECIAL_EXCLUSIONS = Set.of(
+    "address", "div", "p");
 
   @Override
   public boolean emitCharacterToken(ParseContext parseContext, int ch) {
@@ -75,7 +79,7 @@ public class InBodyInsertionMode implements InsertionMode {
   private boolean emitStartTagToken(ParseContext parseContext, TagToken tagToken) {
     switch (tagToken.name()) {
       case "base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template", "title":
-        return InsertionModes.inHeadInsertionMode.emitTagToken(parseContext, tagToken);
+        return InsertionModes.IN_HEAD_INSERTION_MODE.emitTagToken(parseContext, tagToken);
       case "address", "article", "aside", "blockquote", "center", "details", "dialog", "dir", "div", "dl",
       "fieldset", "figcaption", "figure", "footer", "header", "hgroup", "main", "menu", "nav", "ol", "p",
       "search", "section", "summary", "ul":
@@ -84,13 +88,76 @@ public class InBodyInsertionMode implements InsertionMode {
         }
         ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
         return false;
+      case "li": { // TODO: li and dt are similar, make a helper method to merge them?
+        parseContext.setFramesetOk(false);
+        OpenElementStack stack = parseContext.openElementStack();
+        Node node = stack.peek();
+        int i = 1;
+        while (true) {
+          if (ParseElementUtil.isHTMLElementWithName(node, "li")) {
+            ParseAdjustUtil.generateImpliedEndTags(stack, Set.of("li"));
+            if (!ParseElementUtil.isHTMLElementWithName(stack.peek(), "li")) {
+              parseContext.parseError();
+            }
+
+            while (!ParseElementUtil.isHTMLElementWithName(stack.popNode(), "li"));
+            break;
+          }
+          
+          if (
+            ParseElementUtil.isSpecial(node, DT_SPECIAL_EXCLUSIONS)
+          ) break;
+          node = stack.peek(i++);
+        }
+        
+        if (ParseAdjustUtil.hasInButtonScope(parseContext.openElementStack(), "p")) {
+          ParseAdjustUtil.closeAPElement(parseContext);
+        }
+        
+        ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
+        return false;
+      }
+      case "dd", "dt": {
+        parseContext.setFramesetOk(false);
+        OpenElementStack stack = parseContext.openElementStack();
+        Node node = stack.peek();
+        int i = 1;
+        while (true) {
+          if (
+            node instanceof Element element
+            && (
+              ParseElementUtil.isHTMLElementWithName(node, "dt")
+              || ParseElementUtil.isHTMLElementWithName(node, "dd"))
+          ) {
+            ParseAdjustUtil.generateImpliedEndTags(stack, Set.of(element.name()));
+            if (!ParseElementUtil.isHTMLElementWithName(stack.peek(), element.name())) {
+              parseContext.parseError();
+            }
+
+            while (!ParseElementUtil.isHTMLElementWithName(stack.popNode(), element.name()));
+            break;
+          }
+          
+          if (
+            ParseElementUtil.isSpecial(node, DT_SPECIAL_EXCLUSIONS)
+          ) break;
+          node = stack.peek(i++);
+        }
+
+        if (ParseAdjustUtil.hasInButtonScope(parseContext.openElementStack(), "p")) {
+          ParseAdjustUtil.closeAPElement(parseContext);
+        }
+        
+        ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
+        return false;
+      }
       case "table":
         if (ParseAdjustUtil.hasInButtonScope(parseContext.openElementStack(), "p")) {
           ParseAdjustUtil.closeAPElement(parseContext);
         }
         ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
         parseContext.setFramesetOk(false);
-        parseContext.setInsertionMode(InsertionModes.inTableInsertionMode);
+        parseContext.setInsertionMode(InsertionModes.IN_TABLE_INSERTION_MODE);
         return false;
       case "area", "br", "embed", "img", "keygen", "wbr":
         ParseTextUtil.reconstructTheActiveFormattingElements(parseContext);
@@ -106,6 +173,16 @@ public class InBodyInsertionMode implements InsertionMode {
         // TODO: Acknowledge self-closing flag
         parseContext.setFramesetOk(false);
         return false;
+      case "hr": 
+        if (ParseAdjustUtil.hasInButtonScope(parseContext.openElementStack(), "p")) {
+          ParseAdjustUtil.closeAPElement(parseContext);
+        }
+        // TODO: Handle select
+        ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
+        parseContext.openElementStack().popNode();
+        tagToken.acknowledgeSelfClosingFlag();
+        parseContext.setFramesetOk(false);
+        return false;
       default:
         ParseTextUtil.reconstructTheActiveFormattingElements(parseContext);
         ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
@@ -114,10 +191,33 @@ public class InBodyInsertionMode implements InsertionMode {
   }
 
   private boolean emitEndTagToken(ParseContext parseContext, TagToken tagToken) {
+    OpenElementStack stack = parseContext.openElementStack();
     switch (tagToken.name()) {
       case "body":
         // TODO: Other stuff
-        parseContext.setInsertionMode(InsertionModes.afterBodyInsertionMode);
+        parseContext.setInsertionMode(InsertionModes.AFTER_BODY_INSERTION_MODE);
+        return false;
+      case "li":
+        if (!ParseAdjustUtil.hasInListItemScope(stack, "li")) {
+          parseContext.parseError();
+          return false;
+        }
+        ParseAdjustUtil.generateImpliedEndTags(stack, Set.of("li"));
+        if (!ParseElementUtil.isHTMLElementWithName(stack.peek(), "li")) {
+          parseContext.parseError();
+        }
+        while (!ParseElementUtil.isHTMLElementWithName(stack.popNode(), "li"));
+        return false;
+      case "dd", "dt":
+        if (!ParseAdjustUtil.hasInScope(stack, tagToken.name())) {
+          parseContext.parseError();
+          return false;
+        }
+        ParseAdjustUtil.generateImpliedEndTags(stack, Set.of(tagToken.name()));
+        if (!ParseElementUtil.isHTMLElementWithName(stack.peek(), tagToken.name())) {
+          parseContext.parseError();
+        }
+        while (!ParseElementUtil.isHTMLElementWithName(stack.popNode(), tagToken.name()));
         return false;
       case "br":
         parseContext.parseError();

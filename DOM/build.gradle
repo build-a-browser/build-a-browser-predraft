@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-    api project(":Common")
-    api project(":CSSBase")
+    api project(':Common')
+    api project(':CSSBase')
+    implementation project(':Infra')
     testImplementation 'org.junit.jupiter:junit-jupiter:6.0.1'
 }

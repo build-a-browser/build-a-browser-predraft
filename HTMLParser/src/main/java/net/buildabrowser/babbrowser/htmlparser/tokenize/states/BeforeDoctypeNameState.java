@@ -13,7 +13,7 @@ public class BeforeDoctypeNameState implements TokenizeState {
   public void consume(int ch, TokenizeContext tokenizeContext, ParseContext parseContext) {
     if (ASCIIUtil.isAlpha(ch)) {
       tokenizeContext.beginDoctypeToken().appendCodePointToName(ASCIIUtil.toLower(ch));
-      tokenizeContext.setTokenizeState(TokenizeStates.doctypeNameState);
+      tokenizeContext.setTokenizeState(TokenizeStates.DOCTYPE_NAME_STATE);
       return;
     }
 
@@ -23,13 +23,13 @@ public class BeforeDoctypeNameState implements TokenizeState {
       case 0:
         parseContext.parseError();
         tokenizeContext.beginDoctypeToken().appendCodePointToName('\uFFFD');
-        tokenizeContext.setTokenizeState(TokenizeStates.doctypeNameState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DOCTYPE_NAME_STATE);
         break;
       case '>':
         parseContext.parseError();
         DoctypeToken doctypeToken = tokenizeContext.beginDoctypeToken();
         doctypeToken.setForceQuirks(true);
-        tokenizeContext.setTokenizeState(TokenizeStates.dataState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DATA_STATE);
         parseContext.emitDoctypeToken(doctypeToken);
         break;
       case TokenizeContext.EOF:
@@ -42,7 +42,7 @@ public class BeforeDoctypeNameState implements TokenizeState {
       default:
         doctypeToken = tokenizeContext.beginDoctypeToken();
         doctypeToken.appendCodePointToName(ch);
-        tokenizeContext.setTokenizeState(TokenizeStates.doctypeNameState);
+        tokenizeContext.setTokenizeState(TokenizeStates.DOCTYPE_NAME_STATE);
         break;
     }
   }

@@ -12,10 +12,11 @@ import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollMath.ScrollMathResult;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent.MouseEventType;
-import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 
 public class ScrollEventHandler implements EventHandler<ScrollBoxFragment> {
@@ -60,29 +61,28 @@ public class ScrollEventHandler implements EventHandler<ScrollBoxFragment> {
       || scrollBox.verticalScrollState().active()
       || scrollBox.horizontalScrollState().active()
     ) {
-      eventContext.registerEventObserver(scrollBox);
+      eventContext.registerEventInterceptor(scrollBox);
     }
 
     return innerMouseEventResponse;
   }
 
   @Override
-  public void observeMouseEvent(
+  public boolean interceptMouseEvent(
     EventContext eventContext, RendererMouseEvent mouseEvent,
     ScrollBoxFragment scrollBoxFragment,
-    float relX, float relY, boolean preventDefault
+    float relX, float relY
   ) {
-    if (preventDefault) {
-      disableIfScrollRelated(eventContext, scrollBoxFragment, mouseEvent);
-      return;
-    }
-
     if (mouseEvent.event().equals(MouseEventType.MOVE)) {
       handleMoveEvent(scrollBoxFragment, relX, relY);
       handleDragEvent(mouseEvent, scrollBoxFragment);
+      return true;
     } else if (mouseEvent.event().equals(MouseEventType.UP)) {
       handleUpEvent(eventContext, scrollBoxFragment, relX, relY);
+      return true;
     }
+
+    return false;
   }
 
   private void handleMoveEvent(

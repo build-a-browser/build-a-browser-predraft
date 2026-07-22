@@ -31,7 +31,7 @@ public class TextInputBoxPainter implements BoxPainter<TextInputFragment> {
     ElementBox box = fragment.box();
     HTMLInputElement element = (HTMLInputElement) box.element();
     FocusManager focusManager = ((HTMLDocument) element.nodeDocument()).focusManager();
-    TextTypeContent content = ((InputContent) box.content()).innerContent();
+    TextTypeContent content = ((InputContent) box.content()).innerContent(box);
     LoadedFont font = box.layoutContext().font();
     FontMetrics metrics = font.metrics();
     String displayValue = content.displayValue();

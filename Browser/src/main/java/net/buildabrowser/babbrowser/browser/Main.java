@@ -12,16 +12,20 @@ import javax.swing.UnsupportedLookAndFeelException;
 import net.buildabrowser.babbrowser.a11y.accesskit.AKA11YProvider;
 import net.buildabrowser.babbrowser.a11y.core.A11YProvider;
 import net.buildabrowser.babbrowser.browser.chrome.WindowSetGUI;
+import net.buildabrowser.babbrowser.browser.clipboard.AWTClipboardProvider;
 import net.buildabrowser.babbrowser.browser.net.imp.FetchBackendImp;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
+import net.buildabrowser.babbrowser.debugger.core.Debugger;
+import net.buildabrowser.babbrowser.debugger.swing.SwingDebugger;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
 import net.buildabrowser.babbrowser.painter.core.ComponentPainter;
 import net.buildabrowser.babbrowser.painter.java2d.Java2DPainter;
 import net.buildabrowser.babbrowser.painter.skija.SkijaAWTPainter;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
+import net.buildabrowser.babbrowser.renderer.clipboard.ClipboardProvider;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 
 public class Main {
@@ -44,6 +48,8 @@ public class Main {
 
     // TODO: Allow disabling a11y support
     A11YProvider a11yProvider = new AKA11YProvider();
+    ClipboardProvider<?> clipboardProvider = new AWTClipboardProvider();
+    Debugger debugger = new SwingDebugger();
 
     DocumentLoaderRegistry loaderRegistry = DocumentLoaderRegistry.createDefault();
     ContentEncodingRegistry registry = ContentEncodingRegistry.createDefault();
@@ -55,7 +61,8 @@ public class Main {
       painter,
       a11yProvider,
       loaderRegistry,
-      ClassLoader.getSystemClassLoader()::getResourceAsStream);
+      ClassLoader.getSystemClassLoader()::getResourceAsStream,
+      clipboardProvider);
     BrowserInstance browserInstance = BrowserInstance.create(renderingEngine);
   
     WindowSet windowSet = WindowSet.create(browserInstance);
@@ -66,7 +73,7 @@ public class Main {
       window.openTab().navigate(url);
     }
 
-    WindowSetGUI.create(windowSet, painter);
+    WindowSetGUI.create(windowSet, painter, debugger);
   }
 
   private static void setLookAndFeel() {

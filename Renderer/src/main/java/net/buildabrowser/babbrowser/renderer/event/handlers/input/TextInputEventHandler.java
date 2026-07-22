@@ -2,13 +2,16 @@ package net.buildabrowser.babbrowser.renderer.event.handlers.input;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
+import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.input.InputContent;
 import net.buildabrowser.babbrowser.renderer.content.input.text.TextTypeContent;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.EventUtil;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent.MouseEventType;
+import net.buildabrowser.babbrowser.renderer.event.util.MouseEventUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.input.TextInputFragment;
 import net.buildabrowser.babbrowser.renderer.paint.painters.input.TextInputBoxPainter;
@@ -23,7 +26,8 @@ public class TextInputEventHandler implements EventHandler<TextInputFragment> {
     relX -= fragment.posX(Measurement.BORDER);
     relY -= fragment.posY(Measurement.BORDER);
 
-    EventHandlerResponse response = EventUtil.forwardElementEvent(mouseEvent, fragment, relX, relY);
+    EventHandlerResponse response = EventUtil.forwardElementEvent(
+      eventContext, mouseEvent, fragment, relX, relY);
     if (
       mouseEvent.event().equals(MouseEventType.CLICK)
       && !response.equals(EventHandlerResponse.HANDLED)
@@ -35,29 +39,14 @@ public class TextInputEventHandler implements EventHandler<TextInputFragment> {
   }
 
   private void determineCursorX(TextInputFragment fragment, float relX) {
-    FontMetrics fontMetrics = fragment.box().layoutContext().font().metrics();
-    TextTypeContent content = ((InputContent) fragment.box().content()).innerContent();
+    ElementBox box = fragment.box();
+    FontMetrics fontMetrics = box.layoutContext().font().metrics();
+    TextTypeContent content = ((InputContent) box.content()).innerContent(box);
     String value = content.displayValue();
-    int cursorX = 0;
-    int charNum = 0;
     float adjustedRelX = relX + content.scrollX() - TextInputBoxPainter.HORIZONTAL_PADDING;
-    while (
-      charNum < value.length()
-      // TODO: Bad performance, but if it was done character-by-character
-      // then it might be thrown off by kerning
-      && valueWidth(fontMetrics, value, charNum) / 2
-        + valueWidth(fontMetrics, value, charNum + 1) / 2
-        <= adjustedRelX
-    ) {
-      cursorX++;
-      charNum += Character.charCount(value.codePointAt(charNum));
-    }
+    int cursorX = MouseEventUtil.determineTextMouseIndex(adjustedRelX, fontMetrics, value);
     content.setCursorX(cursorX);
-    fragment.box().context().invalidate(InvalidationLevel.PAINT);
-  }
-
-  private float valueWidth(FontMetrics fontMetrics, String value, int charNum) {
-    return fontMetrics.stringWidth(value.substring(0, charNum));
+    box.context().invalidate(InvalidationLevel.PAINT);
   }
   
 }

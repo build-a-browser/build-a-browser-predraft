@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.ExecutorService;
 
-import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
@@ -18,8 +17,6 @@ public interface UANavigableOptions {
   RenderableDocument loadDocument(
     NavigationParams navigationParams
   ) throws IOException;
-
-  StyleSheetList uaStyleSheets();
 
   DocumentRendererEventListener eventListener();
 

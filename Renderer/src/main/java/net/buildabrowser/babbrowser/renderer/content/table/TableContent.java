@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.table.BorderCollapseValue;
 import net.buildabrowser.babbrowser.cssbase.property.table.BorderSpacingValue;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
@@ -21,24 +22,19 @@ import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.table.TableBoxFragment;
+import net.buildabrowser.babbrowser.renderer.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 
-public class TableContent implements BoxContent {
+public final class TableContent implements BoxContent {
 
-  // TODO: Don't forget to handle out-of-flow items
+  private static final TableContent INSTANCE = new TableContent();
 
-  private final ElementBox rootBox;
+  private TableContent() {}
   
-  private Table table;
-
-  public TableContent(ElementBox rootBox) {
-    this.rootBox = rootBox;
-  }
-
   @Override
-  public void fixupChildren() {
+  public void fixupChildren(ElementBox rootBox) {
     TableFixup.adjustTableBox(rootBox);
   }
 
@@ -48,23 +44,25 @@ public class TableContent implements BoxContent {
 
   @Override
   public UnmanagedBoxFragment<?> layout(
+    ElementBox rootBox,
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
 
-    BorderSpacings borderSpacings = determineBorderSpacing();
-    this.table = Table.create(rootBox, borderSpacings);
+    BorderSpacings borderSpacings = determineBorderSpacing(rootBox);
+    Table table = Table.create(rootBox, borderSpacings);
     TableFormingResult formingResult = TableFormer.formTable(table, rootBox);
     table.createTracks();
 
     TableCellUtil.forEachCell(table, cell -> PaddingUtil.computePadding(cell.cellBox(), widthConstraint));
-    TableBorderAssignment borderAssignment = assignBorders(widthConstraint);
+    TableBorderAssignment borderAssignment = assignBorders(table, widthConstraint);
 
     if (table.width() == 0) {
       TableBoxFragment tableFragment = fragmentFactory.createTableBoxFragment(
         LayoutUtil.constraintOrDim(widthConstraint, 0),
         LayoutUtil.constraintOrDim(heightConstraint, 0),
+        0, 0,
         0, 0,
         rootBox, table, borderAssignment,
         formingResult.outOfTableFragments());
@@ -89,6 +87,7 @@ public class TableContent implements BoxContent {
         LayoutUtil.constraintOrDim(widthConstraint, usedWidth),
         LayoutUtil.constraintOrDim(heightConstraint, 0),
         usedWidth, 0,
+        0, 0, // TODO: Compute baselines
         rootBox);
     }
 
@@ -114,6 +113,7 @@ public class TableContent implements BoxContent {
       LayoutUtil.constraintOrDim(usedConstraint, gridMax),
       LayoutUtil.constraintOrDim(heightConstraint, totalHeight),
       inkWidth, totalHeight,
+      0, 0, // TODO: Compute baselines
       rootBox, table, borderAssignment,
       formingResult.outOfTableFragments());
     rootBox.updatePositioningFragment(tableFragment);
@@ -121,19 +121,21 @@ public class TableContent implements BoxContent {
   }
 
   @Override
-  public ElementBox rootBox() {
-    return this.rootBox;
-  }
-
-  @Override
-  public void positionLayers(float layerX, float layerY) {
+  public void positionLayers(
+    UnmanagedBoxFragment<?> fragment,
+    float layerX, float layerY
+  ) {
     TablePositioner.positionLayers(
       layerX, layerY,
-      (TableBoxFragment) rootBox.positioningFragment());
+      (TableBoxFragment) fragment);
   }
 
-  private TableBorderAssignment assignBorders(LayoutConstraint widthConstraint) {
-    CSSValue collapseValue = rootBox.properties().get(CSSProperty.BORDER_COLLAPSE);
+  private TableBorderAssignment assignBorders(
+    Table table,
+    LayoutConstraint widthConstraint
+  ) {
+    PropertyContainer properties = table.tableBox().properties();
+    CSSValue collapseValue = properties.get(CSSProperty.BORDER_COLLAPSE);
     TableBorderAssignment borderAssignment = collapseValue.equals(BorderCollapseValue.COLLAPSE) ?
       TableCollapsedBorderAssigner.assignBorders(table) :
       TableSeparateBorderAssigner.assignBorders(table, widthConstraint);
@@ -146,11 +148,11 @@ public class TableContent implements BoxContent {
       for (int x = 0; x < table.width(); x++) {
         for (int z = 0; table.cell(x, y, z) != null; z++) {
           TableCell cell = table.cell(x, y, z);
-          if (cell.getRelatedFragment() != null) continue;
-
-          UnmanagedBoxFragment<?> fragment = cell.cellBox().layout(
-            LayoutConstraint.of(innerCellWidth(table, cell)), LayoutConstraint.AUTO);
-          cell.setRelatedFragment(fragment);
+          if (cell.getRelatedFragment() == null) {
+            UnmanagedBoxFragment<?> fragment = cell.cellBox().layout(
+              LayoutConstraint.of(innerCellWidth(table, cell)), LayoutConstraint.AUTO);
+            cell.setRelatedFragment(fragment);
+          }
 
           LayoutConstraint fragmentHeight = SizingHeightUtil.evaluateAdjustedHeightSize(
             LayoutConstraint.AUTO, cell.cellBox());
@@ -196,7 +198,8 @@ public class TableContent implements BoxContent {
     Table table, float tableWidth, float tableHeight
   ) {
     List<UnmanagedBoxFragment<?>> fragments = new ArrayList<>();
-    FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
+    GlobalLayoutContext globalLayoutContext = table.tableBox().layoutContext().global();
+    FragmentFactory fragmentFactory = globalLayoutContext.fragmentFactory();
 
     BorderSpacings borderSpacings = table.spacings();
     float currentX = 0;
@@ -257,7 +260,7 @@ public class TableContent implements BoxContent {
     return fragments;
   }
 
-  private BorderSpacings determineBorderSpacing() {
+  private BorderSpacings determineBorderSpacing(ElementBox rootBox) {
     CSSValue borderCollapse = rootBox.properties().get(CSSProperty.BORDER_COLLAPSE);
     if (!(borderCollapse.equals(BorderCollapseValue.SEPARATE))) return BorderSpacings.ZERO;
 
@@ -280,6 +283,10 @@ public class TableContent implements BoxContent {
 
     public static BorderSpacings ZERO = new BorderSpacings(0, 0);
 
+  }
+
+  public static TableContent get() {
+    return INSTANCE;
   }
   
 }

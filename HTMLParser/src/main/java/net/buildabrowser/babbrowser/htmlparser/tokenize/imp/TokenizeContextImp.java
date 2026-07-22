@@ -18,7 +18,7 @@ public class TokenizeContextImp implements TokenizeContext {
   private final DoctypeToken doctypeToken = DoctypeToken.create();
   private final CommentToken commentToken = CommentToken.create();
 
-  private TokenizeState tokenizeState = TokenizeStates.dataState;
+  private TokenizeState tokenizeState = TokenizeStates.DATA_STATE;
   private TokenizeState returnState;
   private int charRefCode;
 
@@ -106,7 +106,7 @@ public class TokenizeContextImp implements TokenizeContext {
   @Override
   public void flushCodePointsConsumedAsACharacterReference(ParseContext parseContext) {
     String valueToFlush = temporaryBuffer.get();
-    if (returnState.equals(TokenizeStates.dataState) || returnState.equals(TokenizeStates.rcdataState)) {
+    if (returnState.equals(TokenizeStates.DATA_STATE) || returnState.equals(TokenizeStates.RCDATA_STATE)) {
       for (int i = 0; i < valueToFlush.length(); i++) {
         parseContext.emitCharacterToken(valueToFlush.codePointAt(i));
       }

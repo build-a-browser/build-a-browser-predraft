@@ -77,7 +77,7 @@ public class CSSParserImp implements CSSParser {
       ListCSSTokenStream.create(source, qualifiedRule.simpleBlock().value()));
 
     List<ComplexSelector> selectors = ComplexSelectorParser.parseComplexSelectors(
-      ListCSSTokenStream.create(source, qualifiedRule.prelude()));
+      ListCSSTokenStream.create(source, qualifiedRule.prelude()), false);
 
     return new StyleRule(selectors, declarations);
   }

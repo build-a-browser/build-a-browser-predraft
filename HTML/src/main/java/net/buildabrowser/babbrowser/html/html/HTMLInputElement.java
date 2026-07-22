@@ -1,10 +1,10 @@
 package net.buildabrowser.babbrowser.html.html;
 
-import net.buildabrowser.babbrowser.dom.Namespace;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.imp.HTMLInputElementImp;
+import net.buildabrowser.babbrowser.infra.Namespace;
 
-public interface HTMLInputElement extends HTMLElement {
+public interface HTMLInputElement extends FormAssociatedElement {
 
   String type();
 
@@ -17,7 +17,8 @@ public interface HTMLInputElement extends HTMLElement {
   public static HTMLElement create(
     String name, Node parentNode
   ) {
-    return new HTMLInputElementImp(name, Namespace.HTML_NAMESPACE, parentNode);
+    return new HTMLInputElementImp(
+      name, Namespace.HTML_NAMESPACE, parentNode);
   }
 
 }

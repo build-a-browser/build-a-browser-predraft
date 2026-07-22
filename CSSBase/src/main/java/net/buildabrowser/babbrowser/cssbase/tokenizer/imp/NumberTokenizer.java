@@ -1,15 +1,15 @@
 package net.buildabrowser.babbrowser.cssbase.tokenizer.imp;
 
+import static net.buildabrowser.babbrowser.common.util.ASCIIUtil.isDigit;
+
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.common.util.CommonUtil;
+import net.buildabrowser.babbrowser.common.util.NumberUtil;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.CSSTokenizerInput;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
-
-import static net.buildabrowser.babbrowser.common.util.ASCIIUtil.isDigit;
 
 public class NumberTokenizer {
 
@@ -37,7 +37,8 @@ public class NumberTokenizer {
     StringBuilder repr = new StringBuilder();
     
     int ch = stream.peek();
-    if (ch == '+' || ch == '-') {
+    boolean isSigned = ch == '+' || ch == '-';
+    if (isSigned) {
       repr.appendCodePoint(stream.read());
     }
 
@@ -77,15 +78,18 @@ public class NumberTokenizer {
       }
     }
 
-    Number value = isInteger && repr.toString().toLowerCase().indexOf('e') == -1 ?
-      CommonUtil.tryOrNull(() -> Integer.valueOf(repr.toString())) :
-      Double.valueOf(repr.toString());
+    Number value;
+    if (isInteger && repr.toString().toLowerCase().indexOf('e') == -1) {
+      value = NumberUtil.parseInteger(repr.toString());
+    } else {
+      value = Double.valueOf(repr.toString());
+    }
     if (value == null) {
       // TODO: Maybe use BigInteger or something
       value = Double.valueOf(repr.toString());
     }
 
-    return NumberToken.create(value, isInteger);
+    return NumberToken.create(value, isInteger, isSigned);
   }
 
   public boolean startsWithANumber(int ch1, int ch2, int ch3) {

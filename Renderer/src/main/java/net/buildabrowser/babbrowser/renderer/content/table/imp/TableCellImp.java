@@ -136,7 +136,7 @@ public class TableCellImp implements TableCell {
     // TODO: Make this actually be "outer"
     PropertyContainer properties = cellBox.properties();
     float minContentWidth = EBDimensionsUtil.preferredMinWidthConstraint(cellBox);
-    LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
+    LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateWidthSize(
       LayoutConstraint.AUTO, cellBox, properties.get(CSSProperty.MIN_WIDTH));
 
     if (specifiedMinWidth.isBounded()) {
@@ -150,11 +150,11 @@ public class TableCellImp implements TableCell {
     PropertyContainer properties = cellBox.properties();
     float minContentWidth = EBDimensionsUtil.preferredMinWidthConstraint(cellBox);
     float maxContentWidth = EBDimensionsUtil.preferredWidthConstraint(cellBox);
-    LayoutConstraint specifiedWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
+    LayoutConstraint specifiedWidth = SizingWidthUtil.evaluateWidthSize(
       LayoutConstraint.AUTO, cellBox);
-    LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
+    LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateWidthSize(
       LayoutConstraint.AUTO, cellBox, properties.get(CSSProperty.MIN_WIDTH));
-    LayoutConstraint specifiedMaxWidth = SizingWidthUtil.evaluateAdjustedWidthSize(
+    LayoutConstraint specifiedMaxWidth = SizingWidthUtil.evaluateWidthSize(
       LayoutConstraint.AUTO, cellBox, properties.get(CSSProperty.MAX_WIDTH));
 
     float usedWidth = minContentWidth;

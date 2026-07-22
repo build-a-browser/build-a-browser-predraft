@@ -42,6 +42,11 @@ p {
   margin-bottom: 1em;
 }
 
+pre {
+  font-family: monospace;
+  white-space: pre;
+}
+
 center {
   text-align: -bab-center;
 }
@@ -134,3 +139,13 @@ noframes, param, rp, script, style, template, title {
 
 /* TODO: [type=hidden i] */
 input[type=hidden] { display: none !important; }
+
+/* hr */
+/* TODO: Use block/inline margins, inset style */
+hr {
+  color: gray;
+  border-style: solid;
+  border-width: 1px;
+  margin-block: 0.5em auto;
+  overflow: hidden;
+}

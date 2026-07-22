@@ -12,6 +12,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
+import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSVarValue;
@@ -36,7 +37,16 @@ public final class CustomPropertyParser {
   private CustomPropertyParser() {}
 
   public static boolean isValidCustomPropertyValue(
-    CSSTokenStream stream, boolean isTopLevel
+    SeekableCSSTokenStream stream, boolean isTopLevel
+  ) throws IOException {
+    int position = stream.position();
+    boolean isValid = isValidCustomPropertyValueRaw(stream, isTopLevel);
+    stream.seek(position);
+    return isValid;
+  }
+
+  private static boolean isValidCustomPropertyValueRaw(
+    SeekableCSSTokenStream stream, boolean isTopLevel
   ) throws IOException {
     List<Token> matchTokens = new LinkedList<>();
     while (!(stream.peek() instanceof EOFToken)) {
@@ -64,7 +74,7 @@ public final class CustomPropertyParser {
       ) return false;
 
       if (token instanceof FunctionValue funcValue) {
-        CSSTokenStream innerStream = ListCSSTokenStream.createWithSkippedWhitespace(
+        SeekableCSSTokenStream innerStream = ListCSSTokenStream.createWithSkippedWhitespace(
           stream.source(), funcValue.value());
         if (
           !isValidCustomPropertyValue(innerStream, false)
@@ -82,13 +92,13 @@ public final class CustomPropertyParser {
 
   // In addition to boolean values, can return null if there is an invalid var reference.
   public static Boolean hasVarReferences(
-    CSSTokenStream stream
+    SeekableCSSTokenStream stream
   ) throws IOException {
     Boolean hasVarReferences = false;
     while (!(stream.peek() instanceof EOFToken)) {
       Token token = stream.read();
       if (token instanceof FunctionValue funcValue) {
-        CSSTokenStream innerStream = ListCSSTokenStream.createWithSkippedWhitespace(
+        SeekableCSSTokenStream innerStream = ListCSSTokenStream.createWithSkippedWhitespace(
           stream.source(), funcValue.value());
 
         if (funcValue.name().equals("var")) {
@@ -113,9 +123,12 @@ public final class CustomPropertyParser {
   }
 
   private static boolean isValidInnerVarReference(
-    CSSTokenStream stream
+    SeekableCSSTokenStream stream
   ) throws IOException {
-    return !parseInnerVarReference(stream).isFailure();
+    int position = stream.position();
+    CSSValue result = parseInnerVarReference(stream);
+    stream.seek(position);
+    return !result.isFailure();
   }
 
   private static CSSValue resolveVarValues(

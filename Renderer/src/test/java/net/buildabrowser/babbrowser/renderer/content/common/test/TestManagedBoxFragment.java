@@ -17,7 +17,9 @@ public class TestManagedBoxFragment extends ManagedBoxFragment<TestManagedBoxFra
     ElementBox box, List<LayoutFragment> fragments
   ) {
     super(
-      width, height, width, height, box,
+      width, height, width, height, 
+      0, 0,
+      box,
       IntrusiveList.fromList(fragments));
     this.setPos(x, y);
   }

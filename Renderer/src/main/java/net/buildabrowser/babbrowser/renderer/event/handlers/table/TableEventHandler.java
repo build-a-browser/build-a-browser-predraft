@@ -4,6 +4,7 @@ import net.buildabrowser.babbrowser.renderer.content.table.Table;
 import net.buildabrowser.babbrowser.renderer.content.table.TableCell;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.EventUtil;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
@@ -31,7 +32,8 @@ public class TableEventHandler implements EventHandler<TableBoxFragment> {
       }
     }
 
-    return EventUtil.forwardElementEvent(mouseEvent, fragment, relX, relY);
+    return EventUtil.forwardElementEvent(
+      eventContext, mouseEvent, fragment, relX, relY);
   }
 
   private static EventHandlerResponse handleCellMouseEvent(
@@ -46,7 +48,7 @@ public class TableEventHandler implements EventHandler<TableBoxFragment> {
       && !parentFragment.box().stackingContext().equals(cellFragment.box().stackingContext())
     ) return EventHandlerResponse.UNHANDLED;
     if (
-      !EventUtil.aabb(parentFragment, cellFragment, relX, relY)
+      !EventUtil.aabb(cellFragment, relX, relY)
     ) return EventHandlerResponse.UNHANDLED;
 
     return cellFragment.withEventHandler((eh, f) -> eh.handleMouseEvent(

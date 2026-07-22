@@ -12,27 +12,20 @@ import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
+import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.image.ImageBoxFragment;
 import net.buildabrowser.babbrowser.renderer.image.ImageCache;
 import net.buildabrowser.babbrowser.renderer.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
-import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 
 public class ImageContent implements BoxContent {
 
-  private final ElementBox rootBox;
-
   private LoadedImage image;
 
-  public ImageContent(ElementBox box) {
-    this.rootBox = box;
-  }
-
   @Override
-  public void computeIntrinsics() {
-    LayoutContext layoutContext = rootBox.layoutContext();
-    this.image = loadImage(layoutContext.global());
+  public void computeIntrinsics(ElementBox rootBox) {
+    this.image = loadImage(rootBox);
 
     if (image != null) {
       float width = image.width();
@@ -46,7 +39,8 @@ public class ImageContent implements BoxContent {
       return;
     }
 
-    String alt = getImageAlt();
+    String alt = getImageAlt(rootBox);
+    LayoutContext layoutContext = rootBox.layoutContext();
     FontMetrics fm = layoutContext.font().metrics();
     
     float width = fm.stringWidth(alt);
@@ -59,34 +53,43 @@ public class ImageContent implements BoxContent {
 
   @Override
   public ImageBoxFragment layout(
-    LayoutConstraint widthConstraint, LayoutConstraint heightConstraint
+    ElementBox rootBox,
+    LayoutConstraint widthConstraint,
+    LayoutConstraint heightConstraint
   ) {
     ElementBoxDimensions dimensions = rootBox.dimensions();
-    float realWidth = LayoutUtil.constraintOrDim(widthConstraint, dimensions.intrinsicWidth());
-    float realHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.intrinsicHeight());
+    float realWidth =
+      widthConstraint.isBounded() ? widthConstraint.floatValue() :
+      heightConstraint.isBounded() && image != null ? dimensions.intrinsicRatio() * heightConstraint.value() :
+      dimensions.intrinsicWidth();
+    float realHeight =
+      heightConstraint.isBounded() ? heightConstraint.floatValue() :
+      widthConstraint.isBounded() && image != null ? widthConstraint.value() / dimensions.intrinsicRatio() :
+      dimensions.intrinsicHeight();
     
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
     return fragmentFactory.createImageBoxFragment(
       realWidth, realHeight, realWidth,
-      realHeight, rootBox, image, getImageAlt());
+      realHeight, rootBox, image, getImageAlt(rootBox));
   }
 
   @Override
-  public boolean isReplaced() {
+  public boolean isReplaced(ElementBox box) {
     return true;
   }
 
-  private LoadedImage loadImage(GlobalLayoutContext layoutContext) {
+  private LoadedImage loadImage(ElementBox rootBox) {
+    GlobalLayoutContext layoutContext = rootBox.layoutContext().global();
     Document nodeDocument = rootBox.element().nodeDocument();
     if (!(nodeDocument instanceof HTMLDocument htmlDocument)) return null;
     URI baseURL = htmlDocument.baseURL();
-    URI imageSource = getImageSource(baseURL);
+    URI imageSource = getImageSource(rootBox, baseURL);
     if (imageSource == null) return null;
     ImageCache imageCache = layoutContext.imageCache();
     return imageCache.getImage(imageSource, rootBox.context(), InvalidationLevel.LAYOUT);
   }
 
-  private URI getImageSource(URI refUrl) {
+  private URI getImageSource(ElementBox rootBox, URI refUrl) {
     String src = rootBox.element().getAttribute("src");
     if (src == null || src.isEmpty()) {
       return null;
@@ -99,7 +102,7 @@ public class ImageContent implements BoxContent {
     }
   }
 
-  private String getImageAlt() {
+  private String getImageAlt(ElementBox rootBox) {
     String alt = rootBox.element().getAttribute("alt");
     if (alt == null) {
       return "Image";
@@ -108,13 +111,11 @@ public class ImageContent implements BoxContent {
   }
 
   @Override
-  public void positionLayers(float layerX, float layerY) {
+  public void positionLayers(
+    UnmanagedBoxFragment<?> fragment,
+    float layerX, float layerY
+  ) {
     // No-op
-  }
-
-  @Override
-  public ElementBox rootBox() {
-    return this.rootBox;
   }
   
 }

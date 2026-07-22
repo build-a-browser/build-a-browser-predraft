@@ -25,47 +25,47 @@ public final class InsertionModeUtil {
       if (elName != null) switch (elName) {
         case "td", "th":
           if (!last) {
-            parseContext.setInsertionMode(InsertionModes.inCellInsertionMode);
+            parseContext.setInsertionMode(InsertionModes.IN_CELL_INSERTION_MODE);
             return;
           }
           break;
         case "tr":
-          parseContext.setInsertionMode(InsertionModes.inRowInsertionMode);
+          parseContext.setInsertionMode(InsertionModes.IN_ROW_INSERTION_MODE);
           return;
         case "tbody", "thead", "tfoot":
-          parseContext.setInsertionMode(InsertionModes.inTableBodyInsertionMode);
+          parseContext.setInsertionMode(InsertionModes.IN_TABLE_BODY_INSERTION_MODE);
           return;
         case "caption":
-          parseContext.setInsertionMode(InsertionModes.inCaptionInsertionMode);
+          parseContext.setInsertionMode(InsertionModes.IN_CAPTION_INSERTION_MODE);
           return;
         case "colgroup":
-          parseContext.setInsertionMode(InsertionModes.inColumnGroupInsertionMode);
+          parseContext.setInsertionMode(InsertionModes.IN_COLUMN_GROUP_INSERTION_MODE);
           return;
         case "table":
-          parseContext.setInsertionMode(InsertionModes.inTableInsertionMode);
+          parseContext.setInsertionMode(InsertionModes.IN_TABLE_INSERTION_MODE);
           return;
         // TODO: Template
         case "head":
           if (!last) {
-            parseContext.setInsertionMode(InsertionModes.inHeadInsertionMode);
+            parseContext.setInsertionMode(InsertionModes.IN_HEAD_INSERTION_MODE);
             return;
           }
           break;
         case "body":
-          parseContext.setInsertionMode(InsertionModes.inBodyInsertionMode);
+          parseContext.setInsertionMode(InsertionModes.IN_BODY_INSERTION_MODE);
           return;
         // TODO: Frameset
         case "html":
           if (parseContext.headElementPointer() == null) {
-            parseContext.setInsertionMode(InsertionModes.beforeHeadInsertionMode);
+            parseContext.setInsertionMode(InsertionModes.BEFORE_HEAD_INSERTION_MODE);
           } else {
-            parseContext.setInsertionMode(InsertionModes.afterHeadInsertionMode);
+            parseContext.setInsertionMode(InsertionModes.AFTER_HEAD_INSERTION_MODE);
           }
           return;
       }
 
       if (last) {
-        parseContext.setInsertionMode(InsertionModes.inBodyInsertionMode);
+        parseContext.setInsertionMode(InsertionModes.IN_BODY_INSERTION_MODE);
         return;
       }
 

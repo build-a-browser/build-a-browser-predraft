@@ -9,7 +9,7 @@ import net.buildabrowser.babbrowser.cssbase.selector.SimplePseudoSelector;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 
-public class RootSelectorMatcher implements PseudoSelectorMatcher {
+public class RootSelectorMatcher implements SimplePseudoSelectorMatcher {
 
   private final ElementSet allElements;
   private final ElementSet matchingElements;

@@ -40,6 +40,7 @@ import net.buildabrowser.babbrowser.cssbase.property.font.FontFamilyParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontSizeParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightParser;
+import net.buildabrowser.babbrowser.cssbase.property.misc.AllParser;
 import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineColorParser;
 import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineStyleParser;
@@ -58,7 +59,9 @@ import net.buildabrowser.babbrowser.cssbase.property.table.TableLayoutParser;
 import net.buildabrowser.babbrowser.cssbase.property.text.LineHeightParser;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextAlignParser;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeParser;
-import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhitespaceCollapseValueParser;
+import net.buildabrowser.babbrowser.cssbase.property.visibility.VisibilityParser;
+import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhiteSpaceCollapseParser;
+import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhiteSpaceParser;
 
 public final class PropertyParsers {
   
@@ -82,6 +85,7 @@ public final class PropertyParsers {
     "float", new FloatParser(),
 
     "display", new DisplayParser(),
+    "visibility", new VisibilityParser(),
 
     "width", SizeParser.forNormal(CSSProperty.WIDTH),
     "min-width", SizeParser.forMin(CSSProperty.MIN_WIDTH),
@@ -158,8 +162,9 @@ public final class PropertyParsers {
     "position", new PositionParser(),
     "z-index", new ZIndexParser(),
 
-    "white-space-collapse", new WhitespaceCollapseValueParser(),
+    "white-space-collapse", new WhiteSpaceCollapseParser(),
     "text-wrap-mode", new TextWrapModeParser(),
+    "white-space", new WhiteSpaceParser(),
     "line-height", new LineHeightParser(),
     "text-align", new TextAlignParser(),
 
@@ -193,7 +198,9 @@ public final class PropertyParsers {
     "overflow-inline", new OverflowParser(CSSProperty.OVERFLOW_Y),
     "overflow", new OverflowShorthandParser(),
 
-    "content", new ContentParser()
+    "content", new ContentParser(),
+
+    "all", new AllParser()
   );
 
 }
