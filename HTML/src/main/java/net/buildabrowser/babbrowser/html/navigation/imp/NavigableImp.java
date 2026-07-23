@@ -86,8 +86,9 @@ public class NavigableImp implements Navigable {
     }
     // TODO: Check must be a replace
     if (
-      // TODO: Check documentResource, response
-      URLUtil2.equals(url, activeSessionHistory.url(), true)
+      navigateParameters.documentResource == null
+      // TODO: Check response
+      && URLUtil2.equals(url, activeSessionHistory.url(), true)
       && url.getFragment() != null
       // NOSPEC: Refresh fragment page via URL bar
       && (
@@ -105,6 +106,7 @@ public class NavigableImp implements Navigable {
     eventLoop.runInParallel(() -> {
       // TODO: A ton of stuff
       DocumentState documentState = DocumentState.create();
+      documentState.setResource(navigateParameters.documentResource);
       SessionHistoryEntry historyEntry = SessionHistoryEntry.create(url, documentState);
       NavigationParams navigationParams = null;
       historyEntry.populate(

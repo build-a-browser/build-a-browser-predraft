@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublisher;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.net.http.HttpResponse.ResponseInfo;
 import java.nio.ByteBuffer;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
+import net.buildabrowser.babbrowser.fetch.FetchBody;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.fetch.FetchResponse;
 import net.buildabrowser.babbrowser.fetch.HeaderList;
@@ -28,6 +31,7 @@ import net.buildabrowser.babbrowser.network.ExtensionUtil;
 import net.buildabrowser.babbrowser.network.URLUtil;
 import net.buildabrowser.babbrowser.network.encoding.ContentDecoder;
 import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
+import net.buildabrowser.babbrowser.stream.ReadableStreamDefaultReader;
 
 public class FetchBackendImp implements FetchBackend {
 
@@ -47,8 +51,9 @@ public class FetchBackendImp implements FetchBackend {
     FetchRequest request,
     Consumer<Optional<ByteBuffer>> byteConsumer
   ) {
-    // TODO: Include the headers
-    HttpRequest httpRequest = HttpRequest.newBuilder(request.currentURL())
+    BodyPublisher bodyPublisher = createBodyPublisher(request);
+    HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder(request.currentURL())
+      .method(request.method(), bodyPublisher)
       .setHeader("User-Agent", chooseUserAgent(request))
       .setHeader("Accept", "text/html, text/css, image/png, image/jpeg, */*")
       .setHeader("Accept-Encoding", String.join(", ", encodingRegistry.acceptedEncodings()))
@@ -57,8 +62,11 @@ public class FetchBackendImp implements FetchBackend {
         request.currentURL().getScheme().equals("https") ?
           HttpClient.Version.HTTP_2 :
           HttpClient.Version.HTTP_1_1)
-      .timeout(Duration.ofSeconds(5))
-      .build();
+      .timeout(Duration.ofSeconds(5));
+
+    request.headerList().forEach(httpRequestBuilder::setHeader);
+
+    HttpRequest httpRequest = httpRequestBuilder.build();
     httpClient.sendAsync(httpRequest, responseInfo -> {
       // Wrapper allows for receiving responseInfo before the BodyHandler is done
       response.urlList().add(request.currentURL()); // TODO: Is this handled elsewhere, for recursive requests?
@@ -119,6 +127,17 @@ public class FetchBackendImp implements FetchBackend {
     }
   }
 
+  private BodyPublisher createBodyPublisher(FetchRequest request) {
+    if (request.body() == null) {
+      return BodyPublishers.noBody();
+    }
+
+    FetchBody body = (FetchBody) request.body();
+    
+    ReadableStreamDefaultReader reader = (ReadableStreamDefaultReader) body.stream().getReader(null);
+    return new StreamReaderBodyPublisher(reader);
+  }
+
   // Unfortunately DDG captchas the user with the default UA (and captchas would require JS)
   private String chooseUserAgent(FetchRequest request) {
     // TODO: Report correct OS
@@ -127,6 +146,7 @@ public class FetchBackendImp implements FetchBackend {
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0"
         + " Safari/537.36 BABBrowser/0.1.0";
       case "whatismybrowser.com", "www.whatismybrowser.com" -> "BABBrowser/0.1.0 (X11; Linux x86_64)";
+      case "buildabrowser.net", "frogfind.de" -> "Mozilla/5.0 (X11; Linux x86_64) BABBrowser/0.1.0";
       default -> "Mozilla/5.0 (X11; Linux x86_64) BABBrowser/0.1.0 Firefox/149.0 (Not actually Firefox)";
     };
   }

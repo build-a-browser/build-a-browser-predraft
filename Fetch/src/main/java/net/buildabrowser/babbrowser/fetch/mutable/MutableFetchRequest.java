@@ -9,6 +9,8 @@ public interface MutableFetchRequest extends FetchRequest {
 
   void setMethod(String method);
 
+  void setBody(Object body);
+
   void setClient(FetchClient client);
 
   void setMode(RequestMode mode);

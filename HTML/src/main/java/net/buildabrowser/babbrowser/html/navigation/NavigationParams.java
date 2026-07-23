@@ -27,11 +27,23 @@ public record NavigationParams(
     SourceSnapshotParams sourceSnapshotParams,
     UserNavigationInvolvement userInvolvement
   ) {
+    // TODO: Assert running in parallel
+    Object documentResource = entry.documentState().resource();
+
     MutableFetchRequest request = FetchRequest.createMutable();
     request.appendURL(entry.url());
     request.setClient(sourceSnapshotParams.fetchClient());
     request.setRedirectMode(RedirectMode.MANUAL);
     request.setMode(RequestMode.NAVIGATE);
+    // TODO: Check client
+
+    if (documentResource instanceof PostResource postResource) {
+      request.setMethod("POST");
+      request.setBody(postResource.requestBody());
+      request.headerList().set(
+        "Content-Type", postResource.requestContentType());
+    }
+
     // TODO: Other stuff
     
     // TODO: The spec defines this code in a blocking fashion, it runs in parallel so that works

@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -39,6 +40,9 @@ import net.buildabrowser.babbrowser.stream.UnderlyingSource.ReadableStreamType;
 
 public class FetchEngineImp implements FetchEngine {
 
+  private static final List<String> REQUEST_BODY_HEADER_NAMES = List.of(
+    "Content-Encoding", "Content-Language", "Content-Location", "Content-Type");
+
   private final FetchBackend fetchBackend;
 
   public FetchEngineImp(FetchBackend fetchBackend) {
@@ -48,7 +52,7 @@ public class FetchEngineImp implements FetchEngine {
   @Override
   public FetchController fetch(FetchParameters fetchParameters) {
     // TODO: A ton of random stuff
-    FetchRequest request = fetchParameters.request;
+    MutableFetchRequest request = fetchParameters.request;
     FetchDestinatation taskDestination = null;
     if (request.client() != null) {
       taskDestination = request.client().fetchDestinatation();
@@ -58,6 +62,10 @@ public class FetchEngineImp implements FetchEngine {
       fetchParameters.processResponse,
       fetchParameters.processResponseConsumeBody,
       taskDestination, new FetchController());
+    if (request.body() instanceof ByteBuffer) {
+      request.setBody(
+        FetchImpUtil.safelyExtractABodyWithType(request.body()).body());
+    }
     mainFetch(fetchParams, false);
 
     return fetchParams.controller();
@@ -200,6 +208,34 @@ public class FetchEngineImp implements FetchEngine {
       return FetchResponse.createNetworkError();
     }
     request.increaseRedirectCount();
+
+    if (
+      response.status() != 303
+      && request.body() != null
+      && ((FetchBody) request.body()).source() != null
+    ) {
+      return FetchResponse.createNetworkError();
+    }
+
+    if (
+      ((response.status() == 301 || response.status() == 302)
+        && request.method().equals("POST"))
+      || (response.status() == 303
+        && !(request.method().equals("GET") || request.method().equals("HEAD")))
+    ) {
+      request.setMethod("GET");
+      request.setBody(null);
+      for (String headerName: REQUEST_BODY_HEADER_NAMES) {
+        request.headerList().delete(headerName);
+      }
+    }
+
+    // TODO: CORS stuff
+
+    if (request.body() != null) {
+      request.setBody(FetchImpUtil.safelyExtractABodyWithType(
+        ((FetchBody) request.body()).source()).body());
+    }
 
     // TODO: A ton of stuff
 

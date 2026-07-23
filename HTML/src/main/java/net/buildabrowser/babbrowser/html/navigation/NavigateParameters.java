@@ -6,6 +6,8 @@ import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 public class NavigateParameters {
 
   public RenderableDocument sourceDocument;
+
+  public Object documentResource; // PostResource or String
   
   public NavigationHistoryBehavior historyHandling = NavigationHistoryBehavior.AUTO;
 

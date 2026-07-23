@@ -8,6 +8,7 @@ public class DocumentStateImp implements DocumentState {
   private RenderableDocument document;
   private boolean reloadPending;
   private boolean everPopulated;
+  private Object documentResource;
 
   @Override
   public RenderableDocument document() {
@@ -37,6 +38,16 @@ public class DocumentStateImp implements DocumentState {
   @Override
   public void setEverPopulated(boolean everPopulated) {
     this.everPopulated = everPopulated;
+  }
+
+  @Override
+  public Object resource() {
+    return this.documentResource;
+  }
+
+  @Override
+  public void setResource(Object documentResource) {
+    this.documentResource = documentResource;
   }
   
 }

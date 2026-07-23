@@ -42,6 +42,7 @@ public final class FetchImpUtil {
     switch (object) {
       case byte[] bytes -> {
         source = bytes;
+        length = bytes.length;
         // Just do this here to avoid an extra if.
         // The spec is worded a bit confusingly, and since
         // byte[] is fixed I dunno why it needs to be in parallel
@@ -49,7 +50,14 @@ public final class FetchImpUtil {
           ReadableStream.enqueue(stream, ByteBuffer.wrap(bytes));
         }
         ReadableStream.close(stream);
-        length = bytes.length;
+      }
+      case ByteBuffer byteBuffer -> {
+        source = byteBuffer;
+        length = byteBuffer.limit();
+        if (byteBuffer.limit() > 0) {
+          ReadableStream.enqueue(stream, byteBuffer);
+        }
+        ReadableStream.close(stream);
       }
       default -> {}
     }

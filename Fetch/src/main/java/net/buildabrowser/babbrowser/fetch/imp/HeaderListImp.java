@@ -2,6 +2,8 @@ package net.buildabrowser.babbrowser.fetch.imp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
@@ -29,6 +31,27 @@ public class HeaderListImp implements HeaderList {
   }
 
   @Override
+  public void set(String name, String value) {
+    boolean didSet = false;
+    ListIterator<Header> headerIt = headers.listIterator();
+    while (headerIt.hasNext()) {
+      String headerName = headerIt.next().name();
+      if (headerName.equalsIgnoreCase(name)) {
+        if (didSet) {
+          headerIt.remove();
+        } else {
+          headerIt.set(new HeaderImp(headerName, value));
+          didSet = true;
+        }
+      }
+    }
+
+    if (!didSet) {
+      append(name, value);
+    }
+  }
+
+  @Override
   public String get(String name) {
     for (Header header: headers) {
       if (header.name().equalsIgnoreCase(name)) {
@@ -45,6 +68,24 @@ public class HeaderListImp implements HeaderList {
     String value = get(name);
     if (value == null) return List.of();
     return List.of(value.split(",")).stream().map(s -> s.trim()).collect(Collectors.toList());
+  }
+
+  @Override
+  public void delete(String name) {
+    ListIterator<Header> headerIt = headers.listIterator();
+    while (headerIt.hasNext()) {
+      String headerName = headerIt.next().name();
+      if (headerName.equalsIgnoreCase(name)) {
+        headerIt.remove();
+      }
+    }
+  }
+
+  @Override
+  public void forEach(BiConsumer<String, String> it) {
+    for (Header header: headers) {
+      it.accept(header.name(), header.value());
+    }
   }
 
 }

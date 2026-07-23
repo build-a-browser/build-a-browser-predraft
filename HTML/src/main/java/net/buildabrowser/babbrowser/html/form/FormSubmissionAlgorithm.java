@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.html.form;
 import static net.buildabrowser.babbrowser.html.util.HTMLDomUtil.isHtmlElement;
 
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -19,6 +20,7 @@ import net.buildabrowser.babbrowser.html.html.util.NavUtil;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.NavigateParameters;
 import net.buildabrowser.babbrowser.html.navigation.NavigationHistoryBehavior;
+import net.buildabrowser.babbrowser.html.navigation.PostResource;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
 
 public final class FormSubmissionAlgorithm {
@@ -69,7 +71,15 @@ public final class FormSubmissionAlgorithm {
     // TODO: Replace unloaded document
 
     if (method.equals("post")) {
-      
+      switch (scheme) {
+        // TODO: Support for other schemes
+        case "http", "https" -> submitAsEntityBody(
+          form, entryList, parsedAction, method, enctype, encoding,
+          historyHandling, userInvolvement, submitter);
+        case "data" -> planToNavigate(
+          form, parsedAction, null,
+          historyHandling, userInvolvement, submitter);
+      }
     } else {
       switch (scheme) {
         // TODO: Support for other schemes
@@ -118,10 +128,48 @@ public final class FormSubmissionAlgorithm {
       hisoryHandling, userInvolvement, submitter);
   }
 
+  private static void submitAsEntityBody(
+    HTMLFormElement form,
+    EntryList entryList,
+    URI url,
+    String method,
+    String enctype,
+    Charset encoding,
+    NavigationHistoryBehavior hisoryHandling,
+    UserNavigationInvolvement userInvolvement,
+    Element submitter
+  ) {
+    assert method.equals("post");
+    ByteBuffer body = null;
+    String mimeType = null;
+    switch (enctype) {
+      case "application/x-www-form-urlencoded" -> {
+        List<NameValuePair> pairs = entryList.toNameValuePairs();
+        String bodyStr = XWWWFormURLEncodedSerializer.serialize(pairs, encoding);
+        body = encoding.encode(bodyStr);
+        mimeType = "application/x-www-form-urlencoded";
+      }
+      // TODO: Support multipart/form-data
+      case "text/plain" -> {
+        List<NameValuePair> pairs = entryList.toNameValuePairs();
+        String bodyStr = TextPlainEncodedSerializer.serialize(pairs);
+        body = encoding.encode(bodyStr);
+        mimeType = "text/plain";
+      }
+      default -> throw new UnsupportedOperationException(
+        "Unsupported form encoding: " + enctype);
+    }
+
+    PostResource postResource = new PostResource(body, mimeType);
+    planToNavigate(
+      form, url, postResource,
+      hisoryHandling, userInvolvement, submitter);
+  }
+
   private static void planToNavigate(
     HTMLFormElement form,
     URI url,
-    Object postResource,
+    PostResource postResource,
     NavigationHistoryBehavior hisoryHandling,
     UserNavigationInvolvement userInvolvement,
     Element submitter
@@ -135,6 +183,7 @@ public final class FormSubmissionAlgorithm {
       navigateParameters.historyHandling = hisoryHandling;
       navigateParameters.userInvolvement = userInvolvement;
       navigateParameters.sourceElement = submitter;
+      navigateParameters.documentResource = postResource;
       form.nodeNavigable().navigate(url, navigateParameters);
     }, TaskSource.DOM, nodeDocument);
   }

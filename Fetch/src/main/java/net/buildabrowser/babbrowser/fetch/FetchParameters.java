@@ -1,8 +1,10 @@
 package net.buildabrowser.babbrowser.fetch;
 
+import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
+
 public class FetchParameters {
   
-  public FetchRequest request;
+  public MutableFetchRequest request;
 
   public ProcessResponse processResponse;
 

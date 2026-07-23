@@ -21,7 +21,7 @@ public abstract class DefaultLinkProcessor implements LinkProcessor {
     LinkProcessingOptions options = createLinkOptions(el);
     // TODO: Spec says link without href or source set, but where is the right place to reject it?
     if (options.href() == null) return;
-    FetchRequest request = createALinkRequest(options);
+    MutableFetchRequest request = createALinkRequest(options);
     if (request == null) return;
     // TODO: Synchronous flag
     boolean result = linkedResourceFetchSetup(el, request);
@@ -57,7 +57,7 @@ public abstract class DefaultLinkProcessor implements LinkProcessor {
       document);
   }
 
-  private FetchRequest createALinkRequest(LinkProcessingOptions options) {
+  private MutableFetchRequest createALinkRequest(LinkProcessingOptions options) {
     assert options.href() != null;
     // If ever a custom URL parser is needed, the module will need to include :Network
     URI url = CommonUtil.tryOrNull(() -> options.baseURL().resolve(options.href()));

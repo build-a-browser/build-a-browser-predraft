@@ -16,6 +16,11 @@ public interface DocumentState {
   boolean everPopulated();
 
   void setEverPopulated(boolean everPopulated);
+
+  // PostResource or String (I wish Java had union types)
+  Object resource();
+
+  void setResource(Object documentResource);
  
   public static DocumentState create() {
     return new DocumentStateImp();

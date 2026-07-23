@@ -12,6 +12,10 @@ public interface FetchRequest {
   
   URI url();
 
+  HeaderList headerList();
+
+  Object body();
+
   FetchClient client();
 
   RequestMode mode();

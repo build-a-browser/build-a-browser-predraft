@@ -8,13 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.fetch.FetchClient;
+import net.buildabrowser.babbrowser.fetch.HeaderList;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
 
 public class MutableFetchRequestImp implements MutableFetchRequest {
 
+  private final HeaderList headerList = HeaderList.create();
   private List<URI> urlList = new ArrayList<>(4);
 
-  private String method;
+  private String method = "GET";
+  private Object body; // Byte sequence or Body
   private FetchClient client;
   private RequestMode mode = RequestMode.NO_CORS;
   private RedirectMode redirectMode = RedirectMode.FOLLOW;
@@ -38,6 +41,21 @@ public class MutableFetchRequestImp implements MutableFetchRequest {
   @Override
   public void appendURL(URI url) {
     urlList.add(url);
+  }
+
+  @Override
+  public HeaderList headerList() {
+    return this.headerList;
+  }
+
+  @Override
+  public Object body() {
+    return this.body;
+  }
+
+  @Override
+  public void setBody(Object body) {
+    this.body = body;
   }
 
   @Override
