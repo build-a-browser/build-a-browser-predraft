@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
-import net.buildabrowser.babbrowser.fetch.FetchBackend;
+import net.buildabrowser.babbrowser.fetch.FetchConfig;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
@@ -24,7 +24,7 @@ public interface RenderingEngine {
   );
 
   static RenderingEngine create(
-    FetchBackend fetchBackend,
+    FetchConfig fetchConfig,
     Supplier<ExecutorService> threadGroupSupplier,
     Painter painter,
     DocumentLoaderRegistry documentLoaderRegistry,
@@ -32,7 +32,7 @@ public interface RenderingEngine {
     ClipboardProvider<?> clipboardProvider
   ) {
     return new RenderingEngineImp(
-      FetchEngine.create(fetchBackend),
+      FetchEngine.create(fetchConfig),
       threadGroupSupplier, painter,
       documentLoaderRegistry, resourceResolver,
       clipboardProvider);

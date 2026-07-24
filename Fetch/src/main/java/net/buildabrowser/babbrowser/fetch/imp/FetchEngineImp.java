@@ -12,8 +12,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
-import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchBody;
+import net.buildabrowser.babbrowser.fetch.FetchConfig;
 import net.buildabrowser.babbrowser.fetch.FetchController;
 import net.buildabrowser.babbrowser.fetch.FetchDestinatation;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
@@ -43,10 +43,10 @@ public class FetchEngineImp implements FetchEngine {
   private static final List<String> REQUEST_BODY_HEADER_NAMES = List.of(
     "Content-Encoding", "Content-Language", "Content-Location", "Content-Type");
 
-  private final FetchBackend fetchBackend;
+  private final FetchConfig fetchConfig;
 
-  public FetchEngineImp(FetchBackend fetchBackend) {
-    this.fetchBackend = fetchBackend;
+  public FetchEngineImp(FetchConfig fetchConfig) {
+    this.fetchConfig = fetchConfig;
   }
 
   @Override
@@ -164,7 +164,7 @@ public class FetchEngineImp implements FetchEngine {
 
   private FetchResponse fetchFile(FetchRequest request) {
     // The spec does not say how to implement file
-    return fetchBackend.fetchFile(request);
+    return fetchConfig.backend().fetchFile(request);
   }
   
   private FetchResponse httpFetch(FetchParams fetchParams, boolean makeCORSPreflight) {
@@ -212,7 +212,7 @@ public class FetchEngineImp implements FetchEngine {
     if (
       response.status() != 303
       && request.body() != null
-      && ((FetchBody) request.body()).source() != null
+      && ((FetchBody) request.body()).source() == null
     ) {
       return FetchResponse.createNetworkError();
     }
@@ -252,12 +252,21 @@ public class FetchEngineImp implements FetchEngine {
   private FetchResponse httpNetworkOrCacheFetch(
     FetchParams fetchParams, boolean isAuthenticationFetch, boolean isNewConnectionFetch
   ) {
+    FetchRequest request = fetchParams.request();
+    FetchRequest httpRequest = request; // TODO: Set properly
     // TODO: A ton of stuff
-    return httpNetworkFetch(fetchParams, isAuthenticationFetch, isNewConnectionFetch);
+    boolean includeCredentials = true; // TODO: Set properly
+    if (includeCredentials) {
+      FetchCookieUtil.appendRequestCookieHeader(fetchConfig, httpRequest);
+    }
+    return httpNetworkFetch(
+      fetchParams, includeCredentials, isNewConnectionFetch);
   }
 
   private FetchResponse httpNetworkFetch(
-    FetchParams fetchParams, boolean isAuthenticationFetch, boolean isNewConnectionFetch
+    FetchParams fetchParams,
+    boolean includeCredentials,
+    boolean forceNewConnection
   ) {
     // TODO: A ton of random stuff
     // TODO: Properly re-use connections
@@ -274,7 +283,7 @@ public class FetchEngineImp implements FetchEngine {
     underlyingSource.start = controller -> {
       // TODO: The spec defines the stream as a pull source, but it's easier to implement as a push source for now
       // Come back to this later and correct it.
-      fetchBackend.makeRequest(response, request, bytesOpt -> {
+      fetchConfig.backend().makeRequest(response, request, bytesOpt -> {
         // Avoid race conditions from parallel execution
         // TODO: Is this fine to move to the fetch task queue?
         // Since the surrounding code is running in parallel, the CompletableFuture is not a problem
@@ -296,6 +305,11 @@ public class FetchEngineImp implements FetchEngine {
 
     // TODO: Need to handle 1xx
     CommonUtil.rethrowV(() -> receivedResponse.get());
+
+    if (includeCredentials) {
+      FetchCookieUtil.parseAndStoreResponseSetCookieHeaders(
+        fetchConfig, request, response);
+    }
 
     return response;
   }

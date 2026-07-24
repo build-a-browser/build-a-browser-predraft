@@ -4,6 +4,11 @@ public final class StringUtil {
   
   private StringUtil() {}
 
+  public static String stripWhitespace(String str) {
+    // TODO: Correctly only remove HTML whitespace
+    return str.trim();
+  }
+
   public static String[] spaceSplit(String item) {
     int afterSpaceIndex = 0;
     int currentIndex = 0;

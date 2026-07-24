@@ -11,13 +11,16 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import net.buildabrowser.babbrowser.browser.chrome.WindowSetGUI;
 import net.buildabrowser.babbrowser.browser.clipboard.AWTClipboardProvider;
+import net.buildabrowser.babbrowser.browser.net.cookies.InMemoryCookieStore;
 import net.buildabrowser.babbrowser.browser.net.imp.FetchBackendImp;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
+import net.buildabrowser.babbrowser.cookies.CookieStore;
 import net.buildabrowser.babbrowser.debugger.core.Debugger;
 import net.buildabrowser.babbrowser.debugger.swing.SwingDebugger;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
+import net.buildabrowser.babbrowser.fetch.FetchConfig;
 import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
 import net.buildabrowser.babbrowser.painter.core.ComponentPainter;
 import net.buildabrowser.babbrowser.painter.java2d.Java2DPainter;
@@ -49,10 +52,15 @@ public class Main {
 
     DocumentLoaderRegistry loaderRegistry = DocumentLoaderRegistry.createDefault();
     ContentEncodingRegistry registry = ContentEncodingRegistry.createDefault();
+    
     FetchBackend fetchBackend = new FetchBackendImp(registry);
+    CookieStore cookieStore = new InMemoryCookieStore(
+      _ -> false);
+    FetchConfig fetchConfig = new FetchConfig(
+      fetchBackend, _ -> true, cookieStore);
 
     RenderingEngine renderingEngine = RenderingEngine.create(
-      fetchBackend,
+      fetchConfig,
       Executors::newVirtualThreadPerTaskExecutor,
       painter,
       loaderRegistry,

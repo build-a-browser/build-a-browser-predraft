@@ -5,6 +5,7 @@ plugins {
 dependencies {
   implementation project(':Common')
   implementation project(':Infra')
-  api project(':Stream')
   implementation project(':Network')
+  api project(':Stream')
+  api project(':Cookies')
 }

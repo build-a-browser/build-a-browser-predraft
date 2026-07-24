@@ -84,7 +84,10 @@ public class HeaderListImp implements HeaderList {
   @Override
   public void forEach(BiConsumer<String, String> it) {
     for (Header header: headers) {
-      it.accept(header.name(), header.value());
+      while (header != null) {
+        it.accept(header.name(), header.value());
+        header = header.next();
+      }
     }
   }
 

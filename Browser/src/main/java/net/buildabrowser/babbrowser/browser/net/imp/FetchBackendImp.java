@@ -35,6 +35,10 @@ import net.buildabrowser.babbrowser.stream.ReadableStreamDefaultReader;
 
 public class FetchBackendImp implements FetchBackend {
 
+  private static final String CHROME_UA_STRING
+    = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
+    + " Chrome/146.0.0.0 Safari/537.36";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(FetchBackendImp.class);
 
   private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -57,6 +61,7 @@ public class FetchBackendImp implements FetchBackend {
       .setHeader("User-Agent", chooseUserAgent(request))
       .setHeader("Accept", "text/html, text/css, image/png, image/jpeg, */*")
       .setHeader("Accept-Encoding", String.join(", ", encodingRegistry.acceptedEncodings()))
+      .setHeader("Sec-CH-UA", "\"BuildABrowser Test Program\";v=\"0\"")
       // HTTP 2 seems broken on http
       .version(
         request.currentURL().getScheme().equals("https") ?
@@ -142,9 +147,9 @@ public class FetchBackendImp implements FetchBackend {
   private String chooseUserAgent(FetchRequest request) {
     // TODO: Report correct OS
     return switch (request.url().getHost()) {
-      case "html.duckduckgo.com", "duckduckgo.com" ->
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0"
-        + " Safari/537.36 BABBrowser/0.1.0";
+      case "html.duckduckgo.com", "duckduckgo.com" -> CHROME_UA_STRING + " BABBrowser/0.1.0";
+      // Unfortunately, HN just shows a page showing "sorry" half the time when using a proper UA string
+      case "news.ycombinator.com" -> CHROME_UA_STRING;
       case "whatismybrowser.com", "www.whatismybrowser.com" -> "BABBrowser/0.1.0 (X11; Linux x86_64)";
       case "buildabrowser.net", "frogfind.de" -> "Mozilla/5.0 (X11; Linux x86_64) BABBrowser/0.1.0";
       default -> "Mozilla/5.0 (X11; Linux x86_64) BABBrowser/0.1.0 Firefox/149.0 (Not actually Firefox)";

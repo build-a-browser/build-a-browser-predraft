@@ -6,8 +6,8 @@ public interface FetchEngine {
   
   FetchController fetch(FetchParameters fetchParameters);
 
-  static FetchEngine create(FetchBackend backend) {
-    return new FetchEngineImp(backend);
+  static FetchEngine create(FetchConfig fetchConfig) {
+    return new FetchEngineImp(fetchConfig);
   }
 
 }
