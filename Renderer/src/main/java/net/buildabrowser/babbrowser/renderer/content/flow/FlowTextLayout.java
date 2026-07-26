@@ -20,7 +20,7 @@ public final class FlowTextLayout {
     MappingRLEBuffer mappingRLEBuffer = stagedText.sourceRunsRef() == null ?
       null : stagedText.sourceRunsRef().clone();
     formattingContext.lineBox().startText(
-      textNode, mappingRLEBuffer);
+      textNode, mappingRLEBuffer, stagedText.isEmpty());
 
     String allText = stagedText.currentText();
     int textCursor = 0;

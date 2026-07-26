@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.flow;
 
+import static net.buildabrowser.babbrowser.common.util.CompatUtil.isBlank;
+
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
@@ -65,8 +67,10 @@ public class FlowInlineLayout {
   public void stageInline(LayoutContext parentContext, Box box) {
     InlineStagingArea stagingArea = activeInlineContext.stagingArea();
     if (box instanceof TextBox textBox) {
+      // TODO: Only trim HTML whitespace
+      boolean wasEmpty = isBlank(textBox.text());
       stagingArea.pushStagedElement(new StagedText(
-        parentContext, textBox, textBox.text(), null));
+        parentContext, textBox, textBox.text(), null, wasEmpty));
     } else if (box instanceof ElementBox elementBox) {
       // Might get computed twice for outer box, doesn't really matter
       LayoutConstraint widthConstraint = flowContext.blockLayout().activeContext().innerWidthConstraint();
@@ -209,7 +213,7 @@ public class FlowInlineLayout {
 
   private void addBreakToInline() {
     InlineFormattingContext inlineContext = activeInlineContext;
-    inlineContext.lineBox().startText(null, null);
+    inlineContext.lineBox().startText(null, null, false);
     inlineContext.lineBox().appendText(
       "\u200B", 0, 0, 0);
     activeInlineContext.nextLine();

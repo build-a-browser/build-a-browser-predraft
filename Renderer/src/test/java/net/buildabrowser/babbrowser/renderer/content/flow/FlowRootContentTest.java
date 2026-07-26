@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.shared.LineStyleValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
@@ -331,6 +332,23 @@ public class FlowRootContentTest {
 
     LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 80, 0, parentBox, List.of(
       new TestManagedBoxFragment(0, 0, 4, 0, childBox, List.of())));
+    LayoutFragment actualFragment = doLayoutSized(parentBox, 80).rootFragment();
+    assertFragmentEquals(expectedFragment, actualFragment);
+  }
+
+  @Test
+  @DisplayName("Can layout empty line with border")
+  public void canLayoutEmptyLineWithBorder() {
+    TestTextBox childBox = new TestTextBox("    ");
+
+    ActiveStyles parentStyles = ActiveStyles.create();
+    parentStyles.setProperty(CSSProperty.BORDER_TOP_WIDTH, LengthValue.create(1, LengthType.PX));
+    parentStyles.setProperty(CSSProperty.BORDER_TOP_STYLE, LineStyleValue.SOLID);
+    ElementBox parentBox = flowBlockBox(parentStyles, List.of(childBox));
+
+    LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 80, 0, parentBox, List.of(
+      new LineBoxFragment(0, 0, 20, 0, List.of(
+        new TextFragment(0, -10, 20, 10, " \u200B\u200B\u200B")))));
     LayoutFragment actualFragment = doLayoutSized(parentBox, 80).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }

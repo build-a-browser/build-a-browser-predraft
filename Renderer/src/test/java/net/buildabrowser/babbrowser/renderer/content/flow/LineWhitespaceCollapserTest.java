@@ -48,7 +48,7 @@ public class LineWhitespaceCollapserTest {
   private InlineStagingArea stageText(String... texts) {
     InlineStagingArea stagingArea = new InlineStagingArea();
     for (String text: texts) {
-      stagingArea.pushStagedElement(new StagedText(null, null, text, null));
+      stagingArea.pushStagedElement(new StagedText(null, null, text, null, false));
     }
 
     return stagingArea;

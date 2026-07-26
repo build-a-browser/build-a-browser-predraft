@@ -69,7 +69,8 @@ public class InlineStagingArea {
       oldStagedText.layoutContext(),
       oldStagedText.boxRef(),
       text,
-      sourceRunsRef));
+      sourceRunsRef,
+      oldStagedText.isEmpty()));
   }
 
   public void setTextPreserveMappings(int index, String text) {
@@ -78,7 +79,8 @@ public class InlineStagingArea {
       oldStagedText.layoutContext(),
       oldStagedText.boxRef(),
       text,
-      oldStagedText.sourceRunsRef()));
+      oldStagedText.sourceRunsRef(),
+      oldStagedText.isEmpty()));
   }
 
   public StagingElement stagingElementAt(int i) {
@@ -100,7 +102,8 @@ public class InlineStagingArea {
     LayoutContext layoutContext,
     TextBox boxRef,
     String currentText,
-    MappingRLEBuffer sourceRunsRef
+    MappingRLEBuffer sourceRunsRef,
+    boolean isEmpty
   ) implements StagingElement {}
 
   public record StagedLineBreak() implements StagingElement {

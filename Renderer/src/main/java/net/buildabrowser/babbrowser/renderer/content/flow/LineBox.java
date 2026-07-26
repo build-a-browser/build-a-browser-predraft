@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import net.buildabrowser.babbrowser.dom.Node;
-import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
@@ -19,8 +18,9 @@ import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowInlineBoxFragment
 public class LineBox {
 
   private final FlowTextFragmentBuilder textBuilder;
-  
   private final Deque<LineSegment> lineSegments;
+
+  private boolean isCurrentTextEmpty;
 
   public LineBox(ElementBox rootBox) {
     this.textBuilder = new FlowTextFragmentBuilder();
@@ -30,10 +30,12 @@ public class LineBox {
 
   private LineBox(
     FlowTextFragmentBuilder textBuilder,
-    Deque<LineSegment> segments
+    Deque<LineSegment> segments,
+    boolean isCurrentTextEmpty
   ) {
     this.textBuilder = textBuilder;
     this.lineSegments = segments;
+    this.isCurrentTextEmpty = isCurrentTextEmpty;
   }
 
   private float totalWidth = 0;
@@ -51,10 +53,12 @@ public class LineBox {
 
   public void startText(
     Node sourceNode,
-    MappingRLEBuffer buffer
+    MappingRLEBuffer buffer,
+    boolean isEmpty
   ) {
     commitText();
     textBuilder.startText(sourceNode, buffer);
+    this.isCurrentTextEmpty = isEmpty;
   }
 
   public void appendText(
@@ -118,7 +122,7 @@ public class LineBox {
       popElement();
     }
 
-    return new LineBox(textBuilder, newSegments);
+    return new LineBox(textBuilder, newSegments, isCurrentTextEmpty);
   }
 
   public boolean isEmpty() {
@@ -129,14 +133,7 @@ public class LineBox {
     if (!textBuilder.isEmpty()) {
       FontMetrics metrics = lineSegments.peek().box().layoutContext().font().metrics();
       TextFragment textFragment = textBuilder.commit(metrics);
-      // TODO: Trim removes some control characters that should be kept
-      boolean isEmpty =
-        textFragment.text().trim().length() == 0
-        // Because whitespace collapse might insert \u200B
-        || (
-          textFragment.sourceNode() instanceof Text text
-          && text.data().trim().length() == 0);
-      lineSegments.peek().addFragment(textFragment, isEmpty);
+      lineSegments.peek().addFragment(textFragment, isCurrentTextEmpty);
     }
   }
 

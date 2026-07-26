@@ -13,6 +13,10 @@ public record LengthValue(Number value, boolean integer, LengthType dimension) i
     return new LengthValue(value, integer, dimension);
   }
 
+  public static LengthValue create(int value, LengthType dimension) {
+    return new LengthValue(value, true, dimension);
+  }
+
   public static enum LengthType {
     EM, REM, EX, CH,
     CM, MM, IN, Q, PT, PC, PX,

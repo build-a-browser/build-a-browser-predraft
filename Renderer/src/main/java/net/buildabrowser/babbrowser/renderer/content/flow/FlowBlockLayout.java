@@ -63,7 +63,7 @@ public class FlowBlockLayout {
     FlowInlineLayout inlineLayout = flowContext.inlineLayout();
     PropertyContainer properties = box.properties();
 
-    ElementBox inlineBox = maybeWrapInline(box);
+    ElementBox inlineBox = null;
 
     boolean isInInline = false;
     for (Box childBox: box.childBoxes()) {
@@ -100,6 +100,11 @@ public class FlowBlockLayout {
         }
         addToBlock((ElementBox) childBox, widthConstraint, heightConstraint);
       } else {
+        if (inlineBox == null) {
+          // TODO: In the spec, this was supposed to only happen if there are also block children, but doing so
+          // interfered with LineSegment's isEmpty check, and it seems to work fine this way
+          inlineBox = ElementBox.createAnonymous(box, BoxLevel.BLOCK_LEVEL);
+        }
         if (!isInInline) {
           inlineLayout.startInline(inlineBox, widthConstraint);
           isInInline = true;
@@ -275,26 +280,6 @@ public class FlowBlockLayout {
     ) {
       boxFragment.box().updatePositioningFragment(boxFragment);
     }
-  }
-
-  private ElementBox maybeWrapInline(ElementBox box) {
-    boolean isInlineAnonymous = false;
-    for (Box childBox: box.childBoxes()) {
-      if (
-        childBox instanceof ElementBox elementBox
-        && elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL)
-        && PositionUtil.affectsLayout(elementBox)
-        && !FlowUtil.isFloat(elementBox)
-      ) {
-        isInlineAnonymous = true;
-        break;
-      }
-    }
-    
-    ElementBox inlineBox = isInlineAnonymous ?
-      ElementBox.createAnonymous(box, BoxLevel.BLOCK_LEVEL) :
-      box;
-    return inlineBox;
   }
 
   private void ackFloatClear(ElementBox elementBox) {
