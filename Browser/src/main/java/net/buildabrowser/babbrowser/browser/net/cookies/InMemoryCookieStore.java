@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Objects;
 
 import net.buildabrowser.babbrowser.cookies.Cookie;
 import net.buildabrowser.babbrowser.cookies.CookieBuilder;
@@ -16,6 +17,8 @@ import net.buildabrowser.babbrowser.cookies.util.CookieUtil;
 
 public class InMemoryCookieStore implements CookieStore {
 
+  // TODO: Could also be a Map<String, Map<String, List<Cookie>>> to store
+  // the name as a key, need to check if it's worth it
   private final Map<String, List<Cookie>> cookieMap = new HashMap<>();
 
   private final PublicSuffixList suffixList;
@@ -30,11 +33,20 @@ public class InMemoryCookieStore implements CookieStore {
   }
 
   @Override
-  public void storeValidatedCookie(Cookie cookie) {
+  public Cookie storeValidatedCookie(
+    Cookie cookie,
+    boolean httpOnlyAllowed
+  ) {
     synchronized (cookieMap) {
+      Cookie adjustedCookie = removeDuplicateCookie(
+        cookie, httpOnlyAllowed);
+      if (adjustedCookie == null) return null;
+
       cookieMap
         .computeIfAbsent(cookie.host(), _ -> new ArrayList<>())
-        .add(cookie);
+        .add(adjustedCookie);
+
+      return adjustedCookie;
     }
   }
 
@@ -59,7 +71,7 @@ public class InMemoryCookieStore implements CookieStore {
           if (isMatch) {
             Cookie adjustedCookie = CookieBuilder
               .fromCookie(cookie)
-              .setCreationTime(ZonedDateTime.now())
+              .setLastAccessTime(ZonedDateTime.now())
               .build();
             cookieIt.set(adjustedCookie);
             cookies.add(adjustedCookie);
@@ -89,6 +101,68 @@ public class InMemoryCookieStore implements CookieStore {
   public List<Cookie> removeGlobalExcessCookies() {
     // TODO: Remove global excess cookies
     return List.of();
+  }
+
+  @Override
+  public boolean hasSecureCookie(
+    String name,
+    String host,
+    String[] path
+  ) {
+    synchronized (cookieMap) {
+      for (Map.Entry<String, List<Cookie>> entry: cookieMap.entrySet()) {
+        String mapHost = entry.getKey();
+        List<Cookie> cookieList = entry.getValue();
+        if (!(
+          CookieUtil.isDomainMatch(mapHost, host)
+          || CookieUtil.isDomainMatch(host, mapHost)
+        )) continue;
+        for (Cookie existingCookie: cookieList) {
+          if (!existingCookie.name().equals(name))
+          if (!existingCookie.secure()) continue;
+          if (
+            !CookieUtil.pathMatches(path, existingCookie.path())
+          ) continue;
+          return true;
+        }
+      };
+    }
+
+    return false;
+  }
+
+  private Cookie removeDuplicateCookie(
+    Cookie cookie,
+    boolean httpOnlyAllowed
+  ) {
+    // cookieMap is expected to already be synchronized
+    for (Map.Entry<String, List<Cookie>> entry: cookieMap.entrySet()) {
+      String mapHost = entry.getKey();
+      if (!CookieUtil.hostEquals(mapHost, cookie.host())) continue;
+      List<Cookie> cookieList = entry.getValue();
+      ListIterator<Cookie> cookieIt = cookieList.listIterator();
+      while (cookieIt.hasNext()) {
+        Cookie oldCookie = cookieIt.next();
+        if (!oldCookie.name().equals(cookie.name())) continue;
+        if (oldCookie.hostOnly() != cookie.hostOnly()) continue;
+        if (!CookieUtil.pathEquals(oldCookie.path(), cookie.path())) continue;
+        if (!httpOnlyAllowed && oldCookie.httpOnly()) return null;
+        if (
+          cookie.secure() == oldCookie.secure()
+          && cookie.sameSite() == oldCookie.sameSite()
+          && Objects.equals(cookie.expiryTime(), oldCookie.expiryTime())
+          // NOSPEC: Compare cookie values
+          // See https://github.com/httpwg/http-extensions/issues/3501
+          && cookie.value().equals(oldCookie.value())
+        ) return null;
+        cookieIt.remove();
+        return CookieBuilder.fromCookie(cookie)
+          .setCreationTime(oldCookie.creationTime())
+          .build();
+      }
+    }
+
+    return cookie;
   }
   
 }

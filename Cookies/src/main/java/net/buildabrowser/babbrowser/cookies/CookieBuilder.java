@@ -19,7 +19,7 @@ public interface CookieBuilder {
 
   String host();
 
-  void setHostOnly(boolean hostOnly);
+  CookieBuilder setHostOnly(boolean hostOnly);
 
   boolean hostOnly();
 
@@ -67,6 +67,7 @@ public interface CookieBuilder {
     return create(cookie.name(), cookie.value())
       .setSecure(cookie.secure())
       .setHost(cookie.host())
+      .setHostOnly(cookie.hostOnly())
       .setPath(cookie.path())
       .setHasPathAttribute(cookie.hasPathAttribute())
       .setSameSite(cookie.sameSite())

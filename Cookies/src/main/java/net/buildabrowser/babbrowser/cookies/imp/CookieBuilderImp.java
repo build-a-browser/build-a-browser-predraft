@@ -62,8 +62,9 @@ public class CookieBuilderImp implements CookieBuilder {
   }
 
   @Override
-  public void setHostOnly(boolean hostOnly) {
+  public CookieBuilder setHostOnly(boolean hostOnly) {
     this.hostOnly = hostOnly;
+    return this;
   }
 
   @Override

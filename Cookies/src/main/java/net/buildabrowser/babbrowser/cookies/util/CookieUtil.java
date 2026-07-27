@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.cookies.util;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import net.buildabrowser.babbrowser.common.util.URLUtil2;
 import net.buildabrowser.babbrowser.cookies.Cookie;
@@ -70,8 +71,7 @@ public final class CookieUtil {
       !allowNonHostOnlyCookieForPublicSuffix
       && cookieStore.publicSuffixList().contains(cookie.host())
     ) {
-      // TODO: proper host-equal
-      if (cookie.host().equals(host)) {
+      if (hostEquals(cookie.host(), host)) {
         cookie.setHost(null);
       } else {
         return null;
@@ -97,7 +97,11 @@ public final class CookieUtil {
 
     if (!isSecure) {
       if (cookie.secure()) return null;
-      // TODO: Check if a secure variant already exists
+      if (cookieStore.hasSecureCookie(
+        cookie.name(),
+        cookie.host(),
+        cookie.path()
+      )) return null;
     }
 
     if (
@@ -116,8 +120,8 @@ public final class CookieUtil {
 
     // TODO: Check existing cookie
     Cookie finalCookie = cookie.build();
-    cookieStore.storeValidatedCookie(finalCookie);
-    return finalCookie;
+    return cookieStore.storeValidatedCookie(
+      finalCookie, httpOnlyAllowed);
   }
 
   public static List<Cookie> garbageCollectCookies(
@@ -157,11 +161,11 @@ public final class CookieUtil {
     SameSiteMode sameSite
   ) {
     boolean isCorrectHost =
-      (cookie.hostOnly() && host.equals(cookie.host())) // TODO: Check host-equal
+      (cookie.hostOnly() && hostEquals(host, cookie.host()))
       || (!cookie.hostOnly() && CookieUtil.isDomainMatch(host, cookie.host()));
     if (!isCorrectHost) return false;
     if (!cookie.hostOnly() && suffixList.contains(cookie.host())) return false;
-    if (!CookieUtil.patchMatches(path, cookie.path())) return false;
+    if (!CookieUtil.pathMatches(path, cookie.path())) return false;
     if (isSecure && !cookie.secure()) return false;
     if (cookie.httpOnly() && !httpOnlyAllowed) return false;
 
@@ -180,7 +184,12 @@ public final class CookieUtil {
     return isAllowed;
   }
 
-  public static boolean patchMatches(
+  public static boolean hostEquals(String host1, String host2) {
+    // TODO: Proper way to check host-equals
+    return Objects.equals(host1.toLowerCase(), host2.toLowerCase());
+  }
+
+  public static boolean pathMatches(
     String[] requestPath,
     String[] cookiePath
   ) {
@@ -196,6 +205,17 @@ public final class CookieUtil {
     return (serializedRequestPath + "/")  
       .startsWith(serializedCookiePath);
   }
+
+  // TODO: Check the proper way to do this
+  public static boolean pathEquals(
+    String[] requestPath,
+    String[] cookiePath
+  ) {
+    String serializedRequestPath = URLUtil2.serializePath(requestPath);
+    String serializedCookiePath = URLUtil2.serializePath(cookiePath);
+    return serializedCookiePath.equals(serializedRequestPath);
+  }
+
 
   public static int compareCookies(Cookie a, Cookie b) {
     return
@@ -266,5 +286,4 @@ public final class CookieUtil {
       cookie.secure()
       && !cookie.httpOnly();
   }
-
 }
