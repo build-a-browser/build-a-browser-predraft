@@ -11,12 +11,12 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import net.buildabrowser.babbrowser.browser.chrome.WindowSetGUI;
 import net.buildabrowser.babbrowser.browser.clipboard.AWTClipboardProvider;
-import net.buildabrowser.babbrowser.browser.net.cookies.InMemoryCookieStore;
 import net.buildabrowser.babbrowser.browser.net.imp.FetchBackendImp;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
 import net.buildabrowser.babbrowser.cookies.CookieStore;
+import net.buildabrowser.babbrowser.cookies.stores.InMemoryCookieStore;
 import net.buildabrowser.babbrowser.debugger.core.Debugger;
 import net.buildabrowser.babbrowser.debugger.swing.SwingDebugger;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;

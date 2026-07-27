@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.browser.net.cookies;
+package net.buildabrowser.babbrowser.cookies.stores;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class InMemoryCookieStore implements CookieStore {
       if (adjustedCookie == null) return null;
 
       cookieMap
-        .computeIfAbsent(cookie.host(), _ -> new ArrayList<>())
+        .computeIfAbsent(cookie.host(), _1 -> new ArrayList<>())
         .add(adjustedCookie);
 
       return adjustedCookie;
