@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.browser;
 
 import java.awt.Component;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,8 +16,9 @@ import net.buildabrowser.babbrowser.browser.net.imp.FetchBackendImp;
 import net.buildabrowser.babbrowser.browser.uistate.Window;
 import net.buildabrowser.babbrowser.browser.uistate.Window.WindowOptions;
 import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
+import net.buildabrowser.babbrowser.browser.util.FileUtil;
 import net.buildabrowser.babbrowser.cookies.CookieStore;
-import net.buildabrowser.babbrowser.cookies.stores.InMemoryCookieStore;
+import net.buildabrowser.babbrowser.cookies.PublicSuffixList;
 import net.buildabrowser.babbrowser.debugger.core.Debugger;
 import net.buildabrowser.babbrowser.debugger.swing.SwingDebugger;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
@@ -28,6 +30,8 @@ import net.buildabrowser.babbrowser.painter.skija.SkijaAWTPainter;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 import net.buildabrowser.babbrowser.renderer.clipboard.ClipboardProvider;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
+import net.buildabrowser.cookies.stores.sqlite.JDBCUtil;
+import net.buildabrowser.cookies.stores.sqlite.SQLiteCookieStore;
 
 public class Main {
   
@@ -43,6 +47,10 @@ public class Main {
       isSoftwareRendered = isSoftwareRendered || arg.equals("--use-software-rendering");
     }
 
+    URI profilePath = FileUtil.appConfigDirectory("babbrowser");
+    new File(profilePath).mkdirs();
+    URI dbPath = profilePath.resolve("profile.db");
+
     ComponentPainter<Component> painter = useJava2d ?
       new Java2DPainter() :
       new SkijaAWTPainter(isSoftwareRendered, false);
@@ -54,11 +62,14 @@ public class Main {
     ContentEncodingRegistry registry = ContentEncodingRegistry.createDefault();
     
     FetchBackend fetchBackend = new FetchBackendImp(registry);
-    CookieStore cookieStore = new InMemoryCookieStore(
-      _ -> false);
+    PublicSuffixList publicSuffixList = _ -> false;
+    CookieStore cookieStore = new SQLiteCookieStore(
+      JDBCUtil.jdbcURL(dbPath),
+      publicSuffixList);
     FetchConfig fetchConfig = new FetchConfig(
       fetchBackend, _ -> true, cookieStore);
 
+    cookieStore.initialize();
     RenderingEngine renderingEngine = RenderingEngine.create(
       fetchConfig,
       Executors::newVirtualThreadPerTaskExecutor,

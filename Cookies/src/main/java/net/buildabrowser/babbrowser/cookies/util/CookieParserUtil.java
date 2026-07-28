@@ -172,9 +172,18 @@ public final class CookieParserUtil {
 
   private static ZonedDateTime parseDate(String attributeValue) {
     // TODO: Proper way to parse a date
+    
     DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
-    return CommonUtil.tryOrNull(
+    ZonedDateTime result = CommonUtil.tryOrNull(
       () -> ZonedDateTime.parse(attributeValue, formatter));
+    if (result != null) return result;
+
+    return CommonUtil.tryOrNull(
+      () -> ZonedDateTime.parse(
+        attributeValue
+          .replaceFirst("-", " ")
+          .replaceFirst("-", " "),
+        formatter));
   }
 
   private static String[] cookieDefaultPath(String[] path) {

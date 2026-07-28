@@ -1,0 +1,10 @@
+plugins {
+  id 'java-library'
+}
+
+dependencies {
+  api project(':Cookies')
+  implementation project(':Common')
+
+  implementation 'org.xerial:sqlite-jdbc:3.53.2.1'
+}

@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.fetch.imp;
 
 import java.util.List;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cookies.Cookie;
 import net.buildabrowser.babbrowser.cookies.SameSiteMode;
 import net.buildabrowser.babbrowser.cookies.util.CookieUtil;
@@ -21,10 +22,11 @@ public final class FetchCookieUtil {
     SameSiteMode sameSite = determineSameSiteMode(request);
     boolean isSecure = request.currentURL().getScheme().equals("https");
     boolean httpOnlyAllowed = true;
-    List<Cookie> cookies = fetchConfig.cookieStore().retrieveCookies(
-      isSecure, request.currentURL().getHost(),
-      request.currentURL().getPath().split("/"), httpOnlyAllowed,
-      sameSite);
+    List<Cookie> cookies = CommonUtil.rethrow(
+      () -> fetchConfig.cookieStore().retrieveCookies(
+        isSecure, request.currentURL().getHost(),
+        request.currentURL().getPath().split("/"), httpOnlyAllowed,
+        sameSite));
     if (cookies.size() == 0) return;
     String value = CookieUtil.serializeCookies(cookies);
     request.headerList().append("Cookie", value);
@@ -44,15 +46,15 @@ public final class FetchCookieUtil {
       .equals(SameSiteMode.STRICT_OR_LESS);
     response.headerList().forEach((name, value) -> {
       if (!name.equalsIgnoreCase("Set-Cookie")) return;
-      CookieUtil.parseAndStoreCookie(
+      CommonUtil.rethrowV(() -> CookieUtil.parseAndStoreCookie(
         fetchConfig.cookieStore(),
         value, isSecure, request.currentURL().getHost(),
         request.currentURL().getPath().split("/"), httpOnlyAllowed,
-      allowNonHostOnlyCookieForPublicSuffix, sameSiteStrictOrLaxAllowed);
+        allowNonHostOnlyCookieForPublicSuffix, sameSiteStrictOrLaxAllowed));
     });
     // Moved to outside of the loop for efficiency
-    CookieUtil.garbageCollectCookies(
-      fetchConfig.cookieStore(), request.currentURL().getHost());
+    CommonUtil.rethrowV(() -> CookieUtil.garbageCollectCookies(
+      fetchConfig.cookieStore(), request.currentURL().getHost()));
   }
 
   private static SameSiteMode determineSameSiteMode(FetchRequest request) {

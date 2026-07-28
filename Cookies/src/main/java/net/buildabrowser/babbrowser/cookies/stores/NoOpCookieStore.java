@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.cookies.Cookie;
 import net.buildabrowser.babbrowser.cookies.CookieStore;
 import net.buildabrowser.babbrowser.cookies.PublicSuffixList;
 import net.buildabrowser.babbrowser.cookies.SameSiteMode;
+import net.buildabrowser.babbrowser.cookies.exception.CookieStoreException;
 
 public class NoOpCookieStore implements CookieStore {
 
@@ -61,6 +62,14 @@ public class NoOpCookieStore implements CookieStore {
     String[] path
   ) {
     return false;
+  }
+
+  @Override
+  public Cookie removeDuplicateCookie(
+    Cookie cookie,
+    boolean httpOnlyAllowed
+  ) throws CookieStoreException {
+    return cookie;
   }
   
 }

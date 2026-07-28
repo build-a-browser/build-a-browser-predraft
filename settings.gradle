@@ -7,7 +7,7 @@ include(
   ':PainterCore', ':PainterSkija', ':PainterJava2D',
   ':DebuggerCore', ':DebuggerSwing',
   ':DOM', ':HTML', ':HTMLParser',':Browser', ':Network',
-  ':Stream', ':Fetch', ':Cookies')
+  ':Stream', ':Fetch', ':Cookies', ':CookiesSQLite')
 
 // Copied from Brotli4J website (https://github.com/hyperxpro/Brotli4j/blob/main/LICENSE)
 // With modifications to resolve broken things

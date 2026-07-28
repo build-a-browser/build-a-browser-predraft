@@ -20,7 +20,17 @@ public record Cookie(
   public static String HOST_FAILURE = "<FAILURE>";
   
   public static enum SameSite {
+    // Order matters for toInt/fromInt!
     STRICT, LAX, UNSET, NONE;
+
+    public int toInt() {
+      return ordinal();
+    }
+
+    public static SameSite fromInt(int value) {
+      return SameSite.values()[value];
+    }
+
   }
 
 }

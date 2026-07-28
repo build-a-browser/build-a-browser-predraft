@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Objects;
 
 import net.buildabrowser.babbrowser.cookies.Cookie;
 import net.buildabrowser.babbrowser.cookies.CookieBuilder;
@@ -131,7 +130,8 @@ public class InMemoryCookieStore implements CookieStore {
     return false;
   }
 
-  private Cookie removeDuplicateCookie(
+  @Override
+  public Cookie removeDuplicateCookie(
     Cookie cookie,
     boolean httpOnlyAllowed
   ) {
@@ -146,15 +146,8 @@ public class InMemoryCookieStore implements CookieStore {
         if (!oldCookie.name().equals(cookie.name())) continue;
         if (oldCookie.hostOnly() != cookie.hostOnly()) continue;
         if (!CookieUtil.pathEquals(oldCookie.path(), cookie.path())) continue;
-        if (!httpOnlyAllowed && oldCookie.httpOnly()) return null;
-        if (
-          cookie.secure() == oldCookie.secure()
-          && cookie.sameSite() == oldCookie.sameSite()
-          && Objects.equals(cookie.expiryTime(), oldCookie.expiryTime())
-          // NOSPEC: Compare cookie values
-          // See https://github.com/httpwg/http-extensions/issues/3501
-          && cookie.value().equals(oldCookie.value())
-        ) return null;
+        boolean skipExisting = CookieUtil.skipExistingCookie(cookie, oldCookie, httpOnlyAllowed);
+        if (skipExisting) return null;
         cookieIt.remove();
         return CookieBuilder.fromCookie(cookie)
           .setCreationTime(oldCookie.creationTime())

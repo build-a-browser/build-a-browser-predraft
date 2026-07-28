@@ -12,6 +12,7 @@ import net.buildabrowser.babbrowser.cookies.CookieBuilder;
 import net.buildabrowser.babbrowser.cookies.CookieStore;
 import net.buildabrowser.babbrowser.cookies.PublicSuffixList;
 import net.buildabrowser.babbrowser.cookies.SameSiteMode;
+import net.buildabrowser.babbrowser.cookies.exception.CookieStoreException;
 
 public final class CookieUtil {
   
@@ -26,7 +27,7 @@ public final class CookieUtil {
     boolean httpOnlyAllowed,
     boolean allowNonHostOnlyCookieForPublicSuffix,
     boolean sameSiteStrictOrLaxAllowed
-  ) {
+  ) throws CookieStoreException {
     Cookie cookie = CookieParserUtil.parseCookie(value, path);
     storeCookie(
       cookieStore, cookie, isSecure, host, httpOnlyAllowed,
@@ -57,7 +58,7 @@ public final class CookieUtil {
     boolean httpOnlyAllowed,
     boolean allowNonHostOnlyCookieForPublicSuffix,
     boolean sameSiteStrictOrLaxAllowed
-  ) {
+  ) throws CookieStoreException {
     CookieBuilder cookie = CookieBuilder.fromCookie(cookie_);
 
     int cookieLength = cookie.name().length() + cookie.value().length();
@@ -126,7 +127,7 @@ public final class CookieUtil {
 
   public static List<Cookie> garbageCollectCookies(
     CookieStore cookieStore, String host
-  ) {
+  ) throws CookieStoreException {
     List<Cookie> expiredCookies = cookieStore.removeExpiredCookies();
     List<Cookie> excessHostCookies = cookieStore.removeExcessCookiesForHost(host);
     List<Cookie> excessGlobalCookies = cookieStore.removeGlobalExcessCookies();
@@ -166,7 +167,7 @@ public final class CookieUtil {
     if (!isCorrectHost) return false;
     if (!cookie.hostOnly() && suffixList.contains(cookie.host())) return false;
     if (!CookieUtil.pathMatches(path, cookie.path())) return false;
-    if (isSecure && !cookie.secure()) return false;
+    if (cookie.secure() && !isSecure) return false;
     if (cookie.httpOnly() && !httpOnlyAllowed) return false;
 
     boolean allowStrict = sameSite.equals(SameSiteMode.STRICT_OR_LESS);
@@ -285,5 +286,23 @@ public final class CookieUtil {
     return
       cookie.secure()
       && !cookie.httpOnly();
+  }
+
+  public static boolean skipExistingCookie(
+    Cookie cookie,
+    Cookie existingCookie,
+    boolean httpOnlyAllowed
+  ) {
+    if (!httpOnlyAllowed && existingCookie.httpOnly()) return true;
+    if (
+      cookie.secure() == existingCookie.secure()
+      && cookie.sameSite() == existingCookie.sameSite()
+      && Objects.equals(cookie.expiryTime(), existingCookie.expiryTime())
+      // NOSPEC: Compare cookie values
+      // See https://github.com/httpwg/http-extensions/issues/3501
+      && cookie.value().equals(existingCookie.value())
+    ) return true;
+
+    return false;
   }
 }
