@@ -5,6 +5,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileUtil {
+
+  public static URI asDirectory(URI uri) {
+      String path = uri.getPath();
+      if (path.endsWith("/")) return uri;
+      return URI.create(path + "/");
+  }
   
   public static URI appConfigDirectory(String appName) {
     String osName = System.getProperty("os.name").toLowerCase();
