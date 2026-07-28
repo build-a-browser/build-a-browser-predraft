@@ -61,7 +61,6 @@ public final class FormSubmissionAlgorithm {
       formDocument.url().resolve(action_));
     if (parsedAction == null) return;
     String scheme = parsedAction.getScheme();
-    @SuppressWarnings("unused")
     String enctype = getEnctype(form, submitter);
     // TODO: Check the form target
     Navigable targetNavigable = NavUtil.chooseANavigable(

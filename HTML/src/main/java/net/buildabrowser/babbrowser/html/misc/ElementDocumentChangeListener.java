@@ -78,6 +78,9 @@ public class ElementDocumentChangeListener extends AbstractDocumentChangeListene
     if (attrName.equals("value")) {
       // TODO: Need to check if old value was dirty
       element.setValue(newValue);
+    } else if (attrName.equals("checked")) {
+      // TODO: Check dirty checkedness
+      element.setChecked(newValue != null);
     }
   }
 

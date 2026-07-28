@@ -22,7 +22,9 @@ import net.buildabrowser.babbrowser.renderer.fragment.image.DefaultImageBoxFragm
 import net.buildabrowser.babbrowser.renderer.fragment.image.ImageBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.input.BaseInputFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.input.DefaultButtonInputFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.input.DefaultCheckBoxInputFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.input.DefaultHiddenInputFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.input.DefaultRadioBoxInputFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.input.DefaultTextInputFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.DefaultScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
@@ -31,6 +33,7 @@ import net.buildabrowser.babbrowser.renderer.fragment.table.TableBoxFragment;
 
 public class DefaultFragmentFactory implements FragmentFactory {
 
+  @Override
   public FlowRootBoxFragment createFlowRootBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
@@ -42,6 +45,7 @@ public class DefaultFragmentFactory implements FragmentFactory {
       box, rootFragment, allFloats);
   }
   
+  @Override
   public FlowBlockBoxFragment createFlowBlockBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
@@ -54,6 +58,7 @@ public class DefaultFragmentFactory implements FragmentFactory {
       box, fragments);
   }
 
+  @Override
   public FlowInlineBoxFragment createFlowInlineBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
@@ -66,6 +71,7 @@ public class DefaultFragmentFactory implements FragmentFactory {
       box, fragments);
   }
 
+  @Override
   public FlexBoxFragment createFlexBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
@@ -78,6 +84,7 @@ public class DefaultFragmentFactory implements FragmentFactory {
       box, fragments);
   }
 
+  @Override
   public TableBoxFragment createTableBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
@@ -94,6 +101,7 @@ public class DefaultFragmentFactory implements FragmentFactory {
       outOfTableFragments);
   }
 
+  @Override
   public ImageBoxFragment createImageBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
@@ -126,6 +134,7 @@ public class DefaultFragmentFactory implements FragmentFactory {
     };
   }
 
+  @Override
   public UnmanagedBoxFragment<?> createButtonBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
@@ -139,6 +148,33 @@ public class DefaultFragmentFactory implements FragmentFactory {
       rootBox, innerFragment);
   }
 
+  @Override
+  public UnmanagedBoxFragment<?> createCheckBoxFragment(
+    float width, float height,
+    float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
+    ElementBox rootBox
+  ) {
+    return new DefaultCheckBoxInputFragment(
+      width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
+      rootBox);
+  }
+
+  @Override
+  public UnmanagedBoxFragment<?> createRadioBoxFragment(
+    float width, float height,
+    float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
+    ElementBox rootBox
+  ) {
+    return new DefaultRadioBoxInputFragment(
+      width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
+      rootBox);
+  }
+
+  @Override
   public ScrollBoxFragment createScrollBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
@@ -152,6 +188,7 @@ public class DefaultFragmentFactory implements FragmentFactory {
       box, innerFragment);
   }
 
+  @Override
   public UnmanagedBoxFragment<?> createGenericUnmanagedBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,

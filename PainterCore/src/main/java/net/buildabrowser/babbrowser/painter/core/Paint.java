@@ -10,4 +10,12 @@ public interface Paint {
   
   LoadedFont getFont();
 
+  void setFilled(boolean filled);
+
+  boolean getFilled();
+
+  void setStrokeSize(float strokeSize);
+
+  float getStrokeSize();
+
 }

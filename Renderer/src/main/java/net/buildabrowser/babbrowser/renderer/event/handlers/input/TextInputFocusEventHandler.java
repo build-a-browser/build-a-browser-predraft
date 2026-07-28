@@ -151,7 +151,9 @@ public class TextInputFocusEventHandler implements FocusEventHandler<TextTypeCon
     HTMLFormElement formOwner = formAssociatedElement.formOwner();
     if (formOwner == null) return;
 
-    for (FormAssociatedElement submittable: formOwner.submittableElements()) {
+    for (FormAssociatedElement submittable:
+      formOwner.submittableElements().elements()
+    ) {
       if (
         !FormSubmissionAlgorithm.isSubmitButton(submittable)
       ) continue;

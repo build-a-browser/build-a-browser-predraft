@@ -102,6 +102,11 @@ public class SkijaPaintCanvas implements PaintCanvas {
   }
 
   @Override
+  public void drawCircle(float x, float y, float r) {
+    canvas.drawCircle(x + r, y + r, r, rawPaint);
+  }
+
+  @Override
   public void drawText(float x, float y, String text) {
     currentFont.drawText(x, y, text, canvas, rawPaint);
   }
@@ -129,6 +134,8 @@ public class SkijaPaintCanvas implements PaintCanvas {
 
   private void syncPaint(SkijaPaint paint) {
     rawPaint.setColor(paint.getColor());
+    rawPaint.setStroke(!paint.getFilled());
+    rawPaint.setStrokeWidth(paint.getStrokeSize());
     this.currentFont = paint.getFont();
   }
   

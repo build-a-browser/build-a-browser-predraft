@@ -18,6 +18,8 @@ public interface PaintCanvas {
 
   void drawBox(float x, float y, float w, float h);
 
+  void drawCircle(float x, float y, float r);
+
   void drawText(float x, float y, String text);
 
   void drawImage(float x, float y, LoadedImage image);

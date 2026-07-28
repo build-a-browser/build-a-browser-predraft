@@ -80,6 +80,20 @@ public interface FragmentFactory {
     UnmanagedBoxFragment<?> innerFragment
   );
 
+  UnmanagedBoxFragment<?> createCheckBoxFragment(
+    float width, float height,
+    float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
+    ElementBox rootBox
+  );
+
+  UnmanagedBoxFragment<?> createRadioBoxFragment(
+    float width, float height,
+    float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
+    ElementBox rootBox
+  );
+
   ScrollBoxFragment createScrollBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,

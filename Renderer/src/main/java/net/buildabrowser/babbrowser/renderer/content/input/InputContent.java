@@ -6,6 +6,8 @@ import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.input.button.ButtonTypeContent;
+import net.buildabrowser.babbrowser.renderer.content.input.checkbox.CheckBoxTypeContent;
+import net.buildabrowser.babbrowser.renderer.content.input.checkbox.RadioBoxTypeContent;
 import net.buildabrowser.babbrowser.renderer.content.input.hidden.HiddenTypeContent;
 import net.buildabrowser.babbrowser.renderer.content.input.text.TextTypeContent;
 import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
@@ -94,6 +96,8 @@ public class InputContent implements BoxContent {
       case "password" -> new TextTypeContent(element, true);
       case "submit" -> new ButtonTypeContent("Submit");
       case "button" -> new ButtonTypeContent("");
+      case "checkbox" -> new CheckBoxTypeContent();
+      case "radio" -> new RadioBoxTypeContent();
       default -> new TextTypeContent(element, false);
     });
   }

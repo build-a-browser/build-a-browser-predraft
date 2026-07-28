@@ -7,6 +7,8 @@ public class SkijaPaint implements Paint {
 
   private int color;
   private SkijaLoadedFont font;
+  private boolean filled = true;
+  private float strokeSize = 1f;
 
   @Override
   public void setColor(int color) {
@@ -29,6 +31,26 @@ public class SkijaPaint implements Paint {
   @Override
   public SkijaLoadedFont getFont() {
     return this.font;
+  }
+
+  @Override
+  public void setFilled(boolean filled) {
+    this.filled = filled;
+  }
+
+  @Override
+  public boolean getFilled() {
+    return this.filled;
+  }
+
+  @Override
+  public void setStrokeSize(float strokeSize) {
+    this.strokeSize = strokeSize;
+  }
+
+  @Override
+  public float getStrokeSize() {
+    return this.strokeSize;
   }
 
 }

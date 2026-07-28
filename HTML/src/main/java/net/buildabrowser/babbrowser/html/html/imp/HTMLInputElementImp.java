@@ -7,15 +7,44 @@ import net.buildabrowser.babbrowser.dom.events.PointerEvent;
 import net.buildabrowser.babbrowser.html.form.FormSubmissionAlgorithm;
 import net.buildabrowser.babbrowser.html.html.HTMLFormElement;
 import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
+import net.buildabrowser.babbrowser.html.html.util.HTMLInputUtil;
 import net.buildabrowser.babbrowser.html.util.HTMLEventUtil;
 
 public class HTMLInputElementImp extends HTMLElementImp implements HTMLInputElement, ActivationTarget {
 
+  private boolean checked = false;
   private String value = "";
   private HTMLFormElement formOwner;
 
   public HTMLInputElementImp(String name, String namespace, Node parentNode) {
     super(name, namespace, parentNode);
+  }
+
+  @Override
+  public boolean checked() {
+    return this.checked;
+  }
+
+  @Override
+  public void setChecked(boolean checked) {
+    // TODO: Check disabled, update radio box
+    setCheckedRaw(checked);
+    if (type().equals("radio")) {
+      HTMLInputUtil.deselectOtherRadioElements(this);
+    }
+
+    invalidate(InvalidationLevel.PAINT);
+  }
+
+  @Override
+  public void setCheckedRaw(boolean checked) {
+    // TODO: Check disabled, update radio box
+    this.checked = checked;
+  }
+
+  @Override
+  public boolean disabled() {
+    return hasAttribute("disabled");
   }
 
   // TODO: Limit to known attributes
@@ -28,6 +57,7 @@ public class HTMLInputElementImp extends HTMLElementImp implements HTMLInputElem
   @Override
   public void setType(String type) {
     addAttribute("type", type);
+    invalidate(InvalidationLevel.LAYOUT);
   }
 
   @Override
@@ -45,11 +75,20 @@ public class HTMLInputElementImp extends HTMLElementImp implements HTMLInputElem
 
   @Override
   public void activate(PointerEvent event) {
-    if (formOwner == null) return;
+    // TODO: Proper way to block event
+    if (disabled()) return;
     // TODO: Check if document is fully active
-    if (FormSubmissionAlgorithm.isSubmitButton(this)) {
+    if (
+      formOwner != null
+      && FormSubmissionAlgorithm.isSubmitButton(this)
+    ) {
       FormSubmissionAlgorithm.submitAForm(
         formOwner, this, HTMLEventUtil.userNavigationInvolvement(event));
+    } else if ("checkbox".equals(type())) {
+      // TODO: Spec says to fire events
+      setChecked(!checked());
+    } else if ("radio".equals(type())) {
+      setChecked(true);
     }
   }
 

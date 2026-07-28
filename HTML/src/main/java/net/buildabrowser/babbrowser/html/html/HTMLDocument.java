@@ -35,6 +35,8 @@ public interface HTMLDocument extends RenderableDocument, Document, PlatformObje
 
   UANavigableOptions uaNavigableOptions();
 
+  SubmittableElementSet unownedSubmittableElements();
+
   static HTMLDocument create(
     UANavigableOptions uaNavigableOptions,
     BrowsingContext browsingContext,

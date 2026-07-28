@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.painter.java2d;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -115,7 +116,21 @@ public class J2DPaintCanvas implements PaintCanvas {
 
   @Override
   public void drawBox(float x, float y, float w, float h) {
-    graphics.fillRect((int) x, (int) y, (int) w, (int) h);
+    if (currentPaint.getFilled()) {
+      graphics.fillRect((int) x, (int) y, (int) w, (int) h);
+    } else {
+      graphics.drawRect((int) x, (int) y, (int) w, (int) h);
+    }
+  }
+
+  @Override
+  public void drawCircle(float x, float y, float r) {
+    int diameter = (int) (r * 2);
+    if (currentPaint.getFilled()) {
+      graphics.fillOval((int) x, (int) y, diameter, diameter);
+    } else {
+      graphics.drawOval((int) x, (int) y, diameter, diameter);
+    }
   }
 
   @Override
@@ -147,6 +162,7 @@ public class J2DPaintCanvas implements PaintCanvas {
   private void syncPaint(J2DPaint paint) {
     graphics.setColor(new Color(paint.getColor(), true));
     graphics.setBackground(new Color(paint.getColor(), true));
+    graphics.setStroke(new BasicStroke(paint.getStrokeSize()));
     this.currentFont = paint.getFont();
   }
   

@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.dom.imp.DocumentImp;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchClient;
+import net.buildabrowser.babbrowser.html.html.SubmittableElementSet;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.input.FocusManager;
@@ -24,6 +25,7 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
   private final Navigable nodeNavigable; // TODO: Hack because the proper way is NPE-prone
   private final FocusManager focusManager;
   private final Selection selection;
+  private final SubmittableElementSet submittableElements;
 
   private DocumentRenderer renderer;
   private boolean willDeclarativelyRefresh;
@@ -39,6 +41,7 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
     this.nodeNavigable= nodeNavigable;
     this.focusManager = FocusManager.create(this);
     this.selection = Selection.create(this);
+    this.submittableElements = SubmittableElementSet.create();
   }
 
   @Override
@@ -141,6 +144,11 @@ public class HTMLDocumentImp extends DocumentImp implements HTMLDocument {
     super.setURLRaw(url);
     if (renderer == null) return;
     renderer.changeListener().onURLChanged(oldURL, url);
+  }
+
+  @Override
+  public SubmittableElementSet unownedSubmittableElements() {
+    return this.submittableElements;
   }
 
   private void syncStylesheets(DocumentChangeListener changeListener) {

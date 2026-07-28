@@ -6,6 +6,12 @@ import net.buildabrowser.babbrowser.infra.Namespace;
 
 public interface HTMLInputElement extends FormAssociatedElement {
 
+  boolean checked();
+
+  void setChecked(boolean checked);
+
+  boolean disabled();
+
   String type();
 
   void setType(String type);
@@ -13,6 +19,10 @@ public interface HTMLInputElement extends FormAssociatedElement {
   String value();
 
   void setValue(String value);
+
+  // Extensions
+
+  void setCheckedRaw(boolean checked);
 
   public static HTMLElement create(
     String name, Node parentNode
