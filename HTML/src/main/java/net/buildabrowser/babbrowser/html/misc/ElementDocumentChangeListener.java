@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.html.misc;
 
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.dom.listener.AbstractDocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
@@ -9,6 +10,7 @@ import net.buildabrowser.babbrowser.html.html.FormAssociatedElement;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
+import net.buildabrowser.babbrowser.html.html.HTMLTextAreaElement;
 import net.buildabrowser.babbrowser.html.html.LinkElement;
 import net.buildabrowser.babbrowser.html.link.LinkProcessor;
 
@@ -38,6 +40,12 @@ public class ElementDocumentChangeListener extends AbstractDocumentChangeListene
       && element.name().equals("meta")
     ) {
       handleMeta(element);
+    } else if (
+      node instanceof Text text
+      && text.parentNode() instanceof HTMLTextAreaElement htmlTextAreaElement
+    ) {
+      System.out.println(text.data());
+      htmlTextAreaElement.setValue(htmlTextAreaElement.innerText());
     }
 
     if (node instanceof FormAssociatedElement formAssociatedElement) {

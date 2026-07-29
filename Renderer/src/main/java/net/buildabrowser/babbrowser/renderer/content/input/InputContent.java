@@ -43,7 +43,9 @@ public class InputContent implements BoxContent {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    return innerContent(box).layout(box, widthConstraint, heightConstraint);
+    UnmanagedBoxFragment<?> fragment = innerContent(box).layout(box, widthConstraint, heightConstraint);
+    box.updatePositioningFragment(fragment);
+    return fragment;
   }
 
   @Override

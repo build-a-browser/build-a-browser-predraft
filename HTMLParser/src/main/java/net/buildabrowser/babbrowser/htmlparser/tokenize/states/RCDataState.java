@@ -24,10 +24,16 @@ public class RCDataState implements TokenizeState {
       case TokenizeContext.EOF:
         parseContext.emitEOFToken();
         break;
+      case '\n':
+        if (!parseContext.ignoreNextLineFeed()) {
+          parseContext.emitCharacterToken(ch);
+        }
+        break;
       default:
         parseContext.emitCharacterToken(ch);
         break;
     }
+    parseContext.setIgnoreNextLineFeed(false);
   }
   
 }

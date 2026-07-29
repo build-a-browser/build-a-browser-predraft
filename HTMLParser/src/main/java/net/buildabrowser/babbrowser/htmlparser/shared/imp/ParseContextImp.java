@@ -23,6 +23,7 @@ public class ParseContextImp implements ParseContext {
   private Element headElementPointer;
   private String lastTagTokenName;
   private boolean fosterParentingEnabled;
+  private boolean ignoreNextLineFeed;
 
   public ParseContextImp(Document document, TokenizeContext tokenizeContext) {
     this.document = document;
@@ -152,6 +153,16 @@ public class ParseContextImp implements ParseContext {
   @Override
   public TokenizeContext tokenizeContext() {
     return this.tokenizeContext;
+  }
+
+  @Override
+  public boolean ignoreNextLineFeed() {
+    return this.ignoreNextLineFeed;
+  }
+
+  @Override
+  public void setIgnoreNextLineFeed(boolean ignoreNextLineFeed) {
+    this.ignoreNextLineFeed = ignoreNextLineFeed;
   }
   
 }

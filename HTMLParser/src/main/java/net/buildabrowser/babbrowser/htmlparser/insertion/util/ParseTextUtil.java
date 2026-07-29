@@ -17,6 +17,7 @@ public final class ParseTextUtil {
 
     if (adjustedInsertionLocation.afterNode() instanceof Text text) {
       text.appendCharacter(ch);
+      text.nodeDocument().changeListener().onNodeAdded(text);
     } else {
       Text text = HTMLText.create("");
       ParseElementUtil.insertNodeAt(text, adjustedInsertionLocation);
@@ -31,6 +32,7 @@ public final class ParseTextUtil {
 
     if (adjustedInsertionLocation.afterNode() instanceof Text text) {
       text.appendString(data);
+      text.nodeDocument().changeListener().onNodeAdded(text);
     } else {
       Text text = HTMLText.create("");
       ParseElementUtil.insertNodeAt(text, adjustedInsertionLocation);

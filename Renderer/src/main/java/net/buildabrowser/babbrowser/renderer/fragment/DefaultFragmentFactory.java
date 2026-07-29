@@ -30,6 +30,7 @@ import net.buildabrowser.babbrowser.renderer.fragment.scroll.DefaultScrollBoxFra
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.table.DefaultTableBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.table.TableBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.textarea.DefaultTextAreaBoxFragment;
 
 public class DefaultFragmentFactory implements FragmentFactory {
 
@@ -169,6 +170,19 @@ public class DefaultFragmentFactory implements FragmentFactory {
     ElementBox rootBox
   ) {
     return new DefaultRadioBoxInputFragment(
+      width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
+      rootBox);
+  }
+
+  @Override
+  public BaseInputFragment<?> createTextAreaBoxFragment(
+    float width, float height,
+    float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
+    ElementBox rootBox
+  ) {
+    return new DefaultTextAreaBoxFragment(
       width, height, inkWidth, inkHeight,
       firstBaseline, lastBaseline,
       rootBox);

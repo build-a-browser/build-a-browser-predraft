@@ -6,6 +6,7 @@ public final class NumberUtil {
 
   // Integer.valueOf creates a stack trace for invalid integers, which is slow
   public static Integer parseInteger(String valueStr) {
+    if (valueStr == null) return null;
     if (valueStr.length() == 0) return null;
     
     int index = 0;
@@ -31,6 +32,13 @@ public final class NumberUtil {
     }
 
     return value * (isNegative ? -1 : 1);
+  }
+
+  public static Integer parseNonNegativeInteger(String valueStr) {
+    Integer value = parseInteger(valueStr);
+    if (value == null) return null;
+    if (value < 0) return null;
+    return value;
   }
 
 }

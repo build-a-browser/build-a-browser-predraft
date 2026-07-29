@@ -18,7 +18,7 @@ public final class HTMLInputUtil {
   public static void deselectOtherRadioElements(
     HTMLInputElement refElement
   ) {
-    HTMLFormElement formOwner = refElement.formOwner();
+    HTMLFormElement formOwner = refElement.form();
     String name = refElement.getAttribute("name");
     if (
       name == null

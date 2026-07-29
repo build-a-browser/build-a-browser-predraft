@@ -1,9 +1,9 @@
-package net.buildabrowser.babbrowser.renderer.event.handlers.input;
+package net.buildabrowser.babbrowser.renderer.event.handlers.textarea;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.input.text.TextTypeContent;
+import net.buildabrowser.babbrowser.renderer.content.textarea.TextAreaContent;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.FocusEventHandler;
@@ -12,13 +12,13 @@ import net.buildabrowser.babbrowser.renderer.event.handlers.common.TextEditFocus
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
-public class TextInputFocusEventHandler implements FocusEventHandler<TextTypeContent> {
+public class TextAreaFocusEventHandler implements FocusEventHandler<TextAreaContent> {
   
   @Override
   public EventHandlerResponse handleKeyboardEvent(
     EventContext eventContext,
     ElementBox box,
-    TextTypeContent content,
+    TextAreaContent content,
     RendererKeyboardEvent event
   ) {
     // TODO: Support more keys like ctrl, insert, and support text selection

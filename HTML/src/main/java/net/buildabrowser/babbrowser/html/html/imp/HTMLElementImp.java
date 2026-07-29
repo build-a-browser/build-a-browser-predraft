@@ -7,7 +7,9 @@ import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.Invalidatable;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.Document;
+import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
+import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.dom.imp.ElementImp;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
@@ -24,6 +26,27 @@ public class HTMLElementImp extends ElementImp implements HTMLElement {
  
   public HTMLElementImp(String name, String namespace, Node parentNode) {
     super(name, namespace, parentNode);
+  }
+
+  @Override
+  public String innerText() {
+    // TODO: Proper get the text steps
+    StringBuilder textBuilder = new StringBuilder();
+    traverseElementInnerText(this, textBuilder);
+    return textBuilder.toString();
+  }
+
+  private void traverseElementInnerText(
+    Element element,
+    StringBuilder textBuilder
+  ) {
+    element.forEachChild(child -> {
+      switch (child) {
+        case Element el -> traverseElementInnerText(el, textBuilder);
+        case Text text -> textBuilder.append(text.data());
+        default -> {}
+      }
+    });
   }
 
   @Override

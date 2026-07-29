@@ -51,7 +51,7 @@ public class InstrinsicSizedInputTypeContent implements InputTypeContent {
     fragment.setLayerPos(layerX, layerY);
   }
 
-  private float convertACharacterWidthToPixels(FontMetrics fontMetrics, int size) {
+  public static float convertACharacterWidthToPixels(FontMetrics fontMetrics, int size) {
     // TODO: Proper way to determine avg and max
     float avg = fontMetrics.stringWidth("a");
     float max = fontMetrics.stringWidth("W");

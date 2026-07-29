@@ -4,7 +4,7 @@ import net.buildabrowser.babbrowser.dom.Node;
 
 public interface FormAssociatedElement extends HTMLElement {
   
-  HTMLFormElement formOwner();
+  HTMLFormElement form();
 
   void setFormOwner(HTMLFormElement formOwner);
 
@@ -15,8 +15,8 @@ public interface FormAssociatedElement extends HTMLElement {
   default void resetFormOwner() {
     // TODO: Unset parser inserted flag
     // TODO: Early return
-    if (formOwner() != null) {
-      formOwner().submittableElements().removeElement(this);
+    if (form() != null) {
+      form().submittableElements().removeElement(this);
     }
     setFormOwner(null);
     ((HTMLDocument) nodeDocument()).unownedSubmittableElements().addElement(this);

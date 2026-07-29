@@ -11,6 +11,7 @@ import net.buildabrowser.babbrowser.html.html.HTMLButtonElement;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.html.HTMLFormElement;
 import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
+import net.buildabrowser.babbrowser.html.html.HTMLTextAreaElement;
 import net.buildabrowser.babbrowser.html.html.LinkElement;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
 import net.buildabrowser.babbrowser.htmlparser.insertion.OpenElementStack;
@@ -49,6 +50,7 @@ public final class ParseElementUtil {
       case "form" -> HTMLFormElement.create(localName, intendedParent);
       case "input" -> HTMLInputElement.create(localName, intendedParent);
       case "link" -> LinkElement.create(localName, intendedParent);
+      case "textarea" -> HTMLTextAreaElement.create(localName, intendedParent);
       default -> HTMLElement.create(localName, intendedParent);
     };
 

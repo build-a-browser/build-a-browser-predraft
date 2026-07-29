@@ -93,7 +93,7 @@ public class HTMLInputElementImp extends HTMLElementImp implements HTMLInputElem
   }
 
   @Override
-  public HTMLFormElement formOwner() {
+  public HTMLFormElement form() {
     return this.formOwner;
   }
 

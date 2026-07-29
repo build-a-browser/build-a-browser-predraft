@@ -9,6 +9,10 @@ import net.buildabrowser.babbrowser.infra.Namespace;
 
 public interface HTMLElement extends Element, HTMLOrSVGOrMathMLElement, Slottable {
 
+  String innerText();
+
+  // Extensions
+
   Navigable nodeNavigable();
 
   public static HTMLElement create(

@@ -4,10 +4,12 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
+import net.buildabrowser.babbrowser.html.html.HTMLTextAreaElement;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.content.image.ImageContent;
 import net.buildabrowser.babbrowser.renderer.content.input.InputContent;
+import net.buildabrowser.babbrowser.renderer.content.textarea.TextAreaContent;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -82,6 +84,7 @@ public class ElementBoxImp extends AbstractElementBoxImp {
     BoxContent elementContent = switch (element().name()) {
       case "img" -> new ImageContent();
       case "input" -> new InputContent();
+      case "textarea" -> new TextAreaContent((HTMLTextAreaElement) element());
       default -> null;
     };
 

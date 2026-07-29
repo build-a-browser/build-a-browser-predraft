@@ -55,6 +55,10 @@ public interface ParseContext {
 
   TokenizeContext tokenizeContext();
 
+  boolean ignoreNextLineFeed();
+
+  void setIgnoreNextLineFeed(boolean ignoreNextLineFeed);
+
   public static ParseContext create(Document document, TokenizeContext tokenizeContext) {
     return new ParseContextImp(document, tokenizeContext);
   }

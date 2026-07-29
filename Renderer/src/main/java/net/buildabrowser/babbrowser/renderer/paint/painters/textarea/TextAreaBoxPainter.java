@@ -1,33 +1,32 @@
-package net.buildabrowser.babbrowser.renderer.paint.painters.input;
+package net.buildabrowser.babbrowser.renderer.paint.painters.textarea;
 
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.TextController;
-import net.buildabrowser.babbrowser.renderer.content.input.InputContent;
-import net.buildabrowser.babbrowser.renderer.content.input.text.TextTypeContent;
-import net.buildabrowser.babbrowser.renderer.fragment.input.TextInputFragment;
+import net.buildabrowser.babbrowser.renderer.content.textarea.TextAreaContent;
+import net.buildabrowser.babbrowser.renderer.fragment.textarea.TextAreaBoxFragment;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
 import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 import net.buildabrowser.babbrowser.renderer.paint.painters.common.ElementBackgroundPainter;
 import net.buildabrowser.babbrowser.renderer.paint.painters.common.TextEditPainter;
 
-public class TextInputBoxPainter implements BoxPainter<TextInputFragment> {
+public class TextAreaBoxPainter implements BoxPainter<TextAreaBoxFragment> {
 
   @Override
   public void paint(
-    TextInputFragment fragment,
+    TextAreaBoxFragment fragment,
     PaintCanvas canvas,
     VpIntersection vpIntersection
   ) {
     ElementBox box = fragment.box();
-    TextTypeContent content = ((InputContent) box.content()).innerContent(box);
+    TextAreaContent content = (TextAreaContent) box.content();
     TextController controller = content.textController();
     TextEditPainter.paint(canvas, controller, fragment);
   }
 
   @Override
   public void paintBackground(
-    TextInputFragment fragment,
+    TextAreaBoxFragment fragment,
     PaintCanvas canvas,
     VpIntersection vpIntersection
   ) {

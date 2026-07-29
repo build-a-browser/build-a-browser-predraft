@@ -15,6 +15,7 @@ import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
 import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
 import net.buildabrowser.babbrowser.htmlparser.token.TagToken;
+import net.buildabrowser.babbrowser.htmlparser.tokenize.imp.TokenizeStates;
 
 public class InBodyInsertionMode implements InsertionMode {
 
@@ -182,6 +183,15 @@ public class InBodyInsertionMode implements InsertionMode {
         parseContext.openElementStack().popNode();
         tagToken.acknowledgeSelfClosingFlag();
         parseContext.setFramesetOk(false);
+        return false;
+      case "textarea":
+        ParseElementUtil.insertAnHTMLElement(parseContext, tagToken);
+        parseContext.setIgnoreNextLineFeed(true);
+        parseContext.tokenizeContext().setTokenizeState(
+          TokenizeStates.RCDATA_STATE);
+        parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());
+        parseContext.setFramesetOk(false);
+        parseContext.setInsertionMode(InsertionModes.TEXT_INSERTION_MODE);
         return false;
       default:
         ParseTextUtil.reconstructTheActiveFormattingElements(parseContext);

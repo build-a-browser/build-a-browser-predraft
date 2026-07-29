@@ -94,6 +94,13 @@ public interface FragmentFactory {
     ElementBox rootBox
   );
 
+  BaseInputFragment<?> createTextAreaBoxFragment(
+    float width, float height,
+    float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
+    ElementBox box
+  );
+
   ScrollBoxFragment createScrollBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,

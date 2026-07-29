@@ -46,7 +46,7 @@ public class HTMLButtonElementImp extends HTMLElementImp implements HTMLButtonEl
   }
 
   @Override
-  public HTMLFormElement formOwner() {
+  public HTMLFormElement form() {
     return this.formOwner;
   }
 
