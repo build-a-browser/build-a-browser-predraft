@@ -84,7 +84,8 @@ public class ElementBoxImp extends AbstractElementBoxImp {
     BoxContent elementContent = switch (element().name()) {
       case "img" -> new ImageContent();
       case "input" -> new InputContent();
-      case "textarea" -> new TextAreaContent((HTMLTextAreaElement) element());
+      case "textarea" -> new TextAreaContent(
+        (HTMLTextAreaElement) element(), this);
       default -> null;
     };
 

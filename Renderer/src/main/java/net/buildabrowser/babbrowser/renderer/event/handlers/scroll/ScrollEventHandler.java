@@ -13,6 +13,7 @@ import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollMath.ScrollMat
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventHandler;
 import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
+import net.buildabrowser.babbrowser.renderer.event.EventUtil;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent.MouseEventType;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
@@ -29,10 +30,12 @@ public class ScrollEventHandler implements EventHandler<ScrollBoxFragment> {
     if (scrollBoxFragment == null) return EventHandlerResponse.UNHANDLED;
     ScrollBox scrollBox = scrollBoxFragment.box();
     UnmanagedBoxFragment<?> innerFragment = scrollBoxFragment.innerFragment();
-    EventHandlerResponse innerMouseEventResponse = innerFragment.withEventHandler((eh, f) -> eh.handleMouseEvent(
-      eventContext, mouseEvent, f,
-      relX + scrollBoxFragment.scrollX(),
-      relY + scrollBoxFragment.scrollY()));
+    EventHandlerResponse innerMouseEventResponse = EventUtil.aabb(innerFragment, relX, relY) ?
+      innerFragment.withEventHandler((eh, f) -> eh.handleMouseEvent(
+        eventContext, mouseEvent, f,
+        relX + scrollBoxFragment.scrollX(),
+        relY + scrollBoxFragment.scrollY())) :
+      EventHandlerResponse.UNHANDLED;
     if (innerMouseEventResponse.equals(EventHandlerResponse.HANDLED)) {
       disableIfScrollRelated(eventContext, scrollBoxFragment, mouseEvent);
       return innerMouseEventResponse;

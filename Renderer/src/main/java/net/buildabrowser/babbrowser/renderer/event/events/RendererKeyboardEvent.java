@@ -31,6 +31,10 @@ public record RendererKeyboardEvent(
   public static final short MODIFIER_SHIFT = 1 << 3;
   public static final short MODIFIER_REPEAT = 1 << 4;
 
+  public boolean ctrlKey() {
+    return (modifiers() & MODIFIER_CTRL) != 0;
+  }
+
   public boolean shiftKey() {
     return (modifiers() & MODIFIER_SHIFT) != 0;
   }

@@ -19,6 +19,10 @@ input, textarea {
   color: black;
 }
 
+input {
+  overflow: clip !important;
+}
+
 button,
 input[type=button],
 input[type=submit] {
@@ -63,7 +67,9 @@ section {
 }
 
 textarea {
+  display: inline-block;
   overflow: auto;
+  text-wrap-mode: wrap;
 }
 
 table {

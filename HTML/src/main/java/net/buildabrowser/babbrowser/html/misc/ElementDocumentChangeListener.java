@@ -44,7 +44,6 @@ public class ElementDocumentChangeListener extends AbstractDocumentChangeListene
       node instanceof Text text
       && text.parentNode() instanceof HTMLTextAreaElement htmlTextAreaElement
     ) {
-      System.out.println(text.data());
       htmlTextAreaElement.setValue(htmlTextAreaElement.innerText());
     }
 

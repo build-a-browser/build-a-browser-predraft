@@ -133,7 +133,7 @@ public abstract class BoxFragment<T extends BoxFragment<T>> extends LayoutFragme
       size += padding[i] + padding[i + 1];
     }
 
-    return size;
+    return Math.max(0, size);
   }
 
   private float adjustInk(float normalSize, float inkSize, int i, Measurement type) {

@@ -47,6 +47,7 @@ public final class FlowRootContent implements BoxContent {
     float layerX, float layerY
   ) {
     FlowRootBoxFragment flowFragment = (FlowRootBoxFragment) fragment;
+    flowFragment.setLayerPos(layerX, layerY);
     ManagedBoxFragment<?> rootFragment = flowFragment.rootFragment();
     FlowLayerPositioning.positionLayers(
       layerX, layerY, rootFragment, flowFragment.floats());

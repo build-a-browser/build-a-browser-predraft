@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.paint.painters.common;
 
+import java.util.List;
+
 import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
@@ -15,7 +17,8 @@ import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement
 
 public final class TextEditPainter {
 
-  public static final float HORIZONTAL_PADDING = 8;
+  public static final float HORIZONTAL_PADDING = 2;
+  public static final float VERTICAL_PADDING_MULTILINE = 2;
 
   private static final int CARET_OFFSET_Y = 3;
   
@@ -31,36 +34,38 @@ public final class TextEditPainter {
     FontMetrics metrics = font.metrics();
     Element element = box.element();
     FocusManager focusManager = ((HTMLDocument) element.nodeDocument()).focusManager();
-    String displayValue = controller.displayValue();
-    float posY = (fragment.height(Measurement.CONTENT) - metrics.height()) / 2;
+    List<String> allLines = controller.displayLines();
+    String displayValue = controller.lineValue();
+    float posY = controller.isMultiLine() ?
+       VERTICAL_PADDING_MULTILINE : (fragment.height(Measurement.CONTENT) - metrics.height()) / 2;
     int codepointPos = displayValue.offsetByCodePoints(0, controller.cursorX());
     String beforeCursorText = displayValue.substring(0, codepointPos);
     float cursorOffset = metrics.stringWidth(beforeCursorText);
-    float caretReplaceWidth = controller.cursorX() == displayValue.length() ?
+    float caretReplaceWidth = controller.cursorX() >= displayValue.length() ?
       metrics.stringWidth(TextTypeContent.PLACEHOLDER_CHARACTER) :
       metrics.stringWidth(displayValue.substring(codepointPos,
         displayValue.offsetByCodePoints(codepointPos, 1)));
     boolean showCaret = focusManager.focused() == element;
+    float activeLineY = controller.cursorY() * metrics.height();
     
-    canvas.withClip(
-      0, 0,
-      fragment.width(Measurement.CONTENT),
-      fragment.height(Measurement.CONTENT),
-      c -> c.withPaintAndTransform(
-        p -> {
-          p.setColor(PropertiesUtil.textColor(box.properties()));
-          p.setFont(font);
-        },
-        t -> t.translate(-controller.scrollX() + HORIZONTAL_PADDING, 0),
-        c2 -> {
-          c2.drawText(0, posY, displayValue);
-          // TODO: Make a drawLine?
-          if (showCaret && controller.isReplaceMode()) {
-            c2.drawBox(cursorOffset, posY - metrics.ascent(), caretReplaceWidth, 1);
-          } else if (showCaret) {
-            c2.drawBox(cursorOffset, posY + CARET_OFFSET_Y, 1, -metrics.ascent());
-          }
-        }));
+    canvas.withPaintAndTransform(
+      p -> {
+        p.setColor(PropertiesUtil.textColor(box.properties()));
+        p.setFont(font);
+      },
+      t -> t.translate(-controller.scrollX() + HORIZONTAL_PADDING, 0),
+      c -> {
+        for (int i = 0; i < allLines.size(); i++) {
+          float lineY = i * metrics.height();
+          c.drawText(0, lineY + posY, allLines.get(i));
+        }
+        // TODO: Make a drawLine?
+        if (showCaret && controller.isReplaceMode()) {
+          c.drawBox(cursorOffset, activeLineY + posY - metrics.ascent(), caretReplaceWidth, 1);
+        } else if (showCaret) {
+          c.drawBox(cursorOffset, activeLineY + posY + CARET_OFFSET_Y, 1, -metrics.ascent());
+        }
+      });
   }
 
 }

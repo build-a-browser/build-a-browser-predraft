@@ -7,6 +7,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowValue;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
@@ -14,8 +15,16 @@ import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
+import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 
 public class ScrollBoxContent implements BoxContent {
+
+  @Override
+  public void computeIntrinsics(ElementBox rootBox) {
+    ElementBox innerBox = (ElementBox) rootBox.childBoxes().next();
+    BoxContent innerContent = innerBox.content();
+    innerContent.computeIntrinsics(innerBox);
+  }
 
   @Override
   public ScrollBoxFragment layout(
@@ -25,14 +34,32 @@ public class ScrollBoxContent implements BoxContent {
   ) {
     // TODO: This algorithm could have exponential runtime for nested scroll containers.
     // Hopefully the cache helps enough...
+    ElementBox innerBox = (ElementBox) rootBox.childBoxes().next();
+    ElementBoxDimensions dimensions = innerBox.dimensions();
+    BoxContent innerContent = innerBox.content();
+    boolean isPreLayout = widthConstraint.isPreLayoutConstraint() || heightConstraint.isPreLayoutConstraint();
+
     LayoutConstraint adjustedWidthConstraint = widthConstraint;
+    if (
+      adjustedWidthConstraint.type().equals(LayoutConstraintType.AUTO)
+      && dimensions.intrinsicWidth() != -1
+    ) {
+      // This is a fix for textarea scrolling when scroll is auto
+      // TODO: A bit hacky, does it interfere with other cases?
+      adjustedWidthConstraint = LayoutConstraint.of(dimensions.intrinsicWidth());
+    }
+
     LayoutConstraint adjustedHeightConstraint = heightConstraint;
+    if (
+      adjustedHeightConstraint.type().equals(LayoutConstraintType.AUTO)
+      && dimensions.intrinsicHeight() != -1
+    ) {
+      adjustedHeightConstraint = LayoutConstraint.of(dimensions.intrinsicHeight());
+    }
+
     boolean addedHorizontalScrollbars = false;
     boolean addedVerticalScrollbars = false;
 
-    ElementBox innerBox = (ElementBox) rootBox.childBoxes().next();
-    BoxContent innerContent = innerBox.content();
-    boolean isPreLayout = widthConstraint.isPreLayoutConstraint() || heightConstraint.isPreLayoutConstraint();
     UnmanagedBoxFragment<?> innerLayout = innerContent.layout(
       innerBox, adjustedWidthConstraint, adjustedHeightConstraint);
 
@@ -66,8 +93,12 @@ public class ScrollBoxContent implements BoxContent {
       }
     }
 
-    float outerWidth = innerLayout.inkWidth(Measurement.CONTENT) + (addedVerticalScrollbars ? GUTTER_WIDTH : 0);
-    float outerHeight = innerLayout.inkHeight(Measurement.CONTENT) + (addedHorizontalScrollbars ? GUTTER_WIDTH : 0);
+    float inkWidth = innerLayout.inkWidth(Measurement.CONTENT) + (addedVerticalScrollbars ? GUTTER_WIDTH : 0);
+    float inkHeight = innerLayout.inkHeight(Measurement.CONTENT) + (addedHorizontalScrollbars ? GUTTER_WIDTH : 0);
+    float outerWidth = dimensions.intrinsicWidth() != -1 ?
+      dimensions.intrinsicWidth() : inkWidth;
+    float outerHeight = dimensions.intrinsicHeight() != -1 ?
+      dimensions.intrinsicHeight() : inkHeight;
     float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, outerWidth);
     float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, outerHeight);
 
@@ -75,7 +106,7 @@ public class ScrollBoxContent implements BoxContent {
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
     ScrollBoxFragment scrollBoxFragment = fragmentFactory.createScrollBoxFragment(
       usedWidth, usedHeight,
-      outerWidth, outerHeight,
+      inkWidth, inkHeight,
       addedHorizontalScrollbars,
       addedVerticalScrollbars,
       (ScrollBox) rootBox, innerLayout);
@@ -106,12 +137,18 @@ public class ScrollBoxContent implements BoxContent {
     UnmanagedBoxFragment<?> innerLayout,
     LayoutConstraint adjustedWidthConstraint
   ) {
+    ElementBoxDimensions dimensions = innerLayout.box().dimensions();
+    float intrinsicWidth = dimensions.intrinsicWidth();
     CSSValue overflowX = box.properties().get(CSSProperty.OVERFLOW_X);
     overflowX = CompositeLayerUtil.adjustOverflowValueIfHTML(box.context(), overflowX, CSSProperty.OVERFLOW_X);
     if (overflowX.equals(OverflowValue.SCROLL)) return true;
-    if (!adjustedWidthConstraint.isBounded()) return false;
+    if (
+      !adjustedWidthConstraint.isBounded()
+      && intrinsicWidth == -1
+    ) return false;
     if (!overflowX.equals(OverflowValue.AUTO)) return false;
-    return adjustedWidthConstraint.value() < innerLayout.inkWidth(Measurement.CONTENT);
+    float compWidth = LayoutUtil.constraintOrDim(adjustedWidthConstraint, intrinsicWidth);
+    return compWidth < innerLayout.inkWidth(Measurement.CONTENT);
   }
 
   private static boolean needYScrollbars(
@@ -119,12 +156,18 @@ public class ScrollBoxContent implements BoxContent {
     UnmanagedBoxFragment<?> innerLayout,
     LayoutConstraint adjustedHeightConstraint
   ) {
+    ElementBoxDimensions dimensions = innerLayout.box().dimensions();
+    float intrinsicHeight = dimensions.intrinsicHeight();
     CSSValue overflowY = box.properties().get(CSSProperty.OVERFLOW_Y);
     overflowY = CompositeLayerUtil.adjustOverflowValueIfHTML(box.context(), overflowY, CSSProperty.OVERFLOW_Y);
     if (overflowY.equals(OverflowValue.SCROLL)) return true;
-    if (!adjustedHeightConstraint.isBounded()) return false;
+    if (
+      !adjustedHeightConstraint.isBounded()
+      && intrinsicHeight == -1
+    ) return false;
     if (!overflowY.equals(OverflowValue.AUTO)) return false;
-    return adjustedHeightConstraint.value() < innerLayout.inkHeight(Measurement.CONTENT);
+    float compHeight = LayoutUtil.constraintOrDim(adjustedHeightConstraint, intrinsicHeight);
+    return compHeight < innerLayout.inkHeight(Measurement.CONTENT);
   }
   
 }

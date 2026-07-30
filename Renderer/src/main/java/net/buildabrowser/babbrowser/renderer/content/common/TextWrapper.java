@@ -1,33 +1,27 @@
-package net.buildabrowser.babbrowser.renderer.content.flow;
+package net.buildabrowser.babbrowser.renderer.content.common;
 
 import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
-import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.StagedText;
-import net.buildabrowser.babbrowser.renderer.content.flow.mapping.MappingRLEBuffer;
 import net.buildabrowser.babbrowser.renderer.layout.FontWordWidthCache;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
-public final class FlowTextLayout {
+public final class TextWrapper {
   
-  private FlowTextLayout() {}
+  private TextWrapper() {}
 
   public static void layoutText(
-    LayoutContext layoutContext, StagedText stagedText,
-    InlineFormattingContext formattingContext, boolean autoWrap
+    LayoutContext layoutContext,
+    TextWrapTarget textWrapTarget,
+    Text sourceText,
+    String allText,
+    boolean autoWrap
   ) {
     // TODO: Properly handle whitespace at line start/end, and break-word
-    Text textNode = stagedText.boxRef().textNode();
-    MappingRLEBuffer mappingRLEBuffer = stagedText.sourceRunsRef() == null ?
-      null : stagedText.sourceRunsRef().clone();
-    formattingContext.lineBox().startText(
-      textNode, mappingRLEBuffer, stagedText.isEmpty());
-
-    String allText = stagedText.currentText();
     int textCursor = 0;
     while (textCursor < allText.length()) {
       int ch = allText.codePointAt(textCursor);
       if (isForcedLineBreak(ch)) {
-        formattingContext.nextLine();
+        textWrapTarget.nextLine(false);
         textCursor++;
         continue;
       }
@@ -50,11 +44,11 @@ public final class FlowTextLayout {
         startCursor, textCursor + (isForcedLineBreak ? -1 : 0));
       addTextOrWrap(
         layoutContext,
-        textNode, selectedText, startCursor,
-        formattingContext, autoWrap);
+        sourceText, selectedText, startCursor,
+        textWrapTarget, autoWrap);
       
       if (isForcedLineBreak) {
-        formattingContext.nextLine();
+        textWrapTarget.nextLine(false);
       }
     }
   }
@@ -62,21 +56,21 @@ public final class FlowTextLayout {
   private static void addTextOrWrap(
     LayoutContext layoutContext,
     Text sourceText, String text, int sourceIndex,
-    InlineFormattingContext formattingContext, boolean autoWrap
+    TextWrapTarget textWrapTarget, boolean autoWrap
   ) {
     FontMetrics fontMetrics = layoutContext.font().metrics();
     FontWordWidthCache widthCache = layoutContext.global().fontWordWidthCache();
     float textWidth = widthCache.stringWidth(fontMetrics, text);
     float textHeight = fontMetrics.height(); // TODO: Need to check against fallbacks
 
-    boolean textOverflows = !formattingContext.fits(textWidth, true);
+    boolean textOverflows = !textWrapTarget.fits(textWidth, true);
     boolean shouldWrap = autoWrap && textOverflows;
     if (shouldWrap) {
       // TODO: If a float was involved, drop down to the next point the text would fit post-float
-      formattingContext.nextLine();
+      textWrapTarget.nextLine(true);
     }
 
-    formattingContext.lineBox().appendText(
+    textWrapTarget.appendText(
       text, sourceIndex, textWidth, textHeight);
   }
 
@@ -85,6 +79,21 @@ public final class FlowTextLayout {
       case '\f', '\r', '\n', '\u000B', '\u2028', '\u2029', '\u0085' -> true;
       default -> false;
     };
+  }
+
+  public static interface TextWrapTarget {
+
+    void nextLine(boolean isSoftWrap);
+
+    boolean fits(
+      float itemSize, boolean forceFirst
+    );
+
+    void appendText(
+      String text, int sourceIndex,
+      float width, float height
+    );
+
   }
 
 }

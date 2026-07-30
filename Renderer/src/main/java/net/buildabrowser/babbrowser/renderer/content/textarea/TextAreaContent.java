@@ -1,12 +1,20 @@
 package net.buildabrowser.babbrowser.renderer.content.textarea;
 
+import java.util.List;
+
 import net.buildabrowser.babbrowser.common.util.NumberUtil;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowValue;
+import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
+import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.html.html.HTMLTextAreaElement;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.TextController;
+import net.buildabrowser.babbrowser.renderer.content.common.TextWrapper;
 import net.buildabrowser.babbrowser.renderer.content.input.text.TextTypeContent;
 import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.FocusEventHandler;
@@ -15,19 +23,22 @@ import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
+import net.buildabrowser.babbrowser.renderer.paint.painters.common.TextEditPainter;
+import net.buildabrowser.babbrowser.renderer.paint.painters.scroll.ScrollBoxPainter;
 
 public class TextAreaContent implements BoxContent {
 
-  public static final String PLACEHOLDER_CHARACTER = "a";
-
   private static TextAreaFocusEventHandler TEXT_AREA_FOCUS_EVENT_HANDLER = new TextAreaFocusEventHandler();
 
-  private final TextController textController;
+  private final HTMLTextAreaElement element;
+  private final TextAreaController textController;
 
   public TextAreaContent(
-    HTMLTextAreaElement element
+    HTMLTextAreaElement element,
+    ElementBox box
   ) {
-    this.textController = new TextAreaController(element);
+    this.element = element;
+    this.textController = new TextAreaController(element, box);
   }
 
   public TextController textController() {
@@ -44,9 +55,16 @@ public class TextAreaContent implements BoxContent {
       rootBox.element().getAttribute("rows"));
     if (rows == null) rows = 2;
 
+    CSSValue overflowY = rootBox.properties().get(CSSProperty.OVERFLOW_Y);
+    // Overflow-Y adds to X space, not Y
+    boolean skipScrollbarPaddingX =
+      overflowY.equals(OverflowValue.HIDDEN)
+      || overflowY.equals(OverflowValue.CLIP);
+    float paddingX = skipScrollbarPaddingX ? 0 : ScrollBoxPainter.GUTTER_WIDTH;
+
     FontMetrics fontMetrics = rootBox.layoutContext().font().metrics();
-    float intrinsicWidth = TextTypeContent.convertACharacterWidthToPixels(fontMetrics, cols);
-    float intrinsicHeight = fontMetrics.height() * rows;
+    float intrinsicWidth = paddingX + TextTypeContent.convertACharacterWidthToPixels(fontMetrics, cols);
+    float intrinsicHeight = fontMetrics.height() * rows; // Don't include padding for the horizontal scrollbar
     rootBox.alterDimensions(false, dimensions -> {
       dimensions.setIntrinsicWidth(intrinsicWidth);
       dimensions.setInstrinsicHeight(intrinsicHeight);
@@ -62,10 +80,36 @@ public class TextAreaContent implements BoxContent {
     ElementBoxDimensions dimensions = rootBox.dimensions();
     float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, dimensions.intrinsicWidth());
     float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.intrinsicHeight());
-    float inkWidth = Math.max(usedWidth, dimensions.intrinsicWidth());
-    float inkHeight = Math.max(usedWidth, dimensions.intrinsicHeight());
+    float wrapWidth = Math.max(0, usedWidth - TextEditPainter.HORIZONTAL_PADDING * 2);
     FontMetrics fontMetrics = rootBox.layoutContext().font().metrics();
     float lastBaseline = fontMetrics.descent();
+
+    boolean wrap = rootBox.properties()
+      .get(CSSProperty.TEXT_WRAP_MODE)
+      .equals(TextWrapModeValue.WRAP);
+    TextAreaWrapTarget wrapTarget = new TextAreaWrapTarget(wrapWidth);
+    // TODO: This does not wrap words larger than the line, add a mode to do so
+    TextWrapper.layoutText(
+      rootBox.layoutContext(),
+      wrapTarget,
+      Text.create(element.value()),
+      element.value(),
+      wrap);
+    wrapTarget.finish();
+    List<String> lines = wrapTarget.lines();
+    textController.backupCursorWrap();
+    textController.updateLines(
+      lines, wrapTarget.continuations());
+    textController.restoreCursorWrap();
+    textController.scrollToCursor(
+      fontMetrics, usedWidth, usedHeight);
+
+    float inkWidth = Math.max(usedWidth,
+      wrapTarget.maxWidth() + TextEditPainter.HORIZONTAL_PADDING * 2);
+    float inkHeight = Math.max(usedHeight,
+      fontMetrics.height() * lines.size()
+      + TextEditPainter.VERTICAL_PADDING_MULTILINE * 2);
+
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
     UnmanagedBoxFragment<?> fragment = fragmentFactory.createTextAreaBoxFragment(
       usedWidth, usedHeight, inkWidth, inkHeight,

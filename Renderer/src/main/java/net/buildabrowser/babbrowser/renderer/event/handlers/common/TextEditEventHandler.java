@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.event.handlers.common;
 
+import java.util.List;
+
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.content.common.TextController;
 import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
@@ -18,21 +20,25 @@ public final class TextEditEventHandler {
     RendererMouseEvent mouseEvent, float relX, float relY
   ) {
     if (mouseEvent.event().equals(MouseEventType.CLICK)) {
-      determineCursorX(controller, fontMetrics, relX);
+      determineTextCursor(controller, fontMetrics, relX, relY);
+      return EventHandlerResponse.HANDLED;
     }
 
-    return EventHandlerResponse.HANDLED;
+    return EventHandlerResponse.UNHANDLED;
   }
 
-  private static void determineCursorX(
+  private static void determineTextCursor(
     TextController controller,
     FontMetrics fontMetrics,
-    float relX
+    float relX, float relY
   ) {
-    String value = controller.displayValue();
+    List<String> lines = controller.displayLines();
     float adjustedRelX = relX + controller.scrollX() - TextEditPainter.HORIZONTAL_PADDING;
-    int cursorX = MouseEventUtil.determineTextMouseIndex(adjustedRelX, fontMetrics, value);
+    float adjustedRelY = relY;
+    int cursorY = controller.isMultiLine() ? (int) (adjustedRelY / fontMetrics.height()) : 0;
+    int cursorX = MouseEventUtil.determineTextMouseIndex(adjustedRelX, fontMetrics, lines.get(cursorY));
     controller.setCursorX(cursorX);
+    controller.setCursorY(cursorY);
   }
 
 }

@@ -46,4 +46,17 @@ public final class StringUtil {
     return strings;
   }
 
+  public static int countChar(String text, int ch) {
+    int i = 0;
+    int count = 0;
+    while (i < text.length()) {
+      if (text.codePointAt(i) == ch) {
+        count++;
+      }
+      i = Character.offsetByCodePoints(text, i, 1);
+    }
+
+    return count;
+  }
+
 }

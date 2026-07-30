@@ -2,6 +2,8 @@ package net.buildabrowser.babbrowser.renderer.content.input.text;
 
 import static net.buildabrowser.babbrowser.common.util.CompatUtil.stringRepeat;
 
+import java.util.List;
+
 import net.buildabrowser.babbrowser.dom.events.EventDispatcher;
 import net.buildabrowser.babbrowser.dom.events.PointerEvent;
 import net.buildabrowser.babbrowser.html.form.FormSubmissionAlgorithm;
@@ -9,7 +11,9 @@ import net.buildabrowser.babbrowser.html.html.FormAssociatedElement;
 import net.buildabrowser.babbrowser.html.html.HTMLFormElement;
 import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
+import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.content.common.AbstractTextController;
+import net.buildabrowser.babbrowser.renderer.paint.painters.common.TextEditPainter;
 
 public class InputTextController extends AbstractTextController {
 
@@ -27,22 +31,74 @@ public class InputTextController extends AbstractTextController {
   }
 
   @Override
-  public String value() {
-    return element.value();
+  public String lineValue() {
+    if (isHidden) {
+      int valueLen = element.value().length();
+      return stringRepeat(PASSWORD_CHARACTER, valueLen);
+    } else {
+      return element.value();
+    }
   }
 
   @Override
-  public void setValue(String value) {
+  public String lineValue(int lineNum) {
+    assert lineNum == 0;
+    return lineValue();
+  }
+
+  @Override
+  public void setLineValue(int lineNum, String value) {
+    assert lineNum == 0;
     element.setValue(value);
   }
 
   @Override
-  public String displayValue() {
-    if (isHidden) {
-      int valueLen = value().length();
-      return stringRepeat(PASSWORD_CHARACTER, valueLen);
-    } else return value();
+  public List<String> displayLines() {
+    return List.of(lineValue());
   }
+
+  @Override
+  public boolean isMultiLine() {
+    return false;
+  }
+  
+  @Override
+  public boolean isLineContinuation(int lineNum) {
+    return false;
+  }
+
+  @Override
+  public void setLineContinuation(int lineNum, boolean isContinuation) {
+    // No-op
+  }
+
+  @Override
+	public void scrollToCursor(
+    FontMetrics fontMetrics,
+    float contentWidth,
+    float contentHeight
+  ) {
+    String value = lineValue();
+    float adjustedWidth = Math.max(0, contentWidth - TextEditPainter.HORIZONTAL_PADDING);
+    float scrollX = scrollX();
+    float valueWidth = fontMetrics.stringWidth(value);
+    float letterWidth = cursorX() == value.length() ?
+      fontMetrics.stringWidth(TextTypeContent.PLACEHOLDER_CHARACTER) :
+      fontMetrics.stringWidth(value.substring(
+        cursorX(), cursorX() + 1));
+    float toCursorWidth = fontMetrics.stringWidth(
+      value.substring(0, cursorX()));
+    float lowerBound = Math.max(0, toCursorWidth + letterWidth - adjustedWidth);
+    float upperBound = toCursorWidth - letterWidth;
+    if (scrollX > upperBound) {
+      scrollX = upperBound;
+    }
+    if (scrollX < lowerBound) {
+      scrollX = lowerBound;
+    }
+    scrollX = Math.max(0, Math.min(scrollX, valueWidth - adjustedWidth + letterWidth));
+    setScrollX(scrollX);
+  }  
 
   @Override
   public void submit() {

@@ -1,12 +1,30 @@
 package net.buildabrowser.babbrowser.renderer.content.common;
 
+import java.util.List;
+
+import net.buildabrowser.babbrowser.painter.core.FontMetrics;
+
 public interface TextController {
 
-  String value();
+  default String lineValue() {
+    return lineValue(cursorY());
+  }
 
-  void setValue(String value);
+  default void setLineValue(String value) {
+    setLineValue(cursorY(), value);
+  }
 
-  String displayValue();
+  String lineValue(int lineNum);
+
+  void setLineValue(int lineNum, String value);
+
+  List<String> displayLines();
+
+  boolean isMultiLine();
+
+  boolean isLineContinuation(int lineNum);
+
+  void setLineContinuation(int lineNum, boolean isContinuation);
 
   int cursorX();
 
@@ -20,14 +38,50 @@ public interface TextController {
 
   void setScrollX(float scrollX);
 
-  float scrollY();
-
-  void setScrollY(float scrollY);
-
   boolean isReplaceMode();
 
   void setIsReplaceMode(boolean isReplaceMode);
 
   void submit();
+
+  void insertOrReplaceText(String text);
+
+  void insertText(String text);
+
+  void replaceText(String text);
+
+  void backspace();
+
+  void moveCursorForward(int i);
+
+  void moveCursorDownward(FontMetrics metrics, int i);
+
+  void moveHome();
+
+  void moveEnd();
+
+  void moveTop();
+
+  void moveBottom();
+
+  void movePageUp(
+    FontMetrics metrics,
+    float fragmentHeight
+  );
+
+  void movePageDown(
+    FontMetrics metrics,
+    float fragmentHeight
+  );
+
+  void delete();
+
+  void toggleInsertMode();
+
+  void scrollToCursor(
+    FontMetrics fontMetrics,
+    float contentWidth,
+    float contentHeight
+  );
   
 }

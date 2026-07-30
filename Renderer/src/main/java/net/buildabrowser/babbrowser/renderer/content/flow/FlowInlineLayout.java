@@ -7,10 +7,12 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.text.TextWrapModeValue;
 import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhiteSpaceCollapseValue;
+import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.renderer.box.TextBox;
+import net.buildabrowser.babbrowser.renderer.content.common.TextWrapper;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.ManagedBoxEntryMarker;
@@ -20,6 +22,7 @@ import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.Stag
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.StagedLineBreak;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.StagedText;
 import net.buildabrowser.babbrowser.renderer.content.flow.InlineStagingArea.StagedUnmanagedBox;
+import net.buildabrowser.babbrowser.renderer.content.flow.mapping.MappingRLEBuffer;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
@@ -207,8 +210,14 @@ public class FlowInlineLayout {
     String text = stagedText.currentText();
     if (text.isEmpty()) return;
 
+    Text textNode = stagedText.boxRef().textNode();
+    MappingRLEBuffer mappingRLEBuffer = stagedText.sourceRunsRef() == null ?
+      null : stagedText.sourceRunsRef().clone();
+    activeInlineContext.lineBox().startText(
+      textNode, mappingRLEBuffer, stagedText.isEmpty());
+
     boolean autoWrap = parentProperties.get(CSSProperty.TEXT_WRAP_MODE).equals(TextWrapModeValue.WRAP);
-    FlowTextLayout.layoutText(layoutContext, stagedText, activeInlineContext, autoWrap);
+    TextWrapper.layoutText(layoutContext, activeInlineContext, textNode, text, autoWrap);
   }
 
   private void addBreakToInline() {
