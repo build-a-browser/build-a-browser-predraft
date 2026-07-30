@@ -19,7 +19,7 @@ input, textarea {
   color: black;
 }
 
-input {
+input:not([type=checkbox], [type=radio]) {
   overflow: clip !important;
 }
 

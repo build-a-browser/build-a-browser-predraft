@@ -219,10 +219,10 @@ public class CompositeLayerImp implements CompositeLayer {
 
     // TODO: Also need to clip passed-through layers
     canvas.withClip(
-      position.vpX() + scrollBoxFragment.posX(Measurement.CONTENT) - scrollBoxFragment.posX(Measurement.BORDER),
-      position.vpY() + scrollBoxFragment.posY(Measurement.CONTENT) - scrollBoxFragment.posY(Measurement.BORDER),
-      scrollBoxFragment.width(Measurement.CONTENT),
-      scrollBoxFragment.height(Measurement.CONTENT),
+      position.vpX(),
+      position.vpY(),
+      scrollBoxFragment.width(Measurement.BORDER),
+      scrollBoxFragment.height(Measurement.BORDER),
       c -> drawInnerContent(c, vpIntersection, scrollBoxFragment, scrollX, scrollY));
 
     canvas.withTransform(

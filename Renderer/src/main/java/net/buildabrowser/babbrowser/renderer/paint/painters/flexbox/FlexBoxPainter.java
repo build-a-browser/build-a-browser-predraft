@@ -17,8 +17,10 @@ public class FlexBoxPainter implements BoxPainter<FlexBoxFragment> {
     StackingContext refContext = fragment.box().stackingContext();
     BoxFragment<?> nextChild = fragment.fragments();
     while (nextChild != null) {
-      PaintUtil.maybePaintFragment(nextChild, canvas, vpIntersection,
-        (f, c, vpi) -> paintChild(f, c, vpi, refContext));
+      PaintUtil.maybePaintBgFragment(nextChild, canvas, vpIntersection,
+        (f, c, vpi) -> paintChildBg(f, c, vpi, refContext));
+      PaintUtil.maybePaintFgFragment(nextChild, canvas, vpIntersection,
+        (f, c, vpi) -> paintChildFg(f, c, vpi, refContext));
       nextChild = (BoxFragment<?>) nextChild.next();
     }
   }
@@ -28,16 +30,27 @@ public class FlexBoxPainter implements BoxPainter<FlexBoxFragment> {
     ElementBackgroundPainter.paintBackground(canvas, fragment, vpIntersection);
   }
 
-  private void paintChild(BoxFragment<?> child, PaintCanvas canvas, VpIntersection vpIntersection, StackingContext refContext) {
+  private void paintChildFg(
+    BoxFragment<?> child,
+    PaintCanvas canvas,
+    VpIntersection vpIntersection,
+    StackingContext refContext
+  ) {
     if (child.box().stackingContext() != refContext) return;
     
     canvas.withTransform(
-      t -> t.translate(child.posX(Measurement.BORDER), child.posY(Measurement.BORDER)),
-      c -> child.withPainterV((p, f) -> p.paintBackground(f, c, vpIntersection)));
-
-    canvas.withTransform(
       t -> t.translate(child.posX(Measurement.CONTENT), child.posY(Measurement.CONTENT)),
       c -> child.withPainterV((p, f) -> p.paint(f, c, vpIntersection)));
+  }
+
+
+
+  private void paintChildBg(BoxFragment<?> child, PaintCanvas canvas, VpIntersection vpIntersection, StackingContext refContext) {
+    if (child.box().stackingContext() != refContext) return;
+
+    canvas.withTransform(
+      t -> t.translate(child.posX(Measurement.BORDER), child.posY(Measurement.BORDER)),
+      c -> child.withPainterV((p, f) -> p.paintBackground(f, c, vpIntersection)));
   }
 
 }

@@ -127,6 +127,11 @@ public class ScrollBoxContent implements BoxContent {
     childBox.content().positionLayers(scrollBox.innerFragment(), 0, 0);
   }
 
+  @Override
+  public boolean hasCustomContent(ElementBox box) {
+    return true;
+  }
+
   private static LayoutConstraint subtractGutterWidth(LayoutConstraint origConstraint) {
     if (!origConstraint.isBounded()) return origConstraint;
     return LayoutConstraint.of(Math.max(0, origConstraint.value() - GUTTER_WIDTH));

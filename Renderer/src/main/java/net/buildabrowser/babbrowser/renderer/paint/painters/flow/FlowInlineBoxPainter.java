@@ -1,7 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.paint.painters.flow;
 
-import static net.buildabrowser.babbrowser.renderer.paint.painters.flow.FlowBoxPainterUtils.paintInlineManagedBoxFragment;
 import static net.buildabrowser.babbrowser.renderer.paint.painters.flow.FlowBoxPainterUtils.paintManagedBackground;
+import static net.buildabrowser.babbrowser.renderer.paint.painters.flow.FlowInlineBoxPainterUtils.paintInlineManagedBoxFragment;
 
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.fragment.flow.FlowInlineBoxFragment;

@@ -11,7 +11,7 @@ public class ButtonInputBoxPainter implements BoxPainter<ButtonInputFragment> {
 
   @Override
   public void paint(ButtonInputFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
-    PaintUtil.maybePaintFragment(
+    PaintUtil.maybePaintFgFragment(
       fragment.innerFragment(), canvas, vpIntersection,
       (f, c, vpi) -> f.withPainterV((p, f2) -> p.paint(f2, c, vpi)));
   }

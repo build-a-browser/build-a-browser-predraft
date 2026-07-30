@@ -37,7 +37,7 @@ public class TextAreaWrapTarget implements TextWrapTarget {
 
   @Override
   public boolean fits(float itemSize, boolean forceFirst) {
-    if (forceFirst && lineBuilder.isEmpty()) {
+    if (forceFirst && lineBuilder.length() == 0) {
       return true;
     }
 

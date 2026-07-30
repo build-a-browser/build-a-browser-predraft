@@ -129,13 +129,14 @@ public class TableBoxPainter implements BoxPainter<TableBoxFragment> {
       if (cellFragment == null) return;
       if (cellFragment.box().stackingContext() != refContext) return;
       // TODO: Skip if context differs
-      canvas.withTransform(
-        t -> t.translate(
-          cellFragment.posX(Measurement.CONTENT),
-          cellFragment.posY(Measurement.CONTENT)),
-        c -> PaintUtil.maybePaintFragment(
-          cellFragment, c, vpIntersection,
-          (f, c2, vpi) -> f.withPainterV((p, f2) -> p.paint(f2, c, vpi))));
+
+      PaintUtil.maybePaintFgFragment(
+          cellFragment, canvas, vpIntersection,
+          (f, c, vpi) -> c.withTransform(
+            t -> t.translate(
+              cellFragment.posX(Measurement.CONTENT),
+              cellFragment.posY(Measurement.CONTENT)),
+            c2 -> f.withPainterV((p, f2) -> p.paint(f2, c2, vpi))));
     });
   }
 
