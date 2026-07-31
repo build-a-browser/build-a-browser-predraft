@@ -6,7 +6,6 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.SizeStretchingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizeStretchingUtil.SizeStretchResult;
-import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.renderer.content.table.TableContent;
@@ -19,7 +18,6 @@ public final class FlowWidthUtil {
   
   private FlowWidthUtil() {}
 
-  // TODO: Account for items with an intrisic size, width/height constraints auto, and a min/max constraint
   public static LayoutConstraint determineBlockReplacedWidthAndMargins(
     LayoutConstraint parentWidthConstraint,
     LayoutConstraint parentHeightConstraint,
@@ -31,8 +29,9 @@ public final class FlowWidthUtil {
     computeHorizontalMarginsOrZero(parentWidthConstraint, childBox);
     LayoutConstraint baseWidth = SizingWidthUtil.evaluateWidthSize(
       parentWidthConstraint, childBox);
-    LayoutConstraint baseHeight = SizingHeightUtil.evaluateAdjustedHeightSize(
-      parentHeightConstraint, childBox);
+    // Because the height may be clamped, and intrinsic ratios would affect width
+    LayoutConstraint baseHeight = FlowHeightUtil.evaluateReplacedBlockHeightAndMargins(
+      parentHeightConstraint, parentWidthConstraint, LayoutConstraint.AUTO, childBox);
     boolean isHeightAuto = !baseHeight.isBounded();
     
     if (!baseWidth.type().equals(LayoutConstraintType.AUTO)) {

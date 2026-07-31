@@ -17,7 +17,16 @@ public class DocumentLoaderRegistryImp implements DocumentLoaderRegistry {
 
   @Override
   public DocumentLoader getByMimeType(String mimeType) {
-    return registeredLoaders.get(mimeType);
+    String adjustedMimeType = adjustMimeType(mimeType);
+    return registeredLoaders.get(adjustedMimeType);
+  }
+
+  private String adjustMimeType(String mimeType) {
+    // TODO: Properly handle part after ;
+    int semiIndex = mimeType.indexOf(';');
+    return semiIndex == -1 ?
+      mimeType :
+      mimeType.substring(0, semiIndex);
   }
   
 }

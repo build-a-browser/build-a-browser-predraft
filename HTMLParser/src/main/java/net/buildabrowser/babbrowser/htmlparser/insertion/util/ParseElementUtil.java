@@ -44,7 +44,15 @@ public final class ParseElementUtil {
     String localName = token.name();
 
     // TODO: Proper DOM create an element
-    Element element = switch (token.name()) {
+    Element element = createHTMLElementForName(localName, intendedParent);
+
+    token.copyAttributesTo(element);
+
+    return element;
+  }
+
+  public static HTMLElement createHTMLElementForName(String localName, Node intendedParent) {
+    return switch (localName) {
       case "a" -> AnchorElement.create(localName, intendedParent);
       case "button" -> HTMLButtonElement.create(localName, intendedParent);
       case "form" -> HTMLFormElement.create(localName, intendedParent);
@@ -53,10 +61,6 @@ public final class ParseElementUtil {
       case "textarea" -> HTMLTextAreaElement.create(localName, intendedParent);
       default -> HTMLElement.create(localName, intendedParent);
     };
-
-    token.copyAttributesTo(element);
-
-    return element;
   }
 
   public static AdjustedInsertionLocation appropriatePlaceForInsertingANode(

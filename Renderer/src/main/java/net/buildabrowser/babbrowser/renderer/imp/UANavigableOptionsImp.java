@@ -56,7 +56,8 @@ public class UANavigableOptionsImp implements UANavigableOptions {
   @Override
   public RenderableDocument loadDocument(NavigationParams navigationParams) {
     // TODO: Use the correct mime
-    DocumentLoader documentLoader = documentLoaderRegistry.getByMimeType("text/html");
+    DocumentLoader documentLoader = documentLoaderRegistry.getByMimeType(
+      navigationParams.response().headerList().get("Content-Type"));
     RenderableDocument document = documentLoader.load(
       this, renderingEngine, navigationParams, slotFamilyFamily);
     requestRepaint();
