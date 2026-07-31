@@ -1,7 +1,11 @@
 package net.buildabrowser.babbrowser.browser.uistate.imp;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.WeakHashMap;
 
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
 import net.buildabrowser.babbrowser.browser.uistate.Tab;
@@ -14,12 +18,17 @@ import net.buildabrowser.babbrowser.renderer.uistate.event.BrowserEventDispatche
 public class WindowImp implements Window {
 
   private final List<Tab> tabs = new ArrayList<>();
+  private final Map<UUID, WeakReference<Tab>> tabMappings = new WeakHashMap<>();
   private final BrowserEventDispatcher<WindowMutationEventListener> mutationEventDispatcher = BrowserEventDispatcher.create();
   private final WindowOptions options;
   private final WindowSet relatedWindowSet;
   private final BrowserInstance browserInstance;
 
-  public WindowImp(BrowserInstance browserInstance, WindowSet relatedWindowSet, WindowOptions options) {
+  public WindowImp(
+    BrowserInstance browserInstance,
+    WindowSet relatedWindowSet,
+    WindowOptions options
+  ) {
     this.options = options;
     this.relatedWindowSet = relatedWindowSet;
     this.browserInstance = browserInstance;
@@ -47,7 +56,9 @@ public class WindowImp implements Window {
   public void addTab(Tab tab) {
     tab.addTabMutationEventListener(new TabCleanupListener(), false);
     tabs.add(tab);
-    mutationEventDispatcher.fire(listener -> listener.onTabAdded(this, tab));
+    tabMappings.put(tab.uuid(), new WeakReference<>(tab));
+    relatedWindowSet.addTabReference(this, tab.uuid());
+    mutationEventDispatcher.fire(listener -> listener.onTabAdded(this, tab, tabs.size() - 1));
   }
   
   @Override
@@ -75,10 +86,26 @@ public class WindowImp implements Window {
   public void removeWindowMutationEventListener(WindowMutationEventListener mutationListener) {
     mutationEventDispatcher.removeListener(mutationListener);
   }
+
+  @Override
+  public Tab openAfterTab(UUID uuid) {
+    WeakReference<Tab> maybeTab = tabMappings.get(uuid);
+    Tab oldTab = maybeTab == null ? null : maybeTab.get();
+    int tabIndex = oldTab == null ? -1 : tabs.indexOf(oldTab);
+    Tab newTab = openTab();
+    if (tabIndex != -1) {
+      tabs.remove(newTab);
+      tabs.add(tabIndex + 1, newTab);
+      mutationEventDispatcher.fire(listener -> listener.onTabMoved(
+        this, newTab, tabs.size() - 1, tabIndex + 1));
+    }
+
+    return newTab;
+  }
   
   private void syncListener(WindowMutationEventListener mutationListener) {
-    for (Tab tab: tabs) {
-      mutationListener.onTabAdded(this, tab);
+    for (int i = 0; i < tabs.size(); i++) {
+      mutationListener.onTabAdded(this, tabs.get(i), i);
     }
   }
 

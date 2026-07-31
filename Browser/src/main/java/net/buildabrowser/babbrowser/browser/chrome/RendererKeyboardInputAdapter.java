@@ -1,9 +1,11 @@
 package net.buildabrowser.babbrowser.browser.chrome;
 
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.function.Supplier;
 
+import net.buildabrowser.babbrowser.dom.events.util.ModifierUtil;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
 import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
@@ -67,12 +69,7 @@ public class RendererKeyboardInputAdapter implements KeyListener {
       default -> RendererKeyboardEvent.KEY_UNIDENTIFIED;
     };
 
-    short modifiers = (short) (
-      (e.isAltDown() ? RendererKeyboardEvent.MODIFIER_SHIFT : 0)
-      + (e.isControlDown() ? RendererKeyboardEvent.MODIFIER_CTRL : 0)
-      + (e.isMetaDown() ? RendererKeyboardEvent.MODIFIER_META : 0)
-      + (e.isShiftDown() ? RendererKeyboardEvent.MODIFIER_SHIFT : 0));
-    // TODO: Check repeat
+    byte modifiers = getModifiers(e);
 
     // TODO: Use the proper name for non-char characters
     char keyChar = e.getKeyChar();
@@ -80,6 +77,16 @@ public class RendererKeyboardInputAdapter implements KeyListener {
       "" :
       Character.toString(keyChar);
     return new RendererKeyboardEvent(keyName, keyCode, e.getKeyCode(), modifiers, type);
+  }
+
+  public static byte getModifiers(InputEvent e) {
+    byte modifiers = (byte) (
+      (e.isAltDown() ? ModifierUtil.MODIFIER_SHIFT : 0)
+      + (e.isControlDown() ? ModifierUtil.MODIFIER_CTRL : 0)
+      + (e.isMetaDown() ? ModifierUtil.MODIFIER_META : 0)
+      + (e.isShiftDown() ? ModifierUtil.MODIFIER_SHIFT : 0));
+    // TODO: Check repeat
+    return modifiers;
   }
   
 }

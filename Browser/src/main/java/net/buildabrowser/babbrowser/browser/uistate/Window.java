@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.browser.uistate;
 
+import java.util.UUID;
+
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
 import net.buildabrowser.babbrowser.browser.uistate.event.WindowMutationEventListener;
 import net.buildabrowser.babbrowser.browser.uistate.imp.WindowImp;
@@ -15,6 +17,8 @@ public interface Window {
   void addTab(Tab tab);
   
   Tab openTab();
+
+  Tab openAfterTab(UUID uuid);
 
   WindowSet relatedWindowSet();
   

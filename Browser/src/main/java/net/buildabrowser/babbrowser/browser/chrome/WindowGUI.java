@@ -80,25 +80,37 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
   }
   
   @Override
-  public void onTabAdded(Window window, Tab tab) {
-    TabGUI tabGUI = TabGUI.create(tab);
-    tabbedPane.addTab(tab.getTitle(), tabGUI);
+  public void onTabAdded(Window window, Tab tab, int tabIndexRaw) {
+    SwingUtilities.invokeLater(() -> {
+      TabGUI tabGUI = TabGUI.create(tab);
+      int tabIndex = tabIndexRaw + 1;
 
-    int tabIndex = tabbedPane.indexOfComponent(tabGUI);
-    assert tabIndex != -1;
-    tabbedPane.setTabComponentAt(tabIndex, tabGUI.tabButtonGUI());
-    tabbedPane.setSelectedIndex(tabIndex);
+      tabbedPane.insertTab(tab.getTitle(), null, tabGUI, null, tabIndex);
+      tabbedPane.setTabComponentAt(tabIndex, tabGUI.tabButtonGUI());
+      tabbedPane.setSelectedIndex(tabIndex);
 
-    tab.addTabMutationEventListener(new TabMutationEventListener() {
-      @Override
-      public void onClose(Tab tab) {
-        SwingUtilities.invokeLater(() -> {
-          int tabIndex = tabbedPane.indexOfComponent(tabGUI);
-          assert tabIndex != -1;
-          tabbedPane.remove(tabIndex);
-        });
-      }
-    }, false);
+      tab.addTabMutationEventListener(new TabMutationEventListener() {
+        @Override
+        public void onClose(Tab tab) {
+          SwingUtilities.invokeLater(() -> {
+            int tabIndex = tabbedPane.indexOfComponent(tabGUI);
+            assert tabIndex != -1;
+            tabbedPane.remove(tabIndex);
+          });
+        }
+      }, false);
+    });
+  }
+
+  @Override
+  public void onTabMoved(Window window, Tab tab, int oldIndex, int newIndex) {
+    SwingUtilities.invokeLater(() -> {
+      TabGUI tabGUI = (TabGUI) tabbedPane.getComponentAt(oldIndex + 1);
+      tabbedPane.removeTabAt(oldIndex + 1);
+      tabbedPane.insertTab(tab.getTitle(), null, tabGUI, null, newIndex + 1);
+      tabbedPane.setTabComponentAt(newIndex + 1, tabGUI.tabButtonGUI());
+      tabbedPane.setSelectedIndex(newIndex + 1);
+    });
   }
 
   @Override

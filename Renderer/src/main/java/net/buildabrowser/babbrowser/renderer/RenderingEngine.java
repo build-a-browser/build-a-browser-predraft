@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.fetch.FetchConfig;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
+import net.buildabrowser.babbrowser.html.ua.UAUIFeatures;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.clipboard.ClipboardProvider;
@@ -29,13 +30,14 @@ public interface RenderingEngine {
     Painter painter,
     DocumentLoaderRegistry documentLoaderRegistry,
     ResourceResolver resourceResolver,
-    ClipboardProvider<?> clipboardProvider
+    ClipboardProvider<?> clipboardProvider,
+    UAUIFeatures uaUIFeatures
   ) {
     return new RenderingEngineImp(
       FetchEngine.create(fetchConfig),
       threadGroupSupplier, painter,
       documentLoaderRegistry, resourceResolver,
-      clipboardProvider);
+      clipboardProvider, uaUIFeatures);
   }
 
   Painter painter();

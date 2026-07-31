@@ -20,7 +20,9 @@ public class AnchorElementImp extends HTMLElementImp implements AnchorElement, A
     // TODO: Other stuff
     UserNavigationInvolvement userInvolvement = UserNavigationInvolvement.ACTIVATION; // TODO: Proper way to get this
     // TODO: Downloads
-    NavUtil.followHyperlink(this, hyperlinkSuffix, userInvolvement);
+    NavUtil.followHyperlink(
+      this, hyperlinkSuffix, userInvolvement,
+      event.ctrlKey());
   }
   
 }

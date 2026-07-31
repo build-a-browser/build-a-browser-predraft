@@ -76,11 +76,12 @@ public final class EventUtil {
       return EventHandlerResponse.UNHANDLED;
     }
     Element element = elementBox.element();
+    byte modifiers = mouseEvent.modifiers();
     Event event = switch (mouseEvent.event()) {
-      case DOWN -> PointerEvent.create("mousedown", posX, posY);
-      case UP -> PointerEvent.create("mouseup", posX, posY);
-      case CLICK -> PointerEvent.create("click", posX, posY);
-      case MOVE -> PointerEvent.create("mousemove", posX, posY);
+      case DOWN -> PointerEvent.create("mousedown", modifiers, posX, posY);
+      case UP -> PointerEvent.create("mouseup", modifiers, posX, posY);
+      case CLICK -> PointerEvent.create("click", modifiers, posX, posY);
+      case MOVE -> PointerEvent.create("mousemove", modifiers, posX, posY);
       default -> null;
     };
     

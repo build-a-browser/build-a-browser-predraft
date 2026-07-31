@@ -63,6 +63,11 @@ public class FrameImp implements DebuggableFrame {
   public GraphicalDocumentRenderer getRenderer() {
     return this.renderer;
   }
+  
+  @Override
+  public Navigable navigable() {
+    return this.navigable;
+  }
 
   @Override
   public String getTitle() {

@@ -2,12 +2,15 @@ package net.buildabrowser.babbrowser.html.navigation;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.imp.NavigableImp;
 import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
 
 public interface Navigable {
+
+  UUID uuid(); // Just to help browsers track tabs
 
   Navigable parent();
 

@@ -1,9 +1,10 @@
 package net.buildabrowser.babbrowser.renderer.event.events;
 
+import net.buildabrowser.babbrowser.dom.events.util.ModifierUtil;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
 
 public record RendererKeyboardEvent(
-  String key, String code, int keyCode, short modifiers,
+  String key, String code, int keyCode, byte modifiers,
   KeyboardEventType type
 ) implements EventForwardingTarget {
   
@@ -25,18 +26,20 @@ public record RendererKeyboardEvent(
 
   public static final String KEY_C = "KeyC";
 
-  public static final short MODIFIER_ALT = 1 << 0;
-  public static final short MODIFIER_CTRL = 1 << 1;
-  public static final short MODIFIER_META = 1 << 2;
-  public static final short MODIFIER_SHIFT = 1 << 3;
-  public static final short MODIFIER_REPEAT = 1 << 4;
+  public boolean altKey() {
+    return (modifiers & ModifierUtil.MODIFIER_ALT) != 0;
+  }
 
   public boolean ctrlKey() {
-    return (modifiers() & MODIFIER_CTRL) != 0;
+    return (modifiers & ModifierUtil.MODIFIER_CTRL) != 0;
+  }
+
+  public boolean metaKey() {
+    return (modifiers & ModifierUtil.MODIFIER_META) != 0;
   }
 
   public boolean shiftKey() {
-    return (modifiers() & MODIFIER_SHIFT) != 0;
+    return (modifiers & ModifierUtil.MODIFIER_SHIFT) != 0;
   }
 
   public static enum KeyboardEventType {

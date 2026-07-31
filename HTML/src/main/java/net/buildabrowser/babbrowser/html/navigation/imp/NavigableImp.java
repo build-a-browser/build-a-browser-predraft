@@ -24,6 +24,8 @@ import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
 
 public class NavigableImp implements Navigable {
   
+  private final UUID uuid = UUID.randomUUID();
+
   private final UANavigableOptions uaNavigableOptions;
   private final Navigable parent;
 
@@ -43,6 +45,11 @@ public class NavigableImp implements Navigable {
     this.activeSessionHistory = entry;
     this.parent = parent;
     // TODO: Set initial visibility state
+  }
+
+  @Override
+  public UUID uuid() {
+    return this.uuid;
   }
 
   @Override

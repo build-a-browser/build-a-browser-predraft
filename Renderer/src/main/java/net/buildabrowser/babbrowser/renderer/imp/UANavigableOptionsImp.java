@@ -10,6 +10,7 @@ import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
+import net.buildabrowser.babbrowser.html.ua.UAUIFeatures;
 import net.buildabrowser.babbrowser.html.navigation.NavigationParams;
 import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
@@ -20,6 +21,7 @@ public class UANavigableOptionsImp implements UANavigableOptions {
 
   private final List<Runnable> repaintListeners = new LinkedList<>();
 
+  private final UAUIFeatures uaUIFeatures;
   private final FetchEngine fetchEngine;
   private final Supplier<ExecutorService> threadGroupSupplier;
   private final DocumentLoaderRegistry documentLoaderRegistry;
@@ -33,6 +35,7 @@ public class UANavigableOptionsImp implements UANavigableOptions {
     DocumentLoaderRegistry documentLoaderRegistry,
     RenderingEngine renderingEngine,
     DocumentRendererEventListener eventListener,
+    UAUIFeatures uaUIFeatures,
     SlotFamilyFamily slotFamilyFamily
   ) {
     this.fetchEngine = fetchEngine;
@@ -40,6 +43,7 @@ public class UANavigableOptionsImp implements UANavigableOptions {
     this.documentLoaderRegistry = documentLoaderRegistry;
     this.renderingEngine = renderingEngine;
     this.eventListener = eventListener;
+    this.uaUIFeatures = uaUIFeatures;
     this.slotFamilyFamily = slotFamilyFamily;
   }
 
@@ -67,6 +71,11 @@ public class UANavigableOptionsImp implements UANavigableOptions {
   @Override
   public DocumentRendererEventListener eventListener() {
     return this.eventListener;
+  }
+
+  @Override
+  public UAUIFeatures uiFeatures() {
+    return this.uaUIFeatures;
   }
 
   @Override

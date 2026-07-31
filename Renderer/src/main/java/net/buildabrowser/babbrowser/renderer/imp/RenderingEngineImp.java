@@ -17,6 +17,7 @@ import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRen
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.util.TraversableUtil;
 import net.buildabrowser.babbrowser.html.scripting.Window;
+import net.buildabrowser.babbrowser.html.ua.UAUIFeatures;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 import net.buildabrowser.babbrowser.renderer.clipboard.ClipboardProvider;
@@ -33,6 +34,7 @@ public class RenderingEngineImp implements RenderingEngine {
   private final DocumentLoaderRegistry documentLoaderRegistry;
   private final ResourceResolver resourceResolver;
   private final ClipboardProvider<?> clipboardProvider;
+  private final UAUIFeatures uaUIFeatures;
 
   public RenderingEngineImp(
     FetchEngine fetchEngine,
@@ -40,7 +42,8 @@ public class RenderingEngineImp implements RenderingEngine {
     Painter painter,
     DocumentLoaderRegistry documentLoaderRegistry,
     ResourceResolver resourceResolver,
-    ClipboardProvider<?> clipboardProvider
+    ClipboardProvider<?> clipboardProvider,
+    UAUIFeatures uaUIFeatures
   ) {
     this.fetchEngine = fetchEngine;
     this.threadGroupSupplier = threadGroupSupplier;
@@ -48,6 +51,7 @@ public class RenderingEngineImp implements RenderingEngine {
     this.documentLoaderRegistry = documentLoaderRegistry;
     this.resourceResolver = resourceResolver;
     this.clipboardProvider = clipboardProvider;
+    this.uaUIFeatures = uaUIFeatures;
     RenderingEngineInit.init(resourceResolver);
   }
 
@@ -63,7 +67,7 @@ public class RenderingEngineImp implements RenderingEngine {
     Navigable navigable = TraversableUtil.createNewTopLevelTraversable(
       new UANavigableOptionsImp(
         fetchEngine, threadGroupSupplier, documentLoaderRegistry,
-        this, eventListener, slotFamilyFamily));
+        this, eventListener, uaUIFeatures, slotFamilyFamily));
 
     // TODO: Where does this code actually go?
     Window window = navigable.activeDocument().browsingContext().activeWindow();

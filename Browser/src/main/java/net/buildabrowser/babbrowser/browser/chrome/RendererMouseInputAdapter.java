@@ -69,10 +69,17 @@ public class RendererMouseInputAdapter extends MouseInputAdapter {
 
   public void mouseWheelMoved(MouseWheelEvent e) {
     e.consume();
+    byte modifiers = RendererKeyboardInputAdapter.getModifiers(e);
     // TODO: Some mice (not mine) have horizontal scroll wheels, how to detect that?
     RendererMouseEvent mouseEvent = e.isShiftDown() ?
-      RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), MouseEventType.SCROLL, e.getUnitsToScroll() * SCROLL_AMOUNT, 0) :
-      RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), MouseEventType.SCROLL, 0, e.getUnitsToScroll() * SCROLL_AMOUNT);
+      RendererMouseEvent.create(
+        e.getX(), e.getY(), e.getButton(),
+        MouseEventType.SCROLL, e.getUnitsToScroll() * SCROLL_AMOUNT, 0,
+        modifiers) :
+      RendererMouseEvent.create(
+        e.getX(), e.getY(), e.getButton(),
+        MouseEventType.SCROLL, 0, e.getUnitsToScroll() * SCROLL_AMOUNT,
+        modifiers);
     EventForwardingTarget target = rendererSupplier.get().eventForwardingTarget();
     target.forwardEvent(mouseEvent, EventHandlerResponse.UNHANDLED);
   }
@@ -80,7 +87,9 @@ public class RendererMouseInputAdapter extends MouseInputAdapter {
   private void handleGeneric(MouseEvent e, MouseEventType type) {
     // TODO: Translate button
     e.consume();
-    RendererMouseEvent mouseEvent = RendererMouseEvent.create(e.getX(), e.getY(), e.getButton(), type);
+    byte modifiers = RendererKeyboardInputAdapter.getModifiers(e);
+    RendererMouseEvent mouseEvent = RendererMouseEvent.create(
+      e.getX(), e.getY(), e.getButton(), type, modifiers);
     EventForwardingTarget target = rendererSupplier.get().eventForwardingTarget();
     target.forwardEvent(mouseEvent, EventHandlerResponse.UNHANDLED);
   }
