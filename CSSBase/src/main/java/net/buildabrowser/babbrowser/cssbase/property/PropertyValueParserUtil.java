@@ -113,6 +113,18 @@ public final class PropertyValueParserUtil {
     }
   }
 
+  public static CSSValue parseMaybe(
+    SeekableCSSTokenStream stream, PropertyValueParser parser
+  ) throws IOException {
+    int position = stream.position();
+    CSSValue value = parser.parse(stream);
+    if (value.isFailure()) {
+      stream.seek(position);
+    }
+
+    return value;
+  }
+
   public static record AnyOrderResult(CSSValue[] values) implements CSSValue {
     
   }

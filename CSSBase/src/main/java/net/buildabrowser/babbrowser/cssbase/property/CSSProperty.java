@@ -29,6 +29,8 @@ import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontNameValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontNamedSizeValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightValue;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridAutoFlowValue;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridAutoFlowValue.GridAutoFlowDirection;
 import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingValue;
@@ -163,6 +165,32 @@ public enum CSSProperty {
   ALIGN_ITEMS(nextId(), false, AlignItemsValue.STRETCH),
   ALIGN_SELF(nextId(), false, CSSValue.AUTO),
   ALIGN_CONTENT(nextId(), false, AlignContentValue.STRETCH),
+
+  GRID_TEMPLATE_COLUMNS(nextId(), false, CSSValue.NONE),
+  GRID_TEMPLATE_ROWS(nextId(), false, CSSValue.NONE),
+  GRID_TEMPLATE_AREAS(nextId(), false, CSSValue.NONE),
+  GRID_TEMPLATE(new CSSProperty[] {
+    CSSProperty.GRID_TEMPLATE_ROWS, CSSProperty.GRID_TEMPLATE_COLUMNS, CSSProperty.GRID_TEMPLATE_AREAS}),
+  
+  GRID_AUTO_COLUMNS(nextId(), false, CSSValue.AUTO),
+  GRID_AUTO_ROWS(nextId(), false, CSSValue.AUTO),
+  GRID_AUTO_FLOW(nextId(), false, GridAutoFlowValue.create(
+    GridAutoFlowDirection.ROW, false)),
+  
+  GRID(new CSSProperty[] {
+    CSSProperty.GRID_TEMPLATE_ROWS, CSSProperty.GRID_TEMPLATE_COLUMNS, CSSProperty.GRID_TEMPLATE_AREAS,
+    CSSProperty.GRID_AUTO_ROWS, CSSProperty.GRID_AUTO_COLUMNS, CSSProperty.GRID_AUTO_FLOW}),
+  
+  GRID_ROW_START(nextId(), false, CSSValue.AUTO),
+  GRID_COLUMN_START(nextId(), false, CSSValue.AUTO),
+  GRID_ROW_END(nextId(), false, CSSValue.AUTO),
+  GRID_COLUMN_END(nextId(), false, CSSValue.AUTO),
+
+  GRID_ROW(new CSSProperty[] { CSSProperty.GRID_ROW_START, CSSProperty.GRID_ROW_END }),
+  GRID_COLUMN(new CSSProperty[] { CSSProperty.GRID_COLUMN_START, CSSProperty.GRID_COLUMN_END }),
+  GRID_AREA(new CSSProperty[] {
+    CSSProperty.GRID_ROW_START, CSSProperty.GRID_ROW_END,
+    CSSProperty.GRID_COLUMN_START, CSSProperty.GRID_COLUMN_END }),
 
   ROW_GAP(nextId(), false, GapValue.NORMAL),
   COLUMN_GAP(nextId(), false, GapValue.NORMAL),

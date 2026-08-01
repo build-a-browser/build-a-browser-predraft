@@ -40,6 +40,15 @@ import net.buildabrowser.babbrowser.cssbase.property.font.FontFamilyParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontSizeParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridAreaParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridAutoFlowParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridAutoTracksParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridLineParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackListParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridLineCompositeParser;
 import net.buildabrowser.babbrowser.cssbase.property.misc.AllParser;
 import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineColorParser;
 import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineShorthandParser;
@@ -181,6 +190,24 @@ public final class PropertyParsers {
     "align-items", new AlignItemsParser(),
     "align-self", new AlignSelfParser(),
     "align-content", new AlignContentParser(),
+
+    "grid-template-rows", new GridTrackListParser(CSSProperty.GRID_TEMPLATE_ROWS),
+    "grid-template-columns", new GridTrackListParser(CSSProperty.GRID_TEMPLATE_COLUMNS),
+    "grid-template-areas", new GridTemplateAreasParser(),
+    "grid-template", new GridTemplateParser(),
+    "grid-auto-rows", new GridAutoTracksParser(CSSProperty.GRID_AUTO_ROWS),
+    "grid-auto-columns", new GridAutoTracksParser(CSSProperty.GRID_AUTO_COLUMNS),
+    "grid-auto-flow", new GridAutoFlowParser(),
+    "grid", new GridParser(),
+    "grid-row-start", new GridLineParser(CSSProperty.GRID_ROW_START),
+    "grid-column-start", new GridLineParser(CSSProperty.GRID_COLUMN_START),
+    "grid-row-end", new GridLineParser(CSSProperty.GRID_ROW_END),
+    "grid-column-end", new GridLineParser(CSSProperty.GRID_COLUMN_END),
+    "grid-row", new GridLineCompositeParser(
+      CSSProperty.GRID_ROW, CSSProperty.GRID_ROW_START, CSSProperty.GRID_ROW_END),
+    "grid-column", new GridLineCompositeParser(
+      CSSProperty.GRID_COLUMN, CSSProperty.GRID_COLUMN_START, CSSProperty.GRID_COLUMN_END),
+    "grid-area", new GridAreaParser(),
 
     "row-gap", new GapParser(CSSProperty.ROW_GAP),
     "column-gap", new GapParser(CSSProperty.COLUMN_GAP),
