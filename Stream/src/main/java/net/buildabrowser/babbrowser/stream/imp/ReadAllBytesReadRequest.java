@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.stream.ReadRequest;
+import net.buildabrowser.babbrowser.stream.ReadableStreamDefaultReader;
 
 public class ReadAllBytesReadRequest implements ReadRequest {
 
-  private final ReadableStreamDefaultReaderImp streamReader;
+  private final ReadableStreamDefaultReader streamReader;
   private final Consumer<byte[]> successSteps;
   private final Consumer<Object> failureSteps;
 
@@ -18,7 +19,7 @@ public class ReadAllBytesReadRequest implements ReadRequest {
   private int numBytes = 0;
 
   public ReadAllBytesReadRequest(
-    ReadableStreamDefaultReaderImp streamReader,
+    ReadableStreamDefaultReader streamReader,
     Consumer<byte[]> successSteps, Consumer<Object> failureSteps
   ) {
     this.streamReader = streamReader;

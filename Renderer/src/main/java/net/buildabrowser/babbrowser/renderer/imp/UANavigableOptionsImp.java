@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
+import net.buildabrowser.babbrowser.html.html.util.DownloadUtil;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRendererEventListener;
 import net.buildabrowser.babbrowser.html.ua.UAUIFeatures;
 import net.buildabrowser.babbrowser.html.navigation.NavigationParams;
@@ -62,6 +63,15 @@ public class UANavigableOptionsImp implements UANavigableOptions {
     // TODO: Use the correct mime
     DocumentLoader documentLoader = documentLoaderRegistry.getByMimeType(
       navigationParams.response().headerList().get("Content-Type"));
+    if (documentLoader == null) {
+      DownloadUtil.handleAsDownload(
+        navigationParams.response(),
+        navigationParams.navigable(),
+        null, // TODO: Set the ID
+        null);
+      return null;
+    }
+
     RenderableDocument document = documentLoader.load(
       this, renderingEngine, navigationParams, slotFamilyFamily);
     requestRepaint();

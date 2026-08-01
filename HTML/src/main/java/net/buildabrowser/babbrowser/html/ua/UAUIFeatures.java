@@ -7,4 +7,6 @@ public interface UAUIFeatures {
   // Return null to block popup
   Navigable addTopLevelTraversable(Navigable sourceNavigable);
 
+  DownloadManager downloadManager();
+
 }

@@ -6,4 +6,6 @@ public interface ReadableStreamDefaultReader extends ReadableStreamGenericReader
   
   void readAllBytes(Consumer<byte[]> successSteps, Consumer<Object> failureSteps);
 
+  void read(ReadRequest request);
+
 }

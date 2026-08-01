@@ -5,8 +5,10 @@ import static net.buildabrowser.babbrowser.html.util.HTMLDomUtil.isHtmlElement;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
+import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.html.html.AnchorElement;
+import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.html.RenderableDocument;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
@@ -37,8 +39,8 @@ public final class NavUtil {
     }
 
     // TODO: Proper way to parse a URL
-    URI urlRecord = CommonUtil.tryOrNull(() -> subject.nodeDocument().url().resolve(
-      subject.getAttribute("href")));
+    URI urlRecord = CommonUtil.tryOrNull(() -> resolveURL(
+      subject.getAttribute("href"), subject.nodeDocument()));
     if (urlRecord == null) return;
     
     // TODO: Noopener
@@ -57,6 +59,13 @@ public final class NavUtil {
     navParameters.sourceElement = subject;
     
     targetNavigable.navigate(URI.create(urlString), navParameters);
+  }
+
+  public static URI resolveURL(String url, Document relation) {
+    URI baseURL = relation instanceof HTMLDocument htmlDocument ?
+      htmlDocument.baseURL() :
+      relation.url();
+    return baseURL.resolve(url);
   }
 
   public static boolean cannotNavigate(Element element) {

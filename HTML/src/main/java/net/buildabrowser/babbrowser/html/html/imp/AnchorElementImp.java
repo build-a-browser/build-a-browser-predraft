@@ -4,6 +4,7 @@ import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.algo.ActivationTarget;
 import net.buildabrowser.babbrowser.dom.events.PointerEvent;
 import net.buildabrowser.babbrowser.html.html.AnchorElement;
+import net.buildabrowser.babbrowser.html.html.util.DownloadUtil;
 import net.buildabrowser.babbrowser.html.html.util.NavUtil;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
 
@@ -19,10 +20,13 @@ public class AnchorElementImp extends HTMLElementImp implements AnchorElement, A
     String hyperlinkSuffix = null;
     // TODO: Other stuff
     UserNavigationInvolvement userInvolvement = UserNavigationInvolvement.ACTIVATION; // TODO: Proper way to get this
-    // TODO: Downloads
-    NavUtil.followHyperlink(
-      this, hyperlinkSuffix, userInvolvement,
-      event.ctrlKey());
+    if (hasAttribute("download")) {
+      DownloadUtil.downloadHyperlink(this, hyperlinkSuffix, userInvolvement);
+    } else {
+      NavUtil.followHyperlink(
+        this, hyperlinkSuffix, userInvolvement,
+        event.ctrlKey());
+    }
   }
   
 }

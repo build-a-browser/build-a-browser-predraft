@@ -132,7 +132,9 @@ public class NavigableImp implements Navigable {
               historyEntry);
           });
         });
-      uaNavigableOptions.onNavigate(historyEntry.url());
+      if (documentState.document() != null) {
+        uaNavigableOptions.onNavigate(historyEntry.url());
+      }
     });
   }
 

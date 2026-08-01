@@ -20,7 +20,7 @@ import net.buildabrowser.babbrowser.renderer.loader.DocumentLoader;
 import net.buildabrowser.babbrowser.renderer.logging.PerfLogging;
 import net.buildabrowser.babbrowser.stream.ReadRequest;
 import net.buildabrowser.babbrowser.stream.ReadableStream.ReadableStreamGetReaderOptions;
-import net.buildabrowser.babbrowser.stream.imp.ReadableStreamDefaultReaderImp;
+import net.buildabrowser.babbrowser.stream.ReadableStreamDefaultReader;
 
 public class HTMLDocumentLoader implements DocumentLoader {
 
@@ -56,7 +56,7 @@ public class HTMLDocumentLoader implements DocumentLoader {
     AtomicLong parseTime = new AtomicLong(0);
 
     ReadableStreamGetReaderOptions options = new ReadableStreamGetReaderOptions();
-    ReadableStreamDefaultReaderImp reader = (ReadableStreamDefaultReaderImp) response.body().stream().getReader(options);
+    ReadableStreamDefaultReader reader = (ReadableStreamDefaultReader) response.body().stream().getReader(options);
     // TODO: Use the normal reader's exposed methods instead, once implemented
     reader.read(new ReadRequest() {
 

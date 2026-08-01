@@ -10,11 +10,15 @@ public final class StringUtil {
   }
 
   public static String[] spaceSplit(String item) {
+    return chSplit(item, ' ');
+  }
+
+  public static String[] chSplit(String item, int ch) {
     int afterSpaceIndex = 0;
     int currentIndex = 0;
     int arrSize = 0;
     while (currentIndex < item.length()) {
-      if (item.codePointAt(currentIndex) == ' ') {
+      if (item.codePointAt(currentIndex) == ch) {
         if (currentIndex != afterSpaceIndex) {
           arrSize++;
         }
@@ -31,7 +35,7 @@ public final class StringUtil {
     int arrIndex = 0;
     String[] strings = new String[arrSize];
     while (currentIndex < item.length()) {
-      if (item.codePointAt(currentIndex) == ' ') {
+      if (item.codePointAt(currentIndex) == ch) {
         if (currentIndex != afterSpaceIndex) {
           strings[arrIndex++] = item.substring(afterSpaceIndex, currentIndex);
         }
