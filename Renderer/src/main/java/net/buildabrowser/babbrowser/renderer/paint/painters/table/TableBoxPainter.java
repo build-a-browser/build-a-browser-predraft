@@ -98,6 +98,7 @@ public class TableBoxPainter implements BoxPainter<TableBoxFragment> {
     Table table = tableFragment.table();
     for (TableRow row: table.rows()) {
       BoxFragment<?> rowFragment = row.rowBox().positioningFragment();
+      if (rowFragment == null) continue; // TODO: Why is this sometimes null?
       paintFragmentBackground(canvas, rowFragment, vpIntersection);
     }
   }

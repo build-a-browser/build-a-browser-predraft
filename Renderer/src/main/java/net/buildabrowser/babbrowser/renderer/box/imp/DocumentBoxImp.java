@@ -20,7 +20,7 @@ public class DocumentBoxImp extends AbstractBoxImp implements DocumentBox {
   }
 
   @Override
-  public ElementBox htmlBox() {
+  public ElementBox child() {
     return this.childBox;
   }
 

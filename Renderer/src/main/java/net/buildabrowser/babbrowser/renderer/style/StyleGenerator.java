@@ -5,7 +5,7 @@ import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
-import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 
 public final class StyleGenerator {
  
@@ -14,14 +14,14 @@ public final class StyleGenerator {
   public static void style(
     Node node,
     StyleCache styleCache,
-    SlotFamily<HTMLElement, ElementContext> elementContexts,
+    SlotFamily<HTMLElement, RenderContext> renderContexts,
     ElementSet changedElements
   ) {
     if (changedElements.isEmpty()) return;
 
     for (Element changedElement: changedElements) {
       if (elementHasNoChangedAncestors(changedElement, changedElements)) {
-        style(changedElement, styleCache, elementContexts);
+        style(changedElement, styleCache, renderContexts);
       }
     }
   }
@@ -29,15 +29,15 @@ public final class StyleGenerator {
   public static void style(
     Node node,
     StyleCache styleCache,
-    SlotFamily<HTMLElement, ElementContext> elementContexts
+    SlotFamily<HTMLElement, RenderContext> renderContexts
   ) {
     if (node instanceof HTMLElement element) {
-      elementContexts.get(element).regenerateStyles(styleCache);
+      renderContexts.get(element).regenerateStyles(styleCache);
     }
 
     Node childNode = node.firstChild();
     while (childNode != null) {
-      style(childNode, styleCache, elementContexts);
+      style(childNode, styleCache, renderContexts);
       childNode = childNode.nextSibling();
     }
   }

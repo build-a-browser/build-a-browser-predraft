@@ -8,30 +8,33 @@ import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 
 public class RenderCSSMatcherContext implements CSSMatcherContext {
 
-  private final SlotFamily<HTMLElement, ElementContext> elementContexts;
+  private final SlotFamily<HTMLElement, RenderContext> renderContexts;
 
   public RenderCSSMatcherContext(
-    SlotFamily<HTMLElement, ElementContext> elementContexts
+    SlotFamily<HTMLElement, RenderContext> renderContexts
   ) {
-    this.elementContexts = elementContexts;
+    this.renderContexts = renderContexts;
   }
 
   @Override
   public void onMatched(Node node, WeightedStyleRule matchedRule) {
     if (node instanceof HTMLElement element) {
-      ElementContext elementContext = elementContexts.get(element);
-      elementContext.onCSSRuleMatched(matchedRule);
+      if (renderContexts.get(element) instanceof ElementContext elementContext) {
+        elementContext.onCSSRuleMatched(matchedRule);
+      }
     }
   }
 
   @Override
   public void onUnmatched(Node node, WeightedStyleRule matchedRule) {
     if (node instanceof HTMLElement element) {
-      ElementContext elementContext = elementContexts.get(element);
-      elementContext.onCSSRuleUnmatched(matchedRule);
+      if (renderContexts.get(element) instanceof ElementContext elementContext) {
+        elementContext.onCSSRuleUnmatched(matchedRule);
+      }
     }
   }
 

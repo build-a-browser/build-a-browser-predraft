@@ -107,6 +107,7 @@ public class CSSSelectorMatcher {
           numClassSelectors += subSpecificity.numClassSelectors();
           numTypeSelectors += subSpecificity.numTypeSelectors();
         }
+        case SimplePseudoSelector _1 -> numClassSelectors++;
         // TODO: nth-child?
         default -> {}
       }

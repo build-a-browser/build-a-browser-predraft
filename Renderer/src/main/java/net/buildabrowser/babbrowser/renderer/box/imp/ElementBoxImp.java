@@ -10,19 +10,19 @@ import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.content.image.ImageContent;
 import net.buildabrowser.babbrowser.renderer.content.input.InputContent;
 import net.buildabrowser.babbrowser.renderer.content.textarea.TextAreaContent;
-import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class ElementBoxImp extends AbstractElementBoxImp {
 
-  private final ElementContext context;
+  private final RenderContext context;
   
   private BoxContent content;
   // TODO: Avoid this extra field
   private InnerDisplayValue prevDisplayValue;
 
-  public ElementBoxImp(ElementContext context, Box parentBox, BoxLevel boxLevel) {
+  public ElementBoxImp(RenderContext context, Box parentBox, BoxLevel boxLevel) {
     super(parentBox, boxLevel);
     this.context = context;
     update();
@@ -44,7 +44,7 @@ public class ElementBoxImp extends AbstractElementBoxImp {
   }
 
   @Override
-  public ElementContext context() {
+  public RenderContext context() {
     return this.context;
   }
 

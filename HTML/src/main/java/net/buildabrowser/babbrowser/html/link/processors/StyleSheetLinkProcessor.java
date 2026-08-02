@@ -25,6 +25,20 @@ public class StyleSheetLinkProcessor extends DefaultLinkProcessor {
     LinkElement el, boolean success, FetchResponse response, byte[] bodyBytes
   ) {
     // TODO: Sniff, check if still attached
+    String contentType = response.headerList().get("Content-Type");
+    int semiIndex = contentType == null ? -1 : contentType.indexOf(';');
+    if (semiIndex != -1) {
+      contentType = contentType.substring(0, semiIndex);
+    }
+
+    if (!(
+      contentType == null
+      || contentType.equals("text/css")
+    )) {
+      System.out.println(contentType);
+      success = false;
+    }
+
     if (el.sheet() != null) {
       el.nodeDocument().styleSheets().removeStylesheet(el.sheet());
       el.setSheet(null);

@@ -30,5 +30,10 @@ public class SlotFamilyImp<T extends Slottable, U extends SlotItem<U>> implement
     slottable.setSlots(slotItem);
     return slotItem;
   }
+
+  @Override
+  public short familyId() {
+    return this.familyId;
+  }
   
 }

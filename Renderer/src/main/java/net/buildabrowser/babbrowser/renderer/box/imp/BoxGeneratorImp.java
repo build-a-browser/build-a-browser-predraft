@@ -28,16 +28,17 @@ import net.buildabrowser.babbrowser.renderer.box.TextBox;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 
 public class BoxGeneratorImp implements BoxGenerator {
 
-  private final SlotFamily<HTMLElement, ElementContext> elementContexts;
+  private final SlotFamily<HTMLElement, RenderContext> renderContexts;
 
 
   public BoxGeneratorImp(
-    SlotFamily<HTMLElement, ElementContext> elementContexts
+    SlotFamily<HTMLElement, RenderContext> renderContexts
   ) {
-    this.elementContexts = elementContexts;
+    this.renderContexts = renderContexts;
   }
   
   @Override
@@ -86,14 +87,16 @@ public class BoxGeneratorImp implements BoxGenerator {
   }
 
   private List<Box> createElementBoxes(Box parentBox, HTMLElement element) {
-    ElementContext context = elementContexts.get(element);
+    RenderContext context = renderContexts.get(element);
     OuterDisplayValue outerDisplayValue = PropertiesUtil.outerDisplayValue(context.properties());
 
     switch (outerDisplayValue) {
       case BLOCK:
         return createElementBox(parentBox, element, BoxLevel.BLOCK_LEVEL);
       case CONTENTS:
-        context.setBox(null);
+        if (renderContexts.get(element) instanceof ElementContext elementContext) {
+          elementContext.setBox(null);
+        }
         return createChildBoxes(parentBox, element);
       case INLINE:
         return createElementBox(parentBox, element, BoxLevel.INLINE_LEVEL);
@@ -109,8 +112,9 @@ public class BoxGeneratorImp implements BoxGenerator {
 
   private void clearBoxes(Node node) {
     if (node instanceof HTMLElement element) {
-      ElementContext context = elementContexts.get(element);
-      context.setBox(null);
+      if (renderContexts.get(element) instanceof ElementContext elementContext) {
+        elementContext.setBox(null);
+      }
       element.forEachChild(child -> {
         clearBoxes(child);
       });
@@ -120,7 +124,7 @@ public class BoxGeneratorImp implements BoxGenerator {
   }
 
   private List<Box> createElementBox(Box parentBox, HTMLElement element, BoxLevel boxLevel) {
-    ElementContext context = elementContexts.get(element);
+    RenderContext context = renderContexts.get(element);
     Box adjustedParentBox = parentBox;
     ElementBox scrollBox = null;
     if (CompositeLayerUtil.hasScrollContent(context)) {
@@ -156,7 +160,9 @@ public class BoxGeneratorImp implements BoxGenerator {
       context.invalidate(InvalidationLevel.BOX);
     } else {
       elementBox = ElementBox.create(context, adjustedParentBox, boxLevel);
-      context.setBox(elementBox);
+      if (renderContexts.get(element) instanceof ElementContext elementContext) {
+        elementContext.setBox(elementBox);
+      }
       context.invalidate(InvalidationLevel.BOX);
     }
 
@@ -179,7 +185,7 @@ public class BoxGeneratorImp implements BoxGenerator {
       elementBox.element() instanceof HTMLElement htmlElement
     )) return;
 
-    ElementContext context = elementContexts.get(htmlElement);
+    RenderContext context = renderContexts.get(htmlElement);
 
     PropertyContainer pseudoProperties = context.targetedProperties(target);
     if (pseudoProperties == null) return;

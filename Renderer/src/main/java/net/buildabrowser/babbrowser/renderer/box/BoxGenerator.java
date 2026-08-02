@@ -6,7 +6,7 @@ import net.buildabrowser.babbrowser.common.datastruct.SlotFamily;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.imp.BoxGeneratorImp;
-import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 
 public interface BoxGenerator {
   
@@ -15,9 +15,9 @@ public interface BoxGenerator {
   void fixup(Box box);
 
   static BoxGenerator create(
-    SlotFamily<HTMLElement, ElementContext> elementContexts
+    SlotFamily<HTMLElement, RenderContext> renderContexts
   ) {
-    return new BoxGeneratorImp(elementContexts);
+    return new BoxGeneratorImp(renderContexts);
   }
 
 }

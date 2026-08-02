@@ -8,14 +8,13 @@ import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowValue;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
-import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
-import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
+import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
 
 public class ScrollBoxContent implements BoxContent {
 
@@ -145,7 +144,6 @@ public class ScrollBoxContent implements BoxContent {
     ElementBoxDimensions dimensions = innerLayout.box().dimensions();
     float intrinsicWidth = dimensions.intrinsicWidth();
     CSSValue overflowX = box.properties().get(CSSProperty.OVERFLOW_X);
-    overflowX = CompositeLayerUtil.adjustOverflowValueIfHTML(box.context(), overflowX, CSSProperty.OVERFLOW_X);
     if (overflowX.equals(OverflowValue.SCROLL)) return true;
     if (
       !adjustedWidthConstraint.isBounded()
@@ -164,7 +162,6 @@ public class ScrollBoxContent implements BoxContent {
     ElementBoxDimensions dimensions = innerLayout.box().dimensions();
     float intrinsicHeight = dimensions.intrinsicHeight();
     CSSValue overflowY = box.properties().get(CSSProperty.OVERFLOW_Y);
-    overflowY = CompositeLayerUtil.adjustOverflowValueIfHTML(box.context(), overflowY, CSSProperty.OVERFLOW_Y);
     if (overflowY.equals(OverflowValue.SCROLL)) return true;
     if (
       !adjustedHeightConstraint.isBounded()
