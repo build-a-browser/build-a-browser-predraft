@@ -10,11 +10,11 @@ public record GridTrackValue(
 
   public static record GridRepeatValue(
     CSSValue repeatTimesValue,
-    CSSValue tracks
+    GridTrackListValue tracks
   ) implements CSSValue {
 
     public static CSSValue create(
-      CSSValue repeatTimesValue, CSSValue trackList
+      CSSValue repeatTimesValue, GridTrackListValue trackList
     ) {
       return new GridRepeatValue(repeatTimesValue, trackList);
     }

@@ -4,9 +4,9 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 
-public record GridTemplateAreasValue(List<CSSValue> rows) implements CSSValue {
+public record GridTemplateAreasValue(List<GridTemplateAreasRowValue> rows) implements CSSValue {
   
-  public static CSSValue create(List<CSSValue> rows) {
+  public static CSSValue create(List<GridTemplateAreasRowValue> rows) {
     return new GridTemplateAreasValue(rows);
   }
 
@@ -14,7 +14,7 @@ public record GridTemplateAreasValue(List<CSSValue> rows) implements CSSValue {
     List<String> cellNames
   ) implements CSSValue {
 
-    public static CSSValue create(List<String> cellNames) {
+    public static GridTemplateAreasRowValue create(List<String> cellNames) {
       return new GridTemplateAreasRowValue(cellNames);
     }
   

@@ -107,7 +107,7 @@ public class GridRepeatParser {
 
     if (trackList.isFailure()) return trackList;
 
-    return GridRepeatValue.create(repeatTimesValue, trackList);
+    return GridRepeatValue.create(repeatTimesValue, (GridTrackListValue) trackList);
   }
 
 

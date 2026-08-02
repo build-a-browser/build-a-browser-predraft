@@ -12,6 +12,7 @@ import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridTemplateAreasRowValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateValue.GridTemplateLineValue;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -86,8 +87,8 @@ public class GridTemplateParser implements PropertyValueParser {
 
     List<CSSValue> areaLines = ((ManyResult) areaLinesResult).values();
 
-    List<CSSValue> gridTrackRows = new ArrayList<>();
-    List<CSSValue> gridTemplateAreas = new ArrayList<>();
+    List<GridTrackValue> gridTrackRows = new ArrayList<>();
+    List<GridTemplateAreasRowValue> gridTemplateAreas = new ArrayList<>();
     List<String> gridLineNames = new ArrayList<>();
     for (CSSValue areaLineValue: areaLines) {
       GridTemplateLineValue value = (GridTemplateLineValue) areaLineValue;
@@ -141,7 +142,7 @@ public class GridTemplateParser implements PropertyValueParser {
     if (endLinesResult != null) return endLinesResult;
 
     return GridTemplateLineValue.create(
-      startLines, rowValue, trackSize, endLines);
+      startLines, (GridTemplateAreasRowValue) rowValue, trackSize, endLines);
   }
   
 }

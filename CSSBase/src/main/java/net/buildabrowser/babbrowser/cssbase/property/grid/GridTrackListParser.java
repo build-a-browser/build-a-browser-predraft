@@ -69,6 +69,7 @@ public class GridTrackListParser implements PropertyValueParser {
     return NOT_IMPLEMENTED;
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public CSSValue parseTrackList(
     SeekableCSSTokenStream stream,
     boolean allowRepeat
@@ -77,7 +78,7 @@ public class GridTrackListParser implements PropertyValueParser {
       stream, s -> parseTrackValue(s, allowRepeat));
     if (value.isFailure()) return value;
     // Relies on parseOneOrMore using a mutable list
-    List<CSSValue> trackList = ((ManyResult) value).values();
+    List<GridTrackValue> trackList = (List) ((ManyResult) value).values();
 
     List<String> lineNames = new ArrayList<>(1);
     CSSValue errValue = parseLineNames(stream, lineNames);
@@ -109,6 +110,7 @@ public class GridTrackListParser implements PropertyValueParser {
     return GridTrackValue.create(lineNames, sizeOrRepeat);
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public CSSValue parseAutoTrackList(
     SeekableCSSTokenStream stream,
     boolean allowRepeat
@@ -117,7 +119,7 @@ public class GridTrackListParser implements PropertyValueParser {
       stream, s -> this.parseAutoTrackValue(s, allowRepeat));
     if (value.isFailure()) return value;
     // Relies on parseOneOrMore using a mutable list
-    List<CSSValue> trackList = ((ManyResult) value).values();
+    List<GridTrackValue> trackList = (List) ((ManyResult) value).values();
 
     List<String> lineNames = new ArrayList<>(1);
     CSSValue errValue = parseLineNames(stream, lineNames);
@@ -161,11 +163,12 @@ public class GridTrackListParser implements PropertyValueParser {
     return GridTrackValue.create(lineNames, sizeOrRepeat);
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public CSSValue parseLineNamesTrackList(SeekableCSSTokenStream stream) throws IOException {
     CSSValue value = PropertyValueParserUtil.parseOneOrMore(
       stream, this::parseLineNamesTrackValue);
     if (value.isFailure()) return value;
-    List<CSSValue> trackList = ((ManyResult) value).values();
+    List<GridTrackValue> trackList = (List) ((ManyResult) value).values();
     
     return GridTrackListValue.create(trackList, null);
   }

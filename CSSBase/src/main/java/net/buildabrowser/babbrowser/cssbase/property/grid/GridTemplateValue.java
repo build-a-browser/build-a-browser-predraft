@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property.grid;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridTemplateAreasRowValue;
 
 public record GridTemplateValue(
   CSSValue rows, CSSValue columns, CSSValue areas
@@ -13,14 +14,14 @@ public record GridTemplateValue(
 
   public record GridTemplateLineValue(
     List<String> startLines,
-      CSSValue rowArea,
-      CSSValue trackSize,
+    GridTemplateAreasRowValue rowArea,
+    CSSValue trackSize,
     List<String> endLines
   ) implements CSSValue {
 
     public static GridTemplateLineValue create(
       List<String> startLines,
-      CSSValue rowArea,
+      GridTemplateAreasRowValue rowArea,
       CSSValue trackSize,
       List<String> endLines
     ) {

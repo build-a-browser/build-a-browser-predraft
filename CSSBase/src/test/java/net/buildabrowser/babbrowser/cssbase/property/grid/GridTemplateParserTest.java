@@ -45,8 +45,8 @@ public class GridTemplateParserTest {
         IdentToken.create("auto")));
 
     CSSValue oneFr = LengthValue.create(1, true, LengthType.FR);
-    CSSValue trackAuto = GridTrackValue.create(List.of(), CSSValue.AUTO);
-    CSSValue trackOneFr = GridTrackValue.create(List.of(), oneFr);
+    GridTrackValue trackAuto = GridTrackValue.create(List.of(), CSSValue.AUTO);
+    GridTrackValue trackOneFr = GridTrackValue.create(List.of(), oneFr);
     CSSValue expected = GridTemplateValue.create(
       GridTrackListValue.create(List.of(trackAuto, trackOneFr), null),
       GridTrackListValue.create(List.of(trackAuto, trackOneFr, trackAuto), null),
@@ -153,8 +153,8 @@ public class GridTemplateParserTest {
         IdentToken.create("auto")));
     
     CSSValue oneFr = LengthValue.create(1, true, LengthType.FR);
-    CSSValue trackAuto = GridTrackValue.create(List.of(), CSSValue.AUTO);
-    CSSValue trackOneFr = GridTrackValue.create(List.of(), oneFr);
+    GridTrackValue trackAuto = GridTrackValue.create(List.of(), CSSValue.AUTO);
+    GridTrackValue trackOneFr = GridTrackValue.create(List.of(), oneFr);
 
     CSSValue expectedTemplateAreas = GridTemplateAreasValue.create(List.of(
       GridTemplateAreasRowValue.create(List.of("a", "a", "a")),

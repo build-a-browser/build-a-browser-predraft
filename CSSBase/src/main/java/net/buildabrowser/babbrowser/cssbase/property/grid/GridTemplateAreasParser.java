@@ -21,7 +21,10 @@ public class GridTemplateAreasParser implements PropertyValueParser {
 
   private static final CSSFailure INVALID_CELL = new CSSFailure(
     "Invalid name for template area cell!");
+  private static final CSSFailure INVALID_ROW_SIZE = new CSSFailure(
+    "All rows must have size >0, and be same size!");
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Override
   public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
     if (
@@ -34,7 +37,10 @@ public class GridTemplateAreasParser implements PropertyValueParser {
     CSSValue value = PropertyValueParserUtil.parseOneOrMore(
       stream, this::parseRow);
     if (value.isFailure()) return value;
-    List<CSSValue> rowList = ((ManyResult) value).values();
+    List<GridTemplateAreasRowValue> rowList = (List) ((ManyResult) value).values();
+    if (!verifyRowWidths(rowList)) {
+      return INVALID_ROW_SIZE;
+    }
     return GridTemplateAreasValue.create(rowList);
   }
 
@@ -101,6 +107,19 @@ public class GridTemplateAreasParser implements PropertyValueParser {
   private void plusOne(String rowValue, int[] index) {
     index[0] = Character.offsetByCodePoints(
       rowValue, index[0], 1);
+  }
+
+  private boolean verifyRowWidths(List<GridTemplateAreasRowValue> rowList) {
+    if (rowList.size() == 0) return true;
+    int rowLength = rowList.get(0).cellNames().size();
+    if (rowLength == 0) return false;
+    for (GridTemplateAreasRowValue row: rowList) {
+      if (row.cellNames().size() != rowLength) {
+        return false;
+      }
+    }
+
+    return true;
   }
   
 }
