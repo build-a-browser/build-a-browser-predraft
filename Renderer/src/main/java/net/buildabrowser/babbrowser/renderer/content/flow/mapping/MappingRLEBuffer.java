@@ -38,7 +38,6 @@ public class MappingRLEBuffer implements Cloneable {
     int[] textEndIndex = new int[1];
     int startRleIndex = textRleIndex(startIndex, textStartIndex);
     int endRleIndex = textRleIndex(endIndex, textEndIndex);
-
     if (
       startRleIndex == endRleIndex
       && rleList[startRleIndex] == range
@@ -166,14 +165,14 @@ public class MappingRLEBuffer implements Cloneable {
 
   //
 
-  public static int sourceIndex(int textIndex, short[] rleList, int rleLength) {
+  public static int sourceIndex(int textIndex, short[] rleList) {
     int sourceIndex = 0;
     int currentTextIndex = 0;
     boolean isCollapseMode = true;
     int rlePointer = 0;
     while (
-      currentTextIndex < textIndex
-      || (rlePointer < rleLength && isCollapseMode)
+      rlePointer < rleList.length &&
+      (currentTextIndex < textIndex || isCollapseMode)
     ) {
       short rleRaw = rleList[rlePointer];
       int rleLen = Short.toUnsignedInt(rleRaw);
@@ -196,16 +195,22 @@ public class MappingRLEBuffer implements Cloneable {
       }
     }
 
-    throw new IllegalStateException("No mapping for textIndex!");
+    if (textIndex <= currentTextIndex) {
+      return sourceIndex;
+    } else {
+      throw new IllegalStateException("No mapping for textIndex!");
+    }
   }
 
-  public static int textIndex(int sourceIndex, short[] rleList, int rleLength) {
+  public static int textIndex(int sourceIndex, short[] rleList) {
     int textIndex = 0;
     int currentSourceIndex = 0;
     boolean isCollapseMode = true;
     int rlePointer = 0;
-    while (currentSourceIndex < sourceIndex) {
-      if (rlePointer >= rleLength) return textIndex;
+    while (
+      currentSourceIndex < sourceIndex
+      && rlePointer < rleList.length
+    ) {
       short rleRaw = rleList[rlePointer];
       int rleLen = Short.toUnsignedInt(rleRaw);
       boolean isModeChange = rleLen != -1;
@@ -227,7 +232,11 @@ public class MappingRLEBuffer implements Cloneable {
       }
     }
 
-    return textIndex;
+    if (sourceIndex <= currentSourceIndex) {
+      return textIndex;
+    } else {
+      throw new IllegalStateException("No mapping for sourceIndex!");
+    }
   }
   
 }

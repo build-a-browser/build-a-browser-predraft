@@ -62,8 +62,7 @@ public class TextFragment extends LayoutFragment {
       || sourceRuns == null
     ) return textIndex;
 
-    return MappingRLEBuffer.sourceIndex(
-      textIndex, sourceRuns, sourceRuns.length);
+    return MappingRLEBuffer.sourceIndex(textIndex, sourceRuns);
   }
 
   public int textIndex(int sourceIndex) {
@@ -72,8 +71,7 @@ public class TextFragment extends LayoutFragment {
       || sourceRuns == null
     ) return sourceIndex;
 
-    return MappingRLEBuffer.textIndex(
-      sourceIndex, sourceRuns, sourceRuns.length);
+    return MappingRLEBuffer.textIndex(sourceIndex, sourceRuns);
   }
 
   @Override
