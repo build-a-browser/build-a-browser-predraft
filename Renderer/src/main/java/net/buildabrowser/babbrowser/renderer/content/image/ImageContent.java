@@ -21,11 +21,17 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
 public class ImageContent implements BoxContent {
 
+  private String imageAlt;
+  private URI imageSource;
   private LoadedImage image;
 
   @Override
   public void computeIntrinsics(ElementBox rootBox) {
-    this.image = loadImage(rootBox);
+    this.imageAlt = getImageAlt(rootBox);
+    this.imageSource = getImageSource(rootBox);
+    if (imageSource != null) {
+      this.image = loadImage(rootBox, imageSource);
+    }
 
     if (image != null) {
       float width = image.width();
@@ -39,11 +45,10 @@ public class ImageContent implements BoxContent {
       return;
     }
 
-    String alt = getImageAlt(rootBox);
     LayoutContext layoutContext = rootBox.layoutContext();
     FontMetrics fm = layoutContext.font().metrics();
     
-    float width = fm.stringWidth(alt);
+    float width = fm.stringWidth(imageAlt);
     
     rootBox.alterDimensions(false, dimensions -> {
       dimensions.setIntrinsicWidth(width);
@@ -78,25 +83,36 @@ public class ImageContent implements BoxContent {
     return true;
   }
 
-  private LoadedImage loadImage(ElementBox rootBox) {
+  public String alt() {
+    return this.imageAlt;
+  }
+
+  public URI imageSource() {
+    return this.imageSource;
+  }
+
+  public LoadedImage loadedImage() {
+    return this.image;
+  }
+
+  private LoadedImage loadImage(ElementBox rootBox, URI imageSource) {
     GlobalLayoutContext layoutContext = rootBox.layoutContext().global();
-    Document nodeDocument = rootBox.element().nodeDocument();
-    if (!(nodeDocument instanceof HTMLDocument htmlDocument)) return null;
-    URI baseURL = htmlDocument.baseURL();
-    URI imageSource = getImageSource(rootBox, baseURL);
-    if (imageSource == null) return null;
     ImageCache imageCache = layoutContext.imageCache();
     return imageCache.getImage(imageSource, rootBox.context(), InvalidationLevel.LAYOUT);
   }
 
-  private URI getImageSource(ElementBox rootBox, URI refUrl) {
+  private URI getImageSource(ElementBox rootBox) {
+    Document nodeDocument = rootBox.element().nodeDocument();
+    if (!(nodeDocument instanceof HTMLDocument htmlDocument)) return null;
+    URI baseURL = htmlDocument.baseURL();
+
     String src = rootBox.element().getAttribute("src");
     if (src == null || src.isEmpty()) {
       return null;
     }
 
     try {
-      return URLUtil.createURL(refUrl, src);
+      return URLUtil.createURL(baseURL, src);
     } catch (IllegalArgumentException e) {
       return null;
     }

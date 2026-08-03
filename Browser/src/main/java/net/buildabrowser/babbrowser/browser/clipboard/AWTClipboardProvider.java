@@ -4,9 +4,9 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.Transferable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.util.HTMLSerializerUtil;
@@ -24,13 +24,22 @@ public class AWTClipboardProvider implements ClipboardProvider<Transferable>, Cl
   }
 
   @Override
-  public Transferable createImageClip(URI imageURI, Supplier<InputStream> imageBytesSupplier, String altText) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'createImageClip'");
+  public Transferable createImageClip(
+    URI imageURI,
+    IOThrowingSupplier<InputStream> imageBytesSupplier,
+    String altText
+  ) {
+    try {
+      return new ImageTransferable(imageBytesSupplier);
+    } catch (IOException e) {
+      e.printStackTrace();
+      return null;
+    }
   }
 
   @Override
   public void setActiveClip(Transferable clip) {
+    if (clip == null) return;
     clipboard.setContents(clip, this);
   }
   

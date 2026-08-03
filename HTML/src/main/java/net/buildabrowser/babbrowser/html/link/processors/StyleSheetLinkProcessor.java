@@ -35,7 +35,6 @@ public class StyleSheetLinkProcessor extends DefaultLinkProcessor {
       contentType == null
       || contentType.equals("text/css")
     )) {
-      System.out.println(contentType);
       success = false;
     }
 

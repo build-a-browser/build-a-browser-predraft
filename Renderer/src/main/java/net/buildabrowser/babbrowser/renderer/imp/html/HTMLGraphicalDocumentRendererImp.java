@@ -127,7 +127,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     changeListener.onURLChanged(null, document.url());
     
     EventForwardingTarget eventForwardingTarget = new HTMLSelectionEventForwardingTarget<>(
-      document, selectionContext, renderingEngine.clipboardProvider(), null);
+      document, selectionContext, renderingEngine.clipboardProvider(),
+      renderContexts, null);
     this.eventForwardingTarget = new HTMLEventForwardingTarget(
       eventContext, document, compositeLayers, renderContexts,
       eventForwardingTarget);

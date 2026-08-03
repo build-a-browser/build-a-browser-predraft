@@ -8,6 +8,9 @@ import java.util.List;
 
 public class HTMLTransferable implements Transferable {
 
+  private static final List<DataFlavor> SUPPORTED_FLAVORS = List.of(
+    DataFlavor.allHtmlFlavor, DataFlavor.stringFlavor);
+
   private final String htmlContent;
   private final String textContent;
 
@@ -16,17 +19,14 @@ public class HTMLTransferable implements Transferable {
     this.textContent = textContent;
   }
 
-  private List<DataFlavor> supportedFlavors = List.of(
-    DataFlavor.allHtmlFlavor, DataFlavor.stringFlavor);
-
   @Override
   public DataFlavor[] getTransferDataFlavors() {
-    return supportedFlavors.toArray(DataFlavor[]::new);
+    return SUPPORTED_FLAVORS.toArray(DataFlavor[]::new);
   }
 
   @Override
   public boolean isDataFlavorSupported(DataFlavor flavor) {
-    return supportedFlavors.contains(flavor);
+    return SUPPORTED_FLAVORS.contains(flavor);
   }
 
   @Override
