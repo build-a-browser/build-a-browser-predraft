@@ -123,7 +123,12 @@ public class ScrollBoxContent implements BoxContent {
   ) {
     ScrollBoxFragment scrollBox = (ScrollBoxFragment) fragment;
     ElementBox childBox = (ElementBox) scrollBox.box().childBoxes().next();
-    childBox.content().positionLayers(scrollBox.innerFragment(), 0, 0);
+
+    float contentOffsetX = fragment.posX(Measurement.CONTENT) - fragment.posX(Measurement.PADDING);
+    float contentOffsetY = fragment.posY(Measurement.CONTENT) - fragment.posY(Measurement.PADDING);
+
+    childBox.content().positionLayers(
+      scrollBox.innerFragment(), contentOffsetX, contentOffsetY);
   }
 
   @Override

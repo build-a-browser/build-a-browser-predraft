@@ -1,6 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.paint.painters.flow;
 
-import static net.buildabrowser.babbrowser.renderer.layout.StackingContext.startsStackingContext;
+import static net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext.startsStackingContext;
 import static net.buildabrowser.babbrowser.renderer.paint.painters.flow.FlowBoxPainterUtils.paintBlockLevelBackgrounds;
 import static net.buildabrowser.babbrowser.renderer.paint.painters.flow.FlowBoxPainterUtils.paintFragment;
 import static net.buildabrowser.babbrowser.renderer.paint.painters.flow.FlowBoxPainterUtils.paintManagedBackground;

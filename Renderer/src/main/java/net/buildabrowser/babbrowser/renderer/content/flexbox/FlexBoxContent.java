@@ -33,8 +33,8 @@ import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.flexbox.FlexBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
-import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
 
 public final class FlexBoxContent implements BoxContent {
 

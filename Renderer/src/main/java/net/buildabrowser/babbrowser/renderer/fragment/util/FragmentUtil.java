@@ -3,8 +3,8 @@ package net.buildabrowser.babbrowser.renderer.fragment.util;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
-import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
-import net.buildabrowser.babbrowser.renderer.layout.StackingContextPosition;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContextPosition;
 
 public final class FragmentUtil {
   

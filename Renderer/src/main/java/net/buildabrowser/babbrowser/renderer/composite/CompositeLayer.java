@@ -5,7 +5,8 @@ import java.util.List;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.composite.imp.CompositeLayerImp;
-import net.buildabrowser.babbrowser.renderer.layout.StackingContextPosition;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContextEntry;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContextPosition;
 import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 
 public interface CompositeLayer {
@@ -13,7 +14,7 @@ public interface CompositeLayer {
   void addChild(CompositeLayer childLayer);
   
   // TODO: Currently replaces entries instead of adding them - is this good?
-  void addEntries(CompositeLayerEntry entries);
+  void addEntries(StackingContextEntry entries);
 
   void repaint(VpIntersection vpIntersection);
 
@@ -27,7 +28,7 @@ public interface CompositeLayer {
 
   boolean layerActive();
 
-  CompositeLayerEntry entries();
+  StackingContextEntry entries();
 
   static CompositeLayer create(
     Painter painter,

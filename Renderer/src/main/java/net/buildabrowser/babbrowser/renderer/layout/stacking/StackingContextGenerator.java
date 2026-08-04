@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.renderer.layout;
+package net.buildabrowser.babbrowser.renderer.layout.stacking;
 
 import java.util.Deque;
 
