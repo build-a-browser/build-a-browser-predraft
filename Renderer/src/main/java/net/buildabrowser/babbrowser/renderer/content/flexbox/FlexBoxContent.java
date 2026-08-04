@@ -33,8 +33,8 @@ import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.flexbox.FlexBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
-import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext;
 
 public final class FlexBoxContent implements BoxContent {
 
@@ -266,8 +266,10 @@ public final class FlexBoxContent implements BoxContent {
     }
     totalLineCross += crossGap * (lines.size() - 1);
     
-    float resolvedMain = LayoutUtil.constraintOrDim(mainSize, largestLineMain);
-    float resolvedCross = LayoutUtil.constraintOrDim(crossSize, totalLineCross);
+    float resolvedMain = LayoutUtil.clampedUsedWidth(
+      rootBox, mainSize, largestLineMain);
+    float resolvedCross = LayoutUtil.clampedUsedHeight(
+      rootBox, crossSize, totalLineCross);
 
     // TODO: Properly compute baselines during pre-layout
     boolean skippedLayout = items.size() == 0 || items.get(0).fragment() == null;

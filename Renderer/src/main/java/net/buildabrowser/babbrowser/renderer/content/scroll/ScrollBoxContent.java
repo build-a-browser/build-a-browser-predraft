@@ -98,8 +98,8 @@ public class ScrollBoxContent implements BoxContent {
       dimensions.intrinsicWidth() : inkWidth;
     float outerHeight = dimensions.intrinsicHeight() != -1 ?
       dimensions.intrinsicHeight() : inkHeight;
-    float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, outerWidth);
-    float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, outerHeight);
+    float usedWidth = LayoutUtil.clampedUsedWidth(rootBox, widthConstraint, outerWidth);
+    float usedHeight = LayoutUtil.clampedUsedHeight(rootBox, heightConstraint, outerHeight);
 
     innerLayout.setPos(0, 0);
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();

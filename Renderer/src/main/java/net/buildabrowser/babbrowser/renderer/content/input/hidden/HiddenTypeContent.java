@@ -15,8 +15,8 @@ public class HiddenTypeContent implements InputTypeContent {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, 0);
-    float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, 0);
+    float usedWidth = LayoutUtil.clampedUsedWidth(rootBox, widthConstraint, 0);
+    float usedHeight = LayoutUtil.clampedUsedHeight(rootBox, heightConstraint, 0);
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
     return fragmentFactory.createInputBoxFragment(
       usedWidth, usedHeight, usedWidth, usedHeight,

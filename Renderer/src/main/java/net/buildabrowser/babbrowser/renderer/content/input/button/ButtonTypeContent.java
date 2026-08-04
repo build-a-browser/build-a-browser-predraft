@@ -49,8 +49,10 @@ public class ButtonTypeContent implements InputTypeContent {
     UnmanagedBoxFragment<?> innerFragment = innerContent.layout(innerBox, widthConstraint, heightConstraint);
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
 
-    float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, innerFragment.width(Measurement.CONTENT));
-    float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, innerFragment.height(Measurement.CONTENT));
+    float usedWidth = LayoutUtil.clampedUsedWidth(
+      rootBox, widthConstraint, innerFragment.width(Measurement.CONTENT));
+    float usedHeight = LayoutUtil.clampedUsedHeight(
+      rootBox, heightConstraint, innerFragment.height(Measurement.CONTENT));
 
     // TODO: Need to properly use the line height
     if (
