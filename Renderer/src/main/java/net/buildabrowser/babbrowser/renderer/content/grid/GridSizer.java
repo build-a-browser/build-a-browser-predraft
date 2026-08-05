@@ -5,6 +5,7 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackListValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue.GridRepeatNumberComponent;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue.GridRepeatValue;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -14,6 +15,7 @@ public final class GridSizer {
   
   private GridSizer() {}
 
+  // TODO: Also need to account for gap
   public static void sizeGrid(
     Grid grid,
     PropertyContainer properties,
@@ -32,10 +34,9 @@ public final class GridSizer {
       properties.get(CSSProperty.GRID_TEMPLATE_AREAS)
         instanceof GridTemplateAreasValue gridTemplateAreasValue
     ) {
-      int templateHeight = gridTemplateAreasValue.rows().size();
-      gridHeight = Math.max(gridHeight, templateHeight);
-      if (templateHeight > 0) {
-        gridWidth = Math.max(gridWidth, gridTemplateAreasValue.rows().get(0).cellNames().size());
+      for (GridArea area: gridTemplateAreasValue.areas()) {
+        gridWidth = Math.max(gridWidth, area.x() + area.w() - 1);
+        gridHeight = Math.max(gridHeight, area.y() + area.h() - 1);
       }
     }
 

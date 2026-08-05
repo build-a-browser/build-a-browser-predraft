@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.grid.GridLineValue.CustomIdentValue;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
@@ -37,7 +36,7 @@ public class GridAreaParserTest {
       CSSTokenStream.createForTesting(
         IdentToken.create("a")));
 
-    CSSValue customIdent = CustomIdentValue.create("a");
+    CSSValue customIdent = customIdent("a");
     CSSValue expected = new GridLineCompositeValue(List.of(
       customIdent, customIdent, customIdent, customIdent));
     Assertions.assertEquals(expected, actual);
@@ -51,7 +50,7 @@ public class GridAreaParserTest {
         NumberToken.create(5)));
 
     CSSValue lineNum = GridLineValue.create(
-      false, 5, null);
+      false, false, 5, null);
     CSSValue expected = new GridLineCompositeValue(List.of(
       lineNum, CSSValue.AUTO, CSSValue.AUTO, CSSValue.AUTO));
     Assertions.assertEquals(expected, actual);
@@ -66,8 +65,8 @@ public class GridAreaParserTest {
         DelimToken.create('/'),
         IdentToken.create("b")));
 
-    CSSValue customIdent1 = CustomIdentValue.create("a");
-    CSSValue customIdent2 = CustomIdentValue.create("b");
+    CSSValue customIdent1 = customIdent("a");
+    CSSValue customIdent2 = customIdent("b");
     CSSValue expected = new GridLineCompositeValue(List.of(
       customIdent1, customIdent2, customIdent1, customIdent2));
     Assertions.assertEquals(expected, actual);
@@ -87,11 +86,16 @@ public class GridAreaParserTest {
         IdentToken.create("d")));
 
     CSSValue expected = new GridLineCompositeValue(List.of(
-      CustomIdentValue.create("a"),
-      CustomIdentValue.create("b"),
-      CustomIdentValue.create("c"),
-      CustomIdentValue.create("d")));
+      customIdent("a"),
+      customIdent("b"),
+      customIdent("c"),
+      customIdent("d")));
     Assertions.assertEquals(expected, actual);
+  }
+
+  private static CSSValue customIdent(String value) {
+    return GridLineValue.create(
+      false, true, 1, value);
   }
   
 }

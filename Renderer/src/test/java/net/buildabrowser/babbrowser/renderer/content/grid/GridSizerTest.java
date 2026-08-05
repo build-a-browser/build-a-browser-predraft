@@ -10,9 +10,9 @@ import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackListValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue;
-import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridTemplateAreasRowValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue.GridRepeatNameComponent;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue.GridRepeatNumberComponent;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue.GridRepeatValue;
@@ -105,9 +105,8 @@ public class GridSizerTest {
     gridStyles.setProperty(CSSProperty.GRID_TEMPLATE_COLUMNS, GridTrackListValue.create(
       List.of(SAMPLE_FIXED_TRACK, SAMPLE_FIXED_TRACK), null));
     gridStyles.setProperty(CSSProperty.GRID_TEMPLATE_AREAS, GridTemplateAreasValue.create(List.of(
-      GridTemplateAreasRowValue.create(List.of("a", "b")),
-      GridTemplateAreasRowValue.create(List.of("a", "b")),
-      GridTemplateAreasRowValue.create(List.of("a", "b"))
+      GridArea.create("a", 1, 1, 1, 3),
+      GridArea.create("b", 2, 1, 1, 3)
     )));
     PropertyContainer properties = ActiveStyles.unparentedStyles(gridStyles);
 

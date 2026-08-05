@@ -115,10 +115,13 @@ public class GridTemplateParser implements PropertyValueParser {
       if (templateColumns.isFailure()) return templateColumns;
     }
 
+    CSSValue gridAreas = gridTemplateAreasParser.createGridAreasFromRows(gridTemplateAreas);
+    if (gridAreas.isFailure()) return gridAreas;
+
     return GridTemplateValue.create(
       GridTrackListValue.create(gridTrackRows, null),
       templateColumns,
-      GridTemplateAreasValue.create(gridTemplateAreas));
+      gridAreas);
   }
 
   private CSSValue parseAreaLines(

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridTemplateAreasRowValue;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
@@ -18,6 +18,10 @@ import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.StringToken;
 
 public class GridTemplateParserTest {
+
+  private static final CSSValue EXPECTED_TEMPLATE_AREAS = GridTemplateAreasValue.create(List.of(
+      GridArea.create("a", 1, 1, 3, 1),
+      GridArea.create("b", 1, 2, 3, 1)));
   
   private final GridTemplateParser gridTemplateParser = new GridTemplateParser();
 
@@ -62,9 +66,6 @@ public class GridTemplateParserTest {
         StringToken.create("a a a"),
         StringToken.create("b b b")));
     
-    CSSValue expectedTemplateAreas = GridTemplateAreasValue.create(List.of(
-      GridTemplateAreasRowValue.create(List.of("a", "a", "a")),
-      GridTemplateAreasRowValue.create(List.of("b", "b", "b"))));
     CSSValue expectedTemplateRows = GridTrackListValue.create(
       List.of(
         GridTrackValue.create(List.of(), CSSValue.AUTO),
@@ -72,7 +73,7 @@ public class GridTemplateParserTest {
       null);
     CSSValue expectedTemplateColumns = CSSValue.NONE;
     CSSValue expected = GridTemplateValue.create(
-      expectedTemplateRows, expectedTemplateColumns, expectedTemplateAreas);
+      expectedTemplateRows, expectedTemplateColumns, EXPECTED_TEMPLATE_AREAS);
     Assertions.assertEquals(expected, actual);
   }
 
@@ -85,9 +86,6 @@ public class GridTemplateParserTest {
         StringToken.create("b b b"),
         DimensionToken.create(1, "fr")));
     
-    CSSValue expectedTemplateAreas = GridTemplateAreasValue.create(List.of(
-      GridTemplateAreasRowValue.create(List.of("a", "a", "a")),
-      GridTemplateAreasRowValue.create(List.of("b", "b", "b"))));
     CSSValue expectedTemplateRows = GridTrackListValue.create(
       List.of(
         GridTrackValue.create(List.of(), CSSValue.AUTO),
@@ -95,7 +93,7 @@ public class GridTemplateParserTest {
       null);
     CSSValue expectedTemplateColumns = CSSValue.NONE;
     CSSValue expected = GridTemplateValue.create(
-      expectedTemplateRows, expectedTemplateColumns, expectedTemplateAreas);
+      expectedTemplateRows, expectedTemplateColumns, EXPECTED_TEMPLATE_AREAS);
     Assertions.assertEquals(expected, actual);
   }
 
@@ -121,9 +119,6 @@ public class GridTemplateParserTest {
         DelimToken.create(']')
       ));
     
-    CSSValue expectedTemplateAreas = GridTemplateAreasValue.create(List.of(
-      GridTemplateAreasRowValue.create(List.of("a", "a", "a")),
-      GridTemplateAreasRowValue.create(List.of("b", "b", "b"))));
     CSSValue expectedTemplateRows = GridTrackListValue.create(
       List.of(
         GridTrackValue.create(List.of("header-top"), CSSValue.AUTO),
@@ -136,7 +131,7 @@ public class GridTemplateParserTest {
       null);
     CSSValue expectedTemplateColumns = CSSValue.NONE;
     CSSValue expected = GridTemplateValue.create(
-      expectedTemplateRows, expectedTemplateColumns, expectedTemplateAreas);
+      expectedTemplateRows, expectedTemplateColumns, EXPECTED_TEMPLATE_AREAS);
     Assertions.assertEquals(expected, actual);
   }
 
@@ -156,9 +151,6 @@ public class GridTemplateParserTest {
     GridTrackValue trackAuto = GridTrackValue.create(List.of(), CSSValue.AUTO);
     GridTrackValue trackOneFr = GridTrackValue.create(List.of(), oneFr);
 
-    CSSValue expectedTemplateAreas = GridTemplateAreasValue.create(List.of(
-      GridTemplateAreasRowValue.create(List.of("a", "a", "a")),
-      GridTemplateAreasRowValue.create(List.of("b", "b", "b"))));
     CSSValue expectedTemplateRows = GridTrackListValue.create(
       List.of(
         GridTrackValue.create(List.of(), CSSValue.AUTO),
@@ -167,7 +159,7 @@ public class GridTemplateParserTest {
     CSSValue expectedTemplateColumns = GridTrackListValue.create(
       List.of(trackAuto, trackOneFr, trackAuto), null);
     CSSValue expected = GridTemplateValue.create(
-      expectedTemplateRows, expectedTemplateColumns, expectedTemplateAreas);
+      expectedTemplateRows, expectedTemplateColumns, EXPECTED_TEMPLATE_AREAS);
     Assertions.assertEquals(expected, actual);
   }
 

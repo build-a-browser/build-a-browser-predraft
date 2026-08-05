@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.grid.GridLineValue.CustomIdentValue;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
@@ -38,7 +37,7 @@ public class GridLineCompositeParserTest {
       CSSTokenStream.createForTesting(
         IdentToken.create("a")));
 
-    CSSValue customIdent = CustomIdentValue.create("a");
+    CSSValue customIdent = customIdent("a");
     CSSValue expected = new GridLineCompositeValue(List.of(
       customIdent, customIdent));
     Assertions.assertEquals(expected, actual);
@@ -52,7 +51,7 @@ public class GridLineCompositeParserTest {
         NumberToken.create(5)));
 
     CSSValue lineNum = GridLineValue.create(
-      false, 5, null);
+      false, false, 5, null);
     CSSValue expected = new GridLineCompositeValue(List.of(
       lineNum, CSSValue.AUTO));
     Assertions.assertEquals(expected, actual);
@@ -67,11 +66,16 @@ public class GridLineCompositeParserTest {
         DelimToken.create('/'),
         IdentToken.create("b")));
 
-    CSSValue customIdent1 = CustomIdentValue.create("a");
-    CSSValue customIdent2 = CustomIdentValue.create("b");
+    CSSValue customIdent1 = customIdent("a");
+    CSSValue customIdent2 = customIdent("b");
     CSSValue expected = new GridLineCompositeValue(List.of(
       customIdent1, customIdent2));
     Assertions.assertEquals(expected, actual);
+  }
+
+  private static CSSValue customIdent(String value) {
+    return GridLineValue.create(
+      false, true, 1, value);
   }
   
 }

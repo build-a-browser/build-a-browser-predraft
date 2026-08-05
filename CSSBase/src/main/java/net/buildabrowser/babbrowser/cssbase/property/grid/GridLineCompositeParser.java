@@ -8,7 +8,6 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
-import net.buildabrowser.babbrowser.cssbase.property.grid.GridLineValue.CustomIdentValue;
 
 public class GridLineCompositeParser implements PropertyValueParser {
 
@@ -35,7 +34,7 @@ public class GridLineCompositeParser implements PropertyValueParser {
 
     secondValue =
       secondValue != null ? secondValue :
-      firstValue instanceof CustomIdentValue ? firstValue :
+      isArea(firstValue) ? firstValue :
       CSSValue.AUTO;
     
     return new GridLineCompositeValue(List.of(firstValue, secondValue));
@@ -53,6 +52,12 @@ public class GridLineCompositeParser implements PropertyValueParser {
     List<CSSValue> lines = ((GridLineCompositeValue) result).gridLines();
     propertySetter.setProperty(startProperty, lines.get(0));
     propertySetter.setProperty(endProperty, lines.get(1));
+  }
+
+  private boolean isArea(CSSValue value) {
+    return
+      value instanceof GridLineValue gridLineValue
+      && gridLineValue.allowAreaName();
   }
 
 }

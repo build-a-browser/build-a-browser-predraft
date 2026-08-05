@@ -48,7 +48,9 @@ public class GridLineParser implements PropertyValueParser {
       && isCustomIdent(identToken)
       && (!(stream.peek() instanceof NumberToken))
     ) {
-      return CustomIdentValue.create(identToken.value());
+      return GridLineValue.create(
+        false, true, 1,
+        identToken.value());
     } else if (
       firstToken instanceof IdentToken identToken
       && identToken.value().equals("span")
@@ -83,11 +85,13 @@ public class GridLineParser implements PropertyValueParser {
     
     if (anyOrderResult.isFailure()) return anyOrderResult;
     CSSValue[] values = ((AnyOrderResult) anyOrderResult).values();
+    String lineName = values[0] == null ?
+      null : ((CustomIdentValue) values[0]).value();
     int lineNumber = values[1] != null ?
       ((LineNumberValue) values[1]).lineNumber() :
       1;
-    return new GridLineValue(
-      isSpan, lineNumber, values[0]);
+    return GridLineValue.create(
+      isSpan, false, lineNumber, lineName);
   }
 
   private static CSSValue parseCustomIdent(

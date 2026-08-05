@@ -4,8 +4,9 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 
 public record GridLineValue(
   boolean isSpan,
+  boolean allowAreaName,
   int lineNumber,
-  CSSValue ident
+  String areaOrLineName
 ) implements CSSValue {
 
   public static record CustomIdentValue(
@@ -30,10 +31,11 @@ public record GridLineValue(
 
   public static GridLineValue create(
     boolean isSpan,
+    boolean allowAreaName,
     int lineNumber,
-    CSSValue ident
+    String areaOrLineName
   ) {
-    return new GridLineValue(isSpan, lineNumber, ident);
+    return new GridLineValue(isSpan, allowAreaName, lineNumber, areaOrLineName);
   }
 
 }

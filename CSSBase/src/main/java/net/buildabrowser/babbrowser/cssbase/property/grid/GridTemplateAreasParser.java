@@ -12,6 +12,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridTemplateAreasRowValue;
 import net.buildabrowser.babbrowser.cssbase.tokenizer.imp.TokenizerUtil;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -23,6 +24,8 @@ public class GridTemplateAreasParser implements PropertyValueParser {
     "Invalid name for template area cell!");
   private static final CSSFailure INVALID_ROW_SIZE = new CSSFailure(
     "All rows must have size >0, and be same size!");
+  private static final CSSFailure INVALID_GRID_AREA = new CSSFailure(
+    "Grid areas must be rectangular, with no duplicates!");
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Override
@@ -38,10 +41,7 @@ public class GridTemplateAreasParser implements PropertyValueParser {
       stream, this::parseRow);
     if (value.isFailure()) return value;
     List<GridTemplateAreasRowValue> rowList = (List) ((ManyResult) value).values();
-    if (!verifyRowWidths(rowList)) {
-      return INVALID_ROW_SIZE;
-    }
-    return GridTemplateAreasValue.create(rowList);
+    return createGridAreasFromRows(rowList);
   }
 
   @Override
@@ -75,6 +75,16 @@ public class GridTemplateAreasParser implements PropertyValueParser {
     }
 
     return GridTemplateAreasRowValue.create(cellNames);
+  }
+
+  public CSSValue createGridAreasFromRows(List<GridTemplateAreasRowValue> rowList) {
+    if (!verifyRowWidths(rowList)) {
+      return INVALID_ROW_SIZE;
+    }
+
+    List<GridArea> gridAreas = GridTemplateAreasFormer.formGridAreas(rowList);
+    if (gridAreas == null) return INVALID_GRID_AREA;
+    return GridTemplateAreasValue.create(gridAreas);
   }
 
   private String consumeName(String rowValue, int[] index) {

@@ -1,19 +1,27 @@
 package net.buildabrowser.babbrowser.renderer.content.grid;
 
 public record GridSpan(
-  int rowStart,
-  int rowEnd,
   int colStart,
-  int colEnd
+  int colEnd,
+  int rowStart,
+  int rowEnd
 ) {
 
   public static GridSpan create(
-    int rowStart,
-    int rowEnd,
     int colStart,
-    int colEnd
+    int colEnd,
+    int rowStart,
+    int rowEnd
   ) {
-    return new GridSpan(rowStart, rowEnd, colStart, colEnd);
+    return new GridSpan(colStart, colEnd, rowStart, rowEnd);
+  }
+
+  public int width() {
+    return colEnd() - colStart() + 1;
+  }
+
+  public int height() {
+    return rowEnd() - rowStart() + 1;
   }
   
 }

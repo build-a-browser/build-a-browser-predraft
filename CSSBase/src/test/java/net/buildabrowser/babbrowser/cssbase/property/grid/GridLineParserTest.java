@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.grid.GridLineValue.CustomIdentValue;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 
@@ -34,7 +33,8 @@ public class GridLineParserTest {
       CSSTokenStream.createForTesting(
         IdentToken.create("pika")));
 
-    CSSValue expected = CustomIdentValue.create("pika");
+    CSSValue expected = GridLineValue.create(
+      false, true, 1, "pika");
     Assertions.assertEquals(expected, actual);
   }
 
@@ -46,7 +46,7 @@ public class GridLineParserTest {
         NumberToken.create(5)));
 
     CSSValue expected = GridLineValue.create(
-      false, 5, null);
+      false, false, 5, null);
     Assertions.assertEquals(expected, actual);
   }
 
@@ -59,7 +59,7 @@ public class GridLineParserTest {
         NumberToken.create(6)));
 
     CSSValue expected = GridLineValue.create(
-      false, 6, CustomIdentValue.create("pi"));
+      false, false, 6, "pi");
     Assertions.assertEquals(expected, actual);
   }
 
@@ -72,7 +72,7 @@ public class GridLineParserTest {
         IdentToken.create("ria")));
 
     CSSValue expected = GridLineValue.create(
-      false, -7, CustomIdentValue.create("ria"));
+      false, false, -7, "ria");
     Assertions.assertEquals(expected, actual);
   }
 
@@ -86,7 +86,7 @@ public class GridLineParserTest {
         IdentToken.create("hello")));
 
     CSSValue expected = GridLineValue.create(
-      true, 3, CustomIdentValue.create("hello"));
+      true, false, 3, "hello");
     Assertions.assertEquals(expected, actual);
   }
 
@@ -99,7 +99,7 @@ public class GridLineParserTest {
         IdentToken.create("world")));
 
     CSSValue expected = GridLineValue.create(
-      true, 1, CustomIdentValue.create("world"));
+      true, false, 1, "world");
     Assertions.assertEquals(expected, actual);
   }
 

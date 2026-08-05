@@ -1,7 +1,6 @@
 package net.buildabrowser.babbrowser.cssbase.property.grid;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -10,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridTemplateAreasRowValue;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.StringToken;
 
@@ -38,7 +37,7 @@ public class GridTemplateAreasParserTest {
         StringToken.create("fox")));
 
     CSSValue expected = GridTemplateAreasValue.create(List.of(
-      GridTemplateAreasRowValue.create(List.of("fox"))));
+      GridArea.create("fox", 1, 1, 1, 1)));
     Assertions.assertEquals(expected, actual);
   }
 
@@ -50,7 +49,8 @@ public class GridTemplateAreasParserTest {
         StringToken.create("fox kit")));
 
     CSSValue expected = GridTemplateAreasValue.create(List.of(
-      GridTemplateAreasRowValue.create(List.of("fox", "kit"))));
+      GridArea.create("fox", 1, 1, 1, 1),
+      GridArea.create("kit", 2, 1, 1, 1)));
     Assertions.assertEquals(expected, actual);
   }
 
@@ -63,8 +63,8 @@ public class GridTemplateAreasParserTest {
         StringToken.create("kit")));
 
     CSSValue expected = GridTemplateAreasValue.create(List.of(
-      GridTemplateAreasRowValue.create(List.of("fox")),
-      GridTemplateAreasRowValue.create(List.of("kit"))));
+      GridArea.create("fox", 1, 1, 1, 1),
+      GridArea.create("kit", 1, 2, 1, 1)));
     Assertions.assertEquals(expected, actual);
   }
 
@@ -76,7 +76,7 @@ public class GridTemplateAreasParserTest {
         StringToken.create("kitsune ....")));
 
     CSSValue expected = GridTemplateAreasValue.create(List.of(
-      GridTemplateAreasRowValue.create(Arrays.asList("kitsune", null))));
+      GridArea.create("kitsune", 1, 1, 1, 1)));
     Assertions.assertEquals(expected, actual);
   }
 

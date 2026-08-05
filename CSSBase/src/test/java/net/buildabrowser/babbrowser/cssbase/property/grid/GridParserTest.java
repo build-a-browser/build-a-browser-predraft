@@ -11,7 +11,7 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridAutoFlowValue.GridAutoFlowDirection;
-import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridTemplateAreasRowValue;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
 import net.buildabrowser.babbrowser.cssbase.property.size.SizeValue;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -30,8 +30,8 @@ public class GridParserTest {
         StringToken.create("b b b")));
     
     CSSValue expectedTemplateAreas = GridTemplateAreasValue.create(List.of(
-      GridTemplateAreasRowValue.create(List.of("a", "a", "a")),
-      GridTemplateAreasRowValue.create(List.of("b", "b", "b"))));
+      GridArea.create("a", 1, 1, 3, 1),
+      GridArea.create("b", 1, 2, 3, 1)));
     CSSValue expectedTemplateRows = GridTrackListValue.create(
       List.of(
         GridTrackValue.create(List.of(), CSSValue.AUTO),

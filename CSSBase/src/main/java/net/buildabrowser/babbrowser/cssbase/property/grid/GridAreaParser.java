@@ -8,7 +8,6 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
-import net.buildabrowser.babbrowser.cssbase.property.grid.GridLineValue.CustomIdentValue;
 
 public class GridAreaParser implements PropertyValueParser {
 
@@ -21,26 +20,26 @@ public class GridAreaParser implements PropertyValueParser {
     if (gridColumnStart != null && gridColumnStart.isFailure()) return gridColumnStart;
     gridColumnStart =
       gridColumnStart != null ? gridColumnStart :
-      gridRowStart instanceof CustomIdentValue ? gridRowStart :
+      isArea(gridRowStart) ? gridRowStart :
       CSSValue.AUTO;
 
     CSSValue gridRowEnd = GridLineParser.maybeParseNextLine(stream);
     if (gridRowEnd != null && gridRowEnd.isFailure()) return gridRowEnd;
     gridRowEnd =
       gridRowEnd != null ? gridRowEnd :
-      gridRowStart instanceof CustomIdentValue ? gridRowStart :
+      isArea(gridRowStart) ? gridRowStart :
       CSSValue.AUTO;
 
     CSSValue gridColumnEnd = GridLineParser.maybeParseNextLine(stream);
     if (gridColumnEnd != null && gridColumnEnd.isFailure()) return gridColumnEnd;
     gridColumnEnd =
       gridColumnEnd != null ? gridColumnEnd :
-      gridColumnStart instanceof CustomIdentValue ? gridColumnStart :
+      isArea(gridColumnStart) ? gridColumnStart :
       CSSValue.AUTO;
 
     if (
       gridColumnStart == null
-      && gridRowStart instanceof CustomIdentValue
+      && isArea(gridRowStart)
     ) {
       gridColumnEnd = gridRowEnd = gridColumnStart = gridRowStart;
     }
@@ -63,6 +62,12 @@ public class GridAreaParser implements PropertyValueParser {
     propertySetter.setProperty(CSSProperty.GRID_COLUMN_START, lines.get(1));
     propertySetter.setProperty(CSSProperty.GRID_ROW_END, lines.get(2));
     propertySetter.setProperty(CSSProperty.GRID_COLUMN_END, lines.get(3));
+  }
+
+  private boolean isArea(CSSValue value) {
+    return
+      value instanceof GridLineValue gridLineValue
+      && gridLineValue.allowAreaName();
   }
 
 }
