@@ -15,16 +15,16 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 public final class GridItemPlacer {
 
   private static final LineNumberLookup COL_START_LOOKUP = new LineNumberLookup(
-    CSSProperty.GRID_COLUMN_START,
+    CSSProperty.GRID_COLUMN_START, "-start",
     GridArea::x, GridSpan::colLineStart, GridSpan::colLineEnd, Grid::columnLine);
   private static final LineNumberLookup COL_END_LOOKUP = new LineNumberLookup(
-    CSSProperty.GRID_COLUMN_END,
+    CSSProperty.GRID_COLUMN_END, "-end",
     area -> area.x() + area.w(), GridSpan::colLineStart, GridSpan::colLineEnd, Grid::columnLine);
   private static final LineNumberLookup ROW_START_LOOKUP = new LineNumberLookup(
-    CSSProperty.GRID_ROW_START,
+    CSSProperty.GRID_ROW_START, "-start",
     GridArea::y, GridSpan::rowLineStart, GridSpan::rowLineEnd, Grid::rowLine);
   private static final LineNumberLookup ROW_END_LOOKUP = new LineNumberLookup(
-    CSSProperty.GRID_ROW_END,
+    CSSProperty.GRID_ROW_END, "-end",
   area -> area.y() + area.h(), GridSpan::rowLineStart, GridSpan::rowLineEnd, Grid::rowLine);
   
   private GridItemPlacer() {}
@@ -143,9 +143,15 @@ public final class GridItemPlacer {
     if (maybeGridLineValue.equals(CSSValue.AUTO)) return null;
     GridLineValue gridLineValue = (GridLineValue) maybeGridLineValue;
     if (gridLineValue.allowAreaName()) {
-      GridArea gridArea = grid.area(gridLineValue.areaOrLineName());
-      if (gridArea != null) {
-        return lookup.gridAreaLine.apply(gridArea);
+      String searchName = gridLineValue.areaOrLineName() + lookup.areaVariant();
+      int searchStart = lookup.gridLineStartFunc.apply(grid.explicitSpan());
+      int areaLinePos = trackPos(
+        grid, lookup,
+        searchName,
+        searchStart,
+        1);
+      if (isExplicitLine(grid, lookup, areaLinePos)) {
+        return areaLinePos;
       }
     }
 
@@ -163,7 +169,7 @@ public final class GridItemPlacer {
       gridLineValue.lineNumber());
   }
 
-  private static Integer trackPos(
+  private static int trackPos(
     Grid grid,
     LineNumberLookup lookup,
     String areaOrLineName,
@@ -218,6 +224,7 @@ public final class GridItemPlacer {
 
   private static record LineNumberLookup(
     CSSProperty relatedProperty,
+    String areaVariant,
     Function<GridArea, Integer> gridAreaLine,
     Function<GridSpan, Integer> gridLineStartFunc,
     Function<GridSpan, Integer> gridLineEndFunc,

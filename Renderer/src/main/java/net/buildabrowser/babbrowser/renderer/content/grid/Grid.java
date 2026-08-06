@@ -20,11 +20,8 @@ public interface Grid {
   GridLine columnLine(int colNum);
 
   GridLine rowLine(int rowNum);
-
-  // TODO: This actually needs to make implicitly-assigned line names
+  
   void addArea(GridArea area);
-
-  GridArea area(String areaName);
 
   void placeItem(
     GridItem item,

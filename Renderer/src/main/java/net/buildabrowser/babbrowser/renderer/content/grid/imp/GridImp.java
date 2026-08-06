@@ -1,7 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.content.grid.imp;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
 import net.buildabrowser.babbrowser.renderer.content.grid.BackingGrid;
@@ -13,7 +12,6 @@ import net.buildabrowser.babbrowser.renderer.content.grid.GridTrack;
 
 public class GridImp implements Grid {
 
-  private final Map<String, GridArea> gridAreas = new HashMap<>();
   private final BackingGrid<GridItem> backingGrid = new BackingGridImp<>(
     (w, h, d) -> new GridItem[d][h][w]);
 
@@ -94,12 +92,10 @@ public class GridImp implements Grid {
 
   @Override
   public void addArea(GridArea area) {
-    gridAreas.put(area.name(), area);
-  }
-
-  @Override
-  public GridArea area(String areaName) {
-    return gridAreas.get(areaName);
+    columnLine(area.x()).addNames(List.of(area.name() + "-start"));
+    columnLine(area.x() + area.w()).addNames(List.of(area.name() + "-end"));
+    rowLine(area.y()).addNames(List.of(area.name() + "-start"));
+    rowLine(area.y() + area.h()).addNames(List.of(area.name() + "-end"));
   }
 
   @Override
