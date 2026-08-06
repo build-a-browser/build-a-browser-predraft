@@ -74,11 +74,57 @@ public class GridItemPlacerTest {
     expectedGrid.compare(grid);
   }
 
+  @Test
+  @DisplayName("Can place grid with item at specified lines")
+  public void canPlaceGridWithItemAtLines() {
+    Grid grid = Grid.create();
+    GridSpan gridSpan = GridSpan.create(1, 4, 1, 8);
+    grid.resizeExplicit(gridSpan);
+    grid.columnLine(2).addNames(List.of("line"));
+    grid.rowLine(2).addNames(List.of("line"));
+    grid.rowLine(4).addNames(List.of("line"));
+    grid.rowLine(6).addNames(List.of("line"));
+    grid.rowLine(8).addNames(List.of("line"));
+
+    ActiveStyles gridItemBoxStyles = ActiveStyles.create();
+    // A named line
+    gridItemBoxStyles.setProperty(CSSProperty.GRID_COLUMN_START, GridLineValue.create(
+      false, false, 1, "line"));
+    // Last grid line
+    gridItemBoxStyles.setProperty(CSSProperty.GRID_COLUMN_END, GridLineValue.create(
+      false, false, -1, null));
+    ElementBox gridItemBox = flowBlockBox(gridItemBoxStyles, List.of());
+    // Third last named line
+    gridItemBoxStyles.setProperty(CSSProperty.GRID_ROW_START, GridLineValue.create(
+      false, false, -3, "line"));
+    // Span 2 named lines
+    gridItemBoxStyles.setProperty(CSSProperty.GRID_ROW_END, GridLineValue.create(
+      true, false, 2, "line"));
+
+    ElementBox gridBox = flowBlockBox(List.of());
+    List<GridItem> items = new ArrayList<>();
+    items.add(GridItem.create(gridItemBox));
+    GridItemPlacer.placeGridElements(grid, gridBox, items);
+
+    GridComparator expectedGrid = new GridComparator(
+      gridSpan, 1);
+    for (int x = 2; x <= 4; x++) {
+      for (int y = 4; y <= 7; y++) {
+        expectedGrid.setElementBox(x, y, 0, gridItemBox);
+      }
+    }
+    
+    expectedGrid.compare(grid);
+  }
+
+  // TODO: Test items in implicit rows/columns
+  // TODO: Test overlapping items
+
   private void setGridArea(ActiveStyles styles, GridLineValue value) {
-    styles.setProperty(CSSProperty.GRID_ROW_START, value);
-    styles.setProperty(CSSProperty.GRID_ROW_END, value);
     styles.setProperty(CSSProperty.GRID_COLUMN_START, value);
     styles.setProperty(CSSProperty.GRID_COLUMN_END, value);
+    styles.setProperty(CSSProperty.GRID_ROW_START, value);
+    styles.setProperty(CSSProperty.GRID_ROW_END, value);
   }
 
 }

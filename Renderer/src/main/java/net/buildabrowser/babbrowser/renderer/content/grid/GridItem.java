@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 
 public interface GridItem {
 
+  // Line numbers, not cell numbers
   Integer colStart();
 
   Integer colEnd();
@@ -36,7 +37,7 @@ public interface GridItem {
     assert rowEnd != null;
 
     return new GridSpan(
-      colStart, colEnd, rowStart, rowEnd);
+      colStart, colEnd - 1, rowStart, rowEnd - 1);
   }
 
   static GridItem create(ElementBox itemBox) {

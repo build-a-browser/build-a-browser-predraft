@@ -23,5 +23,21 @@ public record GridSpan(
   public int height() {
     return rowEnd() - rowStart() + 1;
   }
+
+  public int colLineStart() {
+    return colStart();
+  }
+
+  public int colLineEnd() {
+    return colEnd() + 1;
+  }
+
+  public int rowLineStart() {
+    return rowStart();
+  }
+
+  public int rowLineEnd() {
+    return rowEnd() + 1;
+  }
   
 }

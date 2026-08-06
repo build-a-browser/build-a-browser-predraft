@@ -7,7 +7,9 @@ import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue
 import net.buildabrowser.babbrowser.renderer.content.grid.BackingGrid;
 import net.buildabrowser.babbrowser.renderer.content.grid.Grid;
 import net.buildabrowser.babbrowser.renderer.content.grid.GridItem;
+import net.buildabrowser.babbrowser.renderer.content.grid.GridLine;
 import net.buildabrowser.babbrowser.renderer.content.grid.GridSpan;
+import net.buildabrowser.babbrowser.renderer.content.grid.GridTrack;
 
 public class GridImp implements Grid {
 
@@ -17,6 +19,11 @@ public class GridImp implements Grid {
 
   private GridSpan implicitSpan;
   private GridSpan explicitSpan;
+
+  private GridTrack[] columns;
+  private GridTrack[] rows;
+  private GridLine[] columnLines;
+  private GridLine[] rowLines;
 
   @Override
   public GridSpan explicitSpan() {
@@ -33,6 +40,30 @@ public class GridImp implements Grid {
     this.explicitSpan = span;
     this.implicitSpan = span;
     backingGrid.resize(span);
+
+    // resizeExplicit is only called once, so don't bother resizing existing array
+    assert this.columns == null;
+    assert this.rows == null;
+
+    this.columns = new GridTrack[span.width()];
+    for (int i = 0; i < columns.length; i++) {
+      columns[i] = GridTrack.createExplicit();
+    }
+
+    this.columnLines = new GridLine[span.width() + 1];
+    for (int i = 0; i < columnLines.length; i++) {
+      columnLines[i] = GridLine.createExplicit();
+    }
+
+    this.rows = new GridTrack[span.height()];
+    for (int i = 0; i < rows.length; i++) {
+      rows[i] = GridTrack.createExplicit();
+    }
+
+    this.rowLines = new GridLine[span.height() + 1];
+    for (int i = 0; i < rowLines.length; i++) {
+      rowLines[i] = GridLine.createExplicit();
+    }
   }
 
   @Override
@@ -42,21 +73,23 @@ public class GridImp implements Grid {
   }
 
   @Override
-  public void placeRowLineName(String lineName, int rowNum) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'placeRowLine'");
+  public GridTrack column(int colNum) {
+    return columns[colNum - implicitSpan.colStart()];
   }
 
   @Override
-  public void placeColumnLineName(String lineName, int colNum) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'placeColumnLine'");
+  public GridTrack row(int rowNum) {
+    return rows[rowNum - implicitSpan.rowStart()];
   }
 
   @Override
-  public int linePos(String name, int index) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'linePos'");
+  public GridLine columnLine(int colNum) {
+    return columnLines[colNum - implicitSpan.colStart()];
+  }
+
+  @Override
+  public GridLine rowLine(int rowNum) {
+    return rowLines[rowNum - implicitSpan.rowStart()];
   }
 
   @Override
@@ -72,11 +105,11 @@ public class GridImp implements Grid {
   @Override
   public void placeItem(
     GridItem item,
-    int colStart, int colEnd,
-    int rowStart, int rowEnd
+    int colLineStart, int colLineEnd,
+    int rowLineStart, int rowLineEnd
   ) {
-    for (int y = rowStart; y <= rowEnd; y++) {
-      for (int x = colStart; x <= colEnd; x++) {
+    for (int y = rowLineStart; y < rowLineEnd; y++) {
+      for (int x = colLineStart; x < colLineEnd; x++) {
         placeItemAtCell(item, x, y);
       }
     }

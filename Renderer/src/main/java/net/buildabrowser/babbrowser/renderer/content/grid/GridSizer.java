@@ -1,11 +1,15 @@
 package net.buildabrowser.babbrowser.renderer.content.grid;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiFunction;
+
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackListValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue;
-import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue.GridRepeatNumberComponent;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue.GridRepeatValue;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -16,19 +20,22 @@ public final class GridSizer {
   private GridSizer() {}
 
   // TODO: Also need to account for gap
-  public static void sizeGrid(
+  public static void sizeGridAndPlaceLines(
     Grid grid,
     PropertyContainer properties,
     LayoutContext layoutContext,
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
+    List<GridTrackValue> colTracks = new ArrayList<>();
     int gridWidth = sizeExplicitDimension(
-      (GridTrackListValue) properties.get(CSSProperty.GRID_TEMPLATE_ROWS),
-      layoutContext, widthConstraint);
-    int gridHeight = sizeExplicitDimension(
       (GridTrackListValue) properties.get(CSSProperty.GRID_TEMPLATE_COLUMNS),
-      layoutContext, heightConstraint);
+      colTracks, layoutContext, widthConstraint);
+    
+    List<GridTrackValue> rowTracks = new ArrayList<>();
+    int gridHeight = sizeExplicitDimension(
+      (GridTrackListValue) properties.get(CSSProperty.GRID_TEMPLATE_ROWS),
+      rowTracks, layoutContext, heightConstraint);
 
     if (
       properties.get(CSSProperty.GRID_TEMPLATE_AREAS)
@@ -41,10 +48,14 @@ public final class GridSizer {
     }
 
     grid.resizeExplicit(GridSpan.create(1, gridWidth, 1, gridHeight));
+
+    useTrackValues(grid, colTracks, Grid::column, Grid::columnLine);
+    useTrackValues(grid, rowTracks, Grid::row, Grid::rowLine);
   }
 
   private static int sizeExplicitDimension(
     GridTrackListValue tracks,
+    List<GridTrackValue> trackValues,
     LayoutContext layoutContext,
     LayoutConstraint parentConstraint
   ) {
@@ -52,11 +63,13 @@ public final class GridSizer {
     LayoutConstraint fixedSize = LayoutConstraint.of(0);
     for (GridTrackValue track: tracks.tracks()) {
       if (track.sizeOrRepeat() instanceof GridRepeatValue gridRepeatValue) {
-        dimSize += sizeNumberRepeatValue(gridRepeatValue);
+        trackValues.add(track);
+        dimSize += sizeNumberRepeatValue(gridRepeatValue, trackValues);
         LayoutConstraint repeatSize = sizeNumberRepeatValueLength(
           gridRepeatValue, layoutContext, parentConstraint);
         fixedSize = plusFixedSize(fixedSize, repeatSize);
       } else {
+        trackValues.add(track);
         dimSize++;
         LayoutConstraint trackSize = GridTrackSizer.sizeFixed(
           layoutContext, parentConstraint, track.sizeOrRepeat(), false);
@@ -66,25 +79,30 @@ public final class GridSizer {
 
     if (tracks.repeat() instanceof GridRepeatValue repeatValue) {
       if (repeatValue.repeatTimesValue() instanceof GridRepeatNumberComponent) {
-        dimSize += sizeNumberRepeatValue(repeatValue);
+        dimSize += sizeNumberRepeatValue(repeatValue, trackValues);
       } else if (parentConstraint.isBounded()) {
         LayoutConstraint remainingConstraint = LayoutConstraint.of(
           parentConstraint.value() - fixedSize.value());
         dimSize += sizeAutoRepeatValue(
-          repeatValue, layoutContext, remainingConstraint);
+          repeatValue, trackValues, layoutContext, remainingConstraint);
       }
     }
 
     return Math.max(1, dimSize);
   }
 
-  private static int sizeNumberRepeatValue(GridRepeatValue repeatValue) {
+  private static int sizeNumberRepeatValue(
+    GridRepeatValue repeatValue,
+    List<GridTrackValue> trackValues
+  ) {
     int numRepeats = ((GridRepeatNumberComponent) repeatValue.repeatTimesValue()).numRepeats();
+    repeatAddTrackValues(repeatValue, trackValues, numRepeats);
     return numRepeats * repeatValue.tracks().tracks().size();
   }
 
   private static int sizeAutoRepeatValue(
     GridRepeatValue repeatValue,
+    List<GridTrackValue> trackValues,
     LayoutContext layoutContext,
     LayoutConstraint parentConstraint
   ) {
@@ -95,9 +113,9 @@ public final class GridSizer {
       fixedSize = plusFixedSize(fixedSize, trackSize);
     }
 
-    return
-      (int) (parentConstraint.value() / fixedSize.value())
-      * repeatValue.tracks().tracks().size();
+    int numRepeats = (int) (parentConstraint.value() / fixedSize.value());
+    repeatAddTrackValues(repeatValue, trackValues, numRepeats);
+    return numRepeats * repeatValue.tracks().tracks().size();
   }
 
   private static LayoutConstraint sizeNumberRepeatValueLength(
@@ -116,6 +134,18 @@ public final class GridSizer {
     return LayoutConstraint.of(numRepeats * fixedSize.value());
   }
 
+  private static void repeatAddTrackValues(
+    GridRepeatValue repeatValue,
+    List<GridTrackValue> trackValues,
+    int numRepeats
+  ) {
+    for (int i = 0; i < numRepeats; i++) {
+      for (GridTrackValue track: repeatValue.tracks().tracks()) {
+        trackValues.add(track);
+      }
+    }
+  }
+
   private static LayoutConstraint plusFixedSize(
     LayoutConstraint fixedSize,
     LayoutConstraint trackSize
@@ -123,6 +153,25 @@ public final class GridSizer {
     if (!fixedSize.isBounded()) return trackSize;
     if (!trackSize.isBounded()) return fixedSize;
     return LayoutConstraint.of(trackSize.value() + fixedSize.value());
+  }
+
+  private static void useTrackValues(
+    Grid grid,
+    List<GridTrackValue> trackValues,
+    BiFunction<Grid, Integer, GridTrack> trackFunc,
+    BiFunction<Grid, Integer, GridLine> lineFunc
+  ) {
+    int i = 1;
+    for (GridTrackValue trackValue: trackValues) {
+      lineFunc.apply(grid, i).addNames(trackValue.lineNames());
+      if (
+        trackValue.sizeOrRepeat() instanceof GridRepeatValue
+      ) continue;
+      if (trackValue.sizeOrRepeat() != null) {
+        trackFunc.apply(grid, i).setSizeValue(trackValue.sizeOrRepeat());
+      }
+      i++;
+    }
   }
 
 }

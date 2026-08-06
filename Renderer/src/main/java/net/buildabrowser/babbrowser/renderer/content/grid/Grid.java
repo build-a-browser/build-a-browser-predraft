@@ -13,28 +13,25 @@ public interface Grid {
 
   void resizeImplicit(GridSpan span);
   
-  void placeRowLineName(
-    String lineName,
-    int rowNum
-  );
+  GridTrack column(int colNum);
 
-  void placeColumnLineName(
-    String lineName,
-    int colNum
-  );
+  GridTrack row(int rowNum);
 
-  int linePos(String name, int index);
+  GridLine columnLine(int colNum);
 
+  GridLine rowLine(int rowNum);
+
+  // TODO: This actually needs to make implicitly-assigned line names
   void addArea(GridArea area);
 
   GridArea area(String areaName);
 
   void placeItem(
     GridItem item,
-    int colStart,
-    int colEnd,
-    int rowStart,
-    int rowEnd
+    int colLineStart,
+    int colLineEnd,
+    int rowLineStart,
+    int rowLineEnd
   );
 
   GridItem cell(int x, int y, int z);

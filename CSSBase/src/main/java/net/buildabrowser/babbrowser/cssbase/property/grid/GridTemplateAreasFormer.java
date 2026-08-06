@@ -33,7 +33,6 @@ public final class GridTemplateAreasFormer {
         ) {
           continue;
         } else if (existingArea != null) {
-          System.out.println("Null out " + existingArea);
           return null;
         } else {
           GridArea area = createGridArea(rows, x, y, cellName);
