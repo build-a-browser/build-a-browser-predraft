@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.composite;
 
+import static net.buildabrowser.babbrowser.html.util.HTMLDomUtil.isHtmlElement;
+
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
@@ -10,26 +12,29 @@ import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 
 public class CompositeLayerUtil {
   
   private CompositeLayerUtil() {}
 
-  public static boolean hasScrollContent(ElementContext elementContext) {
-    PropertyContainer properties = elementContext.properties();
+  public static boolean hasScrollContent(RenderContext renderContext) {
+    PropertyContainer properties = renderContext.properties();
     CSSValue overflowX = properties.get(CSSProperty.OVERFLOW_X);
     CSSValue overflowY = properties.get(CSSProperty.OVERFLOW_Y);
 
-    overflowX = adjustOverflowValueIfHTML(elementContext, overflowX, CSSProperty.OVERFLOW_X);
-    overflowY = adjustOverflowValueIfHTML(elementContext, overflowY, CSSProperty.OVERFLOW_Y);
+    if (
+      // HTML scroll is managed by the fake outer box
+      renderContext instanceof ElementContext elementContext
+      && isHtmlElement(elementContext.element(), "html")
+    ) return false;
 
     return causesScrollContent(overflowX) || causesScrollContent(overflowY);
   }
 
   public static boolean hasScrollContent(ElementBox elementBox) {
     return
-      elementBox.element() != null
-      && elementBox.context() != null
+      elementBox.context() != null
       && hasScrollContent(elementBox.context())
       && elementBox.boxLevel().equals(BoxLevel.BLOCK_LEVEL);
   }
@@ -41,18 +46,12 @@ public class CompositeLayerUtil {
       || scrollValue.equals(OverflowValue.CLIP));
   }
 
-  public static CSSValue adjustOverflowValueIfHTML(
-    ElementContext elementContext, CSSValue guessedValue, CSSProperty relatedProperty
+  public static CSSValue adjustHTMLOverflowValue(
+    RenderContext renderContext, CSSProperty relatedProperty
   ) {
-    HTMLElement element = elementContext.element();
-    // TODO: instanceof HTMLHtmlElement
-    if (
-      element == null
-      ||!element.name().equals("html")
-    ) {
-      return guessedValue;
-    }
-
+    PropertyContainer properties = renderContext.properties();
+    CSSValue guessedValue = properties.get(relatedProperty);
+    HTMLElement element = renderContext.element();
     if (guessedValue.equals(OverflowValue.VISIBLE)) {
       // Even though there's only one <body>, the spec says to scan for a body without display: none;
       Node currentNode = element.firstChild();
@@ -63,7 +62,6 @@ public class CompositeLayerUtil {
         if (!(node instanceof HTMLElement childElement)) continue;
         // TODO: instanceof BodyElement
         if (!childElement.name().equals("body")) continue;
-        PropertyContainer properties = elementContext.properties();
         if (
           properties.get(CSSProperty.DISPLAY).equals(DisplayValue.NONE)
         ) continue;

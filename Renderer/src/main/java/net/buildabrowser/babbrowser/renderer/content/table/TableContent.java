@@ -60,8 +60,8 @@ public final class TableContent implements BoxContent {
 
     if (table.width() == 0) {
       TableBoxFragment tableFragment = fragmentFactory.createTableBoxFragment(
-        LayoutUtil.constraintOrDim(widthConstraint, 0),
-        LayoutUtil.constraintOrDim(heightConstraint, 0),
+        LayoutUtil.clampedUsedWidth(rootBox, widthConstraint, 0),
+        LayoutUtil.clampedUsedHeight(rootBox, heightConstraint, 0),
         0, 0,
         0, 0,
         rootBox, table, borderAssignment,
@@ -84,8 +84,8 @@ public final class TableContent implements BoxContent {
       float usedWidth = widthConstraint.type().equals(LayoutConstraintType.MAX_CONTENT) ?
         gridMax : gridMin;
       return fragmentFactory.createGenericUnmanagedBoxFragment(
-        LayoutUtil.constraintOrDim(widthConstraint, usedWidth),
-        LayoutUtil.constraintOrDim(heightConstraint, 0),
+        LayoutUtil.clampedUsedWidth(rootBox, widthConstraint, usedWidth),
+        LayoutUtil.clampedUsedHeight(rootBox, heightConstraint, 0),
         usedWidth, 0,
         0, 0, // TODO: Compute baselines
         rootBox);
@@ -110,8 +110,8 @@ public final class TableContent implements BoxContent {
     positionTracksAndTrackGroups(table, inkWidth, totalHeight);
 
     TableBoxFragment tableFragment = fragmentFactory.createTableBoxFragment(
-      LayoutUtil.constraintOrDim(usedConstraint, gridMax),
-      LayoutUtil.constraintOrDim(heightConstraint, totalHeight),
+      LayoutUtil.clampedUsedWidth(rootBox, usedConstraint, gridMax),
+      LayoutUtil.clampedUsedHeight(rootBox, heightConstraint, totalHeight),
       inkWidth, totalHeight,
       0, 0, // TODO: Compute baselines
       rootBox, table, borderAssignment,

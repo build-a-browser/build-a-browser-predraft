@@ -27,15 +27,15 @@ import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
-import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxGenerator;
 import net.buildabrowser.babbrowser.renderer.box.DocumentBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
-import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 import net.buildabrowser.babbrowser.renderer.context.ScriptingContext;
 import net.buildabrowser.babbrowser.renderer.context.SelectionContext;
 import net.buildabrowser.babbrowser.renderer.context.imp.ElementContextImp;
+import net.buildabrowser.babbrowser.renderer.context.imp.FakeRootContextImp;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
@@ -70,7 +70,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private final ScriptingContext scriptingContext;
   private final DocumentChangeListener changeListener;
   private final ImageCache imageCache;
-  private final SlotFamily<HTMLElement, ElementContext> elementContexts;
+  private final SlotFamily<HTMLElement, RenderContext> renderContexts;
+  private final FakeRootContextImp fakeRootContext;
   private final HTMLCompositeLayers compositeLayers;
   private final HTMLEventForwardingTarget eventForwardingTarget;
   private final SelectionContext selectionContext;
@@ -94,24 +95,26 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     this.painter = renderingEngine.painter();
 
     EventContext eventContext = EventContext.create();
-    this.elementContexts = slotFamilyFamily.createSlotFamily(ElementContextImp::new);
-    this.boxGenerator = BoxGenerator.create(elementContexts);
+    this.documentBox = DocumentBox.create(document);
+    this.renderContexts = slotFamilyFamily.createSlotFamily(ElementContextImp::new);
+    this.fakeRootContext = new FakeRootContextImp(renderContexts.familyId(), documentBox);
+    this.boxGenerator = BoxGenerator.create(renderContexts);
     this.uaStyleSheets = renderingEngine.uaStyleSheets();
     this.cssMatcher = CSSMatcher.create(
-      new RenderCSSMatcherContext(elementContexts),
+      new RenderCSSMatcherContext(renderContexts),
       uaStyleSheets, slotFamilyFamily);
-    this.documentBox = DocumentBox.create(document);
     this.compositeLayers = new HTMLCompositeLayers(painter);
     this.selectionContext = SelectionContext.create(
       document.getSelection(),
       // TODO: Not so great to leech off of the CSS module
       cssMatcher.allElements().createChild());
     this.debugContext = new HTMLDebugContext(document);
+    documentBox.setChild(fakeRootContext.box());
 
     FetchEngine fetchEngine = navigable.uaNavigableOptions().fetchEngine();
     
     DocumentChangeListener innerChangeListener = new RenderDocumentChangeListener(
-      cssMatcher.documentChangeListener(), elementContexts);
+      cssMatcher.documentChangeListener(), renderContexts);
     innerChangeListener = new ElementDocumentChangeListener(
       fetchEngine, innerChangeListener);
     innerChangeListener = new HTMLEventDocumentChangeListener(
@@ -124,9 +127,10 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     changeListener.onURLChanged(null, document.url());
     
     EventForwardingTarget eventForwardingTarget = new HTMLSelectionEventForwardingTarget<>(
-      document, selectionContext, renderingEngine.clipboardProvider(), null);
+      document, selectionContext, renderingEngine.clipboardProvider(),
+      renderContexts, null);
     this.eventForwardingTarget = new HTMLEventForwardingTarget(
-      eventContext, document, compositeLayers, elementContexts,
+      eventContext, document, compositeLayers, renderContexts,
       eventForwardingTarget);
 
     this.scriptingContext = ScriptingContext.create(
@@ -135,7 +139,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     this.imageCache = ImageCache.create(scriptingContext, painter.resourceLoader());
 
     document.focusManager().attachContext(
-      new HTMLFocusManagerContext(eventContext, elementContexts));
+      new HTMLFocusManagerContext(eventContext, renderContexts));
   }
 
   @Override
@@ -170,7 +174,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       StyleCache styleCache = StyleCache.create();
       ElementSet changedElements = cssMatcher.changedElements();
       StyleGenerator.style(
-        document, styleCache, elementContexts, changedElements);
+        document, styleCache, renderContexts, changedElements);
+      fakeRootContext.regenerateStyles(styleCache);
       this.forceRestyle = false;
       PerfLogging.logStyleTime(styleStartTime);
     }
@@ -198,14 +203,14 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     boolean needsPaint = invalidationLevel.ordinal() <= InvalidationLevel.PAINT.ordinal();
     if (
       !needsPaint
-      || documentBox.htmlBox() == null
+      || documentBox.child() == null
       || width <= 0 || height <= 0
     ) return;
 
     long paintStartTime = System.currentTimeMillis();
     
     compositeLayers.updateRendering(width, height);
-    documentBox.htmlBox().context().validate();
+    documentBox.child().context().validate();
     this.invalidationLevel = InvalidationLevel.NONE;
     
     navigable.uaNavigableOptions().requestRepaint();
@@ -264,24 +269,27 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   }
 
   private void recomputeBoxes() {
-    Box child = null;
+    ElementBox wrapperBox = fakeRootContext.wrapperBox();
+    ElementBox child = null;
     Node currentNode = document.firstChild();
     while (currentNode != null) {
       Node childNode = currentNode;
       currentNode = currentNode.nextSibling();
 
       if (!(childNode instanceof Element)) continue;
-      child = boxGenerator.box(documentBox, childNode).get(0);
+      child = (ElementBox) boxGenerator.box(wrapperBox, childNode).get(0);
       boxGenerator.fixup(child);
     }
     if (child == null) return;
-    documentBox.setChild((ElementBox) child);
+
+    fakeRootContext.replaceChild(child);
+    wrapperBox.context().invalidate(InvalidationLevel.LAYOUT);
 
     selectionContext.updateSelection();
   }
 
   private void recomputeLayout() {
-    ElementBox rootBox = documentBox.htmlBox();
+    ElementBox rootBox = documentBox.child();
     if (rootBox == null) return;
 
     GlobalLayoutContext globalLayoutContext = createGlobalLayoutContext();

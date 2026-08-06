@@ -29,6 +29,7 @@ public interface FetchResponse {
     // TODO
     MutableFetchResponse response = new MutableFetchResponseImp();
     response.setBody(body);
+    headerList.forEach(response.headerList()::append);
     return response;
   }
 

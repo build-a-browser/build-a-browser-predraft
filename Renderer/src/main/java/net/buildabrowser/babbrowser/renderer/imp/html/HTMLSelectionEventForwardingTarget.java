@@ -1,11 +1,20 @@
 package net.buildabrowser.babbrowser.renderer.imp.html;
 
+import static net.buildabrowser.babbrowser.html.util.HTMLDomUtil.isHtmlElement;
+
+import java.net.URI;
+
+import net.buildabrowser.babbrowser.common.datastruct.SlotFamily;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.util.HTMLSerializerUtil;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.selection.Selection;
 import net.buildabrowser.babbrowser.html.selection.SelectionUtil;
+import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 import net.buildabrowser.babbrowser.renderer.clipboard.ClipboardProvider;
+import net.buildabrowser.babbrowser.renderer.content.image.ImageContent;
+import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 import net.buildabrowser.babbrowser.renderer.context.SelectionContext;
 import net.buildabrowser.babbrowser.renderer.event.AbstractEventForwardingTarget;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
@@ -18,17 +27,20 @@ public class HTMLSelectionEventForwardingTarget<T> extends AbstractEventForwardi
 
   private final HTMLDocument document;
   private final SelectionContext selectionContext;
+  private final SlotFamily<HTMLElement, RenderContext> renderContexts;
   private final ClipboardProvider<T> clipboardProvider;
 
   public HTMLSelectionEventForwardingTarget(
     HTMLDocument document,
     SelectionContext selectionContext,
     ClipboardProvider<T> clipboardProvider,
+    SlotFamily<HTMLElement, RenderContext> renderContexts,
     EventForwardingTarget nextTarget
   ) {
     super(nextTarget);
     this.document = document;
     this.selectionContext = selectionContext;
+    this.renderContexts = renderContexts;
     this.clipboardProvider = clipboardProvider;
   }
 
@@ -54,7 +66,16 @@ public class HTMLSelectionEventForwardingTarget<T> extends AbstractEventForwardi
   }
 
   private void copySelection() {
-    copyHTMLSelection();
+    Selection selection = document.getSelection();
+    if (
+      selection.anchorNode() != null
+      && selection.anchorNode() == selection.focusNode()
+      && isHtmlElement(selection.anchorNode(), "img")
+    ) {
+      copyImageSelection((HTMLElement) selection.anchorNode());
+    } else {
+      copyHTMLSelection();
+    }
   }
 
   private void copyHTMLSelection() {
@@ -67,6 +88,23 @@ public class HTMLSelectionEventForwardingTarget<T> extends AbstractEventForwardi
     Node selectionRoot = selectionBuilder.rootNode();
     String textContent = HTMLSerializerUtil.serializeNodeAsText(selectionRoot);
     T clip = clipboardProvider.createHtmlClip(selectionRoot, textContent);
+    clipboardProvider.setActiveClip(clip);
+  }
+
+  private void copyImageSelection(HTMLElement imageNode) {
+    RenderContext context = renderContexts.get(imageNode);
+    if (context == null) return;
+    if (
+      context.box() == null
+      || !(context.box().content() instanceof ImageContent imageContent)
+    ) return;
+    
+    String alt = imageContent.alt();
+    URI imageURI = imageContent.imageSource();
+    LoadedImage image = imageContent.loadedImage();
+    if (image == null) return;
+
+    T clip = clipboardProvider.createImageClip(imageURI, image::streamData, alt);
     clipboardProvider.setActiveClip(clip);
   }
 

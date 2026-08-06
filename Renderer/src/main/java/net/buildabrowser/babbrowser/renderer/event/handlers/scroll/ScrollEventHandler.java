@@ -176,7 +176,7 @@ public class ScrollEventHandler implements EventHandler<ScrollBoxFragment> {
     if (verticalScrollState.active()) {
       ScrollMathResult scrollInfo = scrollBoxFragment.verticalScrollInfo();
       float diffY = mouseEvent.winY() - verticalScrollState.winStart();
-      float innerHeight = scrollBoxFragment.innerFragment().inkHeight(Measurement.CONTENT);
+      float innerHeight = scrollBoxFragment.innerFragment().inkHeight(Measurement.PADDING);
       float diffScroll = diffY / scrollInfo.trackSize() * innerHeight;
       float newScroll = verticalScrollState.scrollStart() + diffScroll;
       scrollBoxFragment.setScrollY(newScroll);
@@ -188,7 +188,7 @@ public class ScrollEventHandler implements EventHandler<ScrollBoxFragment> {
     if (horizontalScrollState.active()) {
       ScrollMathResult scrollInfo = scrollBoxFragment.horizontalScrollInfo();
       float diffX = mouseEvent.winX() - horizontalScrollState.winStart();
-      float innerWidth = scrollBoxFragment.innerFragment().inkWidth(Measurement.CONTENT);
+      float innerWidth = scrollBoxFragment.innerFragment().inkWidth(Measurement.PADDING);
       float diffScroll = diffX / scrollInfo.trackSize() * innerWidth;
       float newScroll = horizontalScrollState.scrollStart() + diffScroll;
       scrollBoxFragment.setScrollX(newScroll);

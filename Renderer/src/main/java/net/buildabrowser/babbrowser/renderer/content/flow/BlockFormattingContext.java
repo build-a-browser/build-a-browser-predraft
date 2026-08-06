@@ -3,8 +3,6 @@ package net.buildabrowser.babbrowser.renderer.content.flow;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
@@ -149,19 +147,10 @@ public class BlockFormattingContext {
     float contributionW,
     float contributionH
   ) {
-    float preclampWidth = LayoutUtil.constraintOrDim(widthConstraint, Math.max(width, contributionW));
-    float preclampHeight = LayoutUtil.constraintOrDim(heightConstraint, Math.max(y, contributionH));
-    
-    // In case it wasn't originally resolved. Passing AUTO should be fine because if the parent is
-    // definite it should have already resolved anyways. Note that this will not resolve child percentages
-    // if the original clamp was not definite, that is intentional.
-    // However, we must preserve the prelayout state
-    float usedWidth = SizingWidthUtil.clampWidth(
-      widthConstraint.isBounded() ? LayoutConstraint.AUTO : widthConstraint,
-      elementBox, LayoutConstraint.of(preclampWidth)).value();
-    float usedHeight = SizingHeightUtil.clampHeight(
-      heightConstraint.isBounded() ? LayoutConstraint.AUTO : heightConstraint,
-      elementBox, LayoutConstraint.of(preclampHeight)).value();
+    float usedWidth = LayoutUtil.clampedUsedWidth(
+      elementBox, widthConstraint, Math.max(width, contributionW));
+    float usedHeight = LayoutUtil.clampedUsedHeight(
+      elementBox, heightConstraint, Math.max(y, contributionH));
 
     assert !Float.isNaN(inkWidth);
     assert !Float.isNaN(contributionW);

@@ -78,8 +78,10 @@ public class TextAreaContent implements BoxContent {
     LayoutConstraint heightConstraint
   ) {
     ElementBoxDimensions dimensions = rootBox.dimensions();
-    float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, dimensions.intrinsicWidth());
-    float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, dimensions.intrinsicHeight());
+    float usedWidth = LayoutUtil.clampedUsedWidth(
+      rootBox, widthConstraint, dimensions.intrinsicWidth());
+    float usedHeight = LayoutUtil.clampedUsedHeight(
+      rootBox, heightConstraint, dimensions.intrinsicHeight());
     float wrapWidth = Math.max(0, usedWidth - TextEditPainter.HORIZONTAL_PADDING * 2);
     FontMetrics fontMetrics = rootBox.layoutContext().font().metrics();
     float lastBaseline = fontMetrics.descent();

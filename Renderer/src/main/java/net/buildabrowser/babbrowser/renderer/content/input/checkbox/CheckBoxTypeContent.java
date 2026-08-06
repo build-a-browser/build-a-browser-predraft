@@ -16,8 +16,10 @@ public class CheckBoxTypeContent implements InputTypeContent {
     LayoutConstraint widthConstraint,
     LayoutConstraint heightConstraint
   ) {
-    float usedWidth = LayoutUtil.constraintOrDim(widthConstraint, InputConstants.DEFAULT_SMALL_SIZE);
-    float usedHeight = LayoutUtil.constraintOrDim(heightConstraint, InputConstants.DEFAULT_SMALL_SIZE);
+    float usedWidth = LayoutUtil.clampedUsedWidth(
+      rootBox, widthConstraint, InputConstants.DEFAULT_SMALL_SIZE);
+    float usedHeight = LayoutUtil.clampedUsedHeight(
+      rootBox, heightConstraint, InputConstants.DEFAULT_SMALL_SIZE);
 
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
     UnmanagedBoxFragment<?> buttonFragment = fragmentFactory.createCheckBoxFragment(

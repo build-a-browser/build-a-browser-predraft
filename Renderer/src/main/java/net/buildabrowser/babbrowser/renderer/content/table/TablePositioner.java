@@ -6,7 +6,7 @@ import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement
 import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.table.TableBoxFragment;
-import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext;
 
 public final class TablePositioner {
 

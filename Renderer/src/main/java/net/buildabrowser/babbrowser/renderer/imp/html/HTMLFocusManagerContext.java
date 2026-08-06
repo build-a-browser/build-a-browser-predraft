@@ -9,21 +9,21 @@ import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.events.FocusEvent;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.input.FocusManagerContext;
-import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventUtil;
 
 public class HTMLFocusManagerContext implements FocusManagerContext {
 
   private final EventContext eventContext;
-  private final SlotFamily<HTMLElement, ElementContext> elementContexts;
+  private final SlotFamily<HTMLElement, RenderContext> renderContexts;
 
   public HTMLFocusManagerContext(
     EventContext eventContext,
-    SlotFamily<HTMLElement, ElementContext> elementContexts
+    SlotFamily<HTMLElement, RenderContext> renderContexts
   ) {
     this.eventContext = eventContext;
-    this.elementContexts = elementContexts;
+    this.renderContexts = renderContexts;
   }
 
   @Override
@@ -41,7 +41,7 @@ public class HTMLFocusManagerContext implements FocusManagerContext {
   @Override
   public FocusIgnore getIgnore(Node node) {
     if (!(node instanceof HTMLElement htmlElement)) return FocusIgnore.NONE;
-    PropertyContainer properties = elementContexts.get(htmlElement).properties();
+    PropertyContainer properties = renderContexts.get(htmlElement).properties();
     OuterDisplayValue outerDisplay = PropertiesUtil.outerDisplayValue(properties);
     return switch (outerDisplay) {
       case CONTENTS -> FocusIgnore.SELF;

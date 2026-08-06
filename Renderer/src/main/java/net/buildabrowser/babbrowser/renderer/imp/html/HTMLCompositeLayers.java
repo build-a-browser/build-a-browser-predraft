@@ -6,25 +6,27 @@ import java.util.function.Function;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
-import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
+import net.buildabrowser.babbrowser.renderer.composite.imp.CompositeLayerGeneratorImp;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.LayerGenerator;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext;
 import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 
 public class HTMLCompositeLayers {
   
   private final Object frontLayerLock = new Object();
 
-  private final Painter painter;
+  private final LayerGenerator<CompositeLayer> layerGenerator;
 
   private StackingContext frontLayerRegenContext;
   private CompositeLayer rootLayerBack;
   private CompositeLayer rootLayerFront;
 
   public HTMLCompositeLayers(Painter painter) {
-    this.painter = painter;
+    this.layerGenerator = new CompositeLayerGeneratorImp(painter);
   }
 
   public void regenerate(StackingContext stackingContext) {
-    this.rootLayerBack = stackingContext.createLayer(painter);
+    this.rootLayerBack = stackingContext.createLayer(layerGenerator);
     this.frontLayerRegenContext = stackingContext;
   }
 
@@ -41,7 +43,7 @@ public class HTMLCompositeLayers {
     }
 
     if (frontLayerRegenContext != null) {
-      this.rootLayerBack = frontLayerRegenContext.createLayer(painter);
+      this.rootLayerBack = frontLayerRegenContext.createLayer(layerGenerator);
       this.frontLayerRegenContext = null;
     }
   }

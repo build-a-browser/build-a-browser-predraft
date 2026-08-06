@@ -5,7 +5,7 @@ import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.imp.ElementBoxImp;
-import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 
 public class ScrollBox extends ElementBoxImp {
 
@@ -17,7 +17,7 @@ public class ScrollBox extends ElementBoxImp {
   private int scrollLeft = 0;
   private int scrollTop = 0;
 
-  public ScrollBox(ElementContext context, Box parentBox, BoxLevel boxLevel) {
+  public ScrollBox(RenderContext context, Box parentBox, BoxLevel boxLevel) {
     super(context, parentBox, boxLevel);
     this.horizontalScrollState = new ScrollBarState();
     this.verticalScrollState = new ScrollBarState();
@@ -32,6 +32,9 @@ public class ScrollBox extends ElementBoxImp {
   public boolean sharesContent(ElementBox elementBox) {
     return false;
   }
+
+  @Override
+  public void update() {}
 
   public void setRawScrollLeft(int newScrollX) {
     this.scrollLeft = newScrollX;

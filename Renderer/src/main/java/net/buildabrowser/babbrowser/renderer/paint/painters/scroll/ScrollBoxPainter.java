@@ -49,8 +49,9 @@ public class ScrollBoxPainter implements BoxPainter<ScrollBoxFragment> {
       canvas.withPaint(
         p -> p.setColor(GUTTER_BG_COLOR),
         c -> c.drawBox(
-          scrollBoxFragment.width(Measurement.CONTENT) - GUTTER_WIDTH,
-          scrollBoxFragment.height(Measurement.CONTENT) - GUTTER_WIDTH,
+          // TODO: Subtract right border
+          scrollBoxFragment.width(Measurement.BORDER) - GUTTER_WIDTH,
+          scrollBoxFragment.height(Measurement.BORDER) - GUTTER_WIDTH,
           GUTTER_WIDTH, GUTTER_WIDTH));
     }
     if (scrollBoxFragment.hasHorizontalScroll()) {

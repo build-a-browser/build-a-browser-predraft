@@ -7,6 +7,8 @@ import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionLayout;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContextGenerator;
 
 public final class HTMLLayout {
   

@@ -253,7 +253,7 @@ public class CSSIntermediateParserImp {
   private int lastNonWhitespace(List<Token> declValue, int i) {
     for (int j = i; j >= 0; j--) {
       if (!(
-        declValue.get(i) instanceof WhitespaceToken
+        declValue.get(j) instanceof WhitespaceToken
       )) return j;
     }
 

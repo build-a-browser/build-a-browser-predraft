@@ -5,7 +5,7 @@ import net.buildabrowser.babbrowser.renderer.box.imp.DocumentBoxImp;
 
 public interface DocumentBox extends Box {
   
-  ElementBox htmlBox();
+  ElementBox child();
 
   void setChild(ElementBox child);
 

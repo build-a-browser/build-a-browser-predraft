@@ -10,7 +10,7 @@ import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.input.FocusManager;
 import net.buildabrowser.babbrowser.html.input.FocusOptions;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeEventsDispatcher;
-import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 import net.buildabrowser.babbrowser.renderer.event.AbstractEventForwardingTarget;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
@@ -26,20 +26,20 @@ public class HTMLEventForwardingTarget extends AbstractEventForwardingTarget {
 
   private final HTMLCompositeLayers compositeLayers;
   private final FocusManager focusManager;
-  private final SlotFamily<HTMLElement, ElementContext> elementContexts;
+  private final SlotFamily<HTMLElement, RenderContext> renderContexts;
 
   public HTMLEventForwardingTarget(
     EventContext eventContext,
     HTMLDocument document,
     HTMLCompositeLayers compositeLayers,
-    SlotFamily<HTMLElement, ElementContext> elementContexts,
+    SlotFamily<HTMLElement, RenderContext> renderContexts,
     EventForwardingTarget nextForwardingTarget
   ) {
     super(nextForwardingTarget);
     this.eventContext = eventContext;
     this.compositeLayers = compositeLayers;
     this.focusManager = document.focusManager();
-    this.elementContexts = elementContexts;
+    this.renderContexts = renderContexts;
   }
 
   @Override
@@ -79,7 +79,7 @@ public class HTMLEventForwardingTarget extends AbstractEventForwardingTarget {
     if (
       focusManager.focused() instanceof HTMLElement htmlElement
     ) {
-      ElementContext context = elementContexts.get(htmlElement);
+      RenderContext context = renderContexts.get(htmlElement);
       if (context.box() != null) {
         response = context.box().content().withFocusEventHandler(
           context.box(),

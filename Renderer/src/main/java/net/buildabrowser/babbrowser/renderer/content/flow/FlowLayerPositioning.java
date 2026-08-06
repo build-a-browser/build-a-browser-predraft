@@ -12,7 +12,7 @@ import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.TextFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.flow.FloatRefFragment;
-import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext;
 
 public final class FlowLayerPositioning {
   

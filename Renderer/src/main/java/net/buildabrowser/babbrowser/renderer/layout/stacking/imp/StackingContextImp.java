@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.renderer.layout.imp;
+package net.buildabrowser.babbrowser.renderer.layout.stacking.imp;
 
 import java.util.function.Consumer;
 
@@ -9,22 +9,21 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.ZIndexValue;
-import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox.BoxLevel;
-import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
-import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerEntry;
 import net.buildabrowser.babbrowser.renderer.content.common.position.AbsolutePositionUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.ScrollPort;
-import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
-import net.buildabrowser.babbrowser.renderer.layout.StackingContextPosition;
-import net.buildabrowser.babbrowser.renderer.layout.StackingContextPosition.ScrollGetter;
 import net.buildabrowser.babbrowser.renderer.layout.Viewport;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.LayerGenerator;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContextEntry;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContextPosition;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContextPosition.ScrollGetter;
 
 // TODO: Some of the positioning code here is quite hacky
 public class StackingContextImp implements StackingContext {
@@ -39,7 +38,7 @@ public class StackingContextImp implements StackingContext {
   private float[] absolutePosition;
   private SinglyLinkedList<StackingContext> childContexts;
   private SinglyLinkedList<StackingContext> lastContext;
-  private CompositeLayerEntry entries;
+  private StackingContextEntry entries;
   private StackingContextPosition position;
 
   private float normalizedX = 0;
@@ -82,7 +81,7 @@ public class StackingContextImp implements StackingContext {
     float layerX = posX - normalizedX;
     float layerY = posY - normalizedY;
     fragment.setLayerPos(layerX, layerY);
-    entries = IntrusiveList.add(entries, new CompositeLayerEntry(
+    entries = IntrusiveList.add(entries, new StackingContextEntry(
       layerX, layerY, fragment));
     positionFunc.position(fragment, layerX, layerY);
   }
@@ -117,7 +116,7 @@ public class StackingContextImp implements StackingContext {
       positioning.equals(PositionValue.RELATIVE) ? determineRelativeInsets() :
       positioning.equals(PositionValue.STICKY) ? determineStickyInsets() :
       positioning.equals(PositionValue.ABSOLUTE) ? determineAbsoluteInsets() :
-      positioning.equals(PositionValue.FIXED) ? determineAbsoluteInsets() :
+      positioning.equals(PositionValue.FIXED) ? determineFixedInsets() :
       new float[4];
   }
 
@@ -132,19 +131,20 @@ public class StackingContextImp implements StackingContext {
   }
 
   @Override
-  public CompositeLayer createLayer(Painter painter) {
+  public <T> T createLayer(LayerGenerator<T> layerGenerator) {
     assert insets != null;
     StackingContextPosition ownPosition = StackingContextPosition.root();
     Viewport viewport = relatedBox.layoutContext().global().viewport();
     ScrollPort scrollPort = new ScrollPort(
       ownPosition, viewport.width(), viewport.height());
-    CompositeLayer layer = createLayer(painter, ownPosition);
+    T layer = createLayer(layerGenerator, ownPosition);
     SinglyLinkedList<StackingContext> childContext = childContexts;
     while (childContext != null) {
       StackingContextPosition childPosition = positionChild(
         ownPosition, childContext.item());
       childContext.item().addLayer(
-        layer::addChild, painter, childPosition, scrollPort);
+        child -> layerGenerator.addChild(layer, child),
+        layerGenerator, childPosition, scrollPort);
       childContext = childContext.next();
     }
 
@@ -152,9 +152,9 @@ public class StackingContextImp implements StackingContext {
   }
 
   @Override
-  public void addLayer(
-    Consumer<CompositeLayer> addFunc,
-    Painter painter,
+  public <T> void addLayer(
+    Consumer<T> addFunc,
+    LayerGenerator<T> layerGenerator,
     StackingContextPosition parentPosition,
     ScrollPort scrollPort
   ) {
@@ -165,28 +165,28 @@ public class StackingContextImp implements StackingContext {
     ScrollPort childScrollPort = determineChildScrollPort(
       ownPosition, scrollPort);
     
-    CompositeLayer ownLayer = createLayer(painter, ownPosition);
+    T ownLayer = createLayer(layerGenerator, ownPosition);
     addFunc.accept(ownLayer);
     SinglyLinkedList<StackingContext> childContext = childContexts;
     while (childContext != null) {
       StackingContextPosition childPosition = positionChild(
         ownPosition, childContext.item());
       if (isPassthrough) {
-        childContext.item().addLayer(addFunc, painter, childPosition, childScrollPort);
+        childContext.item().addLayer(addFunc, layerGenerator, childPosition, childScrollPort);
       } else {
-        childContext.item().addLayer(ownLayer::addChild, painter, childPosition, childScrollPort);
+        childContext.item().addLayer(
+          child -> layerGenerator.addChild(ownLayer, child),
+          layerGenerator, childPosition, childScrollPort);
       }
       childContext = childContext.next();
     }
   }
 
-  private CompositeLayer createLayer(
-    Painter painter,
+  private <T> T createLayer(
+    LayerGenerator<T> layerGenerator,
     StackingContextPosition position
   ) {
-    CompositeLayer layer = CompositeLayer.create(
-      painter, position, zIndexOrder);
-    layer.addEntries(entries);
+    T layer = layerGenerator.createLayer(position, zIndexOrder, entries);
     this.position = position;
     return layer;
   }
@@ -210,7 +210,7 @@ public class StackingContextImp implements StackingContext {
   public float innerWidth() {
     float minX = Integer.MAX_VALUE;
     float maxX = Integer.MIN_VALUE;
-    CompositeLayerEntry currentEntry = entries;
+    StackingContextEntry currentEntry = entries;
     while (currentEntry != null) {
       BoxFragment<?> fragment = currentEntry.fragment();
       float adjustedWidth = fragment.width(Measurement.PADDING);
@@ -226,7 +226,7 @@ public class StackingContextImp implements StackingContext {
   public float innerHeight() {
     float minY = Integer.MAX_VALUE;
     float maxY = Integer.MIN_VALUE;
-    CompositeLayerEntry currentEntry = entries;
+    StackingContextEntry currentEntry = entries;
     while (currentEntry != null) {
       BoxFragment<?> fragment = currentEntry.fragment();
       float adjustedHeight = fragment.height(Measurement.PADDING);
@@ -271,6 +271,15 @@ public class StackingContextImp implements StackingContext {
     float refHeight = parentContext.innerHeight();
     return AbsolutePositionUtil.computeAbsoluteInsets(
       relatedBox, refWidth, refHeight, parentContext.computedBorder());
+  }
+
+  private float[] determineFixedInsets() {
+    if (parentContext == null) return new float[4];
+    Viewport viewport = relatedBox.layoutContext().global().viewport();
+    float refWidth = viewport.width();
+    float refHeight = viewport.height();
+    return AbsolutePositionUtil.computeAbsoluteInsets(
+      relatedBox, refWidth, refHeight, new float[4]);
   }
 
   private StackingContextPosition positionSelf(

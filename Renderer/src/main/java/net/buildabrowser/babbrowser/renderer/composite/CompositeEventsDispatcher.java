@@ -15,7 +15,8 @@ import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
-import net.buildabrowser.babbrowser.renderer.layout.StackingContext;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContextEntry;
 
 public final class CompositeEventsDispatcher {
   
@@ -83,12 +84,12 @@ public final class CompositeEventsDispatcher {
     RendererMouseEvent mouseEvent,
     float relX, float relY
   ) {
-    CompositeLayerEntry entries = layer.entries();
+    StackingContextEntry entries = layer.entries();
     // Doesn't support backward iteration by default, we'll use a short-lived list for now
-    List<CompositeLayerEntry> entriesList = IntrusiveList.toList(entries);
-    ListIterator<CompositeLayerEntry> childIt = entriesList.listIterator(entriesList.size());
+    List<StackingContextEntry> entriesList = IntrusiveList.toList(entries);
+    ListIterator<StackingContextEntry> childIt = entriesList.listIterator(entriesList.size());
     while (childIt.hasPrevious()) {
-      CompositeLayerEntry entry = childIt.previous();
+      StackingContextEntry entry = childIt.previous();
       BoxFragment<?> fragment = entry.fragment();
       if (!EventUtil.aabb(fragment, relX, relY)) continue;
 
@@ -112,7 +113,7 @@ public final class CompositeEventsDispatcher {
     float layerRelX = relX - layer.position().vpX();
     float layerRelY = relY - layer.position().vpY();
 
-    CompositeLayerEntry entries = layer.entries();
+    StackingContextEntry entries = layer.entries();
     ScrollBoxFragment scrollBoxFragment =
       entries != null
       && entries.next() == null

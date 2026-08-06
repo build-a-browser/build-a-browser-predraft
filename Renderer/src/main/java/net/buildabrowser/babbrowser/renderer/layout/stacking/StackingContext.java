@@ -1,15 +1,14 @@
-package net.buildabrowser.babbrowser.renderer.layout;
+package net.buildabrowser.babbrowser.renderer.layout.stacking;
 
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
-import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.composite.CompositeLayer;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
-import net.buildabrowser.babbrowser.renderer.layout.imp.StackingContextImp;
+import net.buildabrowser.babbrowser.renderer.layout.ScrollPort;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.imp.StackingContextImp;
 
 public interface StackingContext {
 
@@ -35,11 +34,11 @@ public interface StackingContext {
     ChildPositionFunc<T> positionFunc
   );
 
-  CompositeLayer createLayer(Painter painter);
+  <T> T createLayer(LayerGenerator<T> layerGenerator);
 
-  void addLayer(
-    Consumer<CompositeLayer> addFunc,
-    Painter painter,
+  <T> void addLayer(
+    Consumer<T> addFunc,
+    LayerGenerator<T> layerGenerator,
     StackingContextPosition parentPosition,
     ScrollPort scrollPort
   );

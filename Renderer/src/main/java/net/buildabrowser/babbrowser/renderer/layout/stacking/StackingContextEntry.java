@@ -1,18 +1,18 @@
-package net.buildabrowser.babbrowser.renderer.composite;
+package net.buildabrowser.babbrowser.renderer.layout.stacking;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 
 // Needed to avoid destroying data in the fragment, used by other stages
-public class CompositeLayerEntry implements IntrusiveList<CompositeLayerEntry> {
+public class StackingContextEntry implements IntrusiveList<StackingContextEntry> {
   
   private final float offsetX;
   private final float offsetY;
   private final BoxFragment<?> fragment;
 
-  private CompositeLayerEntry nextEntry;
+  private StackingContextEntry nextEntry;
 
-  public CompositeLayerEntry(
+  public StackingContextEntry(
     float offsetX, float offsetY, BoxFragment<?> fragment
   ) {
     this.offsetX = offsetX;
@@ -33,12 +33,12 @@ public class CompositeLayerEntry implements IntrusiveList<CompositeLayerEntry> {
   }
 
   @Override
-  public CompositeLayerEntry next() {
+  public StackingContextEntry next() {
     return this.nextEntry;
   }
 
   @Override
-  public void setNext(CompositeLayerEntry nextNode) {
+  public void setNext(StackingContextEntry nextNode) {
     this.nextEntry = nextNode;
   }
 

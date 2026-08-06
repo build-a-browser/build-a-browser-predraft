@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.paint.painters.common;
 
+import static net.buildabrowser.babbrowser.html.util.HTMLDomUtil.isHtmlElement;
+
 import net.buildabrowser.babbrowser.common.datastruct.SlotItem;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -10,9 +12,8 @@ import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.box.ElementBoxIterator;
-import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
-import net.buildabrowser.babbrowser.renderer.context.ElementContext;
+import net.buildabrowser.babbrowser.renderer.context.RenderContext;
+import net.buildabrowser.babbrowser.renderer.context.imp.FakeRootContextImp;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
@@ -35,9 +36,16 @@ public final class ElementBackgroundPainter {
     float fragmentWidth = Math.max(0, fragment.width(Measurement.BORDER));
     float fragmentHeight = Math.max(0, fragment.height(Measurement.BORDER));
 
-    paintBackgroundImages(
-      canvas, fragment, vpIntersection,
-      fragmentWidth, fragmentHeight);
+    // <html> is painted by the fake root
+    // TODO: A bit hacky to do the check here
+    if (
+      !isHtmlElement(fragment.box().element(), "html")
+      || (fragment.box().context() instanceof FakeRootContextImp)
+    ) {
+      paintBackgroundImages(
+        canvas, fragment, vpIntersection,
+        fragmentWidth, fragmentHeight);
+    }
 
     ElementBorderPainter.paintBorders(
       canvas, fragment,
@@ -78,18 +86,12 @@ public final class ElementBackgroundPainter {
       return;
     }
 
-    if (
-      inheritsBodyBackground(fragment.box().element(), fragment.box())
-    ) {
-      properties = scanBodyProperties(fragment.box());
-    }
-
     ElementBackgroundImagePainter.paintBackgroundImagesAdjusted(
       canvas, fragment, vpIntersection,
       properties, fragmentWidth, fragmentHeight);
   }
 
-  private static boolean inheritsBodyBackground(
+  public static boolean inheritsBodyBackground(
     Node node, ElementBox refBox
   ) {
     if (!(
@@ -97,39 +99,11 @@ public final class ElementBackgroundPainter {
       && htmlElement.name().equals("html")
     )) return false;
 
-    ElementContext context = SlotItem.getExistingById(htmlElement, refBox.context().familyId());
+    RenderContext context = SlotItem.getExistingById(htmlElement, refBox.context().familyId());
     PropertyContainer properties = context.properties();
     return
       properties.get(CSSProperty.BACKGROUND_COLOR).equals(SRGBAColor.create(0, 0, 0, 0))
       && properties.get(CSSProperty.BACKGROUND_IMAGE).equals(ManyResult.create(CSSValue.NONE));
-  }
-
-  private static PropertyContainer scanBodyProperties(ElementBox box) {
-    // TODO: Would it be better to get boxes via DOM mappings to ignore any wrapper boxes?
-    if (box instanceof ScrollBox) {
-      ElementBoxIterator childIt = box.childBoxes();
-      if (
-        childIt.hasNext()
-        && childIt.next() instanceof ElementBox elBox
-      ) {
-        box = elBox;
-      } else {
-        return box.properties();
-      }
-    }
-
-    ElementBoxIterator childIt = box.childBoxes();
-    while (childIt.hasNext()) {
-      if (
-        childIt.next() instanceof ElementBox childElBox
-        && childElBox.element() != null
-        && childElBox.element().name().equals("body") // TODO: instanceof
-      ) {
-        return childElBox.properties();
-      }
-    }
-
-    return box.properties();
   }
 
 }
