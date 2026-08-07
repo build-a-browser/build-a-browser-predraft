@@ -49,8 +49,8 @@ public class BackingGridImp<T> implements BackingGrid<T> {
     for (int z = 0; z < backingArray.length; z++) {
       T[][] layerSource = backingArray[z];
       T[][] layerTarget = newBackingArray[z];
-      for (int y = 0; y < backingArray.length; y++) {
-        System.arraycopy(layerSource[y], 0, layerTarget[z][y + rowDiff], colDiff, this.span.width());
+      for (int y = 0; y < layerSource.length; y++) {
+        System.arraycopy(layerSource[y], 0, layerTarget[y + rowDiff], colDiff, this.span.width());
       }
     }
 

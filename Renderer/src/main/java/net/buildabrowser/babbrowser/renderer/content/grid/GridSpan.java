@@ -39,5 +39,23 @@ public record GridSpan(
   public int rowLineEnd() {
     return rowEnd() + 1;
   }
+
+  public int lineStart(GridDirection direction) {
+    return switch (direction) {
+      case COLUMN -> colLineStart();
+      case ROW -> rowLineStart();
+      default -> throw new IllegalArgumentException(
+        "Not a valid grid direction: " + direction);
+    };
+  }
+
+  public int lineEnd(GridDirection direction) {
+    return switch (direction) {
+      case COLUMN -> colLineEnd();
+      case ROW -> rowLineEnd();
+      default -> throw new IllegalArgumentException(
+        "Not a valid grid direction: " + direction);
+    };
+  }
   
 }

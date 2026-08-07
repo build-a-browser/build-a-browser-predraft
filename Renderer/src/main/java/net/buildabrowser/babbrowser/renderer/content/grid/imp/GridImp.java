@@ -1,10 +1,12 @@
 package net.buildabrowser.babbrowser.renderer.content.grid.imp;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
 import net.buildabrowser.babbrowser.renderer.content.grid.BackingGrid;
 import net.buildabrowser.babbrowser.renderer.content.grid.Grid;
+import net.buildabrowser.babbrowser.renderer.content.grid.GridDirection;
 import net.buildabrowser.babbrowser.renderer.content.grid.GridItem;
 import net.buildabrowser.babbrowser.renderer.content.grid.GridLine;
 import net.buildabrowser.babbrowser.renderer.content.grid.GridSpan;
@@ -66,8 +68,26 @@ public class GridImp implements Grid {
 
   @Override
   public void resizeImplicit(GridSpan span) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'resizeImplicit'");
+    if (span.equals(implicitSpan)) return;
+
+    int colDiff = this.implicitSpan.colLineEnd() - span.colLineStart();
+    this.columns = resizeImplicit(
+      new GridTrack[span.width()], this.columns, colDiff,
+      GridTrack::createImplicit);
+    this.columnLines = resizeImplicit(
+      new GridLine[span.width() + 1], this.columnLines, colDiff,
+      GridLine::createImplicit);
+      
+    int rowDiff = this.implicitSpan.rowLineEnd() - span.rowLineStart();
+    this.rows = resizeImplicit(
+      new GridTrack[span.height()], this.rows, rowDiff,
+      GridTrack::createImplicit);
+    this.rowLines = resizeImplicit(
+      new GridLine[span.height() + 1], this.rowLines, rowDiff,
+      GridLine::createImplicit);
+
+    backingGrid.resize(span);
+    this.implicitSpan = span;
   }
 
   @Override
@@ -88,6 +108,16 @@ public class GridImp implements Grid {
   @Override
   public GridLine rowLine(int rowNum) {
     return rowLines[rowNum - implicitSpan.rowStart()];
+  }
+
+  @Override
+  public GridLine line(int lineNum, GridDirection direction) {
+    return switch (direction) {
+      case COLUMN -> columnLine(lineNum);
+      case ROW -> rowLine(lineNum);
+      default -> throw new IllegalArgumentException(
+        "Not a valid grid direction: " + direction);
+    };
   }
 
   @Override
@@ -117,6 +147,18 @@ public class GridImp implements Grid {
     return backingGrid.item(x, y, z);
   }
 
+  @Override
+  public boolean isOccupied(int x, int y) {
+    if (
+      x < implicitSpan.colStart()
+      || x > implicitSpan.colEnd()
+      || y < implicitSpan.rowStart()
+      || y > implicitSpan.rowEnd()
+    ) return false;
+
+    return cell(x, y, 0) != null;
+  }
+
   private void placeItemAtCell(
     GridItem item,
     int itemX,
@@ -133,6 +175,21 @@ public class GridImp implements Grid {
     }
 
     backingGrid.set(itemX, itemY, layerPos, item);
+  }
+
+  private <T> T[] resizeImplicit(
+    T[] newValues, T[] oldValues, int sizeDiff,
+    Supplier<T> tSupplier
+  ) {
+    for (int i = 0; i < newValues.length; i++) {
+      if (i >= sizeDiff && i < sizeDiff + oldValues.length) {
+        newValues[i] = oldValues[i - sizeDiff];
+      } else {
+        newValues[i] = tSupplier.get();
+      }
+    }
+
+    return newValues;
   }
   
 }

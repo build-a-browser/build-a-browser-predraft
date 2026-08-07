@@ -20,7 +20,9 @@ public interface Grid {
   GridLine columnLine(int colNum);
 
   GridLine rowLine(int rowNum);
-  
+
+  GridLine line(int searchPos, GridDirection direction);
+
   void addArea(GridArea area);
 
   void placeItem(
@@ -32,6 +34,8 @@ public interface Grid {
   );
 
   GridItem cell(int x, int y, int z);
+
+  boolean isOccupied(int x, int y);
 
   static Grid create() {
     return new GridImp();

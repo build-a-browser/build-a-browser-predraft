@@ -20,8 +20,8 @@ public class GridComparator {
   private final List<Float> rowHeights;
   
   public GridComparator(
-    GridSpan implicitSpan,
     GridSpan explicitSpan,
+    GridSpan implicitSpan,
     List<Float> columnWidths,
     List<Float> rowHeights,
     int layers
@@ -44,9 +44,17 @@ public class GridComparator {
 
   public GridComparator(
     GridSpan explicitSpan,
+    GridSpan implicitSpan,
     int layers
   ) {
-    this(explicitSpan, explicitSpan, null, null, layers);
+    this(explicitSpan, implicitSpan, null, null, layers);
+  }
+
+  public GridComparator(
+    GridSpan explicitSpan,
+    int layers
+  ) {
+    this(explicitSpan, explicitSpan, layers);
   }
 
   public void setElementBox(
@@ -58,8 +66,8 @@ public class GridComparator {
   }
 
   public void compare(Grid grid) {
-    Assertions.assertEquals(grid.implicitSpan(), this.implicitSpan);
-    Assertions.assertEquals(grid.explicitSpan(), this.explicitSpan);
+    Assertions.assertEquals(this.implicitSpan, grid.implicitSpan());
+    Assertions.assertEquals(this.explicitSpan, grid.explicitSpan());
     /*for (int i = 0; i < columnWidths.size(); i++) {
       Assertions.assertEquals(
         columnWidths.get(i),

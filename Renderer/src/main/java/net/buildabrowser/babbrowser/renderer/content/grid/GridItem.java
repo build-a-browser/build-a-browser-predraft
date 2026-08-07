@@ -6,14 +6,17 @@ import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 
 public interface GridItem {
 
-  // Line numbers, not cell numbers
-  Integer colStart();
+  Integer colLineStart();
 
-  Integer colEnd();
+  Integer colLineEnd();
 
-  Integer rowStart();
+  Integer rowLineStart();
 
-  Integer rowEnd();
+  Integer rowLineEnd();
+
+  Integer lineStart(GridDirection direction);
+
+  Integer lineEnd(GridDirection direction);
 
   void setSpan(
     Integer colStart,
@@ -27,13 +30,13 @@ public interface GridItem {
   void setRelatedFragment(UnmanagedBoxFragment<?> fragment);
 
   default GridSpan _gridSpan() {
-    Integer colStart = colStart();
+    Integer colStart = colLineStart();
     assert colStart != null;
-    Integer colEnd = colEnd();
+    Integer colEnd = colLineEnd();
     assert colEnd != null;
-    Integer rowStart = rowStart();
+    Integer rowStart = rowLineStart();
     assert rowStart != null;
-    Integer rowEnd = rowEnd();
+    Integer rowEnd = rowLineEnd();
     assert rowEnd != null;
 
     return new GridSpan(

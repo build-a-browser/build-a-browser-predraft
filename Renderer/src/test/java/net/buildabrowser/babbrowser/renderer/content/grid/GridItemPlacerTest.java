@@ -10,8 +10,10 @@ import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridAutoFlowValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridLineValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridAutoFlowValue.GridAutoFlowDirection;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.grid.test.GridComparator;
@@ -93,38 +95,177 @@ public class GridItemPlacerTest {
     // Last grid line
     gridItemBoxStyles.setProperty(CSSProperty.GRID_COLUMN_END, GridLineValue.create(
       false, false, -1, null));
-    ElementBox gridItemBox = flowBlockBox(gridItemBoxStyles, List.of());
     // Third last named line
     gridItemBoxStyles.setProperty(CSSProperty.GRID_ROW_START, GridLineValue.create(
       false, false, -3, "line"));
     // Span 2 named lines
     gridItemBoxStyles.setProperty(CSSProperty.GRID_ROW_END, GridLineValue.create(
       true, false, 2, "line"));
+    ElementBox gridItemBox = flowBlockBox(gridItemBoxStyles, List.of());
 
     ElementBox gridBox = flowBlockBox(List.of());
     List<GridItem> items = new ArrayList<>();
     items.add(GridItem.create(gridItemBox));
     GridItemPlacer.placeGridElements(grid, gridBox, items);
 
-    GridComparator expectedGrid = new GridComparator(
-      gridSpan, 1);
-    for (int x = 2; x <= 4; x++) {
-      for (int y = 4; y <= 7; y++) {
-        expectedGrid.setElementBox(x, y, 0, gridItemBox);
-      }
-    }
+    GridComparator expectedGrid = new GridComparator(gridSpan, 1);
+    expectSpan(expectedGrid, gridItemBox, 2, 4, 4, 7);
     
     expectedGrid.compare(grid);
   }
 
-  // TODO: Test items in implicit rows/columns
+  @Test
+  @DisplayName("Can place sparse grid with items with only one determinate track position")
+  public void canSparsePlaceGridWithItemsWithOnlyOneDeterminateTrackPosition() {
+    Grid grid = Grid.create();
+    GridSpan gridSpan = GridSpan.create(1, 3, 1, 3);
+    grid.resizeExplicit(gridSpan); // Will be implicitly resized to 4x5 later
+
+    // x . x .
+    // . x . .
+    // x a a a
+    // . a a a
+    // a . . .
+    ElementBox dummyItemBox1 = dummyItemBox(1, 1, 1, 1);
+    ElementBox dummyItemBox2 = dummyItemBox(3, 3, 1, 1);
+    ElementBox dummyItemBox3 = dummyItemBox(2, 2, 2, 2);
+    ElementBox dummyItemBox4 = dummyItemBox(1, 1, 3, 3);
+
+    ActiveStyles gridItemBoxStyles1 = ActiveStyles.create();
+    gridItemBoxStyles1.setProperty(CSSProperty.GRID_COLUMN_START,
+      GridLineValue.create(false, false, 2, null));
+    gridItemBoxStyles1.setProperty(CSSProperty.GRID_COLUMN_END,
+      GridLineValue.create(false, false, 5, null));
+    gridItemBoxStyles1.setProperty(CSSProperty.GRID_ROW_START,
+      GridLineValue.create(true, false, 2, null));
+    ElementBox gridItemBox1 = flowBlockBox(gridItemBoxStyles1, List.of());
+
+    ActiveStyles gridItemBoxStyles2 = ActiveStyles.create();
+    gridItemBoxStyles2.setProperty(CSSProperty.GRID_COLUMN_START,
+      GridLineValue.create(false, false, 1, null));
+    gridItemBoxStyles2.setProperty(CSSProperty.GRID_COLUMN_END,
+      GridLineValue.create(false, false, 1, null));
+    ElementBox gridItemBox2 = flowBlockBox(gridItemBoxStyles2, List.of());
+
+    ActiveStyles gridBoxStyles = ActiveStyles.create();
+    gridBoxStyles.setProperty(CSSProperty.GRID_AUTO_FLOW,
+      GridAutoFlowValue.create(GridAutoFlowDirection.COLUMN, false));
+    ElementBox gridBox = flowBlockBox(gridBoxStyles, List.of());
+    List<GridItem> items = new ArrayList<>();
+    items.add(GridItem.create(dummyItemBox1));
+    items.add(GridItem.create(dummyItemBox2));
+    items.add(GridItem.create(dummyItemBox3));
+    items.add(GridItem.create(dummyItemBox4));
+    items.add(GridItem.create(gridItemBox1));
+    items.add(GridItem.create(gridItemBox2));
+    GridItemPlacer.placeGridElements(grid, gridBox, items);
+
+    GridComparator expectedGrid = new GridComparator(
+      gridSpan,
+      GridSpan.create(1, 4, 1, 5), 1);
+    expectedGrid.setElementBox(1, 1, 0, dummyItemBox1);
+    expectedGrid.setElementBox(3, 1, 0, dummyItemBox2);
+    expectedGrid.setElementBox(2, 2, 0, dummyItemBox3);
+    expectedGrid.setElementBox(1, 3, 0, dummyItemBox4);
+    expectSpan(expectedGrid, gridItemBox1, 2, 4, 3, 4);
+    expectedGrid.setElementBox(1, 5, 0, gridItemBox2);
+    
+    expectedGrid.compare(grid);
+  }
+
+  @Test
+  @DisplayName("Can place dense grid with items with only one determinate track position")
+  public void canPlaceDenseGridWithItemsWithOnlyOneDeterminateTrackPosition() {
+    Grid grid = Grid.create();
+    GridSpan gridSpan = GridSpan.create(1, 3, 1, 3);
+    grid.resizeExplicit(gridSpan); // Will be implicitly resized to 4x3 later
+
+    // x . x a a
+    // a x . a a
+    // x . . a a
+    ElementBox dummyItemBox1 = dummyItemBox(1, 1, 1, 1);
+    ElementBox dummyItemBox2 = dummyItemBox(3, 3, 1, 1);
+    ElementBox dummyItemBox3 = dummyItemBox(2, 2, 2, 2);
+    ElementBox dummyItemBox4 = dummyItemBox(1, 1, 3, 3);
+
+    ActiveStyles gridItemBoxStyles1 = ActiveStyles.create();
+    gridItemBoxStyles1.setProperty(CSSProperty.GRID_ROW_START,
+      GridLineValue.create(false, false, 1, null));
+    gridItemBoxStyles1.setProperty(CSSProperty.GRID_ROW_END,
+      GridLineValue.create(true, false, 3, null));
+    gridItemBoxStyles1.setProperty(CSSProperty.GRID_COLUMN_END,
+      GridLineValue.create(true, false, 2, null));
+    ElementBox gridItemBox1 = flowBlockBox(gridItemBoxStyles1, List.of());
+
+    ActiveStyles gridItemBoxStyles2 = ActiveStyles.create();
+    gridItemBoxStyles2.setProperty(CSSProperty.GRID_ROW_START,
+      GridLineValue.create(false, false, 2, null));
+    gridItemBoxStyles2.setProperty(CSSProperty.GRID_ROW_END,
+      GridLineValue.create(false, false, 3, null));
+    ElementBox gridItemBox2 = flowBlockBox(gridItemBoxStyles2, List.of());
+
+    ActiveStyles gridBoxStyles = ActiveStyles.create();
+    gridBoxStyles.setProperty(CSSProperty.GRID_AUTO_FLOW,
+      GridAutoFlowValue.create(GridAutoFlowDirection.ROW, true));
+    ElementBox gridBox = flowBlockBox(gridBoxStyles, List.of());
+    List<GridItem> items = new ArrayList<>();
+    items.add(GridItem.create(dummyItemBox1));
+    items.add(GridItem.create(dummyItemBox2));
+    items.add(GridItem.create(dummyItemBox3));
+    items.add(GridItem.create(dummyItemBox4));
+    items.add(GridItem.create(gridItemBox1));
+    items.add(GridItem.create(gridItemBox2));
+    GridItemPlacer.placeGridElements(grid, gridBox, items);
+
+    GridComparator expectedGrid = new GridComparator(
+      gridSpan,
+      GridSpan.create(1, 5, 1, 3), 1);
+    expectedGrid.setElementBox(1, 1, 0, dummyItemBox1);
+    expectedGrid.setElementBox(3, 1, 0, dummyItemBox2);
+    expectedGrid.setElementBox(2, 2, 0, dummyItemBox3);
+    expectedGrid.setElementBox(1, 3, 0, dummyItemBox4);
+    expectSpan(expectedGrid, gridItemBox1, 4, 5, 1, 3);
+    expectedGrid.setElementBox(1, 2, 0, gridItemBox2);
+    
+    expectedGrid.compare(grid);
+  }
+
   // TODO: Test overlapping items
+
+  private void expectSpan(
+    GridComparator expectedGrid,
+    ElementBox gridItemBox,
+    int colStart, int colEnd,
+    int rowStart, int rowEnd
+  ) {
+    for (int x = colStart; x <= colEnd; x++) {
+      for (int y = rowStart; y <= rowEnd; y++) {
+        expectedGrid.setElementBox(x, y, 0, gridItemBox);
+      }
+    }
+  }
 
   private void setGridArea(ActiveStyles styles, GridLineValue value) {
     styles.setProperty(CSSProperty.GRID_COLUMN_START, value);
     styles.setProperty(CSSProperty.GRID_COLUMN_END, value);
     styles.setProperty(CSSProperty.GRID_ROW_START, value);
     styles.setProperty(CSSProperty.GRID_ROW_END, value);
+  }
+
+  private ElementBox dummyItemBox(
+    int colStart, int colEnd,
+    int rowStart, int rowEnd
+  ) {
+    ActiveStyles styles = ActiveStyles.create();
+    styles.setProperty(CSSProperty.GRID_COLUMN_START,
+      GridLineValue.create(false, false, colStart, null));
+    styles.setProperty(CSSProperty.GRID_COLUMN_END,
+      GridLineValue.create(false, false, colEnd + 1, null));
+    styles.setProperty(CSSProperty.GRID_ROW_START,
+      GridLineValue.create(false, false, rowStart, null));
+    styles.setProperty(CSSProperty.GRID_ROW_END,
+      GridLineValue.create(false, false, rowEnd + 1, null));
+    return flowBlockBox(styles, List.of());
   }
 
 }
