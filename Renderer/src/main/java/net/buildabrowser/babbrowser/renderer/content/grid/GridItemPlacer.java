@@ -1,8 +1,9 @@
 package net.buildabrowser.babbrowser.renderer.content.grid;
 
+import static net.buildabrowser.babbrowser.renderer.content.grid.GridLineResolver.itemAutoEnd;
+
 import java.util.List;
 import java.util.ListIterator;
-import java.util.function.Function;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -12,21 +13,9 @@ import net.buildabrowser.babbrowser.cssbase.property.grid.GridLineValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.content.grid.GridLineResolver.LineNumberPair;
 
 public final class GridItemPlacer {
-
-  private static final LineNumberLookup COL_START_LOOKUP = new LineNumberLookup(
-    CSSProperty.GRID_COLUMN_START, "-start", GridDirection.COLUMN,
-    GridArea::x);
-  private static final LineNumberLookup COL_END_LOOKUP = new LineNumberLookup(
-    CSSProperty.GRID_COLUMN_END, "-end", GridDirection.COLUMN,
-    area -> area.x() + area.w());
-  private static final LineNumberLookup ROW_START_LOOKUP = new LineNumberLookup(
-    CSSProperty.GRID_ROW_START, "-start", GridDirection.ROW,
-    GridArea::y);
-  private static final LineNumberLookup ROW_END_LOOKUP = new LineNumberLookup(
-    CSSProperty.GRID_ROW_END, "-end", GridDirection.ROW,
-    area -> area.y() + area.h());
   
   private GridItemPlacer() {}
 
@@ -46,9 +35,10 @@ public final class GridItemPlacer {
     GridDirection autoFlowDirection = autoFlow.direction().equals(GridAutoFlowDirection.ROW) ?
       GridDirection.ROW : GridDirection.COLUMN;
     boolean isDense = autoFlow.isDense();
-
     placeSomewhatManualPositionedItems(
       grid, gridItemQueue, autoFlowDirection, isDense);
+    computeAutoSpans(grid, gridItemQueue, autoFlowDirection);
+    autoPlaceItems(grid, gridItemQueue, autoFlowDirection, isDense);
   }
 
   private static void placeGridAreas(Grid grid, ElementBox gridBox) {
@@ -65,11 +55,9 @@ public final class GridItemPlacer {
     List<GridItem> gridItemQueue
   ) {
     for (GridItem item: gridItemQueue) {
-      LineNumberPair colLines = lineNumPair(
-        grid, item, COL_START_LOOKUP, COL_END_LOOKUP);
-      LineNumberPair rowLines = lineNumPair(
-        grid, item, ROW_START_LOOKUP, ROW_END_LOOKUP);
-      // TODO: Compute spans
+      LineNumberPair colLines = GridLineResolver.itemColumnLines(grid, item);
+      LineNumberPair rowLines = GridLineResolver.itemRowLines(grid, item);
+      
       item.setSpan(
         colLines.lineNumStart(), colLines.lineNumEnd(),
         rowLines.lineNumStart(), rowLines.lineNumEnd());
@@ -99,7 +87,7 @@ public final class GridItemPlacer {
       }
     }
 
-    grid.resizeImplicit(new GridSpan(
+    grid.resizeImplicit(GridSpan.create(
       minColCell, maxColCell, minRowCell, maxRowCell));
   }
 
@@ -175,149 +163,139 @@ public final class GridItemPlacer {
     }
   }
 
-  // TODO: Allocating a record just to return is not great.
-  // Does Java optimize this to live on the stack?
-  private static LineNumberPair lineNumPair(
+  private static void computeAutoSpans(
     Grid grid,
-    GridItem item,
-    LineNumberLookup lookup1,
-    LineNumberLookup lookup2
+    List<GridItem> gridItemQueue,
+    GridDirection autoFlowDirection
   ) {
-    ElementBox itemBox = item.itemBox();
-    CSSValue maybeGridLineValueStart = itemBox.properties().get(lookup1.relatedProperty());
-    CSSValue maybeGridLineValueEnd = itemBox.properties().get(lookup2.relatedProperty());
-    Integer dimStart = definiteLineNum(grid, maybeGridLineValueStart, lookup1);
-    Integer dimEnd = definiteLineNum(grid, maybeGridLineValueEnd, lookup2);
-    if (dimStart == null && dimEnd == null) {
-      return new LineNumberPair(dimEnd, dimStart);
-    } else if (dimStart != null && dimEnd != null) {
-      return
-        dimStart > dimEnd ? new LineNumberPair(dimEnd, dimStart) :
-        dimStart == dimEnd ? new LineNumberPair(dimStart, dimEnd + 1) :
-        new LineNumberPair(dimStart, dimEnd);
-    }
+    GridDirection rotateDirection = autoFlowDirection.rotate();
 
-    if (
-      maybeGridLineValueEnd instanceof GridLineValue lineValue
-      && lineValue.isSpan()
-    ) {
-      dimEnd = trackPos(
-        grid, lookup1.direction(),
-        lineValue.areaOrLineName(),
-        dimStart + 1,
-        lineValue.lineNumber());
-    } else if (
-      maybeGridLineValueStart instanceof GridLineValue lineValue
-      && lineValue.isSpan()
-    ) {
-      dimStart = trackPos(
-        grid, lookup1.direction(),
-        lineValue.areaOrLineName(),
-        dimStart - 1,
-        -lineValue.lineNumber());
-    }
+    int largestSize = 0;
+    int minLine = grid.implicitSpan().lineStart(rotateDirection);
+    int maxLine = grid.implicitSpan().lineEnd(rotateDirection);
 
-    dimStart = dimStart == null ? dimEnd - 1 : dimStart;
-    dimEnd = dimEnd == null ? dimStart + 1 : dimEnd;
-
-    return new LineNumberPair(dimStart, dimEnd);
-  }
-
-  private static Integer definiteLineNum(
-    Grid grid,
-    CSSValue maybeGridLineValue,
-    LineNumberLookup lookup
-  ) {
-    if (maybeGridLineValue.equals(CSSValue.AUTO)) return null;
-    GridLineValue gridLineValue = (GridLineValue) maybeGridLineValue;
-    GridDirection direction = lookup.direction();
-    if (gridLineValue.allowAreaName()) {
-      String searchName = gridLineValue.areaOrLineName() + lookup.areaVariant();
-      int searchStart = grid.explicitSpan().lineStart(direction);
-      int areaLinePos = trackPos(
-        grid, direction,
-        searchName,
-        searchStart,
-        1);
-      if (isExplicitLine(grid, direction, areaLinePos)) {
-        return areaLinePos;
+    for (GridItem item: gridItemQueue) {
+      Integer itemStart = item.lineStart(rotateDirection);
+      Integer itemEnd = item.lineEnd(rotateDirection);
+      if (itemStart != null && itemEnd != null) {
+        minLine = Math.min(minLine, itemStart);
+        maxLine = Math.max(maxLine, itemEnd);
+        item.setFallbackSpan(itemEnd - itemStart);
+        continue;
       }
+
+      CSSValue spanValue = GridLineResolver.itemSpanValue(item, rotateDirection);
+      if (
+        spanValue instanceof GridLineValue lineValue
+        && lineValue.isSpan()
+        && lineValue.areaOrLineName() == null
+      ) {
+        item.setFallbackSpan(lineValue.lineNumber());
+      } else {
+        item.setFallbackSpan(1);
+      }
+
+      largestSize = Math.max(largestSize, item.fallbackSpan());
     }
 
-    if (gridLineValue.isSpan()) {
-      return null;
-    }
-
-    int searchStart = gridLineValue.lineNumber() > 0 ?
-      grid.explicitSpan().lineStart(direction) :
-      grid.explicitSpan().lineEnd(direction);
-    return trackPos(
-      grid, direction,
-      gridLineValue.areaOrLineName(),
-      searchStart,
-      gridLineValue.lineNumber());
+    maxLine = Math.max(maxLine, minLine + largestSize);
+    GridSpan newSpan = grid.implicitSpan().withDimension(
+      rotateDirection, minLine, maxLine - 1);
+    grid.resizeImplicit(newSpan);
   }
 
-  private static int trackPos(
+  // TODO: "If the placement contains only a span for a named line, replace it with a span of 1"
+  // Does the span remain 1 after auto-placement, or only before placement?
+  // Right now, the rotate direction does the former, while flow direction does the latter
+  // TODO: Split into smaller methods
+  private static void autoPlaceItems(
     Grid grid,
-    GridDirection direction,
-    String areaOrLineName,
-    int searchPos,
-    int lineNumber
+    List<GridItem> gridItemQueue,
+    GridDirection autoFlowDirection,
+    boolean isDense
   ) {
-    int remaining = lineNumber > 0 ?
-      lineNumber : -lineNumber;
-    int directionInc = lineNumber > 0 ? 1 : -1;
-    remaining--;
+    GridDirection rotateDirection = autoFlowDirection.rotate();
+    int flowCursor = grid.implicitSpan().lineStart(autoFlowDirection);
+    int rotateCursor = grid.implicitSpan().lineStart(rotateDirection);
+    ListIterator<GridItem> queueIt = gridItemQueue.listIterator();
+    while (queueIt.hasNext()) {
+      GridItem item = queueIt.next();
+      GridSpan implicitSpan = grid.implicitSpan();
+      int rotateSpan = item.fallbackSpan();
 
-    boolean isLineName = false;
-    while (
-      isExplicitLine(grid, direction, searchPos)
-      && (
-        !(isLineName = isLineName(grid, direction, areaOrLineName, searchPos))
-        || remaining > 0)
-    ) {
-      searchPos += directionInc;
-      if (isLineName) remaining--;
+      Integer lineStart = item.lineStart(rotateDirection);
+      Integer lineEnd = item.lineEnd(rotateDirection);
+      if (
+        lineStart != null
+        || lineEnd != null
+      ) { // Definite column position
+        int prevRotateCursor = rotateCursor;
+        rotateCursor = lineStart;
+        if (isDense) {
+          flowCursor = implicitSpan.lineStart(autoFlowDirection);
+        } else if (rotateCursor < prevRotateCursor) {
+          flowCursor++;
+        }
+
+        boolean willOverlap = true;
+        do {
+          willOverlap = willOverlap(
+            grid, item, autoFlowDirection,
+            rotateCursor, rotateCursor + rotateSpan,
+            flowCursor);
+          
+          if (willOverlap) {
+            flowCursor++;
+          }
+        } while (willOverlap);
+      } else { // Automatic grid position in both axis
+        if (isDense) {
+          rotateCursor = implicitSpan.lineStart(rotateDirection);
+          flowCursor = implicitSpan.lineStart(autoFlowDirection);
+        }
+        
+        boolean willOverlap = true;
+        do {
+          int spanEnd = rotateCursor + rotateSpan;
+          if (
+            spanEnd > implicitSpan.lineEnd(rotateDirection)
+          ) {
+            rotateCursor = implicitSpan.lineStart(rotateDirection);
+            flowCursor++;
+            continue;
+          }
+
+          willOverlap = willOverlap(
+            grid, item, autoFlowDirection,
+            rotateCursor, rotateCursor + rotateSpan,
+            flowCursor);
+          
+          if (willOverlap) {
+            rotateCursor++;
+          }
+        } while (willOverlap);
+      }
+
+      int spanEnd = rotateCursor + rotateSpan;
+      int autoSpanEnd = itemAutoEnd(grid, item, autoFlowDirection, flowCursor);
+      if (autoSpanEnd > implicitSpan.lineEnd(autoFlowDirection)) {
+        grid.resizeImplicit(implicitSpan.withDimension(
+          autoFlowDirection,
+          implicitSpan.lineStart(autoFlowDirection),
+          autoSpanEnd - 1));
+      }
+
+      if (autoFlowDirection.equals(GridDirection.ROW)) {
+        item.setSpan(rotateCursor, spanEnd, flowCursor, autoSpanEnd);
+      } else {
+        item.setSpan(flowCursor, autoSpanEnd, rotateCursor, spanEnd);
+      }
+
+      grid.placeItem(
+        item,
+        item.colLineStart(), item.colLineEnd(),
+        item.rowLineStart(), item.rowLineEnd());
     }
-
-    int sideRemaining = lineNumber > 0 ?
-      remaining : -remaining;
-    return searchPos + sideRemaining;
-  }
-
-  private static Integer itemAutoEnd(
-    Grid grid,
-    GridItem item,
-    GridDirection direction,
-    int dirStart
-  ) {
-    ElementBox itemBox = item.itemBox();
-    CSSValue spanValue = direction.equals(GridDirection.ROW) ?
-      itemBox.properties().get(CSSProperty.GRID_ROW_START) :
-      itemBox.properties().get(CSSProperty.GRID_COLUMN_START);
-    if (spanValue.equals(CSSValue.AUTO)) {
-      spanValue = direction.equals(GridDirection.ROW) ?
-        itemBox.properties().get(CSSProperty.GRID_ROW_END) :
-        itemBox.properties().get(CSSProperty.GRID_COLUMN_END);
-    }
-
-    // If either side were definite, it would have been resolved earlier
-    assert
-      spanValue.equals(CSSValue.AUTO)
-      || (spanValue instanceof GridLineValue lineValue && lineValue.isSpan());
-    
-    Integer dirEnd = spanValue instanceof GridLineValue lineValue && lineValue.isSpan() ?
-      trackPos(
-        grid, direction,
-        lineValue.areaOrLineName(),
-        dirStart + 1,
-        lineValue.lineNumber()) :
-      dirStart + 1;
-    
-    return dirEnd == null || dirEnd <= dirStart ?
-      dirStart + 1 :
-      dirEnd;
   }
 
   private static boolean willOverlap(
@@ -344,27 +322,6 @@ public final class GridItemPlacer {
     return false;
   }
 
-  private static boolean isLineName(
-    Grid grid,
-    GridDirection direction,
-    String areaOrLineName,
-    int searchPos
-  ) {
-    if (areaOrLineName == null) return true;
-    if (!isExplicitLine(grid, direction, searchPos)) return true;
-    return grid.line(searchPos, direction).hasName(areaOrLineName);
-  }
-
-  private static boolean isExplicitLine(
-    Grid grid,
-    GridDirection direction,
-    int searchPos
-  ) {
-    return
-      searchPos >= grid.explicitSpan().lineStart(direction)
-      && searchPos <= grid.explicitSpan().lineEnd(direction);
-  }
-
   // TODO: Because the implicit size and grid capacity are currently directly tied,
   // this will cause excessive copies
   private static void resizeForItem(
@@ -375,19 +332,8 @@ public final class GridItemPlacer {
     int minRowCell = Math.min(grid.implicitSpan().rowStart(), item.rowLineStart());
     int maxRowCell = Math.max(grid.implicitSpan().rowEnd(), item.rowLineEnd() - 1);
 
-    grid.resizeImplicit(new GridSpan(
+    grid.resizeImplicit(GridSpan.create(
       minColCell, maxColCell, minRowCell, maxRowCell));
   }
-
-  private static record LineNumberPair(
-    Integer lineNumStart, Integer lineNumEnd
-  ) {}
-
-  private static record LineNumberLookup(
-    CSSProperty relatedProperty,
-    String areaVariant,
-    GridDirection direction,
-    Function<GridArea, Integer> gridAreaLine
-  ) {}
 
 }

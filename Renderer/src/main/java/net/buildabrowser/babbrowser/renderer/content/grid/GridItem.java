@@ -25,6 +25,10 @@ public interface GridItem {
     Integer rowEnd
   );
 
+  int fallbackSpan();
+  
+  void setFallbackSpan(int fallbackSpan);
+
   ElementBox itemBox();
 
   void setRelatedFragment(UnmanagedBoxFragment<?> fragment);
@@ -39,7 +43,7 @@ public interface GridItem {
     Integer rowEnd = rowLineEnd();
     assert rowEnd != null;
 
-    return new GridSpan(
+    return GridSpan.create(
       colStart, colEnd - 1, rowStart, rowEnd - 1);
   }
 

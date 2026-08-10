@@ -57,5 +57,19 @@ public record GridSpan(
         "Not a valid grid direction: " + direction);
     };
   }
+
+  public GridSpan withDimension(
+    GridDirection direction,
+    int minLine,
+    int maxLine
+  ) {
+    maxLine = Math.max(maxLine, minLine);
+    return switch (direction) {
+      case COLUMN -> GridSpan.create(minLine, maxLine, rowStart(), rowEnd());
+      case ROW -> GridSpan.create(colStart(), colEnd(), minLine, maxLine);
+      default -> throw new IllegalArgumentException(
+        "Not a valid grid direction: " + direction);
+    };
+  }
   
 }

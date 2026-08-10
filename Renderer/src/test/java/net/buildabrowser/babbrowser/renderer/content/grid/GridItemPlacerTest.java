@@ -230,6 +230,118 @@ public class GridItemPlacerTest {
     expectedGrid.compare(grid);
   }
 
+  @Test
+  @DisplayName("Can place grid with sparse row auto-flow")
+  public void canPlaceGridWithSparseRowAutoFlow() {
+    // x .
+    // a a
+    // a a
+    // a a
+    // a .
+    // a .
+
+    Grid grid = Grid.create();
+    GridSpan gridSpan = GridSpan.create(1, 1, 1, 1);
+    grid.resizeExplicit(gridSpan);
+
+    ElementBox dummyItemBox1 = dummyItemBox(1, 1, 1, 1);
+
+    ActiveStyles gridItemBoxStyles1 = ActiveStyles.create();
+    gridItemBoxStyles1.setProperty(CSSProperty.GRID_COLUMN_START,
+      GridLineValue.create(true, false, 2, null));
+    gridItemBoxStyles1.setProperty(CSSProperty.GRID_ROW_END,
+      GridLineValue.create(true, false, 2, null));
+    ElementBox gridItemBox1 = flowBlockBox(gridItemBoxStyles1, List.of());
+
+    ElementBox gridItemBox2 = flowBlockBox(List.of());
+    ElementBox gridItemBox3 = flowBlockBox(List.of());
+    ElementBox gridItemBox4 = flowBlockBox(List.of());
+
+    ActiveStyles gridItemBoxStyles5 = ActiveStyles.create();
+    gridItemBoxStyles5.setProperty(CSSProperty.GRID_COLUMN_END,
+      GridLineValue.create(false, false, 2, null));
+    ElementBox gridItemBox5 = flowBlockBox(gridItemBoxStyles5, List.of());
+
+    ActiveStyles gridBoxStyles = ActiveStyles.create();
+    gridBoxStyles.setProperty(CSSProperty.GRID_AUTO_FLOW,
+      GridAutoFlowValue.create(GridAutoFlowDirection.ROW, false));
+    ElementBox gridBox = flowBlockBox(gridBoxStyles, List.of());
+
+    List<GridItem> items = new ArrayList<>();
+    items.add(GridItem.create(dummyItemBox1));
+    items.add(GridItem.create(gridItemBox1));
+    items.add(GridItem.create(gridItemBox2));
+    items.add(GridItem.create(gridItemBox3));
+    items.add(GridItem.create(gridItemBox4));
+    items.add(GridItem.create(gridItemBox5));
+    GridItemPlacer.placeGridElements(grid, gridBox, items);
+
+    GridComparator expectedGrid = new GridComparator(
+      gridSpan, new GridSpan(1, 2, 1, 6), 1);
+    expectedGrid.setElementBox(1, 1, 0, dummyItemBox1);
+    expectSpan(expectedGrid, gridItemBox1, 1, 2, 2, 3);
+    expectedGrid.setElementBox(1, 4, 0, gridItemBox2);
+    expectedGrid.setElementBox(2, 4, 0, gridItemBox3);
+    expectedGrid.setElementBox(1, 5, 0, gridItemBox4);
+    expectedGrid.setElementBox(1, 6, 0, gridItemBox5);
+    
+    expectedGrid.compare(grid);
+  }
+
+  @Test
+  @DisplayName("Can place grid with dense column auto-flow")
+  public void canPlaceGridWithDenseColumnAutoFlow() {
+    // x a a a a
+    // a a a a .
+
+    Grid grid = Grid.create();
+    GridSpan gridSpan = GridSpan.create(1, 1, 1, 1);
+    grid.resizeExplicit(gridSpan);
+
+    ElementBox dummyItemBox1 = dummyItemBox(1, 1, 1, 1);
+
+    ActiveStyles gridItemBoxStyles1 = ActiveStyles.create();
+    gridItemBoxStyles1.setProperty(CSSProperty.GRID_ROW_START,
+      GridLineValue.create(true, false, 2, null));
+    gridItemBoxStyles1.setProperty(CSSProperty.GRID_COLUMN_END,
+      GridLineValue.create(true, false, 2, null));
+    ElementBox gridItemBox1 = flowBlockBox(gridItemBoxStyles1, List.of());
+
+    ElementBox gridItemBox2 = flowBlockBox(List.of());
+    ElementBox gridItemBox3 = flowBlockBox(List.of());
+
+    ActiveStyles gridItemBoxStyles4 = ActiveStyles.create();
+    gridItemBoxStyles4.setProperty(CSSProperty.GRID_ROW_END,
+      GridLineValue.create(false, false, 2, null));
+    ElementBox gridItemBox4 = flowBlockBox(gridItemBoxStyles4, List.of());
+
+    ElementBox gridItemBox5 = flowBlockBox(List.of());
+
+    ActiveStyles gridBoxStyles = ActiveStyles.create();
+    gridBoxStyles.setProperty(CSSProperty.GRID_AUTO_FLOW,
+      GridAutoFlowValue.create(GridAutoFlowDirection.COLUMN, true));
+    ElementBox gridBox = flowBlockBox(gridBoxStyles, List.of());
+
+    List<GridItem> items = new ArrayList<>();
+    items.add(GridItem.create(dummyItemBox1));
+    items.add(GridItem.create(gridItemBox1));
+    items.add(GridItem.create(gridItemBox2));
+    items.add(GridItem.create(gridItemBox3));
+    items.add(GridItem.create(gridItemBox4));
+    items.add(GridItem.create(gridItemBox5));
+    GridItemPlacer.placeGridElements(grid, gridBox, items);
+
+    GridComparator expectedGrid = new GridComparator(
+      gridSpan, new GridSpan(1, 5, 1, 2), 1);
+    expectedGrid.setElementBox(1, 1, 0, dummyItemBox1);
+    expectSpan(expectedGrid, gridItemBox1, 2, 3, 1, 2);
+    expectedGrid.setElementBox(1, 2, 0, gridItemBox2);
+    expectedGrid.setElementBox(4, 1, 0, gridItemBox3);
+    expectedGrid.setElementBox(5, 1, 0, gridItemBox4);
+    expectedGrid.setElementBox(4, 2, 0, gridItemBox5);
+    expectedGrid.compare(grid);
+  }
+
   // TODO: Test overlapping items
 
   private void expectSpan(

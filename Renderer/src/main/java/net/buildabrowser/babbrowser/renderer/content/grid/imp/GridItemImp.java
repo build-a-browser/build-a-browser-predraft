@@ -13,6 +13,7 @@ public class GridItemImp implements GridItem {
   private Integer colEnd;
   private Integer rowStart;
   private Integer rowEnd;
+  private int fallbackSpan;
 
   public GridItemImp(ElementBox itemBox) {
     this.itemBox = itemBox;
@@ -67,6 +68,16 @@ public class GridItemImp implements GridItem {
     this.colEnd = colEnd;
     this.rowStart = rowStart;
     this.rowEnd = rowEnd;
+  }
+
+  @Override
+  public int fallbackSpan() {
+    return this.fallbackSpan;
+  }
+
+  @Override
+  public void setFallbackSpan(int fallbackSpan) {
+    this.fallbackSpan = fallbackSpan;
   }
 
   @Override

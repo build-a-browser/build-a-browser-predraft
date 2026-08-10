@@ -47,7 +47,7 @@ public class GridSizerTest {
     Grid grid = Grid.create();
     GridSizer.sizeGridAndPlaceLines(grid, properties, LAYOUT_CONTEXT, WIDTH_CONSTRAINT, HEIGHT_CONSTRAINT);
 
-    GridSpan expected = new GridSpan(1, 1, 1, 2);
+    GridSpan expected = GridSpan.create(1, 1, 1, 2);
     Assertions.assertEquals(expected, grid.explicitSpan());
   }
 
@@ -68,7 +68,7 @@ public class GridSizerTest {
     Grid grid = Grid.create();
     GridSizer.sizeGridAndPlaceLines(grid, properties, LAYOUT_CONTEXT, WIDTH_CONSTRAINT, HEIGHT_CONSTRAINT);
 
-    GridSpan expected = new GridSpan(1, 4, 1, 5);
+    GridSpan expected = GridSpan.create(1, 4, 1, 5);
     Assertions.assertEquals(expected, grid.explicitSpan());
   }
 
@@ -93,7 +93,7 @@ public class GridSizerTest {
     Grid grid = Grid.create();
     GridSizer.sizeGridAndPlaceLines(grid, properties, LAYOUT_CONTEXT, WIDTH_CONSTRAINT, HEIGHT_CONSTRAINT);
 
-    GridSpan expected = new GridSpan(1, 1, 1, 6);
+    GridSpan expected = GridSpan.create(1, 1, 1, 6);
     Assertions.assertEquals(expected, grid.explicitSpan());
   }
 
@@ -115,7 +115,7 @@ public class GridSizerTest {
     Grid grid = Grid.create();
     GridSizer.sizeGridAndPlaceLines(grid, properties, LAYOUT_CONTEXT, WIDTH_CONSTRAINT, HEIGHT_CONSTRAINT);
 
-    GridSpan expected = new GridSpan(1, 2, 1, 3);
+    GridSpan expected = GridSpan.create(1, 2, 1, 3);
     Assertions.assertEquals(expected, grid.explicitSpan());
   }
 
@@ -155,7 +155,7 @@ public class GridSizerTest {
     Grid grid = Grid.create();
     GridSizer.sizeGridAndPlaceLines(grid, properties, LAYOUT_CONTEXT, WIDTH_CONSTRAINT, HEIGHT_CONSTRAINT);
 
-    GridSpan expected = new GridSpan(1, 5, 1, 5);
+    GridSpan expected = GridSpan.create(1, 5, 1, 5);
     Assertions.assertEquals(expected, grid.explicitSpan());
 
     List<List<String>> COL_NAMES = List.of(List.of("c0", "c1"), List.of("c1"), List.of("c1"), List.of("c1"), List.of("c2"));
