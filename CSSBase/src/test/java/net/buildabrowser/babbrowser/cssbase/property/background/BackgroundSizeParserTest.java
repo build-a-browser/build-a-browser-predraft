@@ -29,7 +29,7 @@ public class BackgroundSizeParserTest {
       CSSTokenStream.createForTesting(
         IdentToken.create("cover")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundSizeValue.COVER),
       value);
   }
@@ -41,7 +41,7 @@ public class BackgroundSizeParserTest {
       CSSTokenStream.createForTesting(
         PercentageToken.create(5)));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         SizedBackgroundSizeValue.create(
           PercentageValue.create(5), CSSValue.AUTO)),
       value);
@@ -55,7 +55,7 @@ public class BackgroundSizeParserTest {
         IdentToken.create("auto"),
         PercentageToken.create(7)));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         SizedBackgroundSizeValue.create(
           CSSValue.AUTO, PercentageValue.create(7))),
       value);
@@ -69,7 +69,7 @@ public class BackgroundSizeParserTest {
         IdentToken.create("auto"),
         DimensionToken.create(5, true, "em")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         SizedBackgroundSizeValue.create(
           CSSValue.AUTO, LengthValue.create(5, true, LengthType.EM))),
       value);
@@ -85,7 +85,7 @@ public class BackgroundSizeParserTest {
         CommaToken.create(),
         IdentToken.create("contain")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         SizedBackgroundSizeValue.create(
           CSSValue.AUTO, PercentageValue.create(7)),
         BackgroundSizeValue.CONTAIN),

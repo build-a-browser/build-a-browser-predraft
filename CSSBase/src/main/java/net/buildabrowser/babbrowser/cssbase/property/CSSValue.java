@@ -10,6 +10,8 @@ public interface CSSValue {
   public static CSSValue INHERIT = SpecialCSSValue.INHERIT;
   public static CSSValue AUTO = SpecialCSSValue.AUTO;
   public static CSSValue NONE = SpecialCSSValue.NONE;
+
+  String serialize();
   
   default boolean isFailure() {
     return false;
@@ -36,20 +38,45 @@ public interface CSSValue {
       return true;
     }
 
+    @Override
+    public String serialize() {
+      return String.join("",
+      "[Failure: ", reason, "]");
+    }
+
   }
 
   public static record CSSDeferred(
     Declaration value,
     PropertyValueParser parser
-  ) implements CSSValue {}
+  ) implements CSSValue {
+
+    @Override
+    public String serialize() {
+      return CSSSerializerUtil.serializeTokenList(value.value());
+    }
+  
+  }
 
   public static record CSSVarValue(
     List<Token> propertyTokens
-  ) implements CSSValue {}
+  ) implements CSSValue {
+
+    @Override
+    public String serialize() {
+      return CSSSerializerUtil.serializeTokenList(propertyTokens);
+    }
+
+  }
 
   static enum SpecialCSSValue implements CSSValue {
     INHERIT, AUTO, NONE,
     INVALID, INITIAL, UNSET;
+
+    @Override
+    public String serialize() {
+      return this.name().toLowerCase();
+    }
 
     @Override
     public boolean isSpecial() {

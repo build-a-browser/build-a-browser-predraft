@@ -48,17 +48,17 @@ public enum CSSProperty {
   COLOR(nextId(), true, InvalidationLevel.PAINT, SRGBAColor.create(0, 0, 0, 255)),
 
   BACKGROUND_COLOR(nextId(), false, InvalidationLevel.PAINT, SRGBAColor.create(0, 0, 0, 0)),
-  BACKGROUND_IMAGE(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(CSSValue.NONE)),
-  BACKGROUND_REPEAT(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(BackgroundRepeatValue.create(
+  BACKGROUND_IMAGE(nextId(), false, InvalidationLevel.PAINT, ManyResult.createCommas(CSSValue.NONE)),
+  BACKGROUND_REPEAT(nextId(), false, InvalidationLevel.PAINT, ManyResult.createCommas(BackgroundRepeatValue.create(
     BackgroundAxisRepeatValue.REPEAT, BackgroundAxisRepeatValue.REPEAT))),
   // Unfortunately layout as stacking contexts (generated during layout) need regenerated
-  BACKGROUND_ATTACHMENT(nextId(), false, ManyResult.create(BackgroundAttachmentValue.SCROLL)),
-  BACKGROUND_POSITION(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(BackgroundPositionValue.create(
+  BACKGROUND_ATTACHMENT(nextId(), false, ManyResult.createCommas(BackgroundAttachmentValue.SCROLL)),
+  BACKGROUND_POSITION(nextId(), false, InvalidationLevel.PAINT, ManyResult.createCommas(BackgroundPositionValue.create(
     BackgroundPositionSide.LEFT, PercentageValue.create(0),
     BackgroundPositionSide.TOP, PercentageValue.create(0)))),
-  BACKGROUND_CLIP(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(VisualBoxValue.BORDER_BOX)),
-  BACKGROUND_ORIGIN(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(VisualBoxValue.PADDING_BOX)),
-  BACKGROUND_SIZE(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(
+  BACKGROUND_CLIP(nextId(), false, InvalidationLevel.PAINT, ManyResult.createCommas(VisualBoxValue.BORDER_BOX)),
+  BACKGROUND_ORIGIN(nextId(), false, InvalidationLevel.PAINT, ManyResult.createCommas(VisualBoxValue.PADDING_BOX)),
+  BACKGROUND_SIZE(nextId(), false, InvalidationLevel.PAINT, ManyResult.createCommas(
     SizedBackgroundSizeValue.create(CSSValue.AUTO, CSSValue.AUTO))),
   BACKGROUND(new CSSProperty[] {
     BACKGROUND_COLOR, BACKGROUND_IMAGE, BACKGROUND_REPEAT, BACKGROUND_ATTACHMENT,
@@ -88,7 +88,7 @@ public enum CSSProperty {
   LINE_HEIGHT(nextId(), true, LineHeightValue.NORMAL),
   TEXT_ALIGN(nextId(), true, TextAlignValue.START),
 
-  FONT_FAMILY(nextId(), true, new ManyResult(List.of(FontNameValue.create("sans-serif")))),
+  FONT_FAMILY(nextId(), true, ManyResult.createCommas(List.of(FontNameValue.create("sans-serif")))),
   FONT_WEIGHT(nextId(), true, FontWeightValue.create(400)),
   FONT_SIZE(nextId(), true, FontNamedSizeValue.MEDIUM),
   // TODO: There are still other properties to support...

@@ -28,7 +28,7 @@ public class BackgroundPositionParserTest {
       CSSTokenStream.createForTesting(
         IdentToken.create("right")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundPositionValue.create(
           BackgroundPositionSide.RIGHT, ZERO_PERCENT,
           BackgroundPositionSide.CENTER, ZERO_PERCENT)),
@@ -42,7 +42,7 @@ public class BackgroundPositionParserTest {
       CSSTokenStream.createForTesting(
         IdentToken.create("bottom")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundPositionValue.create(
           BackgroundPositionSide.CENTER, ZERO_PERCENT,
           BackgroundPositionSide.BOTTOM, ZERO_PERCENT)),
@@ -56,7 +56,7 @@ public class BackgroundPositionParserTest {
       CSSTokenStream.createForTesting(
         PercentageToken.create(5)));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundPositionValue.create(
           BackgroundPositionSide.LEFT, PercentageValue.create(5),
           BackgroundPositionSide.CENTER, ZERO_PERCENT)),
@@ -71,7 +71,7 @@ public class BackgroundPositionParserTest {
         IdentToken.create("right"),
         IdentToken.create("bottom")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundPositionValue.create(
           BackgroundPositionSide.RIGHT, ZERO_PERCENT,
           BackgroundPositionSide.BOTTOM, ZERO_PERCENT)),
@@ -86,7 +86,7 @@ public class BackgroundPositionParserTest {
         IdentToken.create("bottom"),
         IdentToken.create("center")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundPositionValue.create(
           BackgroundPositionSide.CENTER, ZERO_PERCENT,
           BackgroundPositionSide.BOTTOM, ZERO_PERCENT)),
@@ -101,7 +101,7 @@ public class BackgroundPositionParserTest {
         PercentageToken.create(6),
         PercentageToken.create(9)));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundPositionValue.create(
           BackgroundPositionSide.LEFT, PercentageValue.create(6),
           BackgroundPositionSide.TOP, PercentageValue.create(9))),
@@ -117,7 +117,7 @@ public class BackgroundPositionParserTest {
         IdentToken.create("left"),
         PercentageToken.create(9)));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundPositionValue.create(
           BackgroundPositionSide.LEFT, ZERO_PERCENT,
           BackgroundPositionSide.TOP, PercentageValue.create(9))),
@@ -133,7 +133,7 @@ public class BackgroundPositionParserTest {
         IdentToken.create("left"),
         PercentageToken.create(9)));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundPositionValue.create(
           BackgroundPositionSide.LEFT, PercentageValue.create(9),
           BackgroundPositionSide.CENTER, ZERO_PERCENT)),
@@ -152,7 +152,7 @@ public class BackgroundPositionParserTest {
         IdentToken.create("bottom"),
         PercentageToken.create(8)));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundPositionValue.create(
           BackgroundPositionSide.RIGHT, PercentageValue.create(7),
           BackgroundPositionSide.BOTTOM, PercentageValue.create(8))),
@@ -169,7 +169,7 @@ public class BackgroundPositionParserTest {
         IdentToken.create("center"),
         IdentToken.create("bottom")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundPositionValue.create(
           BackgroundPositionSide.CENTER, ZERO_PERCENT,
           BackgroundPositionSide.BOTTOM, ZERO_PERCENT),

@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.cssbase.property.text;
 
+import net.buildabrowser.babbrowser.cssbase.property.CSSSerializerUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 
 public enum TextAlignValue implements CSSValue {
@@ -20,6 +21,11 @@ public enum TextAlignValue implements CSSValue {
 
   public boolean alignsDescendants() {
     return this.alignsDescendants;
+  }
+  
+  @Override
+  public String serialize() {
+    return CSSSerializerUtil.serializeEnum(this);
   }
 
 }

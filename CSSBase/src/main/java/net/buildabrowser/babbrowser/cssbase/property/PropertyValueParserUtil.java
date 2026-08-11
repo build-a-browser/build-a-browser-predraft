@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 
 import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
@@ -89,7 +90,7 @@ public final class PropertyValueParserUtil {
       relatedValues.add(nextValue);
     }
 
-    return new ManyResult(relatedValues);
+    return ManyResult.createCommas(relatedValues);
   }
 
   public static CSSValue parseOneOrMore(
@@ -107,20 +108,51 @@ public final class PropertyValueParserUtil {
       CSSValue nextValue = parser.parse(stream);
       if (nextValue.isFailure()) {
         stream.seek(posMark);
-        return new ManyResult(relatedValues);
+        return ManyResult.createSpaces(relatedValues);
       }
       relatedValues.add(nextValue);
     }
   }
 
   public static record AnyOrderResult(CSSValue[] values) implements CSSValue {
-    
+
+    @Override
+    public String serialize() {
+      StringBuilder serialBuilder = new StringBuilder();
+      for (CSSValue value: values) {
+        if (value == null) continue;
+        if (!serialBuilder.isEmpty()) {
+          serialBuilder.append(' ');
+        }
+        serialBuilder.append(value.serialize());
+      }
+      return serialBuilder.toString();
+    }
+
   }
 
-  public static record ManyResult(List<CSSValue> values) implements CSSValue {
+  public static record ManyResult(List<CSSValue> values, boolean includeCommas) implements CSSValue {
     
-    public static ManyResult create(CSSValue... values) {
-      return new ManyResult(List.of(values));
+    public static ManyResult createCommas(CSSValue... values) {
+      return new ManyResult(List.of(values), true);
+    }
+
+    public static ManyResult createCommas(List<CSSValue> values) {
+      return new ManyResult(values, true);
+    }
+
+    public static ManyResult createSpaces(List<CSSValue> values) {
+      return new ManyResult(values, false);
+    }
+
+    @Override
+    public String serialize() {
+      StringJoiner joiner = new StringJoiner(includeCommas ? ", " : " ");
+      for (CSSValue value: values) {
+        joiner.add(value.serialize());
+      }
+
+      return joiner.toString();
     }
 
   }

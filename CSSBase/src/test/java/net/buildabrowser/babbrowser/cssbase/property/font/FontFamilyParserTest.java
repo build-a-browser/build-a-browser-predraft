@@ -24,7 +24,7 @@ public class FontFamilyParserTest {
     CSSValue value = fontFamilyParser.parse(
       CSSTokenStream.createForTesting(StringToken.create("arial")));
     Assertions.assertEquals(
-      new ManyResult(List.of(FontNameValue.create("arial"))),
+      ManyResult.createCommas(List.of(FontNameValue.create("arial"))),
       value);
   }
 
@@ -34,7 +34,7 @@ public class FontFamilyParserTest {
     CSSValue value = fontFamilyParser.parse(
       CSSTokenStream.createForTesting(IdentToken.create("monospace")));
     Assertions.assertEquals(
-      new ManyResult(List.of(FontFamilyValue.MONOSPACE)),
+      ManyResult.createCommas(List.of(FontFamilyValue.MONOSPACE)),
       value);
   }
 
@@ -50,7 +50,7 @@ public class FontFamilyParserTest {
       CommaToken.create(),
       IdentToken.create("sans-serif")));
     Assertions.assertEquals(
-      new ManyResult(List.of(
+      ManyResult.createCommas(List.of(
         FontNameValue.create("helvetica"),
         FontNameValue.create("Arial"),
         FontNameValue.create("sans-serif"),

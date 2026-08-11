@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.cssbase.property.background;
 
+import net.buildabrowser.babbrowser.cssbase.property.CSSSerializerUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 
 public record BackgroundPositionValue(
@@ -32,6 +33,18 @@ public record BackgroundPositionValue(
       return !(equals(LEFT) || equals(RIGHT));
     }
 
+    @Override
+    public String serialize() {
+      return CSSSerializerUtil.serializeEnum(this);
+    }
+
+  }
+
+  @Override
+  public String serialize() {
+    return CSSSerializerUtil.serializeManySpaces(
+      horizontalSide, horizontalLength,
+      verticalSide, verticalLength);
   }
 
 }

@@ -253,12 +253,32 @@ public final class CustomPropertyParser {
   }
 
   private static record InvalidVarResolution(String varName) implements CSSValue {
+
     @Override
     public boolean isFailure() {
       return true;
     }
+
+    @Override
+    public String serialize() {
+      return "[Failure: Invalid var resolution]";
+    }
+
   }
 
-  private static record VarOrFallback(String varName, CSSVarValue fallbackValue) implements CSSValue {}
+  private static record VarOrFallback(
+    String varName, CSSVarValue fallbackValue
+  ) implements CSSValue {
+
+    @Override
+    public String serialize() {
+      if (fallbackValue == null) {
+        return varName;
+      } else {
+        return String.format("%s, %s", varName, fallbackValue.serialize());
+      }
+    }
+    
+  }
 
 }

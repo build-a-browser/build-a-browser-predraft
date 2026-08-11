@@ -55,7 +55,7 @@ public class WhiteSpaceTrimParser implements PropertyValueParser {
   ) throws IOException {
     if (
       stream.peek() instanceof IdentToken identToken
-      && identToken.value().equals(targetValue)
+      && identToken.value().equals(targetName)
     ) {
       return targetValue;
     }

@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.cssbase.property.font;
 
+import net.buildabrowser.babbrowser.cssbase.property.CSSSerializerUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 
 public enum FontNamedSizeValue implements CSSValue {
@@ -28,6 +29,11 @@ public enum FontNamedSizeValue implements CSSValue {
 
   public float scaling() {
     return this.scaling;
+  }
+
+  @Override
+  public String serialize() {
+    return CSSSerializerUtil.serializeEnum(this);
   }
 
 }

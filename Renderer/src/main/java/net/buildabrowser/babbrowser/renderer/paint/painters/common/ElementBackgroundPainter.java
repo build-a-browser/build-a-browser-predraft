@@ -103,7 +103,7 @@ public final class ElementBackgroundPainter {
     PropertyContainer properties = context.properties();
     return
       properties.get(CSSProperty.BACKGROUND_COLOR).equals(SRGBAColor.create(0, 0, 0, 0))
-      && properties.get(CSSProperty.BACKGROUND_IMAGE).equals(ManyResult.create(CSSValue.NONE));
+      && properties.get(CSSProperty.BACKGROUND_IMAGE).equals(ManyResult.createCommas(CSSValue.NONE));
   }
 
 }

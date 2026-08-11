@@ -23,7 +23,7 @@ public class BackgroundAttachmentParserTest {
       CSSTokenStream.createForTesting(
         IdentToken.create("fixed")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundAttachmentValue.FIXED),
       value);
   }
@@ -37,7 +37,7 @@ public class BackgroundAttachmentParserTest {
         CommaToken.create(),
         IdentToken.create("local")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundAttachmentValue.SCROLL,
         BackgroundAttachmentValue.LOCAL),
       value);

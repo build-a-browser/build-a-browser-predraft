@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.background;
 
 import java.util.List;
 
+import net.buildabrowser.babbrowser.cssbase.property.CSSSerializerUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 
 public record BackgroundValue(
@@ -37,6 +38,22 @@ public record BackgroundValue(
         bgImage, bgPosition, bgSize, repeatStyle,
         attachment, bgOrigin, bgClip, bgColor);
     }
+
+    @Override
+    public String serialize() {
+      String serialized = CSSSerializerUtil.serializeManySpaces(
+        bgImage, repeatStyle, attachment, bgOrigin, bgClip, bgColor, bgPosition);
+      return bgSize == null ?
+        serialized :
+        serialized + " / " + bgSize;
+    }
+
+  }
+
+  @Override
+  public String serialize() {
+    return CSSSerializerUtil.serializeManyCommas(
+      bgLayers.toArray(new BackgroundLayer[0]));
   }
 
 }
