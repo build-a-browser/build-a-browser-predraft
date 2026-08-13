@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
+import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
@@ -12,6 +13,7 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxIterator;
 import net.buildabrowser.babbrowser.renderer.box.MutableElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
+import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexBoxContent;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowUtil;
@@ -81,6 +83,10 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
 
   @Override
   public void addChild(Box box) {
+    if (context() != null && PositionUtil.affectsLayoutInvalidation(box)) {
+      context().invalidate(InvalidationLevel.LAYOUT);
+    }
+
     if (nextBox == null) {
       nextBox = IntrusiveList.last(childBoxes);
     }
@@ -97,6 +103,15 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
 
   @Override
   public void clearChildren() {
+    Box invBox = childBoxes;
+    if (context() != null) while (invBox != null) {
+      if (PositionUtil.affectsLayoutInvalidation(invBox)) {
+        context().invalidate(InvalidationLevel.LAYOUT);
+        break;
+      }
+      invBox = invBox.next();
+    }
+
     this.childBoxes = null;
     this.nextBox = null;
   }

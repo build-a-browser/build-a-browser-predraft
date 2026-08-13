@@ -2,7 +2,6 @@ package net.buildabrowser.babbrowser.renderer.context.imp;
 
 import net.buildabrowser.babbrowser.common.datastruct.SlotItem;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
-import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.dom.Node;
@@ -77,9 +76,8 @@ public class FakeRootContextImp extends RenderContextImp {
   }
 
   @Override
-  public void invalidate(InvalidationLevel invalidationLevel) {
-    if (invalidationLevel.ordinal() < invalidationLevel().ordinal()) {
-      
+  public void invalidate(short invalidationLevel) {
+    if ((invalidationLevel ^ invalidationLevel()) != 0) {
       if (
         documentBox.document() instanceof HTMLDocument document
         && document.renderer() != null

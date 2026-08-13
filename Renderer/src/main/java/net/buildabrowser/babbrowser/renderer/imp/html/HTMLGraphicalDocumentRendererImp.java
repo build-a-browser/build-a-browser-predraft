@@ -77,7 +77,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private final SelectionContext selectionContext;
   private final DebugContext debugContext;
 
-  private volatile InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
+  private volatile short invalidationLevel = InvalidationLevel.BOX;
   private LoadedFont rootFont;
 
   // TODO: Switch to AtomicInteger? Synchronize?
@@ -148,7 +148,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     // and other methods on the event loop may not run
     updateDebugger();
     return
-      !invalidationLevel.equals(InvalidationLevel.NONE)
+      invalidationLevel != InvalidationLevel.NONE
       || cssMatcher.changed();
   }
 
@@ -158,7 +158,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       cssMatcher.changed()
       // If level is box, either a box was inserted or a property changed to cause that,
       // so restyle is needed regardless
-      || invalidationLevel.ordinal() <= InvalidationLevel.BOX.ordinal()
+      || (invalidationLevel & InvalidationLevel.BOX) != 0
       || forceRestyle
     ) {
       long styleStartTime = System.currentTimeMillis();
@@ -183,13 +183,13 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   @Override
   public void updateLayout() {
-    if (invalidationLevel.ordinal() <= InvalidationLevel.BOX.ordinal()) {
+    if ((invalidationLevel & InvalidationLevel.BOX) != 0) {
       long boxStartTime = System.currentTimeMillis();
       recomputeBoxes();
       PerfLogging.logBoxTime(boxStartTime);
       updateDebugger();
     }
-    if (invalidationLevel.ordinal() <= InvalidationLevel.LAYOUT.ordinal()) {
+    if ((invalidationLevel & InvalidationLevel.LAYOUT) != 0) {
       long layoutStartTime = System.currentTimeMillis();
       recomputeLayout();
       this.invalidationLevel = InvalidationLevel.PAINT;
@@ -200,7 +200,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   @Override
   public void updateRendering() {
-    boolean needsPaint = invalidationLevel.ordinal() <= InvalidationLevel.PAINT.ordinal();
+    boolean needsPaint = invalidationLevel != 0;
     if (
       !needsPaint
       || documentBox.child() == null
@@ -241,9 +241,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     this.width = width;
     this.height = height;
     this.forceRestyle = true;
-    if (this.invalidationLevel.ordinal() > InvalidationLevel.LAYOUT.ordinal()) {
-      this.invalidationLevel = InvalidationLevel.LAYOUT;
-    }
+    this.invalidationLevel |= InvalidationLevel.LAYOUT;
   }
 
   @Override
@@ -262,10 +260,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   }
 
   @Override
-  public void onDocumentInvalidated(InvalidationLevel invalidationLevel) {
-    if (invalidationLevel.ordinal() < this.invalidationLevel.ordinal()) {
-      this.invalidationLevel = invalidationLevel;
-    }
+  public void onDocumentInvalidated(short invalidationLevel) {
+    this.invalidationLevel |= invalidationLevel;
   }
 
   private void recomputeBoxes() {

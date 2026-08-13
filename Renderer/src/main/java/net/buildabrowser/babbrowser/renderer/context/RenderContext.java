@@ -2,7 +2,6 @@ package net.buildabrowser.babbrowser.renderer.context;
 
 import net.buildabrowser.babbrowser.common.datastruct.SlotItem;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.Invalidatable;
-import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorTarget;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
@@ -17,7 +16,7 @@ public interface RenderContext extends Invalidatable, SlotItem<RenderContext> {
 
   PropertyContainer targetedProperties(SelectorTarget target);
 
-  InvalidationLevel invalidationLevel();
+  short invalidationLevel();
 
   HTMLElement element();
 

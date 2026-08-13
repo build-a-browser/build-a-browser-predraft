@@ -14,7 +14,7 @@ public abstract class RenderContextImp implements RenderContext, PropertyContain
   private final short slotFamilyId;
   // TODO: Remove the need for this field
 
-  private InvalidationLevel invalidationLevel = InvalidationLevel.NONE;
+  private short invalidationLevel = InvalidationLevel.NONE;
   protected ActiveStyles activeStyles;
   // ELEMENT is not stored in targetedProperties because it is common, so we avoid the wrapper tax
   protected TargetedPropertiesHolder targetedProperties;
@@ -46,7 +46,7 @@ public abstract class RenderContextImp implements RenderContext, PropertyContain
 
   protected void invalidateIfChangedStyles(ActiveStyles oldStyles, PropertyContainer parentProperties) {
     if (oldStyles == null) {
-      invalidate(InvalidationLevel.BOX);
+      invalidate(InvalidationLevel.ALL);
     } else {
       // TODO: This is an inefficient way to do this, but we can't put a change listener on the
       //   ActiveStyles since it is regenerated from scratch (to make sure selector specificity,
@@ -104,10 +104,8 @@ public abstract class RenderContextImp implements RenderContext, PropertyContain
   // Invalidatable
 
   @Override
-  public void invalidate(InvalidationLevel invalidationLevel) {
-    if (invalidationLevel.ordinal() < this.invalidationLevel.ordinal()) {
-      this.invalidationLevel = invalidationLevel;
-    }
+  public void invalidate(short invalidationLevel) {
+    this.invalidationLevel = (short) (this.invalidationLevel | invalidationLevel);
   }
 
   @Override
@@ -116,7 +114,7 @@ public abstract class RenderContextImp implements RenderContext, PropertyContain
   }
 
   @Override
-  public InvalidationLevel invalidationLevel() {
+  public short invalidationLevel() {
     return this.invalidationLevel;
   }
   

@@ -1,6 +1,5 @@
 package net.buildabrowser.babbrowser.renderer.context;
 
-import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
@@ -14,10 +13,9 @@ public interface ElementContext extends RenderContext {
 
   void onAttributeValueChanged(String attrName, String oldValue, String newValue);
   
-
   void setBox(ElementBox box);
 
-  InvalidationLevel invalidationLevel();
+  short invalidationLevel();
 
   static ElementContext create(
     HTMLElement element, short familyId

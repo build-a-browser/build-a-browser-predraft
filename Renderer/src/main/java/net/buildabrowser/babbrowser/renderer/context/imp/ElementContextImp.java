@@ -270,8 +270,8 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
   // Invalidatable
 
   @Override
-  public void invalidate(InvalidationLevel invalidationLevel) {
-    if (invalidationLevel.ordinal() < invalidationLevel().ordinal()) {
+  public void invalidate(short invalidationLevel) {
+    if ((invalidationLevel ^ invalidationLevel()) != 0) {
       if (element.parentNode() instanceof HTMLElement htmlElement) {
         RenderContext context = SlotItem.getExistingById(htmlElement, familyId());
         context.invalidate(invalidationLevel);

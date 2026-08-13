@@ -71,7 +71,7 @@ public class BoxGeneratorImp implements BoxGenerator {
           childBox instanceof ElementBox childElementBox
           && (
             childElementBox.element() == null
-            || childElementBox.context().invalidationLevel().ordinal() <= InvalidationLevel.BOX.ordinal());
+            || (childElementBox.context().invalidationLevel() & InvalidationLevel.BOX) != 0);
         if (involvedFixup || contentChanged || childInvalid) {
           fixup(childBox);
         }
@@ -145,7 +145,7 @@ public class BoxGeneratorImp implements BoxGenerator {
     ElementBox elementBox;
     if (
       context.box() instanceof ElementBox elementBox2
-      && context.invalidationLevel().ordinal() > InvalidationLevel.BOX.ordinal()
+      && (context.invalidationLevel() & InvalidationLevel.BOX) != 0
       && !changedParent
     ) {
       return List.of(scrollBox == null ? elementBox2 : scrollBox);

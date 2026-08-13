@@ -190,9 +190,9 @@ public enum CSSProperty {
   private final boolean inherited;
   private final CSSValue initial;
   private final CSSProperty[] expansions;
-  private final InvalidationLevel invalidationLevel;
+  private final short invalidationLevel;
 
-  private CSSProperty(int id, boolean inherited, InvalidationLevel invalidationLevel, CSSValue initial) {
+  private CSSProperty(int id, boolean inherited, short invalidationLevel, CSSValue initial) {
     this.id = id;
     this.inherited = inherited;
     this.initial = initial;
@@ -239,7 +239,7 @@ public enum CSSProperty {
     return this.expansions;
   }
 
-  public InvalidationLevel invalidationLevel() {
+  public short invalidationLevel() {
     return this.invalidationLevel;
   }
 

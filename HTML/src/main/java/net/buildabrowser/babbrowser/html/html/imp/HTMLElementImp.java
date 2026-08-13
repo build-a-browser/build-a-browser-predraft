@@ -73,7 +73,7 @@ public class HTMLElementImp extends ElementImp implements HTMLElement {
     return eventLoop.getNavigable(htmlDocument);
   }
 
-  protected void invalidate(InvalidationLevel invalidationLevel) {
+  protected void invalidate(short invalidationLevel) {
     // For some reason IntrusiveList#forEach does not work here
     SlotItem<?> currentItem = slotItems;
     while (currentItem != null) {
