@@ -40,9 +40,15 @@ public interface ElementBox extends Box {
   // TODO: I don't really like this method, but it is needed for order-modified fixup
   void sortChildren(Comparator<? super Box> comparator);
 
+  void startOverwrite();
+
+  void includeChild(Box box);
+
+  void endOverwrite();
+
   BoxLevel boxLevel();
 
-  void updateDetails(Box parentBox, BoxLevel boxLevel);
+  boolean updateDetails(Box parentBox, BoxLevel boxLevel);
 
   UnmanagedBoxFragment<?> layout(LayoutConstraint widthConstraint, LayoutConstraint heightConstraint);
 

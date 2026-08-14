@@ -305,6 +305,8 @@ public class CompositeLayerImp implements CompositeLayer {
       nextEntry = nextEntry.next();
 
       BoxFragment<?> fragment = currentEntry.fragment();
+      CSSValue visibility = fragment.box().properties().get(CSSProperty.VISIBILITY);
+      if (!visibility.equals(VisibilityValue.VISIBLE)) continue;
       
       canvas.withTransform(
         t -> t.translate(currentEntry.offsetX(), currentEntry.offsetY()),

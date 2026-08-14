@@ -94,7 +94,7 @@ public final class CompositeEventsDispatcher {
       if (!EventUtil.aabb(fragment, relX, relY)) continue;
 
       CSSValue visibility = fragment.box().properties().get(CSSProperty.VISIBILITY);
-    if (!visibility.equals(VisibilityValue.VISIBLE)) continue;
+      if (!visibility.equals(VisibilityValue.VISIBLE)) continue;
 
       EventHandlerResponse mouseEventResponse = fragment.withEventHandler((eh, f) -> eh.handleMouseEvent(
         eventContext, mouseEvent, f, relX, relY));

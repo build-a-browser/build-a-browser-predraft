@@ -288,7 +288,7 @@ public class ActiveStylesGeneratorTest {
   ) {
     StyleRule rule = new StyleRule(
       List.of(), List.of(declarations));
-    return new WeightedStyleRule(
+    return WeightedStyleRule.create(
       rule, specificity,
       SelectorTarget.ELEMENT,
       RuleSource.AUTHOR,
@@ -300,7 +300,7 @@ public class ActiveStylesGeneratorTest {
     boolean important,
     List<Token> value
   ) {
-    return new Declaration(null, name, value, important);
+    return Declaration.create(null, name, value, important);
   }
 
 }

@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.renderer.style;
 
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamily;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
+import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
@@ -21,25 +22,30 @@ public final class StyleGenerator {
 
     for (Element changedElement: changedElements) {
       if (elementHasNoChangedAncestors(changedElement, changedElements)) {
-        style(changedElement, styleCache, renderContexts);
+        style(changedElement, styleCache, renderContexts, (ActiveStyles) null);
       }
     }
   }
 
-  public static void style(
+  public static ActiveStyles style(
     Node node,
     StyleCache styleCache,
-    SlotFamily<HTMLElement, RenderContext> renderContexts
+    SlotFamily<HTMLElement, RenderContext> renderContexts,
+    ActiveStyles refStyles
   ) {
+    ActiveStyles nextRef = refStyles;
     if (node instanceof HTMLElement element) {
-      renderContexts.get(element).regenerateStyles(styleCache);
+      nextRef = renderContexts.get(element).regenerateStyles(styleCache, refStyles);
     }
 
     Node childNode = node.firstChild();
+    ActiveStyles childRef = nextRef;
     while (childNode != null) {
-      style(childNode, styleCache, renderContexts);
+      childRef = style(childNode, styleCache, renderContexts, childRef);
       childNode = childNode.nextSibling();
     }
+
+    return nextRef;
   }
 
   private static boolean elementHasNoChangedAncestors(Element changedElement, ElementSet changedElements) {

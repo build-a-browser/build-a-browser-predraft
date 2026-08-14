@@ -35,7 +35,7 @@ public class ImageCacheEntryImp {
       ImageCacheListener currentListener = currentEntry.item();
       currentEntry = currentEntry.next();
       Invalidatable existingInvalidatable = currentListener.invalidatable().get();
-      if (invalidatable == null) continue;
+      if (existingInvalidatable == null) continue;
       if (
         invalidatable == existingInvalidatable
         && currentListener.invalidationLevel == invalidationLevel

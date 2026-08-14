@@ -338,6 +338,16 @@ public class StackingContextImp implements StackingContext {
       ? scrollBoxFragment_ : null;
   }
 
+  @Override
+  public boolean affectsParentLayout() {
+    return PositionUtil.affectsLayout(relatedBox);
+  }
+
+  @Override
+  public void invalidate(short invalidationLevel) {
+    relatedBox.context().invalidate(invalidationLevel);
+  }
+
   private void addChild(StackingContext childContext) {
     SinglyLinkedList<StackingContext> newContext = new SinglyLinkedList<>(childContext);
     if (lastContext == null) {

@@ -231,10 +231,7 @@ public enum CSSProperty {
 
   public CSSProperty[] getExpansions() {
     if (this.equals(CSSProperty.ALL)) {
-      if (allExpansions == null) {
-        allExpansions = all();
-      }
-      return allExpansions;
+      return all();
     }
     return this.expansions;
   }
@@ -257,18 +254,26 @@ public enum CSSProperty {
     return propertyIdCopy;
   }
 
+  public static CSSProperty getById(int id) {
+    return all()[id];
+  }
+
   private static int nextId() {
     return propertyId++;
   }
 
   private static CSSProperty[] all() {
+    if (allExpansions != null) {
+      return allExpansions;
+    }
+
     List<CSSProperty> allProperties = new ArrayList<>();
     for (CSSProperty property: CSSProperty.values()) {
       if (!property.hasExpansion()) {
         allProperties.add(property);
       }
     }
-    return allProperties.toArray(new CSSProperty[0]);
+    return allExpansions = allProperties.toArray(new CSSProperty[0]);
   }
 
 }

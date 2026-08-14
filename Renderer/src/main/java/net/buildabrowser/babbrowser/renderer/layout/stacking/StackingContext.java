@@ -57,6 +57,10 @@ public interface StackingContext {
   // TODO: Hackily exposed for fragment navigation
   ScrollBoxFragment relatedScrollBox();
 
+  boolean affectsParentLayout();
+
+  void invalidate(short invalidationLevel);
+
   static StackingContext createRoot(ElementBox relatedBox) {
     return new StackingContextImp(null, relatedBox);
   }

@@ -1,11 +1,13 @@
 package net.buildabrowser.babbrowser.cssbase.cssom;
 
 import java.util.List;
+import java.util.Objects;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.DeclarationParser;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSDeferred;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
 // TODO: Case-Sensitive option?
@@ -15,28 +17,33 @@ public class Declaration {
   private final String name;
   private final List<Token> value;
   private final boolean important;
+  private final int hashCodeO;
 
   private CSSValue evaluation;
 
   public Declaration(
     CSSTokenStreamSource source,
-    String name, List<Token> value, boolean important
+    String name, List<Token> value, boolean important,
+    int hashCodeO
   ) {
     this.source = source;
     this.name = name;
     this.value = value;
     this.important = important;
+    this.hashCodeO = hashCodeO;
   }
 
   public Declaration(
     CSSTokenStreamSource source,
-    String name, CSSValue evaluation, boolean important
+    String name, CSSValue evaluation, boolean important,
+    int hashCodeO
   ) {
     this.source = source;
     this.name = name;
     this.value = List.of();
     this.important = important;
     this.evaluation = evaluation;
+    this.hashCodeO = hashCodeO;
   }
 
   public CSSTokenStreamSource source() {
@@ -69,9 +76,24 @@ public class Declaration {
   public boolean equals(Object o) {
     if (!(o instanceof Declaration other)) return false;
     return
-      name.equals(other.name)
+      Objects.equals(source, other.source)
+      && name.equals(other.name)
       && important == other.important
-      && value.equals(other.value);
+      && value.equals(other.value)
+      // Even though the evaluation is usually derived from the value, 
+      // this is not always the case
+      && (
+        evaluation == other.evaluation
+        || (
+          evaluation != null && other.evaluation != null
+          && !(evaluation instanceof CSSDeferred)
+          && evaluation.hashCode() == other.evaluation.hashCode()
+          && Objects.equals(o, other)));
+  }
+
+  @Override
+  public int hashCode() {
+    return hashCodeO;
   }
 
   public static Declaration create(
@@ -81,7 +103,9 @@ public class Declaration {
     if (DeclarationParser.isKnownDeclarationName(name)) {
       name = name.intern();
     }
-    return new Declaration(source, name, value, important);
+    return new Declaration(
+      source, name, value, important,
+      Objects.hash(source, name, value, important));
   }
 
   public static Declaration create(
@@ -91,7 +115,9 @@ public class Declaration {
     if (DeclarationParser.isKnownDeclarationName(name)) {
       name = name.intern();
     }
-    return new Declaration(source, name, value, important);
+    return new Declaration(
+      source, name, value, important,
+      Objects.hash(source, name, value, important));
   }
 
 }

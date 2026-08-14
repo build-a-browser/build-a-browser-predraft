@@ -1,12 +1,20 @@
 package net.buildabrowser.babbrowser.css.engine.styles;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.function.Function;
+
 import net.buildabrowser.babbrowser.css.engine.styles.imp.ActiveStylesImp;
 import net.buildabrowser.babbrowser.css.engine.styles.imp.ActiveStylesPropertyContainerImp;
+import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 
 public interface ActiveStyles extends MutablePropertyContainer {
+
+  Collection<WeightedStyleRule> refRules();
 
   void inheritProperty(CSSProperty property);
 
@@ -20,10 +28,23 @@ public interface ActiveStyles extends MutablePropertyContainer {
 
   boolean isReusable();
 
+  void disallowReuse();
+
   void freeze();
 
+  PropertyContainer flatten(
+    PropertyContainer parent,
+    Function<PropertyContainer, PropertyContainer> cacheFunc
+  );
+
+  Map<String, CSSValue> customProperties();
+
   static ActiveStyles create() {
-    return new ActiveStylesImp();
+    return new ActiveStylesImp(null);
+  }
+
+  static ActiveStyles create(Collection<WeightedStyleRule> refRules) {
+    return new ActiveStylesImp(refRules);
   }
 
   static PropertyContainer parentStyles(

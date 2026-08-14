@@ -58,6 +58,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   // TODO: Allow specifying the FragmentFactory when instantiating the RenderingEngine instance
   private final FragmentFactory fragmentFactory = FragmentFactory.createDefault();
+  private final FontWordWidthCache fontWordWidthCache = FontWordWidthCache.create();
+  private final StyleCache styleCache = StyleCache.create();
 
   private final HTMLDocument document;
   private final Navigable navigable;
@@ -70,6 +72,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private final ScriptingContext scriptingContext;
   private final DocumentChangeListener changeListener;
   private final ImageCache imageCache;
+  private final FontCache fontCache;
   private final SlotFamily<HTMLElement, RenderContext> renderContexts;
   private final FakeRootContextImp fakeRootContext;
   private final HTMLCompositeLayers compositeLayers;
@@ -137,6 +140,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       fetchEngine,
       document.browsingContext().realm().hostDefined());
     this.imageCache = ImageCache.create(scriptingContext, painter.resourceLoader());
+    this.fontCache = FontCache.create(painter.resourceLoader().fontLoader());
 
     document.focusManager().attachContext(
       new HTMLFocusManagerContext(eventContext, renderContexts));
@@ -168,14 +172,10 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
         List.of("screen"), v -> SizingUtil.evaluateBaseSize(
           layoutContext, LayoutConstraint.AUTO, v), width, height);
       cssMatcher.applyStylesheets(document, mediaContext);
-      // TODO: By making a new StyleCache every round, it prevents ActiveStyles from being used
-      // between rounds, but if it was moved to a field, it might hold references to styles that
-      // won't be used again
-      StyleCache styleCache = StyleCache.create();
       ElementSet changedElements = cssMatcher.changedElements();
       StyleGenerator.style(
         document, styleCache, renderContexts, changedElements);
-      fakeRootContext.regenerateStyles(styleCache);
+      fakeRootContext.regenerateStyles(styleCache, null);
       this.forceRestyle = false;
       PerfLogging.logStyleTime(styleStartTime);
     }
@@ -279,8 +279,6 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     if (child == null) return;
 
     fakeRootContext.replaceChild(child);
-    wrapperBox.context().invalidate(InvalidationLevel.LAYOUT);
-
     selectionContext.updateSelection();
   }
 
@@ -301,8 +299,6 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private GlobalLayoutContext createGlobalLayoutContext() {
     ResourceLoader resourceLoader = painter.resourceLoader();
     FontLoader fontLoader = resourceLoader.fontLoader();
-    FontCache fontCache = FontCache.create(fontLoader);
-    FontWordWidthCache fontWordWidthCache = FontWordWidthCache.create();
     this.rootFont = fontCache.load(
       new FontOptions(List.of(fontLoader.sansSerif()), 16, 400));
 

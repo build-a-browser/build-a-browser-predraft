@@ -1,23 +1,20 @@
 package net.buildabrowser.babbrowser.renderer.context.imp;
 
-import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
+import net.buildabrowser.babbrowser.css.engine.styles.CachedFlattenPropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
-import net.buildabrowser.babbrowser.cssbase.selector.SelectorTarget;
 import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 
-public abstract class RenderContextImp implements RenderContext, PropertyContainer {
+public abstract class RenderContextImp implements RenderContext, CachedFlattenPropertyContainer {
 
   private final short slotFamilyId;
   // TODO: Remove the need for this field
 
-  private short invalidationLevel = InvalidationLevel.NONE;
-  protected ActiveStyles activeStyles;
-  // ELEMENT is not stored in targetedProperties because it is common, so we avoid the wrapper tax
-  protected TargetedPropertiesHolder targetedProperties;
+  private short invalidationLevel = InvalidationLevel.BOX;
+  protected PropertyContainer computedStyles;
   private RenderContext next;
 
   public RenderContextImp(short slotFamily) {
@@ -26,43 +23,40 @@ public abstract class RenderContextImp implements RenderContext, PropertyContain
 
   @Override
   public PropertyContainer properties() {
-    assert this.activeStyles != null;
+    assert this.computedStyles != null;
     return this;
   }
-  
-  @Override
-  public PropertyContainer targetedProperties(SelectorTarget target) {
-    assert this.activeStyles != null;
-    if (target.equals(SelectorTarget.ELEMENT)) {
-      return this;
-    }
 
-    TargetedPropertiesHolder holder = IntrusiveList.find(
-      targetedProperties, h -> h.target().equals(target));
-    if (holder == null) return null;
-    assert holder.container() != null;
-    return holder.container();
-  }
-
-  protected void invalidateIfChangedStyles(ActiveStyles oldStyles, PropertyContainer parentProperties) {
-    if (oldStyles == null) {
-      invalidate(InvalidationLevel.ALL);
+  protected short changedPropertyInvalidationLevel(
+    PropertyContainer oldProperties,
+    PropertyContainer newProperties
+  ) {
+    if (oldProperties == newProperties) {
+      return InvalidationLevel.NONE;
+    } else if (
+      oldProperties == null
+      || newProperties == null
+    ) {
+      return InvalidationLevel.BOX;
     } else {
-      // TODO: This is an inefficient way to do this, but we can't put a change listener on the
-      //   ActiveStyles since it is regenerated from scratch (to make sure selector specificity,
-      //   vars, etc. are respected each render)
+      short invalidationLevel = InvalidationLevel.NONE;
       for (CSSProperty property : CSSProperty.values()) {
         if (property.hasExpansion()) continue;
-        CSSValue newValue = activeStyles.getProperty(parentProperties, property);
-        CSSValue oldValue = oldStyles.getProperty(parentProperties, property);
+        CSSValue newValue = newProperties.get(property);
+        CSSValue oldValue = oldProperties.get(property);
         if (!newValue.equals(oldValue)) {
-          invalidate(property.invalidationLevel());
+          invalidationLevel |= property.invalidationLevel();
         }
       }
+
+      return invalidationLevel;
     }
   }
 
-  // Directly implement PropertyContainer to save some allocations
+  // Previously implemented this way to save some allocations,
+  // because this had held ActiveStyles instead of property container.
+  // Still needs to be done this way because the new flattened property container
+  // does not hold a parent reference, so subclasses override parent.
 
   @Override
   public PropertyContainer parent() {
@@ -71,17 +65,38 @@ public abstract class RenderContextImp implements RenderContext, PropertyContain
 
   @Override
   public boolean wasInherited(CSSProperty property) {
-    return parent() != null && activeStyles.shouldInherit(property);
+    return parent() != null && computedStyles.wasInherited(property);
   }
 
   @Override
   public CSSValue get(CSSProperty property) {
-    return activeStyles.getProperty(parent(), property);
+    return computedStyles.get(property);
   }
 
   @Override
   public CSSValue getCustom(String property) {
-    return activeStyles.getCustom(property);
+    return computedStyles.getCustom(property);
+  }
+
+  @Override
+  public boolean isReusable() {
+    return false;
+  }
+
+  @Override
+  public PropertyContainer get(ActiveStyles activeStyles) {
+    if (this.computedStyles instanceof CachedFlattenPropertyContainer propCache) {
+      return propCache.get(activeStyles);
+    }
+
+    return null;
+  }
+
+  @Override
+  public void put(ActiveStyles activeStyles, PropertyContainer props) {
+    if (this.computedStyles instanceof CachedFlattenPropertyContainer propCache) {
+      propCache.put(activeStyles, props);
+    }
   }
 
   // Slottable
@@ -105,7 +120,7 @@ public abstract class RenderContextImp implements RenderContext, PropertyContain
 
   @Override
   public void invalidate(short invalidationLevel) {
-    this.invalidationLevel = (short) (this.invalidationLevel | invalidationLevel);
+    this.invalidationLevel |= invalidationLevel;
   }
 
   @Override

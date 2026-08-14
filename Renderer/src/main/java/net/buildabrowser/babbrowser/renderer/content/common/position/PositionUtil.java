@@ -4,7 +4,6 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
-import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
@@ -30,14 +29,13 @@ public final class PositionUtil {
   }
 
   // TODO: Passing the sample context is not so great
-  public static boolean affectsLayoutInvalidation(Box box) {
-    if (!(box instanceof ElementBox elementBox)) return true;
-    if (affectsLayout(elementBox)) return true;
+  public static boolean affectsLayoutInvalidation(ElementBox box) {
+    if (affectsLayout(box)) return true;
 
-    LayoutContext layoutContext = elementBox.layoutContext();
+    LayoutContext layoutContext = box.layoutContext();
     if (layoutContext == null) return true;
 
-    PropertyContainer properties = elementBox.properties();
+    PropertyContainer properties = box.properties();
     if (properties == null) return true;
     
     LayoutConstraint top = SizingUtil.evaluateBaseSize(
@@ -49,9 +47,9 @@ public final class PositionUtil {
     LayoutConstraint right = SizingUtil.evaluateBaseSize(
       layoutContext, LayoutConstraint.AUTO, properties.get(CSSProperty.RIGHT));
 
-    return
+    return !(
       (top.isBounded() || bottom.isBounded())
-      && (left.isBounded() || right.isBounded());
+      && (left.isBounded() || right.isBounded()));
   }
 
   public static float[] computeRelativeInsets(

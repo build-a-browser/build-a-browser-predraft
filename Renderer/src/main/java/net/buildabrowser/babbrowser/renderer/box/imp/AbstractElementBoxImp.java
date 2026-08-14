@@ -83,37 +83,26 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
 
   @Override
   public void addChild(Box box) {
-    if (context() != null && PositionUtil.affectsLayoutInvalidation(box)) {
-      context().invalidate(InvalidationLevel.LAYOUT);
-    }
+    invalidateFromChild(box);
 
     if (nextBox == null) {
       nextBox = IntrusiveList.last(childBoxes);
     }
 
-    Box newBox = IntrusiveList.add(nextBox, box);
+    IntrusiveList.add(nextBox, box);
     if (childBoxes == null) {
-      childBoxes = newBox;
+      childBoxes = box;
     }
 
-    nextBox = newBox;
+    nextBox = box;
 
     assert IntrusiveList._ensureNoLoops(childBoxes);
   }
 
   @Override
   public void clearChildren() {
-    Box invBox = childBoxes;
-    if (context() != null) while (invBox != null) {
-      if (PositionUtil.affectsLayoutInvalidation(invBox)) {
-        context().invalidate(InvalidationLevel.LAYOUT);
-        break;
-      }
-      invBox = invBox.next();
-    }
-
-    this.childBoxes = null;
-    this.nextBox = null;
+    startOverwrite();
+    endOverwrite();
   }
 
   @Override
@@ -122,16 +111,79 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
   }
 
   @Override
+  public void startOverwrite() {
+    nextBox = null;
+  }
+
+  @Override
+  public void includeChild(Box box) {
+    // TODO: Scanning all the future boxes is not great if there are many siblings
+    // I tried does a parentBox check to see if it's already in the tree (than you
+    // can jump right to the box), but parentBox is set before this code is called
+    // I might need to refactor a bit
+    Box jmpBox = nextBox == null ? childBoxes : nextBox.next();
+    while (jmpBox != null && jmpBox != box) {
+      jmpBox = jmpBox.next();
+    }
+
+    if (jmpBox != null) {
+      if (nextBox == null) {
+        childBoxes = jmpBox;
+      } else {
+        nextBox.setNext(jmpBox);
+      }
+      nextBox = jmpBox;
+      assert IntrusiveList._ensureNoLoops(childBoxes);
+      return;
+    }
+
+    invalidateFromChild(box);
+
+    if (nextBox == null) {
+      box.setNext(childBoxes);
+      childBoxes = box;
+    } else {
+      IntrusiveList.insert(nextBox, 1, box);
+    }
+
+    nextBox = box;
+
+    assert IntrusiveList._ensureNoLoops(childBoxes);
+  }
+
+  @Override
+  public void endOverwrite() {
+    Box invBox = nextBox == null ? childBoxes : nextBox.next();
+    while (invBox != null) {
+      invalidateFromChild(invBox);
+      invBox = invBox.next();
+    }
+
+    if (nextBox == null) {
+      this.childBoxes = null;
+    } else {
+      nextBox.setNext(null);
+    }
+  }
+
+  @Override
   public BoxLevel boxLevel() {
     return this.boxLevel;
   }
 
   @Override
-  public void updateDetails(Box parentBox, BoxLevel boxLevel) {
+  public boolean updateDetails(Box parentBox, BoxLevel boxLevel) {
+    boolean invalidate =
+      parentBox != this.parentBox
+      || boxLevel != this.boxLevel;
     this.parentBox = parentBox;
     this.boxLevel = boxLevel;
 
-    setLayoutContext(null);
+    if (invalidate && context() != null) {
+      context().invalidate(InvalidationLevel.LAYOUT);
+    }
+
+    return invalidate;
   }
 
   @Override
@@ -185,7 +237,17 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
 
   @Override
   public void setLayoutContext(LayoutContext layoutContext) {
+    boolean contextChanged =
+      layoutContext == null
+      || !layoutContext.equals(this.layoutContext);
+    boolean wasInvalidatedLayout =
+      context() == null
+      || (context().invalidationLevel() & InvalidationLevel.LAYOUT) != 0;
+
     this.layoutContext = layoutContext;
+
+    if (!(contextChanged || wasInvalidatedLayout)) return;
+
     this.cache = null;
     this.positioningFragment = null;
     this.stackingContext = null;
@@ -219,6 +281,25 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
       case FLEX -> FlexBoxContent.get();
       default -> FlowRootContent.get();
     };
+  }
+
+  private void invalidateFromChild(Box box) {
+    if (context() == null) return;
+
+    if (
+      box instanceof ElementBox elementBox
+      && PositionUtil.affectsLayoutInvalidation(elementBox)
+    ) {
+      context().invalidate(InvalidationLevel.LAYOUT);
+      if (elementBox.context() != null) {
+        elementBox.context().invalidate(InvalidationLevel.LAYOUT);
+      }
+    } else if (
+      box instanceof ElementBox elementBox
+      && elementBox.context() != null
+    ) {
+      elementBox.context().invalidate(InvalidationLevel.LAYOUT);
+    }
   }
 
 }

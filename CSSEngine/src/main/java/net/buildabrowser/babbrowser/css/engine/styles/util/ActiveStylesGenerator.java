@@ -25,7 +25,7 @@ public final class ActiveStylesGenerator {
     Collection<WeightedStyleRule> styleRules,
     PropertyContainer parentProperties
   ) {
-    ActiveStyles activeStyles = ActiveStyles.create();
+    ActiveStyles activeStyles = ActiveStyles.create(styleRules);
     PropertyContainer asPropertyView = ActiveStyles.parentStyles(parentProperties, activeStyles);
     addCustomDeclarations(styleRules, activeStyles, false);
     addCustomDeclarations(styleRules, activeStyles, true);
@@ -75,6 +75,7 @@ public final class ActiveStylesGenerator {
     CSSValue declValue = declaration.evaluate();
 
     if (declValue instanceof CSSDeferred deferredValue) {
+      activeStyles.disallowReuse();
       declValue = CommonUtil.rethrow(() -> DeclarationParser.parseDeferredDeclaration(
         declaration.source(), deferredValue, asPropertyView));
     }

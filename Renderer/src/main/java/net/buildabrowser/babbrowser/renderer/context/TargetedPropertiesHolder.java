@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.renderer.context.imp;
+package net.buildabrowser.babbrowser.renderer.context;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,7 @@ public class TargetedPropertiesHolder implements IntrusiveList<TargetedPropertie
 
   private PropertyContainer container;
   private TargetedPropertiesHolder next;
+  private RenderContext relatedContext;
 
   public TargetedPropertiesHolder(SelectorTarget target) {
     this.target = target;
@@ -39,6 +40,14 @@ public class TargetedPropertiesHolder implements IntrusiveList<TargetedPropertie
   public List<WeightedStyleRule> matchedRules() {
     matchedRules.sort(WeightedStyleRule::compare);
     return matchedRules;
+  }
+
+  public void setRelatedContext(RenderContext context) {
+    this.relatedContext = context;
+  }
+
+  public RenderContext relatedContext() {
+    return this.relatedContext;
   }
 
   @Override
