@@ -113,7 +113,7 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
     ActiveStyles activeStyles = reuseLast ?
       refStyles :
       styleCache.lookupOrElse(styleRules,
-        rules -> ActiveStylesGenerator.generateActiveStyles(styleRules, parentProperties));
+        rules -> ActiveStylesGenerator.generateActiveStyles(styleRules));
     
     this.computedStyles = activeStyles.flatten(
       parentProperties, styleCache::cacheFlattened);
@@ -240,13 +240,13 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
     TargetedPropertiesHolder holder
   ) {
     PropertyContainer oldProperties = holder.container();
-    ActiveStyles targetedStyles = ActiveStylesGenerator.generateActiveStyles(rulesList, this);/*styleCache.lookupOrElse(rulesList,
-      rules -> ActiveStylesGenerator.generateActiveStyles(rules, this));*/
+    ActiveStyles targetedStyles = styleCache.lookupOrElse(rulesList,
+      rules -> ActiveStylesGenerator.generateActiveStyles(rules));
     
     PropertyContainer newProperties = isBeforeOrAfterWithoutContent(holder) ?
       null :
-      ActiveStyles.parentStyles(oldProperties, targetedStyles)/*targetedStyles.flatten(
-        computedStyles, styleCache::cacheFlattened)*/;
+      targetedStyles.flatten(
+        computedStyles, styleCache::cacheFlattened);
     holder.setContainer(newProperties);
 
     invalidateTargetIfChanged(holder, oldProperties, newProperties);
@@ -280,8 +280,7 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
     }
   }
 
-  @Override
-  public PropertyContainer parent() {
+  private PropertyContainer parent() {
     return
       element.parentNode() instanceof HTMLElement parent
       && SlotItem.getExistingById(parent, familyId()) instanceof ElementContext parentContext ?

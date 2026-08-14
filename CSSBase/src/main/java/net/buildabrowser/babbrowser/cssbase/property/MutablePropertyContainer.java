@@ -4,10 +4,6 @@ public interface MutablePropertyContainer {
 
   void setProperty(CSSProperty property, CSSValue value);
 
-  void setCustomProperty(String property, CSSValue value);
-
-  CSSValue getProperty(PropertyContainer parent, CSSProperty property);
-
-  CSSValue getCustom(String property);
+  default void setCustomProperty(String property, CSSValue value) {};
   
 }

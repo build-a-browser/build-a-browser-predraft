@@ -1,14 +1,12 @@
 package net.buildabrowser.babbrowser.renderer.context.imp;
 
-import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
-import net.buildabrowser.babbrowser.css.engine.styles.CachedFlattenPropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 
-public abstract class RenderContextImp implements RenderContext, CachedFlattenPropertyContainer {
+public abstract class RenderContextImp implements RenderContext {
 
   private final short slotFamilyId;
   // TODO: Remove the need for this field
@@ -24,7 +22,7 @@ public abstract class RenderContextImp implements RenderContext, CachedFlattenPr
   @Override
   public PropertyContainer properties() {
     assert this.computedStyles != null;
-    return this;
+    return this.computedStyles;
   }
 
   protected short changedPropertyInvalidationLevel(
@@ -53,53 +51,7 @@ public abstract class RenderContextImp implements RenderContext, CachedFlattenPr
     }
   }
 
-  // Previously implemented this way to save some allocations,
-  // because this had held ActiveStyles instead of property container.
-  // Still needs to be done this way because the new flattened property container
-  // does not hold a parent reference, so subclasses override parent.
-
-  @Override
-  public PropertyContainer parent() {
-    return null;
-  }
-
-  @Override
-  public boolean wasInherited(CSSProperty property) {
-    return parent() != null && computedStyles.wasInherited(property);
-  }
-
-  @Override
-  public CSSValue get(CSSProperty property) {
-    return computedStyles.get(property);
-  }
-
-  @Override
-  public CSSValue getCustom(String property) {
-    return computedStyles.getCustom(property);
-  }
-
-  @Override
-  public boolean isReusable() {
-    return false;
-  }
-
-  @Override
-  public PropertyContainer get(ActiveStyles activeStyles) {
-    if (this.computedStyles instanceof CachedFlattenPropertyContainer propCache) {
-      return propCache.get(activeStyles);
-    }
-
-    return null;
-  }
-
-  @Override
-  public void put(ActiveStyles activeStyles, PropertyContainer props) {
-    if (this.computedStyles instanceof CachedFlattenPropertyContainer propCache) {
-      propCache.put(activeStyles, props);
-    }
-  }
-
-  // Slottable
+  // SlotItem
 
   @Override
   public short familyId() {

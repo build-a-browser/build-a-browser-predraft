@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.css.engine.styles.imp;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -11,25 +12,29 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 
-public class FlatPropertyContainerImp extends SparsePropertyHolder
+public class FlatPropertyContainerImp extends SparsePropertyHolderWithInherit
   implements CachedFlattenPropertyContainer {
 
-  private final Map<ActiveStyles, PropertyContainer> childCache = new HashMap<>();
+  private final PropertyContainer parent;
+  // TODO: With a HashMap, ActiveStyles won't be GC'd, but with a WeakHashMap, they might be GC'd before
+  // the layout pass ends...
+  private final Map<ActiveStyles, WeakReference<PropertyContainer>> childCache = new HashMap<>();
 
   private final Map<String, CSSValue> customProperties;
-  private final boolean isReusable;
 
   public FlatPropertyContainerImp(
-    Map<String, CSSValue> customProperties,
-    boolean isReusable
+    PropertyContainer parent,
+    Map<String, CSSValue> customProperties
   ) {
+    this.parent = parent;
     this.customProperties = customProperties;
-    this.isReusable = isReusable;
   }
 
+  // Only used during var resolution in initial construction
+  // It should still be safe to cache and re-use
   @Override
   public PropertyContainer parent() {
-    throw new UnsupportedOperationException("Unimplemented method 'parent'");
+    return this.parent;
   }
 
   @Override
@@ -63,18 +68,13 @@ public class FlatPropertyContainerImp extends SparsePropertyHolder
     return customProperties.get(property);
   }
 
-  @Override
-  public boolean isReusable() {
-    return this.isReusable;
-  }
-
   public void addProperty(CSSProperty property, CSSValue value, boolean inherited) {
     if (property.hasExpansion()) {
       throw new UnsupportedOperationException("Cannot set expanded property!");
     }
     
     setInheritValue(property.id(), inherited);
-    if (value.equals(property.initial())) return;
+    if (value.equals(property.initial()) && !property.inherited()) return;
     addEntry(property.id(), value);
   }
 
@@ -97,12 +97,13 @@ public class FlatPropertyContainerImp extends SparsePropertyHolder
 
   @Override
   public PropertyContainer get(ActiveStyles activeStyles) {
-    return childCache.get(activeStyles);
+    WeakReference<PropertyContainer> ref = childCache.get(activeStyles);
+    return ref == null ? null : ref.get();
   }
 
   @Override
   public void put(ActiveStyles activeStyles, PropertyContainer props) {
-    childCache.put(activeStyles, props);
+    childCache.put(activeStyles, new WeakReference<>(props));
   }
   
 }

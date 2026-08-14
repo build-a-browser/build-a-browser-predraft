@@ -31,9 +31,7 @@ public class StyleCacheImp implements StyleCache {
     if (existingStyles != null) return existingStyles;
 
     ActiveStyles newStyles = stylesGenerator.apply(relatedRules);
-    if (newStyles.isReusable()) {
-      targetTree.put(newStyles);
-    }
+    targetTree.put(newStyles);
     return newStyles;
   }
 

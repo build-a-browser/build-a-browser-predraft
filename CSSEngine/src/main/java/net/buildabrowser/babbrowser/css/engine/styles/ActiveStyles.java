@@ -2,10 +2,10 @@ package net.buildabrowser.babbrowser.css.engine.styles;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import net.buildabrowser.babbrowser.css.engine.styles.imp.ActiveStylesImp;
-import net.buildabrowser.babbrowser.css.engine.styles.imp.ActiveStylesPropertyContainerImp;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -24,11 +24,11 @@ public interface ActiveStyles extends MutablePropertyContainer {
 
   void unsetProperty(CSSProperty property);
 
-  boolean shouldInherit(CSSProperty property);
+  CSSValue getProperty(CSSProperty property);
 
-  boolean isReusable();
+  CSSValue getCustom(String property);
 
-  void disallowReuse();
+  void forEachSet(BiConsumer<CSSProperty, CSSValue> itFunc);
 
   void freeze();
 
@@ -51,13 +51,13 @@ public interface ActiveStyles extends MutablePropertyContainer {
     PropertyContainer parentContainer,
     ActiveStyles activeStyles
   ) {
-    return new ActiveStylesPropertyContainerImp(parentContainer, activeStyles);
+    return activeStyles.flatten(parentContainer, a -> a);
   }
 
   static PropertyContainer unparentedStyles(
     ActiveStyles activeStyles
   ) {
-    return new ActiveStylesPropertyContainerImp(null, activeStyles);
+    return activeStyles.flatten(null, a -> a);
   }
 
 }

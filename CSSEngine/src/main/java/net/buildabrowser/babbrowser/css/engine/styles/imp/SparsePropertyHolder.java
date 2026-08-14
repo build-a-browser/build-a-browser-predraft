@@ -18,7 +18,6 @@ public abstract class SparsePropertyHolder {
 
   // A BitSet has a header and long array. Even with a lazy initialization attempt
   // that took a lot of memory. Use longs instead
-  private long inheritValues1, inheritValues2;
   private long hasOwnValues1, hasOwnValues2;
 
   private CSSValue[] activeProperties = new CSSValue[CSSProperty.idCount()];
@@ -67,32 +66,6 @@ public abstract class SparsePropertyHolder {
       CSSValue value = isFrozen ? activeProperties[i++] : activeProperties[id];
       itFunc.accept(CSSProperty.getById(id), value);
       bits2 &= (bits2 - 1);
-    }
-  }
-
-  public void forEachInherited(BiConsumer<CSSProperty, Boolean> itFunc) {
-    long bits1 = inheritValues1;
-    while (bits1 != 0) {
-      int id = Long.numberOfTrailingZeros(bits1);
-      bits1 &= (bits1 - 1);
-      if (getHasOwnValue(id)) continue;
-      itFunc.accept(CSSProperty.getById(id), true);
-    }
-
-    long bits2 = inheritValues2;
-    while (bits2 != 0) {
-      int id = 64 + Long.numberOfTrailingZeros(bits2);
-      bits2 &= (bits2 - 1);
-      if (getHasOwnValue(id)) continue;
-      itFunc.accept(CSSProperty.getById(id), true);
-    }
-
-    for (CSSProperty property: CSSProperty.values()) {
-      if (property.hasExpansion()) continue;
-      if (!property.inherited()) continue;
-      if (getInheritValue(property.id())) continue;
-      if (getHasOwnValue(property.id())) continue;
-      itFunc.accept(property, false);
     }
   }
 
@@ -150,37 +123,13 @@ public abstract class SparsePropertyHolder {
       return (hasOwnValues2 & (1L << (id - 64))) != 0;
     }
   }
-
-  protected void setInheritValue(int id, boolean b) {
-    boolean isLowerByte = id < 64;
-    if (b && isLowerByte) {
-      inheritValues1 |= (1L << id);
-    } else if (!b && isLowerByte) {
-      inheritValues1 &= ~(1L << id);
-    } else if (b) {
-      inheritValues2 |= (1L << (id - 64));
-    } else {
-      inheritValues2 &= ~(1L << (id - 64));
-    }
-  }
-
-  protected boolean getInheritValue(int id) {
-    boolean isLowerByte = id < 64;
-    if (isLowerByte) {
-      return (inheritValues1 & (1L << id)) != 0;
-    } else {
-      return (inheritValues2 & (1L << (id - 64))) != 0;
-    }
-  }
   
   protected boolean abstractEquals(Object o) {
     if (this == o) return true;
     if (!(o instanceof SparsePropertyHolder other)) return false;
 
     if (
-      this.inheritValues1 != other.inheritValues1
-      || this.inheritValues2 != other.inheritValues2
-      || this.hasOwnValues1 != other.hasOwnValues1
+      this.hasOwnValues1 != other.hasOwnValues1
       || this.hasOwnValues2 != other.hasOwnValues2
     ) {
       return false;
@@ -196,8 +145,6 @@ public abstract class SparsePropertyHolder {
     }
 
     int hashCode = rollingHash;
-    hashCode = 32 * hashCode + Long.hashCode(inheritValues1);
-    hashCode = 31 * hashCode + Long.hashCode(inheritValues2);
     hashCode = 31 * hashCode + Long.hashCode(hasOwnValues1);
     hashCode = 31 * hashCode + Long.hashCode(hasOwnValues2);
 

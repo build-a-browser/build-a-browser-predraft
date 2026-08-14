@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
 public interface CSSValue {
@@ -48,12 +49,26 @@ public interface CSSValue {
 
   public static record CSSDeferred(
     Declaration value,
-    PropertyValueParser parser
+    PropertyValueParser parser,
+    List<String> varReferences,
+    CSSTokenStreamSource source
   ) implements CSSValue {
 
     @Override
     public String serialize() {
       return CSSSerializerUtil.serializeTokenList(value.value());
+    }
+  
+  }
+
+  public static record CSSDeferredWithFallback(
+    CSSDeferred inner,
+    CSSValue fallback
+  ) implements CSSValue {
+
+    @Override
+    public String serialize() {
+      return inner.serialize();
     }
   
   }
