@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
+import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.grid.BackingGrid;
 import net.buildabrowser.babbrowser.renderer.content.grid.Grid;
 import net.buildabrowser.babbrowser.renderer.content.grid.GridDirection;
@@ -17,6 +18,8 @@ public class GridImp implements Grid {
   private final BackingGrid<GridItem> backingGrid = new BackingGridImp<>(
     (w, h, d) -> new GridItem[d][h][w]);
 
+  private final ElementBox gridBox;
+
   private GridSpan implicitSpan;
   private GridSpan explicitSpan;
 
@@ -24,6 +27,15 @@ public class GridImp implements Grid {
   private GridTrack[] rows;
   private GridLine[] columnLines;
   private GridLine[] rowLines;
+
+  public GridImp(ElementBox gridBox) {
+    this.gridBox = gridBox;
+  }
+
+  @Override
+  public ElementBox gridBox() {
+    return this.gridBox;
+  }
 
   @Override
   public GridSpan explicitSpan() {
@@ -98,6 +110,26 @@ public class GridImp implements Grid {
   @Override
   public GridTrack row(int rowNum) {
     return rows[rowNum - implicitSpan.rowStart()];
+  }
+
+  @Override
+  public GridTrack track(int trackNum, GridDirection direction) {
+    return switch (direction) {
+      case COLUMN -> column(trackNum);
+      case ROW -> row(trackNum);
+      default -> throw new IllegalArgumentException(
+        "Not a valid grid direction: " + direction);
+    };
+  }
+
+  @Override
+  public GridTrack[] tracks(GridDirection direction) {
+    return switch (direction) {
+      case COLUMN -> columns;
+      case ROW -> rows;
+      default -> throw new IllegalArgumentException(
+        "Not a valid grid direction: " + direction);
+    };
   }
 
   @Override

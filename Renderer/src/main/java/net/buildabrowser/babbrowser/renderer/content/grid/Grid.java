@@ -1,9 +1,12 @@
 package net.buildabrowser.babbrowser.renderer.content.grid;
 
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
+import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.grid.imp.GridImp;
 
 public interface Grid {
+
+  ElementBox gridBox();
 
   GridSpan explicitSpan();
 
@@ -17,11 +20,15 @@ public interface Grid {
 
   GridTrack row(int rowNum);
 
+  GridTrack track(int trackNum, GridDirection direction);
+
+  GridTrack[] tracks(GridDirection direction);
+
   GridLine columnLine(int colNum);
 
   GridLine rowLine(int rowNum);
 
-  GridLine line(int searchPos, GridDirection direction);
+  GridLine line(int lineNum, GridDirection direction);
 
   void addArea(GridArea area);
 
@@ -37,8 +44,8 @@ public interface Grid {
 
   boolean isOccupied(int x, int y);
 
-  static Grid create() {
-    return new GridImp();
+  static Grid create(ElementBox gridBox) {
+    return new GridImp(gridBox);
   }
 
 }

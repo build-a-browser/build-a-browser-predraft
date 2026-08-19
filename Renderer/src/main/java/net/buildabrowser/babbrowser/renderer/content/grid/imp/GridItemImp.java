@@ -87,8 +87,7 @@ public class GridItemImp implements GridItem {
 
   @Override
   public void setRelatedFragment(UnmanagedBoxFragment<?> fragment) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'setRelatedFragment'");
+    // TODO
   }
 
 }

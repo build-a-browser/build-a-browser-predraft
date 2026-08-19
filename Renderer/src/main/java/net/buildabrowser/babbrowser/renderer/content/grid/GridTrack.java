@@ -2,12 +2,47 @@ package net.buildabrowser.babbrowser.renderer.content.grid;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.renderer.content.grid.imp.GridTrackImp;
+import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public interface GridTrack {
 
-  CSSValue sizeValue();
+  CSSValue minTrackSizingFunction();
+
+  CSSValue maxTrackSizingFunction();
 
   void setSizeValue(CSSValue sizeValue);
+
+  CSSValue _sizeValue();
+
+  LayoutConstraint baseSize();
+
+  void setBaseSize(LayoutConstraint baseSize);
+
+  LayoutConstraint growthLimit();
+
+  void setGrowthLimit(LayoutConstraint growthLimit);
+
+  void setFrozen(boolean frozen);
+
+  boolean frozen();
+
+  //
+
+  void increaseItemIncurredIncrease(float increase);
+
+  float itemIncurredIncrease();
+
+  void finalizeItemIncurredIncrease();
+
+  float plannedIncrease();
+
+  //
+
+  float position();
+
+  void setPosition(float position);
+
+  //
 
   static GridTrack createExplicit() {
     return new GridTrackImp();

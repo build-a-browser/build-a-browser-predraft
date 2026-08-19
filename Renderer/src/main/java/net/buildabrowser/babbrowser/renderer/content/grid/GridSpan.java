@@ -24,12 +24,39 @@ public record GridSpan(
     return rowEnd() - rowStart() + 1;
   }
 
+  public int size(GridDirection direction) {
+    return switch (direction) {
+      case COLUMN -> width();
+      case ROW -> height();
+      default -> throw new IllegalArgumentException(
+        "Not a valid grid direction: " + direction);
+    };
+  }
+
   public int colLineStart() {
     return colStart();
   }
 
   public int colLineEnd() {
     return colEnd() + 1;
+  }
+
+  public int trackStart(GridDirection direction) {
+    return switch (direction) {
+      case COLUMN -> colStart();
+      case ROW -> rowStart();
+      default -> throw new IllegalArgumentException(
+        "Not a valid grid direction: " + direction);
+    };
+  }
+
+  public int trackEnd(GridDirection direction) {
+    return switch (direction) {
+      case COLUMN -> colEnd();
+      case ROW -> rowEnd();
+      default -> throw new IllegalArgumentException(
+        "Not a valid grid direction: " + direction);
+    };
   }
 
   public int rowLineStart() {

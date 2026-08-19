@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.renderer.content.grid;
 
 import static net.buildabrowser.babbrowser.renderer.content.grid.GridLineResolver.itemAutoEnd;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -12,7 +13,6 @@ import net.buildabrowser.babbrowser.cssbase.property.grid.GridAutoFlowValue.Grid
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridLineValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
-import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.grid.GridLineResolver.LineNumberPair;
 
 public final class GridItemPlacer {
@@ -22,15 +22,17 @@ public final class GridItemPlacer {
   // List must be mutable
   public static void placeGridElements(
     Grid grid,
-    ElementBox gridBox,
-    List<GridItem> gridItemQueue
+    List<GridItem> gridItems
   ) {
-    placeGridAreas(grid, gridBox);
+    List<GridItem> gridItemQueue = new ArrayList<>(gridItems.size());
+    gridItemQueue.addAll(gridItems);
+
+    placeGridAreas(grid);
     determineManualItemPositions(grid, gridItemQueue);
     createImplicitTracksForPositioned(grid, gridItemQueue);
     placeManualPositionedItems(grid, gridItemQueue);
 
-    GridAutoFlowValue autoFlow = (GridAutoFlowValue) gridBox.properties()
+    GridAutoFlowValue autoFlow = (GridAutoFlowValue) grid.gridBox().properties()
       .get(CSSProperty.GRID_AUTO_FLOW);
     GridDirection autoFlowDirection = autoFlow.direction().equals(GridAutoFlowDirection.ROW) ?
       GridDirection.ROW : GridDirection.COLUMN;
@@ -41,8 +43,9 @@ public final class GridItemPlacer {
     autoPlaceItems(grid, gridItemQueue, autoFlowDirection, isDense);
   }
 
-  private static void placeGridAreas(Grid grid, ElementBox gridBox) {
-    CSSValue gridTemplateAreasValue = gridBox.properties().get(CSSProperty.GRID_TEMPLATE_AREAS);
+  private static void placeGridAreas(Grid grid) {
+    CSSValue gridTemplateAreasValue = grid.gridBox().properties()
+      .get(CSSProperty.GRID_TEMPLATE_AREAS);
     if (gridTemplateAreasValue.equals(CSSValue.NONE)) return;
     List<GridArea> areas = ((GridTemplateAreasValue) gridTemplateAreasValue).areas();
     for (GridArea area: areas) {

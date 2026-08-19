@@ -44,7 +44,7 @@ public class GridSizerTest {
     PropertyContainer properties = ActiveStyles.unparentedStyles(gridStyles);
 
     
-    Grid grid = Grid.create();
+    Grid grid = Grid.create(null);
     GridSizer.sizeGridAndPlaceLines(grid, properties, LAYOUT_CONTEXT, WIDTH_CONSTRAINT, HEIGHT_CONSTRAINT);
 
     GridSpan expected = GridSpan.create(1, 1, 1, 2);
@@ -65,7 +65,7 @@ public class GridSizerTest {
       List.of(SAMPLE_FIXED_TRACK, repeatTrack), null));
     PropertyContainer properties = ActiveStyles.unparentedStyles(gridStyles);
 
-    Grid grid = Grid.create();
+    Grid grid = Grid.create(null);
     GridSizer.sizeGridAndPlaceLines(grid, properties, LAYOUT_CONTEXT, WIDTH_CONSTRAINT, HEIGHT_CONSTRAINT);
 
     GridSpan expected = GridSpan.create(1, 4, 1, 5);
@@ -90,7 +90,7 @@ public class GridSizerTest {
     PropertyContainer properties = ActiveStyles.unparentedStyles(gridStyles);
 
     
-    Grid grid = Grid.create();
+    Grid grid = Grid.create(null);
     GridSizer.sizeGridAndPlaceLines(grid, properties, LAYOUT_CONTEXT, WIDTH_CONSTRAINT, HEIGHT_CONSTRAINT);
 
     GridSpan expected = GridSpan.create(1, 1, 1, 6);
@@ -112,7 +112,7 @@ public class GridSizerTest {
     PropertyContainer properties = ActiveStyles.unparentedStyles(gridStyles);
 
     
-    Grid grid = Grid.create();
+    Grid grid = Grid.create(null);
     GridSizer.sizeGridAndPlaceLines(grid, properties, LAYOUT_CONTEXT, WIDTH_CONSTRAINT, HEIGHT_CONSTRAINT);
 
     GridSpan expected = GridSpan.create(1, 2, 1, 3);
@@ -152,7 +152,7 @@ public class GridSizerTest {
     PropertyContainer properties = ActiveStyles.unparentedStyles(gridStyles);
 
     
-    Grid grid = Grid.create();
+    Grid grid = Grid.create(null);
     GridSizer.sizeGridAndPlaceLines(grid, properties, LAYOUT_CONTEXT, WIDTH_CONSTRAINT, HEIGHT_CONSTRAINT);
 
     GridSpan expected = GridSpan.create(1, 5, 1, 5);
@@ -165,12 +165,12 @@ public class GridSizerTest {
 
     List<CSSValue> COL_SIZES = List.of(px1, px1, px1, px1);
     for (int i = 0; i < COL_SIZES.size(); i++) {
-      Assertions.assertEquals(COL_SIZES.get(i), grid.column(i + 1).sizeValue());
+      Assertions.assertEquals(COL_SIZES.get(i), grid.column(i + 1)._sizeValue());
     }
 
     List<CSSValue> ROW_SIZES = List.of(px10, px25, px50, px25, px50);
     for (int i = 0; i < ROW_SIZES.size(); i++) {
-      Assertions.assertEquals(ROW_SIZES.get(i), grid.row(i + 1).sizeValue());
+      Assertions.assertEquals(ROW_SIZES.get(i), grid.row(i + 1)._sizeValue());
     }
   }
 

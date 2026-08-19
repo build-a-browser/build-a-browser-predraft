@@ -23,13 +23,14 @@ public class GridItemPlacerTest {
   @Test
   @DisplayName("Can place empty grid")
   public void canPlaceEmptyGrid() {
-    Grid grid = Grid.create();
-    GridSpan gridSpan = GridSpan.create(1, 1, 1, 1);
-    grid.resizeExplicit(gridSpan);
     
     ElementBox gridBox = flowBlockBox(List.of());
     List<GridItem> items = new ArrayList<>();
-    GridItemPlacer.placeGridElements(grid, gridBox, items);
+
+    Grid grid = Grid.create(gridBox);
+    GridSpan gridSpan = GridSpan.create(1, 1, 1, 1);
+    grid.resizeExplicit(gridSpan);
+    GridItemPlacer.placeGridElements(grid, items);
 
     GridComparator expectedGrid = new GridComparator(
       gridSpan, 1);
@@ -39,10 +40,6 @@ public class GridItemPlacerTest {
   @Test
   @DisplayName("Can place grid with items on areas")
   public void canPlaceGridWithItemsOnAreas() {
-    Grid grid = Grid.create();
-    GridSpan gridSpan = GridSpan.create(1, 4, 1, 3);
-    grid.resizeExplicit(gridSpan);
-
     ActiveStyles gridItemBox1Styles = ActiveStyles.create();
     setGridArea(gridItemBox1Styles,
       GridLineValue.create(false, true, 1, "a"));
@@ -63,7 +60,11 @@ public class GridItemPlacerTest {
     List<GridItem> items = new ArrayList<>();
     items.add(GridItem.create(gridItemBox1));
     items.add(GridItem.create(gridItemBox2));
-    GridItemPlacer.placeGridElements(grid, gridBox, items);
+
+    Grid grid = Grid.create(gridBox);
+    GridSpan gridSpan = GridSpan.create(1, 4, 1, 3);
+    grid.resizeExplicit(gridSpan);
+    GridItemPlacer.placeGridElements(grid, items);
 
     GridComparator expectedGrid = new GridComparator(
       gridSpan, 1);
@@ -79,14 +80,6 @@ public class GridItemPlacerTest {
   @Test
   @DisplayName("Can place grid with item at specified lines")
   public void canPlaceGridWithItemAtLines() {
-    Grid grid = Grid.create();
-    GridSpan gridSpan = GridSpan.create(1, 4, 1, 8);
-    grid.resizeExplicit(gridSpan);
-    grid.columnLine(2).addNames(List.of("line"));
-    grid.rowLine(2).addNames(List.of("line"));
-    grid.rowLine(4).addNames(List.of("line"));
-    grid.rowLine(6).addNames(List.of("line"));
-    grid.rowLine(8).addNames(List.of("line"));
 
     ActiveStyles gridItemBoxStyles = ActiveStyles.create();
     // A named line
@@ -106,7 +99,16 @@ public class GridItemPlacerTest {
     ElementBox gridBox = flowBlockBox(List.of());
     List<GridItem> items = new ArrayList<>();
     items.add(GridItem.create(gridItemBox));
-    GridItemPlacer.placeGridElements(grid, gridBox, items);
+
+    Grid grid = Grid.create(gridBox);
+    GridSpan gridSpan = GridSpan.create(1, 4, 1, 8);
+    grid.resizeExplicit(gridSpan);
+    grid.columnLine(2).addNames(List.of("line"));
+    grid.rowLine(2).addNames(List.of("line"));
+    grid.rowLine(4).addNames(List.of("line"));
+    grid.rowLine(6).addNames(List.of("line"));
+    grid.rowLine(8).addNames(List.of("line"));
+    GridItemPlacer.placeGridElements(grid, items);
 
     GridComparator expectedGrid = new GridComparator(gridSpan, 1);
     expectSpan(expectedGrid, gridItemBox, 2, 4, 4, 7);
@@ -117,10 +119,6 @@ public class GridItemPlacerTest {
   @Test
   @DisplayName("Can place sparse grid with items with only one determinate track position")
   public void canSparsePlaceGridWithItemsWithOnlyOneDeterminateTrackPosition() {
-    Grid grid = Grid.create();
-    GridSpan gridSpan = GridSpan.create(1, 3, 1, 3);
-    grid.resizeExplicit(gridSpan); // Will be implicitly resized to 4x5 later
-
     // x . x .
     // . x . .
     // x a a a
@@ -158,7 +156,12 @@ public class GridItemPlacerTest {
     items.add(GridItem.create(dummyItemBox4));
     items.add(GridItem.create(gridItemBox1));
     items.add(GridItem.create(gridItemBox2));
-    GridItemPlacer.placeGridElements(grid, gridBox, items);
+
+
+    Grid grid = Grid.create(gridBox);
+    GridSpan gridSpan = GridSpan.create(1, 3, 1, 3);
+    grid.resizeExplicit(gridSpan); // Will be implicitly resized to 4x5 later
+    GridItemPlacer.placeGridElements(grid, items);
 
     GridComparator expectedGrid = new GridComparator(
       gridSpan,
@@ -176,10 +179,6 @@ public class GridItemPlacerTest {
   @Test
   @DisplayName("Can place dense grid with items with only one determinate track position")
   public void canPlaceDenseGridWithItemsWithOnlyOneDeterminateTrackPosition() {
-    Grid grid = Grid.create();
-    GridSpan gridSpan = GridSpan.create(1, 3, 1, 3);
-    grid.resizeExplicit(gridSpan); // Will be implicitly resized to 4x3 later
-
     // x . x a a
     // a x . a a
     // x . . a a
@@ -215,7 +214,11 @@ public class GridItemPlacerTest {
     items.add(GridItem.create(dummyItemBox4));
     items.add(GridItem.create(gridItemBox1));
     items.add(GridItem.create(gridItemBox2));
-    GridItemPlacer.placeGridElements(grid, gridBox, items);
+
+    Grid grid = Grid.create(gridBox);
+    GridSpan gridSpan = GridSpan.create(1, 3, 1, 3);
+    grid.resizeExplicit(gridSpan); // Will be implicitly resized to 4x3 later
+    GridItemPlacer.placeGridElements(grid, items);
 
     GridComparator expectedGrid = new GridComparator(
       gridSpan,
@@ -239,10 +242,6 @@ public class GridItemPlacerTest {
     // a a
     // a .
     // a .
-
-    Grid grid = Grid.create();
-    GridSpan gridSpan = GridSpan.create(1, 1, 1, 1);
-    grid.resizeExplicit(gridSpan);
 
     ElementBox dummyItemBox1 = dummyItemBox(1, 1, 1, 1);
 
@@ -274,7 +273,11 @@ public class GridItemPlacerTest {
     items.add(GridItem.create(gridItemBox3));
     items.add(GridItem.create(gridItemBox4));
     items.add(GridItem.create(gridItemBox5));
-    GridItemPlacer.placeGridElements(grid, gridBox, items);
+
+    Grid grid = Grid.create(gridBox);
+    GridSpan gridSpan = GridSpan.create(1, 1, 1, 1);
+    grid.resizeExplicit(gridSpan);
+    GridItemPlacer.placeGridElements(grid, items);
 
     GridComparator expectedGrid = new GridComparator(
       gridSpan, new GridSpan(1, 2, 1, 6), 1);
@@ -293,10 +296,6 @@ public class GridItemPlacerTest {
   public void canPlaceGridWithDenseColumnAutoFlow() {
     // x a a a a
     // a a a a .
-
-    Grid grid = Grid.create();
-    GridSpan gridSpan = GridSpan.create(1, 1, 1, 1);
-    grid.resizeExplicit(gridSpan);
 
     ElementBox dummyItemBox1 = dummyItemBox(1, 1, 1, 1);
 
@@ -329,7 +328,11 @@ public class GridItemPlacerTest {
     items.add(GridItem.create(gridItemBox3));
     items.add(GridItem.create(gridItemBox4));
     items.add(GridItem.create(gridItemBox5));
-    GridItemPlacer.placeGridElements(grid, gridBox, items);
+
+    Grid grid = Grid.create(gridBox);
+    GridSpan gridSpan = GridSpan.create(1, 1, 1, 1);
+    grid.resizeExplicit(gridSpan);
+    GridItemPlacer.placeGridElements(grid, items);
 
     GridComparator expectedGrid = new GridComparator(
       gridSpan, new GridSpan(1, 5, 1, 2), 1);
