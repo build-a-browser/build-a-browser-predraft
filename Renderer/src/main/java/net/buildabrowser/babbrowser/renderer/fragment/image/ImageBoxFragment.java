@@ -18,7 +18,7 @@ public abstract class ImageBoxFragment extends UnmanagedBoxFragment<ImageBoxFrag
     super(
       width, height, inkWidth, inkHeight,
       // TODO: Is this baseline right?
-      0, 0, box);
+      0, 0, box, null);
     this.image = image;
     this.altText = altText;
   }

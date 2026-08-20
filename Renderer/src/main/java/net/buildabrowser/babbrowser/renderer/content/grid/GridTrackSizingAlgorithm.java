@@ -59,7 +59,7 @@ public final class GridTrackSizingAlgorithm {
   ) {
     for (
       int i = grid.implicitSpan().trackStart(direction);
-      i < grid.implicitSpan().trackEnd(direction);
+      i <= grid.implicitSpan().trackEnd(direction);
       i++
     ) {
       GridTrack track = grid.track(i, direction);

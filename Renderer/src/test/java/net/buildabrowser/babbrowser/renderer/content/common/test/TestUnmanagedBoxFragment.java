@@ -15,7 +15,7 @@ public class TestUnmanagedBoxFragment extends UnmanagedBoxFragment<TestUnmanaged
     super(
       width, height, width, height,
       0, 0,
-      box);
+      box, null);
     this.setPos(x, y);
   }
 

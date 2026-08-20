@@ -14,6 +14,7 @@ public class GridItemImp implements GridItem {
   private Integer rowStart;
   private Integer rowEnd;
   private int fallbackSpan;
+  private UnmanagedBoxFragment<?> relatedFragment;
 
   public GridItemImp(ElementBox itemBox) {
     this.itemBox = itemBox;
@@ -81,13 +82,30 @@ public class GridItemImp implements GridItem {
   }
 
   @Override
-  public ElementBox itemBox() {
+  public ElementBox box() {
     return this.itemBox;
   }
 
   @Override
   public void setRelatedFragment(UnmanagedBoxFragment<?> fragment) {
-    // TODO
+    this.relatedFragment = fragment;
+  }
+
+  @Override
+  public UnmanagedBoxFragment<?> fragment() {
+    return this.relatedFragment;
+  }
+
+  @Override
+  public float crossSize() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'crossSize'");
+  }
+
+  @Override
+  public void setCrossPos(float itemCrossPos, boolean isVertical) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'setCrossPos'");
   }
 
 }

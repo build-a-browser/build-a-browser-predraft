@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.cssbase.property.flex;
+package net.buildabrowser.babbrowser.cssbase.property.align;
 
 import java.io.IOException;
 import java.util.Map;
@@ -9,10 +9,11 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 
-public class AlignSelfParser implements PropertyValueParser {
+public class AlignItemsParser implements PropertyValueParser {
   
-  private static final Map<String, CSSValue> ALIGN_SELF_VALUES = Map.of(
-    "auto", CSSValue.AUTO,
+  private static final Map<String, CSSValue> ALIGN_ITEMS_VALUES = Map.of(
+    "self-start", AlignItemsValue.SELF_START,
+    "self-end", AlignItemsValue.SELF_END,
     "flex-start", AlignItemsValue.FLEX_START,
     "flex-end", AlignItemsValue.FLEX_END,
     "center", AlignItemsValue.CENTER,
@@ -22,12 +23,12 @@ public class AlignSelfParser implements PropertyValueParser {
 
   @Override
   public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
-    return PropertyValueParserUtil.parseIdentMap(stream, ALIGN_SELF_VALUES);
+    return PropertyValueParserUtil.parseIdentMap(stream, ALIGN_ITEMS_VALUES);
   }
 
   @Override
   public CSSProperty relatedProperty() {
-    return CSSProperty.ALIGN_SELF;
+    return CSSProperty.ALIGN_ITEMS;
   }
 
 }

@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.cssbase.property.flex;
+package net.buildabrowser.babbrowser.cssbase.property.align;
 
 import java.io.IOException;
 

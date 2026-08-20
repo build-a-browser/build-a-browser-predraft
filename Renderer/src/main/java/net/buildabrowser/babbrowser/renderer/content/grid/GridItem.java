@@ -1,10 +1,11 @@
 package net.buildabrowser.babbrowser.renderer.content.grid;
 
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericItem;
 import net.buildabrowser.babbrowser.renderer.content.grid.imp.GridItemImp;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 
-public interface GridItem {
+public interface GridItem extends GenericItem {
 
   Integer colLineStart();
 
@@ -28,8 +29,6 @@ public interface GridItem {
   int fallbackSpan();
   
   void setFallbackSpan(int fallbackSpan);
-
-  ElementBox itemBox();
 
   void setRelatedFragment(UnmanagedBoxFragment<?> fragment);
 

@@ -8,11 +8,15 @@ import net.buildabrowser.babbrowser.cssbase.property.flex.FlexShrinkValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
+import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericItem;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericJustifyContentItem;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
-public class FlexItem {
+public class FlexItem implements GenericItem, GenericJustifyContentItem {
   
   private final ElementBox itemBox;
   private final float growFactor;
@@ -37,6 +41,7 @@ public class FlexItem {
       .get(CSSProperty.FLEX_SHRINK)).value().floatValue();
   }
 
+  @Override
   public ElementBox box() {
     return this.itemBox;
   }
@@ -111,7 +116,7 @@ public class FlexItem {
     this.mainSize = targetMainSize;
   }
 
-  public float usedCrossSize() {
+  public float crossSize() {
     return this.usedCrossSize;
   }
 
@@ -135,10 +140,64 @@ public class FlexItem {
     return this.shrinkFactor;
   }
 
+  @Override
+  public void setMainPos(float startPos, boolean isVertical) {
+    if (isVertical) {
+      boxFragment.setPos(0, startPos);
+    } else {
+      boxFragment.setPos(startPos, 0);
+    }
+  }
+
+  @Override
+  public void setCrossPos(float itemCrossPos, boolean isVertical) {
+    if (isVertical) {
+      boxFragment.setPos(
+        itemCrossPos,
+        boxFragment.posY(Measurement.BORDER));
+    } else {
+      boxFragment.setPos(
+        boxFragment.posX(Measurement.BORDER),
+        itemCrossPos);
+    }
+  }
+
+  @Override
+  public LayoutConstraint firstMargin(
+    boolean isVertical, LayoutConstraint parentSize
+  ) {
+    PropertyContainer properties = itemBox.properties();
+    CSSValue relevantValue = isVertical ?
+      properties.get(CSSProperty.MARGIN_TOP) :
+      properties.get(CSSProperty.MARGIN_LEFT);
+    return SizingUtil.evaluateBaseSize(
+      itemBox.layoutContext(), parentSize, relevantValue);
+  }
+
+  @Override
+  public LayoutConstraint secondMargin(
+    boolean isVertical, LayoutConstraint parentSize
+  ) {
+    PropertyContainer properties = itemBox.properties();
+    CSSValue relevantValue = isVertical ?
+      properties.get(CSSProperty.MARGIN_BOTTOM) :
+      properties.get(CSSProperty.MARGIN_RIGHT);
+    return SizingUtil.evaluateBaseSize(
+      itemBox.layoutContext(), parentSize, relevantValue);
+  }
+
+  @Override
+  public float decorMainSize(boolean isVertical) {
+    return this.mainSize + (isVertical ?
+      itemBox.dimensions().decorHeight() :
+      itemBox.dimensions().decorWidth());
+  }
+
   public void setFragment(UnmanagedBoxFragment<?> boxFragment) {
     this.boxFragment = boxFragment;
   }
 
+  @Override
   public UnmanagedBoxFragment<?> fragment() {
     return this.boxFragment;
   }

@@ -90,7 +90,7 @@ public class GridComparator {
             Assertions.assertNull(actual);
           } else {
             Assertions.assertNotNull(actual);
-            Assertions.assertEquals(expected, actual.itemBox());
+            Assertions.assertEquals(expected, actual.box());
           }
         }
 

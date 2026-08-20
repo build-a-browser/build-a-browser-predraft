@@ -4,24 +4,26 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
-import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
-import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
-import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsValue;
+import net.buildabrowser.babbrowser.cssbase.property.align.AlignContentValue;
+import net.buildabrowser.babbrowser.cssbase.property.align.AlignItemsValue;
+import net.buildabrowser.babbrowser.cssbase.property.align.JustifyContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexDirectionValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
-import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxIterator;
-import net.buildabrowser.babbrowser.renderer.content.common.GenericFlexibleFixup;
 import net.buildabrowser.babbrowser.renderer.content.common.MarginUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
-import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexLineCrossAlignment.CrossAlignmentContext;
-import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexMainAlignment.MainAlignmentContext;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericAlignContentAligner;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericAlignContentAligner.CrossAlignmentContext;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericAlignItemAligner;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericFlexibleUtil;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericItem;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericJustifyContentAligner;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericJustifyContentAligner.MainAlignmentContext;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericJustifyContentItem;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericTrack;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
@@ -29,7 +31,6 @@ import net.buildabrowser.babbrowser.renderer.fragment.flexbox.FlexBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutUtil;
-import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext;
 
 public final class FlexBoxContent implements BoxContent {
 
@@ -39,7 +40,7 @@ public final class FlexBoxContent implements BoxContent {
 
   @Override
   public void fixupChildren(ElementBox rootBox) {
-    GenericFlexibleFixup.fixupChildren(rootBox);
+    GenericFlexibleUtil.fixupChildren(rootBox);
   }
 
   // TODO: Test how well this code handles positioned items..
@@ -72,19 +73,23 @@ public final class FlexBoxContent implements BoxContent {
 
     FlexHypotheticalSizeDetermination.determineBaseAndHypotheticalSizes(
       rootBox, items, mainSize, crossSize, isVertical);
-    float mainGap = mainGap(rootBox, isVertical, mainSize);
+    float mainGap = GenericFlexibleUtil.mainGap(rootBox, isVertical, mainSize);
     List<FlexLine> lines = collectFlexItemsIntoFlexLines(rootBox, mainSize, items, mainGap);
     for (FlexLine line: lines) {
       Flexer.flex(mainSize, line, mainGap);
     }
-
     UnmanagedBoxFragment<?> fragments = null;
     FlexCrossSizeDetermination.determineCrossSize(rootBox, lines, crossSize, isVertical);
     if (!widthConstraint.isPreLayoutConstraint()) {
+      @SuppressWarnings({ "rawtypes", "unchecked" })
+      List<GenericTrack> linesGeneric = (List<GenericTrack>) (List) lines;
+      
       alignMainAxis(rootBox, flexDirection, isVertical, mainSize, lines);
-      alignCrossAxis(rootBox, isVertical, mainSize, crossSize, lines);
+      alignCrossAxis(rootBox, isVertical, mainSize, crossSize, linesGeneric);
 
-      fragments = collectChildFragments(items);
+      @SuppressWarnings({ "rawtypes", "unchecked" })
+      UnmanagedBoxFragment<?> fragments_ = GenericFlexibleUtil.collectChildFragments((List<GenericItem>) (List) items);
+      fragments = fragments_;
     }
 
     return createRootFragment(
@@ -142,69 +147,37 @@ public final class FlexBoxContent implements BoxContent {
     ElementBox rootBox,
     FlexDirectionValue flexDirection, boolean isVertical, LayoutConstraint mainSize, List<FlexLine> lines
   ) {
-    float mainGap = mainGap(rootBox, isVertical, mainSize);
+    float mainGap = GenericFlexibleUtil.mainGap(rootBox, isVertical, mainSize);
     JustifyContentValue contentJustification = (JustifyContentValue) rootBox.properties().get(CSSProperty.JUSTIFY_CONTENT);
     if (!mainSize.isBounded()) contentJustification = JustifyContentValue.FLEX_START;
     boolean isReverse =
       flexDirection.equals(FlexDirectionValue.ROW_REVERSE)
       || flexDirection.equals(FlexDirectionValue.COLUMN_REVERSE);
-    FlexMainAlignment.alignMainAxis(
-      new MainAlignmentContext(mainSize, isVertical, isReverse, contentJustification, mainGap),
-      lines);
+    for (FlexLine line: lines) {
+      @SuppressWarnings({ "rawtypes", "unchecked" })
+      List<GenericJustifyContentItem> items
+        = (List<GenericJustifyContentItem>) (List) line.genericItems();
+      GenericJustifyContentAligner.justifyContents(
+        new MainAlignmentContext(
+          mainSize, mainGap, isVertical, isReverse,
+          contentJustification, JustifyContentValue.FLEX_START),
+        items);
+    }
   }
 
   private void alignCrossAxis(
     ElementBox rootBox,
-    boolean isVertical, LayoutConstraint mainSize, LayoutConstraint crossSize, List<FlexLine> lines
+    boolean isVertical, LayoutConstraint mainSize, LayoutConstraint crossSize, List<GenericTrack> lines
   ) {
-    float crossGap = crossGap(rootBox, isVertical, mainSize);
+    float crossGap = GenericFlexibleUtil.crossGap(rootBox, isVertical, mainSize);
     AlignItemsValue alignItems = (AlignItemsValue) rootBox.properties().get(CSSProperty.ALIGN_ITEMS);
     AlignContentValue alignContent = (AlignContentValue) rootBox.properties().get(CSSProperty.ALIGN_CONTENT);
     if (!crossSize.isBounded()) alignContent = AlignContentValue.FLEX_START;
 
     CrossAlignmentContext alignmentContext = new CrossAlignmentContext(
-      crossSize, isVertical, alignItems, alignContent, crossGap);
-    FlexItemCrossAlignment.alignItems(alignmentContext, lines);
-    FlexLineCrossAlignment.alignLines(alignmentContext, lines);
-  }
-
-  private float mainGap(
-    ElementBox rootBox,
-    boolean isVertical, LayoutConstraint mainSize
-  ) {
-    PropertyContainer parentProperties = rootBox.properties();
-    CSSValue mainGapValue = isVertical ?
-      parentProperties.get(CSSProperty.ROW_GAP) :
-      parentProperties.get(CSSProperty.COLUMN_GAP);
-    LayoutConstraint mainGapConstraint = SizingUtil.evaluateBaseSize(
-      rootBox.layoutContext(), mainSize, mainGapValue);
-    return mainGapConstraint.isBounded() ? mainGapConstraint.value() : 0;
-  }
-
-  private float crossGap(
-    ElementBox rootBox,
-    boolean isVertical, LayoutConstraint mainSize
-  ) {
-    return mainGap(rootBox, !isVertical, mainSize);
-  }
-
-  private UnmanagedBoxFragment<?> collectChildFragments(List<FlexItem> items) {
-    UnmanagedBoxFragment<?> fragments = null;
-    UnmanagedBoxFragment<?> lastFragment = null;
-    for (FlexItem item: items) {
-      // After fixup, flex should only have element children
-      if (!PositionUtil.affectsLayout(item.box())) continue;
-      UnmanagedBoxFragment<?> boxFragment = item.fragment();
-      boxFragment.setNext(null);
-      if (lastFragment == null) {
-        fragments = lastFragment = boxFragment;
-      } else {
-        lastFragment = (UnmanagedBoxFragment<?>) IntrusiveList.add(lastFragment, boxFragment);
-        lastFragment = (UnmanagedBoxFragment<?>) lastFragment.next();
-      }
-    }
-
-    return fragments;
+      crossSize, crossGap, isVertical, alignItems, alignContent);
+    GenericAlignItemAligner.alignItems(alignmentContext, lines);
+    GenericAlignContentAligner.alignLines(alignmentContext, lines);
   }
 
   private FlexBoxFragment createRootFragment(
@@ -212,8 +185,8 @@ public final class FlexBoxContent implements BoxContent {
     boolean isVertical, LayoutConstraint mainSize, LayoutConstraint crossSize,
     List<FlexLine> lines, UnmanagedBoxFragment<?> childFragments
   ) {
-    float mainGap = mainGap(rootBox, isVertical, mainSize);
-    float crossGap = crossGap(rootBox, isVertical, mainSize);
+    float mainGap = GenericFlexibleUtil.mainGap(rootBox, isVertical, mainSize);
+    float crossGap = GenericFlexibleUtil.crossGap(rootBox, isVertical, mainSize);
 
     float largestLineMain = 0;
     float totalLineCross = 0;
@@ -250,42 +223,7 @@ public final class FlexBoxContent implements BoxContent {
     UnmanagedBoxFragment<?> fragment,
     float layerX, float layerY
   ) {
-    FlexBoxFragment rootFragment = (FlexBoxFragment) fragment;
-    ElementBox rootBox = rootFragment.box();
-    rootFragment.setLayerPos(layerX, layerY);
-
-    StackingContext refContext = rootBox.stackingContext();
-
-    float offsetX = layerX + (rootFragment.posX(Measurement.CONTENT) - rootFragment.posX(Measurement.BORDER));
-    float offsetY = layerY + (rootFragment.posY(Measurement.CONTENT) - rootFragment.posY(Measurement.BORDER));
-
-    ElementBoxIterator childIt = rootBox.childBoxes();
-    while (childIt.hasNext()) {
-      // Once again, fixup should have made everything ElementBox
-      ElementBox childBox = (ElementBox) childIt.next();
-      if (!PositionUtil.affectsLayout(childBox)) {
-        childBox.alterDimensions(false, d -> d.setStaticPosition(layerX, layerY));
-        continue;
-      }
-    }
-  
-    UnmanagedBoxFragment<?> childFragment = rootFragment.fragments();
-    while (childFragment != null) {
-      ElementBox childBox = childFragment.box();
-      float childX = offsetX + childFragment.posX(Measurement.BORDER);
-      float childY = offsetY + childFragment.posY(Measurement.BORDER);
-      
-      if (childBox.stackingContext() != refContext) {
-        childBox.stackingContext().positionFragment(
-          childX, childY, childFragment,
-          childBox.content()::positionLayers);
-      } else {
-        childFragment.setLayerPos(childX, childY);
-        childBox.content().positionLayers(childFragment, childX, childY);
-      }
-
-      childFragment = (UnmanagedBoxFragment<?>) childFragment.next();
-    }
+    GenericFlexibleUtil.positionLayers(fragment, layerX, layerY);
   }
   
   public static FlexBoxContent get() {

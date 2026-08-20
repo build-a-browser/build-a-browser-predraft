@@ -15,7 +15,7 @@ public abstract class BaseInputFragment
     super(
       width, height, inkWidth, inkHeight,
       firstBaseline, lastBaseline,
-      box);
+      box, null);
   }
   
 }

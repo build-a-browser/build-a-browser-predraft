@@ -57,7 +57,7 @@ public class GridLineResolver {
   }
 
   public static CSSValue itemSpanValue(GridItem item, GridDirection direction) {
-    ElementBox itemBox = item.itemBox();
+    ElementBox itemBox = item.box();
     CSSValue spanValue = direction.equals(GridDirection.ROW) ?
       itemBox.properties().get(CSSProperty.GRID_ROW_START) :
       itemBox.properties().get(CSSProperty.GRID_COLUMN_START);
@@ -83,7 +83,7 @@ public class GridLineResolver {
     LineNumberLookup lookup1,
     LineNumberLookup lookup2
   ) {
-    ElementBox itemBox = item.itemBox();
+    ElementBox itemBox = item.box();
     CSSValue maybeGridLineValueStart = itemBox.properties().get(lookup1.relatedProperty());
     CSSValue maybeGridLineValueEnd = itemBox.properties().get(lookup2.relatedProperty());
     Integer dimStart = definiteLineNum(grid, maybeGridLineValueStart, lookup1);

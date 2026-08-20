@@ -4,8 +4,8 @@ import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexBoxContent;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
-import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.flexbox.FlexBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.GlobalLayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -19,7 +19,7 @@ public final class FlexLayoutUtil {
   
   private FlexLayoutUtil() {}
 
-  public static UnmanagedBoxFragment<?> doLayout(ElementBox parentBox) {
+  public static BoxFragment<?> doLayout(ElementBox parentBox) {
     return doLayoutConstrained(parentBox, LayoutConstraint.AUTO, LayoutConstraint.AUTO).childFragments();
   }
 
@@ -51,11 +51,11 @@ public final class FlexLayoutUtil {
 
     content.fixupChildren(parentBox);
     FlexBoxFragment dimensionFrag = (FlexBoxFragment) parentBox.layout(widthConstraint, heightConstraint);
-    return new FlexTestLayoutResult(dimensionFrag, dimensionFrag.fragments(), content);
+    return new FlexTestLayoutResult(dimensionFrag, dimensionFrag.innerFragment(), content);
   }
 
   public static record FlexTestLayoutResult(
-    FlexBoxFragment flexboxFragment, UnmanagedBoxFragment<?> childFragments, FlexBoxContent rootContent
+    FlexBoxFragment flexboxFragment, BoxFragment<?> childFragments, FlexBoxContent rootContent
   ) {}
 
 }

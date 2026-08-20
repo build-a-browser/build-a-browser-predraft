@@ -18,7 +18,7 @@ public class GenericUnmanagedBoxFragment extends UnmanagedBoxFragment<GenericUnm
     super(
       width, height, inkWidth, inkHeight,
       firstBaseline, lastBaseline,
-      box);
+      box, null);
     this.boxPainter = UnreachableBoxPainter.create(box.element());
   }
 

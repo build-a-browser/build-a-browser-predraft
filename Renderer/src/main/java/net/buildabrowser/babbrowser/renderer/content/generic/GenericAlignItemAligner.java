@@ -1,31 +1,32 @@
-package net.buildabrowser.babbrowser.renderer.content.flexbox;
+package net.buildabrowser.babbrowser.renderer.content.generic;
 
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
-import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsValue;
-import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexLineCrossAlignment.CrossAlignmentContext;
+import net.buildabrowser.babbrowser.cssbase.property.align.AlignItemsValue;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericAlignContentAligner.CrossAlignmentContext;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 
-public final class FlexItemCrossAlignment {
+// align-items, align-self
+public final class GenericAlignItemAligner {
   
-  private FlexItemCrossAlignment() {}
+  private GenericAlignItemAligner() {}
 
   public static void alignItems(
-    CrossAlignmentContext alignmentContext, List<FlexLine> lines
+    CrossAlignmentContext alignmentContext, List<GenericTrack> lines
   ) {
-    for (FlexLine line: lines) {
+    for (GenericTrack line: lines) {
       float edgeToBaseline = determineEdgeToBaseline(alignmentContext, line);
-      for (FlexItem item: line.items()) {
+      for (GenericItem item: line.genericItems()) {
         alignItem(alignmentContext, line, item, edgeToBaseline);
       }
     }
   }
 
   public static AlignItemsValue getItemAlignment(
-    AlignItemsValue alignItems, FlexItem item
+    AlignItemsValue alignItems, GenericItem item
   ) {
     CSSValue alignment = item.box().properties().get(CSSProperty.ALIGN_SELF);
     if (!alignment.equals(CSSValue.AUTO)) {
@@ -35,7 +36,7 @@ public final class FlexItemCrossAlignment {
   }
 
   public static boolean hasCrossAutoMargin(
-    boolean isVertical, FlexItem item
+    boolean isVertical, GenericItem item
   ) {
     PropertyContainer properties = item.box().properties();
     if (isVertical) {
@@ -50,10 +51,10 @@ public final class FlexItemCrossAlignment {
   }
 
   private static float determineEdgeToBaseline(
-    CrossAlignmentContext alignmentContext, FlexLine line
+    CrossAlignmentContext alignmentContext, GenericTrack line
   ) {
     float maxEdgeToBaseline = 0;
-    for (FlexItem item: line.items()) {
+    for (GenericItem item: line.genericItems()) {
       boolean hasCrossMargin = hasCrossAutoMargin(
         alignmentContext.isVertical(), item);
       if (hasCrossMargin) continue;
@@ -63,7 +64,7 @@ public final class FlexItemCrossAlignment {
         !itemAlignment.equals(AlignItemsValue.BASELINE)
       ) continue;
 
-      float itemCrossSize = item.usedCrossSize();
+      float itemCrossSize = item.crossSize();
       float itemBaseline = itemBaseline(alignmentContext, item);
       maxEdgeToBaseline = Math.max(maxEdgeToBaseline, itemCrossSize - itemBaseline);
     }
@@ -73,8 +74,8 @@ public final class FlexItemCrossAlignment {
 
   private static void alignItem(
     CrossAlignmentContext alignmentContext,
-    FlexLine line,
-    FlexItem item,
+    GenericTrack line,
+    GenericItem item,
     float edgeToBaseline
   ) {
     boolean hasCrossMargin = hasCrossAutoMargin(
@@ -86,29 +87,22 @@ public final class FlexItemCrossAlignment {
     float itemCrossSize = alignmentContext.isVertical() ?
       item.fragment().width(Measurement.MARGIN) :
       item.fragment().height(Measurement.MARGIN);
+    // TODO: Edge cases for SELF_START, SELF_END
     float itemCrossPos = switch (itemAlignment) {
-      case FLEX_START -> 0;
+      case SELF_START, FLEX_START -> 0;
       case BASELINE -> edgeToBaseline - (itemCrossSize - itemBaseline(alignmentContext, item));
       case CENTER -> lineCrossSize / 2 - itemCrossSize / 2;
-      case FLEX_END -> lineCrossSize - itemCrossSize;
+      case SELF_END, FLEX_END -> lineCrossSize - itemCrossSize;
       case STRETCH -> 0; // Stretch is handled in FlexCrossSizeDetermination
       default -> throw new UnsupportedOperationException(
         "Unrecognized item alignment: " + itemAlignment);
     };
 
-    if (alignmentContext.isVertical()) {
-      item.fragment().setPos(
-        itemCrossPos,
-        item.fragment().posY(Measurement.BORDER));
-    } else {
-      item.fragment().setPos(
-        item.fragment().posX(Measurement.BORDER),
-        itemCrossPos);
-    }
+    item.setCrossPos(itemCrossPos, alignmentContext.isVertical());
   }
 
   private static float itemBaseline(
-    CrossAlignmentContext alignmentContext, FlexItem item
+    CrossAlignmentContext alignmentContext, GenericItem item
   ) {
     // TODO: Implement
     return alignmentContext.isVertical() ?

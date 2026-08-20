@@ -45,7 +45,7 @@ public final class GridItemContributions {
   private static float wrapBox(
     GridItem item, GridDirection direction, float dim
   ) {
-    ElementBoxDimensions dimensions = item.itemBox().dimensions();
+    ElementBoxDimensions dimensions = item.box().dimensions();
     return dim + switch (direction) {
       case COLUMN -> dimensions.decorWidth();
       case ROW -> dimensions.decorHeight();
@@ -58,7 +58,7 @@ public final class GridItemContributions {
     GridItem item, Grid grid, GridDirection direction
   ) {
     return switch (direction) {
-      case COLUMN -> EBDimensionsUtil.preferredMinWidthConstraint(item.itemBox());
+      case COLUMN -> EBDimensionsUtil.preferredMinWidthConstraint(item.box());
       case ROW -> computeContentRow(item, grid);
       default -> throw new UnsupportedOperationException(
         "Unrecognize grid direction: " + direction);
@@ -69,7 +69,7 @@ public final class GridItemContributions {
     GridItem item, Grid grid, GridDirection direction
   ) {
     return switch (direction) {
-      case COLUMN -> EBDimensionsUtil.preferredWidthConstraint(item.itemBox());
+      case COLUMN -> EBDimensionsUtil.preferredWidthConstraint(item.box());
       case ROW -> computeContentRow(item, grid);
       default -> throw new UnsupportedOperationException(
         "Unrecognize grid direction: " + direction);
@@ -90,7 +90,7 @@ public final class GridItemContributions {
       inlineSize += size.value();
     }
 
-    UnmanagedBoxFragment<?> fragment = item.itemBox().layout(
+    UnmanagedBoxFragment<?> fragment = item.box().layout(
       LayoutConstraint.of(inlineSize),
       LayoutConstraint.AUTO);
     return fragment.height(Measurement.CONTENT);

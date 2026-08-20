@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.cssbase.property.flex;
+package net.buildabrowser.babbrowser.cssbase.property.align;
 
 import java.io.IOException;
 import java.util.Map;
@@ -12,6 +12,10 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 public class JustifyContentParser implements PropertyValueParser {
   
   private static final Map<String, CSSValue> JUSTIFY_CONTENT_VALUES = Map.of(
+    "normal", JustifyContentValue.NORMAL,
+    "stretch", JustifyContentValue.STRETCH,
+    "start", JustifyContentValue.START,
+    "end", JustifyContentValue.END,
     "flex-start", JustifyContentValue.FLEX_START,
     "flex-end", JustifyContentValue.FLEX_END,
     "center", JustifyContentValue.CENTER,

@@ -1,10 +1,12 @@
 package net.buildabrowser.babbrowser.renderer.content.grid;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericJustifyContentItem;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericTrack;
 import net.buildabrowser.babbrowser.renderer.content.grid.imp.GridTrackImp;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
-public interface GridTrack {
+public interface GridTrack extends GenericJustifyContentItem, GenericTrack {
 
   CSSValue minTrackSizingFunction();
 

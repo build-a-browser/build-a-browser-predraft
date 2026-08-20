@@ -22,10 +22,11 @@ public abstract class TableBoxFragment extends UnmanagedBoxFragment<TableBoxFrag
     TableBorderAssignment borderAssignment,
     List<PosRefBoxFragment> outOfTableFragments
   ) {
+    // TODO: Require list of nested fragments
     super(
       width, height, inkWidth, inkHeight,
       firstBaseline, lastBaseline,
-      box);
+      box, null);
     this.table = table;
     this.borderAssignment = borderAssignment;
     this.outOfTableFragments = outOfTableFragments;

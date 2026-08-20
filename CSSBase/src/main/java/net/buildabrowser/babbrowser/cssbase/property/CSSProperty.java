@@ -5,7 +5,10 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
+import net.buildabrowser.babbrowser.cssbase.property.align.AlignContentValue;
+import net.buildabrowser.babbrowser.cssbase.property.align.AlignItemsValue;
 import net.buildabrowser.babbrowser.cssbase.property.align.GapValue;
+import net.buildabrowser.babbrowser.cssbase.property.align.JustifyContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundAttachmentValue;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundPositionValue;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundPositionValue.BackgroundPositionSide;
@@ -19,13 +22,10 @@ import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.OuterDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.property.display.OrderValue;
-import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
-import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexDirectionValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexGrowValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexShrinkValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
-import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontNameValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontNamedSizeValue;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightValue;
@@ -161,10 +161,10 @@ public enum CSSProperty {
   FLEX_BASIS(nextId(), false, CSSValue.AUTO),
   FLEX(new CSSProperty[] { CSSProperty.FLEX_GROW, CSSProperty.FLEX_SHRINK, CSSProperty.FLEX_BASIS }),
   
-  JUSTIFY_CONTENT(nextId(), false, JustifyContentValue.FLEX_START),
+  JUSTIFY_CONTENT(nextId(), false, JustifyContentValue.NORMAL),
   ALIGN_ITEMS(nextId(), false, AlignItemsValue.STRETCH),
   ALIGN_SELF(nextId(), false, CSSValue.AUTO),
-  ALIGN_CONTENT(nextId(), false, AlignContentValue.STRETCH),
+  ALIGN_CONTENT(nextId(), false, AlignContentValue.NORMAL),
 
   GRID_TEMPLATE_COLUMNS(nextId(), false, CSSValue.NONE),
   GRID_TEMPLATE_ROWS(nextId(), false, CSSValue.NONE),

@@ -16,8 +16,8 @@ import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.EventUtil;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent.MouseEventType;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
-import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 
 public class ScrollEventHandler implements EventHandler<ScrollBoxFragment> {
@@ -29,7 +29,7 @@ public class ScrollEventHandler implements EventHandler<ScrollBoxFragment> {
   ) {
     if (scrollBoxFragment == null) return EventHandlerResponse.UNHANDLED;
     ScrollBox scrollBox = scrollBoxFragment.box();
-    UnmanagedBoxFragment<?> innerFragment = scrollBoxFragment.innerFragment();
+    BoxFragment<?> innerFragment = scrollBoxFragment.innerFragment();
     EventHandlerResponse innerMouseEventResponse = EventUtil.aabb(innerFragment, relX, relY) ?
       innerFragment.withEventHandler((eh, f) -> eh.handleMouseEvent(
         eventContext, mouseEvent, f,

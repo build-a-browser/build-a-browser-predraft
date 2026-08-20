@@ -3,7 +3,11 @@ package net.buildabrowser.babbrowser.renderer.content.flexbox;
 import java.util.LinkedList;
 import java.util.List;
 
-public class FlexLine {
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericItem;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericTrack;
+import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+
+public class FlexLine implements GenericTrack {
   
   private final List<FlexItem> items = new LinkedList<>();
   
@@ -11,6 +15,12 @@ public class FlexLine {
 
   public List<FlexItem> items() {
     return items;
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @Override
+  public List<GenericItem> genericItems() {
+    return (List<GenericItem>) (List) items;
   }
 
   public void addItem(FlexItem item) {
@@ -34,8 +44,24 @@ public class FlexLine {
     this.crossSize = crossSize;
   }
 
+  @Override
   public float crossSize() {
     return this.crossSize;
+  }
+
+  @Override
+  public void setCrossPos(float startPos, boolean isVertical) {
+    for (GenericItem item: genericItems()) {
+      // TODO: Handle auto margin
+      float[] margin = item.box().dimensions().getComputedMargin();
+      if (isVertical) {
+        float newX = item.fragment().posX(Measurement.BORDER) + startPos;
+        item.fragment().setPos(newX + margin[2], item.fragment().posY(Measurement.BORDER));
+      } else {
+        float newY = item.fragment().posY(Measurement.BORDER) + startPos;
+        item.fragment().setPos(item.fragment().posX(Measurement.BORDER), newY + margin[0]);
+      }
+    }
   }
 
 }

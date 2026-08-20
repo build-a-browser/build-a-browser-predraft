@@ -1,4 +1,4 @@
-package net.buildabrowser.babbrowser.cssbase.property.flex;
+package net.buildabrowser.babbrowser.cssbase.property.align;
 
 import java.io.IOException;
 import java.util.Map;
@@ -12,6 +12,9 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 public class AlignContentParser implements PropertyValueParser {
   
   private static final Map<String, CSSValue> ALIGN_CONTENT_VALUES = Map.of(
+    "normal", AlignContentValue.NORMAL,
+    "start", AlignContentValue.START,
+    "end", AlignContentValue.END,
     "flex-start", AlignContentValue.FLEX_START,
     "flex-end", AlignContentValue.FLEX_END,
     "center", AlignContentValue.CENTER,

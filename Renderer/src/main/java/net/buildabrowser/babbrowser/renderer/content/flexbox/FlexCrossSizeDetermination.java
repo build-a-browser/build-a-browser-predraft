@@ -4,11 +4,12 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentValue;
-import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsValue;
+import net.buildabrowser.babbrowser.cssbase.property.align.AlignContentValue;
+import net.buildabrowser.babbrowser.cssbase.property.align.AlignItemsValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericAlignItemAligner;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -131,7 +132,7 @@ public final class FlexCrossSizeDetermination {
     AlignItemsValue alignItemsValue,
     LayoutConstraint containerCrossSize, boolean isVertical
   ) {
-    CSSValue itemAlignmentValue = FlexItemCrossAlignment.getItemAlignment(
+    CSSValue itemAlignmentValue = GenericAlignItemAligner.getItemAlignment(
       alignItemsValue, item);
 
     LayoutConstraint itemMainConstraint = LayoutConstraint.of(item.mainSize());
@@ -145,7 +146,7 @@ public final class FlexCrossSizeDetermination {
     ) {
       // TODO: Clamp
       if (
-        FlexItemCrossAlignment.hasCrossAutoMargin(isVertical, item)
+        GenericAlignItemAligner.hasCrossAutoMargin(isVertical, item)
       ) return;
 
       ElementBoxDimensions dimensions = item.box().dimensions();

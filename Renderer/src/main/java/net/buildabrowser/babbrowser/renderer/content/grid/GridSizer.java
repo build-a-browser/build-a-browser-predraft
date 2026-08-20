@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
@@ -28,14 +29,18 @@ public final class GridSizer {
     LayoutConstraint heightConstraint
   ) {
     List<GridTrackValue> colTracks = new ArrayList<>();
-    int gridWidth = sizeExplicitDimension(
-      (GridTrackListValue) properties.get(CSSProperty.GRID_TEMPLATE_COLUMNS),
-      colTracks, layoutContext, widthConstraint);
+    CSSValue gridTemplateColumns = properties.get(CSSProperty.GRID_TEMPLATE_COLUMNS);
+    int gridWidth = gridTemplateColumns.equals(CSSValue.NONE) ?
+      0 : sizeExplicitDimension(
+        (GridTrackListValue) gridTemplateColumns,
+        colTracks, layoutContext, widthConstraint);
     
     List<GridTrackValue> rowTracks = new ArrayList<>();
-    int gridHeight = sizeExplicitDimension(
-      (GridTrackListValue) properties.get(CSSProperty.GRID_TEMPLATE_ROWS),
-      rowTracks, layoutContext, heightConstraint);
+    CSSValue gridTemplateRows = properties.get(CSSProperty.GRID_TEMPLATE_ROWS);
+    int gridHeight = gridTemplateRows.equals(CSSValue.NONE) ?
+      0 : sizeExplicitDimension(
+        (GridTrackListValue) gridTemplateRows,
+        rowTracks, layoutContext, heightConstraint);
 
     if (
       properties.get(CSSProperty.GRID_TEMPLATE_AREAS)
