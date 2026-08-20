@@ -1,46 +1,48 @@
 package net.buildabrowser.babbrowser.renderer.style.imp;
 
-import java.util.HashMap;
+import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Function;
 
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.renderer.style.StyleCache;
+import net.buildabrowser.babbrowser.renderer.style.StyleCacheTree;
 
 public class StyleCacheImp implements StyleCache {
 
-  private final Map<ListKey, ActiveStyles> cacheMap = new HashMap<>();
+  // StyleCache is short lived, so don't bother with weak maps
+  private final StyleCacheTree cacheTree = new StyleCacheTreeImp();
+  private final WeakHashMap<PropertyContainer, WeakReference<PropertyContainer>> cacheMap2 = new WeakHashMap<>();
 
   @Override
   public ActiveStyles lookupOrElse(
     List<WeightedStyleRule> relatedRules,
     Function<List<WeightedStyleRule>, ActiveStyles> stylesGenerator
   ) {
-    int listHash = relatedRules.hashCode();
-    ListKey hashKey = new ListKey(listHash, relatedRules);
-    ActiveStyles existingStyles = cacheMap.get(hashKey);
-    if (existingStyles != null) return existingStyles;
-    ActiveStyles newStyles = stylesGenerator.apply(relatedRules);
-    if (newStyles.isReusable()) {
-      cacheMap.put(
-        new ListKey(listHash, List.copyOf(relatedRules)),
-        newStyles);
+    StyleCacheTree targetTree = cacheTree;
+    for (WeightedStyleRule rule: relatedRules) {
+      targetTree = targetTree.get(rule);
     }
+
+    ActiveStyles existingStyles = targetTree.get();
+    if (existingStyles != null) return existingStyles;
+
+    ActiveStyles newStyles = stylesGenerator.apply(relatedRules);
+    targetTree.put(newStyles);
     return newStyles;
   }
 
-  private record ListKey(
-    int listHash,
-    List<WeightedStyleRule> list
-  ) {
-
-    @Override
-    public int hashCode() {
-      return this.listHash;
-    }
-
+  @Override
+  public PropertyContainer cacheFlattened(PropertyContainer flattenedStyles) {
+    if (!flattenedStyles.isReusable()) return flattenedStyles;
+    PropertyContainer styleRef = cacheMap2.computeIfAbsent(
+      flattenedStyles, _1 -> new WeakReference<>(flattenedStyles)).get();
+    if (styleRef != null) return styleRef;
+    cacheMap2.put(styleRef, new WeakReference<>(styleRef));
+    return styleRef;
   }
   
 }

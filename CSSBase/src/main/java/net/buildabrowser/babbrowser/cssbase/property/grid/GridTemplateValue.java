@@ -29,12 +29,22 @@ public record GridTemplateValue(
         startLines, rowArea, trackSize, endLines);
     }
 
+    @Override
+    public String serialize() {
+      return "<UNIMPLEMENTED>";
+    }
+
   }
   
   public static GridTemplateValue create(
     CSSValue rows, CSSValue columns, CSSValue areas
   ) {
     return new GridTemplateValue(rows, columns, areas);
+  }
+
+  @Override
+  public String serialize() {
+    return "<UNIMPLEMENTED>";
   }
 
 }

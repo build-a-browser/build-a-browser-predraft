@@ -28,6 +28,30 @@ public final class PositionUtil {
       || affectsLayout(refFrag.box());
   }
 
+  // TODO: Passing the sample context is not so great
+  public static boolean affectsLayoutInvalidation(ElementBox box) {
+    if (affectsLayout(box)) return true;
+
+    LayoutContext layoutContext = box.layoutContext();
+    if (layoutContext == null) return true;
+
+    PropertyContainer properties = box.properties();
+    if (properties == null) return true;
+    
+    LayoutConstraint top = SizingUtil.evaluateBaseSize(
+      layoutContext, LayoutConstraint.AUTO, properties.get(CSSProperty.TOP));
+    LayoutConstraint bottom = SizingUtil.evaluateBaseSize(
+      layoutContext, LayoutConstraint.AUTO, properties.get(CSSProperty.BOTTOM));
+    LayoutConstraint left = SizingUtil.evaluateBaseSize(
+      layoutContext, LayoutConstraint.AUTO, properties.get(CSSProperty.LEFT));
+    LayoutConstraint right = SizingUtil.evaluateBaseSize(
+      layoutContext, LayoutConstraint.AUTO, properties.get(CSSProperty.RIGHT));
+
+    return !(
+      (top.isBounded() || bottom.isBounded())
+      && (left.isBounded() || right.isBounded()));
+  }
+
   public static float[] computeRelativeInsets(
     float parentWidth, float parentHeight, ElementBox childBox
   ) {

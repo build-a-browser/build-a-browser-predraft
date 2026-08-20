@@ -9,6 +9,7 @@ import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
+import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext;
 
 public class AnonymousElementBoxImp extends AbstractElementBoxImp {
 
@@ -69,6 +70,20 @@ public class AnonymousElementBoxImp extends AbstractElementBoxImp {
   @Override
   public PropertyContainer properties() {
     return this.properties;
+  }
+
+  @Override
+  public StackingContext stackingContext() {
+    StackingContext ownContext = super.stackingContext();
+    if (ownContext != null) {
+      return ownContext;
+    }
+
+    if (parentBox() instanceof ElementBox parentElBox) {
+      return parentElBox.stackingContext();
+    }
+
+    return null;
   }
   
 }

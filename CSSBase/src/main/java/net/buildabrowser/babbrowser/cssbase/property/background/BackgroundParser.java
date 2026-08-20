@@ -100,7 +100,7 @@ public class BackgroundParser implements PropertyValueParser {
       propLayers.add(value);
     }
 
-    ManyResult valueList = new ManyResult(propLayers);
+    ManyResult valueList = ManyResult.createCommas(propLayers);
     propertySetter.setProperty(property, valueList);
   }
 
@@ -149,6 +149,13 @@ public class BackgroundParser implements PropertyValueParser {
   private static record BackgroundPositionSizeValue(
     CSSValue position,
     CSSValue size
-  ) implements CSSValue {}
+  ) implements CSSValue {
+
+    @Override
+    public String serialize() {
+      return position.serialize() + " " + size.serialize();
+    }
+
+  }
   
 }

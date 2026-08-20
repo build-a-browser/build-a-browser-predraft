@@ -4,7 +4,6 @@ import java.io.Closeable;
 import java.net.URI;
 import java.util.Optional;
 
-import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 
 public interface DocumentRenderer extends Closeable {
@@ -21,7 +20,7 @@ public interface DocumentRenderer extends Closeable {
 
   DocumentChangeListener changeListener();
   
-  void onDocumentInvalidated(InvalidationLevel invalidationLevel);
+  void onDocumentInvalidated(short invalidationLevel);
 
   default void close() {}
 

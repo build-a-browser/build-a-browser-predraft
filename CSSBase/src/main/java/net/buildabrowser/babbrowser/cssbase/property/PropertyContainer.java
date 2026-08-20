@@ -10,4 +10,8 @@ public interface PropertyContainer {
 
   CSSValue getCustom(String property);
 
+  default boolean isReusable() {
+    return false;
+  }
+
 }

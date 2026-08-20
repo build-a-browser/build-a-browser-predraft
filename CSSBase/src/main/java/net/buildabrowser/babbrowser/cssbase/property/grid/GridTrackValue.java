@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.grid;
 
 import java.util.List;
 
+import net.buildabrowser.babbrowser.cssbase.property.CSSSerializerUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 
 public record GridTrackValue(
@@ -19,6 +20,11 @@ public record GridTrackValue(
       return new GridRepeatValue(repeatTimesValue, trackList);
     }
 
+    @Override
+    public String serialize() {
+      return "<UNIMPLEMENTED>";
+    }
+
   }
   
   public static record GridRepeatNumberComponent(int numRepeats) implements CSSValue {
@@ -27,16 +33,32 @@ public record GridTrackValue(
       return new GridRepeatNumberComponent(numRepeats);
     }
 
+    @Override
+    public String serialize() {
+      return "<UNIMPLEMENTED>";
+    }
+
   }
 
   public static enum GridRepeatNameComponent implements CSSValue {
-    AUTO_FILL, AUTO_FIT
+    AUTO_FILL, AUTO_FIT;
+
+    @Override
+    public String serialize() {
+      return CSSSerializerUtil.serializeEnum(this);
+    }
+
   }
 
   public static GridTrackValue create(
     List<String> lineNames, CSSValue sizeOrRepeat
   ) {
     return new GridTrackValue(lineNames, sizeOrRepeat);
+  }
+
+  @Override
+  public String serialize() {
+    return "<UNIMPLEMENTED>";
   }
 
 }

@@ -114,14 +114,18 @@ public final class SizingWidthUtil {
     ElementBox refBox,
     CSSValue sizeValue
   ) {
-    return switch (sizeValue) {
-      case SizeValue.STRETCH -> stretchConstraint;
-      case SizeValue.FIT_CONTENT -> parentConstraint.isPreLayoutConstraint() ?
+    // Switching on enum values unfortunately incurs a performance penalty here
+    // Since sizeValue is a CSSValue, not SizeValue
+    if (SizeValue.STRETCH.equals(sizeValue)) {
+      return stretchConstraint;
+    } else if (SizeValue.FIT_CONTENT.equals(sizeValue)) {
+      return parentConstraint.isPreLayoutConstraint() ?
         parentConstraint :
         computeFitContent(stretchConstraint, refBox);
-      default -> evaluateAdjustedWidthSizeRaw(
+    } else {
+      return evaluateAdjustedWidthSizeRaw(
         parentConstraint, refBox, sizeValue);
-    };
+    }
   }
 
   private static LayoutConstraint evaluateAdjustedWidthSizeRaw(

@@ -2,7 +2,6 @@ package net.buildabrowser.babbrowser.renderer.imp;
 
 import java.util.Optional;
 
-import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
@@ -55,7 +54,7 @@ public class DelegatingGraphicalDocumentRenderer implements GraphicalDocumentRen
   }
 
   @Override
-  public void onDocumentInvalidated(InvalidationLevel invalidationLevel) {
+  public void onDocumentInvalidated(short invalidationLevel) {
     activeRenderer().onDocumentInvalidated(invalidationLevel);
   }
 

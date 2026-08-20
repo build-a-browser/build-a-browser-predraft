@@ -1,9 +1,8 @@
 package net.buildabrowser.babbrowser.renderer.context;
 
-import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
+import net.buildabrowser.babbrowser.cssbase.selector.SelectorTarget;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
-import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.context.imp.ElementContextImp;
 
 public interface ElementContext extends RenderContext {
@@ -13,11 +12,10 @@ public interface ElementContext extends RenderContext {
   void onCSSRuleUnmatched(WeightedStyleRule matchedRule);
 
   void onAttributeValueChanged(String attrName, String oldValue, String newValue);
-  
 
-  void setBox(ElementBox box);
+  short invalidationLevel();
 
-  InvalidationLevel invalidationLevel();
+  TargetedPropertiesHolder targetedPropertiesHolder(SelectorTarget target);
 
   static ElementContext create(
     HTMLElement element, short familyId

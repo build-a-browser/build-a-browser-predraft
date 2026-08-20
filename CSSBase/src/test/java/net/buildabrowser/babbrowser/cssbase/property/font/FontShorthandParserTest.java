@@ -34,7 +34,7 @@ public class FontShorthandParserTest {
         null,
         LengthValue.create(4, true, LengthType.PX),
         null,
-        new ManyResult(List.of(FontFamilyValue.MONOSPACE))),
+        ManyResult.createCommas(List.of(FontFamilyValue.MONOSPACE))),
       value);
   }
 
@@ -54,7 +54,7 @@ public class FontShorthandParserTest {
         RelativeFontWeightValue.BOLDER,
         LengthValue.create(4, true, LengthType.PX),
         LengthValue.create(2, true, LengthType.EM),
-        new ManyResult(List.of(FontNameValue.create("arial"), FontFamilyValue.SERIF))),
+        ManyResult.createCommas(List.of(FontNameValue.create("arial"), FontFamilyValue.SERIF))),
       value);
   }
   

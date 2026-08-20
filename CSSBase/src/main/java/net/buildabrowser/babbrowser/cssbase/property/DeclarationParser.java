@@ -56,7 +56,8 @@ public final class DeclarationParser {
       source, declaration.value());
     Boolean shouldDefer = CustomPropertyParser.hasVarReferences(innerStream);
     if (shouldDefer == null) return CSSValue.SpecialCSSValue.INVALID;
-    if (shouldDefer) return new CSSDeferred(declaration, parser);
+    // TODO: Include referenced variables
+    if (shouldDefer) return new CSSDeferred(declaration, parser, List.of(), source);
 
     // TODO: Do any cases preserve whitespace?
     SeekableCSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(
@@ -87,16 +88,16 @@ public final class DeclarationParser {
   }
 
   public static CSSValue parseDeferredDeclaration(
-    CSSTokenStreamSource source, CSSDeferred deferredValue,
+    CSSDeferred deferredValue,
     PropertyContainer refContainer
   ) throws IOException {
     CSSValue resolvedValue = CustomPropertyParser.resolveVarValues(
-      source, deferredValue.value(), refContainer);
+      deferredValue.source(), deferredValue.value(), refContainer);
     if (resolvedValue == null) return CSSValue.SpecialCSSValue.INVALID;
     if (resolvedValue.isFailure()) return CSSValue.SpecialCSSValue.INVALID;
     List<Token> resolvedTokens = ((CSSVarValue) resolvedValue).propertyTokens();
     SeekableCSSTokenStream tokenStream = ListCSSTokenStream.createWithSkippedWhitespace(
-      source, resolvedTokens);
+      deferredValue.source(), resolvedTokens);
     try {
       CSSValue result = deferredValue.parser().parse(tokenStream);
       if (

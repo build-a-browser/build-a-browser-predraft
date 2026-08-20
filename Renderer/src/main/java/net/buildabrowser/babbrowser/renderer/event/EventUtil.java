@@ -104,7 +104,8 @@ public final class EventUtil {
     BoxFragment<?> refFragment,
     LayoutFragment targetFragment
   ) {
-    if (event == null) {
+    // TODO: Proper handling for null element
+    if (event == null || element == null) {
       return EventHandlerResponse.UNHANDLED;
     }
 

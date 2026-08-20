@@ -59,7 +59,7 @@ public class GridParserTest {
       List.of(
         GridTrackValue.create(List.of(), CSSValue.AUTO)),
       null);
-    CSSValue expectedAutoColumns = ManyResult.create(SizeValue.MIN_CONTENT);
+    CSSValue expectedAutoColumns = ManyResult.createSpaces(SizeValue.MIN_CONTENT);
     GridAutoFlowValue expectedAutoFlow = GridAutoFlowValue.create(
       GridAutoFlowDirection.COLUMN, true);
     CSSValue expected = GridValue.create(
@@ -78,7 +78,7 @@ public class GridParserTest {
         DelimToken.create('/'),
         IdentToken.create("min-content")));
     
-    CSSValue expectedAutoRows = ManyResult.create(CSSValue.AUTO);
+    CSSValue expectedAutoRows = ManyResult.createSpaces(CSSValue.AUTO);
     CSSValue expectedTemplateColumns = GridTrackListValue.create(
       List.of(
         GridTrackValue.create(List.of(), SizeValue.MIN_CONTENT)),

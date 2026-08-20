@@ -17,6 +17,11 @@ public record GridLineValue(
       return new CustomIdentValue(value);
     }
 
+    @Override
+    public String serialize() {
+      return "<UNIMPLEMENTED>";
+    }
+
   }
 
   public static record LineNumberValue(
@@ -25,6 +30,11 @@ public record GridLineValue(
 
     public static LineNumberValue create(int lineNumber) {
       return new LineNumberValue(lineNumber);
+    }
+
+    @Override
+    public String serialize() {
+      return "<UNIMPLEMENTED>";
     }
 
   }
@@ -36,6 +46,11 @@ public record GridLineValue(
     String areaOrLineName
   ) {
     return new GridLineValue(isSpan, allowAreaName, lineNumber, areaOrLineName);
+  }
+
+  @Override
+  public String serialize() {
+    return "<UNIMPLEMENTED>";
   }
 
 }

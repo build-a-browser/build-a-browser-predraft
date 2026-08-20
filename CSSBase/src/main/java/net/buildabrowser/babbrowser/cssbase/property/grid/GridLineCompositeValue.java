@@ -8,4 +8,9 @@ public record GridLineCompositeValue(
   List<CSSValue> gridLines
 ) implements CSSValue {
   
+  @Override
+  public String serialize() {
+    return "<UNIMPLEMENTED>";
+  }
+
 }

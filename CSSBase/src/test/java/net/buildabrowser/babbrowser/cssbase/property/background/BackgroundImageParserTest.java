@@ -32,7 +32,7 @@ public class BackgroundImageParserTest {
       CSSTokenStream.createForTesting(
         URLToken.create("kumo.css")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         URLValue.create("kumo.css", TESTING_URL)),
       value);
   }
@@ -48,7 +48,7 @@ public class BackgroundImageParserTest {
         CommaToken.create(),
         new FunctionValue("src", List.of(StringToken.create("web.css")))));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         URLValue.create("spider.css", TESTING_URL),
         CSSValue.NONE,
         URLValue.create("web.css", TESTING_URL)),

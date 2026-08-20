@@ -24,4 +24,9 @@ public record GridValue(
       autoRows, autoColumns, autoFlow);
   }
 
+  @Override
+  public String serialize() {
+    return "<UNIMPLEMENTED>";
+  }
+
 }

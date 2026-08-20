@@ -5,7 +5,6 @@ import java.lang.ref.WeakReference;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.Invalidatable;
-import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 
 public class ImageCacheEntryImp {
@@ -29,17 +28,17 @@ public class ImageCacheEntryImp {
 
   public void addListener(
     Invalidatable invalidatable,
-    InvalidationLevel invalidationLevel
+    short invalidationLevel
   ) {
     SinglyLinkedList<ImageCacheListener> currentEntry = listeners;
     while (currentEntry != null) {
       ImageCacheListener currentListener = currentEntry.item();
       currentEntry = currentEntry.next();
       Invalidatable existingInvalidatable = currentListener.invalidatable().get();
-      if (invalidatable == null) continue;
+      if (existingInvalidatable == null) continue;
       if (
         invalidatable == existingInvalidatable
-        && currentListener.invalidationLevel.equals(invalidationLevel)
+        && currentListener.invalidationLevel == invalidationLevel
       ) return;
     }
 
@@ -62,7 +61,7 @@ public class ImageCacheEntryImp {
 
   private static record ImageCacheListener(
     WeakReference<Invalidatable> invalidatable,
-    InvalidationLevel invalidationLevel
+    short invalidationLevel
   ) {
 
   }

@@ -17,6 +17,11 @@ public record GridTemplateAreasValue(List<GridArea> areas) implements CSSValue {
     public static GridTemplateAreasRowValue create(List<String> cellNames) {
       return new GridTemplateAreasRowValue(cellNames);
     }
+
+    @Override
+    public String serialize() {
+      return "<UNIMPLEMENTED>";
+    }
   
   }
 
@@ -30,6 +35,11 @@ public record GridTemplateAreasValue(List<GridArea> areas) implements CSSValue {
       return new GridArea(name, x, y, w, h);
     }
 
+  }
+
+  @Override
+  public String serialize() {
+    return "<UNIMPLEMENTED>";
   }
 
 }

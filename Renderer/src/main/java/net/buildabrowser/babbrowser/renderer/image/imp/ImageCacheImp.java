@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.Invalidatable;
-import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.fetch.FetchParameters;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
@@ -43,7 +42,7 @@ public class ImageCacheImp implements ImageCache {
   public LoadedImage getImage(
     URI imageURI,
     Invalidatable invalidatable,
-    InvalidationLevel invalidation
+    short invalidation
   ) {
     ImageCacheEntryImp imageEntry = imageEntries.computeIfAbsent(
       imageURI, _1 -> new ImageCacheEntryImp());

@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.box.imp;
 
+import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
@@ -69,18 +70,26 @@ public class ElementBoxImp extends AbstractElementBoxImp {
       this.prevDisplayValue = innerDisplay;
       // No longer does content sharing since the main types are singletons now
       this.content = createContent(innerDisplay);
+      context().invalidate(InvalidationLevel.LAYOUT);
     }
   }
 
   @Override
-  public void updateDetails(Box parentBox, BoxLevel boxLevel) {
-    this.content = null;
-    this.prevDisplayValue = null;
-    setNext(null);
-    super.updateDetails(parentBox, boxLevel);
+  public boolean updateDetails(Box parentBox, BoxLevel boxLevel) {
+    if (super.updateDetails(parentBox, boxLevel)) {
+      this.content = null;
+      this.prevDisplayValue = null;
+      return true;
+    }
+    
+    return false;
   }
 
   private BoxContent createContent(InnerDisplayValue innerDisplay) {
+    if (element() == null) {
+      return createSpecifiedContent(innerDisplay);
+    }
+
     BoxContent elementContent = switch (element().name()) {
       case "img" -> new ImageContent();
       case "input" -> new InputContent();

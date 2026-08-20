@@ -3,7 +3,6 @@ package net.buildabrowser.babbrowser.renderer.image;
 import java.net.URI;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.Invalidatable;
-import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
 import net.buildabrowser.babbrowser.renderer.context.ScriptingContext;
@@ -14,7 +13,7 @@ public interface ImageCache {
   LoadedImage getImage(
     URI imageURI,
     Invalidatable invalidatable,
-    InvalidationLevel invalidation
+    short invalidation
   );
 
   void mark();

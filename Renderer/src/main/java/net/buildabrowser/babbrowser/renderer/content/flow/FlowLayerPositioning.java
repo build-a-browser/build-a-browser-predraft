@@ -143,7 +143,10 @@ public final class FlowLayerPositioning {
     StackingContext refContext
   ) {
     ElementBox box = boxFragment.box();
-    if (box.stackingContext() != refContext) {
+    if (box.stackingContext() == null) {
+      // TODO: Why is it sometimes null
+      assert false;
+    } else if (box.stackingContext() != refContext) {
       box.stackingContext().positionNormalizedFragment(
         layerX, layerY, boxFragment,
         box.content()::positionLayers);

@@ -24,7 +24,7 @@ public class BackgroundClipParserTest {
       CSSTokenStream.createForTesting(
         IdentToken.create("border-box")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         VisualBoxValue.BORDER_BOX),
       value);
   }
@@ -38,7 +38,7 @@ public class BackgroundClipParserTest {
         CommaToken.create(),
         IdentToken.create("content-box")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         VisualBoxValue.PADDING_BOX,
         VisualBoxValue.CONTENT_BOX),
       value);

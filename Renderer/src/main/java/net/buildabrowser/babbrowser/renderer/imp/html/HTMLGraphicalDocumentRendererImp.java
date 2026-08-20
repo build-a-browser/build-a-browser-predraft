@@ -58,6 +58,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   // TODO: Allow specifying the FragmentFactory when instantiating the RenderingEngine instance
   private final FragmentFactory fragmentFactory = FragmentFactory.createDefault();
+  private final FontWordWidthCache fontWordWidthCache = FontWordWidthCache.create();
+  private final StyleCache styleCache = StyleCache.create();
 
   private final HTMLDocument document;
   private final Navigable navigable;
@@ -70,6 +72,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private final ScriptingContext scriptingContext;
   private final DocumentChangeListener changeListener;
   private final ImageCache imageCache;
+  private final FontCache fontCache;
   private final SlotFamily<HTMLElement, RenderContext> renderContexts;
   private final FakeRootContextImp fakeRootContext;
   private final HTMLCompositeLayers compositeLayers;
@@ -77,7 +80,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private final SelectionContext selectionContext;
   private final DebugContext debugContext;
 
-  private volatile InvalidationLevel invalidationLevel = InvalidationLevel.BOX;
+  private volatile short invalidationLevel = InvalidationLevel.BOX;
   private LoadedFont rootFont;
 
   // TODO: Switch to AtomicInteger? Synchronize?
@@ -137,6 +140,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       fetchEngine,
       document.browsingContext().realm().hostDefined());
     this.imageCache = ImageCache.create(scriptingContext, painter.resourceLoader());
+    this.fontCache = FontCache.create(painter.resourceLoader().fontLoader());
 
     document.focusManager().attachContext(
       new HTMLFocusManagerContext(eventContext, renderContexts));
@@ -148,7 +152,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     // and other methods on the event loop may not run
     updateDebugger();
     return
-      !invalidationLevel.equals(InvalidationLevel.NONE)
+      invalidationLevel != InvalidationLevel.NONE
       || cssMatcher.changed();
   }
 
@@ -158,7 +162,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       cssMatcher.changed()
       // If level is box, either a box was inserted or a property changed to cause that,
       // so restyle is needed regardless
-      || invalidationLevel.ordinal() <= InvalidationLevel.BOX.ordinal()
+      || (invalidationLevel & InvalidationLevel.BOX) != 0
       || forceRestyle
     ) {
       long styleStartTime = System.currentTimeMillis();
@@ -168,14 +172,10 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
         List.of("screen"), v -> SizingUtil.evaluateBaseSize(
           layoutContext, LayoutConstraint.AUTO, v), width, height);
       cssMatcher.applyStylesheets(document, mediaContext);
-      // TODO: By making a new StyleCache every round, it prevents ActiveStyles from being used
-      // between rounds, but if it was moved to a field, it might hold references to styles that
-      // won't be used again
-      StyleCache styleCache = StyleCache.create();
       ElementSet changedElements = cssMatcher.changedElements();
       StyleGenerator.style(
         document, styleCache, renderContexts, changedElements);
-      fakeRootContext.regenerateStyles(styleCache);
+      fakeRootContext.regenerateStyles(styleCache, null);
       this.forceRestyle = false;
       PerfLogging.logStyleTime(styleStartTime);
     }
@@ -183,13 +183,13 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   @Override
   public void updateLayout() {
-    if (invalidationLevel.ordinal() <= InvalidationLevel.BOX.ordinal()) {
+    if ((invalidationLevel & InvalidationLevel.BOX) != 0) {
       long boxStartTime = System.currentTimeMillis();
       recomputeBoxes();
       PerfLogging.logBoxTime(boxStartTime);
       updateDebugger();
     }
-    if (invalidationLevel.ordinal() <= InvalidationLevel.LAYOUT.ordinal()) {
+    if ((invalidationLevel & InvalidationLevel.LAYOUT) != 0) {
       long layoutStartTime = System.currentTimeMillis();
       recomputeLayout();
       this.invalidationLevel = InvalidationLevel.PAINT;
@@ -200,7 +200,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   @Override
   public void updateRendering() {
-    boolean needsPaint = invalidationLevel.ordinal() <= InvalidationLevel.PAINT.ordinal();
+    boolean needsPaint = invalidationLevel != 0;
     if (
       !needsPaint
       || documentBox.child() == null
@@ -241,9 +241,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     this.width = width;
     this.height = height;
     this.forceRestyle = true;
-    if (this.invalidationLevel.ordinal() > InvalidationLevel.LAYOUT.ordinal()) {
-      this.invalidationLevel = InvalidationLevel.LAYOUT;
-    }
+    this.invalidationLevel |= InvalidationLevel.LAYOUT;
   }
 
   @Override
@@ -262,10 +260,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   }
 
   @Override
-  public void onDocumentInvalidated(InvalidationLevel invalidationLevel) {
-    if (invalidationLevel.ordinal() < this.invalidationLevel.ordinal()) {
-      this.invalidationLevel = invalidationLevel;
-    }
+  public void onDocumentInvalidated(short invalidationLevel) {
+    this.invalidationLevel |= invalidationLevel;
   }
 
   private void recomputeBoxes() {
@@ -283,8 +279,6 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     if (child == null) return;
 
     fakeRootContext.replaceChild(child);
-    wrapperBox.context().invalidate(InvalidationLevel.LAYOUT);
-
     selectionContext.updateSelection();
   }
 
@@ -305,8 +299,6 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private GlobalLayoutContext createGlobalLayoutContext() {
     ResourceLoader resourceLoader = painter.resourceLoader();
     FontLoader fontLoader = resourceLoader.fontLoader();
-    FontCache fontCache = FontCache.create(fontLoader);
-    FontWordWidthCache fontWordWidthCache = FontWordWidthCache.create();
     this.rootFont = fontCache.load(
       new FontOptions(List.of(fontLoader.sansSerif()), 16, 400));
 

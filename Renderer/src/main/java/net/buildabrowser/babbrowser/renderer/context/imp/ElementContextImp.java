@@ -3,6 +3,7 @@ package net.buildabrowser.babbrowser.renderer.context.imp;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.common.datastruct.SlotItem;
@@ -17,8 +18,6 @@ import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule.RuleSo
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
-import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
-import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorTarget;
@@ -28,8 +27,10 @@ import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.context.ElementContext;
 import net.buildabrowser.babbrowser.renderer.context.RenderContext;
+import net.buildabrowser.babbrowser.renderer.context.TargetedPropertiesHolder;
 import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHint;
 import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHint.PresentationalHintName;
 import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHintResolver;
@@ -48,6 +49,9 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
   private WeightedStyleRule internalStyleRule;
   private PresentationalHint legacyAttributes;
   private ElementBox box;
+
+  // ELEMENT is not stored in targetedProperties because it is common, so we avoid the wrapper tax
+  protected TargetedPropertiesHolder targetedProperties;
 
   public ElementContextImp(HTMLElement element, short slotFamily) {
     super(slotFamily);
@@ -101,16 +105,23 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
   }
 
   @Override
-  public void regenerateStyles(StyleCache styleCache) {
-    ActiveStyles oldStyles = this.activeStyles;
+  public ActiveStyles regenerateStyles(StyleCache styleCache, ActiveStyles refStyles) {
+    PropertyContainer oldStyles = this.computedStyles;
     PropertyContainer parentProperties = parent();
     styleRules.sort(WeightedStyleRule::compare);
-    this.activeStyles = styleCache.lookupOrElse(styleRules,
-      rules -> ActiveStylesGenerator.generateActiveStyles(styleRules, parentProperties));
-
-    invalidateIfChangedStyles(oldStyles, parentProperties);
+    boolean reuseLast = refStyles != null && Objects.equals(refStyles.refRules(), styleRules);
+    ActiveStyles activeStyles = reuseLast ?
+      refStyles :
+      styleCache.lookupOrElse(styleRules,
+        rules -> ActiveStylesGenerator.generateActiveStyles(styleRules));
+    
+    this.computedStyles = activeStyles.flatten(
+      parentProperties, styleCache::cacheFlattened);
+    invalidate(changedPropertyInvalidationLevel(oldStyles, this.computedStyles));
 
     regenerateTargetedStyles(styleCache);
+
+    return activeStyles;
   }
 
   @Override
@@ -126,6 +137,19 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
   @Override
   public ElementBox box() {
     return this.box;
+  }
+  
+  @Override
+  public TargetedPropertiesHolder targetedPropertiesHolder(SelectorTarget target) {
+    assert this.computedStyles != null;
+    if (target.equals(SelectorTarget.ELEMENT)) {
+      throw new IllegalArgumentException("Cannot get holder for ELEMENT");
+    }
+
+    TargetedPropertiesHolder holder = IntrusiveList.find(
+      targetedProperties, h -> h.target().equals(target));
+    if (holder == null) return null;
+    return holder;
   }
 
   private void updateLegacyAttrs(String attrName, String newValue) {
@@ -172,7 +196,6 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
     if (styleStr != null) {
       // TODO: Might be good to find a better way to pass the CSS parser
       // For now, it is cached as a singleton
-      // Also, how will !important factor into the below??
       Document nodeDocument = element.nodeDocument();
       URI baseURL = nodeDocument instanceof HTMLDocument htmlDocument ? htmlDocument.baseURL() : nodeDocument.url();
       CSSTokenStreamSource source = new CSSTokenStreamSource(baseURL);
@@ -182,7 +205,6 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
         () -> CSSParser.create().parseAStyleBlocksContents(tokenizerStream));
       // Need to do some dumb constructors to convert it to a WeightedStyleRule, maybe improve this later...
       StyleRule styleRule = new StyleRule(List.of(), declarations);
-      // also why wasn't there a .create anyways?
       WeightedStyleRule weightedStyleRule = WeightedStyleRule.create(
         styleRule, ATTR_SPECIFICITY, RuleSource.AUTHOR, 0, 0);
       onCSSRuleMatched(weightedStyleRule);
@@ -219,62 +241,81 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
   ) {
     PropertyContainer oldProperties = holder.container();
     ActiveStyles targetedStyles = styleCache.lookupOrElse(rulesList,
-      rules -> ActiveStylesGenerator.generateActiveStyles(rules, this));
-    PropertyContainer newProperties = ActiveStyles.parentStyles(this, targetedStyles);
+      rules -> ActiveStylesGenerator.generateActiveStyles(rules));
+    
+    PropertyContainer newProperties = isBeforeOrAfterWithoutContent(holder) ?
+      null :
+      targetedStyles.flatten(
+        computedStyles, styleCache::cacheFlattened);
     holder.setContainer(newProperties);
 
-    invalidateIfChangedProperties(oldProperties, newProperties);
+    invalidateTargetIfChanged(holder, oldProperties, newProperties);
   }
 
-  private void invalidateIfChangedProperties(PropertyContainer oldProperties, PropertyContainer newProperties) {
-    if (oldProperties == null) {
-      invalidate(InvalidationLevel.BOX);
-    } else {
-      // TODO: Same as above
-      for (CSSProperty property : CSSProperty.values()) {
-        if (property.hasExpansion()) continue;
-        CSSValue newValue = newProperties.get(property);
-        CSSValue oldValue = oldProperties.get(property);
-        if (!newValue.equals(oldValue)) {
-          invalidate(property.invalidationLevel());
-        }
+  private void invalidateTargetIfChanged(
+    TargetedPropertiesHolder holder,
+    PropertyContainer oldProperties,
+    PropertyContainer newProperties
+  ) {
+    short invalidationLevel = changedPropertyInvalidationLevel(oldProperties, newProperties);
+    ElementBox relatedBox = holder.relatedContext() == null ? null :
+      holder.relatedContext().box();
+    if (
+      relatedBox == null
+      && box != null
+      && (holder.target().equals(SelectorTarget.BEFORE)
+      || holder.target().equals(SelectorTarget.AFTER))
+    ) {
+      if ((invalidationLevel & InvalidationLevel.BOX) != 0) {
+        invalidate(InvalidationLevel.BOX);
       }
+      return;
+    } else if (
+      relatedBox == null
+      && box != null
+    ) {
+      invalidate(invalidationLevel);
+    } else if (relatedBox != null) {
+      relatedBox.context().invalidate(invalidationLevel);
     }
   }
 
-  // Directly implement PropertyContainer to save some allocations
-
-  @Override
-  public PropertyContainer parent() {
+  private PropertyContainer parent() {
     return
       element.parentNode() instanceof HTMLElement parent
       && SlotItem.getExistingById(parent, familyId()) instanceof ElementContext parentContext ?
       parentContext.properties() : null;
   }
 
-  @Override
-  public boolean wasInherited(CSSProperty property) {
-    return parent() != null && activeStyles.shouldInherit(property);
-  }
-
-  @Override
-  public CSSValue get(CSSProperty property) {
-    return activeStyles.getProperty(parent(), property);
-  }
-
-  @Override
-  public CSSValue getCustom(String property) {
-    return activeStyles.getCustom(property);
-  }
-
   // Invalidatable
 
   @Override
-  public void invalidate(InvalidationLevel invalidationLevel) {
-    if (invalidationLevel.ordinal() < invalidationLevel().ordinal()) {
+  public void invalidate(short invalidationLevel) {
+    if ((invalidationLevel & invalidationLevel()) != invalidationLevel) {
+      super.invalidate(invalidationLevel);
+      
       if (element.parentNode() instanceof HTMLElement htmlElement) {
-        RenderContext context = SlotItem.getExistingById(htmlElement, familyId());
-        context.invalidate(invalidationLevel);
+        RenderContext parentContext = SlotItem.getExistingById(htmlElement, familyId());
+
+        if (
+          (invalidationLevel & InvalidationLevel.LAYOUT) != 0
+          && box != null
+          && !PositionUtil.affectsLayoutInvalidation(box)
+        ) {
+          super.invalidate(invalidationLevel); // To prevent a loop
+          box.context().invalidate(invalidationLevel);
+          if (element.nodeDocument() instanceof HTMLDocument document) {
+            document.renderer().onDocumentInvalidated(invalidationLevel);
+          }
+        } else if (parentContext != null) {
+          parentContext.invalidate(invalidationLevel);
+        }
+      } else if (
+        box != null
+        && box.parentBox() instanceof ElementBox elementBox
+        && elementBox.context() != null
+      ) {
+        elementBox.context().invalidate(invalidationLevel);
       } else if (
         element.parentNode() instanceof HTMLDocument document
         && document.renderer() != null
@@ -282,8 +323,6 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
         document.renderer().onDocumentInvalidated(invalidationLevel);
       }
     }
-
-    super.invalidate(invalidationLevel);
   }
 
   @Override
@@ -300,6 +339,23 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
     }
 
     super.validate();
+  }
+
+  private boolean isBeforeOrAfterWithoutContent(TargetedPropertiesHolder holder) {
+    if (
+      !SelectorTarget.BEFORE.equals(holder.target())
+      && !SelectorTarget.AFTER.equals(holder.target())
+    ) return false;
+
+    for (WeightedStyleRule rule: holder.matchedRules()) {
+      for (Declaration declaration: rule.rule().declarations()) {
+        if (declaration.name().equalsIgnoreCase("content")) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
   
 }

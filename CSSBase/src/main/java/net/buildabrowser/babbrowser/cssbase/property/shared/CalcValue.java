@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.shared;
 
 import java.util.List;
 
+import net.buildabrowser.babbrowser.cssbase.property.CSSSerializerUtil;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 
 public interface CalcValue extends CSSValue {
@@ -15,34 +16,119 @@ public interface CalcValue extends CSSValue {
   }
 
   enum CalcKeyword implements CSSValue {
-    E((float) Math.E),
-    PI((float) Math.PI),
-    INFINITY(Float.POSITIVE_INFINITY),
-    NEG_INFINITY(Float.NEGATIVE_INFINITY),
-    NaN(Float.NaN);
+    E((float) Math.E, "e"),
+    PI((float) Math.PI, "pi"),
+    INFINITY(Float.POSITIVE_INFINITY, "infinity"),
+    NEG_INFINITY(Float.NEGATIVE_INFINITY, "infinity"),
+    NaN(Float.NaN, "NaN");
 
-    private float value;
+    private final float value;
+    private final String serialized;
 
-    private CalcKeyword(float value) {
+    private CalcKeyword(float value, String serialized) {
       this.value = value;
+      this.serialized = serialized;
     }
 
     public float value() {
       return this.value;
     }
+
+    @Override
+    public String serialize() {
+      return this.serialized;
+    }
   }
 
-  enum RoundingStrategy {
+  enum RoundingStrategy implements CSSValue {
+
     NEAREST, UP, DOWN, TO_ZERO, LINE_WIDTH;
+
+    @Override
+    public String serialize() {
+      return CSSSerializerUtil.serializeEnum(this);
+    }
+
   }
 
-  // TODO: Add create method - we could maybe cache repetitive nodes!
-  record CalcFuncSingle(CalcType type, CSSValue arg) implements CalcValue {}
-  record CalcFuncDouble(CalcType type, CSSValue leftArg, CSSValue rightArg) implements CalcValue {}
-  record CalcFuncMany(CalcType type, List<CSSValue> args) implements CalcValue {}
-  record CalcClampFunc(CalcType type, CSSValue minValue, CSSValue idealValue, CSSValue maxValue) implements CalcValue {}
-  record CalcRoundFunc(CalcType type, RoundingStrategy roundingStrategy, CSSValue a, CSSValue b) implements CalcValue {}
-  record CalcLogFunc(CalcType type, CSSValue leftArg, CSSValue rightArg) implements CalcValue {}
-  record CalcNumber(Number value, boolean isInteger) implements CSSValue {}
+  record CalcFuncSingle(CalcType type, CSSValue arg) implements CalcValue {
+    @Override
+    public String serialize() {
+      return CSSSerializerUtil.formatFunction(
+        CSSSerializerUtil.serializeEnum(type), arg);
+    }
+  }
+
+  record CalcFuncDouble(CalcType type, CSSValue leftArg, CSSValue rightArg) implements CalcValue {
+    @Override
+    public String serialize() {
+      String op = switch (type) {
+        case ADD -> " + ";
+        case SUB -> " - ";
+        case MUL -> " * ";
+        case DIV -> " / ";
+        default -> null;
+      };
+
+      if (op != null) {
+        return String.join("",
+          "(", CSSSerializerUtil.serializeValue(leftArg),
+          op, CSSSerializerUtil.serializeValue(rightArg), ")");
+      }
+
+      return CSSSerializerUtil.formatFunction(CSSSerializerUtil.serializeEnum(type), leftArg, rightArg);
+    }
+  }
+
+  record CalcFuncMany(CalcType type, List<CSSValue> args) implements CalcValue {
+
+    @Override
+    public String serialize() {
+      return CSSSerializerUtil.formatFunction(
+        CSSSerializerUtil.serializeEnum(type),
+        args.toArray(CSSValue[]::new));
+    }
+    
+  }
+
+  record CalcClampFunc(CalcType type, CSSValue minValue, CSSValue idealValue, CSSValue maxValue) implements CalcValue {
+
+    @Override
+    public String serialize() {
+      return CSSSerializerUtil.formatFunction(
+        CSSSerializerUtil.serializeEnum(type), 
+        minValue, idealValue, maxValue);
+    }
+
+  }
+
+  record CalcRoundFunc(CalcType type, RoundingStrategy roundingStrategy, CSSValue a, CSSValue b) implements CalcValue {
+    @Override
+    public String serialize() {
+      return CSSSerializerUtil.formatFunction(
+        CSSSerializerUtil.serializeEnum(type), 
+        roundingStrategy, a, b);
+    }
+  }
+
+  record CalcLogFunc(CalcType type, CSSValue leftArg, CSSValue rightArg) implements CalcValue {
+
+    @Override
+    public String serialize() {
+      return CSSSerializerUtil.formatFunction(
+        CSSSerializerUtil.serializeEnum(type), 
+        leftArg, rightArg);
+    }
+
+  }
+
+  record CalcNumber(Number value, boolean isInteger) implements CSSValue {
+
+    @Override
+    public String serialize() {
+      return CSSSerializerUtil.serialize(value);
+    }
+
+  }
 
 }

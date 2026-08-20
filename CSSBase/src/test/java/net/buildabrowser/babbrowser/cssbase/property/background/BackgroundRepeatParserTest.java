@@ -24,7 +24,7 @@ public class BackgroundRepeatParserTest {
       CSSTokenStream.createForTesting(
         IdentToken.create("repeat-y")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundRepeatValue.create(
           BackgroundAxisRepeatValue.NO_REPEAT,
           BackgroundAxisRepeatValue.REPEAT)),
@@ -43,7 +43,7 @@ public class BackgroundRepeatParserTest {
         CommaToken.create(),
         IdentToken.create("repeat-y")));
     Assertions.assertEquals(
-      ManyResult.create(
+      ManyResult.createCommas(
         BackgroundRepeatValue.create(
           BackgroundAxisRepeatValue.SPACE,
           BackgroundAxisRepeatValue.ROUND),

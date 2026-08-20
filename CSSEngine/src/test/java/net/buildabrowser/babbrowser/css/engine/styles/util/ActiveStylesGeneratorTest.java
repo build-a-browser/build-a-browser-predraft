@@ -35,15 +35,15 @@ public class ActiveStylesGeneratorTest {
   @Test
   @DisplayName("Can generate active styles with no parent or specified styles")
   public void canGenerateBasicActiveStyles()  {
-    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(
-      List.of(), null);
+    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(List.of());
+    PropertyContainer flattened = activeStyles.flatten(null, a -> a);
     
     // A non-inherited initial property
-    CSSValue actual1 = activeStyles.getProperty(null, CSSProperty.BOX_SIZING);
+    CSSValue actual1 = flattened.get(CSSProperty.BOX_SIZING);
     Assertions.assertEquals(BoxSizingValue.CONTENT_BOX, actual1);
 
     // An inherited initial property
-    CSSValue actual2 = activeStyles.getProperty(null, CSSProperty.WHITE_SPACE_COLLAPSE);
+    CSSValue actual2 = flattened.get(CSSProperty.WHITE_SPACE_COLLAPSE);
     Assertions.assertEquals(WhiteSpaceCollapseValue.COLLAPSE, actual2);
   }
 
@@ -55,11 +55,11 @@ public class ActiveStylesGeneratorTest {
       createTestDeclaration(
         "box-sizing", false, List.of(
           IdentToken.create("border-box"))));
-    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(
-      List.of(testRule), null);
+    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(List.of(testRule));
+    PropertyContainer flattened = activeStyles.flatten(null, a -> a);
     
     // A non-inherited initial property
-    CSSValue actual1 = activeStyles.getProperty(null, CSSProperty.BOX_SIZING);
+    CSSValue actual1 = flattened.get(CSSProperty.BOX_SIZING);
     Assertions.assertEquals(BoxSizingValue.BORDER_BOX, actual1);
   }
 
@@ -69,17 +69,17 @@ public class ActiveStylesGeneratorTest {
     ActiveStyles parent = ActiveStyles.create();
     parent.setProperty(CSSProperty.BOX_SIZING, BoxSizingValue.BORDER_BOX);
     parent.setProperty(CSSProperty.WHITE_SPACE_COLLAPSE, WhiteSpaceCollapseValue.DISCARD);
-    PropertyContainer parentContainer = ActiveStyles.parentStyles(null, parent);
+    PropertyContainer parentContainer = ActiveStyles.unparentedStyles(parent);
 
-    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(
-      List.of(), parentContainer);
+    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(List.of());
+    PropertyContainer flattened = activeStyles.flatten(parentContainer, a -> a);
     
     // A non-inherited initial property
-    CSSValue actual1 = activeStyles.getProperty(parentContainer, CSSProperty.BOX_SIZING);
+    CSSValue actual1 = flattened.get(CSSProperty.BOX_SIZING);
     Assertions.assertEquals(BoxSizingValue.CONTENT_BOX, actual1);
 
     // An inherited initial property
-    CSSValue actual2 = activeStyles.getProperty(parentContainer, CSSProperty.WHITE_SPACE_COLLAPSE);
+    CSSValue actual2 = flattened.get(CSSProperty.WHITE_SPACE_COLLAPSE);
     Assertions.assertEquals(WhiteSpaceCollapseValue.DISCARD, actual2);
   }
 
@@ -88,17 +88,17 @@ public class ActiveStylesGeneratorTest {
   public void canGenerateActiveStylesWithShadowedParent()  {
     ActiveStyles parent = ActiveStyles.create();
     parent.setProperty(CSSProperty.WHITE_SPACE_COLLAPSE, WhiteSpaceCollapseValue.DISCARD);
-    PropertyContainer parentContainer = ActiveStyles.parentStyles(null, parent);
+    PropertyContainer parentContainer = ActiveStyles.unparentedStyles(parent);
 
     WeightedStyleRule testRule = createTestRule(
       SelectorSpecificity.ZERO_SPECIFICITY,
       createTestDeclaration(
         "white-space-collapse", false, List.of(
           IdentToken.create("preserve-spaces"))));
-    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(
-      List.of(testRule), parentContainer);
+    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(List.of(testRule));
+    PropertyContainer flattened = activeStyles.flatten(parentContainer, a -> a);
 
-    CSSValue actual2 = activeStyles.getProperty(parentContainer, CSSProperty.WHITE_SPACE_COLLAPSE);
+    CSSValue actual2 = flattened.get(CSSProperty.WHITE_SPACE_COLLAPSE);
     Assertions.assertEquals(WhiteSpaceCollapseValue.PRESERVE_SPACES, actual2);
   }
 
@@ -109,7 +109,7 @@ public class ActiveStylesGeneratorTest {
     parent.setProperty(CSSProperty.BOX_SIZING, BoxSizingValue.BORDER_BOX);
     parent.setProperty(CSSProperty.WHITE_SPACE_COLLAPSE, WhiteSpaceCollapseValue.DISCARD);
     parent.setProperty(CSSProperty.TEXT_ALIGN, TextAlignValue.CENTER);
-    PropertyContainer parentContainer = ActiveStyles.parentStyles(null, parent);
+    PropertyContainer parentContainer = ActiveStyles.unparentedStyles(parent);
 
     WeightedStyleRule testRule1 = createTestRule(
       SelectorSpecificity.ZERO_SPECIFICITY,
@@ -134,13 +134,14 @@ public class ActiveStylesGeneratorTest {
         "text-align", false, List.of(
           IdentToken.create("unset"))));
     ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(
-      List.of(testRule1, testRule2), parentContainer);
+      List.of(testRule1, testRule2));
+    PropertyContainer flattened = activeStyles.flatten(parentContainer, a -> a);
     
-    CSSValue actual1 = activeStyles.getProperty(parentContainer, CSSProperty.BOX_SIZING);
+    CSSValue actual1 = flattened.get(CSSProperty.BOX_SIZING);
     Assertions.assertEquals(BoxSizingValue.BORDER_BOX, actual1);
-    CSSValue actual2 = activeStyles.getProperty(parentContainer, CSSProperty.WHITE_SPACE_COLLAPSE);
+    CSSValue actual2 = flattened.get(CSSProperty.WHITE_SPACE_COLLAPSE);
     Assertions.assertEquals(WhiteSpaceCollapseValue.COLLAPSE, actual2);
-    CSSValue actual3 = activeStyles.getProperty(parentContainer, CSSProperty.TEXT_ALIGN);
+    CSSValue actual3 = flattened.get(CSSProperty.TEXT_ALIGN);
     Assertions.assertEquals(TextAlignValue.CENTER, actual3);
   }
 
@@ -152,11 +153,11 @@ public class ActiveStylesGeneratorTest {
       createTestDeclaration(
         "box-sizing", false, List.of(
           IdentToken.create("margin-box"))));
-    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(
-      List.of(testRule), null);
+    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(List.of(testRule));
+    PropertyContainer flattened = activeStyles.flatten(null, a -> a);
     
     // Important
-    CSSValue actual = activeStyles.getProperty(null, CSSProperty.BOX_SIZING);
+    CSSValue actual = flattened.get(CSSProperty.BOX_SIZING);
     Assertions.assertEquals(BoxSizingValue.CONTENT_BOX, actual);
   }
 
@@ -180,14 +181,15 @@ public class ActiveStylesGeneratorTest {
         "text-align", false, List.of(
           IdentToken.create("center"))));
     ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(
-      List.of(testRule1, testRule2), null);
+      List.of(testRule1, testRule2));
+    PropertyContainer flattened = activeStyles.flatten(null, a -> a);
     
     // Important
-    CSSValue actual1 = activeStyles.getProperty(null, CSSProperty.BOX_SIZING);
+    CSSValue actual1 = flattened.get(CSSProperty.BOX_SIZING);
     Assertions.assertEquals(BoxSizingValue.BORDER_BOX, actual1);
 
     // Not Important
-    CSSValue actual2 = activeStyles.getProperty(null, CSSProperty.TEXT_ALIGN);
+    CSSValue actual2 = flattened.get(CSSProperty.TEXT_ALIGN);
     Assertions.assertEquals(TextAlignValue.CENTER, actual2);
   }
 
@@ -197,7 +199,7 @@ public class ActiveStylesGeneratorTest {
     parent.setProperty(CSSProperty.BOX_SIZING, BoxSizingValue.BORDER_BOX);
     parent.setProperty(CSSProperty.WHITE_SPACE_COLLAPSE, WhiteSpaceCollapseValue.DISCARD);
     parent.setProperty(CSSProperty.TEXT_ALIGN, TextAlignValue.CENTER);
-    PropertyContainer parentContainer = ActiveStyles.parentStyles(null, parent);
+    PropertyContainer parentContainer = ActiveStyles.unparentedStyles(parent);
 
     WeightedStyleRule testRule1 = createTestRule(
       new SelectorSpecificity(1, 1, 0),
@@ -230,14 +232,14 @@ public class ActiveStylesGeneratorTest {
     rules.add(testRule3);
     rules.sort(WeightedStyleRule::compare);
 
-    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(
-      rules, parentContainer);
+    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(rules);
+    PropertyContainer flattened = activeStyles.flatten(parentContainer, a -> a);
     
-    CSSValue actual1 = activeStyles.getProperty(parentContainer, CSSProperty.MARGIN_LEFT);
+    CSSValue actual1 = flattened.get(CSSProperty.MARGIN_LEFT);
     Assertions.assertEquals(LengthValue.create(6, true, LengthType.PX), actual1);
-    CSSValue actual2 = activeStyles.getProperty(parentContainer, CSSProperty.MARGIN_RIGHT);
+    CSSValue actual2 = flattened.get(CSSProperty.MARGIN_RIGHT);
     Assertions.assertEquals(LengthValue.create(5, true, LengthType.PX), actual2);
-    CSSValue actual3 = activeStyles.getProperty(parentContainer, CSSProperty.MARGIN_LEFT);
+    CSSValue actual3 = flattened.get(CSSProperty.MARGIN_LEFT);
     Assertions.assertEquals(LengthValue.create(3, true, LengthType.PX), actual3);
   }
 
@@ -247,7 +249,7 @@ public class ActiveStylesGeneratorTest {
     ActiveStyles parent = ActiveStyles.create();
     parent.setCustomProperty("--hello", new CSSVarValue(
       List.of(IdentToken.create("left"))));
-    PropertyContainer parentContainer = ActiveStyles.parentStyles(null, parent);
+    PropertyContainer parentContainer = ActiveStyles.unparentedStyles(parent);
 
     WeightedStyleRule testRule = createTestRule(
       new SelectorSpecificity(2, 0, 0),
@@ -257,10 +259,10 @@ public class ActiveStylesGeneratorTest {
             IdentToken.create("--hello"),
             CommaToken.create(),
             IdentToken.create("right"))))));
-    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(
-      List.of(testRule), parentContainer);
+    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(List.of(testRule));
+    PropertyContainer flattened = activeStyles.flatten(parentContainer, a -> a);
     
-    CSSValue actual = activeStyles.getProperty(parentContainer, CSSProperty.FLOAT);
+    CSSValue actual = flattened.get(CSSProperty.FLOAT);
     Assertions.assertEquals(FloatValue.LEFT, actual);
   }
 
@@ -275,10 +277,10 @@ public class ActiveStylesGeneratorTest {
             IdentToken.create("--hello"),
             CommaToken.create(),
             IdentToken.create("right"))))));
-    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(
-      List.of(testRule), null);
+    ActiveStyles activeStyles = ActiveStylesGenerator.generateActiveStyles(List.of(testRule));
+    PropertyContainer flattened = activeStyles.flatten(null, a -> a);
     
-    CSSValue actual = activeStyles.getProperty(null, CSSProperty.FLOAT);
+    CSSValue actual = flattened.get(CSSProperty.FLOAT);
     Assertions.assertEquals(FloatValue.RIGHT, actual);
   }
 
@@ -288,7 +290,7 @@ public class ActiveStylesGeneratorTest {
   ) {
     StyleRule rule = new StyleRule(
       List.of(), List.of(declarations));
-    return new WeightedStyleRule(
+    return WeightedStyleRule.create(
       rule, specificity,
       SelectorTarget.ELEMENT,
       RuleSource.AUTHOR,
@@ -300,7 +302,7 @@ public class ActiveStylesGeneratorTest {
     boolean important,
     List<Token> value
   ) {
-    return new Declaration(null, name, value, important);
+    return Declaration.create(null, name, value, important);
   }
 
 }

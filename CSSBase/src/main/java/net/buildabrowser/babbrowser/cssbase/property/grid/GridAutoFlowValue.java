@@ -18,4 +18,9 @@ public record GridAutoFlowValue(
     return new GridAutoFlowValue(direction, isDense);
   }
 
+  @Override
+  public String serialize() {
+    return "<UNIMPLEMENTED>";
+  }
+
 }

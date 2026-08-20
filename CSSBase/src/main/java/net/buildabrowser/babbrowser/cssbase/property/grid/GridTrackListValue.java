@@ -13,5 +13,10 @@ public record GridTrackListValue(
   ) {
     return new GridTrackListValue(tracks, repeat);
   }
+
+  @Override
+  public String serialize() {
+    return "<UNIMPLEMENTED>";
+  }
   
 }

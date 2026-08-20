@@ -14,4 +14,9 @@ public record GridMinMaxValue(
     return new GridMinMaxValue(min, max);
   }
 
+  @Override
+  public String serialize() {
+    return "<UNIMPLEMENTED>";
+  }
+
 }

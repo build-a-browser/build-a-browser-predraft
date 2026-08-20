@@ -33,10 +33,19 @@ public interface ColorValue extends CSSValue {
       return new SRGBAColor(r, g, b, a);
     }
 
+    @Override
+    public String serialize() {
+      return String.format("rgba(%s, %s, %s, %s)", red, green, blue, (alpha * 100 / 255) / 100f);
+    }
+
   }
 
   static ColorValue fromARGB(int argb) {
-    return () -> argb;
+    return SRGBAColor.create(
+      (argb >> 16) & 0xFF,
+      (argb >> 8) & 0xFF,
+      argb & 0xFF,
+      (argb >> 24) & 0xFF);
   }
 
 }

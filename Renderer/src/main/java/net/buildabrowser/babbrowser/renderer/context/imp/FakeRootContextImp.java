@@ -2,7 +2,6 @@ package net.buildabrowser.babbrowser.renderer.context.imp;
 
 import net.buildabrowser.babbrowser.common.datastruct.SlotItem;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
-import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.dom.Node;
@@ -32,30 +31,34 @@ public class FakeRootContextImp extends RenderContextImp {
   ) {
     super(slotFamilyId);
     this.documentBox = documentBox;
-    this.activeStyles = ActiveStyles.create();
+    this.computedStyles = ActiveStyles.unparentedStyles(ActiveStyles.create());
     this.rootScrollBox = new ScrollBox(this, documentBox, BoxLevel.BLOCK_LEVEL);
     this.wrapperBox = ElementBox.createAnonymous(properties(), rootScrollBox, BoxLevel.BLOCK_LEVEL);
     rootScrollBox.addChild(wrapperBox);
   }
 
-  // Be careful not to invali
+  // Be careful not to invalidate box during regeneration
   @Override
-  public void regenerateStyles(StyleCache styleCache) {
-    ActiveStyles oldStyles = this.activeStyles;
-    this.activeStyles = ActiveStyles.create();
+  public ActiveStyles regenerateStyles(StyleCache styleCache, ActiveStyles refStyles) {
+    PropertyContainer oldStyles = this.computedStyles;
+    ActiveStyles activeStyles = ActiveStyles.create();
 
     if (htmlBox != null) {
-      updatePaintProperties();
+      updatePaintProperties(activeStyles);
       activeStyles.setProperty(CSSProperty.OVERFLOW_X, CompositeLayerUtil.adjustHTMLOverflowValue(
         htmlBox.context(), CSSProperty.OVERFLOW_X));
       activeStyles.setProperty(CSSProperty.OVERFLOW_Y, CompositeLayerUtil.adjustHTMLOverflowValue(
         htmlBox.context(), CSSProperty.OVERFLOW_Y));
     }
+
+    this.computedStyles = ActiveStyles.unparentedStyles(activeStyles);
     
-    invalidateIfChangedStyles(oldStyles, null);
+    invalidate(changedPropertyInvalidationLevel(oldStyles, this.computedStyles));
+
+    return refStyles;
   }
 
-  private void updatePaintProperties() {
+  private void updatePaintProperties(ActiveStyles activeStyles) {
     PropertyContainer refBgProperties = ElementBackgroundPainter.inheritsBodyBackground(htmlBox.element(), htmlBox) ?
       scanBodyProperties(htmlBox) :
       htmlBox.properties();
@@ -68,6 +71,7 @@ public class FakeRootContextImp extends RenderContextImp {
 
   @Override
   public HTMLElement element() {
+    if (htmlBox == null) return null;
     return htmlBox.element();
   }
 
@@ -77,9 +81,13 @@ public class FakeRootContextImp extends RenderContextImp {
   }
 
   @Override
-  public void invalidate(InvalidationLevel invalidationLevel) {
-    if (invalidationLevel.ordinal() < invalidationLevel().ordinal()) {
-      
+  public void setBox(ElementBox box) {
+    throw new UnsupportedOperationException("Unimplemented method 'setBox'");
+  }
+
+  @Override
+  public void invalidate(short invalidationLevel) {
+    if ((invalidationLevel & invalidationLevel()) != invalidationLevel) {
       if (
         documentBox.document() instanceof HTMLDocument document
         && document.renderer() != null
@@ -105,13 +113,14 @@ public class FakeRootContextImp extends RenderContextImp {
 
   public void replaceChild(ElementBox child) {
     this.htmlBox = child;
-    wrapperBox.clearChildren();
-    wrapperBox.addChild(child);
+    wrapperBox.startOverwrite();
+    wrapperBox.includeChild(child);
+    wrapperBox.endOverwrite();
 
     // TODO: This needs to be called after boxing because some of the properties
     // scan the child. But some of our properties invalidate BOX. Will this ever
     // cause a loop?
-    regenerateStyles(null);
+    regenerateStyles(null, null);
   }
 
   private static PropertyContainer scanBodyProperties(ElementBox box) {

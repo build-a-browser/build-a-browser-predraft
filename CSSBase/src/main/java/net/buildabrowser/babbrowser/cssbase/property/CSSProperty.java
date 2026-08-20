@@ -50,17 +50,17 @@ public enum CSSProperty {
   COLOR(nextId(), true, InvalidationLevel.PAINT, SRGBAColor.create(0, 0, 0, 255)),
 
   BACKGROUND_COLOR(nextId(), false, InvalidationLevel.PAINT, SRGBAColor.create(0, 0, 0, 0)),
-  BACKGROUND_IMAGE(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(CSSValue.NONE)),
-  BACKGROUND_REPEAT(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(BackgroundRepeatValue.create(
+  BACKGROUND_IMAGE(nextId(), false, InvalidationLevel.PAINT, ManyResult.createCommas(CSSValue.NONE)),
+  BACKGROUND_REPEAT(nextId(), false, InvalidationLevel.PAINT, ManyResult.createCommas(BackgroundRepeatValue.create(
     BackgroundAxisRepeatValue.REPEAT, BackgroundAxisRepeatValue.REPEAT))),
   // Unfortunately layout as stacking contexts (generated during layout) need regenerated
-  BACKGROUND_ATTACHMENT(nextId(), false, ManyResult.create(BackgroundAttachmentValue.SCROLL)),
-  BACKGROUND_POSITION(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(BackgroundPositionValue.create(
+  BACKGROUND_ATTACHMENT(nextId(), false, ManyResult.createCommas(BackgroundAttachmentValue.SCROLL)),
+  BACKGROUND_POSITION(nextId(), false, InvalidationLevel.PAINT, ManyResult.createCommas(BackgroundPositionValue.create(
     BackgroundPositionSide.LEFT, PercentageValue.create(0),
     BackgroundPositionSide.TOP, PercentageValue.create(0)))),
-  BACKGROUND_CLIP(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(VisualBoxValue.BORDER_BOX)),
-  BACKGROUND_ORIGIN(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(VisualBoxValue.PADDING_BOX)),
-  BACKGROUND_SIZE(nextId(), false, InvalidationLevel.PAINT, ManyResult.create(
+  BACKGROUND_CLIP(nextId(), false, InvalidationLevel.PAINT, ManyResult.createCommas(VisualBoxValue.BORDER_BOX)),
+  BACKGROUND_ORIGIN(nextId(), false, InvalidationLevel.PAINT, ManyResult.createCommas(VisualBoxValue.PADDING_BOX)),
+  BACKGROUND_SIZE(nextId(), false, InvalidationLevel.PAINT, ManyResult.createCommas(
     SizedBackgroundSizeValue.create(CSSValue.AUTO, CSSValue.AUTO))),
   BACKGROUND(new CSSProperty[] {
     BACKGROUND_COLOR, BACKGROUND_IMAGE, BACKGROUND_REPEAT, BACKGROUND_ATTACHMENT,
@@ -90,7 +90,7 @@ public enum CSSProperty {
   LINE_HEIGHT(nextId(), true, LineHeightValue.NORMAL),
   TEXT_ALIGN(nextId(), true, TextAlignValue.START),
 
-  FONT_FAMILY(nextId(), true, new ManyResult(List.of(FontNameValue.create("sans-serif")))),
+  FONT_FAMILY(nextId(), true, ManyResult.createCommas(List.of(FontNameValue.create("sans-serif")))),
   FONT_WEIGHT(nextId(), true, FontWeightValue.create(400)),
   FONT_SIZE(nextId(), true, FontNamedSizeValue.MEDIUM),
   // TODO: There are still other properties to support...
@@ -218,9 +218,9 @@ public enum CSSProperty {
   private final boolean inherited;
   private final CSSValue initial;
   private final CSSProperty[] expansions;
-  private final InvalidationLevel invalidationLevel;
+  private final short invalidationLevel;
 
-  private CSSProperty(int id, boolean inherited, InvalidationLevel invalidationLevel, CSSValue initial) {
+  private CSSProperty(int id, boolean inherited, short invalidationLevel, CSSValue initial) {
     this.id = id;
     this.inherited = inherited;
     this.initial = initial;
@@ -259,15 +259,12 @@ public enum CSSProperty {
 
   public CSSProperty[] getExpansions() {
     if (this.equals(CSSProperty.ALL)) {
-      if (allExpansions == null) {
-        allExpansions = all();
-      }
-      return allExpansions;
+      return all();
     }
     return this.expansions;
   }
 
-  public InvalidationLevel invalidationLevel() {
+  public short invalidationLevel() {
     return this.invalidationLevel;
   }
 
@@ -285,18 +282,26 @@ public enum CSSProperty {
     return propertyIdCopy;
   }
 
+  public static CSSProperty getById(int id) {
+    return all()[id];
+  }
+
   private static int nextId() {
     return propertyId++;
   }
 
   private static CSSProperty[] all() {
+    if (allExpansions != null) {
+      return allExpansions;
+    }
+
     List<CSSProperty> allProperties = new ArrayList<>();
     for (CSSProperty property: CSSProperty.values()) {
       if (!property.hasExpansion()) {
         allProperties.add(property);
       }
     }
-    return allProperties.toArray(new CSSProperty[0]);
+    return allExpansions = allProperties.toArray(new CSSProperty[0]);
   }
 
 }
