@@ -62,9 +62,10 @@ public final class SizingWidthUtil {
     CalcEvaluation calcResult = CalcInterpreter.evaluateNode(sizeValue,
       innerSizeValue -> evaluateStretchedWidthSizeRaw(
       parentConstraint, stretchConstraint, refBox, innerSizeValue));
-    return calcResult.valueType().equals(CalcEvalType.LENGTH_PERCENTAGE) ?
+    LayoutConstraint reuslt = calcResult.valueType().equals(CalcEvalType.LENGTH_PERCENTAGE) ?
       LayoutConstraint.of(calcResult.floatValue()) :
       LayoutConstraint.AUTO;
+    return subtractDecor(refBox, reuslt);
   }
 
   public static LayoutConstraint clampWidth(
@@ -116,12 +117,14 @@ public final class SizingWidthUtil {
   ) {
     // Switching on enum values unfortunately incurs a performance penalty here
     // Since sizeValue is a CSSValue, not SizeValue
+    // addDecor counteracts that later subtractDecor,
+    // since these are treated the same regardless
     if (SizeValue.STRETCH.equals(sizeValue)) {
-      return stretchConstraint;
+      return addDecor(refBox, stretchConstraint);
     } else if (SizeValue.FIT_CONTENT.equals(sizeValue)) {
-      return parentConstraint.isPreLayoutConstraint() ?
+      return addDecor(refBox, parentConstraint.isPreLayoutConstraint() ?
         parentConstraint :
-        computeFitContent(stretchConstraint, refBox);
+        computeFitContent(stretchConstraint, refBox));
     } else {
       return evaluateAdjustedWidthSizeRaw(
         parentConstraint, refBox, sizeValue);
@@ -138,12 +141,7 @@ public final class SizingWidthUtil {
     if (!constraint.isBounded()) return constraint;
     if (constraint.value() < 0) return LayoutConstraint.of(0);
 
-    CSSValue boxSizing = refBox.properties().get(CSSProperty.BOX_SIZING);
-    if (boxSizing.equals(BoxSizingValue.CONTENT_BOX)) return constraint;
-
-    float adjustedConstraint = Math.max(0,
-      constraint.value() - refBox.dimensions().decorWidth());
-    return LayoutConstraint.of(adjustedConstraint);
+    return constraint;
   }
 
   private static LayoutConstraint evaluateBaseWidthSize(
@@ -202,6 +200,32 @@ public final class SizingWidthUtil {
     float maxContent = EBDimensionsUtil.preferredWidthConstraint(refBox);
     float fit = Math.min(maxContent, Math.max(minContent, stretch));
     return LayoutConstraint.of(fit);
+  }
+
+  private static LayoutConstraint subtractDecor(
+    ElementBox refBox,
+    LayoutConstraint constraint
+  ) {
+    if (!constraint.isBounded()) return constraint;
+    CSSValue boxSizing = refBox.properties().get(CSSProperty.BOX_SIZING);
+    if (boxSizing.equals(BoxSizingValue.CONTENT_BOX)) return constraint;
+
+    float adjustedConstraint = Math.max(0,
+      constraint.value() - refBox.dimensions().decorWidth());
+    return LayoutConstraint.of(adjustedConstraint);
+  }
+
+  private static LayoutConstraint addDecor(
+    ElementBox refBox,
+    LayoutConstraint constraint
+  ) {
+    if (!constraint.isBounded()) return constraint;
+    CSSValue boxSizing = refBox.properties().get(CSSProperty.BOX_SIZING);
+    if (boxSizing.equals(BoxSizingValue.CONTENT_BOX)) return constraint;
+
+    float adjustedConstraint = Math.max(0,
+      constraint.value() + refBox.dimensions().decorWidth());
+    return LayoutConstraint.of(adjustedConstraint);
   }
 
 }

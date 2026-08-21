@@ -33,9 +33,10 @@ public final class SizingHeightUtil {
   ) {
     CalcEvaluation calcResult = CalcInterpreter.evaluateNode(sizeValue,
       innerSizeValue -> evaluateAdjustedHeightSizeRaw(parentConstraint, refBox, innerSizeValue));
-    return calcResult.valueType().equals(CalcEvalType.LENGTH_PERCENTAGE) ?
+    LayoutConstraint result = calcResult.valueType().equals(CalcEvalType.LENGTH_PERCENTAGE) ?
       LayoutConstraint.of(calcResult.floatValue()) :
       LayoutConstraint.AUTO;
+    return subtractDecor(refBox, result);
   }
 
   private static LayoutConstraint evaluateBaseHeightSize(
@@ -67,13 +68,7 @@ public final class SizingHeightUtil {
     if (!constraint.isBounded()) return constraint;
     if (constraint.value() < 0) return LayoutConstraint.of(0);
 
-    CSSValue boxSizing = refBox.properties().get(CSSProperty.BOX_SIZING);
-    if (boxSizing.equals(BoxSizingValue.CONTENT_BOX)) return constraint;
-    assert boxSizing.equals(BoxSizingValue.BORDER_BOX);
-
-    float adjustedConstraint = Math.max(0,
-      constraint.value() - refBox.dimensions().decorHeight());
-    return LayoutConstraint.of(adjustedConstraint);
+    return constraint;
   }
 
   public static LayoutConstraint clampHeight(
@@ -100,6 +95,19 @@ public final class SizingHeightUtil {
       adjustedConstraint = Math.max(adjustedConstraint, minConstraint.value());
     }
 
+    return LayoutConstraint.of(adjustedConstraint);
+  }
+
+  private static LayoutConstraint subtractDecor(
+    ElementBox refBox,
+    LayoutConstraint constraint
+  ) {
+    if (!constraint.isBounded()) return constraint;
+    CSSValue boxSizing = refBox.properties().get(CSSProperty.BOX_SIZING);
+    if (boxSizing.equals(BoxSizingValue.CONTENT_BOX)) return constraint;
+
+    float adjustedConstraint = Math.max(0,
+      constraint.value() - refBox.dimensions().decorHeight());
     return LayoutConstraint.of(adjustedConstraint);
   }
 
