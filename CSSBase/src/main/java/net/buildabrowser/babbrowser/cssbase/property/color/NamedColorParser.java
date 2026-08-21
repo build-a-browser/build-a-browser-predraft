@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property.color;
 import java.io.IOException;
 import java.util.Map;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
@@ -19,7 +19,7 @@ public class NamedColorParser implements PropertyValueParser {
   private static Map<String, ColorValue> NAMED_COLORS;
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     if (NAMED_COLORS == null) {
       throw new IllegalStateException("NAMED_COLORS is a singleton that must be initialized!");
     }

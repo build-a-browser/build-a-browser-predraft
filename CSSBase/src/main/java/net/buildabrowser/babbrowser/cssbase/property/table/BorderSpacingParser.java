@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.table;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
@@ -15,7 +15,7 @@ public class BorderSpacingParser implements PropertyValueParser {
     false, false, false, false, null);
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     CSSValue hValue = sizeParser.parse(stream);
     if (hValue.isFailure()) return hValue;
     // TODO: Check not negative

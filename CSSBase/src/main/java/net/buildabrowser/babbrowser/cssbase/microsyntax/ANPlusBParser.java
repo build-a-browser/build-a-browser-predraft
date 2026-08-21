@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -17,7 +16,7 @@ public final class ANPlusBParser {
   private ANPlusBParser() {}
 
   public static ANPlusB parse(
-    SeekableCSSTokenStream stream
+    CSSTokenStream stream
   ) throws IOException {
     ignoreWhitespace(stream);
     ANPlusB result = parseInner(stream);
@@ -26,7 +25,7 @@ public final class ANPlusBParser {
   }
 
   private static ANPlusB parseInner(
-    SeekableCSSTokenStream stream
+    CSSTokenStream stream
   ) throws IOException {
     Token firstToken = stream.read();
     if (
@@ -186,23 +185,24 @@ public final class ANPlusBParser {
   }
 
   private static int parseOptionalIntegerExtension(
-    SeekableCSSTokenStream stream
+    CSSTokenStream stream
   ) throws IOException {
     ignoreWhitespace(stream);
-    int position = stream.position();
     if (
       stream.peek() instanceof DelimToken delimToken
       && (delimToken.ch() == '+' || delimToken.ch() == '-')
     ) {
+      int mark = stream.mark();
       stream.read();
       ignoreWhitespace(stream);
       int multiplier = delimToken.ch() == '-' ? -1 : 1;
       Integer value = parseSignlessInteger(stream);
       if (value == null) {
-        stream.seek(position);
+        stream.restoreMark(mark);
         return 0;
       }
 
+      stream.discardMark();
       return multiplier * value;
     } else if (
       stream.peek() instanceof NumberToken numberToken

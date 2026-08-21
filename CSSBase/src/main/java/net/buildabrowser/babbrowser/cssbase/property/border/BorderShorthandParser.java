@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.border;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
@@ -21,7 +21,7 @@ public class BorderShorthandParser implements PropertyValueParser {
   private static final PropertyValueParser styleParser = new BorderStyleParser(null);
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     CSSValue result = PropertyValueParserUtil.parseAnyOrder(stream, widthParser, colorParser, styleParser);
     if (result.isFailure()) return result;
     if (!(stream.peek() instanceof EOFToken)) return CSSFailure.EXPECTED_EOF;

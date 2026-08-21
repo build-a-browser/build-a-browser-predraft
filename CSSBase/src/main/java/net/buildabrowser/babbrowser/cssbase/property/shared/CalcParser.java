@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -83,14 +83,14 @@ public class CalcParser implements PropertyValueParser {
   }
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     if (
       stream.peek() instanceof FunctionValue functionValue
       && CALC_TYPE_MAP.containsKey(functionValue.name())
     ) {
       stream.read();
       CalcEntry entry = CALC_TYPE_MAP.get(functionValue.name());
-      SeekableCSSTokenStream childStream = ListCSSTokenStream.createWithSkippedWhitespace(
+      CSSTokenStream childStream = ListCSSTokenStream.createWithSkippedWhitespace(
         stream.source(), functionValue.value());
       CSSValue result = entry.parser().parse(childStream, entry.type());
       if (!(childStream.peek() instanceof EOFToken)) {
@@ -107,14 +107,14 @@ public class CalcParser implements PropertyValueParser {
     return this.relatedProperty;
   }
 
-  private CSSValue parseCalcSumF(SeekableCSSTokenStream stream, CalcType type) throws IOException {
+  private CSSValue parseCalcSumF(CSSTokenStream stream, CalcType type) throws IOException {
     CSSValue value = parseCalcSum(stream);
     if (value.isFailure()) return value;
 
     return new CalcFuncSingle(type, value);
   }
 
-  private CSSValue parseCalcSumFPair(SeekableCSSTokenStream stream, CalcType type) throws IOException {
+  private CSSValue parseCalcSumFPair(CSSTokenStream stream, CalcType type) throws IOException {
     CSSValue firstValue = parseCalcSum(stream);
     if (firstValue.isFailure()) return firstValue;
 
@@ -128,7 +128,7 @@ public class CalcParser implements PropertyValueParser {
     return new CalcFuncDouble(type, firstValue, secondValue);
   }
 
-  private CSSValue parseCalcSumFList(SeekableCSSTokenStream stream, CalcType type) throws IOException {
+  private CSSValue parseCalcSumFList(CSSTokenStream stream, CalcType type) throws IOException {
     List<CSSValue> values = new ArrayList<>(2);
 
     CSSValue value = parseCalcSum(stream);
@@ -146,7 +146,7 @@ public class CalcParser implements PropertyValueParser {
     return new CalcFuncMany(type, values);
   }
 
-  private CSSValue parseClamp(SeekableCSSTokenStream stream, CalcType type) throws IOException {
+  private CSSValue parseClamp(CSSTokenStream stream, CalcType type) throws IOException {
     CSSValue minValue;
     if (
       stream.peek() instanceof IdentToken identToken
@@ -185,7 +185,7 @@ public class CalcParser implements PropertyValueParser {
     return new CalcClampFunc(type, minValue, idealValue, maxValue);
   }
 
-  private CSSValue parseRound(SeekableCSSTokenStream stream, CalcType type) throws IOException {
+  private CSSValue parseRound(CSSTokenStream stream, CalcType type) throws IOException {
     RoundingStrategy roundingStrategy = RoundingStrategy.NEAREST;
     if (
       stream.peek() instanceof IdentToken identToken
@@ -211,7 +211,7 @@ public class CalcParser implements PropertyValueParser {
     return new CalcRoundFunc(type, roundingStrategy, a, b);
   }
 
-  private CSSValue parseLog(SeekableCSSTokenStream stream, CalcType type) throws IOException {
+  private CSSValue parseLog(CSSTokenStream stream, CalcType type) throws IOException {
     CSSValue firstValue = parseCalcSum(stream);
     if (firstValue.isFailure()) return firstValue;
 
@@ -226,7 +226,7 @@ public class CalcParser implements PropertyValueParser {
     return new CalcLogFunc(type, firstValue, secondValue);
   }
 
-  private CSSValue parseCalcSum(SeekableCSSTokenStream stream) throws IOException {
+  private CSSValue parseCalcSum(CSSTokenStream stream) throws IOException {
     CSSValue firstProduct = parseCalcProduct(stream);
     if (firstProduct.isFailure()) return firstProduct;
 
@@ -245,7 +245,7 @@ public class CalcParser implements PropertyValueParser {
     return currentSum;
   }
 
-  private CSSValue parseCalcProduct(SeekableCSSTokenStream stream) throws IOException {
+  private CSSValue parseCalcProduct(CSSTokenStream stream) throws IOException {
     CSSValue firstValue = parseCalcValue(stream);
     if (firstValue.isFailure()) return firstValue;
 
@@ -264,7 +264,7 @@ public class CalcParser implements PropertyValueParser {
     return currentProduct;
   }
 
-  private CSSValue parseCalcValue(SeekableCSSTokenStream stream) throws IOException {
+  private CSSValue parseCalcValue(CSSTokenStream stream) throws IOException {
     // This differs a bit from the spec in that it delegates back to parse
     // instead of checking dimension | percentage
     if (stream.peek() instanceof LParenToken) {
@@ -297,7 +297,7 @@ public class CalcParser implements PropertyValueParser {
   private static record CalcEntry(CalcType type, CalcSubParser parser) {}
 
   private static interface CalcSubParser {
-    CSSValue parse(SeekableCSSTokenStream stream, CalcType type) throws IOException;
+    CSSValue parse(CSSTokenStream stream, CalcType type) throws IOException;
   }
 
 }

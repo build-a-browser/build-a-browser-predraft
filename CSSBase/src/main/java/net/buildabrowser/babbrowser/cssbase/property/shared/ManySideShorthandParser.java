@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.shared;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
@@ -26,7 +26,7 @@ public class ManySideShorthandParser implements PropertyValueParser {
   }
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     // Inhherit should be handled for us
 
     CSSValue[] consumedValues = new CSSValue[4];

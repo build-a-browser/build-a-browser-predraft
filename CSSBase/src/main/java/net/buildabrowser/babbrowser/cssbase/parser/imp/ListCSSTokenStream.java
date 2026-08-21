@@ -2,13 +2,13 @@ package net.buildabrowser.babbrowser.cssbase.parser.imp;
 
 import java.util.List;
 
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
 
-public class ListCSSTokenStream implements SeekableCSSTokenStream {
+public class ListCSSTokenStream implements CSSTokenStream {
 
   private final CSSTokenStreamSource source;
   private final List<Token> tokens;
@@ -65,30 +65,44 @@ public class ListCSSTokenStream implements SeekableCSSTokenStream {
     unread = token;
   }
 
+  //
+
   @Override
-  public int position() {
-    return this.position;
+  public int mark() {
+    return position;
   }
 
   @Override
-  public void seek(int position) {
-    this.position = position;
-    this.unread = null;
+  public void restoreMark(int mark) {
+    this.position = mark;
   }
 
-  public static SeekableCSSTokenStream create(
+  @Override
+  public void discardMark() {}
+
+  @Override
+  public int nextMark() {
+    return position;
+  }
+
+  @Override
+  public void seek(int markRelPosition) {
+    this.position = markRelPosition;
+  }
+
+  public static CSSTokenStream create(
     CSSTokenStreamSource source, List<Token> tokens
   ) {
     return new ListCSSTokenStream(source, tokens, false);
   }
 
-  public static SeekableCSSTokenStream create(
+  public static CSSTokenStream create(
     CSSTokenStreamSource source, Token... tokens
   ) {
     return new ListCSSTokenStream(source, List.of(tokens), false);
   }
 
-  public static SeekableCSSTokenStream createWithSkippedWhitespace(
+  public static CSSTokenStream createWithSkippedWhitespace(
     CSSTokenStreamSource source, List<Token> tokens
   ) {
     return new ListCSSTokenStream(source, tokens, true);

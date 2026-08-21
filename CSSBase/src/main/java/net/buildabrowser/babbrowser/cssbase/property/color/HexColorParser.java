@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property.color;
 import java.io.IOException;
 
 import net.buildabrowser.babbrowser.common.util.ASCIIUtil;
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
@@ -17,7 +17,7 @@ public class HexColorParser implements PropertyValueParser {
   private static final CSSFailure COMPONENT_NOT_VALID_FAILURE = new CSSFailure("Component not valid");
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     if (!(stream.read() instanceof HashToken hashToken)) {
       return NO_HASH_FAILURE;   
     }

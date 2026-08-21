@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property.font;
 import java.io.IOException;
 import java.util.Map;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
@@ -23,7 +23,7 @@ public class FontWeightParser implements PropertyValueParser {
   );
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     Token token = stream.read();
     if (
       token instanceof IdentToken identToken

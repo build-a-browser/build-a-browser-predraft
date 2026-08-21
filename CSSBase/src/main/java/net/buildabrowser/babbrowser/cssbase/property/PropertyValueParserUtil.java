@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
@@ -18,27 +18,31 @@ public final class PropertyValueParserUtil {
   
   private PropertyValueParserUtil() {}
 
-  public static CSSValue parseLongest(SeekableCSSTokenStream stream, PropertyValueParser... parsers) throws IOException {
+  public static CSSValue parseLongest(CSSTokenStream stream, PropertyValueParser... parsers) throws IOException {
     CSSValue longestValue = NO_VALID_RESULT;
-    int longestPos = stream.position();
+    int longestPos = stream.mark();
 
-    int firstPos = stream.position();
     for (PropertyValueParser parser: parsers) {
+      int mark = stream.mark();
       CSSValue result = parser.parse(stream);
-      if (!result.isFailure() && (stream.position() > longestPos || longestValue.isFailure())) {
-        longestPos = stream.position();
+      if (
+        !result.isFailure()
+        && (stream.nextMark() > longestPos || longestValue.isFailure())
+      ) {
+        longestPos = stream.nextMark();
         longestValue = result;
       }
 
-      stream.seek(firstPos);
+      stream.restoreMark(mark);
     }
 
     stream.seek(longestPos);
+    stream.discardMark();
 
     return longestValue;
   }
 
-  public static CSSValue parseIdentMap(SeekableCSSTokenStream stream, Map<String, CSSValue> options) throws IOException {
+  public static CSSValue parseIdentMap(CSSTokenStream stream, Map<String, CSSValue> options) throws IOException {
     if (!(stream.read() instanceof IdentToken identToken)) {
       return EXPECTED_IDENT;
     }
@@ -46,34 +50,36 @@ public final class PropertyValueParserUtil {
     return options.getOrDefault(identToken.value(), NO_VALID_RESULT);
   }
 
-  public static CSSValue parseAnyOrder(SeekableCSSTokenStream stream, PropertyValueParser... parsers) throws IOException {
+  public static CSSValue parseAnyOrder(CSSTokenStream stream, PropertyValueParser... parsers) throws IOException {
     return parseAnyOrder(stream, parsers, new AnyOrderResult(new CSSValue[parsers.length]));
   }
 
-  private static CSSValue parseAnyOrder(SeekableCSSTokenStream stream, PropertyValueParser[] parsers, AnyOrderResult output) throws IOException {
-    int firstPos = stream.position();
+  private static CSSValue parseAnyOrder(CSSTokenStream stream, PropertyValueParser[] parsers, AnyOrderResult output) throws IOException {
+    int mark = stream.mark();
 
     for (int i = 0; i < parsers.length; i++) {
       PropertyValueParser parser = parsers[i];
       if (output.values()[i] != null) continue;
 
-      stream.seek(firstPos);
+      stream.restoreMark(mark);
+      mark = stream.mark();
 
       CSSValue result = parser.parse(stream);
       if (result.isFailure()) continue;
 
+      stream.discardMark();
       output.values()[i] = result;
       parseAnyOrder(stream, parsers, output);
 
       return output;
     }
 
-    stream.seek(firstPos);
+    stream.restoreMark(mark);
     return NO_VALID_RESULT;
   }
 
   public static CSSValue parseCommaRepeat(
-    SeekableCSSTokenStream stream, PropertyValueParser parser
+    CSSTokenStream stream, PropertyValueParser parser
   ) throws IOException {
     // Assumes whitespace already removed
     CSSValue firstValue = parser.parse(stream);
@@ -94,7 +100,7 @@ public final class PropertyValueParserUtil {
   }
 
   public static CSSValue parseOneOrMore(
-    SeekableCSSTokenStream stream, PropertyValueParser parser
+    CSSTokenStream stream, PropertyValueParser parser
   ) throws IOException {
     // Assumes whitespace already removed
     CSSValue firstValue = parser.parse(stream);
@@ -104,12 +110,13 @@ public final class PropertyValueParserUtil {
     relatedValues.add(firstValue);
 
     while (true) {
-      int posMark = stream.position();
+      int mark = stream.mark();
       CSSValue nextValue = parser.parse(stream);
       if (nextValue.isFailure()) {
-        stream.seek(posMark);
+        stream.restoreMark(mark);
         return ManyResult.createSpaces(relatedValues);
       }
+      stream.discardMark();
       relatedValues.add(nextValue);
     }
   }

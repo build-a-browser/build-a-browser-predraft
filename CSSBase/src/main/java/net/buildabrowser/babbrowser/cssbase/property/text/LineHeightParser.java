@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.text;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
@@ -16,7 +16,7 @@ public class LineHeightParser implements PropertyValueParser {
   private final SizeParser lineSizeParser = new SizeParser(false, false, null);
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     Token token = stream.peek();
     if (
       token instanceof IdentToken identToken

@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.flex;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
@@ -12,7 +12,7 @@ import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 public class FlexGrowParser implements PropertyValueParser {
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     if (!(
       stream.read() instanceof NumberToken numberToken
       && numberToken.value().floatValue() >= 0

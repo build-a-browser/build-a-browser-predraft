@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.font;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
@@ -20,7 +20,7 @@ public class FontShorthandParser implements PropertyValueParser {
   private final FontFamilyParser fontFamilyParser = new FontFamilyParser();
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     // TODO: Expand this with the other possible options
     CSSValue anyOrderResult = PropertyValueParserUtil.parseAnyOrder(stream, new PropertyValueParser[] {
       fontWeightParser

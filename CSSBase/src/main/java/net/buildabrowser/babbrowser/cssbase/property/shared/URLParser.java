@@ -5,7 +5,6 @@ import java.net.URI;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
@@ -22,7 +21,7 @@ public class URLParser implements PropertyValueParser {
   // TODO: Support url-modifier
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     URI refURL = stream.source().sourceURL();
     if (
       stream.peek() instanceof FunctionValue functionValue

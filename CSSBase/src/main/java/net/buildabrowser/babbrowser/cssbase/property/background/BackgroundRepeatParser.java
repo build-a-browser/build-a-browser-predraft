@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property.background;
 import java.io.IOException;
 import java.util.Map;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
@@ -27,7 +27,7 @@ public class BackgroundRepeatParser implements PropertyValueParser {
   );
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     return PropertyValueParserUtil.parseCommaRepeat(stream, this::parseInternal);
   }
 
@@ -36,21 +36,23 @@ public class BackgroundRepeatParser implements PropertyValueParser {
     return CSSProperty.BACKGROUND_REPEAT;
   }
 
-  public CSSValue parseInternal(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parseInternal(CSSTokenStream stream) throws IOException {
     return PropertyValueParserUtil.parseLongest(stream,
       stream1 -> PropertyValueParserUtil.parseIdentMap(stream1, OUTER_VALUES),
       this::parseInnerValues);
   }
 
-  private CSSValue parseInnerValues(SeekableCSSTokenStream stream) throws IOException {
+  private CSSValue parseInnerValues(CSSTokenStream stream) throws IOException {
     CSSValue firstValue = PropertyValueParserUtil.parseIdentMap(stream, INNER_VALUES);
     if (firstValue.isFailure()) return firstValue;
 
-    int position = stream.position();
+    int mark = stream.mark();
     CSSValue secondValue = PropertyValueParserUtil.parseIdentMap(stream, INNER_VALUES);
     if (secondValue.isFailure()) {
       secondValue = firstValue;
-      stream.seek(position);
+      stream.restoreMark(mark);
+    } else {
+      stream.discardMark();
     }
 
     return BackgroundRepeatValue.create(

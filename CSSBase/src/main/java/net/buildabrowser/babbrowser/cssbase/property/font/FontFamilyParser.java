@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property.font;
 import java.io.IOException;
 import java.util.Map;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
@@ -23,7 +23,7 @@ public class FontFamilyParser implements PropertyValueParser {
   );
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     return PropertyValueParserUtil.parseCommaRepeat(stream, this::parseInner);
   }
 
@@ -32,7 +32,7 @@ public class FontFamilyParser implements PropertyValueParser {
     return CSSProperty.FONT_FAMILY;
   }
 
-  private CSSValue parseInner(SeekableCSSTokenStream stream) throws IOException {
+  private CSSValue parseInner(CSSTokenStream stream) throws IOException {
     Token token = stream.read();
     if (token instanceof StringToken stringToken) {
       return FontNameValue.create(stringToken.value());

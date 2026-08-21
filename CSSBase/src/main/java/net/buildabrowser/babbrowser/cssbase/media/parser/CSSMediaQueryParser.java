@@ -15,7 +15,6 @@ import net.buildabrowser.babbrowser.cssbase.media.ast.MediaNode;
 import net.buildabrowser.babbrowser.cssbase.media.ast.MediaTypeNode;
 import net.buildabrowser.babbrowser.cssbase.media.ast.NotMediaNode;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.SizeParser;
@@ -35,7 +34,7 @@ public final class CSSMediaQueryParser {
   private CSSMediaQueryParser() {}
 
   public static AnyMediaNode parseQuery(
-    SeekableCSSTokenStream stream
+    CSSTokenStream stream
   ) throws IOException {
     List<MediaNode> queries = new ArrayList<>();
     while (!(stream.peek() instanceof EOFToken)) {
@@ -54,7 +53,7 @@ public final class CSSMediaQueryParser {
   }
 
   private static AndMediaNode parseSingleQuery(
-    SeekableCSSTokenStream stream
+    CSSTokenStream stream
   ) throws IOException {
     List<MediaNode> queries = new ArrayList<>();
     boolean expectAnd = false;
@@ -119,7 +118,7 @@ public final class CSSMediaQueryParser {
   }
 
   private static MediaNode parseExpression(
-    SeekableCSSTokenStream stream
+    CSSTokenStream stream
   ) throws IOException {
     if (!(
       stream.peek() instanceof SimpleBlock simpleBlock
@@ -127,7 +126,7 @@ public final class CSSMediaQueryParser {
     )) return null;
     stream.read();
 
-    SeekableCSSTokenStream innerStream = ListCSSTokenStream.createWithSkippedWhitespace(
+    CSSTokenStream innerStream = ListCSSTokenStream.createWithSkippedWhitespace(
       stream.source(), simpleBlock.value());
 
     if (!(
@@ -169,7 +168,7 @@ public final class CSSMediaQueryParser {
   }
 
   private static CSSValue parseFeatureTarget(
-    MediaFeature feature, SeekableCSSTokenStream stream
+    MediaFeature feature, CSSTokenStream stream
   ) throws IOException {
     // TODO: Depends on feature
     CSSValue value = SIZE_PARSER.parse(stream);

@@ -2,11 +2,11 @@ package net.buildabrowser.babbrowser.cssbase.property;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 
 public interface PropertyValueParser {
  
-  CSSValue parse(SeekableCSSTokenStream stream) throws IOException;
+  CSSValue parse(CSSTokenStream stream) throws IOException;
 
   default CSSProperty relatedProperty() {
     return null;

@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property.display;
 import java.io.IOException;
 import java.util.Map;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
@@ -54,7 +54,7 @@ public class DisplayParser implements PropertyValueParser {
 
   // TOOO: Listitem and internal types
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     return PropertyValueParserUtil.parseLongest(stream,
       stream1 -> parseTuple(stream1),
       stream1 -> PropertyValueParserUtil.parseIdentMap(stream1, BOX_VALUES),
@@ -62,7 +62,7 @@ public class DisplayParser implements PropertyValueParser {
       stream1 -> PropertyValueParserUtil.parseIdentMap(stream, INTERNAL_VALUES));
   }
 
-  private CSSValue parseTuple(SeekableCSSTokenStream stream) throws IOException {
+  private CSSValue parseTuple(CSSTokenStream stream) throws IOException {
     CSSValue result = PropertyValueParserUtil.parseAnyOrder(stream,
       stream1 -> PropertyValueParserUtil.parseIdentMap(stream1, OUTER_VALUES),
       stream1 -> PropertyValueParserUtil.parseIdentMap(stream1, INNER_VALUES));

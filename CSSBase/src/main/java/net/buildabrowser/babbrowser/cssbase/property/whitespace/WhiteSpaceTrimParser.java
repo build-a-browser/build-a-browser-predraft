@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.whitespace;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
@@ -27,7 +27,7 @@ public class WhiteSpaceTrimParser implements PropertyValueParser {
   };
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     if (
       stream.peek() instanceof IdentToken identToken
       && identToken.value().equals("none")
@@ -49,7 +49,7 @@ public class WhiteSpaceTrimParser implements PropertyValueParser {
   }
 
   private CSSValue parseInner(
-    SeekableCSSTokenStream stream,
+    CSSTokenStream stream,
     String targetName,
     CSSValue targetValue
   ) throws IOException {

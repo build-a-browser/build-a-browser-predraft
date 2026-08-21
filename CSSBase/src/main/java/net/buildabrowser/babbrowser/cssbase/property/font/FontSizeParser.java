@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property.font;
 import java.io.IOException;
 import java.util.Map;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
@@ -28,7 +28,7 @@ public class FontSizeParser implements PropertyValueParser {
   private final SizeParser sizeParser = new SizeParser(false, false, null);
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     if (
       stream.peek() instanceof IdentToken identToken
       && NAMED_SIZES.containsKey(identToken.value())

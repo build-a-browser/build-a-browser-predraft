@@ -5,7 +5,7 @@ import java.util.Map;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
@@ -92,7 +92,7 @@ public class SizeParser implements PropertyValueParser {
   }
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     Token token = stream.peek();
     if (
       allowNone
@@ -120,7 +120,7 @@ public class SizeParser implements PropertyValueParser {
     }
   }
 
-  public CSSValue parseInner(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parseInner(CSSTokenStream stream) throws IOException {
     Token token = stream.read();
     if (token instanceof PercentageToken percentageToken && allowPercent) {
       return PercentageValue.create(percentageToken.value());
@@ -183,9 +183,9 @@ public class SizeParser implements PropertyValueParser {
   }
 
   private CSSValue parseFitContent(
-    SeekableCSSTokenStream refStream, FunctionValue funcValue
+    CSSTokenStream refStream, FunctionValue funcValue
   ) throws IOException {
-    SeekableCSSTokenStream stream = ListCSSTokenStream.createWithSkippedWhitespace(
+    CSSTokenStream stream = ListCSSTokenStream.createWithSkippedWhitespace(
       refStream.source(), funcValue.value());
     CSSValue result = PURE_LENGTH_PERCENTAGE.parse(stream);
     if (result.isFailure()) return result;

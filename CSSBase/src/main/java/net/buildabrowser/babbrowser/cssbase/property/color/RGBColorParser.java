@@ -5,7 +5,7 @@ import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
 import java.io.IOException;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
@@ -28,7 +28,7 @@ public class RGBColorParser implements PropertyValueParser {
   private static final CSSFailure EXPECTED_COMMA = new CSSFailure("Expect a comma token");
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     if (!(
       stream.read() instanceof FunctionValue function
       && (function.name().equals("rgb") || function.name().equals("rgba"))
@@ -36,7 +36,7 @@ public class RGBColorParser implements PropertyValueParser {
       return EXPECTED_FUNCTION;
     }
 
-    SeekableCSSTokenStream childStream = ListCSSTokenStream.createWithSkippedWhitespace(
+    CSSTokenStream childStream = ListCSSTokenStream.createWithSkippedWhitespace(
       stream.source(), function.value());
 
     return PropertyValueParserUtil.parseLongest(childStream,
@@ -44,7 +44,7 @@ public class RGBColorParser implements PropertyValueParser {
       this::parseModernColor);
   }
 
-  public CSSValue parseLegacyColor(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parseLegacyColor(CSSTokenStream stream) throws IOException {
     boolean isPercent = stream.peek() instanceof PercentageToken;
 
     CSSFailure failure = checkLegacyColorComponent(stream.peek(), isPercent);
@@ -81,7 +81,7 @@ public class RGBColorParser implements PropertyValueParser {
     return SRGBAColor.create(redComponent, greenComponent, blueComponent, alphaComponent);
   }
 
-  public CSSValue parseModernColor(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parseModernColor(CSSTokenStream stream) throws IOException {
     CSSFailure failure = checkModernColorComponent(stream.peek());
     if (failure != null) return failure;
     int redComponent = parseModernColorComponent(stream.read());

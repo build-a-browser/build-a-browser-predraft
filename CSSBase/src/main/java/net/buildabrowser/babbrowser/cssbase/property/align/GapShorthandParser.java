@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.align;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
@@ -14,7 +14,7 @@ public class GapShorthandParser implements PropertyValueParser {
   private final GapParser gapParser = new GapParser(null);
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     CSSValue rowGap = gapParser.parse(stream);
     if (rowGap.isFailure()) return rowGap;
 

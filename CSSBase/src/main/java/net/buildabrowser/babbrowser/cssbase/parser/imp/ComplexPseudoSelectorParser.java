@@ -11,7 +11,6 @@ import net.buildabrowser.babbrowser.cssbase.microsyntax.ANPlusB;
 import net.buildabrowser.babbrowser.cssbase.microsyntax.ANPlusBParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.LogicalPseudoSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.LogicalPseudoSelector.LogicalPseudoSelectorType;
@@ -140,7 +139,7 @@ public final class ComplexPseudoSelectorParser {
     };
     if (type == null) return true;
 
-    SeekableCSSTokenStream tokenStream = CSSTokenStream.create(
+    CSSTokenStream tokenStream = CSSTokenStream.create(
       source, functionValue.value());
     ANPlusB anPlusB = ANPlusBParser.parse(tokenStream);
     if (anPlusB == null) return true;

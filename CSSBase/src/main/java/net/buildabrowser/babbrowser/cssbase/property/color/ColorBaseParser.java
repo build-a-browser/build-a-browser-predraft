@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.color;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
@@ -17,7 +17,7 @@ public class ColorBaseParser implements PropertyValueParser {
   private final PropertyValueParser rgbColorParser = new RGBColorParser();
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     Token nextToken = stream.read();
     if (
       nextToken instanceof IdentToken identToken

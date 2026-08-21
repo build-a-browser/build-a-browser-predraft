@@ -24,19 +24,33 @@ public interface CSSTokenStream {
     return result;
   }
 
+  //
+
+  int mark();
+
+  void restoreMark(int mark);
+
+  void discardMark();
+
+  int nextMark();
+
+  void seek(int markRelPosition);
+
+  //
+
   static CSSTokenStream create(
     CSSTokenStreamSource source, CSSTokenizerInput input
   ) {
     return new ActiveCSSTokenStream(source, input);
   }
 
-  static SeekableCSSTokenStream create(
+  static CSSTokenStream create(
     CSSTokenStreamSource source, List<Token> input
   ) {
     return ListCSSTokenStream.create(source, input);
   }
 
-  static SeekableCSSTokenStream createForTesting(Token... input) {
+  static CSSTokenStream createForTesting(Token... input) {
     CSSTokenStreamSource source = new CSSTokenStreamSource(
       CommonUtil.rethrow(() -> new URI("about:blank")));
     return ListCSSTokenStream.create(source, input);

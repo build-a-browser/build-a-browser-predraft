@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.background;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
@@ -16,11 +16,11 @@ public class BackgroundSizeParser implements PropertyValueParser {
   private final SizeParser bgSizeParser = new SizeParser(false, true, null);
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     return PropertyValueParserUtil.parseCommaRepeat(stream, this::parseInternal);
   }
   
-  public CSSValue parseInternal(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parseInternal(CSSTokenStream stream) throws IOException {
     if (
       stream.peek() instanceof IdentToken identToken
       && identToken.value().equals("cover")
@@ -38,13 +38,14 @@ public class BackgroundSizeParser implements PropertyValueParser {
     CSSValue firstValue = bgSizeParser.parse(stream);
     if (firstValue.isFailure()) return firstValue;
 
-    int position = stream.position();
+    int mark = stream.mark();
     CSSValue secondValue = bgSizeParser.parse(stream);
     if (secondValue.isFailure()) {
-      stream.seek(position);
+      stream.restoreMark(mark);
       return SizedBackgroundSizeValue.create(firstValue, CSSValue.AUTO);
     }
 
+    stream.discardMark();
     return SizedBackgroundSizeValue.create(firstValue, secondValue);
   }
 

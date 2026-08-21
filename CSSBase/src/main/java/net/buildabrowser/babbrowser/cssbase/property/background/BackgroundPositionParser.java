@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.cssbase.property.background;
 import java.io.IOException;
 import java.util.Map;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
@@ -32,11 +32,11 @@ public class BackgroundPositionParser implements PropertyValueParser {
   private SizeParser sizeParser = new SizeParser(false, false, null);
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     return PropertyValueParserUtil.parseCommaRepeat(stream, this::parseInternal);
   }
 
-  public CSSValue parseInternal(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parseInternal(CSSTokenStream stream) throws IOException {
     CSSValue[] values = new CSSValue[4];
     for (int i = 0; i < 4; i++) {
       CSSValue decodedValue = decodeValue(stream);
@@ -147,8 +147,8 @@ public class BackgroundPositionParser implements PropertyValueParser {
       BackgroundPositionValue.create(firstSide, firstLength, secondSide, secondLength);
   }
 
-  private CSSValue decodeValue(SeekableCSSTokenStream stream) throws IOException {
-    int position = stream.position();
+  private CSSValue decodeValue(CSSTokenStream stream) throws IOException {
+    int mark = stream.mark();
 
     if (
       stream.peek() instanceof IdentToken identToken
@@ -159,10 +159,14 @@ public class BackgroundPositionParser implements PropertyValueParser {
     }
     
     CSSValue sizeResult = sizeParser.parse(stream);
-    if (!sizeResult.isFailure()) return sizeResult;
+    if (sizeResult.isFailure()) {
+      stream.restoreMark(mark);
+      return null;
+    }
 
-    stream.seek(position);
-    return null;
+    stream.discardMark();
+    return sizeResult;
+    
   }
   
 }

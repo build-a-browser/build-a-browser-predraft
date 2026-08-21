@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.flex;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.MutablePropertyContainer;
@@ -20,7 +20,7 @@ public class FlexParser implements PropertyValueParser {
   private final FlexBasisParser flexBasisParser = new FlexBasisParser();
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     if (
       stream.peek() instanceof IdentToken identToken
       && identToken.value().equals("none")
@@ -61,7 +61,7 @@ public class FlexParser implements PropertyValueParser {
     propertySetter.setProperty(CSSProperty.FLEX_BASIS, flexValue.flexBasis());
   }
 
-  private CSSValue parseGrowShrink(SeekableCSSTokenStream stream) throws IOException {
+  private CSSValue parseGrowShrink(CSSTokenStream stream) throws IOException {
     CSSValue flexGrowValue = flexGrowParser.parse(stream);
     if (flexGrowValue.isFailure()) return flexGrowValue;
 

@@ -2,7 +2,7 @@ package net.buildabrowser.babbrowser.cssbase.property.flex;
 
 import java.io.IOException;
 
-import net.buildabrowser.babbrowser.cssbase.parser.SeekableCSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
@@ -14,7 +14,7 @@ public class FlexBasisParser implements PropertyValueParser {
   private final SizeParser sizeParser = SizeParser.forNormal(null);
 
   @Override
-  public CSSValue parse(SeekableCSSTokenStream stream) throws IOException {
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
     if (
       stream.peek() instanceof IdentToken identToken
       && identToken.value().equals("content")
