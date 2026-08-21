@@ -62,9 +62,13 @@ public class InBodyInsertionMode implements InsertionMode {
 
   @Override
   public boolean emitEOFToken(ParseContext parseContext) {
-    // TODO: Follow spec
-    parseContext.stopParsing();
-    return false;
+    if (!parseContext.templateInsertionModes().isEmpty()) {
+      return InsertionModes.IN_TEMPLATE_INSERTION_MODE.emitEOFToken(parseContext);
+    } else {
+      // TODO: Report parse error
+      parseContext.stopParsing();
+      return false;
+    }
   }
 
   @Override
@@ -203,6 +207,8 @@ public class InBodyInsertionMode implements InsertionMode {
   private boolean emitEndTagToken(ParseContext parseContext, TagToken tagToken) {
     OpenElementStack stack = parseContext.openElementStack();
     switch (tagToken.name()) {
+      case "template":
+        return InsertionModes.IN_HEAD_INSERTION_MODE.emitTagToken(parseContext, tagToken);
       case "body":
         // TODO: Other stuff
         parseContext.setInsertionMode(InsertionModes.AFTER_BODY_INSERTION_MODE);

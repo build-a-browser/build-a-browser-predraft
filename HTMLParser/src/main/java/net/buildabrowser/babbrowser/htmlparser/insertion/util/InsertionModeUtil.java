@@ -44,7 +44,9 @@ public final class InsertionModeUtil {
         case "table":
           parseContext.setInsertionMode(InsertionModes.IN_TABLE_INSERTION_MODE);
           return;
-        // TODO: Template
+        case "template":
+          parseContext.setInsertionMode(parseContext.templateInsertionModes().current());
+          return;
         case "head":
           if (!last) {
             parseContext.setInsertionMode(InsertionModes.IN_HEAD_INSERTION_MODE);

@@ -14,6 +14,7 @@ import net.buildabrowser.babbrowser.htmlparser.insertion.modes.InRowInsertionMod
 import net.buildabrowser.babbrowser.htmlparser.insertion.modes.InTableBodyInsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.modes.InTableInsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.modes.InTableTextInsertionMode;
+import net.buildabrowser.babbrowser.htmlparser.insertion.modes.InTemplateInsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.modes.InitialInsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.modes.TextInsertionMode;
 
@@ -35,7 +36,7 @@ public final class InsertionModes {
   public static final InsertionMode IN_TABLE_BODY_INSERTION_MODE = new InTableBodyInsertionMode();
   public static final InsertionMode IN_ROW_INSERTION_MODE = new InRowInsertionMode();
   public static final InsertionMode IN_CELL_INSERTION_MODE = new InCellInsertionMode();
-
+  public static final InsertionMode IN_TEMPLATE_INSERTION_MODE = new InTemplateInsertionMode();
   public static final InsertionMode AFTER_BODY_INSERTION_MODE = new AfterBodyInsertionMode();
   public static final InsertionMode AFTER_AFTER_BODY_INSERTION_MODE = new AfterAfterBodyInsertionMode();
 

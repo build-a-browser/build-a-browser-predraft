@@ -14,6 +14,9 @@ public final class ParseAdjustUtil {
   
   private static final Set<String> IMPLIED_END_TAGS = Set.of(
     "dd", "dt", "li", "optgroup", "option", "p", "rb", "rp", "rt", "rtc");
+  private static final Set<String> IMPLIED_END_TAGS_THOROUGH = Set.of(
+    "caption", "colgroup", "tbody", "td", "tfoot", "th", "thead", "tr",
+    "dd", "dt", "li", "optgroup", "option", "p", "rb", "rp", "rt", "rtc");
 
   // TODO: Use qualified names, support MATHML and SVG namespace
   private static final Set<String> DEFAULT_SCOPE = Set.of(
@@ -30,6 +33,17 @@ public final class ParseAdjustUtil {
     while (
       stack.peek() instanceof Element element
       && IMPLIED_END_TAGS.contains(element.name())
+    ) {
+      stack.popNode();
+    }
+  }
+
+  public static void generateAllImpliedEndTagsThoroughly(
+    OpenElementStack stack
+  ) {
+    while (
+      stack.peek() instanceof Element element
+      && IMPLIED_END_TAGS_THOROUGH.contains(element.name())
     ) {
       stack.popNode();
     }

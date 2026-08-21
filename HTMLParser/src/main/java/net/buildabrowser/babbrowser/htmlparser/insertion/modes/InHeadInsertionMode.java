@@ -1,13 +1,18 @@
 package net.buildabrowser.babbrowser.htmlparser.insertion.modes;
 
+import static net.buildabrowser.babbrowser.html.util.HTMLDomUtil.isHtmlElement;
+
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionMode;
 import net.buildabrowser.babbrowser.htmlparser.insertion.InsertionModes;
+import net.buildabrowser.babbrowser.htmlparser.insertion.OpenElementStack;
+import net.buildabrowser.babbrowser.htmlparser.insertion.util.InsertionModeUtil;
+import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseAdjustUtil;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseCommentUtil;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseElementUtil;
-import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseTextUtil;
 import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseElementUtil.AdjustedInsertionLocation;
+import net.buildabrowser.babbrowser.htmlparser.insertion.util.ParseTextUtil;
 import net.buildabrowser.babbrowser.htmlparser.shared.ParseContext;
 import net.buildabrowser.babbrowser.htmlparser.token.CommentToken;
 import net.buildabrowser.babbrowser.htmlparser.token.DoctypeToken;
@@ -80,7 +85,7 @@ public class InHeadInsertionMode implements InsertionMode {
       case "noframes", "style":
         ParseElementUtil.startGenericRawTextElementParsingAlgorithm(parseContext, tagToken);
         return false;
-      case "script":
+      case "script": {
         AdjustedInsertionLocation adjustedInsertionLocation =
           ParseElementUtil.appropriatePlaceForInsertingANode(parseContext, null);
         Node newEl = ParseElementUtil.createAnElementForAToken(
@@ -92,6 +97,21 @@ public class InHeadInsertionMode implements InsertionMode {
         parseContext.setOriginalInsertionMode(parseContext.currentInsertionMode());
         parseContext.setInsertionMode(InsertionModes.TEXT_INSERTION_MODE);
         return false;
+      }
+      case "template": {
+        TagToken templateStartTag = tagToken;
+        // TODO: Insert a marker
+        parseContext.setFramesetOk(false);
+        parseContext.setInsertionMode(InsertionModes.IN_TEMPLATE_INSERTION_MODE);
+        parseContext.templateInsertionModes().push(InsertionModes.IN_TEMPLATE_INSERTION_MODE);
+        /*Node intendedParent = ParseElementUtil
+          .appropriatePlaceForInsertingANode(parseContext, null)
+          .parentNode();
+        Document document = intendedParent.nodeDocument();*/
+        // TODO: Handle other cases
+        ParseElementUtil.insertAnHTMLElement(parseContext, templateStartTag);
+        return false;
+      }
       case "head":
         parseContext.parseError();
         return false;
@@ -109,7 +129,18 @@ public class InHeadInsertionMode implements InsertionMode {
         return false;
       case "body", "html", "br":
         return handleAnythingElse(parseContext);
-      // TODO: Handle template
+      case "template":
+        OpenElementStack openElementStack = parseContext.openElementStack();
+        ParseAdjustUtil.generateAllImpliedEndTagsThoroughly(openElementStack);
+        if (!isHtmlElement(openElementStack.peek(), "template")) {
+          parseContext.parseError();
+        }
+        // TODO: Handle insertion target
+        ParseAdjustUtil.popUntil(openElementStack, "template");
+        // TODO: Clear the list of active formatting elements
+        parseContext.templateInsertionModes().pop();
+        InsertionModeUtil.resetInsertionModeAppropriately(parseContext);
+        return false;
       default:
         parseContext.parseError();
         return false;
