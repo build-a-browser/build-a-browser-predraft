@@ -86,7 +86,7 @@ public interface CalcValue extends CSSValue {
     public String serialize() {
       return CSSSerializerUtil.formatFunction(
         CSSSerializerUtil.serializeEnum(type),
-        args.toArray(CSSValue[]::new));
+        args.toArray(new CSSValue[0]));
     }
     
   }

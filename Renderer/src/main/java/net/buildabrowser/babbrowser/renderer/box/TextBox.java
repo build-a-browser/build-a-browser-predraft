@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.renderer.box;
 import net.buildabrowser.babbrowser.dom.Text;
 import net.buildabrowser.babbrowser.renderer.box.imp.TextBoxImp;
 
-public interface TextBox extends Box {
+public non-sealed interface TextBox extends Box {
   
   Text textNode();
 

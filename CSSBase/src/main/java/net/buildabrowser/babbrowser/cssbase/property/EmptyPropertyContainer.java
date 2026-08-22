@@ -19,6 +19,11 @@ public class EmptyPropertyContainer implements PropertyContainer {
   }
 
   @Override
+  public boolean wasSet(CSSProperty property) {
+    return false;
+  }
+
+  @Override
   public CSSValue get(CSSProperty property) {
     return property.inherited() ?
       parentContainer.get(property) :

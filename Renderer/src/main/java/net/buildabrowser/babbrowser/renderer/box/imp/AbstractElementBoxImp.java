@@ -1,11 +1,16 @@
 package net.buildabrowser.babbrowser.renderer.box.imp;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
+import net.buildabrowser.babbrowser.debugger.core.DebugBox;
+import net.buildabrowser.babbrowser.debugger.core.DebugSnapshot;
+import net.buildabrowser.babbrowser.debugger.core.DebugSnapshotBuilder;
+import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
@@ -20,6 +25,7 @@ import net.buildabrowser.babbrowser.renderer.content.flow.FlowUtil;
 import net.buildabrowser.babbrowser.renderer.content.table.TableContent;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.imp.html.HTMLNodeDebugObject;
 import net.buildabrowser.babbrowser.renderer.layout.CachedLayoutResult;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
@@ -300,6 +306,32 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
     ) {
       elementBox.context().invalidate(InvalidationLevel.LAYOUT);
     }
+  }
+
+  // Debugger stuff
+
+  @Override
+  public HTMLElement relatedNode() {
+    return element();
+  }
+
+  @Override
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public List<DebugBox> childDebugBoxes() {
+    return (List<DebugBox>) (List) IntrusiveList.toList(childBoxes);
+  }
+
+  @Override
+  public DebugSnapshot snapshotDebugInfo() {
+    DebugSnapshotBuilder snapshotBuilder = DebugSnapshot.builder();
+    HTMLNodeDebugObject.captureDebugInfo(
+      snapshotBuilder, context(), this);
+    return snapshotBuilder.build();
+  }
+
+  @Override
+  public DebugBoxType debugBoxType() {
+    return DebugBoxType.ELEMENT;
   }
 
 }

@@ -111,7 +111,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       document.getSelection(),
       // TODO: Not so great to leech off of the CSS module
       cssMatcher.allElements().createChild());
-    this.debugContext = new HTMLDebugContext(document);
+    this.debugContext = new HTMLDebugContext(
+      document, documentBox, renderContexts);
     documentBox.setChild(fakeRootContext.box());
 
     FetchEngine fetchEngine = navigable.uaNavigableOptions().fetchEngine();

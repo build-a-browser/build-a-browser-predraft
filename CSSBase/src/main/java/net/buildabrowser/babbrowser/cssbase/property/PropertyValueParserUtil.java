@@ -128,7 +128,7 @@ public final class PropertyValueParserUtil {
       StringBuilder serialBuilder = new StringBuilder();
       for (CSSValue value: values) {
         if (value == null) continue;
-        if (!serialBuilder.isEmpty()) {
+        if (serialBuilder.length() != 0) {
           serialBuilder.append(' ');
         }
         serialBuilder.append(value.serialize());

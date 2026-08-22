@@ -1,8 +1,12 @@
 package net.buildabrowser.babbrowser.debugger.swing.gui;
 
+import java.util.function.Consumer;
+
 import javax.swing.JTree;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -13,7 +17,8 @@ public final class JLazyDiffTree {
   private JLazyDiffTree() {}
 
   public static <T> JTree createJLazyDiffTree(
-    LazyDiffTree<T> innerTree
+    LazyDiffTree<T> innerTree,
+    Consumer<T> onItemSelection
   ) {
     DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(innerTree.name());
     JTree tree = new JTree(rootNode);
@@ -34,6 +39,18 @@ public final class JLazyDiffTree {
         DefaultMutableTreeNode sourceNode = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
         JLazyDiffTreeListener<?> listener = (JLazyDiffTreeListener<?>) sourceNode.getUserObject();
         listener.innerTree().close(true);
+      }
+      
+    });
+
+    tree.addTreeSelectionListener(new TreeSelectionListener() {
+
+      @Override
+      @SuppressWarnings("unchecked")
+      public void valueChanged(TreeSelectionEvent event) {
+        DefaultMutableTreeNode sourceNode = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
+        JLazyDiffTreeListener<?> listener = (JLazyDiffTreeListener<?>) sourceNode.getUserObject();
+        onItemSelection.accept((T) listener.innerTree().object());
       }
       
     });

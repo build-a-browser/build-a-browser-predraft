@@ -12,7 +12,8 @@ public record LengthValue(Number value, boolean integer, LengthType dimension) i
 
   @Override
   public String serialize() {
-    return CSSSerializerUtil.serialize(value) + dimension.name().toLowerCase();
+    String unit = dimension == null ? "" : dimension.name().toLowerCase();
+    return CSSSerializerUtil.serialize(value) + unit;
   }
 
   public static LengthValue create(Number value, boolean integer, LengthType dimension) {

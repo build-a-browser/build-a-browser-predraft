@@ -74,6 +74,8 @@ public class ActiveStylesImp extends SparsePropertyHolder implements ActiveStyle
       for (CSSProperty expansion: property.getExpansions()) {
         useInitialProperty(expansion);
       }
+    } else if (!property.inherited()) {
+      removeEntry(property.id());
     } else {
       setProperty(property, property.initial());
     }

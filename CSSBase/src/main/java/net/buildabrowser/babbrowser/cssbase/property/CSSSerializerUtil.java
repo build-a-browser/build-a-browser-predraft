@@ -25,7 +25,7 @@ public final class CSSSerializerUtil {
     StringBuilder serialBuilder = new StringBuilder();
     for (CSSValue item: items) {
       if (item == null) continue;
-      if (!serialBuilder.isEmpty()) {
+      if (serialBuilder.length() != 0) {
         serialBuilder.append(' ');
       }
       serialBuilder.append(item.serialize());
@@ -35,14 +35,14 @@ public final class CSSSerializerUtil {
   }
 
   public static String serializeManySpaces(List<CSSValue> items) {
-    return serializeManySpaces(items.toArray(CSSValue[]::new));
+    return serializeManySpaces(items.toArray(new CSSValue[0]));
   }
 
   public static String serializeManyCommas(CSSValue... items) {
     StringBuilder serialBuilder = new StringBuilder();
     for (CSSValue item: items) {
       if (item == null) continue;
-      if (!serialBuilder.isEmpty()) {
+      if (serialBuilder.length() != 0) {
         serialBuilder.append(' ');
       }
       serialBuilder.append(item.serialize());
@@ -57,8 +57,7 @@ public final class CSSSerializerUtil {
   }
 
   public static String serializeString(String value) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'serializeString'");
+    return '"' + value + '"';
   }
 
   public static String serializeMaybeEqual(CSSValue a, CSSValue b) {

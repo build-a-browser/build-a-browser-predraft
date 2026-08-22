@@ -15,7 +15,7 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.stacking.StackingContext;
 
-public interface ElementBox extends Box {
+public non-sealed interface ElementBox extends Box {
 
   PropertyContainer properties();
   

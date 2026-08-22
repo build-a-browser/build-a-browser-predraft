@@ -45,6 +45,11 @@ public class FlatPropertyContainerImp extends SparsePropertyHolderWithInherit
   }
 
   @Override
+  public boolean wasSet(CSSProperty property) {
+    return getHasOwnValue(property.id()) || getInheritValue(property.id());
+  }
+
+  @Override
   public CSSValue get(CSSProperty property) {
     if (property.hasExpansion()) {
       throw new UnsupportedOperationException("Cannot get expanded property!");

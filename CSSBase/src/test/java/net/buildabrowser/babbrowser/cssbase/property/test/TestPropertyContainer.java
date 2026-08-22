@@ -46,6 +46,11 @@ public class TestPropertyContainer implements PropertyContainer, MutableProperty
   }
 
   @Override
+  public boolean wasSet(CSSProperty property) {
+    return false;
+  }
+
+  @Override
   public CSSValue getCustom(String property) {
     if (!customValueMap.containsKey(property)) {
       return CSSFailure.UNSET_CUSTOM_PROPERTY;

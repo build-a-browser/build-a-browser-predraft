@@ -2,23 +2,18 @@ package net.buildabrowser.babbrowser.debugger.core;
 
 import java.util.List;
 
-import org.w3c.dom.Node;
+import net.buildabrowser.babbrowser.dom.Node;
 
-import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
-import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
-
-public interface DebugBox {
+public interface DebugBox extends DebugObject {
 
   Node relatedNode();
 
-  PropertyContainer computedStyles();
+  List<DebugBox> childDebugBoxes();
 
-  List<WeightedStyleRule> styleRules();
-  
-  DebugSideDimensions margin();
+  DebugBoxType debugBoxType();
 
-  DebugSideDimensions padding();
-
-  DebugSideDimensions border();
+  static enum DebugBoxType {
+    DOCUMENT, ELEMENT, TEXT, UNKNOWN;
+  }
 
 }

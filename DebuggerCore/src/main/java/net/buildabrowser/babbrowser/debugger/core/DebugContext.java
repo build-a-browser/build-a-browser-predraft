@@ -5,6 +5,10 @@ import net.buildabrowser.babbrowser.dom.Node;
 public interface DebugContext {
 
   Node rootNode();
+
+  DebugObject debugObjectForNode(Node node);
+
+  DebugBox rootBox();
   
   DebugLayer rootLayer();
 

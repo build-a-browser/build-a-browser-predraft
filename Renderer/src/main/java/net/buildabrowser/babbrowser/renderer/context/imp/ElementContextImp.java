@@ -94,6 +94,12 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
     }
   }
 
+  @Override
+  public List<WeightedStyleRule> matchedRules() {
+    styleRules.sort(WeightedStyleRule::compare);
+    return styleRules;
+  }
+
   // TODO: Use a qualified name instead
   @Override
   public void onAttributeValueChanged(String attrName, String oldValue, String newValue) {

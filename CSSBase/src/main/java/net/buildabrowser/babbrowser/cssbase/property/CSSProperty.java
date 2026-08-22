@@ -217,6 +217,10 @@ public enum CSSProperty {
     return this.id;
   }
 
+  public String serialize() {
+    return CSSSerializerUtil.serializeEnum(this);
+  }
+
   public boolean inherited() {
     return this.inherited;
   }
