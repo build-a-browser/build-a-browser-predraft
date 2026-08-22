@@ -9,6 +9,11 @@ public record UniversalSelector() implements SimpleSelector {
   public static final ComplexSelector AS_COMPLEX_SELECTOR =
     ComplexSelector.create(List.of(INSTANCE));
 
+  @Override
+  public String serialize() {
+    return "*";
+  }
+
   public static UniversalSelector create() {
     return INSTANCE;
   }

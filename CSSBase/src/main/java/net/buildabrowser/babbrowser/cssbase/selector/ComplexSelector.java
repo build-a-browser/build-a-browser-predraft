@@ -19,6 +19,15 @@ public class ComplexSelector implements Slottable {
     return parts;
   }
 
+  public String serialize() {
+    StringBuilder stringBuilder = new StringBuilder();
+    for (SelectorPart part: parts) {
+      stringBuilder.append(part.serialize());
+    }
+
+    return stringBuilder.toString();
+  }
+
   @Override
   public String toString() {
     return new StringBuilder("ComplexSelector[parts=")

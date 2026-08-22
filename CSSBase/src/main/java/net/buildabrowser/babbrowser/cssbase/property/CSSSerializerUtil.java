@@ -2,7 +2,9 @@ package net.buildabrowser.babbrowser.cssbase.property;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 
+import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
 public final class CSSSerializerUtil {
@@ -43,7 +45,7 @@ public final class CSSSerializerUtil {
     for (CSSValue item: items) {
       if (item == null) continue;
       if (serialBuilder.length() != 0) {
-        serialBuilder.append(' ');
+        serialBuilder.append(", ");
       }
       serialBuilder.append(item.serialize());
     }
@@ -76,6 +78,19 @@ public final class CSSSerializerUtil {
   // TODO: Implement token list serialization
   public static String serializeTokenList(List<Token> value) {
     return "/*<UNIMPLEMENTED>*/";
+  }
+
+  public static String serializeSelectorList(List<ComplexSelector> selectors) {
+    if (selectors.isEmpty()) {
+      return "<anon>";
+    }
+
+    StringJoiner listBuilder = new StringJoiner(", ");
+    for (ComplexSelector selector: selectors) {
+      listBuilder.add(selector.serialize());
+    }
+
+    return listBuilder.toString();
   }
 
 }

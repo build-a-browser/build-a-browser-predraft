@@ -5,6 +5,11 @@ import net.buildabrowser.babbrowser.infra.Namespace;
 
 // TODO: Qualified name
 public record TypeSelector(QualifiedName tagName) implements SimpleSelector {
+
+  @Override
+  public String serialize() {
+    return tagName.serialize();
+  }
   
   public static TypeSelector create(String tagName) {
     return new TypeSelector(QualifiedName.create(Namespace.HTML_NAMESPACE, tagName));
@@ -13,5 +18,5 @@ public record TypeSelector(QualifiedName tagName) implements SimpleSelector {
   public static TypeSelector create(QualifiedName tagName) {
     return new TypeSelector(tagName);
   }
-
+  
 }

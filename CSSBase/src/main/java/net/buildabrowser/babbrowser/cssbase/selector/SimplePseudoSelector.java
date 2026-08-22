@@ -1,8 +1,15 @@
 package net.buildabrowser.babbrowser.cssbase.selector;
 
+import net.buildabrowser.babbrowser.cssbase.property.CSSSerializerUtil;
+
 public enum SimplePseudoSelector implements SelectorPart {
   
   ROOT, HOVER, LINK, FOCUS, FOCUS_VISIBLE, FOCUS_WITHIN;
+
+  @Override
+  public String serialize() {
+    return ':' + CSSSerializerUtil.serializeEnum(this);
+  }
 
   public static SimplePseudoSelector lookupType(String name) {
     return switch (name) {

@@ -8,4 +8,9 @@ public record SubsequentSiblingCombinator() implements Combinator {
     return INSTANCE;
   }
 
+  @Override
+  public String serialize() {
+    return " ~ ";
+  }
+
 }

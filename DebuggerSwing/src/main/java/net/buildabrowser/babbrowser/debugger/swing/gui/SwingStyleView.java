@@ -18,6 +18,7 @@ import javax.swing.UIManager;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSSerializerUtil;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.debugger.core.DebugSnapshot;
 
@@ -86,7 +87,7 @@ public class SwingStyleView extends JScrollPane {
   }
 
   private void addOrUpdateStyleRuleSection(WeightedStyleRule weightedRule, Set<String> activeRuleKeys) {
-    String selectorTitle = String.valueOf(weightedRule.rule().complexSelectors());
+    String selectorTitle = CSSSerializerUtil.serializeSelectorList(weightedRule.rule().complexSelectors());
     String ruleKey = "rule_" + weightedRule.hashCode() + "_" + selectorTitle;
     activeRuleKeys.add(ruleKey);
 
