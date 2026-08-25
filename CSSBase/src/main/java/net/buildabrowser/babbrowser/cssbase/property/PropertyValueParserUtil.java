@@ -103,15 +103,15 @@ public final class PropertyValueParserUtil {
     List<CSSValue> relatedValues = new ArrayList<>();
     relatedValues.add(firstValue);
 
-    while (true) {
-      int posMark = stream.position();
-      CSSValue nextValue = parser.parse(stream);
-      if (nextValue.isFailure()) {
-        stream.seek(posMark);
-        return ManyResult.createSpaces(relatedValues);
-      }
-      relatedValues.add(nextValue);
-    }
+    return repeatParse(stream, parser, relatedValues);
+  }
+
+  public static CSSValue parseZeroOrMore(
+    SeekableCSSTokenStream stream, PropertyValueParser parser
+  ) throws IOException {
+    // Assumes whitespace already removed
+    List<CSSValue> relatedValues = new ArrayList<>();
+    return repeatParse(stream, parser, relatedValues);
   }
 
   public static CSSValue parseMaybe(
@@ -171,6 +171,22 @@ public final class PropertyValueParserUtil {
       return joiner.toString();
     }
 
+  }
+
+  private static CSSValue repeatParse(
+    SeekableCSSTokenStream stream,
+    PropertyValueParser parser,
+    List<CSSValue> relatedValues
+  ) throws IOException {
+    while (true) {
+      int posMark = stream.position();
+      CSSValue nextValue = parser.parse(stream);
+      if (nextValue.isFailure()) {
+        stream.seek(posMark);
+        return ManyResult.createSpaces(relatedValues);
+      }
+      relatedValues.add(nextValue);
+    }
   }
 
 }

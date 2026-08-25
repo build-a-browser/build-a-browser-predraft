@@ -81,8 +81,8 @@ public final class GridItemContributions {
   ) {
     float inlineSize = 0;
     for (
-      int i = item.rowLineStart();
-      i < item.rowLineEnd();
+      int i = item.colLineStart();
+      i < item.colLineEnd();
       i++
     ) {
       LayoutConstraint size = grid.track(i, GridDirection.COLUMN).baseSize();

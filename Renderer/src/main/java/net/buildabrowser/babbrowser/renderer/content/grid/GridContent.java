@@ -48,7 +48,7 @@ public class GridContent implements BoxContent {
       grid, items, widthConstraint, GridDirection.COLUMN);
     GridTrackSizingAlgorithm.sizeGridTracks(
       grid, items, heightConstraint, GridDirection.ROW);
-    // TODO: Need to handle "sizing of item depends on available space
+    // TODO: Need to handle "sizing of item depends on available space"
     // TODO: min-content stuff
     // TODO: Align content
     
@@ -61,8 +61,8 @@ public class GridContent implements BoxContent {
     float usedInline = LayoutUtil.constraintOrDim(widthConstraint, resolvedInline);
     float usedBlock = LayoutUtil.constraintOrDim(heightConstraint, resolvedBlock);
 
-    float totalInline = usedInline;
-    float totalBlock = usedBlock;
+    float totalInline = resolvedInline;
+    float totalBlock = resolvedBlock;
     for (GridItem item: items) {
       if (!PositionUtil.affectsLayout(item.box())) continue;
       layoutAndPositionItem(grid, item);

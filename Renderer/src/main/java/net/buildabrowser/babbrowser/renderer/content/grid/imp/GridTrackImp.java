@@ -21,6 +21,7 @@ public class GridTrackImp implements GridTrack {
   private LayoutConstraint growthLimit;
 
   private boolean frozen;
+  private boolean isInfinitelyGrowable;
   private float itemIncrease;
   private float plannedIncrease;
 
@@ -58,8 +59,7 @@ public class GridTrackImp implements GridTrack {
     }
 
     if (
-      newMaxTrackSizingValue.equals(CSSValue.AUTO)
-      || newMaxTrackSizingValue instanceof SizeValue.FitContent
+      newMaxTrackSizingValue instanceof SizeValue.FitContent
     ) {
       newMaxTrackSizingValue = SizeValue.MAX_CONTENT;
     }
@@ -121,7 +121,19 @@ public class GridTrackImp implements GridTrack {
 
   @Override
   public float plannedIncrease() {
-    return this.plannedIncrease;
+    float increase = this.plannedIncrease;
+    this.plannedIncrease = 0;
+    return increase;
+  }
+
+  @Override
+  public boolean isInfinitelyGrowable() {
+    return this.isInfinitelyGrowable;
+  }
+
+  @Override
+  public void setInfinitelyGrowable(boolean isInfinitelyGrowable) {
+    this.isInfinitelyGrowable = isInfinitelyGrowable;
   }
 
   @Override

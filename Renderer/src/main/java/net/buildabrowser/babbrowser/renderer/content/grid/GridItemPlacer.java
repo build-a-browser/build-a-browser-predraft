@@ -19,7 +19,6 @@ public final class GridItemPlacer {
   
   private GridItemPlacer() {}
 
-  // List must be mutable
   public static void placeGridElements(
     Grid grid,
     List<GridItem> gridItems
@@ -123,8 +122,9 @@ public final class GridItemPlacer {
     boolean isDense
   ) {
     GridDirection rotateDirection = autoFlowDirection.rotate();
-    int scanPosition = 1;
     ListIterator<GridItem> queueIt = gridItemQueue.listIterator();
+    int[] minPos = new int[grid.implicitSpan().size(autoFlowDirection)];
+    int minPosOffset = -grid.implicitSpan().trackStart(rotateDirection);
     while (queueIt.hasNext()) {
       GridItem item = queueIt.next();
       Integer defTrackStart = item.lineStart(autoFlowDirection);
@@ -135,10 +135,13 @@ public final class GridItemPlacer {
       ) continue;
       queueIt.remove();
 
-      // TODO: If many items are not auto, dense packing will scale exponentially
-      if (isDense) {
-        scanPosition = 1;
+      int scanPosition = 1;
+      if (!isDense) {
+        for (int i = defTrackStart; i < defTrackEnd; i++) {
+          scanPosition = Math.max(scanPosition, minPos[i + minPosOffset]);
+        }
       }
+      // TODO: If many items are not auto, dense packing will scale exponentially
 
       int gridLineEnd = grid.implicitSpan().lineEnd(rotateDirection);
       while (
@@ -162,7 +165,11 @@ public final class GridItemPlacer {
         item.colLineStart(), item.colLineEnd(),
         item.rowLineStart(), item.rowLineEnd());
       
-      scanPosition = dirEnd;
+      if (!isDense) {
+        for (int i = defTrackStart; i < defTrackEnd; i++) {
+          minPos[i + minPosOffset] = Math.max(minPos[i + minPosOffset], dirEnd);
+        }
+      }
     }
   }
 

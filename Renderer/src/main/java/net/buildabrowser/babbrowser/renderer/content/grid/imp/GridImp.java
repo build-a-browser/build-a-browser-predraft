@@ -82,15 +82,15 @@ public class GridImp implements Grid {
   public void resizeImplicit(GridSpan span) {
     if (span.equals(implicitSpan)) return;
 
-    int colDiff = this.implicitSpan.colLineEnd() - span.colLineStart();
+    int colDiff = this.implicitSpan.colLineStart() - span.colLineStart();
     this.columns = resizeImplicit(
       new GridTrack[span.width()], this.columns, colDiff,
       GridTrack::createImplicit);
     this.columnLines = resizeImplicit(
       new GridLine[span.width() + 1], this.columnLines, colDiff,
       GridLine::createImplicit);
-      
-    int rowDiff = this.implicitSpan.rowLineEnd() - span.rowLineStart();
+    
+    int rowDiff = this.implicitSpan.rowLineStart() - span.rowLineStart();
     this.rows = resizeImplicit(
       new GridTrack[span.height()], this.rows, rowDiff,
       GridTrack::createImplicit);

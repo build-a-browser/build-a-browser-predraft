@@ -16,6 +16,7 @@ public interface GridTrack extends GenericJustifyContentItem, GenericTrack {
 
   CSSValue _sizeValue();
 
+  // TODO: Maybe convert to a float to avoid having to assert everywhere
   LayoutConstraint baseSize();
 
   void setBaseSize(LayoutConstraint baseSize);
@@ -37,6 +38,10 @@ public interface GridTrack extends GenericJustifyContentItem, GenericTrack {
   void finalizeItemIncurredIncrease();
 
   float plannedIncrease();
+
+  boolean isInfinitelyGrowable();
+
+  void setInfinitelyGrowable(boolean isInfinitelyGrowable);
 
   //
 

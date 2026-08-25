@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.cssbase.property.calc.CalcEvaluation.CalcEva
 import net.buildabrowser.babbrowser.cssbase.property.calc.CalcInterpreter;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.PercentageValue;
+import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 import net.buildabrowser.babbrowser.renderer.layout.Viewport;
@@ -74,6 +75,11 @@ public final class SizingUtil {
     LayoutContext layoutContext,
     LengthValue lengthValue
   ) {
+
+    if (LengthType.FR.equals(lengthValue.dimension())) {
+      return LayoutConstraint.AUTO;
+    }
+
     Viewport viewport = layoutContext.global().viewport();
     double baseValue = lengthValue.value().doubleValue();
     double sizeResult = baseValue == 0 ? 0 : baseValue * switch (lengthValue.dimension()) {

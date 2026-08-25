@@ -57,6 +57,7 @@ public class GridTrackListParser implements PropertyValueParser {
     if (!result.isFailure()) return result;
 
     stream.seek(position);
+    
     return parseTrackList(stream, true);
   }
 
@@ -115,7 +116,7 @@ public class GridTrackListParser implements PropertyValueParser {
     SeekableCSSTokenStream stream,
     boolean allowRepeat
   ) throws IOException {
-    CSSValue value = PropertyValueParserUtil.parseOneOrMore(
+    CSSValue value = PropertyValueParserUtil.parseZeroOrMore(
       stream, s -> this.parseAutoTrackValue(s, allowRepeat));
     if (value.isFailure()) return value;
     // Relies on parseOneOrMore using a mutable list

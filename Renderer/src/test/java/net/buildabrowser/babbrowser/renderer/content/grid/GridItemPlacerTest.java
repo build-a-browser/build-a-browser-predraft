@@ -120,10 +120,10 @@ public class GridItemPlacerTest {
   @DisplayName("Can place sparse grid with items with only one determinate track position")
   public void canSparsePlaceGridWithItemsWithOnlyOneDeterminateTrackPosition() {
     // x . x .
-    // . x . .
+    // a x . .
     // x a a a
     // . a a a
-    // a . . .
+    // . a . .
     ElementBox dummyItemBox1 = dummyItemBox(1, 1, 1, 1);
     ElementBox dummyItemBox2 = dummyItemBox(3, 3, 1, 1);
     ElementBox dummyItemBox3 = dummyItemBox(2, 2, 2, 2);
@@ -145,6 +145,13 @@ public class GridItemPlacerTest {
       GridLineValue.create(false, false, 1, null));
     ElementBox gridItemBox2 = flowBlockBox(gridItemBoxStyles2, List.of());
 
+    ActiveStyles gridItemBoxStyles3 = ActiveStyles.create();
+    gridItemBoxStyles3.setProperty(CSSProperty.GRID_COLUMN_START,
+      GridLineValue.create(false, false, 2, null));
+    gridItemBoxStyles3.setProperty(CSSProperty.GRID_COLUMN_END,
+      GridLineValue.create(false, false, 2, null));
+    ElementBox gridItemBox3 = flowBlockBox(gridItemBoxStyles3, List.of());
+
     ActiveStyles gridBoxStyles = ActiveStyles.create();
     gridBoxStyles.setProperty(CSSProperty.GRID_AUTO_FLOW,
       GridAutoFlowValue.create(GridAutoFlowDirection.COLUMN, false));
@@ -156,6 +163,7 @@ public class GridItemPlacerTest {
     items.add(GridItem.create(dummyItemBox4));
     items.add(GridItem.create(gridItemBox1));
     items.add(GridItem.create(gridItemBox2));
+    items.add(GridItem.create(gridItemBox3));
 
 
     Grid grid = Grid.create(gridBox);
@@ -171,7 +179,8 @@ public class GridItemPlacerTest {
     expectedGrid.setElementBox(2, 2, 0, dummyItemBox3);
     expectedGrid.setElementBox(1, 3, 0, dummyItemBox4);
     expectSpan(expectedGrid, gridItemBox1, 2, 4, 3, 4);
-    expectedGrid.setElementBox(1, 5, 0, gridItemBox2);
+    expectedGrid.setElementBox(1, 2, 0, gridItemBox2);
+    expectedGrid.setElementBox(2, 5, 0, gridItemBox3);
     
     expectedGrid.compare(grid);
   }
