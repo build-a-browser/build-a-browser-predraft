@@ -22,6 +22,7 @@ import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUti
 import net.buildabrowser.babbrowser.renderer.content.flexbox.FlexBoxContent;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowRootContent;
 import net.buildabrowser.babbrowser.renderer.content.flow.FlowUtil;
+import net.buildabrowser.babbrowser.renderer.content.grid.GridContent;
 import net.buildabrowser.babbrowser.renderer.content.table.TableContent;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
@@ -285,6 +286,7 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
     return switch (innerDisplay) {
       case TABLE -> TableContent.get();
       case FLEX -> FlexBoxContent.get();
+      case GRID -> GridContent.get();
       default -> FlowRootContent.get();
     };
   }

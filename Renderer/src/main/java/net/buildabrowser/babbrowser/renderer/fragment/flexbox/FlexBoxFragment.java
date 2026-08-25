@@ -5,8 +5,6 @@ import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 
 public abstract class FlexBoxFragment extends UnmanagedBoxFragment<FlexBoxFragment> {
 
-  private UnmanagedBoxFragment<?> fragments;
-
   public FlexBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,
@@ -16,12 +14,7 @@ public abstract class FlexBoxFragment extends UnmanagedBoxFragment<FlexBoxFragme
     super(
       width, height, inkWidth, inkHeight,
       firstBaseline, lastBaseline,
-      box);
-    this.fragments = fragments;
-  }
-
-  public UnmanagedBoxFragment<?> fragments() {
-    return this.fragments;
+      box, fragments);
   }
   
 }

@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.renderer.content.scroll;
 import static net.buildabrowser.babbrowser.renderer.paint.painters.scroll.ScrollBoxPainter.GUTTER_WIDTH;
 import static net.buildabrowser.babbrowser.renderer.paint.painters.scroll.ScrollBoxPainter.MIN_SCROLLBAR_HEIGHT;
 
-import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
 
@@ -14,7 +14,7 @@ public final class ScrollMath {
   public static ScrollMathResult computeHorizontalScroller(
     ScrollBoxFragment scrollBoxFragment
   ) {
-    UnmanagedBoxFragment<?> innerFragment = scrollBoxFragment.innerFragment();
+    BoxFragment<?> innerFragment = scrollBoxFragment.innerFragment();
 
     float trackHeightReduction = scrollBoxFragment.hasHorizontalScroll() && scrollBoxFragment.hasVerticalScroll() ? 16 : 0;
     float trackSize = Math.max(scrollBoxFragment.width(Measurement.PADDING) - trackHeightReduction, 0);
@@ -43,7 +43,7 @@ public final class ScrollMath {
   public static ScrollMathResult computeVerticalScroller(
     ScrollBoxFragment scrollBoxFragment
   ) {
-    UnmanagedBoxFragment<?> innerFragment = scrollBoxFragment.innerFragment();
+    BoxFragment<?> innerFragment = scrollBoxFragment.innerFragment();
 
     float trackHeightReduction = scrollBoxFragment.hasHorizontalScroll() && scrollBoxFragment.hasVerticalScroll() ? 16 : 0;
     float trackSize = Math.max(scrollBoxFragment.height(Measurement.PADDING) - trackHeightReduction, 0);

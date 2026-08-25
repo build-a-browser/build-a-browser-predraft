@@ -5,7 +5,7 @@ import net.buildabrowser.babbrowser.renderer.event.EventHandler;
 import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.EventUtil;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
-import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.flexbox.FlexBoxFragment;
 
 public class FlexBoxEventHandler implements EventHandler<FlexBoxFragment> {
@@ -15,7 +15,7 @@ public class FlexBoxEventHandler implements EventHandler<FlexBoxFragment> {
     EventContext eventContext, RendererMouseEvent mouseEvent,
     FlexBoxFragment fragment, float relX, float relY
   ) {
-    UnmanagedBoxFragment<?> nextFragment = fragment.fragments();
+    BoxFragment<?> nextFragment = fragment.innerFragment();
 
     EventHandlerResponse childHandledEvent = handleChildMouseEvent(
       eventContext, mouseEvent, fragment, nextFragment, relX, relY);
@@ -29,14 +29,14 @@ public class FlexBoxEventHandler implements EventHandler<FlexBoxFragment> {
     EventContext eventContext, 
     RendererMouseEvent mouseEvent,
     FlexBoxFragment parentFragment,
-    UnmanagedBoxFragment<?> nextFragment,
+    BoxFragment<?> nextFragment,
     float relX, float relY
   ) {
-    UnmanagedBoxFragment<?> selectedFragment = null;
+    BoxFragment<?> selectedFragment = null;
     // Relies on items not overlapping (relative is handled by stacking contexts)
     while (nextFragment != null) {
-      UnmanagedBoxFragment<?> currentFragment = nextFragment;
-      nextFragment = (UnmanagedBoxFragment<?>) nextFragment.next();
+      BoxFragment<?> currentFragment = nextFragment;
+      nextFragment = (BoxFragment<?>) nextFragment.next();
 
       if (
         currentFragment.box().stackingContext() != null // TODO: Why is this sometimes null?

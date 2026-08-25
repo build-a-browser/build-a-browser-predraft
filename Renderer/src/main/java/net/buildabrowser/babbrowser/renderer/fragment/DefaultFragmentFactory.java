@@ -86,6 +86,20 @@ public class DefaultFragmentFactory implements FragmentFactory {
   }
 
   @Override
+  public FlexBoxFragment createGridBoxFragment(
+    float width, float height,
+    float inkWidth, float inkHeight,
+    float firstBaseline, float lastBaseline,
+    ElementBox box, UnmanagedBoxFragment<?> fragments
+  ) {
+    // What is a grid if not a really complex flexbox
+    return new DefaultFlexBoxFragment(
+      width, height, inkWidth, inkHeight,
+      firstBaseline, lastBaseline,
+      box, fragments);
+  }
+
+  @Override
   public TableBoxFragment createTableBoxFragment(
     float width, float height,
     float inkWidth, float inkHeight,

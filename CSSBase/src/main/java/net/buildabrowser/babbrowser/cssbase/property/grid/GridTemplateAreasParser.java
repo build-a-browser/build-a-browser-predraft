@@ -1,0 +1,134 @@
+package net.buildabrowser.babbrowser.cssbase.property.grid;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParser;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridTemplateAreasRowValue;
+import net.buildabrowser.babbrowser.cssbase.tokenizer.imp.TokenizerUtil;
+import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.StringToken;
+
+public class GridTemplateAreasParser implements PropertyValueParser {
+
+  private static final CSSFailure INVALID_CELL = new CSSFailure(
+    "Invalid name for template area cell!");
+  private static final CSSFailure INVALID_ROW_SIZE = new CSSFailure(
+    "All rows must have size >0, and be same size!");
+  private static final CSSFailure INVALID_GRID_AREA = new CSSFailure(
+    "Grid areas must be rectangular, with no duplicates!");
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @Override
+  public CSSValue parse(CSSTokenStream stream) throws IOException {
+    if (
+      stream.peek() instanceof IdentToken identToken
+      && identToken.value().equals("none")
+    ) {
+      return CSSValue.NONE;
+    }
+
+    CSSValue value = PropertyValueParserUtil.parseOneOrMore(
+      stream, this::parseRow);
+    if (value.isFailure()) return value;
+    List<GridTemplateAreasRowValue> rowList = (List) ((ManyResult) value).values();
+    return createGridAreasFromRows(rowList);
+  }
+
+  @Override
+  public CSSProperty relatedProperty() {
+    return CSSProperty.GRID_TEMPLATE_AREAS;
+  }
+  
+  public CSSValue parseRow(CSSTokenStream stream) throws IOException {
+    if (!(
+      stream.read() instanceof StringToken stringToken
+    )) return CSSFailure.EXPECTED_STRING;
+
+    return parseRow(stringToken.value());
+  }
+
+  public CSSValue parseRow(String rowValue) {
+    List<String> cellNames = new ArrayList<>();
+    int[] index = new int[1];
+    while (index[0] < rowValue.length()) {
+      int ch = rowValue.codePointAt(index[0]);
+      if (TokenizerUtil.isIdentCodePoint(ch)) {
+        cellNames.add(consumeName(rowValue, index));
+      } else if (ch == '.') {
+        cellNames.add(null);
+        skipEmpty(rowValue, index);
+      } else if (TokenizerUtil.isWhiteSpace(ch)) {
+        skipWhitespace(rowValue, index);
+      } else {
+        return INVALID_CELL;
+      }
+    }
+
+    return GridTemplateAreasRowValue.create(cellNames);
+  }
+
+  public CSSValue createGridAreasFromRows(List<GridTemplateAreasRowValue> rowList) {
+    if (!verifyRowWidths(rowList)) {
+      return INVALID_ROW_SIZE;
+    }
+
+    List<GridArea> gridAreas = GridTemplateAreasFormer.formGridAreas(rowList);
+    if (gridAreas == null) return INVALID_GRID_AREA;
+    return GridTemplateAreasValue.create(gridAreas);
+  }
+
+  private String consumeName(String rowValue, int[] index) {
+    int startIndex = index[0];
+    plusOne(rowValue, index);
+    while (
+      index[0] < rowValue.length()
+      && TokenizerUtil.isIdentCodePoint(rowValue.codePointAt(index[0]))
+    ) plusOne(rowValue, index);
+
+    return rowValue.substring(startIndex, index[0]);
+  }
+
+  private void skipEmpty(String rowValue, int[] index) {
+    plusOne(rowValue, index);
+    while (
+      index[0] < rowValue.length()
+      && rowValue.codePointAt(index[0]) == '.'
+    ) plusOne(rowValue, index);
+  }
+
+  private void skipWhitespace(String rowValue, int[] index) {
+    plusOne(rowValue, index);
+    while (
+      index[0] < rowValue.length()
+      && TokenizerUtil.isWhiteSpace(rowValue.codePointAt(index[0]))
+    ) plusOne(rowValue, index);
+  }
+
+  private void plusOne(String rowValue, int[] index) {
+    index[0] = Character.offsetByCodePoints(
+      rowValue, index[0], 1);
+  }
+
+  private boolean verifyRowWidths(List<GridTemplateAreasRowValue> rowList) {
+    if (rowList.size() == 0) return true;
+    int rowLength = rowList.get(0).cellNames().size();
+    if (rowLength == 0) return false;
+    for (GridTemplateAreasRowValue row: rowList) {
+      if (row.cellNames().size() != rowLength) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+  
+}

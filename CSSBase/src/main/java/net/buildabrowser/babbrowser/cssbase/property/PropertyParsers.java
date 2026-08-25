@@ -3,8 +3,12 @@ package net.buildabrowser.babbrowser.cssbase.property;
 import java.util.Map;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
+import net.buildabrowser.babbrowser.cssbase.property.align.AlignContentParser;
+import net.buildabrowser.babbrowser.cssbase.property.align.AlignItemsParser;
+import net.buildabrowser.babbrowser.cssbase.property.align.AlignSelfParser;
 import net.buildabrowser.babbrowser.cssbase.property.align.GapParser;
 import net.buildabrowser.babbrowser.cssbase.property.align.GapShorthandParser;
+import net.buildabrowser.babbrowser.cssbase.property.align.JustifyContentParser;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundAttachmentParser;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundClipParser;
 import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundColorParser;
@@ -23,9 +27,6 @@ import net.buildabrowser.babbrowser.cssbase.property.color.ColorParser;
 import net.buildabrowser.babbrowser.cssbase.property.content.ContentParser;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayParser;
 import net.buildabrowser.babbrowser.cssbase.property.display.OrderParser;
-import net.buildabrowser.babbrowser.cssbase.property.flex.AlignContentParser;
-import net.buildabrowser.babbrowser.cssbase.property.flex.AlignItemsParser;
-import net.buildabrowser.babbrowser.cssbase.property.flex.AlignSelfParser;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexBasisParser;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexDirectionParser;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexFlowParser;
@@ -33,13 +34,21 @@ import net.buildabrowser.babbrowser.cssbase.property.flex.FlexGrowParser;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexParser;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexShrinkParser;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapParser;
-import net.buildabrowser.babbrowser.cssbase.property.flex.JustifyContentParser;
 import net.buildabrowser.babbrowser.cssbase.property.floats.ClearParser;
 import net.buildabrowser.babbrowser.cssbase.property.floats.FloatParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontFamilyParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontShorthandParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontSizeParser;
 import net.buildabrowser.babbrowser.cssbase.property.font.FontWeightParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridAreaParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridAutoFlowParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridAutoTracksParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridLineParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackListParser;
+import net.buildabrowser.babbrowser.cssbase.property.grid.GridLineCompositeParser;
 import net.buildabrowser.babbrowser.cssbase.property.misc.AllParser;
 import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineColorParser;
 import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineShorthandParser;
@@ -181,6 +190,24 @@ public final class PropertyParsers {
     "align-items", new AlignItemsParser(),
     "align-self", new AlignSelfParser(),
     "align-content", new AlignContentParser(),
+
+    "grid-template-rows", new GridTrackListParser(CSSProperty.GRID_TEMPLATE_ROWS),
+    "grid-template-columns", new GridTrackListParser(CSSProperty.GRID_TEMPLATE_COLUMNS),
+    "grid-template-areas", new GridTemplateAreasParser(),
+    "grid-template", new GridTemplateParser(),
+    "grid-auto-rows", new GridAutoTracksParser(CSSProperty.GRID_AUTO_ROWS),
+    "grid-auto-columns", new GridAutoTracksParser(CSSProperty.GRID_AUTO_COLUMNS),
+    "grid-auto-flow", new GridAutoFlowParser(),
+    "grid", new GridParser(),
+    "grid-row-start", new GridLineParser(CSSProperty.GRID_ROW_START),
+    "grid-column-start", new GridLineParser(CSSProperty.GRID_COLUMN_START),
+    "grid-row-end", new GridLineParser(CSSProperty.GRID_ROW_END),
+    "grid-column-end", new GridLineParser(CSSProperty.GRID_COLUMN_END),
+    "grid-row", new GridLineCompositeParser(
+      CSSProperty.GRID_ROW, CSSProperty.GRID_ROW_START, CSSProperty.GRID_ROW_END),
+    "grid-column", new GridLineCompositeParser(
+      CSSProperty.GRID_COLUMN, CSSProperty.GRID_COLUMN_START, CSSProperty.GRID_COLUMN_END),
+    "grid-area", new GridAreaParser(),
 
     "row-gap", new GapParser(CSSProperty.ROW_GAP),
     "column-gap", new GapParser(CSSProperty.COLUMN_GAP),

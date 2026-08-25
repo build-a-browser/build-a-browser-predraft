@@ -9,7 +9,6 @@ import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 
 public abstract class FlowRootBoxFragment extends UnmanagedBoxFragment<FlowRootBoxFragment> {
 
-  private final ManagedBoxFragment<?> rootFragment;
   private final List<BoxFragment<?>> floats;
 
   public FlowRootBoxFragment(
@@ -23,13 +22,12 @@ public abstract class FlowRootBoxFragment extends UnmanagedBoxFragment<FlowRootB
       // TODO: How do floats affect this?
       rootFragment.firstBaseline(Measurement.CONTENT),
       rootFragment.lastBaseline(Measurement.CONTENT),
-      rootBox);
-    this.rootFragment = rootFragment;
+      rootBox, rootFragment);
     this.floats = floats;
   }
 
   public ManagedBoxFragment<?> rootFragment() {
-    return this.rootFragment;
+    return (ManagedBoxFragment<?>) innerFragment();
   }
 
   public List<BoxFragment<?>> floats() {

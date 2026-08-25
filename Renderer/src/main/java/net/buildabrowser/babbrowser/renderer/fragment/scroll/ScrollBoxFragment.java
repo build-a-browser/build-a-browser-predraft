@@ -13,7 +13,6 @@ public abstract class ScrollBoxFragment extends UnmanagedBoxFragment<ScrollBoxFr
 
   private final boolean hasHorizontalScroll;
   private final boolean hasVerticalScroll;
-  private final UnmanagedBoxFragment<?> innerFragment;
 
   public ScrollBoxFragment(
     float width, float height,
@@ -25,10 +24,9 @@ public abstract class ScrollBoxFragment extends UnmanagedBoxFragment<ScrollBoxFr
       width, height, inkWidth, inkHeight,
       innerFragment.firstBaseline(Measurement.CONTENT),
       innerFragment.lastBaseline(Measurement.CONTENT),
-      box);
+      box, innerFragment);
     this.hasHorizontalScroll = hasHorizontalScroll;
     this.hasVerticalScroll = hasVerticalScroll;
-    this.innerFragment = innerFragment;
   }
 
   @Override
@@ -42,10 +40,6 @@ public abstract class ScrollBoxFragment extends UnmanagedBoxFragment<ScrollBoxFr
 
   public boolean hasVerticalScroll() {
     return this.hasVerticalScroll;
-  }
-
-  public UnmanagedBoxFragment<?> innerFragment() {
-    return this.innerFragment;
   }
 
   public ScrollMathResult horizontalScrollInfo() {
@@ -95,7 +89,7 @@ public abstract class ScrollBoxFragment extends UnmanagedBoxFragment<ScrollBoxFr
       + posX(Measurement.BORDER) + ", " + posY(Measurement.BORDER) + "] size=["
       + width(Measurement.CONTENT) + "x" + height(Measurement.CONTENT) + "] inkSize=["
       + inkWidth(Measurement.CONTENT) + "x" + inkHeight(Measurement.CONTENT) + "] innerFragment=["
-      + innerFragment + "]]";
+      + innerFragment() + "]]";
   }
   
 }

@@ -15,7 +15,7 @@ public class FlexBoxPainter implements BoxPainter<FlexBoxFragment> {
   @Override
   public void paint(FlexBoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection) {
     StackingContext refContext = fragment.box().stackingContext();
-    BoxFragment<?> nextChild = fragment.fragments();
+    BoxFragment<?> nextChild = fragment.innerFragment();
     while (nextChild != null) {
       PaintUtil.maybePaintBgFragment(nextChild, canvas, vpIntersection,
         (f, c, vpi) -> paintChildBg(f, c, vpi, refContext));

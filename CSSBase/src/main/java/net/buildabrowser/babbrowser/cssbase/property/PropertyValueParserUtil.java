@@ -109,16 +109,29 @@ public final class PropertyValueParserUtil {
     List<CSSValue> relatedValues = new ArrayList<>();
     relatedValues.add(firstValue);
 
-    while (true) {
-      int mark = stream.mark();
-      CSSValue nextValue = parser.parse(stream);
-      if (nextValue.isFailure()) {
-        stream.restoreMark(mark);
-        return ManyResult.createSpaces(relatedValues);
-      }
+    return repeatParse(stream, parser, relatedValues);
+  }
+
+  public static CSSValue parseZeroOrMore(
+    CSSTokenStream stream, PropertyValueParser parser
+  ) throws IOException {
+    // Assumes whitespace already removed
+    List<CSSValue> relatedValues = new ArrayList<>();
+    return repeatParse(stream, parser, relatedValues);
+  }
+
+  public static CSSValue parseMaybe(
+    CSSTokenStream stream, PropertyValueParser parser
+  ) throws IOException {
+    int mark = stream.mark();
+    CSSValue value = parser.parse(stream);
+    if (value.isFailure()) {
+      stream.restoreMark(mark);
+    } else {
       stream.discardMark();
-      relatedValues.add(nextValue);
     }
+
+    return value;
   }
 
   public static record AnyOrderResult(CSSValue[] values) implements CSSValue {
@@ -148,6 +161,10 @@ public final class PropertyValueParserUtil {
       return new ManyResult(values, true);
     }
 
+    public static ManyResult createSpaces(CSSValue... values) {
+      return new ManyResult(List.of(values), false);
+    }
+
     public static ManyResult createSpaces(List<CSSValue> values) {
       return new ManyResult(values, false);
     }
@@ -162,6 +179,23 @@ public final class PropertyValueParserUtil {
       return joiner.toString();
     }
 
+  }
+
+  private static CSSValue repeatParse(
+    CSSTokenStream stream,
+    PropertyValueParser parser,
+    List<CSSValue> relatedValues
+  ) throws IOException {
+    while (true) {
+      int mark = stream.mark();
+      CSSValue nextValue = parser.parse(stream);
+      if (nextValue.isFailure()) {
+        stream.restoreMark(mark);
+        return ManyResult.createSpaces(relatedValues);
+      }
+      stream.discardMark();
+      relatedValues.add(nextValue);
+    }
   }
 
 }
