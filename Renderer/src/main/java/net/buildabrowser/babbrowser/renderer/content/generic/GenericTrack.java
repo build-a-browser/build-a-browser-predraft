@@ -8,6 +8,6 @@ public interface GenericTrack {
 
   float crossSize();
 
-  void setCrossPos(float startPos, boolean isVertical);
+  void setCrossPos(float startPos);
   
 }

@@ -203,7 +203,7 @@ public class GridImp implements Grid {
     ) layerPos++;
 
     if (layerPos >= backingGrid.layers()) {
-      backingGrid.resizeLayers(layerPos);
+      backingGrid.resizeLayers(layerPos + 1);
     }
 
     backingGrid.set(itemX, itemY, layerPos, item);

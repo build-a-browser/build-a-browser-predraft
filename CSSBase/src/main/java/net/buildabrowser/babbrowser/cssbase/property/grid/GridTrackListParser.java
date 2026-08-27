@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
+import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
@@ -15,6 +16,9 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.LSBracketToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.Token;
+import net.buildabrowser.babbrowser.cssbase.tokens.WhitespaceToken;
 
 public class GridTrackListParser implements PropertyValueParser {
 
@@ -60,7 +64,6 @@ public class GridTrackListParser implements PropertyValueParser {
     }
 
     stream.restoreMark(mark);
-    
     return parseTrackList(stream, true);
   }
 
@@ -195,31 +198,19 @@ public class GridTrackListParser implements PropertyValueParser {
   ) throws IOException {
 
     if (!(
-      stream.peek() instanceof DelimToken delimToken
-      && delimToken.ch() == '['
+      stream.peek() instanceof SimpleBlock nameBlock
+      && nameBlock.type() instanceof LSBracketToken
     )) return null;
     stream.read();
 
-    while (!(
-      stream.peek() instanceof DelimToken delimToken2
-      && delimToken2.ch() == ']'
-    )) {
-      CSSValue errVal = parseLineName(stream, lineNames);
-      if (errVal != null) return errVal;
+    for (Token token: nameBlock.value()) {
+      if (token instanceof WhitespaceToken) continue;
+      if (!(
+        token instanceof IdentToken identToken
+      )) return CSSFailure.EXPECTED_IDENT;
+      lineNames.add(identToken.value());
     }
-    stream.read();
 
-    return null;
-  }
-
-  private CSSValue parseLineName(
-    CSSTokenStream stream, List<String> lineNames
-  ) throws IOException {
-    if (!(
-      stream.read() instanceof IdentToken identToken
-    )) return CSSFailure.EXPECTED_IDENT;
-
-    lineNames.add(identToken.value());
     return null;
   }
 

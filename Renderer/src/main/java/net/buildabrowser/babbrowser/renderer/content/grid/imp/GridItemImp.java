@@ -103,7 +103,7 @@ public class GridItemImp implements GridItem {
   }
 
   @Override
-  public void setCrossPos(float itemCrossPos, boolean isVertical) {
+  public void setCrossPos(float itemCrossPos) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'setCrossPos'");
   }

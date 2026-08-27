@@ -1,6 +1,8 @@
 package net.buildabrowser.babbrowser.cssbase.media.ast;
 
-public enum MediaFeature {
+import net.buildabrowser.babbrowser.cssbase.property.CSSValueOrFeature;
+
+public enum MediaFeature implements CSSValueOrFeature {
   WIDTH(true), HEIGHT(true);
 
   private final boolean allowMinMax;

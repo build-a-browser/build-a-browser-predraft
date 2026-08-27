@@ -29,7 +29,7 @@ public final class GridTrackSizingExpandFr {
       assert track.baseSize().isBounded();
       float newBase = flexFactor(track) * flexFraction;
       if (newBase > track.baseSize().value()) {
-        track.setBaseSize(LayoutConstraint.of(flexFraction));
+        track.setBaseSize(LayoutConstraint.of(newBase));
       }
     }
   }
@@ -114,7 +114,7 @@ public final class GridTrackSizingExpandFr {
       if (!isFlexible(track)) continue;
       flexFactorSum += flexFactor(track);
     }
-    if (flexFactorSum < 0) {
+    if (flexFactorSum < 1) {
       flexFactorSum = 1;
     }
 

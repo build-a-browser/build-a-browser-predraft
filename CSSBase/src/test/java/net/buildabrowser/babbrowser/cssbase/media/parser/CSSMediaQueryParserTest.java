@@ -22,6 +22,7 @@ import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LParenToken;
@@ -207,6 +208,52 @@ public class CSSMediaQueryParserTest {
       INVALID_QUERY,
       AndMediaNode.create(
         FeatureExistsMediaNode.create(MediaFeature.HEIGHT)));
+    MediaNode actual = CSSMediaQueryParser.parseQuery(stream);
+    Assertions.assertEquals(expected, actual);
+  }
+  
+  @Test
+  @DisplayName("Can parse media-feature with comparator syntax")
+  public void canParseMediaFeatureWithComparatorSyntax() throws IOException {
+    CSSTokenStream stream = CSSTokenStream.createForTesting(
+      block(
+        IdentToken.create("width"),
+        DelimToken.create('>'),
+        DelimToken.create('='),
+        DimensionToken.create(15, "px")));
+    MediaNode expected = AnyMediaNode.create(
+      AndMediaNode.create(
+        FeatureComparisonMediaNode.create(
+          MediaFeature.WIDTH,
+          MediaFeatureComparison.GTE,
+          LengthValue.create(15, true, LengthType.PX))));
+    MediaNode actual = CSSMediaQueryParser.parseQuery(stream);
+    Assertions.assertEquals(expected, actual);
+  }
+
+    @Test
+  @DisplayName("Can parse media-feature with two-comparator syntax")
+  public void canParseMediaFeatureWithTwoComparatorSyntax() throws IOException {
+    CSSTokenStream stream = CSSTokenStream.createForTesting(
+      block(
+        DimensionToken.create(11, "px"),
+        DelimToken.create('<'),
+        DelimToken.create('='),
+        IdentToken.create("width"),
+        DelimToken.create('<'),
+        DelimToken.create('='),
+        DimensionToken.create(15, "px")));
+    MediaNode expected = AnyMediaNode.create(
+      AndMediaNode.create(
+        AndMediaNode.create(
+          FeatureComparisonMediaNode.create(
+            LengthValue.create(11, true, LengthType.PX),
+            MediaFeatureComparison.LTE,
+            MediaFeature.WIDTH),
+          FeatureComparisonMediaNode.create(
+            MediaFeature.WIDTH,
+            MediaFeatureComparison.LTE,
+            LengthValue.create(15, true, LengthType.PX)))));
     MediaNode actual = CSSMediaQueryParser.parseQuery(stream);
     Assertions.assertEquals(expected, actual);
   }

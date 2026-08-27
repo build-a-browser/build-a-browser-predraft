@@ -10,6 +10,8 @@ import net.buildabrowser.babbrowser.cssbase.property.align.JustifyContentValue;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxIterator;
+import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
+import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
 import net.buildabrowser.babbrowser.renderer.content.generic.GenericAlignContentAligner;
 import net.buildabrowser.babbrowser.renderer.content.generic.GenericAlignContentAligner.CrossAlignmentContext;
@@ -164,9 +166,21 @@ public class GridContent implements BoxContent {
     float endInlinePos = endRow.position() + endRow.baseSize().value();
     float itemHeight = endInlinePos - startInlinePos;
 
+    LayoutConstraint widthConstraint = SizingWidthUtil.evaluateWidthSize(
+      LayoutConstraint.of(itemWidth), item.box());
+    if (!widthConstraint.isBounded()) {
+      widthConstraint = LayoutConstraint.of(itemWidth);
+    }
+
+    LayoutConstraint heightConstraint = SizingHeightUtil.evaluateAdjustedHeightSize(
+      LayoutConstraint.of(itemHeight), item.box());
+    if (!heightConstraint.isBounded()) {
+      heightConstraint = LayoutConstraint.of(itemHeight);
+    }
+
     UnmanagedBoxFragment<?> itemFragment = item.box().layout(
-      LayoutConstraint.of(itemWidth),
-      LayoutConstraint.of(itemHeight));
+      widthConstraint, heightConstraint);
+      
     itemFragment.setPos(
       startBlockPos, startInlinePos);
     item.setRelatedFragment(itemFragment);

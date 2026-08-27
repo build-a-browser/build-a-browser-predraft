@@ -11,10 +11,6 @@ public final class Flexer {
   public static void flex(
     LayoutConstraint mainSize, FlexLine flexLine, float mainGap
   ) {
-    // TODO: Better prelayout constraint handling
-    if (mainSize.isPreLayoutConstraint()) return;
-    // TODO: For flex items, the below would still grow to the min size, as override by section 4.5
-    if (!mainSize.isBounded()) return;
     boolean isGrow = flexLine.sumHypotheticalMainSizes(mainGap) < mainSize.value();
     if (isGrow) {
       growItems(mainSize, flexLine, mainGap);
@@ -95,6 +91,7 @@ public final class Flexer {
   private static boolean correctViolations(List<FlexItem> items) {
     float totalViolation = 0;
     for (FlexItem item: items) {
+      if (item.isFrozen()) continue;
       if (item.mainSize() < item.minMainSize()) {
         totalViolation += item.minMainSize() - item.mainSize();
       } else if (
@@ -133,12 +130,16 @@ public final class Flexer {
     return didFreezeItems;
   }
 
-  private static float calculateInitialFreeSpace(LayoutConstraint mainSize, FlexLine flexLine, float mainGap) {
+  private static float calculateInitialFreeSpace(
+    LayoutConstraint mainSize, FlexLine flexLine, float mainGap
+  ) {
+    if (!mainSize.isBounded()) return 0;
+
     float remainingSpace = mainSize.value();
     for (FlexItem item: flexLine.items()) {
       remainingSpace -= item.isFrozen() ?
-        item.outerSize(item.mainSize()) :
-        item.outerSize(item.baseSize());
+        item.mainSize() : item.baseSize();
+      remainingSpace -= item.mainMargin();
     }
     remainingSpace -= mainGap * (flexLine.items().size() - 1);
     
@@ -152,7 +153,10 @@ public final class Flexer {
     float remainingSpace = calculateInitialFreeSpace(mainSize, flexLine, mainGap);
 
     if (flexFactorSum >= 1) return remainingSpace;
-    return Math.min(remainingSpace, initialSpace * flexFactorSum);
+    float scaledInitial = initialSpace * flexFactorSum;
+    return Math.abs(scaledInitial) < Math.abs(remainingSpace) ?
+      scaledInitial :
+      remainingSpace;
   }
 
   private static float computeRemainingFactor(FlexLine flexLine, boolean isGrow) {

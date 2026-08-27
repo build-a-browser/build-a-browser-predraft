@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
+import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue.GridRepeatNumberComponent;
@@ -15,9 +16,9 @@ import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue.GridRep
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
-import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.LSBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 
 public class GridTrackListParserTest {
@@ -54,14 +55,12 @@ public class GridTrackListParserTest {
   public void canParseSingleAutoSizedTrackWidthLineNames() throws IOException {
     CSSValue actual = gridTrackListParser.parse(
       CSSTokenStream.createForTesting(
-        DelimToken.create('['),
-        IdentToken.create("fox"),
-        IdentToken.create("kitsune"),
-        DelimToken.create(']'),
+        new SimpleBlock(LSBracketToken.create(), List.of(
+          IdentToken.create("fox"),
+          IdentToken.create("kitsune"))),
         IdentToken.create("auto"),
-        DelimToken.create('['),
-        IdentToken.create("tail"),
-        DelimToken.create(']')));
+        new SimpleBlock(LSBracketToken.create(), List.of(
+          IdentToken.create("tail")))));
 
     CSSValue expected = GridTrackListValue.create(List.of(
       GridTrackValue.create(List.of("fox", "kitsune"), CSSValue.AUTO),

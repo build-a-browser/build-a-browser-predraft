@@ -75,6 +75,7 @@ public class ListCSSTokenStream implements CSSTokenStream {
   @Override
   public void restoreMark(int mark) {
     this.position = mark;
+    this.unread = null;
   }
 
   @Override
@@ -88,6 +89,7 @@ public class ListCSSTokenStream implements CSSTokenStream {
   @Override
   public void seek(int markRelPosition) {
     this.position = markRelPosition;
+    this.unread = null;
   }
 
   public static CSSTokenStream create(

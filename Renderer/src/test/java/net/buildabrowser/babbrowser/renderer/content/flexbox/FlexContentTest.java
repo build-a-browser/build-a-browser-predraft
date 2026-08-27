@@ -104,8 +104,11 @@ public class FlexContentTest {
   public void canLayoutFlexboxWithTotalBasisGreaterThanWidthAndNoWrap() {
     ActiveStyles child12Styles = ActiveStyles.create();
     child12Styles.setProperty(CSSProperty.FLEX_BASIS, PercentageValue.create(40));
+    // The original test was written before automatic min-widths were added
+    child12Styles.setProperty(CSSProperty.MIN_WIDTH, LengthValue.ZERO);
     ActiveStyles child3Styles = ActiveStyles.create();
     child3Styles.setProperty(CSSProperty.FLEX_BASIS, PercentageValue.create(50));
+    child3Styles.setProperty(CSSProperty.MIN_WIDTH, LengthValue.ZERO);
 
     ElementBox child1 = flowBlockBox(child12Styles, List.of(new TestTextBox("Red")));
     ElementBox child2 = flowBlockBox(child12Styles, List.of(new TestTextBox("Green")));

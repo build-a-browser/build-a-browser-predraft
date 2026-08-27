@@ -33,7 +33,7 @@ public class GenericAlignContentAligner {
     float startPos, CrossAlignmentContext alignmentContext, List<GenericTrack> lines, float gapSize
   ) {
     for (GenericTrack line: lines) {
-      line.setCrossPos(startPos, alignmentContext.isVertical());
+      line.setCrossPos(startPos);
       startPos += line.crossSize();
       startPos += gapSize;
     }

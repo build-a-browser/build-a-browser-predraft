@@ -6,7 +6,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
-public interface CSSValue {
+public interface CSSValue extends CSSValueOrFeature {
 
   public static CSSValue INHERIT = SpecialCSSValue.INHERIT;
   public static CSSValue AUTO = SpecialCSSValue.AUTO;

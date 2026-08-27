@@ -79,15 +79,14 @@ public final class GenericJustifyContentAligner {
   private static void positionItemsAt(
     float startPos, MainAlignmentContext alignmentContext, Line line, float autoSize, float gapSize
   ) {
-    boolean isVertical = alignmentContext.isVertical();
     LayoutConstraint parentConstraint = alignmentContext.mainSize();
 
     for (GenericJustifyContentItem item: line.genericItems()) {
-      LayoutConstraint firstMargin = item.secondMargin(isVertical, parentConstraint);
+      LayoutConstraint firstMargin = item.firstMargin(parentConstraint);
       startPos += firstMargin.isBounded() ? firstMargin.value() : autoSize;
-      item.setMainPos(startPos, alignmentContext.isVertical());
-      startPos += item.decorMainSize(isVertical);
-      LayoutConstraint secondMargin = item.secondMargin(isVertical, parentConstraint);
+      item.setMainPos(startPos);
+      startPos += item.mainSize();
+      LayoutConstraint secondMargin = item.secondMargin(parentConstraint);
       startPos += secondMargin.isBounded() ? secondMargin.value() : autoSize;
       startPos += gapSize;
     }
@@ -96,15 +95,13 @@ public final class GenericJustifyContentAligner {
   private static void positionItemsAtReverse(
     float startPos, MainAlignmentContext alignmentContext, Line line, float autoSize, float gapSize
   ) {
-    boolean isVertical = alignmentContext.isVertical();
     LayoutConstraint parentConstraint = alignmentContext.mainSize();
-
     for (GenericJustifyContentItem item: line.genericItems()) {
-      LayoutConstraint secondMargin = item.secondMargin(isVertical, parentConstraint);
+      LayoutConstraint secondMargin = item.secondMargin(parentConstraint);
       startPos -= secondMargin.isBounded() ? secondMargin.value() : autoSize;
-      startPos -= item.decorMainSize(isVertical);
-      item.setMainPos(startPos, alignmentContext.isVertical());
-      LayoutConstraint firstMargin = item.firstMargin(isVertical, parentConstraint);
+      startPos -= item.mainSize();
+      item.setMainPos(startPos);
+      LayoutConstraint firstMargin = item.firstMargin(parentConstraint);
       startPos -= firstMargin.isBounded() ? firstMargin.value() : autoSize;
       startPos -= gapSize;
     }
@@ -128,8 +125,8 @@ public final class GenericJustifyContentAligner {
     MainAlignmentContext alignmentContext, Line line, float autoSize, float spaceLeft
   ) {
     float gapSize = alignmentContext.mainGap();
-    if (spaceLeft < 0 || line.genericItems().size() == 1) {
-      positionItemsAt(spaceLeft / 2, alignmentContext, line, autoSize, gapSize);
+    if (spaceLeft < 0) {
+      positionItemsAt(0, alignmentContext, line, autoSize, gapSize);
       return;
     }
 
@@ -154,8 +151,8 @@ public final class GenericJustifyContentAligner {
     MainAlignmentContext alignmentContext, Line line, float startPos, float autoSize, float spaceLeft
   ) {
     float gapSize = alignmentContext.mainGap();
-    if (spaceLeft < 0 || line.genericItems().size() == 1) {
-      positionItemsAtReverse(startPos - spaceLeft / 2, alignmentContext, line, autoSize, gapSize);
+    if (spaceLeft < 0) {
+      positionItemsAtReverse(startPos, alignmentContext, line, autoSize, gapSize);
       return;
     }
 
@@ -167,15 +164,14 @@ public final class GenericJustifyContentAligner {
     MainAlignmentContext alignmentContext, Line line,
     float autoSize, int[] numAutos // Annoying output param to avoid duplicating this code for distributeMainSpace
   ) {
-    boolean isVertical = alignmentContext.isVertical();
     LayoutConstraint parentConstraint = alignmentContext.mainSize();
 
     float remainingFreeSpace = alignmentContext.mainSize().value();
     remainingFreeSpace -= alignmentContext.mainGap() * (line.genericItems().size() - 1);
     for (GenericJustifyContentItem item: line.genericItems()) {
-      remainingFreeSpace -= item.decorMainSize(isVertical);
+      remainingFreeSpace -= item.mainSize();
       
-      LayoutConstraint firstMargin = item.firstMargin(isVertical, parentConstraint);
+      LayoutConstraint firstMargin = item.firstMargin(parentConstraint);
       if (firstMargin.isBounded()) {
         remainingFreeSpace -= firstMargin.value();
       } else {
@@ -183,7 +179,7 @@ public final class GenericJustifyContentAligner {
         numAutos[0]++;
       }
       
-      LayoutConstraint secondMargin = item.secondMargin(isVertical, parentConstraint);
+      LayoutConstraint secondMargin = item.secondMargin(parentConstraint);
       if (secondMargin.isBounded()) {
         remainingFreeSpace -= secondMargin.value();
       } else {

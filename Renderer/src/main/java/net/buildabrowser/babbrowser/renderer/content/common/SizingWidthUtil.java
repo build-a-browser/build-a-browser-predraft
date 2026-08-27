@@ -101,7 +101,6 @@ public final class SizingWidthUtil {
       parentConstraint, stretchConstraint, refBox,
       refBox.properties().get(CSSProperty.MIN_WIDTH));
 
-    assert minConstraint.isBounded() || !parentConstraint.isBounded();
     if (minConstraint.isBounded()) {
       adjustedConstraint = Math.max(adjustedConstraint, minConstraint.value());
     }

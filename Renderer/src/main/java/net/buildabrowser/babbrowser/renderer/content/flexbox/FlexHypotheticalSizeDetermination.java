@@ -43,8 +43,10 @@ public final class FlexHypotheticalSizeDetermination {
         && itemCrossSize.isBounded()
         && itemDimensions.intrinsicRatio() != -1
       ) {
-        // TODO: Ensure this is supposed to be division
-        item.setBaseSize(itemCrossSize.value() / itemDimensions.intrinsicRatio());
+        float transferredSize = isVertical ?
+          itemCrossSize.value() / itemDimensions.intrinsicRatio() :
+          itemCrossSize.value() * itemDimensions.intrinsicRatio();
+        item.setBaseSize(transferredSize);
         continue;
       }
 

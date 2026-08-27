@@ -56,17 +56,20 @@ public final class FlexUtil {
 
     CSSValue alignItemsValue = FlexCrossSizeDetermination.getItemAlignment(rootBox, itemBox);
     CSSValue alignContentValue = rootBox.properties().get(CSSProperty.ALIGN_CONTENT);
+    boolean isContentStretch =
+      alignContentValue.equals(AlignContentValue.STRETCH) 
+      || alignContentValue.equals(AlignContentValue.NORMAL);
     if (
       alignItemsValue.equals(AlignItemsValue.STRETCH)
-      && alignContentValue.equals(AlignContentValue.STRETCH)
+      && isContentStretch
       && !crossSize.isBounded()
       && parentCrossSize.isBounded()
     ) {
       ElementBoxDimensions dimensions = itemBox.dimensions();
       float[] margin = dimensions.getComputedMargin();
       float decorSize = isVertical ?
-        dimensions.decorHeight() + margin[0] + margin[1] :
-        dimensions.decorWidth() + margin[2] + margin[3];
+        dimensions.decorWidth() + margin[2] + margin[3] :
+        dimensions.decorHeight() + margin[0] + margin[1];
       return LayoutConstraint.of(
         Math.max(0, parentCrossSize.value() - decorSize));
     }

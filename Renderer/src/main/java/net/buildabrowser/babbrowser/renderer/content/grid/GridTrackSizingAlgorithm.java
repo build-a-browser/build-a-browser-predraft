@@ -7,7 +7,12 @@ import static net.buildabrowser.babbrowser.renderer.content.grid.GridTrackSizing
 
 import java.util.List;
 
+import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
+import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
+import net.buildabrowser.babbrowser.cssbase.property.align.AlignContentValue;
+import net.buildabrowser.babbrowser.cssbase.property.align.JustifyContentValue;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public final class GridTrackSizingAlgorithm {
@@ -33,13 +38,23 @@ public final class GridTrackSizingAlgorithm {
     LayoutConstraint parentConstraint,
     GridDirection direction
   ) {
+    CSSProperty autoProperty = direction == GridDirection.COLUMN ?
+      CSSProperty.GRID_AUTO_COLUMNS :
+      CSSProperty.GRID_AUTO_ROWS;
+    CSSValue autoTrackSizing = grid.gridBox().properties().get(autoProperty);
+
+    if (autoTrackSizing instanceof ManyResult manyResult) {
+      initializeAutoTrackSizes(grid, direction, manyResult);
+    }
+
     for (
       int i = grid.implicitSpan().trackStart(direction);
       i <= grid.implicitSpan().trackEnd(direction);
       i++
     ) {
-      GridTrack track = grid.track(i, direction);
       // TODO: Extract to initializeTrackSize
+      GridTrack track = grid.track(i, direction);
+
       // It's easier to check if it's intrinsic than fixed, so re-order the clauses
       CSSValue minFunc = track.minTrackSizingFunction();
       CSSValue maxFunc = track.maxTrackSizingFunction();
@@ -64,11 +79,48 @@ public final class GridTrackSizingAlgorithm {
     }
   }
 
+  private static void initializeAutoTrackSizes(
+    Grid grid, GridDirection direction, ManyResult manyResult
+  ) {
+    List<CSSValue> autoSizes = manyResult.values();
+
+    int i = 0;
+    for (
+      int x = Math.max(1, grid.explicitSpan().trackEnd(direction));
+      x <= grid.implicitSpan().trackEnd(direction);
+      x++
+    ) {
+      CSSValue size = autoSizes.get(i++ % autoSizes.size());
+      grid.track(x, direction).setSizeValue(size);
+    }
+
+    i = -1;
+    for (
+      int x = grid.explicitSpan().trackStart(direction);
+      x >= grid.implicitSpan().trackStart(direction);
+      x--
+    ) {
+      CSSValue size = autoSizes.get(i-- % autoSizes.size());
+      grid.track(x, direction).setSizeValue(size);
+    }
+  }
+
   private static void stretchAutoTracks(
     Grid grid,
     LayoutConstraint parentConstraint,
     GridDirection direction
   ) {
+    PropertyContainer properties = grid.gridBox().properties();
+    CSSValue alignment = direction.equals(GridDirection.COLUMN) ?
+      properties.get(CSSProperty.JUSTIFY_CONTENT) :
+      properties.get(CSSProperty.ALIGN_CONTENT);
+    if(!(
+      alignment.equals(JustifyContentValue.NORMAL)
+      || alignment.equals(JustifyContentValue.STRETCH)
+      || alignment.equals(AlignContentValue.NORMAL)
+      || alignment.equals(AlignContentValue.STRETCH)
+    )) return;
+
     // TODO: Use max size if constraint is indefinite
     float space = unusedSpace(grid, parentConstraint, direction);
     if (space <= 0) return;

@@ -5,6 +5,7 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexGrowValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexShrinkValue;
+import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
@@ -30,6 +31,7 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
   private float minMainSize;
   private Float maxMainSize;
   private float usedCrossSize;
+  private Float innerPreferredSize;
   private boolean isFrozen;
   private boolean isVertical;
 
@@ -46,34 +48,40 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
     return this.itemBox;
   }
 
-  public void computeMinMaxSizes(LayoutConstraint refMainSize, boolean isVertical) {
+  public void computeMinMaxSizes(
+    LayoutConstraint refMainSize,
+    LayoutConstraint refCrossSize,
+    boolean isVertical
+  ) {
     this.isVertical = isVertical;
-
     PropertyContainer properties = itemBox.properties();
-    CSSValue minSizeValue = isVertical ?
-      properties.get(CSSProperty.MIN_HEIGHT) :
-      properties.get(CSSProperty.MIN_WIDTH);
-    LayoutConstraint minMainSizeC = isVertical ?
-      SizingHeightUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, minSizeValue) :
-      SizingWidthUtil.evaluateWidthSize(refMainSize, itemBox, minSizeValue);
-    if (minMainSizeC.isBounded()) {
-      this.minMainSize = minMainSizeC.value();
-    }
-    
-    CSSValue maxSizeValue = isVertical ?
-      properties.get(CSSProperty.MAX_HEIGHT) :
-      properties.get(CSSProperty.MAX_WIDTH);
-    LayoutConstraint maxMainSizeC = isVertical ?
-      SizingHeightUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, maxSizeValue) :
-      SizingWidthUtil.evaluateWidthSize(refMainSize, itemBox, maxSizeValue);
-    if (maxMainSizeC.isBounded()) {
-      this.maxMainSize = maxMainSizeC.value();
+
+    this.innerPreferredSize = determinePreferredSize(
+      properties, CSSProperty.WIDTH, CSSProperty.HEIGHT,
+      refMainSize, isVertical);
+
+    this.maxMainSize = determinePreferredSize(
+      properties, CSSProperty.MAX_WIDTH, CSSProperty.MAX_HEIGHT,
+      refMainSize, isVertical);
+
+    Float minMainSize = determinePreferredSize(
+      properties, CSSProperty.MIN_WIDTH, CSSProperty.MIN_HEIGHT,
+      refMainSize, isVertical);
+    if (minMainSize == null) {
+      float autoMin = automaticMinSize(refCrossSize);
+      if (this.maxMainSize != null) {
+        autoMin = Math.min(autoMin, this.maxMainSize);
+      }
+      this.minMainSize = autoMin;
+    } else {
+      this.minMainSize = minMainSize;
     }
   }
 
   public void setBaseSize(float baseSize) {
-    this.baseSize = baseSize;
-    this.mainSize = baseSize;
+    float outerBase = outerSize(baseSize);
+    this.baseSize = outerBase;
+    this.mainSize = outerBase;
   }
 
   public float baseSize() {
@@ -81,10 +89,11 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
   }
 
   public void setHypotheticalMainSize(float hypotheticalMainSize) {
-    if (maxMainSize != null) {
-      hypotheticalMainSize = Math.min(hypotheticalMainSize, maxMainSize);
+    Float maxOuterMainSize = maxMainSize();
+    if (maxOuterMainSize != null) {
+      hypotheticalMainSize = Math.min(hypotheticalMainSize, maxOuterMainSize);
     }
-    hypotheticalMainSize = Math.max(hypotheticalMainSize, minMainSize);
+    hypotheticalMainSize = Math.max(hypotheticalMainSize, minMainSize());
     this.hypotheticalMainSize = hypotheticalMainSize;
   }
 
@@ -100,16 +109,22 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
     return this.hypotheticalCrossSize;
   }
 
+  public float innerMainSize() {
+    return innerSize(this.mainSize);
+  }
+
+  @Override
   public float mainSize() {
     return this.mainSize;
   }
 
   public float minMainSize() {
-    return this.minMainSize;
+    return outerSize(this.minMainSize);
   }
 
   public Float maxMainSize() {
-    return this.maxMainSize;
+    if (this.maxMainSize == null) return null;
+    return outerSize(this.maxMainSize);
   }
 
   public void setTargetMainSize(float targetMainSize) {
@@ -141,7 +156,7 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
   }
 
   @Override
-  public void setMainPos(float startPos, boolean isVertical) {
+  public void setMainPos(float startPos) {
     if (isVertical) {
       boxFragment.setPos(0, startPos);
     } else {
@@ -150,7 +165,7 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
   }
 
   @Override
-  public void setCrossPos(float itemCrossPos, boolean isVertical) {
+  public void setCrossPos(float itemCrossPos) {
     if (isVertical) {
       boxFragment.setPos(
         itemCrossPos,
@@ -164,7 +179,7 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
 
   @Override
   public LayoutConstraint firstMargin(
-    boolean isVertical, LayoutConstraint parentSize
+    LayoutConstraint parentSize
   ) {
     PropertyContainer properties = itemBox.properties();
     CSSValue relevantValue = isVertical ?
@@ -176,7 +191,7 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
 
   @Override
   public LayoutConstraint secondMargin(
-    boolean isVertical, LayoutConstraint parentSize
+    LayoutConstraint parentSize
   ) {
     PropertyContainer properties = itemBox.properties();
     CSSValue relevantValue = isVertical ?
@@ -186,11 +201,12 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
       itemBox.layoutContext(), parentSize, relevantValue);
   }
 
-  @Override
-  public float decorMainSize(boolean isVertical) {
-    return this.mainSize + (isVertical ?
-      itemBox.dimensions().decorHeight() :
-      itemBox.dimensions().decorWidth());
+  public float mainMargin() {
+    ElementBoxDimensions dimensions = itemBox.dimensions();
+    float[] margin = dimensions.getComputedMargin();
+    return isVertical ?
+      margin[0] + margin[1] :
+      margin[2] + margin[3];
   }
 
   public void setFragment(UnmanagedBoxFragment<?> boxFragment) {
@@ -203,13 +219,111 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
   }
 
   public float outerSize(float innerSize) {
+    return innerSize + decorSize(false);
+  }
+
+  public float innerSize(float outerSize) {
+    return Math.max(0, outerSize - decorSize(false));
+  }
+
+  public float minContentContribution(
+    LayoutConstraint crossSize
+  ) {
+    float size = innerPreferredSize != null ?
+      outerSize(innerPreferredSize) :
+      (isVertical ?
+        itemBox.layout(crossSize, LayoutConstraint.AUTO).height(Measurement.MARGIN) :
+        EBDimensionsUtil.preferredMinWidthConstraint(itemBox));
+    return clampContribution(size);
+  }
+
+  public float maxContentContribution(
+    LayoutConstraint crossSize
+  ) {
+    float size = innerPreferredSize != null ?
+      outerSize(innerPreferredSize) :
+      (isVertical ?
+        itemBox.layout(crossSize, LayoutConstraint.AUTO).height(Measurement.MARGIN) :
+        EBDimensionsUtil.preferredWidthConstraint(itemBox));
+    return clampContribution(size);
+  }
+
+  private Float determinePreferredSize(
+    PropertyContainer properties,
+    CSSProperty horizProp,
+    CSSProperty vertProp,
+    LayoutConstraint refMainSize,
+    boolean isVertical
+  ) {
+    CSSValue value = isVertical ?
+      properties.get(vertProp) :
+      properties.get(horizProp);
+    LayoutConstraint determinedConstraint = isVertical ?
+      SizingHeightUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, value) :
+      SizingWidthUtil.evaluateWidthSize(refMainSize, itemBox, value);
+    return determinedConstraint.isBounded() ?
+      determinedConstraint.value() : null;
+  }
+
+  private float automaticMinSize(LayoutConstraint crossSize) {
+    float determinedMinWidth = isVertical ?
+      itemBox.layout(crossSize, LayoutConstraint.AUTO).height(Measurement.CONTENT) :
+      EBDimensionsUtil.preferredMinWidthConstraint(itemBox);
+    Float transferredSizeSuggestion = transferredSizeSuggestion(crossSize);
+    if (transferredSizeSuggestion != null) {
+      determinedMinWidth = itemBox.isReplaced() ?
+        Math.min(determinedMinWidth, transferredSizeSuggestion) :
+        Math.max(determinedMinWidth, transferredSizeSuggestion);
+    }
+    if (this.innerPreferredSize != null) {
+      determinedMinWidth = Math.min(
+        determinedMinWidth, this.innerPreferredSize);
+    }
+    
+    return determinedMinWidth;
+  }
+
+  private Float transferredSizeSuggestion(
+    LayoutConstraint crossSize
+  ) {
+    if (!crossSize.isBounded()) return null;
+
+    float ratio = itemBox.dimensions().intrinsicRatio();
+    if (ratio == -1) return null;
+
+    return isVertical ?
+      crossSize.value() / ratio :
+      ratio * crossSize.value();
+  }
+
+  private float decorSize(boolean includeMargin) {
     ElementBoxDimensions dimensions = itemBox.dimensions();
     float[] margin = dimensions.getComputedMargin();
     float[] border = dimensions.getComputedBorder();
     float[] padding = dimensions.getComputedPadding();
-    return isVertical ?
-      innerSize + margin[0] + margin[1] + border[0] + border[1] + padding[0] + padding[1] :
-      innerSize + margin[2] + margin[3] + border[2] + border[3] + padding[2] + padding[3];
+    float totalMargin = !includeMargin ? 0 : isVertical ?
+      margin[0] + margin[1] :
+      margin[2] + margin[3];
+    float subDecor = isVertical ?
+      totalMargin + border[0] + border[1] + padding[0] + padding[1] :
+      totalMargin + border[2] + border[3] + padding[2] + padding[3];
+    return subDecor;
+  }
+
+  private float clampContribution(float size) {
+    if (growFactor() == 0) {
+      size = Math.min(size, baseSize());
+    }
+
+    if (shrinkFactor() == 0) {
+      size = Math.max(size, baseSize());
+    }
+
+    if (maxMainSize != null) {
+      size = Math.min(size, outerSize(maxMainSize));
+    }
+    size = Math.max(size, outerSize(minMainSize));
+    return size;
   }
 
 }

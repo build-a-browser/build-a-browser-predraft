@@ -44,7 +44,10 @@ public class GridTrackImp implements GridTrack {
     CSSValue newMinTrackSizingValue = sizeValue;
     CSSValue newMaxTrackSizingValue = sizeValue;
 
-    if (sizeValue instanceof GridMinMaxValue minMaxValue) {
+    if (sizeValue.equals(CSSValue.AUTO)) {
+      this.minTrackSizingValue = CSSValue.AUTO;
+      this.maxTrackSizingValue = SizeValue.MAX_CONTENT;
+    } else if (sizeValue instanceof GridMinMaxValue minMaxValue) {
       newMinTrackSizingValue = minMaxValue.min();
       newMaxTrackSizingValue = minMaxValue.max();
     }
@@ -149,25 +152,23 @@ public class GridTrackImp implements GridTrack {
   // Justify
 
   @Override
-  public float decorMainSize(boolean isVertical) {
-    assert isVertical;
+  public float mainSize() {
     assert baseSize.isBounded();
     return baseSize.value();
   }
 
   @Override
-  public void setMainPos(float startPos, boolean isVertical) {
-    assert !isVertical;
+  public void setMainPos(float startPos) {
     this.position = startPos;
   }
 
   @Override
-  public LayoutConstraint firstMargin(boolean isVertical, LayoutConstraint parentSize) {
+  public LayoutConstraint firstMargin(LayoutConstraint parentSize) {
     return LayoutConstraint.of(0);
   }
 
   @Override
-  public LayoutConstraint secondMargin(boolean isVertical, LayoutConstraint parentSize) {
+  public LayoutConstraint secondMargin(LayoutConstraint parentSize) {
     return LayoutConstraint.of(0);
   }
 
@@ -185,8 +186,7 @@ public class GridTrackImp implements GridTrack {
   }
 
   @Override
-  public void setCrossPos(float startPos, boolean isVertical) {
-    assert !isVertical;
+  public void setCrossPos(float startPos) {
     this.position = startPos;
   }
   

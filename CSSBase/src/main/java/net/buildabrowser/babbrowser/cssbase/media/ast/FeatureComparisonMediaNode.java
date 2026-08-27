@@ -2,56 +2,69 @@ package net.buildabrowser.babbrowser.cssbase.media.ast;
 
 import net.buildabrowser.babbrowser.cssbase.media.MediaContext;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
+import net.buildabrowser.babbrowser.cssbase.property.CSSValueOrFeature;
 import net.buildabrowser.babbrowser.cssbase.property.calc.CalcEvaluation;
-import net.buildabrowser.babbrowser.cssbase.property.calc.CalcInterpreter;
 import net.buildabrowser.babbrowser.cssbase.property.calc.CalcEvaluation.CalcEvalType;
+import net.buildabrowser.babbrowser.cssbase.property.calc.CalcInterpreter;
 
 public record FeatureComparisonMediaNode(
-  MediaFeature feature,
+  CSSValueOrFeature feature,
   MediaFeatureComparison comparison,
-  CSSValue target
+  CSSValueOrFeature target
 ) implements MediaNode {
   
   @Override
   public boolean resolve(MediaContext context) {
-    return switch (feature) {
-      case WIDTH -> compareLength(context.docWidth(), context);
-      case HEIGHT -> compareLength(context.docHeight(), context);
-      default -> throw new UnsupportedOperationException(
-        "Unrecognized feature: " + feature);
-    };
+    float valueA = resolveFeatureOrValue(feature, context);
+    float valueB = resolveFeatureOrValue(target, context);
+    return compareFloats(comparison, valueA, valueB);
   }
 
-  private boolean compareLength(int realValue, MediaContext context) {
-    CalcEvaluation lengthValue = CalcInterpreter.evaluateNode(target, context.calcFallback());
-    if (lengthValue.isFailure()) return false;
-    if (
-      !lengthValue.valueType().equals(CalcEvalType.LENGTH_PERCENTAGE)
-    ) return false;
-
+  public static FeatureComparisonMediaNode create(
+    CSSValueOrFeature feature,
+    MediaFeatureComparison comparison,
+    CSSValueOrFeature target
+  ) {
+    return new FeatureComparisonMediaNode(feature, comparison, target);
+  }
+ 
+  public static boolean compareFloats(
+    MediaFeatureComparison comparison,
+    float valueA, float valueB
+  ) {
     return switch (comparison) {
       // TODO: Account for floating point precision
-      case EQ -> realValue == lengthValue.floatValue();
-      case GT -> realValue > lengthValue.floatValue();
-      case GTE -> realValue >= lengthValue.floatValue();
-      case LT -> realValue < lengthValue.floatValue();
-      case LTE -> realValue <= lengthValue.floatValue();
-      case NEQ -> realValue != lengthValue.floatValue();
+      case EQ -> valueA == valueB;
+      case GT -> valueA > valueB;
+      case GTE -> valueA >= valueB;
+      case LT -> valueA < valueB;
+      case LTE -> valueA <= valueB;
+      case NEQ -> valueA != valueB;
       default -> throw new UnsupportedOperationException(
         "Unrecognized comparison: " + comparison);
     };
   }
 
-  public static enum MediaFeatureComparison {
-    LT, LTE, EQ, GT, GTE, NEQ
+  public static float resolveFeatureOrValue(CSSValueOrFeature value, MediaContext context) {
+    return switch (value) {
+      case MediaFeature.WIDTH -> context.docWidth();
+      case MediaFeature.HEIGHT -> context.docHeight();
+      default -> resolveValue((CSSValue) value, context);
+    };
   }
 
-  public static FeatureComparisonMediaNode create(
-    MediaFeature feature,
-    MediaFeatureComparison comparison,
-    CSSValue target
-  ) {
-    return new FeatureComparisonMediaNode(feature, comparison, target);
+  private static Float resolveValue(CSSValue value, MediaContext context) {
+    CalcEvaluation lengthValue = CalcInterpreter.evaluateNode(value, context.calcFallback());
+    if (lengthValue.isFailure()) return null;
+    if (
+      !lengthValue.valueType().equals(CalcEvalType.LENGTH_PERCENTAGE)
+    ) return Float.NaN;
+    
+    return lengthValue.floatValue();
+  }
+
+  public static enum MediaFeatureComparison {
+    LT, LTE, EQ, GT, GTE, NEQ
   }
 
 }

@@ -54,6 +54,14 @@ public final class FlexBoxContent implements BoxContent {
     return layoutItems(rootBox, flexItems, widthConstraint, heightConstraint);
   }
 
+  @Override
+  public void positionLayers(
+    UnmanagedBoxFragment<?> fragment,
+    float layerX, float layerY
+  ) {
+    GenericFlexibleUtil.positionLayers(fragment, layerX, layerY);
+  }
+
   private FlexBoxFragment layoutItems(
     ElementBox rootBox,
     List<FlexItem> items,
@@ -68,16 +76,26 @@ public final class FlexBoxContent implements BoxContent {
     for (FlexItem item: items) {
       MarginUtil.computeSimpleMargin(item.box(), widthConstraint);
       item.box().content().computeMeasures(item.box(), widthConstraint);
-      item.computeMinMaxSizes(mainSize, isVertical);
+      item.computeMinMaxSizes(mainSize, crossSize, isVertical);
     }
 
     FlexHypotheticalSizeDetermination.determineBaseAndHypotheticalSizes(
       rootBox, items, mainSize, crossSize, isVertical);
     float mainGap = GenericFlexibleUtil.mainGap(rootBox, isVertical, mainSize);
-    List<FlexLine> lines = collectFlexItemsIntoFlexLines(rootBox, mainSize, items, mainGap);
-    for (FlexLine line: lines) {
-      Flexer.flex(mainSize, line, mainGap);
+    List<FlexLine> lines = collectFlexItemsIntoFlexLines(
+      rootBox, isVertical, mainSize, items, mainGap);
+    
+    if (mainSize.isPreLayoutConstraint() || crossSize.isPreLayoutConstraint()) {
+      boolean isMinContent = mainSize.type().equals(LayoutConstraintType.MIN_CONTENT);
+      mainSize = LayoutConstraint.of(
+        FlexMainIntrinsicSizing.determineWebCompatibleSize(
+          crossSize, items, isMinContent, lines.size() > 1));
+    } else {
+      for (FlexLine line: lines) {
+        Flexer.flex(mainSize, line, mainGap);
+      }
     }
+
     UnmanagedBoxFragment<?> fragments = null;
     FlexCrossSizeDetermination.determineCrossSize(rootBox, lines, crossSize, isVertical);
     if (!widthConstraint.isPreLayoutConstraint()) {
@@ -93,7 +111,9 @@ public final class FlexBoxContent implements BoxContent {
     }
 
     return createRootFragment(
-      rootBox, items, isVertical, mainSize, crossSize, lines, fragments);
+      rootBox, items, isVertical,
+      widthConstraint, heightConstraint,
+      lines, fragments);
   }
 
   private List<FlexItem> collectFlexItems(ElementBox rootBox) {
@@ -110,11 +130,11 @@ public final class FlexBoxContent implements BoxContent {
   }
 
   private List<FlexLine> collectFlexItemsIntoFlexLines(
-    ElementBox rootBox,
+    ElementBox rootBox, boolean isVertical,
     LayoutConstraint mainConstraint, List<FlexItem> flexItems, float mainGap
   ) {
     List<FlexLine> lines = new LinkedList<>();
-    FlexLine activeLine = new FlexLine();
+    FlexLine activeLine = new FlexLine(isVertical);
     if (rootBox.properties().get(CSSProperty.FLEX_WRAP).equals(FlexWrapValue.NOWRAP)) {
       for (FlexItem item: flexItems) {
         activeLine.addItem(item);
@@ -127,15 +147,16 @@ public final class FlexBoxContent implements BoxContent {
           && (
             mainConstraint.isBounded()
             || mainConstraint.type().equals(LayoutConstraintType.MIN_CONTENT))
-          && lineSize + item.outerSize(item.hypotheticalMainSize()) > mainConstraint.value()
+          && lineSize + item.hypotheticalMainSize() + item.mainMargin()
+            > mainConstraint.value()
         ) {
           lines.add(activeLine);
           lineSize = 0;
-          activeLine = new FlexLine();
+          activeLine = new FlexLine(isVertical);
         }
 
         activeLine.addItem(item);
-        lineSize += item.outerSize(item.hypotheticalMainSize()) + mainGap;
+        lineSize += item.hypotheticalMainSize() + item.mainMargin() + mainGap;
       }
     }
 
@@ -181,10 +202,11 @@ public final class FlexBoxContent implements BoxContent {
   }
 
   private FlexBoxFragment createRootFragment(
-    ElementBox rootBox, List<FlexItem> items,
-    boolean isVertical, LayoutConstraint mainSize, LayoutConstraint crossSize,
+    ElementBox rootBox, List<FlexItem> items, boolean isVertical,
+    LayoutConstraint widthConstraint, LayoutConstraint heightConstraint,
     List<FlexLine> lines, UnmanagedBoxFragment<?> childFragments
   ) {
+    LayoutConstraint mainSize = isVertical ? heightConstraint : widthConstraint;
     float mainGap = GenericFlexibleUtil.mainGap(rootBox, isVertical, mainSize);
     float crossGap = GenericFlexibleUtil.crossGap(rootBox, isVertical, mainSize);
 
@@ -196,10 +218,13 @@ public final class FlexBoxContent implements BoxContent {
     }
     totalLineCross += crossGap * (lines.size() - 1);
     
-    float resolvedMain = LayoutUtil.clampedUsedWidth(
-      rootBox, mainSize, largestLineMain);
-    float resolvedCross = LayoutUtil.clampedUsedHeight(
-      rootBox, crossSize, totalLineCross);
+    float targetWidth = isVertical ? totalLineCross : largestLineMain;
+    float targetHeight = isVertical ? largestLineMain : totalLineCross;
+
+    float resolvedWidth = LayoutUtil.clampedUsedWidth(
+      rootBox, widthConstraint, targetWidth);
+    float resolvedHeight = LayoutUtil.clampedUsedHeight(
+      rootBox, heightConstraint, targetHeight);
 
     // TODO: Properly compute baselines during pre-layout
     boolean skippedLayout = items.size() == 0 || items.get(0).fragment() == null;
@@ -207,25 +232,15 @@ public final class FlexBoxContent implements BoxContent {
       items.get(0).fragment().firstBaseline(Measurement.MARGIN) : 0;
     float lastBaseline = !skippedLayout ?
       items.get(items.size() - 1).fragment().lastBaseline(Measurement.MARGIN) : 0;
-    
+
     FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
     return fragmentFactory.createFlexBoxFragment(
-      isVertical ? resolvedCross : resolvedMain,
-      isVertical ? resolvedMain : resolvedCross,
-      isVertical ? totalLineCross : largestLineMain,
-      isVertical ? largestLineMain : totalLineCross,
+      resolvedWidth, resolvedHeight,
+      targetWidth, targetHeight,
       firstBaseline, lastBaseline,
       rootBox, childFragments);
   }
 
-  @Override
-  public void positionLayers(
-    UnmanagedBoxFragment<?> fragment,
-    float layerX, float layerY
-  ) {
-    GenericFlexibleUtil.positionLayers(fragment, layerX, layerY);
-  }
-  
   public static FlexBoxContent get() {
     return INSTANCE;
   }

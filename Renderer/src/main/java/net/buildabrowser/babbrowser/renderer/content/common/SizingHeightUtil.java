@@ -90,7 +90,6 @@ public final class SizingHeightUtil {
       parentConstraint, refBox,
       refBox.properties().get(CSSProperty.MIN_HEIGHT));
 
-    assert minConstraint.isBounded() || !parentConstraint.isBounded();
     if (minConstraint.isBounded()) {
       adjustedConstraint = Math.max(adjustedConstraint, minConstraint.value());
     }

@@ -67,11 +67,11 @@ public enum CSSProperty {
     BACKGROUND_POSITION, BACKGROUND_CLIP, BACKGROUND_ORIGIN, BACKGROUND_SIZE }),
 
   WIDTH(nextId(), false, CSSValue.AUTO),
-  MIN_WIDTH(nextId(), false, LengthValue.ZERO),
+  MIN_WIDTH(nextId(), false, LengthValue.AUTO),
   MAX_WIDTH(nextId(), false, CSSValue.NONE),
 
   HEIGHT(nextId(), false, CSSValue.AUTO),
-  MIN_HEIGHT(nextId(), false, LengthValue.ZERO),
+  MIN_HEIGHT(nextId(), false, LengthValue.AUTO),
   MAX_HEIGHT(nextId(), false, CSSValue.NONE),
   
   BOX_SIZING(nextId(), false, BoxSizingValue.CONTENT_BOX),

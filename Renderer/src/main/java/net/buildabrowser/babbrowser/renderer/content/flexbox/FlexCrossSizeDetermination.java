@@ -51,7 +51,8 @@ public final class FlexCrossSizeDetermination {
     ElementBox rootBox,
     FlexItem item, LayoutConstraint containerCrossSize, boolean isVertical
   ) {
-    LayoutConstraint itemMainConstraint = LayoutConstraint.of(item.mainSize());
+    LayoutConstraint itemMainConstraint = LayoutConstraint.of(
+      item.innerMainSize());
     LayoutConstraint itemCrossConstraint = FlexUtil.boxCrossSize(
       rootBox, item.box(), containerCrossSize, isVertical);
     if (!itemCrossConstraint.isBounded()) {
@@ -63,7 +64,7 @@ public final class FlexCrossSizeDetermination {
       isVertical ? itemCrossConstraint : itemMainConstraint,
       isVertical ? itemMainConstraint : itemCrossConstraint);
     item.setFragment(boxFragment);
-
+    
     item.setHypotheticalCrossSize(isVertical ?
       boxFragment.width(Measurement.MARGIN) :
       boxFragment.height(Measurement.MARGIN));
@@ -98,8 +99,12 @@ public final class FlexCrossSizeDetermination {
     LayoutConstraint containerCrossSize
   ) {
     if (!containerCrossSize.isBounded()) return;
-    if (!rootBox.properties().get(CSSProperty.ALIGN_CONTENT)
-      .equals(AlignContentValue.STRETCH)) return;
+    
+    CSSValue alignContent = rootBox.properties().get(CSSProperty.ALIGN_CONTENT);
+    boolean isContentStretch =
+      alignContent.equals(AlignContentValue.STRETCH)
+      || alignContent.equals(AlignContentValue.NORMAL);
+    if (!isContentStretch) return;
     float lineCrossSize = 0;
     for (FlexLine line: lines) {
       lineCrossSize += line.crossSize();
@@ -135,7 +140,8 @@ public final class FlexCrossSizeDetermination {
     CSSValue itemAlignmentValue = GenericAlignItemAligner.getItemAlignment(
       alignItemsValue, item);
 
-    LayoutConstraint itemMainConstraint = LayoutConstraint.of(item.mainSize());
+    LayoutConstraint itemMainConstraint = LayoutConstraint.of(
+      item.innerMainSize());
     LayoutConstraint itemCrossConstraint = FlexUtil.boxCrossSize(
       rootBox, item.box(), containerCrossSize, isVertical);
 
@@ -151,9 +157,10 @@ public final class FlexCrossSizeDetermination {
 
       ElementBoxDimensions dimensions = item.box().dimensions();
       float[] margin = dimensions.getComputedMargin();
+      // isVertical applies for main, we are cross, so horizontal for isVertical
       float decorSize = isVertical ?
-        dimensions.decorHeight() + margin[0] + margin[1] :
-        dimensions.decorWidth() + margin[2] + margin[3];
+        dimensions.decorWidth() + margin[2] + margin[3] :
+        dimensions.decorHeight() + margin[0] + margin[1];
       item.setCrossSize(itemLine.crossSize());
       itemCrossConstraint = LayoutConstraint.of(
         Math.max(0, itemLine.crossSize() - decorSize));

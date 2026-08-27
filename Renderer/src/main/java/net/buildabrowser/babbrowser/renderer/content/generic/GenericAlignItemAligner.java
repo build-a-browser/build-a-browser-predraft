@@ -98,7 +98,7 @@ public final class GenericAlignItemAligner {
         "Unrecognized item alignment: " + itemAlignment);
     };
 
-    item.setCrossPos(itemCrossPos, alignmentContext.isVertical());
+    item.setCrossPos(itemCrossPos);
   }
 
   private static float itemBaseline(

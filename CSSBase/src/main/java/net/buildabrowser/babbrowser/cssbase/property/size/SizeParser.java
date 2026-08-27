@@ -220,7 +220,7 @@ public class SizeParser implements PropertyValueParser {
   }
 
   public static SizeParser forMin(CSSProperty unit) {
-    return new SizeParser(false, false, true, true, unit);
+    return new SizeParser(false, true, true, true, unit);
   }
 
   public static SizeParser forMax(CSSProperty unit) {

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTemplateAreasValue.GridArea;
@@ -15,6 +16,7 @@ import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType
 import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.DimensionToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.LSBracketToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.StringToken;
 
 public class GridTemplateParserTest {
@@ -102,21 +104,17 @@ public class GridTemplateParserTest {
   public void canParseValueWithTemplateAreasAndLineNames() throws IOException {
     CSSValue actual = gridTemplateParser.parse(
       CSSTokenStream.createForTesting(
-        DelimToken.create('['),
-        IdentToken.create("header-top"),
-        DelimToken.create(']'),
+        new SimpleBlock(LSBracketToken.create(), List.of(
+          IdentToken.create("header-top"))),
         StringToken.create("a a a"),
-        DelimToken.create('['),
-        IdentToken.create("header-bottom"),
-        IdentToken.create("two-item-test"),
-        DelimToken.create(']'),
-        DelimToken.create('['),
-        IdentToken.create("main-top"),
-        DelimToken.create(']'),
+        new SimpleBlock(LSBracketToken.create(), List.of(
+          IdentToken.create("header-bottom"),
+          IdentToken.create("two-item-test"))),
+        new SimpleBlock(LSBracketToken.create(), List.of(
+          IdentToken.create("main-top"))),
         StringToken.create("b b b"),
-        DelimToken.create('['),
-        IdentToken.create("main-bottom"),
-        DelimToken.create(']')
+        new SimpleBlock(LSBracketToken.create(), List.of(
+          IdentToken.create("main-bottom")))
       ));
     
     CSSValue expectedTemplateRows = GridTrackListValue.create(

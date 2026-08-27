@@ -11,6 +11,6 @@ public interface GenericItem {
 
   float crossSize();
 
-  void setCrossPos(float itemCrossPos, boolean isVertical);
+  void setCrossPos(float itemCrossPos);
 
 }

@@ -79,17 +79,23 @@ public class GridParser implements PropertyValueParser {
     CSSValue rowsValue = templateTracksParser.parse(stream);
     if (rowsValue.isFailure()) return rowsValue;
 
-    if (!(
+    { if (!(
       stream.read() instanceof DelimToken delimToken
       && delimToken.ch() == '/'
-    )) return EXPECTED_SLASH;
+    )) return EXPECTED_SLASH; }
 
     CSSValue autoFlowResult = parseAutoFlowOrDense(stream);
     boolean isDense = autoFlowResult != null;
     if (isDense && autoFlowResult.isFailure()) return autoFlowResult;
     
-    CSSValue columnsValue =  autoTracksParser.parse(stream);
-    if (columnsValue.isFailure()) return columnsValue;
+    CSSValue columnsValue = CSSValue.AUTO;
+    if (!(
+      stream.peek() instanceof DelimToken delimToken
+      && delimToken.ch() == '/'
+    )) {
+      columnsValue = autoTracksParser.parse(stream);
+      if (columnsValue.isFailure()) return columnsValue;
+    }
 
     CSSValue autoFlow = GridAutoFlowValue.create(
       GridAutoFlowDirection.COLUMN, isDense);
@@ -104,8 +110,14 @@ public class GridParser implements PropertyValueParser {
     boolean isDense = autoFlowResult != null;
     if (isDense && autoFlowResult.isFailure()) return autoFlowResult;
 
-    CSSValue rowsValue = autoTracksParser.parse(stream);
-    if (rowsValue.isFailure()) return rowsValue;
+    CSSValue rowsValue = CSSValue.AUTO;
+    if (!(
+      stream.peek() instanceof DelimToken delimToken
+      && delimToken.ch() == '/'
+    )) {
+      rowsValue = autoTracksParser.parse(stream);
+      if (rowsValue.isFailure()) return rowsValue;
+    }
 
     if (!(
       stream.read() instanceof DelimToken delimToken
