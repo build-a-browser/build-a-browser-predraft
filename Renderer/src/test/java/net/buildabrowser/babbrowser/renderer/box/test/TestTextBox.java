@@ -34,6 +34,11 @@ public class TestTextBox extends AbstractBoxImp implements TextBox {
   }
 
   @Override
+  public DebugBox parentBox() {
+    return null;
+  }
+
+  @Override
   public List<DebugBox> childDebugBoxes() {
     return List.of();
   }

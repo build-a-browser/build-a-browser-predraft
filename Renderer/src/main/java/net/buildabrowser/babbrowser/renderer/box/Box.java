@@ -6,4 +6,6 @@ import net.buildabrowser.babbrowser.debugger.core.DebugBox;
 public sealed interface Box extends IntrusiveList<Box>, DebugBox
   permits ElementBox, TextBox, DocumentBox {
 
+  DebugObjectSelection debugSelection();
+
 }

@@ -47,7 +47,7 @@ public class SwingDebugger implements Debugger {
     listeners.remove(listener);
   }
 
-  private void forEachListener(
+  public void forEachListener(
     Consumer<SwingDebuggerListener> listenerFunc
   ) {
     for (SwingDebuggerListener listener: listeners) {

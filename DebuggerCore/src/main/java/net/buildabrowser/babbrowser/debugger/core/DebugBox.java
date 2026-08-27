@@ -8,6 +8,8 @@ public interface DebugBox extends DebugObject {
 
   Node relatedNode();
 
+  DebugBox parentBox();
+
   List<DebugBox> childDebugBoxes();
 
   DebugBoxType debugBoxType();

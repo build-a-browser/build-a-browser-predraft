@@ -77,6 +77,9 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
       }
       holder.matchRule(styleRule);
     }
+
+    invalidate(InvalidationLevel.STYLE);
+    super.invalidate(InvalidationLevel.STYLE_SELF);
   }
 
   @Override
@@ -92,6 +95,9 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
         holder.unmatchRule(styleRule);
       }
     }
+
+    invalidate(InvalidationLevel.STYLE);
+    super.invalidate(InvalidationLevel.STYLE_SELF);
   }
 
   @Override
@@ -299,6 +305,8 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
   public void invalidate(short invalidationLevel) {
     if ((invalidationLevel & invalidationLevel()) != invalidationLevel) {
       super.invalidate(invalidationLevel);
+
+      invalidationLevel &= ~InvalidationLevel.STYLE_SELF;
       
       if (element.parentNode() instanceof HTMLElement htmlElement) {
         RenderContext parentContext = SlotItem.getExistingById(htmlElement, familyId());

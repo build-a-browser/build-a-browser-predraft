@@ -10,6 +10,8 @@ public interface LazyDiffTree<T> {
 
   void open();
 
+  void openNow();
+
   void close(boolean isUISource);
 
   void select();
@@ -21,6 +23,12 @@ public interface LazyDiffTree<T> {
   void attachListener(LazyDiffTreeListener<T> listener);
 
   void removeListener(LazyDiffTreeListener<T> listener);
+
+  boolean isLeaf();
+
+  boolean isOpen();
+
+  LazyDiffTree<T> child(T object);
 
   default void update() {
     update(object());
@@ -59,7 +67,5 @@ public interface LazyDiffTree<T> {
   static <T> LazyDiffTree<T> create(TreeOps<T> treeOps) {
     return new LazyDiffTreeImp<>(treeOps, null);
   }
-
-  boolean isLeaf();
 
 }

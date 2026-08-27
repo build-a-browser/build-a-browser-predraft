@@ -28,6 +28,11 @@ public class TextBoxImp extends AbstractBoxImp implements TextBox {
   // Debugger stuff
 
   @Override
+  public DebugBox parentBox() {
+    return null;
+  }
+
+  @Override
   public Text relatedNode() {
     return this.textNode;
   }

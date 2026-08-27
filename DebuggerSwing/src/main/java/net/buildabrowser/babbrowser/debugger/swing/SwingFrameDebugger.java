@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 import net.buildabrowser.babbrowser.debugger.core.DebugBox;
 import net.buildabrowser.babbrowser.debugger.core.DebugContext;
-import net.buildabrowser.babbrowser.debugger.core.Debugger;
+import net.buildabrowser.babbrowser.debugger.core.DebuggerDocumentChangeListener;
 import net.buildabrowser.babbrowser.debugger.core.FrameDebugger;
 import net.buildabrowser.babbrowser.debugger.swing.ops.NodeBoxOps;
 import net.buildabrowser.babbrowser.debugger.swing.ops.NodeTreeOps;
@@ -19,6 +19,8 @@ public class SwingFrameDebugger implements FrameDebugger {
   private final LazyDiffTree<Node> nodeTree = LazyDiffTree.create(nodeTreeOps);
   private final LazyDiffTree<DebugBox> boxTree = LazyDiffTree.create(nodeBoxOps);
   private final List<Consumer<DebugContext>> queuedTasks = new ArrayList<>();
+  private final DebuggerDocumentChangeListener changeListener = new SwingDebuggerDocumentChangeListener(this);
+  private final SwingNodeSelection nodeSelection = new SwingNodeSelection(this);
 
   private final SwingDebugger relatedDebugger;
 
@@ -29,7 +31,7 @@ public class SwingFrameDebugger implements FrameDebugger {
   }
 
   @Override
-  public Debugger relatedDebugger() {
+  public SwingDebugger relatedDebugger() {
     return this.relatedDebugger;
   }
 
@@ -54,6 +56,11 @@ public class SwingFrameDebugger implements FrameDebugger {
     relatedDebugger.detach(this);
   }
 
+  @Override
+  public DebuggerDocumentChangeListener changeListener() {
+    return changeListener;
+  }
+
   public LazyDiffTree<Node> nodeTree() {
     return this.nodeTree;
   }
@@ -64,6 +71,10 @@ public class SwingFrameDebugger implements FrameDebugger {
 
   public void later(Consumer<DebugContext> task) {
     queuedTasks.add(task);
+  }
+
+  public SwingNodeSelection nodeSelection() {
+    return this.nodeSelection;
   }
   
 }

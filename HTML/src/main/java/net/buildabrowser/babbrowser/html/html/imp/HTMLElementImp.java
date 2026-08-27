@@ -22,6 +22,11 @@ public class HTMLElementImp extends ElementImp implements HTMLElement {
   private static final List<String> FOCUSABLE_ELEMENTS = List.of(
     "a", "area", "button", "frame", "iframe", "input", "object", "select", "textarea");
 
+  private static final short ADD_INVALIDATION =
+    InvalidationLevel.BOX
+    | InvalidationLevel.STYLE
+    | InvalidationLevel.STYLE_SELF;
+
   private SlotItem<?> slotItems;
  
   public HTMLElementImp(String name, String namespace, Node parentNode) {
@@ -54,9 +59,9 @@ public class HTMLElementImp extends ElementImp implements HTMLElement {
     super.appendChild(node);
 
     if (node instanceof Invalidatable invalidatable) {
-      invalidatable.invalidate(InvalidationLevel.BOX);
+      invalidatable.invalidate(ADD_INVALIDATION);
     }
-    invalidate(InvalidationLevel.BOX);
+    invalidate((short) (InvalidationLevel.BOX | InvalidationLevel.STYLE));
 
     return node;
   }

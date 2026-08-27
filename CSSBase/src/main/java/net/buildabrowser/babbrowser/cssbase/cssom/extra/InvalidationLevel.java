@@ -8,7 +8,9 @@ public final class InvalidationLevel {
   public static final short PAINT = 1;
   public static final short LAYOUT = 2;
   public static final short BOX = 4;
+  public static final short STYLE = 8;
+  public static final short STYLE_SELF = 16;
 
-  public static final short ALL = 7;
+  public static final short ALL = 31;
 
 }

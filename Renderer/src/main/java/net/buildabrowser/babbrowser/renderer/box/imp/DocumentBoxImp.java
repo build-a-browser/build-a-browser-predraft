@@ -46,6 +46,11 @@ public class DocumentBoxImp extends AbstractBoxImp implements DocumentBox {
   }
 
   @Override
+  public DebugBox parentBox() {
+    return null;
+  }
+
+  @Override
   public DebugSnapshot snapshotDebugInfo() {
     return DebugSnapshot.builder().build();
   }

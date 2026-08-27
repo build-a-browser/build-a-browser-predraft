@@ -1,17 +1,23 @@
-package net.buildabrowser.babbrowser.renderer.event;
+package net.buildabrowser.babbrowser.renderer.uistate.imp;
 
+import java.util.List;
+
+import net.buildabrowser.babbrowser.debugger.core.DebuggerDocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.Element;
 import net.buildabrowser.babbrowser.dom.events.Event;
-import net.buildabrowser.babbrowser.dom.listener.AbstractDocumentChangeListener;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
+import net.buildabrowser.babbrowser.dom.listener.ForkedDocumentChangeListener;
+import net.buildabrowser.babbrowser.renderer.event.RendererDocumentChangeListener;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 
-public class AbstractRendererDocumentChangeListener
-  extends AbstractDocumentChangeListener implements RendererDocumentChangeListener {
+public class FrameDebuggableDocumentChangeListener extends ForkedDocumentChangeListener implements RendererDocumentChangeListener {
 
-  public AbstractRendererDocumentChangeListener(DocumentChangeListener nextListener) {
-    super(nextListener);
+  public FrameDebuggableDocumentChangeListener(
+    DocumentChangeListener extraListener,
+    List<DocumentChangeListener> nextListeners
+  ) {
+    super(extraListener, nextListeners);
   }
 
   @Override
@@ -22,7 +28,7 @@ public class AbstractRendererDocumentChangeListener
       nextListener.onBoxFragmentAdded(fragment);
     }
   }
-
+  
   @Override
   public boolean onFragmentEvent(
     Element element, Event event,
@@ -30,11 +36,6 @@ public class AbstractRendererDocumentChangeListener
     LayoutFragment target,
     boolean allowDefault
   ) {
-    if (nextListener() instanceof RendererDocumentChangeListener nextListener) {
-      return nextListener.onFragmentEvent(
-        element, event, refFragment, target, allowDefault);
-    }
-
     return allowDefault;
   }
 
@@ -45,6 +46,12 @@ public class AbstractRendererDocumentChangeListener
     LayoutFragment target,
     boolean allowDefault
   ) {
+    for (DocumentChangeListener listener: nextListeners()) {
+      // TODO: Also pass the fragment
+      allowDefault = ((DebuggerDocumentChangeListener) listener).onFragmentEvent(
+        element, refFragment.box(), null, event, allowDefault);
+    }
+
     if (nextListener() instanceof RendererDocumentChangeListener nextListener) {
       return nextListener.onFragmentEventEarly(
         element, event, refFragment, target, allowDefault);
@@ -52,5 +59,5 @@ public class AbstractRendererDocumentChangeListener
 
     return allowDefault;
   }
-  
+
 }

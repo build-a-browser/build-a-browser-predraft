@@ -23,7 +23,7 @@ public final class JLazyDiffTree {
     DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(innerTree.name());
     JTree tree = new JTree(rootNode);
     ((DefaultTreeModel) tree.getModel()).setAsksAllowsChildren(true);
-    initTreeNode(tree, rootNode, innerTree);
+    initTreeNode(tree, rootNode, innerTree, onItemSelection);
 
     tree.addTreeExpansionListener(new TreeExpansionListener() {
 
@@ -45,12 +45,10 @@ public final class JLazyDiffTree {
 
     tree.addTreeSelectionListener(new TreeSelectionListener() {
 
-      @Override
-      @SuppressWarnings("unchecked")
       public void valueChanged(TreeSelectionEvent event) {
         DefaultMutableTreeNode sourceNode = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
         JLazyDiffTreeListener<?> listener = (JLazyDiffTreeListener<?>) sourceNode.getUserObject();
-        onItemSelection.accept((T) listener.innerTree().object());
+        listener.innerTree().select();
       }
       
     });
@@ -61,9 +59,12 @@ public final class JLazyDiffTree {
   public static <T> void initTreeNode(
     JTree tree,
     DefaultMutableTreeNode node,
-    LazyDiffTree<T> innerTree
+    LazyDiffTree<T> innerTree,
+    Consumer<T> onItemSelection
   ) {
-    JLazyDiffTreeListener<T> rootNodeListener = new JLazyDiffTreeListener<>(tree, node, innerTree);
+    JLazyDiffTreeListener<T> rootNodeListener = new JLazyDiffTreeListener<>(
+      tree, node, innerTree, onItemSelection);
+
     innerTree.attachListener(rootNodeListener);
     node.setUserObject(rootNodeListener);
     prepareTreeNodeForChildren(node, innerTree);

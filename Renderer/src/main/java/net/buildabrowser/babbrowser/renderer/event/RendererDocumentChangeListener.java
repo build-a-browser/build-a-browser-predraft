@@ -21,4 +21,13 @@ public interface RendererDocumentChangeListener extends DocumentChangeListener {
     return allowDefault;
   }
 
+  default boolean onFragmentEventEarly(
+    Element element, Event event,
+    BoxFragment<?> refFragment,
+    LayoutFragment target,
+    boolean allowDefault
+  ) {
+    return allowDefault;
+  }
+
 }

@@ -1,9 +1,8 @@
 package net.buildabrowser.babbrowser.renderer.style;
 
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamily;
-import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
-import net.buildabrowser.babbrowser.dom.Element;
+import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.renderer.context.RenderContext;
@@ -15,50 +14,43 @@ public final class StyleGenerator {
   public static void style(
     Node node,
     StyleCache styleCache,
-    SlotFamily<HTMLElement, RenderContext> renderContexts,
-    ElementSet changedElements
+    SlotFamily<HTMLElement, RenderContext> renderContexts
   ) {
-    if (changedElements.isEmpty()) return;
-
-    for (Element changedElement: changedElements) {
-      if (elementHasNoChangedAncestors(changedElement, changedElements)) {
-        style(changedElement, styleCache, renderContexts, (ActiveStyles) null);
-      }
-    }
+    style(node, styleCache, renderContexts, (ActiveStyles) null, false);
   }
 
   public static ActiveStyles style(
     Node node,
     StyleCache styleCache,
     SlotFamily<HTMLElement, RenderContext> renderContexts,
-    ActiveStyles refStyles
+    ActiveStyles refStyles,
+    boolean updateParentedStyles
   ) {
+    boolean styleSelf = false;
+    boolean styleChildren = true;
     ActiveStyles nextRef = refStyles;
     if (node instanceof HTMLElement element) {
-      nextRef = renderContexts.get(element).regenerateStyles(styleCache, refStyles);
+      RenderContext renderContext = renderContexts.get(element);
+      styleSelf = (renderContext.invalidationLevel() & InvalidationLevel.STYLE_SELF) != 0;
+      styleChildren = (renderContext.invalidationLevel() & InvalidationLevel.STYLE) != 0;
+      if (updateParentedStyles | styleSelf) {
+        nextRef = renderContext.regenerateStyles(styleCache, refStyles);
+      }
     }
+
+    updateParentedStyles |= styleSelf;
+    styleChildren |= updateParentedStyles;
 
     Node childNode = node.firstChild();
     ActiveStyles childRef = nextRef;
-    while (childNode != null) {
-      childRef = style(childNode, styleCache, renderContexts, childRef);
+    if (styleChildren) while (childNode != null) {
+      childRef = style(
+        childNode, styleCache, renderContexts,
+        childRef, updateParentedStyles);
       childNode = childNode.nextSibling();
     }
 
     return nextRef;
-  }
-
-  private static boolean elementHasNoChangedAncestors(Element changedElement, ElementSet changedElements) {
-    Node parent = changedElement.parentNode();
-    while (parent != null) {
-      if (
-        parent instanceof Element parentElement
-        && changedElements.contains(parentElement)
-      ) return false;
-      parent = parent.parentNode();
-    }
-
-    return true;
   }
 
 }

@@ -6,7 +6,6 @@ import java.util.Optional;
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamily;
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
 import net.buildabrowser.babbrowser.css.engine.matcher.CSSMatcher;
-import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.media.MediaContext;
@@ -85,7 +84,6 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   // TODO: Switch to AtomicInteger? Synchronize?
   private int width, height;
-  private boolean forceRestyle;
 
   public HTMLGraphicalDocumentRendererImp(
     HTMLDocument document,
@@ -123,10 +121,13 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       fetchEngine, innerChangeListener);
     innerChangeListener = new HTMLEventDocumentChangeListener(
       document, innerChangeListener);
+    // TODO: The debugger listener should ideally come last (so it can cancel events)
+    // but ForkedDocumentChangeListener needs modified to allow passing through fragment events
     innerChangeListener = new HTMLFragmentNavigationDocumentChangeListener(
       innerChangeListener);
-    this.changeListener = new HTMLSelectionDocumentChangeListener(
+    innerChangeListener = new HTMLSelectionDocumentChangeListener(
       document, selectionContext, innerChangeListener);
+    this.changeListener = maybeAddDebuggerChangeListener(innerChangeListener);
     
     changeListener.onURLChanged(null, document.url());
     
@@ -164,7 +165,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       // If level is box, either a box was inserted or a property changed to cause that,
       // so restyle is needed regardless
       || (invalidationLevel & InvalidationLevel.BOX) != 0
-      || forceRestyle
+      || (invalidationLevel & InvalidationLevel.STYLE) != 0
     ) {
       long styleStartTime = System.currentTimeMillis();
       GlobalLayoutContext globalLayoutContext = createGlobalLayoutContext();
@@ -173,11 +174,9 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
         List.of("screen"), v -> SizingUtil.evaluateBaseSize(
           layoutContext, LayoutConstraint.AUTO, v), width, height);
       cssMatcher.applyStylesheets(document, mediaContext);
-      ElementSet changedElements = cssMatcher.changedElements();
       StyleGenerator.style(
-        document, styleCache, renderContexts, changedElements);
+        document, styleCache, renderContexts);
       fakeRootContext.regenerateStyles(styleCache, null);
-      this.forceRestyle = false;
       PerfLogging.logStyleTime(styleStartTime);
     }
   }
@@ -241,7 +240,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     ) return;
     this.width = width;
     this.height = height;
-    this.forceRestyle = true;
+    this.invalidationLevel |= InvalidationLevel.STYLE;
     this.invalidationLevel |= InvalidationLevel.LAYOUT;
   }
 
@@ -317,6 +316,19 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     ) {
       debuggableEventListener.update(debugContext);
     }
+  }
+
+  private DocumentChangeListener maybeAddDebuggerChangeListener(
+    DocumentChangeListener innerChangeListener
+  ) {
+    if (
+      navigable.uaNavigableOptions().eventListener()
+        instanceof DebuggableDocumentRendererEventListener debuggableEventListener
+    ) {
+      return debuggableEventListener.newChangeListener(innerChangeListener);
+    }
+
+    return innerChangeListener;
   }
   
 }

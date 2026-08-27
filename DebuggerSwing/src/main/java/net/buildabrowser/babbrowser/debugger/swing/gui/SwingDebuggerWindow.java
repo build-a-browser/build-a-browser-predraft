@@ -11,7 +11,7 @@ import net.buildabrowser.babbrowser.debugger.swing.SwingFrameDebugger;
 
 public class SwingDebuggerWindow extends JFrame {
 
-  private JTabbedPane tabbedPane = new JTabbedPane();
+  private final JTabbedPane tabbedPane = new JTabbedPane();
   
   public SwingDebuggerWindow(SwingDebugger swingDebugger) {
     // TODO: Would be nice if we got this title from the actual browser

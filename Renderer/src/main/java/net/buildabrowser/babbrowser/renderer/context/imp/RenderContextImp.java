@@ -11,7 +11,8 @@ public abstract class RenderContextImp implements RenderContext {
   private final short slotFamilyId;
   // TODO: Remove the need for this field
 
-  private short invalidationLevel = InvalidationLevel.BOX;
+  private short invalidationLevel =
+    InvalidationLevel.BOX | InvalidationLevel.STYLE_SELF;
   protected PropertyContainer computedStyles;
   private RenderContext next;
 

@@ -27,4 +27,10 @@ public interface DocumentChangeListener {
     return allowDefault;
   }
 
+  default boolean onElementEventEarly(
+    Element element, Event event, boolean allowDefault
+  ) {
+    return allowDefault;
+  }
+
 }

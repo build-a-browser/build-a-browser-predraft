@@ -207,7 +207,7 @@ public class FlowBlockLayout {
       FlowHeightUtil.evaluateNonReplacedBlockHeightAndMargins(
         parentHeightConstraint, parentWidthConstraint, childBox);
 
-    float minClear = 0;
+    float minClear = Float.NEGATIVE_INFINITY;
     if (
       adjustForFloats
       && childWidthConstraint.isBounded()

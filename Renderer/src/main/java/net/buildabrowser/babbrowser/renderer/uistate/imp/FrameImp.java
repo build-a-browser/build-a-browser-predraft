@@ -1,13 +1,14 @@
 package net.buildabrowser.babbrowser.renderer.uistate.imp;
 
 import java.net.URI;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
 import net.buildabrowser.babbrowser.debugger.core.DebugContext;
 import net.buildabrowser.babbrowser.debugger.core.Debugger;
 import net.buildabrowser.babbrowser.debugger.core.FrameDebugger;
+import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.html.events.WindowEventLoop;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.NavigateParameters;
@@ -28,7 +29,8 @@ public class FrameImp implements DebuggableFrame {
   private final Navigable navigable;
   private final GraphicalDocumentRenderer renderer;
 
-  private List<FrameDebugger> attachedDebuggers = new LinkedList<>();
+  private List<FrameDebugger> attachedDebuggers = new ArrayList<>(1);
+  private List<DocumentChangeListener> attachedChangeListeners = new ArrayList<>(1);
 
   public FrameImp(RenderingEngine renderingEngine) {
     NavigableRendererPair navigableRendererPair = renderingEngine.createNavigable(
@@ -51,6 +53,14 @@ public class FrameImp implements DebuggableFrame {
           for (FrameDebugger debugger: attachedDebuggers) {
             debugger.update(debugContext);
           }
+        }
+
+        @Override
+        public DocumentChangeListener newChangeListener(
+          DocumentChangeListener innerListener
+        ) {
+          return new FrameDebuggableDocumentChangeListener(
+            innerListener, attachedChangeListeners);
         }
         
       });
@@ -137,14 +147,17 @@ public class FrameImp implements DebuggableFrame {
   public void attachDebugger(Debugger debugger) {
     FrameDebugger frameDebugger = debugger.create();
     attachedDebuggers.add(frameDebugger);
+    attachedChangeListeners.add(frameDebugger.changeListener());
   }
 
   @Override
   public void detachDebugger(Debugger debugger) {
     ListIterator<FrameDebugger> debuggerIt = attachedDebuggers.listIterator();
     while (debuggerIt.hasNext()) {
-      if (debuggerIt.next().relatedDebugger() != debugger) {
+      FrameDebugger frameDebugger = debuggerIt.next();
+      if (frameDebugger.relatedDebugger() != debugger) {
         debuggerIt.remove();
+        attachedChangeListeners.remove(frameDebugger.changeListener());
       }
     }
   }

@@ -2,6 +2,8 @@ package net.buildabrowser.babbrowser.debugger.swing.gui;
 
 import static javax.swing.SwingUtilities.invokeLater;
 
+import java.util.function.Consumer;
+
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -16,19 +18,26 @@ public class JLazyDiffTreeListener<T> implements LazyDiffTreeListener<T> {
   private final JTree tree;
   private final DefaultMutableTreeNode treeNode;
   private final LazyDiffTree<T> innerTree;
+  private final Consumer<T> onItemSelection;
 
   private String name = "";
 
   public JLazyDiffTreeListener(
     JTree tree,
     DefaultMutableTreeNode treeNode,
-    LazyDiffTree<T> subtree
+    LazyDiffTree<T> subtree,
+    Consumer<T> onItemSelection
   ) {
     this.tree = tree;
     this.treeNode = treeNode;
     this.innerTree = subtree;
+    this.onItemSelection = onItemSelection;
     this.name = subtree.name();
     treeNode.setUserObject(JLazyDiffTreeListener.this);
+
+    if (subtree.isOpen()) {
+      onOpened();
+    }
   }
 
   @Override
@@ -76,16 +85,22 @@ public class JLazyDiffTreeListener<T> implements LazyDiffTreeListener<T> {
 
   @Override
   public void onSelect() {
-    
+    invokeLater(() -> {
+      TreePath path = new TreePath(treeNode.getPath());
+      tree.setSelectionPath(path);
+      tree.scrollPathToVisible(path);
+    });
+    onItemSelection.accept(innerTree.object());
   }
 
   // TODO: Batch add/remove ops
   @Override
   public void onSubTreeAdded(int i, LazyDiffTree<T> subtree) {
     DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(subtree.name());
+    JLazyDiffTree.initTreeNode(tree, childNode, subtree, onItemSelection);
+
     invokeLater(() -> {
       DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
-      JLazyDiffTree.initTreeNode(tree, childNode, subtree);
       model.insertNodeInto(childNode, treeNode, i);
     });
   }

@@ -38,7 +38,6 @@ public class CSSMatcherImp implements CSSMatcher {
   private static final Logger LOGGER = LoggerFactory.getLogger(CSSMatcherImp.class);
 
   private final ElementRootSet allElements;
-  private final ElementSet changedElements;
   private final Set<SelectorPart> changedSelectors;
   private final CSSSelectorMatcher selectorMatcher;
   
@@ -55,7 +54,6 @@ public class CSSMatcherImp implements CSSMatcher {
     this.context = context;
     this.uaStyleSheets = uaStyleSheets;
     this.allElements = ElementSet.createRoot();
-    this.changedElements = allElements.createChild();
     this.changedSelectors = new HashSet<>();
     this.selectorSets = slotFamilyFamily.createSlotFamily(
       (_1, id) -> new ComplexSelectorSlot(allElements.root().createChild(), id));
@@ -88,7 +86,6 @@ public class CSSMatcherImp implements CSSMatcher {
       public void onNodeAdded(Node node) {
         if (node instanceof Element element) {
           allElements.add(element);
-          changedElements.add(element);
         }
         super.onNodeAdded(node);
       }
@@ -106,13 +103,6 @@ public class CSSMatcherImp implements CSSMatcher {
   @Override
   public boolean changed() {
     return !changedSelectors.isEmpty();
-  }
-
-  @Override
-  public ElementSet changedElements() {
-    ElementSet changed = this.changedElements.copy();
-    this.changedElements.removeAll();
-    return changed;
   }
 
   @Override
@@ -201,7 +191,6 @@ public class CSSMatcherImp implements CSSMatcher {
       ElementSet matchedElements = selectorMatcher.matchElements(complexSelector);
       if (matchedElements == null) {
         for (Element element: matchNotes) {
-          changedElements.add(element);
           context.onUnmatched(element, weightedRule);
         }
         continue;
@@ -209,7 +198,6 @@ public class CSSMatcherImp implements CSSMatcher {
 
       for (Element element: matchNotes) {
         if (!(matchedElements.contains(element))) {
-          changedElements.add(element);
           context.onUnmatched(element, weightedRule);
           matchNotes.remove(element);
         }
@@ -217,7 +205,6 @@ public class CSSMatcherImp implements CSSMatcher {
 
       for (Element element: matchedElements) {
         if (matchNotes.contains(element)) continue;
-        changedElements.add(element);
         context.onMatched(element, weightedRule);
         matchNotes.add(element);
       }
@@ -302,7 +289,6 @@ public class CSSMatcherImp implements CSSMatcher {
 
       ElementSet matchNotes = selectorSets.get(complexSelector).matchedElements();
       for (Element element: matchNotes) {
-        changedElements.add(element);
         context.onUnmatched(element, weightedRule);
         matchNotes.remove(element);
       }

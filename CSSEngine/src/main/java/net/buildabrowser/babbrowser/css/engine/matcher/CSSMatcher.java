@@ -16,8 +16,6 @@ public interface CSSMatcher {
 
   void applyStylesheets(Document document, MediaContext mediaContext);
 
-  ElementSet changedElements();
-
   ElementRootSet allElements();
 
   boolean changed();

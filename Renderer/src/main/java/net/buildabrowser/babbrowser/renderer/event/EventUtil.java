@@ -116,9 +116,23 @@ public final class EventUtil {
       TaskSource.USER_INTERACTION,
       document.nodeNavigable().activeWindow(),
       () -> {
-        boolean allowDefault = EventDispatcher.dispatch(event, element);
-        allowDefault &= !contextPreventDefault;
         DocumentChangeListener changeListener = element.nodeDocument().changeListener();
+        boolean allowDefault = true;
+        if (
+          targetFragment != null
+          && changeListener instanceof RendererDocumentChangeListener rendererListener
+        ) {
+          allowDefault = rendererListener.onFragmentEventEarly(
+            element, event, refFragment, targetFragment, allowDefault);
+        }
+        if (allowDefault) {
+          allowDefault = changeListener.onElementEventEarly(
+            element, event, true);
+        }
+        if (allowDefault) {
+          allowDefault = EventDispatcher.dispatch(event, element);
+        }
+        allowDefault &= !contextPreventDefault;
         if (
           targetFragment != null
           && changeListener instanceof RendererDocumentChangeListener rendererListener

@@ -44,6 +44,13 @@ public class LazyDiffTreeImp<T> implements LazyDiffTree<T> {
   }
 
   @Override
+  public void openNow() {
+    open();
+    runQueuedTasks();
+    rediff();
+  }
+
+  @Override
   public void close(boolean isUISource) {
     this.opened = false;
     children.clear();
@@ -87,6 +94,22 @@ public class LazyDiffTreeImp<T> implements LazyDiffTree<T> {
   @Override
   public boolean isLeaf() {
     return object != null && ops.isNodeLeaf(object);
+  }
+
+  @Override
+  public boolean isOpen() {
+    return this.opened;
+  }
+
+  @Override
+  public LazyDiffTree<T> child(T object) {
+    for (LazyDiffTree<T> child: children) {
+      if (child.object() == object) {
+        return child;
+      }
+    }
+
+    return null;
   }
 
   private void forEachListener(
