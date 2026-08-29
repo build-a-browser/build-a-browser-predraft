@@ -1,7 +1,5 @@
 package net.buildabrowser.babbrowser.css.engine.matcher.imp;
 
-import static net.buildabrowser.babbrowser.css.engine.matcher.util.WeightedStyleRuleUtil.createWeightedRule;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,6 +13,7 @@ import net.buildabrowser.babbrowser.css.engine.matcher.ElementRootSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.ElementSet;
 import net.buildabrowser.babbrowser.css.engine.matcher.slot.ComplexSelectorSlot;
 import net.buildabrowser.babbrowser.css.engine.matcher.slot.MediaRuleSlot;
+import net.buildabrowser.babbrowser.css.engine.matcher.util.WeightedStyleRuleUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleList;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
@@ -95,7 +94,7 @@ public class CSSMatcherImp implements CSSMatcher {
         if (node instanceof Element element) {
           allElements.remove(element);
         }
-        super.onNodeAdded(node);
+        super.onNodeRemoved(node);
       }
     };
   }
@@ -129,6 +128,9 @@ public class CSSMatcherImp implements CSSMatcher {
     for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
       selectorMatcher.registerSelector(complexSelector);
     }
+    for (CSSRule childRule: styleRule.nestedRules()) {
+      registerRule(childRule);
+    }
   }
 
   private void registerMediaRule(MediaRule mediaRule) {
@@ -146,82 +148,87 @@ public class CSSMatcherImp implements CSSMatcher {
       CSSStyleSheet styleSheet = stylesheets.item(i);
       CSSRuleList ruleList = styleSheet.cssRules();
 
-      int[] ruleOrdering = new int[1];
+      RuleContext ruleContext = new RuleContext(
+        mediaContext, source, i, new int[1]);
       for (CSSRule rule: ruleList) {
-        applyRule(mediaContext, rule, source, i, ruleOrdering, false);
+        applyRule(ruleContext, rule, false);
       }
     }
   }
 
   private void applyRule(
-    MediaContext mediaContext,
+    RuleContext ruleContext,
     CSSRule cssRule,
-    RuleSource ruleSource,
-    int sheetOrdering,
-    int[] ruleOrdering,
     boolean forceMatch
   ) {
     switch (cssRule) {
       case StyleRule styleRule -> applyStyleRule(
-        styleRule, ruleSource, sheetOrdering, ruleOrdering, forceMatch);
+        ruleContext, styleRule, forceMatch);
       case MediaRule mediaRule -> applyMediaRule(
-        mediaContext, mediaRule, ruleSource,
-        sheetOrdering, ruleOrdering, forceMatch);
+        ruleContext, mediaRule, forceMatch);
       default -> LOGGER.warn("Ignoring unknown rule: " + cssRule);
     }
   }
     
   private void applyStyleRule(
+    RuleContext ruleContext,
     StyleRule styleRule,
-    RuleSource ruleSource,
-    int sheetOrdering,
-    int[] ruleOrdering,
     boolean forceMatch
   ) {
     for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
-      boolean needsMatched = forceMatch || needsMatched(complexSelector);
-      if (!needsMatched) continue;
+      applyStyleRuleWithSelector(ruleContext, styleRule, complexSelector, forceMatch);
+    }
+    ruleContext.ruleOrdering()[0]++;
 
-      WeightedStyleRule weightedRule = createWeightedRule(
-        styleRule, ruleSource, complexSelector,
-        selectorMatcher.computeSpecificity(complexSelector),
-        sheetOrdering, ruleOrdering);
+    for (CSSRule childRule: styleRule.nestedRules()) {
+      applyRule(ruleContext, childRule, forceMatch);
+    }
+  }
 
-      ElementSet matchNotes = selectorSets.get(complexSelector).matchedElements();
-      ElementSet matchedElements = selectorMatcher.matchElements(complexSelector);
-      if (matchedElements == null) {
-        for (Element element: matchNotes) {
-          context.onUnmatched(element, weightedRule);
-        }
-        continue;
-      }
+  private void applyStyleRuleWithSelector(
+    RuleContext ruleContext,
+    StyleRule styleRule,
+    ComplexSelector complexSelector,
+    boolean forceMatch
+  ) {
+    boolean needsMatched = forceMatch || needsMatched(complexSelector);
+    if (!needsMatched)
+      return;
 
+    WeightedStyleRule weightedRule = createWeightedRule(
+      ruleContext, styleRule, complexSelector);
+
+    ElementSet matchNotes = selectorSets.get(complexSelector).matchedElements();
+    ElementSet matchedElements = selectorMatcher.matchElements(complexSelector);
+    if (matchedElements == null) {
       for (Element element: matchNotes) {
-        if (!(matchedElements.contains(element))) {
-          context.onUnmatched(element, weightedRule);
-          matchNotes.remove(element);
-        }
+        context.onUnmatched(element, weightedRule);
       }
+      matchNotes.removeAll();
+      return;
+    }
 
-      for (Element element: matchedElements) {
-        if (matchNotes.contains(element)) continue;
-        context.onMatched(element, weightedRule);
-        matchNotes.add(element);
+    for (Element element: matchNotes) {
+      if (!(matchedElements.contains(element))) {
+        context.onUnmatched(element, weightedRule);
+        matchNotes.remove(element);
       }
     }
 
-    ruleOrdering[0]++;
+    for (Element element: matchedElements) {
+      if (matchNotes.contains(element)) continue;
+      context.onMatched(element, weightedRule);
+      matchNotes.add(element);
+    }
   }
 
   private void applyMediaRule(
-    MediaContext mediaContext,
+    RuleContext ruleContext,
     MediaRule mediaRule,
-    RuleSource ruleSource,
-    int sheetOrdering,
-    int[] ruleOrdering,
     boolean forceMatch
   ) {
-    boolean isActive = mediaRule.query().resolve(mediaContext);
+    int[] ruleOrdering = ruleContext.ruleOrdering();
+    boolean isActive = mediaRule.query().resolve(ruleContext.mediaContext());
     MediaRuleSlot mediaState = mediaStates.get(mediaRule);
     boolean wasChanged =
       isActive != mediaState.active()
@@ -236,23 +243,34 @@ public class CSSMatcherImp implements CSSMatcher {
       int startSize = ruleOrdering[0];
       for (CSSRule rule: mediaRule.innerRules()) {
         applyRule(
-          mediaContext, rule, ruleSource,
-          sheetOrdering, ruleOrdering,
+          ruleContext, rule,
           forceMatch || wasChanged);
       }
       mediaState.setRuleSize(ruleOrdering[0] - startSize);
     } else {
-      deactivateMediaRule(mediaRule, ruleSource, sheetOrdering, ruleOrdering);
+      deactivateMediaRule(ruleContext, mediaRule);
     }
     mediaState.setActive(isActive);
   }
 
-  private void deactivateMediaRule(
-    MediaRule mediaRule,
-    RuleSource ruleSource,
-    int sheetOrdering,
-    int[] ruleOrdering
+  private void deactivateRule(
+    RuleContext ruleContext,
+    CSSRule rule
   ) {
+    switch (rule) {
+      case MediaRule mediaRule2 -> deactivateMediaRule(
+        ruleContext, mediaRule2);
+      case StyleRule styleRule -> deactivateStyleRule(
+        ruleContext, styleRule);
+      default -> LOGGER.warn("Ignoring unknown rule: " + rule);
+    }
+  }
+
+  private void deactivateMediaRule(
+    RuleContext ruleContext,
+    MediaRule mediaRule
+  ) {
+    int[] ruleOrdering = ruleContext.ruleOrdering();
     MediaRuleSlot mediaState = mediaStates.get(mediaRule);
     boolean needsDeactivated =
       mediaState.active()
@@ -264,28 +282,18 @@ public class CSSMatcherImp implements CSSMatcher {
 
     int startSize = ruleOrdering[0];
     for (CSSRule rule: mediaRule.innerRules()) {
-      switch (rule) {
-        case MediaRule mediaRule2 -> deactivateMediaRule(
-          mediaRule2, ruleSource, sheetOrdering, ruleOrdering);
-        case StyleRule styleRule -> deactivateStyleRule(
-          styleRule, ruleSource, sheetOrdering, ruleOrdering);
-        default -> LOGGER.warn("Ignoring unknown rule: " + rule);
-      }
+      deactivateRule(ruleContext, rule);
     }
     mediaState.setRuleSize(ruleOrdering[0] - startSize);
   }
 
   private void deactivateStyleRule(
-    StyleRule styleRule,
-    RuleSource ruleSource,
-    int sheetOrdering,
-    int[] ruleOrdering
+    RuleContext ruleContext,
+    StyleRule styleRule
   ) {
     for (ComplexSelector complexSelector: styleRule.complexSelectors()) {
       WeightedStyleRule weightedRule = createWeightedRule(
-        styleRule, ruleSource, complexSelector,
-        selectorMatcher.computeSpecificity(complexSelector),
-        sheetOrdering, ruleOrdering);
+        ruleContext, styleRule, complexSelector);
 
       ElementSet matchNotes = selectorSets.get(complexSelector).matchedElements();
       for (Element element: matchNotes) {
@@ -294,7 +302,11 @@ public class CSSMatcherImp implements CSSMatcher {
       }
     }
 
-    ruleOrdering[0]++;
+    for (CSSRule childRule: styleRule.nestedRules()) {
+      deactivateRule(ruleContext, childRule);
+    }
+    
+    ruleContext.ruleOrdering()[0]++;
   }
 
   private boolean needsMatched(ComplexSelector complexSelector) {
@@ -314,5 +326,26 @@ public class CSSMatcherImp implements CSSMatcher {
 
     return false;
   }
+
+  private WeightedStyleRule createWeightedRule(
+    RuleContext ruleContext,
+    StyleRule styleRule,
+    ComplexSelector complexSelector
+  ) {
+    return WeightedStyleRuleUtil.createWeightedRule(
+      styleRule,
+      ruleContext.ruleSource(),
+      complexSelector,
+      selectorMatcher.computeSpecificity(complexSelector),
+      ruleContext.sheetOrdering(),
+      ruleContext.ruleOrdering);
+  }
+
+  private static record RuleContext(
+    MediaContext mediaContext,
+    RuleSource ruleSource,
+    int sheetOrdering,
+    int[] ruleOrdering
+  ) {}
 
 }

@@ -1,7 +1,5 @@
 package net.buildabrowser.babbrowser.cssbase.parser.imp;
 
-import static net.buildabrowser.babbrowser.common.util.CompatUtil.removeLast;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +12,7 @@ import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
 public class ActiveCSSTokenStream implements CSSTokenStream {
   
-  private final CSSTokenizer cssTokenizer = CSSTokenizer.create();
+private final CSSTokenizer cssTokenizer = CSSTokenizer.create();
   private final List<Token> tokenPushback = new ArrayList<>();
   private final List<Integer> markPushback = new ArrayList<>();
   private final CSSTokenStreamSource source;
@@ -23,10 +21,7 @@ public class ActiveCSSTokenStream implements CSSTokenStream {
   private Token pushback = null;
   private int markPos = 0;
 
-  public ActiveCSSTokenStream(
-    CSSTokenStreamSource source,
-    CSSTokenizerInput tokenizerInput
-  ) {
+  public ActiveCSSTokenStream(CSSTokenStreamSource source, CSSTokenizerInput tokenizerInput) {
     this.source = source;
     this.tokenizerInput = tokenizerInput;
   }
@@ -46,15 +41,15 @@ public class ActiveCSSTokenStream implements CSSTokenStream {
 
     if (markPos < tokenPushback.size()) {
       return tokenPushback.get(markPos++);
-    } else if (
-      tokenPushback.size() > 0
-      && markPushback.size() == 0
-    ) {
+    }
+
+    if (markPushback.isEmpty() && !tokenPushback.isEmpty()) {
       tokenPushback.clear();
+      markPos = 0;
     }
 
     Token token = cssTokenizer.consumeAToken(tokenizerInput);
-    if (markPushback.size() > 0) {
+    if (!markPushback.isEmpty()) {
       tokenPushback.add(token);
       markPos++;
     }
@@ -64,26 +59,28 @@ public class ActiveCSSTokenStream implements CSSTokenStream {
 
   @Override
   public void unread(Token token) {
-    this.pushback = token;
+    if (markPos > 0 && !tokenPushback.isEmpty()) {
+      markPos--;
+    } else {
+      this.pushback = token;
+    }
   }
-
-  //
 
   @Override
   public int mark() {
-    if (markPushback.size() == 0) {
+    if (markPushback.isEmpty() && markPos >= tokenPushback.size()) {
+      tokenPushback.clear();
       markPos = 0;
     }
 
     markPushback.add(markPos);
-    
     return markPos;
   }
 
   @Override
   public void restoreMark(int mark) {
     this.pushback = null;
-    int removed = removeLast(markPushback);
+    int removed = markPushback.remove(markPushback.size() - 1);
     assert mark == removed;
     this.markPos = mark;
   }
@@ -91,13 +88,12 @@ public class ActiveCSSTokenStream implements CSSTokenStream {
   @Override
   public void discardMark() {
     this.pushback = null;
-    removeLast(markPushback);
-    if (
-      markPushback.size() == 0
-      && markPos >= tokenPushback.size()
-    ) {
-      markPos = 0;
+    if (!markPushback.isEmpty()) {
+      markPushback.remove(markPushback.size() - 1);
+    }
+    if (markPushback.isEmpty() && markPos >= tokenPushback.size()) {
       tokenPushback.clear();
+      markPos = 0;
     }
   }
 

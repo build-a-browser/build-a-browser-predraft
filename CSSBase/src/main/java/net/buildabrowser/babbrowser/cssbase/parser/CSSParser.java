@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleList;
+import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleOrDeclarations;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
-import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.CSSParserImp;
 
 public interface CSSParser {
@@ -14,7 +14,9 @@ public interface CSSParser {
 
   CSSRuleList parseARuleList(CSSTokenStream tokenStream) throws IOException;
 
-  List<Declaration> parseAStyleBlocksContents(CSSTokenStream tokenStream) throws IOException;
+  List<CSSRuleOrDeclarations> parseABlocksContents(
+    CSSTokenStream tokenStream
+  ) throws IOException;
 
   // Unfortunately, INSTANCE cannot be private due to interface rules
   static final CSSParser INSTANCE = new CSSParserImp();

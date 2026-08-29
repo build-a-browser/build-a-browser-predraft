@@ -40,7 +40,7 @@ public final class PresentationalHintResolver {
     String propName,
     CSSValue value
   ) {
-    StyleRule styleRule = new StyleRule(List.of(), List.of(
+    StyleRule styleRule = new StyleRule(List.of(
       // TODO: Get the actual source to pass in
       Declaration.create(null, propName, value, false)));
     WeightedStyleRule weightedStyleRule = WeightedStyleRule.create(

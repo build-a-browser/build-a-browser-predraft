@@ -42,12 +42,14 @@ public class CSSParserTest {
       IdentToken.create("p"), LCBracketToken.create(), IdentToken.create("color"),
       ColonToken.create(), IdentToken.create("red"), RCBracketToken.create()
     );
+    List<ComplexSelector> selectors = List.of(
+      ComplexSelector.create(List.of(TypeSelector.create("p"))));
     Assertions.assertEquals(CSSStyleSheet.create(CSSRuleList.create(List.of(
       new StyleRule(
+        selectors, selectors,
         List.of(
-          ComplexSelector.create(List.of(TypeSelector.create("p")))),
-        List.of(
-          Declaration.create(TEST_SOURCE, "color", List.of(IdentToken.create("red")), false))
+          Declaration.create(TEST_SOURCE, "color", List.of(IdentToken.create("red")), false)),
+        List.of()
       )
     ))), styleSheet);
   }

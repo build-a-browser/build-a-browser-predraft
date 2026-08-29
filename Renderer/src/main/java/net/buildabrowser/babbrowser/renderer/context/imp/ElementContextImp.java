@@ -10,6 +10,8 @@ import net.buildabrowser.babbrowser.common.datastruct.SlotItem;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
 import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesGenerator;
+import net.buildabrowser.babbrowser.cssbase.cssom.CSSDeclarationList;
+import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleOrDeclarations;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
@@ -213,10 +215,17 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
       CSSTokenStreamSource source = new CSSTokenStreamSource(baseURL);
       CSSTokenizerInput tokenizerInput = CSSTokenizerInput.fromString(styleStr);
       CSSTokenStream tokenizerStream = CSSTokenStream.create(source, tokenizerInput);
-      List<Declaration> declarations = CommonUtil.rethrow(
-        () -> CSSParser.create().parseAStyleBlocksContents(tokenizerStream));
+      List<CSSRuleOrDeclarations> rules = CommonUtil.rethrow(
+        () -> CSSParser.create().parseABlocksContents(tokenizerStream));
+      List<Declaration> declarations = new ArrayList<>(4);
+      // TODO: What to do with other rules?
+      for (CSSRuleOrDeclarations rule: rules) {
+        if (rule instanceof CSSDeclarationList list) {
+          declarations.addAll(list.declarations());
+        }
+      }
       // Need to do some dumb constructors to convert it to a WeightedStyleRule, maybe improve this later...
-      StyleRule styleRule = new StyleRule(List.of(), declarations);
+      StyleRule styleRule = new StyleRule(declarations);
       WeightedStyleRule weightedStyleRule = WeightedStyleRule.create(
         styleRule, ATTR_SPECIFICITY, RuleSource.AUTHOR, 0, 0);
       onCSSRuleMatched(weightedStyleRule);

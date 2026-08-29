@@ -16,8 +16,8 @@ import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSVarValue;
-import net.buildabrowser.babbrowser.cssbase.property.floats.FloatValue;
 import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
+import net.buildabrowser.babbrowser.cssbase.property.floats.FloatValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.BoxSizingValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
@@ -288,8 +288,7 @@ public class ActiveStylesGeneratorTest {
     SelectorSpecificity specificity,
     Declaration... declarations
   ) {
-    StyleRule rule = new StyleRule(
-      List.of(), List.of(declarations));
+    StyleRule rule = new StyleRule(List.of(declarations));
     return WeightedStyleRule.create(
       rule, specificity,
       SelectorTarget.ELEMENT,

@@ -17,6 +17,7 @@ import net.buildabrowser.babbrowser.cssbase.selector.Combinator;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.NestingSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.NextSiblingCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.SubsequentSiblingCombinator;
@@ -144,6 +145,7 @@ public final class ComplexSelectorParser {
       case '>' -> parts.add(ChildCombinator.create());
       case '+' -> parts.add(NextSiblingCombinator.create());
       case '~' -> parts.add(SubsequentSiblingCombinator.create());
+      case '&' -> parts.add(NestingSelector.create());
       default -> isInvalid = true;
     }
 
@@ -159,6 +161,7 @@ public final class ComplexSelectorParser {
     ignoreWhitespace(tokenStream);
     String attrName = parseIdentOrString(tokenStream);
     if (attrName == null) return true;
+    ignoreWhitespace(tokenStream);
 
     AttributeType attrType = AttributeType.HAS_ATTR;
     String attrValue = "";
@@ -189,6 +192,7 @@ public final class ComplexSelectorParser {
 
       if (attrType == null) return true;
 
+      ignoreWhitespace(tokenStream);
       attrValue = parseIdentOrString(tokenStream);
       if (attrValue == null) return true;
     }

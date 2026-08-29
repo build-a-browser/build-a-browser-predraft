@@ -104,7 +104,7 @@ public class HTMLNodeDebugObject implements DebugObject {
     OutlineCompositeValue outlineValue = new OutlineCompositeValue(
       LengthValue.create(2, LengthType.PX),
       LineStyleValue.SOLID, color);
-    StyleRule styleRule = new StyleRule(List.of(), List.of(
+    StyleRule styleRule = new StyleRule(List.of(
       // TODO: Get the actual source to pass in
       Declaration.create(null, "outline", outlineValue, true)));
     return WeightedStyleRule.create(

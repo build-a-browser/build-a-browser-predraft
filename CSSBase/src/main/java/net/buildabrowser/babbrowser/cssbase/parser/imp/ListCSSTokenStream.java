@@ -25,6 +25,7 @@ public class ListCSSTokenStream implements CSSTokenStream {
     this.source = source;
     this.tokens = tokens;
     this.skipWhitespace = skipWhitespace;
+    if (tokens == null) throw new AssertionError();
   }
 
   @Override

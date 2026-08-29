@@ -87,7 +87,8 @@ public class SwingStyleView extends JScrollPane {
   }
 
   private void addOrUpdateStyleRuleSection(WeightedStyleRule weightedRule, Set<String> activeRuleKeys) {
-    String selectorTitle = CSSSerializerUtil.serializeSelectorList(weightedRule.rule().complexSelectors());
+    String selectorTitle = CSSSerializerUtil.serializeSelectorList(
+      weightedRule.rule().sourceSelectors());
     String ruleKey = "rule_" + weightedRule.hashCode() + "_" + selectorTitle;
     activeRuleKeys.add(ruleKey);
 

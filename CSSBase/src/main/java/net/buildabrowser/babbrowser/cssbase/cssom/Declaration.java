@@ -6,8 +6,8 @@ import java.util.Objects;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.DeclarationParser;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSDeferred;
+import net.buildabrowser.babbrowser.cssbase.property.DeclarationParser;
 import net.buildabrowser.babbrowser.cssbase.tokens.Token;
 
 // TODO: Case-Sensitive option?
@@ -94,6 +94,18 @@ public class Declaration {
   @Override
   public int hashCode() {
     return hashCodeO;
+  }
+
+  @Override
+  public String toString() {
+    return new StringBuilder("Declaration[name=")
+      .append(name)
+      .append(", value=")
+      .append(value)
+      .append(", important=")
+      .append(important)
+      .append(']')
+      .toString();
   }
 
   public static Declaration create(

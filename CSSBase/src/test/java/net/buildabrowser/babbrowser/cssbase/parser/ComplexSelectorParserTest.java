@@ -15,6 +15,7 @@ import net.buildabrowser.babbrowser.cssbase.selector.ChildCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.DescendantCombinator;
 import net.buildabrowser.babbrowser.cssbase.selector.IdSelector;
+import net.buildabrowser.babbrowser.cssbase.selector.NestingSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.UniversalSelector;
@@ -68,6 +69,16 @@ public class ComplexSelectorParserTest {
       DelimToken.create('*'));
     List<ComplexSelector> expectedSelectors = oneSelector(
       UniversalSelector.create());
+    Assertions.assertEquals(expectedSelectors, actualSelectors);
+  }
+  
+  @Test
+  @DisplayName("Can parse the nesting selector")
+  public void canParseTheNestingSelector() throws IOException {
+    List<ComplexSelector> actualSelectors = parseTokens(
+      DelimToken.create('&'));
+    List<ComplexSelector> expectedSelectors = oneSelector(
+      NestingSelector.create());
     Assertions.assertEquals(expectedSelectors, actualSelectors);
   }
 

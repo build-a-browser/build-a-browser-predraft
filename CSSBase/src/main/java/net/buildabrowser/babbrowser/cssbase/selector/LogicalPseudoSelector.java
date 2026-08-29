@@ -7,7 +7,12 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSSerializerUtil;
 public record LogicalPseudoSelector(
   LogicalPseudoSelectorType type,
   List<ComplexSelector> complexSelectors
-) implements SelectorPart {
+) implements SelectorReferencingSelectorPart {
+
+  @Override
+  public SelectorReferencingSelectorPart rewrite(List<ComplexSelector> newChildren) {
+    return new LogicalPseudoSelector(type, newChildren);
+  }
 
   public static enum LogicalPseudoSelectorType {
     IS, NOT, WHERE, HAS

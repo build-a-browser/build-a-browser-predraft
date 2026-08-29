@@ -1,5 +1,5 @@
 package net.buildabrowser.babbrowser.cssbase.cssom;
 
-public interface CSSRule {
+public interface CSSRule extends CSSRuleOrDeclarations {
 
 }

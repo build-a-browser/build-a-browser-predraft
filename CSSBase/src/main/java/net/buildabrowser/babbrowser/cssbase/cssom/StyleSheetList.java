@@ -35,7 +35,8 @@ public interface StyleSheetList extends Iterable<CSSStyleSheet> {
     CSSTokenizerInput tokenizerInput = CSSTokenizerInput.fromReader(reader);
     CSSTokenStream tokenizerStream = CSSTokenStream.create(source, tokenizerInput);
     
-    CSSStyleSheet styleSheet = CommonUtil.rethrow(() -> CSSParser.create().parseAStyleSheet(tokenizerStream));
+    CSSStyleSheet styleSheet = CommonUtil.rethrow(
+      () -> CSSParser.create().parseAStyleSheet(tokenizerStream));
     return StyleSheetList.create(List.of(styleSheet));
   }
 

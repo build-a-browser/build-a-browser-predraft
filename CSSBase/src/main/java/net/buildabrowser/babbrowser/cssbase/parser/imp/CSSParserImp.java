@@ -7,8 +7,8 @@ import java.util.List;
 import net.buildabrowser.babbrowser.cssbase.cssom.AtRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleList;
+import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleOrDeclarations;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
-import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
 import net.buildabrowser.babbrowser.cssbase.cssom.MediaRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
@@ -20,77 +20,128 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.tokens.AtKeywordToken;
 
+// Includes some changes from https://drafts.csswg.org/css-syntax/
+// not present in https://www.w3.org/TR/css-syntax-3/
+
 public class CSSParserImp implements CSSParser {
 
   private final CSSIntermediateParserImp intermediateParser = new CSSIntermediateParserImp();
 
   @Override
-  public CSSStyleSheet parseAStyleSheet(CSSTokenStream stream) throws IOException {
+  public CSSStyleSheet parseAStyleSheet(
+    CSSTokenStream stream
+  ) throws IOException {
     // TODO: Location
-    CSSRuleList ruleList = consumeAListOfRules(stream, true);
+    CSSRuleList ruleList = consumeAStylesheetsContents(stream, true);
     return CSSStyleSheet.create(ruleList);
   }
 
   @Override
-  public CSSRuleList parseARuleList(CSSTokenStream stream) throws IOException {
-    return consumeAListOfRules(stream, false);
+  public CSSRuleList parseARuleList(
+    CSSTokenStream stream
+  ) throws IOException {
+    return consumeAStylesheetsContents(stream, false);
   }
 
   @Override
-  public List<Declaration> parseAStyleBlocksContents(CSSTokenStream tokenStream) throws IOException {
-    return intermediateParser.consumeAStyleBlocksContents(tokenStream);
+  public List<CSSRuleOrDeclarations> parseABlocksContents(
+    CSSTokenStream tokenStream
+  ) throws IOException {
+    return intermediateParser.consumeABlocksContents(tokenStream);
   }
 
-  private CSSRuleList consumeAListOfRules(CSSTokenStream stream, boolean topLevel) throws IOException {
-    List<CSSRule> rawRules = intermediateParser.consumeAListOfRules(stream, topLevel);
-    List<CSSRule> mappedRules = new ArrayList<>(rawRules.size());
-    for (CSSRule rawRule: rawRules) {
-      CSSRule remappedRule = remapRule(stream.source(), rawRule);
-      if (remappedRule == null) continue;
-      mappedRules.add(remappedRule);
-    }
+  private CSSRuleList consumeAStylesheetsContents(
+    CSSTokenStream stream, boolean topLevel
+  ) throws IOException {
+    List<CSSRule> rawRules = intermediateParser.consumeAStylesheetsContents(stream, topLevel);
+    List<CSSRule> mappedRules = remapRules(stream.source(), rawRules, null);
     
     return CSSRuleList.create(mappedRules);
   }
 
+  private List<CSSRule> remapRules(
+    CSSTokenStreamSource source,
+    List<CSSRule> rawRules,
+    List<ComplexSelector> parentSelectors
+  ) throws IOException {
+    List<CSSRule> mappedRules = new ArrayList<>(rawRules.size());
+    for (CSSRule rawRule: rawRules) {
+      CSSRule remappedRule = remapRule(source, rawRule, parentSelectors);
+      if (remappedRule == null) continue;
+      mappedRules.add(remappedRule);
+    }
+    return mappedRules;
+  }
+
   private CSSRule remapRule(
-    CSSTokenStreamSource source, CSSRule rule
+    CSSTokenStreamSource source,
+    CSSRule rule,
+    List<ComplexSelector> parentSelectors
   ) throws IOException {
     switch (rule) {
       case QualifiedRule qualifiedRule:
-        return createStyleRule(source, qualifiedRule);
+        return createStyleRule(source, qualifiedRule, parentSelectors);
       case AtRule atRule:
         if (atRule.name().equals(AtKeywordToken.create("media"))) {
-          return createMediaRule(source, atRule);
+          return createMediaRule(source, atRule, parentSelectors);
         }
         // TODO
         return null;
+      case StyleRule styleRule:
+        return styleRule;
       default:
         throw new UnsupportedOperationException("Unrecognized rule type!");
     }
   }
 
   private CSSRule createStyleRule(
-    CSSTokenStreamSource source, QualifiedRule qualifiedRule
+    CSSTokenStreamSource source,
+    QualifiedRule qualifiedRule,
+    List<ComplexSelector> parentSelectors
   ) throws IOException {
-    List<Declaration> declarations = intermediateParser.consumeAStyleBlocksContents(
-      ListCSSTokenStream.create(source, qualifiedRule.simpleBlock().value()));
+    boolean isContinuation =
+      parentSelectors != null
+      && qualifiedRule.prelude() == null;
+    assert isContinuation || qualifiedRule.prelude() != null;
+    // ComplexSelectors must be duplicated because they have a unique slot
+    List<ComplexSelector> sourceSelectors =
+      isContinuation ? duplicateSelectors(parentSelectors) :
+      qualifiedRule.prelude() == null ? List.of() : // TODO: Why does this happen?
+      ComplexSelectorParser.parseComplexSelectors(
+        ListCSSTokenStream.create(source, qualifiedRule.prelude()),
+        parentSelectors != null);
+    List<ComplexSelector> desugaredSelectors = parentSelectors != null && !isContinuation ?
+      CSSDesugaring.desugarSelectors(parentSelectors, sourceSelectors, isContinuation) :
+      CSSDesugaring.desugarSelectors(List.of(), sourceSelectors, isContinuation);
 
-    List<ComplexSelector> selectors = ComplexSelectorParser.parseComplexSelectors(
-      ListCSSTokenStream.create(source, qualifiedRule.prelude()), false);
-
-    return new StyleRule(selectors, declarations);
+    // Don't rewrite the rules here (other than for continuations) as it affects serialization
+    return new StyleRule(
+      sourceSelectors,
+      desugaredSelectors,
+      qualifiedRule.declarations(),
+      remapRules(source, qualifiedRule.rules(), desugaredSelectors)
+    );
   }
 
   private CSSRule createMediaRule(
-    CSSTokenStreamSource source, AtRule atRule
+    CSSTokenStreamSource source,
+    AtRule atRule,
+    List<ComplexSelector> parentSelectors
   ) throws IOException {
     MediaNode query = CSSMediaQueryParser.parseQuery(
       ListCSSTokenStream.createWithSkippedWhitespace(source, atRule.prelude()));
-    CSSRuleList innerRules = parseARuleList(
-      ListCSSTokenStream.create(source, atRule.simpleBlock().value()));
     
-    return new MediaRule(query, innerRules);
+    List<CSSRule> rules = CSSIntermediateParserImp.wrapDeclarations(atRule.rules());
+    return new MediaRule(query, remapRules(source, rules, parentSelectors));
+  }
+
+  private List<ComplexSelector> duplicateSelectors(List<ComplexSelector> selectors) {
+    List<ComplexSelector> duplicates = new ArrayList<>(selectors.size());
+    for (ComplexSelector selector: selectors) {
+      duplicates.add(new ComplexSelector(selector.parts()));
+    }
+
+    return duplicates;
   }
   
 }
