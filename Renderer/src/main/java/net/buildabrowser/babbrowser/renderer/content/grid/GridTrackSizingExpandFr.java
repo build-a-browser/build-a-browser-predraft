@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericFlexibleUtil;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint.LayoutConstraintType;
 
@@ -21,9 +22,16 @@ public final class GridTrackSizingExpandFr {
       layoutConstraint.type().equals(LayoutConstraintType.MIN_CONTENT)
     ) return;
 
+
+    boolean isVertical = direction == GridDirection.ROW;
+    float gap = GenericFlexibleUtil.mainGap(
+      grid.gridBox(), isVertical, layoutConstraint);
+
     float flexFraction = layoutConstraint.isBounded() ?
-      findDefiniteFlexFraction(grid, direction, layoutConstraint.value()) :
-      findIndefiniteFlexFraction(grid, direction, items);
+      findDefiniteFlexFraction(
+        grid, direction, layoutConstraint.value(), gap) :
+      findIndefiniteFlexFraction(
+        grid, direction, items, gap);
     for (GridTrack track: grid.tracks(direction)) {
       if (!isFlexible(track)) continue;
       assert track.baseSize().isBounded();
@@ -35,17 +43,21 @@ public final class GridTrackSizingExpandFr {
   }
 
   private static float findDefiniteFlexFraction(
-    Grid grid, GridDirection direction, float availableGridSpace
+    Grid grid,
+    GridDirection direction,
+    float availableGridSpace,
+    float gap
   ) {
     return findTheSizeOfAnFr(
       List.of(grid.tracks(direction)),
-      availableGridSpace);
+      availableGridSpace, gap);
   }
 
   private static float findIndefiniteFlexFraction(
     Grid grid,
     GridDirection direction,
-    List<GridItem> items
+    List<GridItem> items,
+    float gap
   ) {
     // TODO: Use max width instead when needed
     float maximumFlexFraction = 0;
@@ -81,7 +93,7 @@ public final class GridTrackSizingExpandFr {
 
       float maxContent = GridItemContributions
         .maxContentContribution(item, grid, direction).value();
-      float itemFlexFraction = findTheSizeOfAnFr(tracks, maxContent);
+      float itemFlexFraction = findTheSizeOfAnFr(tracks, maxContent, gap);
       maximumFlexFraction = Math.max(maximumFlexFraction, itemFlexFraction);
       // TODO: Respect min-width/height
     }
@@ -100,9 +112,13 @@ public final class GridTrackSizingExpandFr {
 
   private static float findTheSizeOfAnFr(
     List<GridTrack> tracks,
-    float spaceToFill
+    float spaceToFill,
+    float gap
   ) {
     float leftoverSpace = spaceToFill;
+    if (tracks.size() > 1) {
+      leftoverSpace -= (tracks.size() - 1) * gap;
+    }
     for (GridTrack track: tracks) {
       if (isFlexible(track)) continue;
       assert track.baseSize().isBounded();

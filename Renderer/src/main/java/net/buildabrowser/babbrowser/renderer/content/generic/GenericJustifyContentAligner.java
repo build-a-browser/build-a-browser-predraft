@@ -17,12 +17,36 @@ public final class GenericJustifyContentAligner {
     float autoSize = distributeMainSpace(alignmentContext, line);
     if (
       alignmentContext.isReverse()
-      && alignmentContext.mainSize().isBounded() // The final pass should be bounded, earlier passes should not matter so much
+      && !alignmentContext.mainSize().isPreLayoutConstraint() // The final pass should be bounded, earlier passes should not matter so much
     ) {
       justifyContentReverse(alignmentContext, line, autoSize);
     } else {
       justifyContent(alignmentContext, line, autoSize);
     }
+  }
+
+  public static float computeFitSpace(
+    List<GenericJustifyContentItem> contents, float mainGap
+  ) {
+    LayoutConstraint parentConstraint = LayoutConstraint.AUTO;
+
+    float fitSpace = 0;
+    fitSpace += mainGap * (contents.size() - 1);
+    for (GenericJustifyContentItem item: contents) {
+      fitSpace += item.mainSize();
+      
+      LayoutConstraint firstMargin = item.firstMargin(parentConstraint);
+      if (firstMargin.isBounded()) {
+        fitSpace += firstMargin.value();
+      }
+      
+      LayoutConstraint secondMargin = item.secondMargin(parentConstraint);
+      if (secondMargin.isBounded()) {
+        fitSpace += secondMargin.value();
+      }
+    }
+
+    return fitSpace;
   }
 
   private static float distributeMainSpace(MainAlignmentContext alignmentContext, Line line) {
@@ -166,7 +190,7 @@ public final class GenericJustifyContentAligner {
   ) {
     LayoutConstraint parentConstraint = alignmentContext.mainSize();
 
-    float remainingFreeSpace = alignmentContext.mainSize().value();
+    float remainingFreeSpace = parentConstraint.value();
     remainingFreeSpace -= alignmentContext.mainGap() * (line.genericItems().size() - 1);
     for (GenericJustifyContentItem item: line.genericItems()) {
       remainingFreeSpace -= item.mainSize();
@@ -186,6 +210,10 @@ public final class GenericJustifyContentAligner {
         remainingFreeSpace -= autoSize;
         numAutos[0]++;
       }
+    }
+
+    if (!parentConstraint.isBounded()) {
+      return 0;
     }
 
     return remainingFreeSpace;

@@ -1,6 +1,7 @@
 package net.buildabrowser.babbrowser.renderer.content.common;
 
 import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
+import static net.buildabrowser.babbrowser.renderer.content.common.SizingUtil.adjustConstraint;
 import static net.buildabrowser.babbrowser.renderer.content.common.SizingUtil.evaluateBaseSizeRaw;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
@@ -26,20 +27,24 @@ public final class SizingWidthUtil {
     ElementBox refBox
   ) {
     return evaluateWidthSize(
-      parentConstraint, refBox,
+      parentConstraint, refBox, CSSProperty.WIDTH,
       refBox.properties().get(CSSProperty.WIDTH));
   }
 
   public static LayoutConstraint evaluateWidthSize(
     LayoutConstraint parentConstraint,
     ElementBox refBox,
+    CSSProperty refProperty,
     CSSValue sizeValue
   ) {
+    LayoutConstraint usedParentConstraint = adjustConstraint(
+      parentConstraint, refBox, refProperty);
     SizeStretchResult stretchData = SizeStretchingUtil.stretch(
-      parentConstraint, refBox, 0, 0);
+      usedParentConstraint, refBox, 0, 0);
     LayoutConstraint stretchConstraint = stretchData.stretchConstraint();
     return evaluateWidthSize(
-      parentConstraint, stretchConstraint, refBox,
+      usedParentConstraint, stretchConstraint,
+      refBox, refProperty,
       sizeValue);
   }
 
@@ -50,6 +55,7 @@ public final class SizingWidthUtil {
   ) {
     return evaluateWidthSize(
       parentConstraint, stretchConstraint, refBox,
+      CSSProperty.WIDTH,
       refBox.properties().get(CSSProperty.WIDTH));
   }
 
@@ -57,11 +63,14 @@ public final class SizingWidthUtil {
     LayoutConstraint parentConstraint,
     LayoutConstraint stretchConstraint,
     ElementBox refBox,
+    CSSProperty refProperty,
     CSSValue sizeValue
   ) {
+    LayoutConstraint usedParentConstraint = adjustConstraint(
+      parentConstraint, refBox, refProperty);
     CalcEvaluation calcResult = CalcInterpreter.evaluateNode(sizeValue,
       innerSizeValue -> evaluateStretchedWidthSizeRaw(
-      parentConstraint, stretchConstraint, refBox, innerSizeValue));
+      usedParentConstraint, stretchConstraint, refBox, innerSizeValue));
     LayoutConstraint reuslt = calcResult.valueType().equals(CalcEvalType.LENGTH_PERCENTAGE) ?
       LayoutConstraint.of(calcResult.floatValue()) :
       LayoutConstraint.AUTO;
@@ -92,6 +101,7 @@ public final class SizingWidthUtil {
 
     LayoutConstraint maxConstraint = evaluateWidthSize(
       parentConstraint, stretchConstraint, refBox,
+      CSSProperty.MAX_WIDTH,
       refBox.properties().get(CSSProperty.MAX_WIDTH));
     if (maxConstraint.isBounded()) {
       adjustedConstraint = Math.min(adjustedConstraint, maxConstraint.value());
@@ -99,6 +109,7 @@ public final class SizingWidthUtil {
 
     LayoutConstraint minConstraint = evaluateWidthSize(
       parentConstraint, stretchConstraint, refBox,
+      CSSProperty.MIN_WIDTH,
       refBox.properties().get(CSSProperty.MIN_WIDTH));
 
     if (minConstraint.isBounded()) {
@@ -189,7 +200,7 @@ public final class SizingWidthUtil {
     }
   }
 
-  private static LayoutConstraint computeFitContent(
+  public static LayoutConstraint computeFitContent(
     LayoutConstraint stretchConstraint,
     ElementBox refBox
   ) {

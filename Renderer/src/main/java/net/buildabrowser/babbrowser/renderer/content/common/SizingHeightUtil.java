@@ -1,5 +1,6 @@
 package net.buildabrowser.babbrowser.renderer.content.common;
 
+import static net.buildabrowser.babbrowser.renderer.content.common.SizingUtil.adjustConstraint;
 import static net.buildabrowser.babbrowser.renderer.content.common.SizingUtil.evaluateBaseSizeRaw;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
@@ -22,17 +23,20 @@ public final class SizingHeightUtil {
     ElementBox refBox
   ) {
     return evaluateAdjustedHeightSize(
-      parentConstraint, refBox,
+      parentConstraint, refBox, CSSProperty.HEIGHT,
       refBox.properties().get(CSSProperty.HEIGHT));
   }
 
   public static LayoutConstraint evaluateAdjustedHeightSize(
     LayoutConstraint parentConstraint,
     ElementBox refBox,
+    CSSProperty refProperty,
     CSSValue sizeValue
   ) {
+    LayoutConstraint usedParentConstraint = adjustConstraint(
+      parentConstraint, refBox, refProperty);
     CalcEvaluation calcResult = CalcInterpreter.evaluateNode(sizeValue,
-      innerSizeValue -> evaluateAdjustedHeightSizeRaw(parentConstraint, refBox, innerSizeValue));
+      innerSizeValue -> evaluateAdjustedHeightSizeRaw(usedParentConstraint, refBox, innerSizeValue));
     LayoutConstraint result = calcResult.valueType().equals(CalcEvalType.LENGTH_PERCENTAGE) ?
       LayoutConstraint.of(calcResult.floatValue()) :
       LayoutConstraint.AUTO;
@@ -80,14 +84,14 @@ public final class SizingHeightUtil {
     float adjustedConstraint = constraint.value();
 
     LayoutConstraint maxConstraint = evaluateAdjustedHeightSize(
-      parentConstraint, refBox,
+      parentConstraint, refBox, CSSProperty.MAX_HEIGHT,
       refBox.properties().get(CSSProperty.MAX_HEIGHT));
     if (maxConstraint.isBounded()) {
       adjustedConstraint = Math.min(adjustedConstraint, maxConstraint.value());
     }
 
     LayoutConstraint minConstraint = evaluateAdjustedHeightSize(
-      parentConstraint, refBox,
+      parentConstraint, refBox, CSSProperty.MIN_HEIGHT,
       refBox.properties().get(CSSProperty.MIN_HEIGHT));
 
     if (minConstraint.isBounded()) {

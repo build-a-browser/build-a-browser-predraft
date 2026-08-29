@@ -137,6 +137,13 @@ public class ScrollBoxContent implements BoxContent {
     return true;
   }
 
+  // TODO: Is this an ideal way to handle this?
+  @Override
+  public boolean isReplaced(ElementBox box) {
+    ElementBox innerBox = (ElementBox) box.childBoxes().next();
+    return innerBox.isReplaced();
+  }
+
   private static LayoutConstraint subtractGutterWidth(LayoutConstraint origConstraint) {
     if (!origConstraint.isBounded()) return origConstraint;
     return LayoutConstraint.of(Math.max(0, origConstraint.value() - GUTTER_WIDTH));

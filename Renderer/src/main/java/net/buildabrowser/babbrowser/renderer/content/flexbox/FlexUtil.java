@@ -17,15 +17,16 @@ public final class FlexUtil {
   public static LayoutConstraint evaluateFlexBasis(
     ElementBox box,
     LayoutConstraint parentMainSize,
+    CSSProperty refProperty,
     CSSValue flexBasis,
     boolean isVertical
   ) {
     if (isVertical) {
       return SizingHeightUtil.evaluateAdjustedHeightSize(
-        parentMainSize, box, flexBasis);
+        parentMainSize, box, refProperty, flexBasis);
     } else {
       return SizingWidthUtil.evaluateWidthSize(
-        parentMainSize, box, flexBasis);
+        parentMainSize, box, refProperty, flexBasis);
     }
   }
 
@@ -59,10 +60,11 @@ public final class FlexUtil {
     boolean isContentStretch =
       alignContentValue.equals(AlignContentValue.STRETCH) 
       || alignContentValue.equals(AlignContentValue.NORMAL);
+    CSSProperty crossProperty = isVertical ? CSSProperty.WIDTH : CSSProperty.HEIGHT;
     if (
       alignItemsValue.equals(AlignItemsValue.STRETCH)
       && isContentStretch
-      && !crossSize.isBounded()
+      && itemBox.properties().get(crossProperty).equals(CSSValue.AUTO)
       && parentCrossSize.isBounded()
     ) {
       ElementBoxDimensions dimensions = itemBox.dimensions();

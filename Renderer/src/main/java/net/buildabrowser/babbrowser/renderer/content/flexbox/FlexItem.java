@@ -232,8 +232,8 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
     float size = innerPreferredSize != null ?
       outerSize(innerPreferredSize) :
       (isVertical ?
-        itemBox.layout(crossSize, LayoutConstraint.AUTO).height(Measurement.MARGIN) :
-        EBDimensionsUtil.preferredMinWidthConstraint(itemBox));
+        itemBox.layout(crossSize, LayoutConstraint.MIN_CONTENT).height(Measurement.MARGIN) :
+        outerSize(EBDimensionsUtil.preferredMinWidthConstraint(itemBox)));
     return clampContribution(size);
   }
 
@@ -243,8 +243,8 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
     float size = innerPreferredSize != null ?
       outerSize(innerPreferredSize) :
       (isVertical ?
-        itemBox.layout(crossSize, LayoutConstraint.AUTO).height(Measurement.MARGIN) :
-        EBDimensionsUtil.preferredWidthConstraint(itemBox));
+        itemBox.layout(crossSize, LayoutConstraint.MAX_CONTENT).height(Measurement.MARGIN) :
+        outerSize(EBDimensionsUtil.preferredWidthConstraint(itemBox)));
     return clampContribution(size);
   }
 
@@ -255,19 +255,22 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
     LayoutConstraint refMainSize,
     boolean isVertical
   ) {
-    CSSValue value = isVertical ?
-      properties.get(vertProp) :
-      properties.get(horizProp);
+    CSSProperty refProperty = isVertical ? vertProp : horizProp;
+    CSSValue value = properties.get(refProperty);
     LayoutConstraint determinedConstraint = isVertical ?
-      SizingHeightUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, value) :
-      SizingWidthUtil.evaluateWidthSize(refMainSize, itemBox, value);
+      SizingHeightUtil.evaluateAdjustedHeightSize(refMainSize, itemBox, refProperty, value) :
+      SizingWidthUtil.evaluateWidthSize(refMainSize, itemBox, refProperty, value);
     return determinedConstraint.isBounded() ?
       determinedConstraint.value() : null;
   }
 
   private float automaticMinSize(LayoutConstraint crossSize) {
+    LayoutConstraint usedCross = isVertical && crossSize.isBounded() ?
+      SizingWidthUtil.computeFitContent(crossSize, itemBox) :
+      crossSize;
+
     float determinedMinWidth = isVertical ?
-      itemBox.layout(crossSize, LayoutConstraint.AUTO).height(Measurement.CONTENT) :
+      itemBox.layout(usedCross, LayoutConstraint.AUTO).height(Measurement.CONTENT) :
       EBDimensionsUtil.preferredMinWidthConstraint(itemBox);
     Float transferredSizeSuggestion = transferredSizeSuggestion(crossSize);
     if (transferredSizeSuggestion != null) {

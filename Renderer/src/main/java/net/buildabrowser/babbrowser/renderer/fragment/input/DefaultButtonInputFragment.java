@@ -34,5 +34,14 @@ public class DefaultButtonInputFragment extends ButtonInputFragment {
   protected EventHandler<ButtonInputFragment> eventHandler() {
     return BUTTON_INPUT_EVENT_HANDLER; 
   }
+
+  @Override
+  public DefaultButtonInputFragment newCopy() {
+    return new DefaultButtonInputFragment(
+      width(Measurement.CONTENT), height(Measurement.CONTENT),
+      inkWidth(Measurement.CONTENT), inkHeight(Measurement.CONTENT),
+      firstBaseline(Measurement.CONTENT), lastBaseline(Measurement.CONTENT),
+      box(), innerFragment());
+  }
   
 }

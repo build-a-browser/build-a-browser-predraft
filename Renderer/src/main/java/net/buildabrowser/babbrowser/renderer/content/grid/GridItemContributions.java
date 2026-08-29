@@ -90,8 +90,18 @@ public final class GridItemContributions {
       inlineSize += size.value();
     }
 
+    int span = item.colLineEnd() - item.colLineStart();
+    inlineSize += GridTrackSizingUtil.spanGap(
+      grid.gridBox(), GridDirection.COLUMN, span, LayoutConstraint.AUTO);
+
+    ElementBoxDimensions dimensions = item.box().dimensions();
+      float decorWidthM = dimensions.decorWidth() 
+        + dimensions.getComputedMargin()[2] 
+        + dimensions.getComputedMargin()[3];
+      float contentWidth = Math.max(0, inlineSize - decorWidthM);
+
     UnmanagedBoxFragment<?> fragment = item.box().layout(
-      LayoutConstraint.of(inlineSize),
+      LayoutConstraint.of(contentWidth),
       LayoutConstraint.AUTO);
     return fragment.height(Measurement.CONTENT);
   }

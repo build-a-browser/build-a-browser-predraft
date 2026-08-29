@@ -36,6 +36,11 @@ public class FrameDebuggableDocumentChangeListener extends ForkedDocumentChangeL
     LayoutFragment target,
     boolean allowDefault
   ) {
+    if (nextListener() instanceof RendererDocumentChangeListener nextListener) {
+      return nextListener.onFragmentEvent(
+        element, event, refFragment, target, allowDefault);
+    }
+
     return allowDefault;
   }
 

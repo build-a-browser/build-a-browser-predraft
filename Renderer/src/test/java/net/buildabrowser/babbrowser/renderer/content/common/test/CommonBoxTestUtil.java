@@ -26,7 +26,7 @@ public final class CommonBoxTestUtil {
       box -> new TestFixedSizeReplacedContent(width, height), BoxLevel.BLOCK_LEVEL, childrenStyles, List.of());
     myBox.alterDimensions(false, d -> {
       d.setIntrinsicWidth(width);
-      d.setInstrinsicHeight(height);
+      d.setIntrinsicHeight(height);
     });
     return myBox;
   }
@@ -41,7 +41,7 @@ public final class CommonBoxTestUtil {
       box -> new TestFixedSizeReplacedContent(width, height), BoxLevel.INLINE_LEVEL, styles, List.of());
     myBox.alterDimensions(false, d -> {
       d.setIntrinsicWidth(width);
-      d.setInstrinsicHeight(height);
+      d.setIntrinsicHeight(height);
     });
     return myBox;
   }

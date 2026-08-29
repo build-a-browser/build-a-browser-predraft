@@ -4,6 +4,7 @@ import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.box.imp.ElementBoxImp;
 import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 
@@ -35,6 +36,23 @@ public class ScrollBox extends ElementBoxImp {
 
   @Override
   public void update() {}
+
+
+  // TODO: These may not be accurate if there are scrollbars
+  @Override
+  public ElementBoxDimensions dimensions() {
+    ElementBox innerBox = (ElementBox) childBoxes().next();
+    // Need to sync intrinsics, but cannot directly return the child's dimensions
+    // b/c padding/border/margin are computed on the scrollbox itself
+    ElementBoxDimensions innerDimensions = innerBox.dimensions();
+    ElementBoxDimensions ownDimensions = super.dimensions();
+    alterDimensions(false, d -> {
+      d.setIntrinsicWidth(innerDimensions.intrinsicWidth());
+      d.setIntrinsicHeight(innerDimensions.intrinsicHeight());
+      d.setIntrinsicRatio(innerDimensions.intrinsicRatio());
+    });
+    return ownDimensions;
+  }
 
   public void setRawScrollLeft(int newScrollX) {
     this.scrollLeft = newScrollX;

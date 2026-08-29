@@ -61,7 +61,7 @@ public final class FlowWidthUtil {
       float usedWidth = (int) (usedHeight * boxDimensions.intrinsicRatio());
       chosenConstraint = LayoutConstraint.of(usedWidth);
     } else if (boxDimensions.intrinsicRatio() != -1) {
-      // TODO: Compute as for block non-replaced
+      // TODO: Compute as for block non-replaed
       chosenConstraint = LayoutConstraint.of(
         EBDimensionsUtil.preferredWidthConstraint(childBox));
     } else if (boxDimensions.intrinsicWidth() != -1) {

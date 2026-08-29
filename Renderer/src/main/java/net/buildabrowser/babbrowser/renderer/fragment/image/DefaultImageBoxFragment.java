@@ -32,5 +32,13 @@ public class DefaultImageBoxFragment extends ImageBoxFragment {
   protected EventHandler<ImageBoxFragment> eventHandler() {
     return IMAGE_EVENT_HANDLER;
   }
+
+  @Override
+  public DefaultImageBoxFragment newCopy() {
+    return new DefaultImageBoxFragment(
+      width(Measurement.CONTENT), height(Measurement.CONTENT),
+      inkWidth(Measurement.CONTENT), inkHeight(Measurement.CONTENT),
+      box(), image(), altText());
+  }
   
 }

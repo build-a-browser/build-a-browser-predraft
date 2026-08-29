@@ -41,5 +41,14 @@ public class DefaultTableBoxFragment extends TableBoxFragment {
   protected EventHandler<TableBoxFragment> eventHandler() {
     return TABLE_EVENT_HANDLER;
   }
+
+  @Override
+  public DefaultTableBoxFragment newCopy() {
+    return new DefaultTableBoxFragment(
+      width(Measurement.CONTENT), height(Measurement.CONTENT),
+      inkWidth(Measurement.CONTENT), inkHeight(Measurement.CONTENT),
+      firstBaseline(Measurement.CONTENT), lastBaseline(Measurement.CONTENT),
+      box(), table(), borderAssignment(), outOfTableFragments());
+  }
   
 }

@@ -5,7 +5,9 @@ import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.LengthValue.LengthType;
 import net.buildabrowser.babbrowser.cssbase.property.size.SizeValue;
 import net.buildabrowser.babbrowser.cssbase.property.size.SizeValue.FitContent;
+import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericFlexibleUtil;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
@@ -53,7 +55,24 @@ public final class GridTrackSizingUtil {
       unusedSpace -= track.baseSize().value();
     }
 
+    int numTracks = grid.tracks(direction).length;
+    unusedSpace -= spanGap(
+      grid.gridBox(), direction, numTracks, parentConstraint);
+
     return Math.max(0, unusedSpace);
+  }
+
+  public static float spanGap(
+    ElementBox gridBox,
+    GridDirection direction,
+    int trackCount,
+    LayoutConstraint parentConstraint
+  ) {
+    if (trackCount <= 1) return 0;
+    boolean isVertical = direction == GridDirection.ROW;
+    float gap = GenericFlexibleUtil.mainGap(
+      gridBox, isVertical, parentConstraint);
+    return (trackCount - 1) * gap;
   }
 
 }

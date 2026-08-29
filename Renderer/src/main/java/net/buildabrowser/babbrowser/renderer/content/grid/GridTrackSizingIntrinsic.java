@@ -223,6 +223,10 @@ public final class GridTrackSizingIntrinsic {
     if (!sizeContribution.isBounded()) return 0;
 
     float space = sizeContribution.value();
+    int span = item.lineEnd(direction) - item.lineStart(direction);
+    space -= GridTrackSizingUtil.spanGap(
+      grid.gridBox(), direction, span, LayoutConstraint.AUTO);
+
     for (
       int i = item.lineStart(direction);
       i < item.lineEnd(direction);

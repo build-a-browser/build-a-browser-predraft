@@ -25,7 +25,10 @@ public final class FlowHeightUtil {
     // the child is being layed out (too late)
     computeVerticalMarginsOrZero(childBox, parentWidthConstraint);
 
-    if (parentHeightConstraint.isPreLayoutConstraint() || childWidthConstraint.isPreLayoutConstraint()) {
+    if (
+      parentHeightConstraint.isPreLayoutConstraint()
+      || childWidthConstraint.isPreLayoutConstraint()
+    ) {
       return parentHeightConstraint;
     }
 

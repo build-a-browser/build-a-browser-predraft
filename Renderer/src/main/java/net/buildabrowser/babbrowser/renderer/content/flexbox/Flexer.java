@@ -38,7 +38,7 @@ public final class Flexer {
       float remainingGrowFactor = computeRemainingFactor(flexLine, true);
       float remainingFreeSpace = calculateRemainingFreeSpace(
         mainSize, flexLine, initialFreeSpace, remainingGrowFactor, mainGap);
-      if (remainingFreeSpace != 0) {
+      if (remainingFreeSpace != 0 && remainingGrowFactor > 0) {
         for (FlexItem item: flexLine.items()) {
           if (item.isFrozen()) continue;
           item.setTargetMainSize(
@@ -79,6 +79,7 @@ public final class Flexer {
         for (FlexItem item: flexLine.items()) {
           if (item.isFrozen()) continue;
           float scaledShrinkFactor = item.shrinkFactor() * item.baseSize();
+          if (scaledShrinkFactorSum <= 0) continue;
           item.setTargetMainSize(item.baseSize()
             - scaledShrinkFactor / scaledShrinkFactorSum * Math.abs(remainingFreeSpace));
         }

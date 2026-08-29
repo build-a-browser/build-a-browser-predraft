@@ -11,20 +11,26 @@ public class FlexMainIntrinsicSizing {
     LayoutConstraint crossSize,
     List<FlexItem> flexItems,
     boolean isMinContent,
-    boolean isMultiLine
+    boolean isMultiLine,
+    float mainGap
   ) {
     float sum = 0;
-    for (FlexItem item: flexItems) {
-      // TODO: Skip collapsed items
+    for (FlexItem item : flexItems) {
       float contribution = isMinContent ?
         item.minContentContribution(crossSize) :
         item.maxContentContribution(crossSize);
+      float outerContribution = contribution + item.mainMargin();
       item.setTargetMainSize(contribution);
+
       if (!isMultiLine) {
-        sum += contribution;
+        sum += outerContribution;
       } else {
-        sum = Math.max(sum, contribution);
+        sum = Math.max(sum, outerContribution);
       }
+    }
+
+    if (!isMultiLine) {
+      sum += mainGap * (flexItems.size() - 1);
     }
 
     return sum;

@@ -33,5 +33,14 @@ public class DefaultFlexBoxFragment extends FlexBoxFragment {
   protected EventHandler<FlexBoxFragment> eventHandler() {
     return FLEX_BOX_EVENT_HANDLER;
   }
+
+  @Override
+  public DefaultFlexBoxFragment newCopy() {
+    return new DefaultFlexBoxFragment(
+      width(Measurement.CONTENT), height(Measurement.CONTENT),
+      inkWidth(Measurement.CONTENT), inkHeight(Measurement.CONTENT),
+      firstBaseline(Measurement.CONTENT), lastBaseline(Measurement.CONTENT),
+      box(), (UnmanagedBoxFragment<?>) innerFragment());
+  }
   
 }

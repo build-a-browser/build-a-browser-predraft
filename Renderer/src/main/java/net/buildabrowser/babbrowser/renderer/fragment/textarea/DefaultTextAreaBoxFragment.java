@@ -32,5 +32,14 @@ public class DefaultTextAreaBoxFragment extends TextAreaBoxFragment {
   protected EventHandler<TextAreaBoxFragment> eventHandler() {
     return TEXT_AREA_EVENT_HANDLER;
   }
+
+  @Override
+  public DefaultTextAreaBoxFragment newCopy() {
+    return new DefaultTextAreaBoxFragment(
+      width(Measurement.CONTENT), height(Measurement.CONTENT),
+      inkWidth(Measurement.CONTENT), inkHeight(Measurement.CONTENT),
+      firstBaseline(Measurement.CONTENT), lastBaseline(Measurement.CONTENT),
+      box());
+  }
   
 }

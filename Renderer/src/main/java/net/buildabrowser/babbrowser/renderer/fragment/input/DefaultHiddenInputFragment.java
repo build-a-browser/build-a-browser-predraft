@@ -29,4 +29,12 @@ public class DefaultHiddenInputFragment extends HiddenInputFragment {
     return HIDDEN_INPUT_EVENT_HANDLER;
   }
   
+  @Override
+  public DefaultHiddenInputFragment newCopy() {
+    return new DefaultHiddenInputFragment(
+      width(Measurement.CONTENT), height(Measurement.CONTENT),
+      inkWidth(Measurement.CONTENT), inkHeight(Measurement.CONTENT),
+      box());
+  }
+  
 }

@@ -9,7 +9,9 @@ import net.buildabrowser.babbrowser.cssbase.property.align.AlignItemsValue;
 import net.buildabrowser.babbrowser.cssbase.property.align.JustifyContentValue;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
+import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxIterator;
+import net.buildabrowser.babbrowser.renderer.content.common.MarginUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.position.PositionUtil;
@@ -42,6 +44,12 @@ public class GridContent implements BoxContent {
   ) {
     Grid grid = Grid.create(box);
     List<GridItem> items = collectGridItems(box);
+
+    for (GridItem item: items) {
+      MarginUtil.computeSimpleMargin(item.box(), widthConstraint);
+      item.box().content().computeMeasures(item.box(), widthConstraint);
+    }
+
     GridSizer.sizeGridAndPlaceLines(
       grid, box.properties(), box.layoutContext(),
       widthConstraint, heightConstraint);
@@ -50,10 +58,7 @@ public class GridContent implements BoxContent {
       grid, items, widthConstraint, GridDirection.COLUMN);
     GridTrackSizingAlgorithm.sizeGridTracks(
       grid, items, heightConstraint, GridDirection.ROW);
-    // TODO: Need to handle "sizing of item depends on available space"
-    // TODO: min-content stuff
-    // TODO: Align content
-    
+
     justifyInlineAxis(box, widthConstraint, grid);
     float resolvedInline = trackBounds(grid.tracks(GridDirection.COLUMN));
 
@@ -71,21 +76,19 @@ public class GridContent implements BoxContent {
 
       UnmanagedBoxFragment<?> itemFragment = item.fragment();
       totalInline = Math.max(totalInline,
-        itemFragment.posX(Measurement.BORDER) + itemFragment.width(Measurement.BORDER));
+        itemFragment.posX(Measurement.MARGIN) + itemFragment.width(Measurement.MARGIN));
       totalBlock = Math.max(totalBlock,
-        itemFragment.posY(Measurement.BORDER) + itemFragment.height(Measurement.BORDER));
+        itemFragment.posY(Measurement.MARGIN) + itemFragment.height(Measurement.MARGIN));
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     UnmanagedBoxFragment<?> childFragments = GenericFlexibleUtil.collectChildFragments((List<GenericItem>) (List) items);
 
-    // TODO: Copied from Flex. May or may not be correct
     boolean skippedLayout = items.size() == 0 || items.get(0).fragment() == null;
     float firstBaseline = !skippedLayout ?
       items.get(0).fragment().firstBaseline(Measurement.MARGIN) : 0;
     float lastBaseline = !skippedLayout ?
       items.get(items.size() - 1).fragment().lastBaseline(Measurement.MARGIN) : 0;
-    
     FragmentFactory fragmentFactory = box.layoutContext().global().fragmentFactory();
     return fragmentFactory.createGridBoxFragment(
       usedInline, usedBlock,
@@ -158,22 +161,30 @@ public class GridContent implements BoxContent {
     assert endCol.baseSize().isBounded();
     float startBlockPos = grid.column(item.colLineStart()).position();
     float endBlockPos = endCol.position() + endCol.baseSize().value();
-    float itemWidth = endBlockPos - startBlockPos;
+    float cellWidth = endBlockPos - startBlockPos;
 
     GridTrack endRow = grid.row(item.rowLineEnd() - 1);
     assert endRow.baseSize().isBounded();
     float startInlinePos = grid.row(item.rowLineStart()).position();
     float endInlinePos = endRow.position() + endRow.baseSize().value();
-    float itemHeight = endInlinePos - startInlinePos;
+    float cellHeight = endInlinePos - startInlinePos;
+
+    ElementBoxDimensions dimensions = item.box().dimensions();
+    float[] margin = dimensions.getComputedMargin();
+    float decorWidthM = margin[2] + margin[3] + dimensions.decorWidth();
+    float decorHeightM = margin[0] + margin[1] + dimensions.decorHeight();
+
+    float itemWidth = Math.max(0, cellWidth - decorWidthM);
+    float itemHeight = Math.max(0, cellHeight - decorHeightM);
 
     LayoutConstraint widthConstraint = SizingWidthUtil.evaluateWidthSize(
-      LayoutConstraint.of(itemWidth), item.box());
+      LayoutConstraint.of(cellWidth), item.box());
     if (!widthConstraint.isBounded()) {
       widthConstraint = LayoutConstraint.of(itemWidth);
     }
 
     LayoutConstraint heightConstraint = SizingHeightUtil.evaluateAdjustedHeightSize(
-      LayoutConstraint.of(itemHeight), item.box());
+      LayoutConstraint.of(cellHeight), item.box());
     if (!heightConstraint.isBounded()) {
       heightConstraint = LayoutConstraint.of(itemHeight);
     }
@@ -182,7 +193,7 @@ public class GridContent implements BoxContent {
       widthConstraint, heightConstraint);
       
     itemFragment.setPos(
-      startBlockPos, startInlinePos);
+      startBlockPos + margin[2], startInlinePos + margin[0]);
     item.setRelatedFragment(itemFragment);
   }
   

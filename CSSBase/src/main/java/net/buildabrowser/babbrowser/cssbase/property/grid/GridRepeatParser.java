@@ -82,7 +82,7 @@ public class GridRepeatParser {
     ) {
       repeatTimesValue = GridRepeatNameComponent.AUTO_FILL;
     } else if (
-      allowAutoFill
+      allowAutoFit
       && firstToken instanceof IdentToken identToken
       && identToken.value().equals("auto-fit")
     ) {

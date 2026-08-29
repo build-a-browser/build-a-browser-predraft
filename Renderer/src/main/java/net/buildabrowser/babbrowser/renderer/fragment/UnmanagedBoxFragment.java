@@ -32,4 +32,6 @@ public abstract class UnmanagedBoxFragment<T extends UnmanagedBoxFragment<T>> ex
       + inkWidth(Measurement.CONTENT) + "x" + inkHeight(Measurement.CONTENT) + "]]";
   }
 
+  public abstract T newCopy();
+
 }

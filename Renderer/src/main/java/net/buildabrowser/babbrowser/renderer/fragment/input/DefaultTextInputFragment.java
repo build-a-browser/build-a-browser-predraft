@@ -33,4 +33,13 @@ public class DefaultTextInputFragment extends TextInputFragment {
     return TEXT_INPUT_EVENT_HANDLER;
   }
   
+  @Override
+  public DefaultTextInputFragment newCopy() {
+    return new DefaultTextInputFragment(
+      width(Measurement.CONTENT), height(Measurement.CONTENT),
+      inkWidth(Measurement.CONTENT), inkHeight(Measurement.CONTENT),
+      firstBaseline(Measurement.CONTENT), lastBaseline(Measurement.CONTENT),
+      box());
+  }
+  
 }

@@ -84,12 +84,14 @@ public final class FlexBoxContent implements BoxContent {
     float mainGap = GenericFlexibleUtil.mainGap(rootBox, isVertical, mainSize);
     List<FlexLine> lines = collectFlexItemsIntoFlexLines(
       rootBox, isVertical, mainSize, items, mainGap);
-    
-    if (mainSize.isPreLayoutConstraint() || crossSize.isPreLayoutConstraint()) {
+    if (
+      mainSize.isPreLayoutConstraint()
+      || crossSize.isPreLayoutConstraint()
+    ) {
       boolean isMinContent = mainSize.type().equals(LayoutConstraintType.MIN_CONTENT);
       mainSize = LayoutConstraint.of(
         FlexMainIntrinsicSizing.determineWebCompatibleSize(
-          crossSize, items, isMinContent, lines.size() > 1));
+          crossSize, items, isMinContent, lines.size() > 1, mainGap));
     } else {
       for (FlexLine line: lines) {
         Flexer.flex(mainSize, line, mainGap);
@@ -169,8 +171,25 @@ public final class FlexBoxContent implements BoxContent {
     FlexDirectionValue flexDirection, boolean isVertical, LayoutConstraint mainSize, List<FlexLine> lines
   ) {
     float mainGap = GenericFlexibleUtil.mainGap(rootBox, isVertical, mainSize);
+    if (
+      !mainSize.isBounded()
+      && !mainSize.isPreLayoutConstraint()
+    ) {
+      float mainSizeOverride = 0;
+      for (FlexLine line: lines) {
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        List<GenericJustifyContentItem> items
+          = (List<GenericJustifyContentItem>) (List) line.genericItems();
+        float fitSpace = GenericJustifyContentAligner.computeFitSpace(
+          items, mainGap);
+        mainSizeOverride = Math.max(mainSizeOverride, fitSpace);
+      }
+
+      mainSize = LayoutConstraint.of(mainSizeOverride);
+    }
+
     JustifyContentValue contentJustification = (JustifyContentValue) rootBox.properties().get(CSSProperty.JUSTIFY_CONTENT);
-    if (!mainSize.isBounded()) contentJustification = JustifyContentValue.FLEX_START;
+    if (mainSize.isPreLayoutConstraint()) contentJustification = JustifyContentValue.FLEX_START;
     boolean isReverse =
       flexDirection.equals(FlexDirectionValue.ROW_REVERSE)
       || flexDirection.equals(FlexDirectionValue.COLUMN_REVERSE);

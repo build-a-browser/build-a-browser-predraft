@@ -36,7 +36,7 @@ public class GridTrackListParser implements PropertyValueParser {
     CSSProperty relatedProperty
   ) {
     this.relatedProperty = relatedProperty;
-    this.trackSizeParser = new GridTrackSizeParser(true);
+    this.trackSizeParser = new GridTrackSizeParser(false);
     this.gridRepeatParser = new GridRepeatParser(this);
   }
 

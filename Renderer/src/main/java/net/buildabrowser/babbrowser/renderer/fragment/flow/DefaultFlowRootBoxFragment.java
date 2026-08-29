@@ -35,5 +35,13 @@ public class DefaultFlowRootBoxFragment extends FlowRootBoxFragment {
   protected EventHandler<FlowRootBoxFragment> eventHandler() {
     return FLOW_ROOT_EVENT_HANDLER;
   }
+
+  @Override
+  public DefaultFlowRootBoxFragment newCopy() {
+    return new DefaultFlowRootBoxFragment(
+      width(Measurement.CONTENT), height(Measurement.CONTENT),
+      inkWidth(Measurement.CONTENT), inkHeight(Measurement.CONTENT),
+      box(), rootFragment(), floats());
+  }
   
 }

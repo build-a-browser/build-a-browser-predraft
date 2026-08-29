@@ -101,8 +101,6 @@ public final class FlowInlineBoxPainterUtils {
     PaintCanvas canvas,
     VpIntersection vpIntersection
   ) {
-    ElementBackgroundPainter.paintBackground(canvas, fragment, vpIntersection);
-
     ElementBox parentBox = fragment.box();
     LayoutFragment curNode = fragment.fragments();
     while (curNode != null) {

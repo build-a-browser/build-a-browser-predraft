@@ -19,7 +19,7 @@ public class InstrinsicSizedInputTypeContent implements InputTypeContent {
     float intrinsicHeight = fontMetrics.height(); // TODO: Use line-height instead
     rootBox.alterDimensions(false, dimensions -> {
       dimensions.setIntrinsicWidth(intrinsicWidth);
-      dimensions.setInstrinsicHeight(intrinsicHeight);
+      dimensions.setIntrinsicHeight(intrinsicHeight);
     });
   }
 

@@ -33,5 +33,14 @@ public class DefaultScrollBoxFragment extends ScrollBoxFragment {
   protected EventHandler<ScrollBoxFragment> eventHandler() {
     return SCROLL_EVENT_HANDLER;
   }
+
+  @Override
+  public DefaultScrollBoxFragment newCopy() {
+    return new DefaultScrollBoxFragment(
+      width(Measurement.CONTENT), height(Measurement.CONTENT),
+      inkWidth(Measurement.CONTENT), inkHeight(Measurement.CONTENT),
+      hasHorizontalScroll(), hasVerticalScroll(),
+      box(), (UnmanagedBoxFragment<?>) innerFragment());
+  }
   
 }

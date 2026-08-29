@@ -127,6 +127,7 @@ public final class GenericFlexibleUtil {
     ElementBox rootBox,
     boolean isVertical, LayoutConstraint mainSize
   ) {
+    if (rootBox == null) return 0; // Testing case
     PropertyContainer parentProperties = rootBox.properties();
     CSSValue mainGapValue = isVertical ?
       parentProperties.get(CSSProperty.ROW_GAP) :

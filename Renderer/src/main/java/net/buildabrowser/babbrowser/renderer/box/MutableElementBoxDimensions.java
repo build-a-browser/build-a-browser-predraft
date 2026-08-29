@@ -14,7 +14,7 @@ public interface MutableElementBoxDimensions extends ElementBoxDimensions {
 
   void setIntrinsicWidth(float width);
 
-  void setInstrinsicHeight(float height);
+  void setIntrinsicHeight(float height);
 
   void setIntrinsicRatio(float ratio);
   

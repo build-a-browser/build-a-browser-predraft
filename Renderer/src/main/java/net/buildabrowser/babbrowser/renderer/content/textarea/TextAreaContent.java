@@ -67,7 +67,7 @@ public class TextAreaContent implements BoxContent {
     float intrinsicHeight = fontMetrics.height() * rows; // Don't include padding for the horizontal scrollbar
     rootBox.alterDimensions(false, dimensions -> {
       dimensions.setIntrinsicWidth(intrinsicWidth);
-      dimensions.setInstrinsicHeight(intrinsicHeight);
+      dimensions.setIntrinsicHeight(intrinsicHeight);
     });
   }
 

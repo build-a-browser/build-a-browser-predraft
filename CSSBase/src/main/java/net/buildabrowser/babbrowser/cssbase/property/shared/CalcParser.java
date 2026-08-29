@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
+import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.ListCSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
@@ -28,11 +29,8 @@ import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LParenToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
-import net.buildabrowser.babbrowser.cssbase.tokens.RParenToken;
 
 public class CalcParser implements PropertyValueParser {
-
-  private static final CSSFailure EXPECTED_R_PAREN = new CSSFailure("Expected right parentheses token!");
   
   private static final Map<String, CalcKeyword> KEYWORD_MAP = Map.of(
     "e", CalcKeyword.E,
@@ -267,14 +265,20 @@ public class CalcParser implements PropertyValueParser {
   private CSSValue parseCalcValue(CSSTokenStream stream) throws IOException {
     // This differs a bit from the spec in that it delegates back to parse
     // instead of checking dimension | percentage
-    if (stream.peek() instanceof LParenToken) {
+    if (
+      stream.peek() instanceof SimpleBlock blockValue
+      && blockValue.type() instanceof LParenToken
+    ) {
       stream.read();
-      CSSValue sum = parseCalcSum(stream);
-      if (sum.isFailure()) return sum;
-      if (!(stream.read() instanceof RParenToken)) {
-        return EXPECTED_R_PAREN;
-      }
+      CSSTokenStream childStream = ListCSSTokenStream.createWithSkippedWhitespace(
+        stream.source(), blockValue.value());
+      CSSValue sum = parseCalcSum(childStream);
 
+      if (sum.isFailure()) return sum;
+      if (!(
+        childStream.peek() instanceof EOFToken
+      )) return CSSFailure.EXPECTED_EOF;
+      
       return sum;
     } else if (stream.peek() instanceof NumberToken numberToken) {
       stream.read();

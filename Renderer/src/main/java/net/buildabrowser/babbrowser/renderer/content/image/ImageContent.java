@@ -11,6 +11,8 @@ import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
+import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.image.ImageBoxFragment;
@@ -39,7 +41,7 @@ public class ImageContent implements BoxContent {
 
       rootBox.alterDimensions(false, dimensions -> {
         dimensions.setIntrinsicWidth(width);
-        dimensions.setInstrinsicHeight(height);
+        dimensions.setIntrinsicHeight(height);
         dimensions.setIntrinsicRatio((float) image.width() / (float) image.height());
       });
       return;
@@ -52,7 +54,7 @@ public class ImageContent implements BoxContent {
     
     rootBox.alterDimensions(false, dimensions -> {
       dimensions.setIntrinsicWidth(width);
-      dimensions.setInstrinsicHeight(fm.height());
+      dimensions.setIntrinsicHeight(fm.height());
     });
   }
 
@@ -63,19 +65,33 @@ public class ImageContent implements BoxContent {
     LayoutConstraint heightConstraint
   ) {
     ElementBoxDimensions dimensions = rootBox.dimensions();
+    float tentativeHeight = computeHeight(
+      rootBox, widthConstraint, heightConstraint, dimensions);
     float realWidth =
       widthConstraint.isBounded() ? widthConstraint.floatValue() :
-      heightConstraint.isBounded() && image != null ? dimensions.intrinsicRatio() * heightConstraint.value() :
+      heightConstraint.isBounded() && image != null ? dimensions.intrinsicRatio() * tentativeHeight :
       dimensions.intrinsicWidth();
+    realWidth = SizingWidthUtil.clampWidth(
+      widthConstraint, rootBox, LayoutConstraint.of(realWidth)).value();
+    float realHeight = computeHeight(
+      rootBox, LayoutConstraint.of(realWidth), heightConstraint, dimensions);
+    
+    FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
+    return fragmentFactory.createImageBoxFragment(
+      realWidth, realHeight,
+      realWidth, realHeight,
+      rootBox, image, getImageAlt(rootBox));
+  }
+
+  private float computeHeight(ElementBox rootBox, LayoutConstraint widthConstraint, LayoutConstraint heightConstraint,
+      ElementBoxDimensions dimensions) {
     float realHeight =
       heightConstraint.isBounded() ? heightConstraint.floatValue() :
       widthConstraint.isBounded() && image != null ? widthConstraint.value() / dimensions.intrinsicRatio() :
       dimensions.intrinsicHeight();
-    
-    FragmentFactory fragmentFactory = rootBox.layoutContext().global().fragmentFactory();
-    return fragmentFactory.createImageBoxFragment(
-      realWidth, realHeight, realWidth,
-      realHeight, rootBox, image, getImageAlt(rootBox));
+    realHeight = SizingHeightUtil.clampHeight(
+      heightConstraint, rootBox, LayoutConstraint.of(realHeight)).value();
+    return realHeight;
   }
 
   @Override

@@ -109,7 +109,7 @@ public class ElementBoxDimensionsImp implements MutableElementBoxDimensions {
   }
 
   @Override
-  public void setInstrinsicHeight(float height) {
+  public void setIntrinsicHeight(float height) {
     this.intrinsicHeight = height;
   }
 

@@ -137,7 +137,8 @@ public class TableCellImp implements TableCell {
     PropertyContainer properties = cellBox.properties();
     float minContentWidth = EBDimensionsUtil.preferredMinWidthConstraint(cellBox);
     LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateWidthSize(
-      LayoutConstraint.AUTO, cellBox, properties.get(CSSProperty.MIN_WIDTH));
+      LayoutConstraint.MIN_CONTENT, cellBox, CSSProperty.MIN_WIDTH,
+      properties.get(CSSProperty.MIN_WIDTH));
 
     if (specifiedMinWidth.isBounded()) {
       return outerWidth(Math.max(specifiedMinWidth.value(), minContentWidth));
@@ -151,11 +152,13 @@ public class TableCellImp implements TableCell {
     float minContentWidth = EBDimensionsUtil.preferredMinWidthConstraint(cellBox);
     float maxContentWidth = EBDimensionsUtil.preferredWidthConstraint(cellBox);
     LayoutConstraint specifiedWidth = SizingWidthUtil.evaluateWidthSize(
-      LayoutConstraint.AUTO, cellBox);
+      LayoutConstraint.MAX_CONTENT, cellBox);
     LayoutConstraint specifiedMinWidth = SizingWidthUtil.evaluateWidthSize(
-      LayoutConstraint.AUTO, cellBox, properties.get(CSSProperty.MIN_WIDTH));
+      LayoutConstraint.MAX_CONTENT, cellBox, CSSProperty.MIN_WIDTH,
+      properties.get(CSSProperty.MIN_WIDTH));
     LayoutConstraint specifiedMaxWidth = SizingWidthUtil.evaluateWidthSize(
-      LayoutConstraint.AUTO, cellBox, properties.get(CSSProperty.MAX_WIDTH));
+      LayoutConstraint.MAX_CONTENT, cellBox, CSSProperty.MAX_WIDTH,
+      properties.get(CSSProperty.MAX_WIDTH));
 
     float usedWidth = minContentWidth;
     if (specifiedMinWidth.isBounded()) {

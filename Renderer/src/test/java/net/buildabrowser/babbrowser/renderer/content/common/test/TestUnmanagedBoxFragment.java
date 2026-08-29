@@ -28,5 +28,10 @@ public class TestUnmanagedBoxFragment extends UnmanagedBoxFragment<TestUnmanaged
   protected EventHandler<TestUnmanagedBoxFragment> eventHandler() {
     throw new UnsupportedOperationException("Cannot access event handler during testing!");
   }
+
+  @Override
+  public TestUnmanagedBoxFragment newCopy() {
+    throw new UnsupportedOperationException("Unimplemented method 'newCopy'");
+  }
   
 }

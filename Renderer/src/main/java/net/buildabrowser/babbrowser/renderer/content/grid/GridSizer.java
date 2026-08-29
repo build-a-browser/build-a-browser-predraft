@@ -15,6 +15,7 @@ import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue.GridRepeatNumberComponent;
 import net.buildabrowser.babbrowser.cssbase.property.grid.GridTrackValue.GridRepeatValue;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
+import net.buildabrowser.babbrowser.renderer.content.generic.GenericFlexibleUtil;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutContext;
 
@@ -34,6 +35,7 @@ public final class GridSizer {
     CSSValue gridTemplateColumns = properties.get(CSSProperty.GRID_TEMPLATE_COLUMNS);
     int gridWidth = gridTemplateColumns.equals(CSSValue.NONE) ?
       0 : sizeExplicitDimension(
+        grid, GridDirection.COLUMN,
         (GridTrackListValue) gridTemplateColumns,
         colTracks, layoutContext, widthConstraint);
     
@@ -41,6 +43,7 @@ public final class GridSizer {
     CSSValue gridTemplateRows = properties.get(CSSProperty.GRID_TEMPLATE_ROWS);
     int gridHeight = gridTemplateRows.equals(CSSValue.NONE) ?
       0 : sizeExplicitDimension(
+        grid, GridDirection.ROW,
         (GridTrackListValue) gridTemplateRows,
         rowTracks, layoutContext, heightConstraint);
 
@@ -61,6 +64,8 @@ public final class GridSizer {
   }
 
   private static int sizeExplicitDimension(
+    Grid grid,
+    GridDirection direction,
     GridTrackListValue tracks,
     List<GridTrackValue> trackValues,
     LayoutContext layoutContext,
@@ -68,6 +73,9 @@ public final class GridSizer {
   ) {
     int dimSize = 0;
     LayoutConstraint fixedSize = LayoutConstraint.of(0);
+    boolean isVertical = direction == GridDirection.ROW;
+    float gap = GenericFlexibleUtil.mainGap(grid.gridBox(), isVertical, parentConstraint);
+
     for (GridTrackValue track: tracks.tracks()) {
       if (track.sizeOrRepeat() instanceof GridRepeatValue gridRepeatValue) {
         trackValues.add(track);
@@ -84,14 +92,19 @@ public final class GridSizer {
       }
     }
 
+    if (fixedSize.isBounded() && dimSize > 1) {
+      fixedSize = LayoutConstraint.of(fixedSize.value() + (dimSize - 1) * gap);
+    }
+
     if (tracks.repeat() instanceof GridRepeatValue repeatValue) {
       if (repeatValue.repeatTimesValue() instanceof GridRepeatNumberComponent) {
         dimSize += sizeNumberRepeatValue(repeatValue, trackValues);
       } else if (parentConstraint.isBounded()) {
-        LayoutConstraint remainingConstraint = LayoutConstraint.of(
-          parentConstraint.value() - fixedSize.value());
+        float availableSpace = parentConstraint.value() - (fixedSize.isBounded() ? fixedSize.value() : 0);
+        LayoutConstraint remainingConstraint = LayoutConstraint.of(Math.max(0, availableSpace));
         dimSize += sizeAutoRepeatValue(
-          repeatValue, trackValues, layoutContext, remainingConstraint);
+          grid, direction, repeatValue, trackValues,
+          layoutContext, remainingConstraint);
       }
     }
 
@@ -108,12 +121,15 @@ public final class GridSizer {
   }
 
   private static int sizeAutoRepeatValue(
+    Grid grid,
+    GridDirection direction,
     GridRepeatValue repeatValue,
     List<GridTrackValue> trackValues,
     LayoutContext layoutContext,
     LayoutConstraint parentConstraint
   ) {
     LayoutConstraint fixedSize = LayoutConstraint.of(0);
+    int sampleCount = repeatValue.tracks().tracks().size();
     for (GridTrackValue track: repeatValue.tracks().tracks()) {
       LayoutConstraint trackSize = sizeFixed(
         layoutContext, parentConstraint, track.sizeOrRepeat(), true);
@@ -122,10 +138,16 @@ public final class GridSizer {
         LayoutConstraint.AUTO;
     }
 
+    boolean isVertical = direction == GridDirection.ROW;
+    float gap = GenericFlexibleUtil.mainGap(grid.gridBox(), isVertical, parentConstraint);
+    if (fixedSize.isBounded() && sampleCount > 0) {
+      fixedSize = LayoutConstraint.of(fixedSize.value() + sampleCount * gap);
+    }
+
     int numRepeats = fixedSize.isBounded() ?
       Math.max(1, (int) (parentConstraint.value() / fixedSize.value())) : 1;
     repeatAddTrackValues(repeatValue, trackValues, numRepeats);
-    return numRepeats * repeatValue.tracks().tracks().size();
+    return numRepeats * sampleCount;
   }
 
   private static LayoutConstraint sizeNumberRepeatValueLength(

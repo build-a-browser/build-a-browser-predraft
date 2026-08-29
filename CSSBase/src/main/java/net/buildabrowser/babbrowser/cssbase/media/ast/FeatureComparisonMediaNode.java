@@ -46,6 +46,7 @@ public record FeatureComparisonMediaNode(
   }
 
   public static float resolveFeatureOrValue(CSSValueOrFeature value, MediaContext context) {
+    if (value == null) return Float.NaN; // TODO: Why is it null?
     return switch (value) {
       case MediaFeature.WIDTH -> context.docWidth();
       case MediaFeature.HEIGHT -> context.docHeight();

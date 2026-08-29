@@ -208,8 +208,7 @@ public abstract class AbstractElementBoxImp extends AbstractBoxImp implements El
     while (current != null) {
       if (current.applies(widthConstraint, heightConstraint)) {
         UnmanagedBoxFragment<?> fragment = current.fragment();
-        fragment.setNext(null);
-        return fragment;
+        return fragment.newCopy();
       }
       current = current.next();
     }

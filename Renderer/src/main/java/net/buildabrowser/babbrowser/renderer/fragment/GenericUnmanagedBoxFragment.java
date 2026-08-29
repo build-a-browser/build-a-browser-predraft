@@ -33,5 +33,14 @@ public class GenericUnmanagedBoxFragment extends UnmanagedBoxFragment<GenericUnm
     throw new IllegalStateException(
       "Reached unreachable GenericUnmanagedBoxFragment#eventHandler!");
   }
+
+  @Override
+  public GenericUnmanagedBoxFragment newCopy() {
+    return new GenericUnmanagedBoxFragment(
+      width(Measurement.CONTENT), height(Measurement.CONTENT),
+      inkWidth(Measurement.CONTENT), inkHeight(Measurement.CONTENT),
+      firstBaseline(Measurement.CONTENT), lastBaseline(Measurement.CONTENT),
+      box());
+  }
   
 }

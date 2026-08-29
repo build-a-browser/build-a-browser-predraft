@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
+import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue.CSSFailure;
@@ -28,7 +29,6 @@ import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.LParenToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.NumberToken;
 import net.buildabrowser.babbrowser.cssbase.tokens.PercentageToken;
-import net.buildabrowser.babbrowser.cssbase.tokens.RParenToken;
 
 public class CalcParserTest {
 
@@ -124,11 +124,10 @@ public class CalcParserTest {
       new FunctionValue("calc", List.of(
         PercentageToken.create(5),
         DelimToken.create('-'),
-        LParenToken.create(),
-        PercentageToken.create(1),
-        DelimToken.create('+'),
-        PercentageToken.create(2),
-        RParenToken.create()))));
+        new SimpleBlock(LParenToken.create(), List.of(
+          PercentageToken.create(1),
+          DelimToken.create('+'),
+          PercentageToken.create(2)))))));
 
     Assertions.assertEquals(new CalcFuncSingle(CalcType.CALC,
       new CalcFuncDouble(CalcType.SUB,
@@ -159,11 +158,10 @@ public class CalcParserTest {
         DelimToken.create('+'),
         IdentToken.create("e"),
         DelimToken.create('*'),
-        LParenToken.create(),
-        PercentageToken.create(2),
-        DelimToken.create('+'),
-        PercentageToken.create(3),
-        RParenToken.create()))));
+        new SimpleBlock(LParenToken.create(), List.of(
+          PercentageToken.create(2),
+          DelimToken.create('+'),
+          PercentageToken.create(3)))))));
     
     Assertions.assertEquals(new CalcFuncSingle(CalcType.CALC,
       new CalcFuncDouble(CalcType.ADD,

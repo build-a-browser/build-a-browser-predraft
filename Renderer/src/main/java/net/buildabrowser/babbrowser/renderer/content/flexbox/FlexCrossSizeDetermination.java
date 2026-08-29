@@ -9,6 +9,8 @@ import net.buildabrowser.babbrowser.cssbase.property.align.AlignItemsValue;
 import net.buildabrowser.babbrowser.cssbase.property.flex.FlexWrapValue;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
+import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.renderer.content.generic.GenericAlignItemAligner;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
@@ -27,7 +29,7 @@ public final class FlexCrossSizeDetermination {
         layoutItem(rootBox, item, containerCrossSize, isVertical);
       }
 
-      calculateLineCrossSize(rootBox, line, containerCrossSize);
+      calculateLineCrossSize(rootBox, line, containerCrossSize, isVertical);
     }
 
     handleStretch(rootBox, lines, containerCrossSize);
@@ -55,9 +57,17 @@ public final class FlexCrossSizeDetermination {
       item.innerMainSize());
     LayoutConstraint itemCrossConstraint = FlexUtil.boxCrossSize(
       rootBox, item.box(), containerCrossSize, isVertical);
+
     if (!itemCrossConstraint.isBounded()) {
-      // TODO: Actually fit-content
-      itemCrossConstraint = LayoutConstraint.AUTO;
+      if (containerCrossSize.isPreLayoutConstraint()) {
+        itemCrossConstraint = containerCrossSize;
+      } else if (isVertical && containerCrossSize.isBounded()) {
+        itemCrossConstraint = SizingWidthUtil.computeFitContent(
+          containerCrossSize, item.box()); // TODO: Need to adjust for padding?
+      }  else {
+        // TODO: Fit-Content for !isVertical?
+        itemCrossConstraint = LayoutConstraint.AUTO;
+      }
     }
 
     UnmanagedBoxFragment<?> boxFragment = item.box().layout(
@@ -71,7 +81,8 @@ public final class FlexCrossSizeDetermination {
   }
 
   private static void calculateLineCrossSize(
-    ElementBox rootBox, FlexLine line, LayoutConstraint containerCrossSize
+    ElementBox rootBox,
+    FlexLine line, LayoutConstraint containerCrossSize, boolean isVertical
   ) {
     boolean isSingleLine = rootBox.properties().get(CSSProperty.FLEX_WRAP).equals(FlexWrapValue.NOWRAP);
     if (isSingleLine && containerCrossSize.isBounded()) {
@@ -88,9 +99,17 @@ public final class FlexCrossSizeDetermination {
         item.hypotheticalCrossSize());
     }
 
-    line.setCrossSize(largestHypotheticalCrossSize);
+    float crossSize = largestHypotheticalCrossSize;
+    if (isSingleLine) {
+      LayoutConstraint clampedSize = isVertical ?
+        SizingWidthUtil.clampWidth(containerCrossSize, rootBox, LayoutConstraint.of(largestHypotheticalCrossSize)) :
+        SizingHeightUtil.clampHeight(containerCrossSize, rootBox, LayoutConstraint.of(largestHypotheticalCrossSize));
+      if (clampedSize.isBounded()) {
+        crossSize = clampedSize.value();
+      }
+    }
 
-    // TODO: Clamp to min/max cross sizes
+    line.setCrossSize(crossSize);
   }
 
   private static void handleStretch(
@@ -145,9 +164,10 @@ public final class FlexCrossSizeDetermination {
     LayoutConstraint itemCrossConstraint = FlexUtil.boxCrossSize(
       rootBox, item.box(), containerCrossSize, isVertical);
 
+    CSSProperty crossProperty = isVertical ? CSSProperty.WIDTH : CSSProperty.HEIGHT;
     if (
       itemAlignmentValue.equals(AlignItemsValue.STRETCH)
-      && !itemCrossConstraint.isBounded()
+      && item.box().properties().get(crossProperty).equals(CSSValue.AUTO)
       // TODO: Other checks
     ) {
       // TODO: Clamp
