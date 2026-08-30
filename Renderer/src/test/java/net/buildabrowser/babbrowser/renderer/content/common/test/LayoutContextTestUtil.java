@@ -21,10 +21,10 @@ public final class LayoutContextTestUtil {
     FragmentFactory fragmentFactory = FragmentFactory.createDefault();
     LayoutContext layoutContext = new LayoutContext(
       new GlobalLayoutContext(
-        resourceLoader, testMetrics, resourceLoader.fontLoader()::load,
+        resourceLoader, resourceLoader.fontLoader()::load,
         (m, s) -> m.stringWidth(s),
         viewport, null, null, null, fragmentFactory),
-      () -> testMetrics);
+      () -> testMetrics, testMetrics);
     return layoutContext;
   }
 

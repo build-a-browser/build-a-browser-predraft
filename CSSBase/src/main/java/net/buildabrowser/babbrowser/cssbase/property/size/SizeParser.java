@@ -125,7 +125,7 @@ public class SizeParser implements PropertyValueParser {
     if (token instanceof PercentageToken percentageToken && allowPercent) {
       return PercentageValue.create(percentageToken.value());
     } else if (token instanceof DimensionToken dimensionToken) {
-      LengthType lengthType = LENGTH_TYPES.get(dimensionToken.dimension());
+      LengthType lengthType = LENGTH_TYPES.get(dimensionToken.dimension().toLowerCase());
       if (lengthType == null) {
         return INVALID_LENGTH_TYPE;
       }

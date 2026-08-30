@@ -63,7 +63,7 @@ public final class FontDetermination {
     CSSValue fontSizeValue = properties.get(CSSProperty.FONT_SIZE);
     if (fontSizeValue instanceof FontNamedSizeValue fontNamedSizeValue) {
       if (fontNamedSizeValue.isAbsolute()) {
-        return parentContext.global().rootMetrics().size() * fontNamedSizeValue.scaling();
+        return parentContext.rootMetrics().size() * fontNamedSizeValue.scaling();
       } else {
         // TODO: Check if it matches an absolute anyways
         return parentSize * fontNamedSizeValue.scaling();

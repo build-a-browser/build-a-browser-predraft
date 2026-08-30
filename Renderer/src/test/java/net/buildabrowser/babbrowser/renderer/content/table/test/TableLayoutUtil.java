@@ -58,10 +58,10 @@ public final class TableLayoutUtil {
     FragmentFactory fragmentFactory = FragmentFactory.createDefault();
     LayoutContext layoutContext = new LayoutContext(
       new GlobalLayoutContext(
-        resourceLoader, testMetrics, resourceLoader.fontLoader()::load,
+        resourceLoader, resourceLoader.fontLoader()::load,
         (m, s) -> m.stringWidth(s),
         viewport, null, null, null, fragmentFactory),
-      () -> testMetrics);
+      () -> testMetrics, testMetrics);
     LayoutContextGenerator.generateLayoutContexts(parentBox, layoutContext);
     TableContent content = (TableContent) parentBox.content();
 

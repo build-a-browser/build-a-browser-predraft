@@ -110,7 +110,7 @@ public final class SizingUtil {
     double baseValue = lengthValue.value().doubleValue();
     double sizeResult = baseValue == 0 ? 0 : baseValue * switch (lengthValue.dimension()) {
       case EM -> layoutContext.font().metrics().size();
-      case REM -> layoutContext.global().rootMetrics().size();
+      case REM -> layoutContext.rootMetrics().size();
       case EX -> layoutContext.font().metrics().xHeight() / 2f;
       case CH -> layoutContext.font().metrics().stringWidth("0"); // TODO: Check inline direction
 

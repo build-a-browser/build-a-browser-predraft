@@ -169,7 +169,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     ) {
       long styleStartTime = System.currentTimeMillis();
       GlobalLayoutContext globalLayoutContext = createGlobalLayoutContext();
-      LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
+      LayoutContext layoutContext = new LayoutContext(
+        globalLayoutContext, rootFont, rootFont.metrics());
       MediaContext mediaContext = new MediaContext(
         List.of("screen"), v -> SizingUtil.evaluateBaseSize(
           layoutContext, LayoutConstraint.AUTO, v), width, height);
@@ -288,7 +289,8 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
     GlobalLayoutContext globalLayoutContext = createGlobalLayoutContext();
 
-    LayoutContext layoutContext = new LayoutContext(globalLayoutContext, rootFont);
+    LayoutContext layoutContext = new LayoutContext(
+      globalLayoutContext, rootFont, rootFont.metrics());
     LayoutContextGenerator.generateLayoutContexts(rootBox, layoutContext);
 
     HTMLLayout.doLayout(rootBox, width, height);
@@ -304,7 +306,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
     Viewport viewport = new Viewport(0, 0, width, height);
     GlobalLayoutContext globalLayoutContext = new GlobalLayoutContext(
-      painter.resourceLoader(), rootFont.metrics(), fontCache, fontWordWidthCache,
+      painter.resourceLoader(), fontCache, fontWordWidthCache,
       viewport, scriptingContext, selectionContext, imageCache, fragmentFactory);
     return globalLayoutContext;
   }

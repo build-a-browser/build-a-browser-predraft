@@ -1,5 +1,9 @@
 package net.buildabrowser.babbrowser.renderer.layout;
 
+import static net.buildabrowser.babbrowser.html.util.HTMLDomUtil.isHtmlElement;
+
+import net.buildabrowser.babbrowser.painter.core.FontMetrics;
+import net.buildabrowser.babbrowser.painter.core.LoadedFont;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.layout.FontDetermination.FontDeterminationContext;
@@ -23,7 +27,11 @@ public final class LayoutContextGenerator {
       parentFontInfo, box.properties(), parentContext);
     LayoutContext childContext = parentContext;
     if (!childFontInfo.equals(parentFontInfo)) {
-      childContext = new LayoutContext(parentContext.global(), childFontInfo.font());
+      LoadedFont newFont = childFontInfo.font();
+      FontMetrics rootMetrics = isHtmlElement(box.element(), "html") ?
+        newFont.metrics() :
+        parentContext.rootMetrics();
+      childContext = new LayoutContext(parentContext.global(), newFont, rootMetrics);
     }
 
     box.setLayoutContext(childContext);
