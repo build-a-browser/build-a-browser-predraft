@@ -9,11 +9,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
-import net.buildabrowser.babbrowser.cssbase.cssom.AtRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSDeclarationList;
-import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleOrDeclarations;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.AtRule;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.cssbase.parser.imp.CSSIntermediateParserImp;

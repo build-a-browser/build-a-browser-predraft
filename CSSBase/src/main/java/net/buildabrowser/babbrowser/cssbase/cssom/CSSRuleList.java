@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.imp.CSSRuleListImp;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.CSSRule;
 
 public interface CSSRuleList extends Iterable<CSSRule> {
   

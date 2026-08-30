@@ -3,8 +3,8 @@ package net.buildabrowser.babbrowser.cssbase.cssom.imp;
 import java.util.Iterator;
 import java.util.List;
 
-import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleList;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.CSSRule;
 
 public record CSSRuleListImp(List<CSSRule> rules) implements CSSRuleList {
 

@@ -13,10 +13,10 @@ import net.buildabrowser.babbrowser.css.engine.styles.util.ActiveStylesGenerator
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSDeclarationList;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleOrDeclarations;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
-import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule.RuleSource;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSParser;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
@@ -122,7 +122,6 @@ public class ElementContextImp extends RenderContextImp implements ElementContex
   public ActiveStyles regenerateStyles(StyleCache styleCache, ActiveStyles refStyles) {
     PropertyContainer oldStyles = this.computedStyles;
     PropertyContainer parentProperties = parent();
-    styleRules.sort(WeightedStyleRule::compare);
     boolean reuseLast = refStyles != null && Objects.equals(refStyles.refRules(), styleRules);
     ActiveStyles activeStyles = reuseLast ?
       refStyles :

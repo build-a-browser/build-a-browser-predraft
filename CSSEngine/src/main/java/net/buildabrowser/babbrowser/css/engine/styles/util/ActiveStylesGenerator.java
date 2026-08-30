@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.css.engine.styles.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.css.engine.styles.ActiveStyles;
@@ -26,13 +27,17 @@ public final class ActiveStylesGenerator {
   // TODO: Resolve whatever variables can be immeadietly resolved
 
   public static ActiveStyles generateActiveStyles(
-    Collection<WeightedStyleRule> styleRules // TODO: Switch to just StyleRule
+    List<WeightedStyleRule> styleRules // TODO: Switch to just StyleRule
   ) {
     ActiveStyles activeStyles = ActiveStyles.create(styleRules);
+    styleRules.sort(WeightedStyleRule::compare);
     addCustomDeclarations(styleRules, activeStyles, false);
+    styleRules.sort(WeightedStyleRule::compareImportant);
     addCustomDeclarations(styleRules, activeStyles, true);
     // resolveCustomStaticVarReferences(activeStyles);
+    styleRules.sort(WeightedStyleRule::compare);
     addNormalDeclarations(styleRules, activeStyles, false);
+    styleRules.sort(WeightedStyleRule::compareImportant);
     addNormalDeclarations(styleRules, activeStyles, true);
     activeStyles.freeze();
 

@@ -3,9 +3,9 @@ package net.buildabrowser.babbrowser.renderer.hintattr;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
-import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule.RuleSource;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
 import net.buildabrowser.babbrowser.renderer.hintattr.PresentationalHint.PresentationalHintName;

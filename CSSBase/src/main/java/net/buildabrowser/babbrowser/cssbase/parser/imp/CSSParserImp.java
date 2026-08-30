@@ -4,13 +4,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.buildabrowser.babbrowser.cssbase.cssom.AtRule;
-import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleList;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleOrDeclarations;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
-import net.buildabrowser.babbrowser.cssbase.cssom.MediaRule;
-import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.AtRule;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.CSSRule;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.LayerListRule;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.LayerRule;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.MediaRule;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.cssbase.media.ast.MediaNode;
 import net.buildabrowser.babbrowser.cssbase.media.parser.CSSMediaQueryParser;
@@ -19,6 +21,10 @@ import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStream;
 import net.buildabrowser.babbrowser.cssbase.parser.CSSTokenStreamSource;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.tokens.AtKeywordToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.CommaToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.DelimToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.EOFToken;
+import net.buildabrowser.babbrowser.cssbase.tokens.IdentToken;
 
 // Includes some changes from https://drafts.csswg.org/css-syntax/
 // not present in https://www.w3.org/TR/css-syntax-3/
@@ -84,8 +90,12 @@ public class CSSParserImp implements CSSParser {
       case AtRule atRule:
         if (atRule.name().equals(AtKeywordToken.create("media"))) {
           return createMediaRule(source, atRule, parentSelectors);
+        } else if (
+          atRule.name().equals(AtKeywordToken.create("layer"))
+        ) {
+          return createLayerRule(source, atRule, parentSelectors);
         }
-        // TODO
+        // TODO: Add support for more rules
         return null;
       case StyleRule styleRule:
         return styleRule;
@@ -130,9 +140,36 @@ public class CSSParserImp implements CSSParser {
   ) throws IOException {
     MediaNode query = CSSMediaQueryParser.parseQuery(
       ListCSSTokenStream.createWithSkippedWhitespace(source, atRule.prelude()));
-    
     List<CSSRule> rules = CSSIntermediateParserImp.wrapDeclarations(atRule.rules());
     return new MediaRule(query, remapRules(source, rules, parentSelectors));
+  }
+
+  private CSSRule createLayerRule(
+    CSSTokenStreamSource source,
+    AtRule atRule,
+    List<ComplexSelector> parentSelectors
+  ) throws IOException {
+    CSSTokenStream stream = ListCSSTokenStream.createWithSkippedWhitespace(source, atRule.prelude());
+    List<String> nameParts = parseLayerName(stream);
+    if (nameParts == null) return null;
+
+    List<List<String>> manyNames = new ArrayList<>(1);
+    manyNames.add(nameParts);
+    while (stream.peek() instanceof CommaToken) {
+      stream.read();
+      nameParts = parseLayerName(stream);
+      manyNames.add(nameParts);
+    }
+    
+    if (!(stream.peek() instanceof EOFToken)) return null;
+
+    if (atRule.rules() == null) {
+      return new LayerListRule(manyNames);
+    }
+
+    if (manyNames.size() > 1) return null;
+    List<CSSRule> rules = CSSIntermediateParserImp.wrapDeclarations(atRule.rules());
+    return new LayerRule(nameParts, remapRules(source, rules, parentSelectors));
   }
 
   private List<ComplexSelector> duplicateSelectors(List<ComplexSelector> selectors) {
@@ -142,6 +179,26 @@ public class CSSParserImp implements CSSParser {
     }
 
     return duplicates;
+  }
+
+  private List<String> parseLayerName(CSSTokenStream stream) throws IOException {
+    if (stream.peek() instanceof EOFToken) return List.of();
+
+    List<String> nameParts = new ArrayList<>();
+    if (!(stream.read() instanceof IdentToken identToken)) return null;
+    nameParts.add(identToken.value());
+
+    while (
+      stream.peek() instanceof DelimToken delimToken
+      && delimToken.ch() == '.'
+    ) {
+      stream.read();
+
+      if (!(stream.read() instanceof IdentToken identToken2)) return null;
+      nameParts.add(identToken2.value());
+    }
+    
+    return nameParts;
   }
   
 }

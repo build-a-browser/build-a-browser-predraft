@@ -2,9 +2,10 @@ package net.buildabrowser.babbrowser.css.engine.matcher.util;
 
 import static net.buildabrowser.babbrowser.common.util.CompatUtil.getLast;
 
-import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule.RuleSource;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.StyleRule;
+import net.buildabrowser.babbrowser.cssbase.layer.CSSLayer;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorPart;
 import net.buildabrowser.babbrowser.cssbase.selector.SelectorSpecificity;
@@ -20,13 +21,14 @@ public final class WeightedStyleRuleUtil {
     RuleSource ruleSource,
     ComplexSelector complexSelector,
     SelectorSpecificity specificity,
+    CSSLayer layer,
     int sheetOrdering,
     int[] ruleOrdering
   ) {
     SelectorTarget target = determineTarget(complexSelector);
     WeightedStyleRule weightedRule = WeightedStyleRule.create(
-      styleRule, specificity, target,
-      ruleSource, sheetOrdering, ruleOrdering[0]);
+      styleRule, specificity, target, ruleSource,
+      layer, sheetOrdering, ruleOrdering[0]);
     return weightedRule;
   }
 

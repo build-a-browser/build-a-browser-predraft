@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import net.buildabrowser.babbrowser.cssbase.cssom.AtRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSDeclarationList;
-import net.buildabrowser.babbrowser.cssbase.cssom.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleOrDeclarations;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.AtRule;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.CSSRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.FunctionValue;
 import net.buildabrowser.babbrowser.cssbase.intermediate.QualifiedRule;
 import net.buildabrowser.babbrowser.cssbase.intermediate.SimpleBlock;
@@ -72,6 +72,8 @@ public class CSSIntermediateParserImp {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public static List<CSSRule> wrapDeclarations(List<CSSRuleOrDeclarations> childRules) {
+    if (childRules == null) return List.of();
+
     ListIterator<CSSRuleOrDeclarations> childIt = childRules.listIterator();
     while (childIt.hasNext()) {
       if (childIt.next() instanceof CSSDeclarationList decls) {

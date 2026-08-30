@@ -12,7 +12,7 @@ import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSRuleList;
 import net.buildabrowser.babbrowser.cssbase.cssom.CSSStyleSheet;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
-import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.selector.ComplexSelector;
 import net.buildabrowser.babbrowser.cssbase.selector.TypeSelector;
 import net.buildabrowser.babbrowser.cssbase.tokens.ColonToken;

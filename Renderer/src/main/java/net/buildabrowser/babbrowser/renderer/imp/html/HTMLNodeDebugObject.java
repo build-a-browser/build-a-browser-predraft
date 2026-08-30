@@ -4,9 +4,9 @@ import java.util.List;
 
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamily;
 import net.buildabrowser.babbrowser.cssbase.cssom.Declaration;
-import net.buildabrowser.babbrowser.cssbase.cssom.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.WeightedStyleRule.RuleSource;
+import net.buildabrowser.babbrowser.cssbase.cssom.rule.StyleRule;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue;
 import net.buildabrowser.babbrowser.cssbase.property.color.ColorValue.SRGBAColor;
 import net.buildabrowser.babbrowser.cssbase.property.outline.OutlineCompositeValue;
