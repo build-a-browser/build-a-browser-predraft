@@ -16,7 +16,9 @@ import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.fetch.FetchEngine;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
+import net.buildabrowser.babbrowser.html.html.handlers.ObjectLoader;
 import net.buildabrowser.babbrowser.html.misc.ElementDocumentChangeListener;
+import net.buildabrowser.babbrowser.html.navigation.HTMLDocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.painter.core.FontLoader;
 import net.buildabrowser.babbrowser.painter.core.FontLoader.FontOptions;
@@ -53,7 +55,7 @@ import net.buildabrowser.babbrowser.renderer.logging.PerfLogging;
 import net.buildabrowser.babbrowser.renderer.style.StyleCache;
 import net.buildabrowser.babbrowser.renderer.style.StyleGenerator;
 
-public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRenderer {
+public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRenderer, HTMLDocumentRenderer {
 
   // TODO: Allow specifying the FragmentFactory when instantiating the RenderingEngine instance
   private final FragmentFactory fragmentFactory = FragmentFactory.createDefault();
@@ -72,6 +74,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   private final DocumentChangeListener changeListener;
   private final ImageCache imageCache;
   private final FontCache fontCache;
+  private final ObjectLoader objectLoader;
   private final SlotFamily<HTMLElement, RenderContext> renderContexts;
   private final FakeRootContextImp fakeRootContext;
   private final HTMLCompositeLayers compositeLayers;
@@ -143,6 +146,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
       document.browsingContext().realm().hostDefined());
     this.imageCache = ImageCache.create(scriptingContext, painter.resourceLoader());
     this.fontCache = FontCache.create(painter.resourceLoader().fontLoader());
+    this.objectLoader = new HTMLObjectLoader(imageCache, renderContexts);
 
     document.focusManager().attachContext(
       new HTMLFocusManagerContext(eventContext, renderContexts));
@@ -253,6 +257,11 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     }
 
     return Optional.empty();
+  }
+
+  @Override
+  public ObjectLoader objectLoader() {
+    return this.objectLoader;
   }
 
   @Override

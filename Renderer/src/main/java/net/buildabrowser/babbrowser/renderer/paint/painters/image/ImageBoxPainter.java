@@ -9,6 +9,7 @@ import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement
 import net.buildabrowser.babbrowser.renderer.fragment.image.ImageBoxFragment;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
 import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
+import net.buildabrowser.babbrowser.renderer.paint.painters.common.ElementBackgroundPainter;
 
 public class ImageBoxPainter implements BoxPainter<ImageBoxFragment> {
 
@@ -51,7 +52,7 @@ public class ImageBoxPainter implements BoxPainter<ImageBoxFragment> {
   public void paintBackground(
     ImageBoxFragment fragment, PaintCanvas canvas, VpIntersection vpIntersection
   ) {
-    // TODO: Implement
+    ElementBackgroundPainter.paintBackground(canvas, fragment, vpIntersection);
   }
   
 }

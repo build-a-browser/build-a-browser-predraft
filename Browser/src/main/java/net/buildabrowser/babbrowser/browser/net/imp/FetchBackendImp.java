@@ -11,14 +11,17 @@ import java.net.http.HttpResponse.ResponseInfo;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.buildabrowser.babbrowser.browser.net.imp.FetchHostPool.QueuedRequest;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchBody;
@@ -35,22 +38,52 @@ import net.buildabrowser.babbrowser.stream.ReadableStreamDefaultReader;
 
 public class FetchBackendImp implements FetchBackend {
 
+  // TODO: Need to determine 
+  private static final int MAX_CONNECTIONS = 10;
   private static final String CHROME_UA_STRING
     = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
     + " Chrome/146.0.0.0 Safari/537.36";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FetchBackendImp.class);
 
-  private final HttpClient httpClient = HttpClient.newHttpClient();
-
+  private final HttpClient httpClient;
   private final ContentEncodingRegistry encodingRegistry;
+  private final Map<String, FetchHostPool> requestQueue = new HashMap<>();
 
-  public FetchBackendImp(ContentEncodingRegistry encodingRegistry) {
+  public FetchBackendImp(
+    ContentEncodingRegistry encodingRegistry,
+    ExecutorService executorService
+  ) {
     this.encodingRegistry = encodingRegistry;
+    this.httpClient = HttpClient.newBuilder()
+      .executor(executorService)
+      .build();
   }
 
   @Override
   public void makeRequest(
+    MutableFetchResponse response,
+    FetchRequest request,
+    Consumer<Optional<ByteBuffer>> byteConsumer
+  ) {
+    String host = request.currentURL().getHost();
+    boolean hasStream = false;
+    synchronized (requestQueue) {
+      FetchHostPool pool = requestQueue
+        .computeIfAbsent(host, _1 -> new FetchHostPool(MAX_CONNECTIONS));
+      hasStream = pool.acquireStream();
+      if (!hasStream) {
+        pool.queueRequest(new QueuedRequest(
+          response, request, byteConsumer));
+      }
+    }
+
+    if (hasStream) {
+      makeRequestNow(response, request, byteConsumer);
+    }
+  }
+
+  private void makeRequestNow(
     MutableFetchResponse response,
     FetchRequest request,
     Consumer<Optional<ByteBuffer>> byteConsumer
@@ -89,11 +122,13 @@ public class FetchBackendImp implements FetchBackend {
         } else {
           decoder.done();
           decoder.close();
+          finishRequest(request);
           byteConsumer.accept(Optional.empty());
         }
       })).apply(responseInfo);
     }).exceptionally(e -> {
       LOGGER.error("An issue occured while handling a network packet!", e);
+      finishRequest(request);
       return null;
     });
     // TODO: Proper exception handling
@@ -141,6 +176,26 @@ public class FetchBackendImp implements FetchBackend {
     
     ReadableStreamDefaultReader reader = (ReadableStreamDefaultReader) body.stream().getReader(null);
     return new StreamReaderBodyPublisher(reader);
+  }
+
+  private void finishRequest(FetchRequest request) {
+    String host = request.currentURL().getHost();
+    synchronized (requestQueue) {
+      FetchHostPool pool = requestQueue.get(host);
+      QueuedRequest queued = pool.unqueueRequest();
+      if (queued == null) {
+        pool.releaseStream();
+        if (pool.hasNoData()) {
+          requestQueue.remove(host);
+        }
+      }
+      if (queued != null) {
+        makeRequestNow(
+          queued.response(),
+          queued.request(),
+          queued.byteConsumer());
+      }
+    }
   }
 
   // Unfortunately DDG captchas the user with the default UA (and captchas would require JS)

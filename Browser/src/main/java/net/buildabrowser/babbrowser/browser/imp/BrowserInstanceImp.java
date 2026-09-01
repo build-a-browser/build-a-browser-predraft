@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.browser.imp;
 
 import java.awt.Component;
 import java.net.URI;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import net.buildabrowser.babbrowser.browser.BrowserInstance;
@@ -35,7 +36,8 @@ public class BrowserInstanceImp implements BrowserInstance {
     DocumentLoaderRegistry loaderRegistry = DocumentLoaderRegistry.createDefault();
     ContentEncodingRegistry registry = ContentEncodingRegistry.createDefault();
     
-    FetchBackend fetchBackend = new FetchBackendImp(registry);
+    ExecutorService httpExecutorService = Executors.newWorkStealingPool(16);
+    FetchBackend fetchBackend = new FetchBackendImp(registry, httpExecutorService);
     FetchConfig fetchConfig = new FetchConfig(
       fetchBackend, _ -> true, cookieStore);
 

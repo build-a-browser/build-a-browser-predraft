@@ -6,6 +6,7 @@ import net.buildabrowser.babbrowser.dom.Document;
 import net.buildabrowser.babbrowser.html.html.imp.HTMLDocumentImp;
 import net.buildabrowser.babbrowser.html.input.FocusManager;
 import net.buildabrowser.babbrowser.html.navigation.BrowsingContext;
+import net.buildabrowser.babbrowser.html.navigation.HTMLDocumentRenderer;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.UANavigableOptions;
 import net.buildabrowser.babbrowser.html.scripting.PlatformObject;
@@ -36,6 +37,8 @@ public interface HTMLDocument extends RenderableDocument, Document, PlatformObje
   UANavigableOptions uaNavigableOptions();
 
   SubmittableElementSet unownedSubmittableElements();
+
+  HTMLDocumentRenderer renderer();
 
   static HTMLDocument create(
     UANavigableOptions uaNavigableOptions,

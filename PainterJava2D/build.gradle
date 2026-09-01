@@ -4,4 +4,7 @@ plugins {
 
 dependencies {
     api project(':Renderer')
+
+    implementation 'com.twelvemonkeys.imageio:imageio-webp:3.13.1'
+    implementation 'com.twelvemonkeys.imageio:imageio-core:3.13.1'
 }

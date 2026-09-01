@@ -5,6 +5,7 @@ import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
 import net.buildabrowser.babbrowser.cssbase.property.display.DisplayValue.InnerDisplayValue;
 import net.buildabrowser.babbrowser.cssbase.util.PropertiesUtil;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
+import net.buildabrowser.babbrowser.html.html.HTMLObjectElement;
 import net.buildabrowser.babbrowser.html.html.HTMLTextAreaElement;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
@@ -13,6 +14,7 @@ import net.buildabrowser.babbrowser.renderer.content.input.InputContent;
 import net.buildabrowser.babbrowser.renderer.content.textarea.TextAreaContent;
 import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
+import net.buildabrowser.babbrowser.renderer.imp.html.HTMLObjectLoader;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
 public class ElementBoxImp extends AbstractElementBoxImp {
@@ -66,6 +68,7 @@ public class ElementBoxImp extends AbstractElementBoxImp {
     if (
       this.content == null
       || !innerDisplay.equals(prevDisplayValue)
+      || isAlwaysUpdate()
     ) {
       this.prevDisplayValue = innerDisplay;
       // No longer does content sharing since the main types are singletons now
@@ -90,11 +93,14 @@ public class ElementBoxImp extends AbstractElementBoxImp {
       return createSpecifiedContent(innerDisplay);
     }
 
+    // TODO: Instead switch on element interface
     BoxContent elementContent = switch (element().name()) {
       case "img" -> new ImageContent();
       case "input" -> new InputContent();
       case "textarea" -> new TextAreaContent(
         (HTMLTextAreaElement) element(), this);
+      case "object" -> HTMLObjectLoader.createContent(
+        (HTMLObjectElement) element());
       default -> null;
     };
 
@@ -103,6 +109,13 @@ public class ElementBoxImp extends AbstractElementBoxImp {
     }
   
     return createSpecifiedContent(innerDisplay);
+  }
+
+  private boolean isAlwaysUpdate() {
+    // TODO: This is definitely a bit hacky
+    HTMLElement element = element();
+    if (element instanceof HTMLObjectElement) return true;
+    return false;
   }
   
 }

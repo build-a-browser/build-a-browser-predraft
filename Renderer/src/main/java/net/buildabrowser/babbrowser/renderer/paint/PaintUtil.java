@@ -9,6 +9,7 @@ import net.buildabrowser.babbrowser.renderer.composite.CompositeLayerUtil;
 import net.buildabrowser.babbrowser.renderer.fragment.BoxFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
+import net.buildabrowser.babbrowser.renderer.fragment.flow.FloatRefFragment;
 import net.buildabrowser.babbrowser.renderer.fragment.PosRefBoxFragment;
 
 public final class PaintUtil {
@@ -91,6 +92,7 @@ public final class PaintUtil {
     Measurement measurement
   ) {
     if (fragment instanceof PosRefBoxFragment) return true;
+    if (fragment instanceof FloatRefFragment) return true;
     if (
       fragment instanceof BoxFragment<?> boxFragment
       && (

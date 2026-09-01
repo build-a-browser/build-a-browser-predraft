@@ -13,6 +13,10 @@ img {
   display: inline-block;
 }
 
+object {
+  overflow: clip !important;
+}
+
 input, textarea {
   border: 1px solid black;
   background-color: white;

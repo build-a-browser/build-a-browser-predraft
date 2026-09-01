@@ -10,8 +10,10 @@ import net.buildabrowser.babbrowser.html.html.FormAssociatedElement;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
+import net.buildabrowser.babbrowser.html.html.HTMLObjectElement;
 import net.buildabrowser.babbrowser.html.html.HTMLTextAreaElement;
 import net.buildabrowser.babbrowser.html.html.LinkElement;
+import net.buildabrowser.babbrowser.html.html.handlers.ObjectHandler;
 import net.buildabrowser.babbrowser.html.link.LinkProcessor;
 
 public class ElementDocumentChangeListener extends AbstractDocumentChangeListener {
@@ -35,11 +37,16 @@ public class ElementDocumentChangeListener extends AbstractDocumentChangeListene
       // TODO: Also more cases that trigger the linked resource
       LinkProcessor.processLink(element, fetchEngine);
     } else if (
-      // TODO: Custom MetaElement tyype
+      // TODO: Custom MetaElement type
       node instanceof HTMLElement element
       && element.name().equals("meta")
     ) {
       handleMeta(element);
+    } else if (
+      node instanceof HTMLObjectElement element
+      && element.name().equals("object")
+    ) {
+      ObjectHandler.determineObjectRepresentation(element, fetchEngine);
     } else if (
       node instanceof Text text
       && text.parentNode() instanceof HTMLTextAreaElement htmlTextAreaElement

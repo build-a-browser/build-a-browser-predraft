@@ -1,7 +1,5 @@
 package net.buildabrowser.babbrowser.renderer.image.imp;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,14 +10,15 @@ import org.slf4j.LoggerFactory;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.Invalidatable;
 import net.buildabrowser.babbrowser.fetch.FetchParameters;
 import net.buildabrowser.babbrowser.fetch.FetchRequest;
+import net.buildabrowser.babbrowser.fetch.FetchResponse;
 import net.buildabrowser.babbrowser.fetch.mutable.MutableFetchRequest;
-import net.buildabrowser.babbrowser.html.events.EventLoop;
-import net.buildabrowser.babbrowser.html.events.TaskSource;
-import net.buildabrowser.babbrowser.html.scripting.GlobalObject;
+import net.buildabrowser.babbrowser.painter.core.ImageLoader;
 import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
 import net.buildabrowser.babbrowser.renderer.context.ScriptingContext;
 import net.buildabrowser.babbrowser.renderer.image.ImageCache;
+import net.buildabrowser.babbrowser.stream.ReadRequest;
+import net.buildabrowser.babbrowser.stream.ReadableStreamDefaultReader;
 
 public class ImageCacheImp implements ImageCache {
 
@@ -50,7 +49,29 @@ public class ImageCacheImp implements ImageCache {
       return imageEntry.getImage();
     }
 
-    if (!imageEntry.ongoing()) {
+    if (!imageEntry.started()) {
+      loadImage(imageURI, imageEntry);
+    }
+
+    imageEntry.addListener(invalidatable, invalidation);
+
+    return null;
+  }
+
+  @Override
+  public LoadedImage getImage(
+    FetchResponse sourceResponse,
+    Invalidatable invalidatable,
+    short invalidation
+  ) {
+    URI imageURI = sourceResponse.url();
+    ImageCacheEntryImp imageEntry = imageEntries.computeIfAbsent(
+      imageURI, _1 -> new ImageCacheEntryImp());
+    if (imageEntry.getImage() != null) {
+      return imageEntry.getImage();
+    }
+
+    if (!imageEntry.started()) {
       loadImage(imageURI, imageEntry);
     }
 
@@ -74,6 +95,8 @@ public class ImageCacheImp implements ImageCache {
     URI imageSource,
     ImageCacheEntryImp imageEntry
   ) {
+    imageEntry.markStarted();
+
     MutableFetchRequest fetchRequest = FetchRequest.createMutable();
     fetchRequest.setMethod("GET");
     fetchRequest.appendURL(imageSource);
@@ -81,28 +104,41 @@ public class ImageCacheImp implements ImageCache {
 
     FetchParameters fetchParameters = new FetchParameters();
     fetchParameters.request = fetchRequest;
-    fetchParameters.processResponseConsumeBody = (response, success, bytes) -> {
-      if (success) {
-        GlobalObject globalObject = scriptingContext.environmentSettingsObject().globalObject();
-        EventLoop.queueGlobalTask(TaskSource.DOM, globalObject,
-          () -> loadImageFromBytes(bytes, imageEntry));
-      }
+    fetchParameters.processResponse = response -> {
+      loadImageFromResponse(response, imageEntry);
     };
 
     scriptingContext.fetchEngine().fetch(fetchParameters);
   }
 
-  private synchronized void loadImageFromBytes(
-    byte[] bytes,
+  private void loadImageFromResponse(
+    FetchResponse response,
     ImageCacheEntryImp imageEntry
   ) {
-    try {
-      // TODO: Also need to handle SVG
-      LoadedImage image = resourceLoader.loadImage(new ByteArrayInputStream(bytes));
-      imageEntry.setLoadedImage(image);
-    } catch (IOException | IllegalArgumentException e) {
-      LOGGER.error("An error occured while loading the image!", e);
+    imageEntry.markStarted();
+
+    if (response.status() < 200 || response.status() > 399) {
+      LOGGER.error("Could not load image: Invalid status {}!", response.status());
+      return;
     }
+
+    String contentType = response.headerList().get("Content-Type");
+    if (contentType == null) {
+      // TODO: Sniff the content type
+      LOGGER.error("Could not load image: Could not determine Content-Type!");
+      return;
+    }
+
+    ImageLoader imageLoader = resourceLoader.progressivelyLoadImage(
+      response.headerList().get("Content-Type"),
+      new ImageCacheImageCallbacks(imageEntry, scriptingContext.globalObject()),
+      scriptingContext.globalObject()::runInParallel);
+    imageEntry.setLoader(imageLoader);
+    
+    ReadableStreamDefaultReader reader = (ReadableStreamDefaultReader)
+      response.body().stream().getReader(null);
+    ReadRequest readRequest = new ImageReadRequest(imageLoader, reader);
+    reader.read(readRequest);
   }
   
 }

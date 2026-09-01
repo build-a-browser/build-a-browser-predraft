@@ -5,25 +5,38 @@ import java.lang.ref.WeakReference;
 import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.common.datastruct.SinglyLinkedList;
 import net.buildabrowser.babbrowser.cssbase.cssom.extra.Invalidatable;
+import net.buildabrowser.babbrowser.painter.core.ImageLoader;
 import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 
 public class ImageCacheEntryImp {
   
-  private LoadedImage loadedImage;
+  private boolean started;
+  private ImageLoader loader;
   private SinglyLinkedList<ImageCacheListener> listeners;
 
   public LoadedImage getImage() {
-    return this.loadedImage;
+    if (this.loader == null) return null;
+    return this.loader.currentImage();
   }
 
-  public void setLoadedImage(LoadedImage loadedImage) {
-    this.loadedImage = loadedImage;
+  public void markStarted() {
+    this.started = true;
+  }
+
+  public void setLoader(ImageLoader loader) {
+    this.loader = loader;
+  }
+
+  public void markUpdate() {
     fireListeners();
+  }
+
+  public void markDone() {
     this.listeners = null;
   }
 
-  public boolean ongoing() {
-    return this.listeners != null;
+  public boolean started() {
+    return this.started;
   }
 
   public void addListener(

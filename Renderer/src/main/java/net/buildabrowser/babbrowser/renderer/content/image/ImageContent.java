@@ -27,6 +27,12 @@ public class ImageContent implements BoxContent {
   private URI imageSource;
   private LoadedImage image;
 
+  public ImageContent() {}
+
+  public ImageContent(LoadedImage loadedImage) {
+    this.image = loadedImage;
+  }
+
   @Override
   public void computeIntrinsics(ElementBox rootBox) {
     this.imageAlt = getImageAlt(rootBox);
