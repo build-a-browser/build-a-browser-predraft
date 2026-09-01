@@ -4,9 +4,6 @@ import java.util.Deque;
 
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
-import net.buildabrowser.babbrowser.cssbase.property.PropertyContainer;
-import net.buildabrowser.babbrowser.cssbase.property.PropertyValueParserUtil.ManyResult;
-import net.buildabrowser.babbrowser.cssbase.property.background.BackgroundAttachmentValue;
 import net.buildabrowser.babbrowser.cssbase.property.position.PositionValue;
 import net.buildabrowser.babbrowser.renderer.box.Box;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
@@ -53,7 +50,6 @@ public final class StackingContextGenerator {
 
     CSSValue positioning = elementBox.properties().get(CSSProperty.POSITION);
     boolean isScrollable = elementBox instanceof ScrollBox;
-    boolean hasFixedAttachment = hasFixedAttachment(elementBox.properties());
 
     if (isDeferred(positioning)) {
       parentContext = parentContext.createChild(elementBox);
@@ -61,7 +57,7 @@ public final class StackingContextGenerator {
     } else if (
       positioning.equals(PositionValue.RELATIVE)
       || positioning.equals(PositionValue.STICKY)
-      || isScrollable || hasFixedAttachment
+      || isScrollable
     ) {
       parentContext = parentContext.createChild(elementBox);
       parentContext.computeInsets();
@@ -90,17 +86,6 @@ public final class StackingContextGenerator {
     while (childIt.hasNext()) {
       generateStackingContexts(childIt.next(), parentContext, deferredBoxes);
     }
-  }
-
-  private static boolean hasFixedAttachment(PropertyContainer properties) {
-    ManyResult attachmentList = (ManyResult) properties.get(CSSProperty.BACKGROUND_ATTACHMENT);
-    for (CSSValue result: attachmentList.values()) {
-      if (
-        result.equals(BackgroundAttachmentValue.FIXED)
-      ) return true;
-    }
-
-    return false;
   }
 
 }
