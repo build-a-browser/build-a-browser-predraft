@@ -9,13 +9,14 @@ import io.github.humbleui.skija.Codec;
 import io.github.humbleui.skija.Data;
 import io.github.humbleui.skija.Image;
 import io.github.humbleui.skija.ImageInfo;
+import net.buildabrowser.babbrowser.common.util.BufferUtil;
 import net.buildabrowser.babbrowser.painter.core.ImageLoader;
 import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 import net.buildabrowser.babbrowser.painter.core.ProgressiveImageCallbacks;
 
 public class SkijaImageLoader implements ImageLoader {
 
-  private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+  private final ByteArrayOutputStream bufferOut = new ByteArrayOutputStream();
   private final ProgressiveImageCallbacks callbacks;
 
   private LoadedImage currentImage;
@@ -32,7 +33,7 @@ public class SkijaImageLoader implements ImageLoader {
 
   @Override
   public void onChunk(ByteBuffer chunk) throws IOException {
-    buffer.write(chunk.array()); // TODO: Check if it actually has an array
+    BufferUtil.writeBufferToStream(chunk, bufferOut);
     callbacks.onImageUpdate();
     this.hasNewData = true;
   }
@@ -52,7 +53,7 @@ public class SkijaImageLoader implements ImageLoader {
       callbacks.onImageFailure(new IOException("No image loaded!"));
     } else {
       callbacks.onImageDone();
-      buffer.close();
+      bufferOut.close();
     }
   }
 
@@ -61,7 +62,7 @@ public class SkijaImageLoader implements ImageLoader {
     this.currentImage = null;
     callbacks.onImageFailure(e);
     try {
-      buffer.close();
+      bufferOut.close();
     } catch (IOException e2) {
       e2.printStackTrace();
     }
@@ -78,7 +79,7 @@ public class SkijaImageLoader implements ImageLoader {
   }
 
   private LoadedImage loadCurrentImage() {
-    byte[] currentBytes = buffer.toByteArray();
+    byte[] currentBytes = bufferOut.toByteArray();
     try (Data data = Data.makeFromBytes(currentBytes);
       Codec codec = Codec.makeFromData(data)) {
       if (codec == null) return null;

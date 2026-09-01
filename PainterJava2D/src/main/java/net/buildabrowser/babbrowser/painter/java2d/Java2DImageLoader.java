@@ -14,6 +14,7 @@ import javax.imageio.event.IIOReadProgressListener;
 import javax.imageio.event.IIOReadUpdateListener;
 import javax.imageio.stream.ImageInputStream;
 
+import net.buildabrowser.babbrowser.common.util.BufferUtil;
 import net.buildabrowser.babbrowser.painter.core.ImageLoader;
 import net.buildabrowser.babbrowser.painter.core.LoadedImage;
 import net.buildabrowser.babbrowser.painter.core.ProgressiveImageCallbacks;
@@ -38,14 +39,7 @@ public class Java2DImageLoader implements ImageLoader, IIOReadUpdateListener, II
 
   @Override
   public void onChunk(ByteBuffer chunk) throws IOException {
-    if (chunk.hasArray()) {
-      bufferOut.write(chunk.array(), chunk.arrayOffset() + chunk.position(), chunk.remaining());
-      chunk.position(chunk.limit());
-    } else {
-      byte[] bytes = new byte[chunk.remaining()];
-      chunk.get(bytes);
-      bufferOut.write(bytes);
-    }
+    BufferUtil.writeBufferToStream(chunk, bufferOut);
   }
 
   @Override
