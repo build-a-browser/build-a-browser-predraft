@@ -25,6 +25,7 @@ public class HTMLParserImp implements HTMLParser {
   private final RollingCharsetDecoder charsetDecoder;
 
   private boolean didUseCharsetDecoder = false;
+  private boolean encounteredCR = false;
   private int[] pushbackBuffer = new int[16];
   private int pushbackPos = -1;
 
@@ -46,6 +47,15 @@ public class HTMLParserImp implements HTMLParser {
 
   @Override
   public void parse(int ch) {
+    if (encounteredCR) {
+      encounteredCR = false;
+      if (ch == '\n') return;
+    }
+    if (ch == '\r') {
+      encounteredCR = true;
+      ch = '\n';
+    }
+
     TokenizeState tokenizeState = tokenizeContext.getTokenizeState();
     MatchTrie lookaheadOptions = tokenizeState.lookaheadOptions();
 

@@ -79,15 +79,16 @@ public class InlineFormattingContext implements TextWrapTarget, IntrusiveList<In
   }
 
   public void nextLine() {
-    LineBox oldLineBox = this.activeLineBox;
-    this.activeLineBox = activeLineBox.split();
-    addLineToBox(oldLineBox);
-    drainPositionedQueue();
+    nextLine(true);
   }
 
   @Override
   public void nextLine(boolean isSoftWrap) {
-    nextLine();
+    LineBox oldLineBox = this.activeLineBox;
+    activeLineBox.markPreserved();
+    this.activeLineBox = activeLineBox.split();
+    addLineToBox(oldLineBox);
+    drainPositionedQueue();
   }
 
   @Override
@@ -104,6 +105,13 @@ public class InlineFormattingContext implements TextWrapTarget, IntrusiveList<In
         <= floatTracker.lineEndPos(inlineConstraint);
       default -> throw new UnsupportedOperationException("Unrecognized Layout Constraint: " + inlineConstraint);
     };
+  }
+
+  @Override
+  public boolean ignoreWhitespace() {
+    return
+      lineBox().isEmpty()
+      && lineBox().collapseWhiteSpace();
   }
 
   @Override

@@ -52,6 +52,11 @@ public class TextAreaWrapTarget implements TextWrapTarget {
     this.currentWidth += width;
   }
 
+  @Override
+  public boolean ignoreWhitespace() {
+    return false;
+  }
+
   public void finish() {
     nextLine(true);
   }

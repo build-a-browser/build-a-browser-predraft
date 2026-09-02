@@ -4,7 +4,7 @@ body, html {
 
 body { margin: 8px; }
 
-button {
+input, button {
   display: inline-block;
 }
 

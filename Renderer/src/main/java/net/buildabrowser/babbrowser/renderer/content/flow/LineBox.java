@@ -108,6 +108,14 @@ public class LineBox {
       inlineBoxFragment.fragments());
   }
 
+  public void markPreserved() {
+    lineSegments.peek().markPreserved();
+  }
+
+  public boolean collapseWhiteSpace() {
+    return lineSegments.peek().collapseWhiteSpace();
+  }
+
   public LineBox split() {
     commitText();
     Deque<LineSegment> newSegments = new LinkedList<>();

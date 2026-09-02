@@ -85,21 +85,21 @@ public final class LineWhiteSpaceCollapser {
     boolean sawSegmentBreak = false;
     for (int i = 0; i < newText.length(); i++) {
       int ch = newText.codePointAt(i);
-      if (sawSegmentBreak && (ch == ' ' || ch == '\t')) {
+      if (sawSegmentBreak && (isSpace(ch) || ch == '\t')) {
         newText.deleteCharAt(i);
         i--;
-      } else if (activeSpaceIndex == -1 && (ch == ' ' || ch == '\t')) {
+      } else if (activeSpaceIndex == -1 && (isSpace(ch) || ch == '\t')) {
         activeSpaceIndex = i;
       } else if (activeSpaceIndex != -1 && ch == '\n') {
         newText.delete(activeSpaceIndex, i);
         i = activeSpaceIndex;
         activeSpaceIndex = -1;
-      } else if (ch != ' ' && ch != '\t') {
+      } else if (!isSpace(ch) && ch != '\t') {
         activeSpaceIndex = -1;
       }
 
       sawSegmentBreak =
-        ch == ' ' || ch == '\t' ? sawSegmentBreak :
+        isSpace(ch) || ch == '\t' ? sawSegmentBreak :
         ch == '\n';
     }
   }
@@ -132,7 +132,7 @@ public final class LineWhiteSpaceCollapser {
       i < newText.length();
       i = newText.raw().offsetByCodePoints(i, 1)
     ) {
-      boolean isSpace = newText.codePointAt(i) == ' ';
+      boolean isSpace = isSpace(newText.codePointAt(i));
       if (isSpace && wasSpace) {
         newText.setCharAt(i, '\u200B');
       }
@@ -140,6 +140,11 @@ public final class LineWhiteSpaceCollapser {
     }
 
     return wasSpace;
+  }
+
+  private static boolean isSpace(int ch) {
+    // Carriage returns are treated the same as spaces
+    return ch == ' ' || ch == '\r';
   }
 
 }

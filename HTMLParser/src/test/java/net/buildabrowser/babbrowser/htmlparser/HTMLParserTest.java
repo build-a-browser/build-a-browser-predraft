@@ -318,4 +318,15 @@ public class HTMLParserTest {
       document);
   }
 
+  @Test
+  @DisplayName("Can parse document with carriage returns")
+  public void canParseDocumentWithCarriageReturns() throws IOException {
+    Document document = HTMLParser.parse(new StringReader("<span>\r\r\n\n</span>"));
+    assertTreeMatches(
+      testDocumentToBody(
+        testElement("span",
+          testText("\n\n\n"))),
+      document);
+  }
+
 }

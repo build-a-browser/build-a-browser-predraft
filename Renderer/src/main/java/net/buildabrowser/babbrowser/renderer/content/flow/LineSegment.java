@@ -4,6 +4,7 @@ import net.buildabrowser.babbrowser.common.datastruct.IntrusiveList;
 import net.buildabrowser.babbrowser.cssbase.property.CSSProperty;
 import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 import net.buildabrowser.babbrowser.cssbase.property.text.LineHeightValue;
+import net.buildabrowser.babbrowser.cssbase.property.whitespace.WhiteSpaceCollapseValue;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
@@ -19,6 +20,7 @@ import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 public class LineSegment {
 
   private final ElementBox box;
+  private final WhiteSpaceCollapseValue collapseValue;
   private LayoutFragment fragments;
   private LayoutFragment nextFragment;
   private float width = 0;
@@ -29,6 +31,8 @@ public class LineSegment {
   public LineSegment(ElementBox box) {
     this.box = box;
     this.isEmpty = !FlowUtil.boxHasDecor(box);
+    this.collapseValue = (WhiteSpaceCollapseValue)
+      box.properties().get(CSSProperty.WHITE_SPACE_COLLAPSE);
   }
 
   public ElementBox box() {
@@ -108,6 +112,18 @@ public class LineSegment {
     return this.isEmpty;
   }
 
+  public void markPreserved() {
+    // TODO: Why is markPreserved being called for non-preserved boxes
+    // in the first place?
+    this.isEmpty &= !preserveWhiteSpace(box);
+  }
+
+  public boolean collapseWhiteSpace() {
+    return
+      collapseValue.equals(WhiteSpaceCollapseValue.COLLAPSE)
+      || collapseValue.equals(WhiteSpaceCollapseValue.PRESERVE_BREAKS);
+  }
+
   private float computeLineHeight() {
     CSSValue lineHeight = box.properties().get(CSSProperty.LINE_HEIGHT);
     FontMetrics metrics = box.layoutContext().font().metrics();
@@ -156,6 +172,13 @@ public class LineSegment {
     }
 
     return desiredHeight + maxBaseline;
+  }
+
+  private boolean preserveWhiteSpace(ElementBox box) {
+    return switch (collapseValue) {
+      case PRESERVE, PRESERVE_BREAKS, PRESERVE_SPACES -> true;
+      default -> false;
+    };
   }
 
 }

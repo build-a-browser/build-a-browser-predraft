@@ -20,6 +20,15 @@ public final class TextWrapper {
     int textCursor = 0;
     while (textCursor < allText.length()) {
       int ch = allText.codePointAt(textCursor);
+
+      if (textWrapTarget.ignoreWhitespace()) while (
+        textCursor < allText.length()
+        && (ch = allText.codePointAt(textCursor)) == ' '
+        || ch == '\r'
+      ) {
+        textCursor++;
+      }
+
       if (isForcedLineBreak(ch)) {
         textWrapTarget.nextLine(false);
         textCursor++;
@@ -27,9 +36,15 @@ public final class TextWrapper {
       }
 
       int startCursor = textCursor;
+
       while (
         textCursor < allText.length()
-        && (textCursor == startCursor || (ch = allText.codePointAt(textCursor)) != ' ' && ch != '\u200B')
+        && (
+          textCursor == startCursor
+          || (
+            (ch = allText.codePointAt(textCursor)) != ' '
+            && ch != '\r'
+            && ch != '\u200B'))
         && !isForcedLineBreak(ch)
       ) {
         textCursor++;
@@ -76,7 +91,7 @@ public final class TextWrapper {
 
   private static boolean isForcedLineBreak(int codepoint) {
     return switch (codepoint) {
-      case '\f', '\r', '\n', '\u000B', '\u2028', '\u2029', '\u0085' -> true;
+      case '\f', '\n', '\u000B', '\u2028', '\u2029', '\u0085' -> true;
       default -> false;
     };
   }
@@ -84,6 +99,12 @@ public final class TextWrapper {
   public static interface TextWrapTarget {
 
     void nextLine(boolean isSoftWrap);
+
+    // TODO: This is sufficient for trimming starting whitespace, but not tailing
+    // whitespace. In the future, it may be necessary to make LineSegment store
+    // child line segments instead of fragments, and do a post-run pass to alter
+    // the text segments.
+    boolean ignoreWhitespace();
 
     boolean fits(
       float itemSize, boolean forceFirst

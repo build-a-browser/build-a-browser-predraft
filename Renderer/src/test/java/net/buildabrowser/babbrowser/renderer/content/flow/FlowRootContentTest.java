@@ -347,8 +347,8 @@ public class FlowRootContentTest {
     ElementBox parentBox = flowBlockBox(parentStyles, List.of(childBox));
 
     LayoutFragment expectedFragment = new TestManagedBoxFragment(0, 0, 80, 0, parentBox, List.of(
-      new LineBoxFragment(0, 0, 20, 0, List.of(
-        new TextFragment(0, -10, 20, 10, " \u200B\u200B\u200B")))));
+      new LineBoxFragment(0, 0, 15, 0, List.of(
+        new TextFragment(0, -10, 15, 10, "\u200B\u200B\u200B")))));
     LayoutFragment actualFragment = doLayoutSized(parentBox, 80).rootFragment();
     assertFragmentEquals(expectedFragment, actualFragment);
   }
