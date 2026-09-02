@@ -86,7 +86,7 @@ public final class GridTrackSizingAlgorithm {
 
     int i = 0;
     for (
-      int x = Math.max(1, grid.explicitSpan().trackEnd(direction));
+      int x = grid.explicitSpan().trackEnd(direction) + 1;
       x <= grid.implicitSpan().trackEnd(direction);
       x++
     ) {
@@ -97,7 +97,7 @@ public final class GridTrackSizingAlgorithm {
     i = -1;
     for (
       int x = grid.explicitSpan().trackStart(direction);
-      x >= grid.implicitSpan().trackStart(direction);
+      x > grid.implicitSpan().trackStart(direction);
       x--
     ) {
       CSSValue size = autoSizes.get(i-- % autoSizes.size());

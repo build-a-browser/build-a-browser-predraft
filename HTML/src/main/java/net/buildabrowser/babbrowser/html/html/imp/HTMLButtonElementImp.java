@@ -42,6 +42,10 @@ public class HTMLButtonElementImp extends HTMLElementImp implements HTMLButtonEl
 
   @Override
   public String value() {
+    String valueAttr = getAttribute("value");
+    if (valueAttr != null) {
+      return valueAttr;
+    }
     return "";
   }
 

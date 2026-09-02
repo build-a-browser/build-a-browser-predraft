@@ -5,7 +5,8 @@ import net.buildabrowser.babbrowser.cssbase.property.CSSValue;
 
 public enum JustifyContentValue implements CSSValue {
 
-  NORMAL, STRETCH, START, END, FLEX_START, FLEX_END, CENTER, SPACE_BETWEEN, SPACE_AROUND;
+  NORMAL, START, END, FLEX_START, FLEX_END, CENTER,
+  SPACE_BETWEEN, SPACE_AROUND, SPACE_EVENLY, STRETCH;
 
   @Override
   public String serialize() {

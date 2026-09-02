@@ -37,6 +37,8 @@ public interface GridTrack extends GenericJustifyContentItem, GenericTrack {
 
   void finalizeItemIncurredIncrease();
 
+  boolean hasPlannedIncrease();
+
   float plannedIncrease();
 
   boolean isInfinitelyGrowable();

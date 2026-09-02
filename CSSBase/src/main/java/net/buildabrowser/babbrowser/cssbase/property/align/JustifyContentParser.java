@@ -13,14 +13,15 @@ public class JustifyContentParser implements PropertyValueParser {
   
   private static final Map<String, CSSValue> JUSTIFY_CONTENT_VALUES = Map.of(
     "normal", JustifyContentValue.NORMAL,
-    "stretch", JustifyContentValue.STRETCH,
     "start", JustifyContentValue.START,
     "end", JustifyContentValue.END,
     "flex-start", JustifyContentValue.FLEX_START,
     "flex-end", JustifyContentValue.FLEX_END,
     "center", JustifyContentValue.CENTER,
     "space-between", JustifyContentValue.SPACE_BETWEEN,
-    "space-around", JustifyContentValue.SPACE_AROUND
+    "space-around", JustifyContentValue.SPACE_AROUND,
+    "space-evenly", JustifyContentValue.SPACE_EVENLY,
+    "stretch", JustifyContentValue.STRETCH
   );
 
   @Override

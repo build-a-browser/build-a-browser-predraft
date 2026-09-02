@@ -78,6 +78,7 @@ public final class GenericJustifyContentAligner {
       case CENTER -> positionItemsAt(spaceLeft / 2, alignmentContext, line, autoSize, gapSize);
       case SPACE_BETWEEN -> positionItemsBetween(alignmentContext, line, autoSize, spaceLeft);
       case SPACE_AROUND -> positionItemsAround(alignmentContext, line, autoSize, spaceLeft);
+      case SPACE_EVENLY -> positionItemsEvenly(alignmentContext, line, autoSize, spaceLeft);
       default -> throw new UnsupportedOperationException("Unsupported justification: " + justification);
     }
   }
@@ -96,6 +97,7 @@ public final class GenericJustifyContentAligner {
       case CENTER -> positionItemsAtReverse(lineSize - spaceLeft / 2, alignmentContext, line, autoSize, gapSize);
       case SPACE_BETWEEN -> positionItemsBetweenReverse(alignmentContext, line, lineSize, autoSize, spaceLeft);
       case SPACE_AROUND -> positionItemsAroundReverse(alignmentContext, line, lineSize, autoSize, spaceLeft);
+      case SPACE_EVENLY -> positionItemsEvenlyReverse(alignmentContext, line, lineSize, autoSize, spaceLeft);
       default -> throw new UnsupportedOperationException("Unsupported justification: " + justification);
     }
   }
@@ -157,6 +159,19 @@ public final class GenericJustifyContentAligner {
     float distSize = spaceLeft / line.genericItems().size();
     positionItemsAt(distSize / 2, alignmentContext, line, autoSize, distSize + gapSize);
   }
+
+  private static void positionItemsEvenly(
+    MainAlignmentContext alignmentContext, Line line, float autoSize, float spaceLeft
+  ) {
+    float gapSize = alignmentContext.mainGap();
+    if (spaceLeft < 0) {
+      positionItemsAt(0, alignmentContext, line, autoSize, gapSize);
+      return;
+    }
+
+    float distSize = spaceLeft / (line.genericItems().size() + 1);
+    positionItemsAt(distSize, alignmentContext, line, autoSize, distSize + gapSize);
+  }
   
   private static void positionItemsBetweenReverse(
     MainAlignmentContext alignmentContext, Line line, float startPos, float autoSize, float spaceLeft
@@ -182,6 +197,19 @@ public final class GenericJustifyContentAligner {
 
     float distSize = spaceLeft / line.genericItems().size();
     positionItemsAtReverse(startPos - distSize / 2, alignmentContext, line, autoSize, distSize + gapSize);
+  }
+
+  private static void positionItemsEvenlyReverse(
+    MainAlignmentContext alignmentContext, Line line, float startPos, float autoSize, float spaceLeft
+  ) {
+    float gapSize = alignmentContext.mainGap();
+    if (spaceLeft < 0) {
+      positionItemsAtReverse(startPos, alignmentContext, line, autoSize, gapSize);
+      return;
+    }
+
+    float distSize = spaceLeft / (line.genericItems().size() + 1);
+    positionItemsAtReverse(startPos - distSize, alignmentContext, line, autoSize, distSize + gapSize);
   }
 
   private static float computeRemainingFreeSpace(

@@ -26,6 +26,7 @@ public class GridTrackImp implements GridTrack {
   private float plannedIncrease;
 
   private float position;
+  private boolean hasPlannedIncrease;
 
   @Override
   public CSSValue minTrackSizingFunction() {
@@ -109,6 +110,7 @@ public class GridTrackImp implements GridTrack {
   @Override
   public void increaseItemIncurredIncrease(float increase) {
     this.itemIncrease += increase;
+    this.hasPlannedIncrease = true;
   }
 
   @Override
@@ -123,9 +125,15 @@ public class GridTrackImp implements GridTrack {
   }
 
   @Override
+  public boolean hasPlannedIncrease() {
+    return this.hasPlannedIncrease;
+  }
+
+  @Override
   public float plannedIncrease() {
     float increase = this.plannedIncrease;
     this.plannedIncrease = 0;
+    this.hasPlannedIncrease = false;
     return increase;
   }
 

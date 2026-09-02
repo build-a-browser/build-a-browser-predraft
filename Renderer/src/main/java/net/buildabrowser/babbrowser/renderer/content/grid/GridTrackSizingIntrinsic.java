@@ -95,27 +95,27 @@ public final class GridTrackSizingIntrinsic {
     // TODO: Substitute min-content contributions
     distributeExtraSpace(
       grid, direction, accommodatedItems,
-      false, FILTER_INTRINSIC_MIN,
+      sizingConstraint, false, FILTER_INTRINSIC_MIN,
       GridItemContributions::minimumContribution,
       FILTER_FOR_MIN_CONTRIBUTIONS);
 
     distributeExtraSpace(
       grid, direction, accommodatedItems,
-      false, FILTER_MIN_MAX_MIN,
+      sizingConstraint, false, FILTER_MIN_MAX_MIN,
       GridItemContributions::minContentContribution,
       FILTER_FOR_MIN_CONTRIBUTIONS);
 
     if (isLikeMaxContent(sizingConstraint)) {
       distributeExtraSpace(
         grid, direction, accommodatedItems,
-        false, FILTER_AUTO_MAX_MIN,
+        sizingConstraint, false, FILTER_AUTO_MAX_MIN,
         GridItemContributions::limitedMaxContentContribution,
         FILTER_FOR_NONE);
     }
 
     distributeExtraSpace(
       grid, direction, accommodatedItems,
-      false, FILTER_MAX_MIN,
+      sizingConstraint, false, FILTER_MAX_MIN,
       GridItemContributions::maxContentContribution,
       FILTER_FOR_MAX_CONTRIBUTIONS);
 
@@ -123,15 +123,20 @@ public final class GridTrackSizingIntrinsic {
 
     distributeExtraSpace(
       grid, direction, accommodatedItems,
-      true, FILTER_INTRINSIC_MAX,
+      sizingConstraint, true, FILTER_INTRINSIC_MAX,
       GridItemContributions::minContentContribution,
       FILTER_FOR_GROWTH_CONTRIBUTIONS);
 
     distributeExtraSpace(
       grid, direction, accommodatedItems,
-      true, FILTER_MAX_MAX,
+      sizingConstraint, true, FILTER_MAX_MAX,
       GridItemContributions::maxContentContribution,
       FILTER_FOR_GROWTH_CONTRIBUTIONS);
+
+    // Spec says "for the next step" only when setting infinite
+    for (GridTrack track: grid.tracks(direction)) {
+      track.setInfinitelyGrowable(false);
+    }
   }
 
   private static void increaseUnderflowGrowthLimits(
@@ -152,6 +157,7 @@ public final class GridTrackSizingIntrinsic {
     Grid grid,
     GridDirection direction,
     List<GridItem> accommodatedItems,
+    LayoutConstraint parentConstraint,
     boolean isGrowth,
     TrackFilter affectedTracksFilter,
     ItemContribution sizeContributionGetter,
@@ -163,7 +169,8 @@ public final class GridTrackSizingIntrinsic {
         grid, direction, isGrowth, sizeContributionGetter, item);
 
       space = distributeAsNeeded(
-        grid, direction, item, isGrowth, space,
+        grid, direction, item,
+        parentConstraint, isGrowth, space,
         affectedTracksFilter);
 
       TrackFilter invertedAffectedTracksFilter
@@ -173,7 +180,8 @@ public final class GridTrackSizingIntrinsic {
         && spansATrack(grid, direction, item, affectedTracksFilter)
       ) {
         space = distributeAsNeeded(
-          grid, direction, item, isGrowth, space,
+          grid, direction, item,
+          parentConstraint, isGrowth, space,
           invertedAffectedTracksFilter);
       }
 
@@ -187,6 +195,7 @@ public final class GridTrackSizingIntrinsic {
     }
 
     for (GridTrack track: grid.tracks(direction)) {
+      if (!track.hasPlannedIncrease()) continue;
       float increase = track.plannedIncrease();
       LayoutConstraint affectedConstraint =
         isGrowth ? track.growthLimit() : track.baseSize();
@@ -233,6 +242,8 @@ public final class GridTrackSizingIntrinsic {
       i++
     ) {
       GridTrack track = grid.track(i, direction);
+      // Mark it as having a planned increase
+      track.increaseItemIncurredIncrease(0);
       track.setFrozen(false);
       LayoutConstraint trackSize = isGrowth ? track.growthLimit() : track.baseSize();
       if (!trackSize.isBounded()) {
@@ -248,6 +259,7 @@ public final class GridTrackSizingIntrinsic {
     Grid grid,
     GridDirection direction,
     GridItem relatedItem,
+    LayoutConstraint parentConstraint,
     boolean isGrowth,
     float space,
     TrackFilter affectedTracksFilter
@@ -256,8 +268,9 @@ public final class GridTrackSizingIntrinsic {
       grid, direction, relatedItem, affectedTracksFilter);
     while (unfrozenCount[0] > 0 && space > 0.0001) {
       space = distributeSpace(
-        grid, direction, relatedItem, isGrowth,
-        affectedTracksFilter,
+        grid, direction, relatedItem,
+        parentConstraint,
+        isGrowth, affectedTracksFilter,
         unfrozenCount, space);
     }
 
@@ -290,6 +303,7 @@ public final class GridTrackSizingIntrinsic {
     Grid grid,
     GridDirection direction,
     GridItem relatedItem,
+    LayoutConstraint parentConstraint,
     boolean isGrowth,
     TrackFilter affectedTracksFilter,
     int[] unfrozenCount,
@@ -306,20 +320,17 @@ public final class GridTrackSizingIntrinsic {
       GridTrack track = grid.track(i, direction);
       if (track.frozen()) continue;
       if (!affectedTracksFilter.filter(track)) continue;
+        
+      LayoutConstraint affectedSize = isGrowth ?
+        track.growthLimit() : track.baseSize();
 
-      // TODO: infinitely-growable is supposed to apply only when isGrowth,
-      // but breaks sizing. It seems likely that "Update the tracks' affected sizes"
-      // is supposed to only set infinitely-growable in some cases, but I'm not sure.
-      // (because keep in mind that non-affected tracks can also grow, so that step
-      // can't be filtered to just affected tracks)
-      LayoutConstraint growthLimit =
-        /*isGrowth && */track.isInfinitelyGrowable() ?
+      LayoutConstraint limit =
+        isGrowth && track.isInfinitelyGrowable() ?
           LayoutConstraint.AUTO :
           track.growthLimit();
-        
-      // TODO: Cap by fit-content
-      LayoutConstraint affectedSize = isGrowth ?
-        growthLimit : track.baseSize();
+      limit = capFitContent(
+        grid, limit, parentConstraint,
+        track._sizeValue(), isGrowth);
 
       assert affectedSize.isBounded() || isGrowth;
       if (!affectedSize.isBounded()) {
@@ -332,11 +343,11 @@ public final class GridTrackSizingIntrinsic {
         + preferredAmount;
 
       if (
-        growthLimit.isBounded()
-        && adjustedSize >= growthLimit.value()
+        limit.isBounded()
+        && adjustedSize >= limit.value()
       ) {
         float adjustment = Math.max(0, 
-          growthLimit.value()
+          limit.value()
           - affectedSize.value()
           - track.itemIncurredIncrease());
         track.increaseItemIncurredIncrease(adjustment);
@@ -347,10 +358,38 @@ public final class GridTrackSizingIntrinsic {
         track.increaseItemIncurredIncrease(preferredAmount);
         space -= preferredAmount;
       }
-      // TODO: Cap by fit content
     }
 
     return space;
+  }
+
+  private static LayoutConstraint capFitContent(
+    Grid grid,
+    LayoutConstraint limit,
+    LayoutConstraint parentConstraint,
+    CSSValue sizeValue,
+    boolean isGrowth
+  ) {
+    if (!(
+      sizeValue instanceof SizeValue.FitContent fitContentValue
+    )) return limit;
+
+    LayoutConstraint fitContent = GridTrackSizingUtil.evaluateFixedSize(
+      grid, parentConstraint, fitContentValue.optimal());
+    if (!fitContent.isBounded()) return limit;
+    
+    if (isGrowth && !limit.isBounded()) {
+      return fitContent;
+    } else if (
+      !isGrowth
+      && (
+        limit.value() > fitContent.value()
+        || !limit.isBounded())
+    ) {
+      return fitContent;
+    } else {
+      return limit;
+    }
   }
 
   private static int maxSpan(

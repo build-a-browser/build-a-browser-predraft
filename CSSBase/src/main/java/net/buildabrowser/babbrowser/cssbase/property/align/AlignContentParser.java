@@ -20,6 +20,7 @@ public class AlignContentParser implements PropertyValueParser {
     "center", AlignContentValue.CENTER,
     "space-between", AlignContentValue.SPACE_BETWEEN,
     "space-around", AlignContentValue.SPACE_AROUND,
+    "space-evenly", AlignContentValue.SPACE_EVENLY,
     "stretch", AlignContentValue.STRETCH
   );
 

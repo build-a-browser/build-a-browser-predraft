@@ -60,7 +60,7 @@ public final class SharedDeclarativeRefreshSteps {
         navigateParameters.sourceDocument = document;
         document.nodeNavigable().navigate(urlRecord_, navigateParameters);
       }
-    }, time);
+    }, time * 1000);
   }
 
   private static URI ignoreURL(Document document, String input, int[] position) {

@@ -9,7 +9,6 @@ import net.buildabrowser.babbrowser.renderer.box.EBDimensionsUtil;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingHeightUtil;
-import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingWidthUtil;
 import net.buildabrowser.babbrowser.renderer.content.generic.GenericItem;
 import net.buildabrowser.babbrowser.renderer.content.generic.GenericJustifyContentItem;
@@ -185,8 +184,12 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
     CSSValue relevantValue = isVertical ?
       properties.get(CSSProperty.MARGIN_TOP) :
       properties.get(CSSProperty.MARGIN_LEFT);
-    return SizingUtil.evaluateBaseSize(
-      itemBox.layoutContext(), parentSize, relevantValue);
+    if (relevantValue.equals(CSSValue.AUTO)) {
+      return LayoutConstraint.AUTO;
+    }
+
+    float[] margin = itemBox.dimensions().getComputedMargin();
+    return LayoutConstraint.of(isVertical ? margin[0] : margin[2]);
   }
 
   @Override
@@ -197,8 +200,11 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
     CSSValue relevantValue = isVertical ?
       properties.get(CSSProperty.MARGIN_BOTTOM) :
       properties.get(CSSProperty.MARGIN_RIGHT);
-    return SizingUtil.evaluateBaseSize(
-      itemBox.layoutContext(), parentSize, relevantValue);
+    if (relevantValue.equals(CSSValue.AUTO)) {
+      return LayoutConstraint.AUTO;
+    }
+    float[] margin = itemBox.dimensions().getComputedMargin();
+    return LayoutConstraint.of(isVertical ? margin[1] : margin[3]);
   }
 
   public float mainMargin() {
@@ -265,12 +271,8 @@ public class FlexItem implements GenericItem, GenericJustifyContentItem {
   }
 
   private float automaticMinSize(LayoutConstraint crossSize) {
-    LayoutConstraint usedCross = isVertical && crossSize.isBounded() ?
-      SizingWidthUtil.computeFitContent(crossSize, itemBox) :
-      crossSize;
-
     float determinedMinWidth = isVertical ?
-      itemBox.layout(usedCross, LayoutConstraint.AUTO).height(Measurement.CONTENT) :
+      itemBox.layout(crossSize, LayoutConstraint.AUTO).height(Measurement.CONTENT) :
       EBDimensionsUtil.preferredMinWidthConstraint(itemBox);
     Float transferredSizeSuggestion = transferredSizeSuggestion(crossSize);
     if (transferredSizeSuggestion != null) {

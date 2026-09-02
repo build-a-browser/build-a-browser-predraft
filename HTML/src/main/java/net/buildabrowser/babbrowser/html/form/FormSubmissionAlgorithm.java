@@ -116,12 +116,14 @@ public final class FormSubmissionAlgorithm {
   ) {
     List<NameValuePair> pairs = entryList.toNameValuePairs();
     String query = XWWWFormURLEncodedSerializer.serialize(pairs, encoding);
-    URI parsedAction2 = CommonUtil.rethrow(() -> new URI(
-      parsedAction.getScheme(),
-      parsedAction.getAuthority(),
-      parsedAction.getPath(),
-      query,
-      parsedAction.getFragment()));
+
+    // URI constructor unfortunately double-encodes, so can't use that
+    String path = parsedAction.getRawPath() != null
+        ? parsedAction.getRawPath() : "/";
+    String fragment = parsedAction.getRawFragment() != null ?
+      "#" + parsedAction.getRawFragment() : "";
+    URI parsedAction2 = parsedAction.resolve(path + "?" + query + fragment);
+    
     planToNavigate(
       form, parsedAction2, null,
       hisoryHandling, userInvolvement, submitter);

@@ -105,6 +105,9 @@ public final class GridSizer {
         dimSize += sizeAutoRepeatValue(
           grid, direction, repeatValue, trackValues,
           layoutContext, remainingConstraint);
+      } else {
+        repeatAddTrackValues(repeatValue, trackValues, 1);
+        dimSize += repeatValue.tracks().tracks().size();
       }
     }
 

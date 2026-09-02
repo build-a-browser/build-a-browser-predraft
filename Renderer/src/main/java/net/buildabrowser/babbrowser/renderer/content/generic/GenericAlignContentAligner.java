@@ -24,6 +24,7 @@ public class GenericAlignContentAligner {
       case CENTER -> positionLinesAt(spaceLeft / 2, alignmentContext, lines, gapSize);
       case SPACE_BETWEEN -> positionLinesBetween(alignmentContext, lines, spaceLeft);
       case SPACE_AROUND -> positionLinesAround(alignmentContext, lines, spaceLeft);
+      case SPACE_EVENLY -> positionLinesEvenly(alignmentContext, lines, spaceLeft);
       case NORMAL, STRETCH -> positionLinesAt(0, alignmentContext, lines, gapSize);
       default -> throw new UnsupportedOperationException("Unsupported alignment!");
     }
@@ -57,13 +58,26 @@ public class GenericAlignContentAligner {
     CrossAlignmentContext alignmentContext, List<GenericTrack> lines, float spaceLeft
   ) {
     float crossGap = alignmentContext.crossGap();
-    if (spaceLeft < 0 || lines.size() == 1) {
-      positionLinesAt(spaceLeft / 2, alignmentContext, lines, crossGap);
+    if (spaceLeft < 0) {
+      positionLinesAt(0, alignmentContext, lines, crossGap);
       return;
     }
 
     float distSize = spaceLeft / lines.size();
     positionLinesAt(distSize / 2, alignmentContext, lines, distSize + crossGap);
+  }
+
+  private static void positionLinesEvenly(
+    CrossAlignmentContext alignmentContext, List<GenericTrack> lines, float spaceLeft
+  ) {
+    float crossGap = alignmentContext.crossGap();
+    if (spaceLeft < 0) {
+      positionLinesAt(0, alignmentContext, lines, crossGap);
+      return;
+    }
+
+    float distSize = spaceLeft / (lines.size() + 1);
+    positionLinesAt(distSize, alignmentContext, lines, distSize + crossGap);
   }
 
   private static float computeRemainingFreeSpace(

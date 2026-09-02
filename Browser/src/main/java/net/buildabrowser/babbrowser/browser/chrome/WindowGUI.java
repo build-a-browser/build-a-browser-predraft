@@ -58,7 +58,7 @@ public class WindowGUI extends JFrame implements WindowMutationEventListener {
     this.debugger = debugger;
 
     this.setLayout(new GridBagLayout());
-    this.setSize(new Dimension(800, 500));
+    this.setSize(new Dimension(1600, 1000));
 
     this.tabbedPane = createTabPane();
     this.sharedRenderedContent = createSharedRenderedContent(painter);
