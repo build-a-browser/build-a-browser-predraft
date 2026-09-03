@@ -6,17 +6,9 @@ import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 
 public interface TextController {
 
-  default String lineValue() {
-    return lineValue(cursorY());
-  }
-
-  default void setLineValue(String value) {
-    setLineValue(cursorY(), value);
-  }
+  String value();
 
   String lineValue(int lineNum);
-
-  void setLineValue(int lineNum, String value);
 
   List<String> displayLines();
 
@@ -24,7 +16,9 @@ public interface TextController {
 
   boolean isLineContinuation(int lineNum);
 
-  void setLineContinuation(int lineNum, boolean isContinuation);
+  int cursorFlat();
+
+  void setCursorFlat(int cursorFlat);
 
   int cursorX();
 
@@ -54,7 +48,7 @@ public interface TextController {
 
   void moveCursorForward(int i);
 
-  void moveCursorDownward(FontMetrics metrics, int i);
+  void moveCursorDownward(int i);
 
   void moveHome();
 
@@ -64,24 +58,19 @@ public interface TextController {
 
   void moveBottom();
 
-  void movePageUp(
-    FontMetrics metrics,
-    float fragmentHeight
-  );
+  void movePageUp(float fragmentHeight);
 
-  void movePageDown(
-    FontMetrics metrics,
-    float fragmentHeight
-  );
+  void movePageDown(float fragmentHeight);
 
   void delete();
 
   void toggleInsertMode();
 
   void scrollToCursor(
-    FontMetrics fontMetrics,
     float contentWidth,
     float contentHeight
   );
+
+  void updateMetrics(FontMetrics fontMetrics);
   
 }

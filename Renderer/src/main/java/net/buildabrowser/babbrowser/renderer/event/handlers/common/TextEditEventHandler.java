@@ -36,6 +36,9 @@ public final class TextEditEventHandler {
     float adjustedRelX = relX + controller.scrollX() - TextEditPainter.HORIZONTAL_PADDING;
     float adjustedRelY = relY;
     int cursorY = controller.isMultiLine() ? (int) (adjustedRelY / fontMetrics.height()) : 0;
+    if (cursorY >= lines.size()) {
+      cursorY = lines.size() - 1;
+    }
     int cursorX = MouseEventUtil.determineTextMouseIndex(adjustedRelX, fontMetrics, lines.get(cursorY));
     controller.setCursorX(cursorX);
     controller.setCursorY(cursorY);

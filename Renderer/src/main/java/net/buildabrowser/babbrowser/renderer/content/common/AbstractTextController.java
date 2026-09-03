@@ -7,32 +7,95 @@ import net.buildabrowser.babbrowser.renderer.event.util.MouseEventUtil;
 
 public abstract class AbstractTextController implements TextController {
 
-  private int cursorX = 0;
-  private float scrollX = 0;
-  private int cursorY = 0;
+  private final StringBuilder value = new StringBuilder();
+
+  private int cursorFlat = 0;private float scrollX = 0;
   private float startNavWidth = Float.NaN;
   private boolean isReplaceMode = false;
+  private FontMetrics fontMetrics;
+
+  @Override 
+  public String value() {
+    return value.toString();
+  }
+
+  @Override 
+  public int cursorFlat() {
+    return this.cursorFlat;
+  }
 
   @Override
+  public void setCursorFlat(int cursorFlat) {
+    this.cursorFlat = cursorFlat;
+    this.startNavWidth = Float.NaN;
+  }
+  
+  @Override
   public int cursorX() {
-    int lineX = displayLines().get(cursorY()).length();
-    return mathClamp(this.cursorX, 0, lineX);
+    if (rows() == 0) return 0;
+    int y = cursorY();
+    int offset = lineStartOffset(y);
+    int lineLen = lineValue(y).length();
+    return mathClamp(this.cursorFlat - offset, 0, lineLen);
   }
 
   @Override
   public void setCursorX(int cursorX) {
-    this.cursorX = cursorX;
-    this.startNavWidth = Float.NaN;
+    if (rows() == 0) {
+      this.cursorFlat = 0;
+      return;
+    }
+
+    int y = cursorY();
+    int offset = lineStartOffset(y);
+    int lineLen = lineValue(y).length();
+    int maxLineX = (y < rows() - 1 && isLineContinuation(y + 1))
+        ? Math.max(0, lineLen - 1)
+        : lineLen;
+
+    int clampedX = mathClamp(cursorX, 0, maxLineX);
+    this.cursorFlat = offset + clampedX;
   }
 
   @Override
   public int cursorY() {
-    return mathClamp(this.cursorY, 0, rows() - 1);
+    int rows = rows();
+    if (rows <= 1) return 0;
+    
+    int offset = 0;
+    for (int y = 0; y < rows - 1; y++) {
+      int lineSpan =
+        lineValue(y).length()
+        + (isLineContinuation(y + 1) ? 0 : 1);
+      if (
+        this.cursorFlat < offset + lineSpan
+      ) return y;
+      offset += lineSpan;
+    }
+
+    return rows - 1;
   }
 
   @Override
   public void setCursorY(int cursorY) {
-    this.cursorY = cursorY;
+    if (rows() == 0) {
+      this.cursorFlat = 0;
+      return;
+    }
+
+    int curX = cursorX();
+    int targetY = mathClamp(cursorY, 0, rows() - 1);
+    int offset = lineStartOffset(targetY);
+    int lineLen = lineValue(targetY).length();
+    boolean isNextLineContinuation =
+      targetY < rows() - 1
+      && isLineContinuation(targetY + 1);
+    int maxLineX = isNextLineContinuation ?
+      Math.max(0, lineLen - 1) :
+      lineLen;
+
+    int clampedX = mathClamp(curX, 0, maxLineX);
+    this.cursorFlat = offset + clampedX;
   }
 
   @Override
@@ -66,10 +129,9 @@ public abstract class AbstractTextController implements TextController {
 
   @Override
 	public void insertText(String text) {
-    int cursorX = cursorX();
-    // TODO: Should probably use a StringBuilder instead
-    setLineValue(lineValue().substring(0, cursorX) + text + lineValue().substring(cursorX));
-    setCursorX(cursorX + text.length());
+    value.insert(cursorFlat(), text);
+    afterValueUpdate();
+    setCursorFlat(cursorFlat() + text.length());
   }
 
   @Override
@@ -79,82 +141,36 @@ public abstract class AbstractTextController implements TextController {
       insertText(text);
       return;
     }
-    setLineValue(lineValue().substring(0, cursorX) + text + lineValue().substring(cursorX + 1));
-    setCursorX(cursorX + text.length());
+
+    int charsToReplace = Math.min(
+      columns() - cursorX,
+      text.length());
+    int cursorFlat = cursorFlat();
+    
+    value.replace(cursorFlat, cursorFlat + charsToReplace, text);
+    afterValueUpdate();
+    setCursorFlat(cursorFlat + text.length());
   }
 
   @Override
 	public void backspace() {
-    int cursorX = cursorX();
-    int cursorY = cursorY();
-    if (cursorX == 0 && cursorY == 0) return;
-    if (cursorX != 0) {
-      setLineValue(lineValue().substring(0, cursorX - 1) + lineValue().substring(cursorX));
-      setCursorX(cursorX - 1);
-    } else if (!isLineContinuation(cursorY)) {
-      setLineContinuation(cursorY, true);
-      setCursorY(cursorY - 1);
-      moveEnd();
-    } else {
-      setCursorY(cursorY - 1);
-      moveEnd();
-      backspace();
-    }
+    int cursorFlat = cursorFlat();
+    if (cursorFlat == 0) return;
+    value.deleteCharAt(cursorFlat - 1);
+    afterValueUpdate();
+    setCursorFlat(cursorFlat - 1);
   }
 
   @Override
 	public void moveCursorForward(int i) {
-    if (i < 0) {
-      moveCursorBackward(-i);
-      return;
-    }
-
-    while (i > 0) {
-      int maxAdvance = columns() - cursorX();
-      if (
-        i > maxAdvance
-        && cursorY() < rows() - 1
-      ) {
-        setCursorY(cursorY() + 1);
-        setCursorX(0);
-        i -= maxAdvance + 1;
-      } else {
-        setCursorX(cursorX() + i);
-        i = 0;
-      }
-    }
-
-    skipSoftWrap();
-  }
-
-  private void moveCursorBackward(int i) {
-    if (i < 0) {
-      moveCursorForward(i);
-      return;
-    }
-
-    while (i > 0) {
-      int maxAdvance = cursorX();
-      if (
-        i > maxAdvance
-        && cursorY() > 0
-      ) {
-        setCursorY(cursorY() - 1);
-        setCursorX(columns());
-        i -= maxAdvance;
-      } else {
-        setCursorX(cursorX() - i);
-        i = 0;
-      }
-    }
+    int newCursorFlat = cursorFlat() + i;
+    setCursorFlat(mathClamp(newCursorFlat, 0, value.length()));
   }
 
   @Override
-  public void moveCursorDownward(
-    FontMetrics metrics, int i
-  ) {
-    verticalMove(metrics, () -> setCursorY(mathClamp(
-      cursorY() + i, 0, rows() - 1)));
+  public void moveCursorDownward(int i) {
+    int newCursorY = mathClamp(cursorY() + i, 0, rows() - 1);
+    verticalMove(() -> setCursorY(newCursorY));
   }
 
   @Override
@@ -169,54 +185,32 @@ public abstract class AbstractTextController implements TextController {
 
   @Override
   public void moveTop() {
-    setCursorY(0);
-    setCursorX(0);
+    setCursorFlat(0);
   }
 
   @Override
   public void moveBottom() {
-    setCursorY(rows() - 1);
-    setCursorX(columns());
+    setCursorFlat(value.length());
   }
 
   @Override
-  public void movePageUp(
-    FontMetrics metrics,
-    float fragmentHeight
-  ) {
-    verticalMove(metrics, () -> {
-      setCursorY(cursorY() - (int) (fragmentHeight / metrics.height()));
-    });
+  public void movePageUp(float fragmentHeight) {
+    int newCursorY = cursorY() - (int) (fragmentHeight / metrics().height());
+    verticalMove(() -> setCursorY(newCursorY));
   }
 
   @Override
-  public void movePageDown(
-    FontMetrics metrics,
-    float fragmentHeight
-  ) {
-    verticalMove(metrics, () -> {
-      setCursorY(cursorY() + (int) (fragmentHeight / metrics.height()));
-    });
+  public void movePageDown(float fragmentHeight) {
+    int newCursorY = cursorY() + (int) (fragmentHeight / metrics().height());
+    verticalMove(() -> setCursorY(newCursorY));
   }
 
   @Override
 	public void delete() {
-    int cursorX = cursorX();
-    if (
-      cursorY() >= rows()
-      && cursorX() >= columns()
-    ) return;
-    if (cursorX() < columns()) {
-      setLineValue(lineValue().substring(0, cursorX) + lineValue().substring(cursorX + 1));
-    } else {
-      setCursorY(cursorY + 1);
-      moveHome();
-      if (isLineContinuation(cursorY())) {
-        delete();
-      } else {
-        setLineContinuation(cursorY(), true);
-      }
-    }
+    int cursorFlat = cursorFlat();
+    if (cursorFlat == value.length()) return;
+    value.deleteCharAt(cursorFlat);
+    afterValueUpdate();
   }
 
   @Override
@@ -224,19 +218,9 @@ public abstract class AbstractTextController implements TextController {
     setIsReplaceMode(!isReplaceMode());
   }
 
-  protected void setCursorXRaw(int cursorX) {
-    this.cursorX = cursorX;
-  }
-
-  protected void skipSoftWrap() {
-    if (
-      cursorX() == columns()
-      && cursorY() < rows() - 1
-      && isLineContinuation(cursorY() + 1)
-    ) {
-      setCursorY(cursorY() + 1);
-      setCursorX(0);
-    }
+  @Override 
+  public void updateMetrics(FontMetrics fontMetrics) {
+    this.fontMetrics = fontMetrics;
   }
 
   protected int rows() {
@@ -244,20 +228,42 @@ public abstract class AbstractTextController implements TextController {
   }
 
   protected int columns() {
-    return lineValue().length();
+    return lineValue(cursorY()).length();
   }
 
-  private void verticalMove(
-    FontMetrics metrics, Runnable action
-  ) {
+  protected FontMetrics metrics() {
+    return this.fontMetrics;
+  }
+
+  protected void setValue(String value) {
+    this.value.setLength(0);
+    this.value.append(value);
+  }
+
+  protected abstract void afterValueUpdate();
+
+  private void verticalMove(Runnable action) {
     if (Float.isNaN(startNavWidth)) {
-      this.startNavWidth = metrics.stringWidth(
-        lineValue().substring(0, cursorX()));
+      this.startNavWidth = fontMetrics.stringWidth(
+        lineValue(cursorY()).substring(0, cursorX()));
     }
     action.run();
-    // setCursorX interferes with startNavWidth
-    this.cursorX = MouseEventUtil.determineTextMouseIndex(
-      startNavWidth, metrics, lineValue());
+    float startNavWidth = this.startNavWidth;
+    setCursorX(MouseEventUtil.determineTextMouseIndex(
+      startNavWidth, fontMetrics, lineValue(cursorY())));
+    this.startNavWidth = startNavWidth;
+  }
+
+  private int lineStartOffset(int lineNum) {
+    int offset = 0;
+    for (int i = 0; i < lineNum; i++) {
+      offset += lineValue(i).length();
+      if (!isLineContinuation(i + 1)) {
+        offset++;
+      }
+    }
+    
+    return offset;
   }
   
 }

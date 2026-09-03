@@ -28,23 +28,13 @@ public class InputTextController extends AbstractTextController {
   ) {
     this.element = element;
     this.isHidden = isHidden;
-  }
-
-  @Override
-  public String lineValue() {
-    return element.value();
+    setValue(element.value());
   }
 
   @Override
   public String lineValue(int lineNum) {
     assert lineNum == 0;
-    return lineValue();
-  }
-
-  @Override
-  public void setLineValue(int lineNum, String value) {
-    assert lineNum == 0;
-    element.setValue(value);
+    return value();
   }
 
   @Override
@@ -68,17 +58,12 @@ public class InputTextController extends AbstractTextController {
   }
 
   @Override
-  public void setLineContinuation(int lineNum, boolean isContinuation) {
-    // No-op
-  }
-
-  @Override
 	public void scrollToCursor(
-    FontMetrics fontMetrics,
     float contentWidth,
     float contentHeight
   ) {
-    String value = lineValue();
+    FontMetrics fontMetrics = metrics();
+    String value = value();
     float adjustedWidth = Math.max(0, contentWidth - TextEditPainter.HORIZONTAL_PADDING);
     float scrollX = scrollX();
     float valueWidth = fontMetrics.stringWidth(value);
@@ -124,6 +109,11 @@ public class InputTextController extends AbstractTextController {
     FormSubmissionAlgorithm.submitAForm(
       formOwner, element,
       UserNavigationInvolvement.ACTIVATION);
+  }
+
+  @Override
+  protected void afterValueUpdate() {
+    element.setValue(value());
   }
   
 }

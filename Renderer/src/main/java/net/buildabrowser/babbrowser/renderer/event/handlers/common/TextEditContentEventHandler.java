@@ -27,22 +27,22 @@ public final class TextEditContentEventHandler {
         case RendererKeyboardEvent.KEY_BACKSPACE -> controller.backspace();
         case RendererKeyboardEvent.KEY_LEFT_ARROW -> controller.moveCursorForward(-1);
         case RendererKeyboardEvent.KEY_RIGHT_ARROW -> controller.moveCursorForward(1);
-        case RendererKeyboardEvent.KEY_UP_ARROW -> controller.moveCursorDownward(fontMetrics, -1);
-        case RendererKeyboardEvent.KEY_DOWN_ARROW -> controller.moveCursorDownward(fontMetrics, 1);
+        case RendererKeyboardEvent.KEY_UP_ARROW -> controller.moveCursorDownward(-1);
+        case RendererKeyboardEvent.KEY_DOWN_ARROW -> controller.moveCursorDownward(1);
         case RendererKeyboardEvent.KEY_HOME -> moveToHomeOrTop(controller, event);
         case RendererKeyboardEvent.KEY_END -> moveToBottomOrEnd(controller, event);
-        case RendererKeyboardEvent.KEY_PAGE_UP -> controller.movePageUp(fontMetrics, contentHeight);
-        case RendererKeyboardEvent.KEY_PAGE_DOWN -> controller.movePageDown(fontMetrics, contentHeight);
+        case RendererKeyboardEvent.KEY_PAGE_UP -> controller.movePageUp(contentHeight);
+        case RendererKeyboardEvent.KEY_PAGE_DOWN -> controller.movePageDown(contentHeight);
         case RendererKeyboardEvent.KEY_DELETE -> controller.delete();
         case RendererKeyboardEvent.KEY_INSERT -> controller.toggleInsertMode();
         case RendererKeyboardEvent.KEY_ENTER -> submitOrNewline(controller);
         default -> {}
       }
-      controller.scrollToCursor(fontMetrics, contentWidth, contentHeight);
+      controller.scrollToCursor(contentWidth, contentHeight);
       return EventHandlerResponse.HANDLED;
     } else if (event.type().equals(KeyboardEventType.KEY_PRESS)) {
       controller.insertOrReplaceText(event.key());
-      controller.scrollToCursor(fontMetrics, contentWidth, contentHeight);
+      controller.scrollToCursor(contentWidth, contentHeight);
       return EventHandlerResponse.HANDLED;
     } else {
       return EventHandlerResponse.HANDLED;

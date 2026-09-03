@@ -99,12 +99,10 @@ public class TextAreaContent implements BoxContent {
       wrap);
     wrapTarget.finish();
     List<String> lines = wrapTarget.lines();
-    textController.backupCursorWrap();
     textController.updateLines(
       lines, wrapTarget.continuations());
-    textController.restoreCursorWrap();
-    textController.scrollToCursor(
-      fontMetrics, usedWidth, usedHeight);
+    textController.updateMetrics(fontMetrics);
+    textController.scrollToCursor(usedWidth, usedHeight);
 
     float inkWidth = Math.max(usedWidth,
       wrapTarget.maxWidth() + TextEditPainter.HORIZONTAL_PADDING * 2);
