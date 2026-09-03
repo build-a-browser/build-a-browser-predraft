@@ -9,6 +9,7 @@ import net.buildabrowser.babbrowser.dom.Node;
 import net.buildabrowser.babbrowser.dom.events.FocusEvent;
 import net.buildabrowser.babbrowser.html.html.HTMLElement;
 import net.buildabrowser.babbrowser.html.input.FocusManagerContext;
+import net.buildabrowser.babbrowser.renderer.api.VirtualKeyboard;
 import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 import net.buildabrowser.babbrowser.renderer.event.EventContext;
 import net.buildabrowser.babbrowser.renderer.event.EventUtil;
@@ -16,18 +17,22 @@ import net.buildabrowser.babbrowser.renderer.event.EventUtil;
 public class HTMLFocusManagerContext implements FocusManagerContext {
 
   private final EventContext eventContext;
+  private final VirtualKeyboard virtualKeyboard;
   private final SlotFamily<HTMLElement, RenderContext> renderContexts;
 
   public HTMLFocusManagerContext(
     EventContext eventContext,
+    VirtualKeyboard virtualKeyboard,
     SlotFamily<HTMLElement, RenderContext> renderContexts
   ) {
     this.eventContext = eventContext;
+    this.virtualKeyboard = virtualKeyboard;
     this.renderContexts = renderContexts;
   }
 
   @Override
   public void onFocusChanged(Node oldFocused, Node newFocused) {
+    virtualKeyboard.close();
     if (oldFocused instanceof Element element) {
       eventContext.setPreventDefault(false);
       EventUtil.forwardElementEvent(eventContext, (FocusEvent) () -> "blur", element);

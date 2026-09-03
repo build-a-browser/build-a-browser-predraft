@@ -120,6 +120,9 @@ public class FetchEngineImp implements FetchEngine {
   private FetchResponse overrideFetch(
     OverrideFetchType fetchType, FetchParams fetchParams, boolean makeCORSPreflight
   ) {
+    FetchRequest request = fetchParams.request();
+    FetchResponse response = fetchConfig.policy().overrideResponse(request);
+    if (response != null) return response;
     return switch (fetchType) {
       case SCHEME_FETCH -> schemeFetch(fetchParams);
       case HTTP_FETCH -> httpFetch(fetchParams, makeCORSPreflight);

@@ -20,6 +20,8 @@ import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.html.ua.UAUIFeatures;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
+import net.buildabrowser.babbrowser.renderer.api.FrameAPIs;
+import net.buildabrowser.babbrowser.renderer.api.VirtualKeyboard;
 import net.buildabrowser.babbrowser.renderer.clipboard.ClipboardProvider;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 import net.buildabrowser.babbrowser.renderer.uistate.Frame;
@@ -34,6 +36,7 @@ public class RenderingEngineImp implements RenderingEngine {
   private final DocumentLoaderRegistry documentLoaderRegistry;
   private final ResourceResolver resourceResolver;
   private final ClipboardProvider<?> clipboardProvider;
+  private final VirtualKeyboard virtualKeyboard;
   private final UAUIFeatures uaUIFeatures;
 
   public RenderingEngineImp(
@@ -43,6 +46,7 @@ public class RenderingEngineImp implements RenderingEngine {
     DocumentLoaderRegistry documentLoaderRegistry,
     ResourceResolver resourceResolver,
     ClipboardProvider<?> clipboardProvider,
+    VirtualKeyboard virtualKeyboard,
     UAUIFeatures uaUIFeatures
   ) {
     this.fetchEngine = fetchEngine;
@@ -51,6 +55,7 @@ public class RenderingEngineImp implements RenderingEngine {
     this.documentLoaderRegistry = documentLoaderRegistry;
     this.resourceResolver = resourceResolver;
     this.clipboardProvider = clipboardProvider;
+    this.virtualKeyboard = virtualKeyboard;
     this.uaUIFeatures = uaUIFeatures;
     RenderingEngineInit.init(resourceResolver);
   }
@@ -87,6 +92,11 @@ public class RenderingEngineImp implements RenderingEngine {
   @Override
   public ClipboardProvider<?> clipboardProvider() {
     return this.clipboardProvider;
+  }
+
+  @Override
+  public FrameAPIs newFrameAPIs() {
+    return new FrameAPIs(virtualKeyboard);
   }
 
   @Override

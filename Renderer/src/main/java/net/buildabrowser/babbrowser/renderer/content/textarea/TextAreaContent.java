@@ -16,9 +16,9 @@ import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
 import net.buildabrowser.babbrowser.renderer.content.common.TextController;
 import net.buildabrowser.babbrowser.renderer.content.common.TextWrapper;
 import net.buildabrowser.babbrowser.renderer.content.input.text.TextTypeContent;
+import net.buildabrowser.babbrowser.renderer.event.ContentEventHandler;
 import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
-import net.buildabrowser.babbrowser.renderer.event.FocusEventHandler;
-import net.buildabrowser.babbrowser.renderer.event.handlers.textarea.TextAreaFocusEventHandler;
+import net.buildabrowser.babbrowser.renderer.event.handlers.textarea.TextAreaContentEventHandler;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
@@ -28,7 +28,7 @@ import net.buildabrowser.babbrowser.renderer.paint.painters.scroll.ScrollBoxPain
 
 public class TextAreaContent implements BoxContent {
 
-  private static TextAreaFocusEventHandler TEXT_AREA_FOCUS_EVENT_HANDLER = new TextAreaFocusEventHandler();
+  private static TextAreaContentEventHandler TEXT_AREA_FOCUS_EVENT_HANDLER = new TextAreaContentEventHandler();
 
   private final HTMLTextAreaElement element;
   private final TextAreaController textController;
@@ -123,12 +123,12 @@ public class TextAreaContent implements BoxContent {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T extends BoxContent> EventHandlerResponse withFocusEventHandler(
+  public <T extends BoxContent> EventHandlerResponse withContentEventHandler(
     ElementBox box,
-    FocusEventHandlerFunc<T> withHandlerFunc
+    ContentEventHandlerFunc<T> withHandlerFunc
   ) {
     return withHandlerFunc.apply(
-      (FocusEventHandler<T>) TEXT_AREA_FOCUS_EVENT_HANDLER,
+      (ContentEventHandler<T>) TEXT_AREA_FOCUS_EVENT_HANDLER,
       (T) this);
   }
 

@@ -5,15 +5,15 @@ import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.TextController;
 import net.buildabrowser.babbrowser.renderer.content.input.InstrinsicSizedInputTypeContent;
+import net.buildabrowser.babbrowser.renderer.event.ContentEventHandler;
 import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
-import net.buildabrowser.babbrowser.renderer.event.FocusEventHandler;
-import net.buildabrowser.babbrowser.renderer.event.handlers.input.TextInputFocusEventHandler;
+import net.buildabrowser.babbrowser.renderer.event.handlers.input.TextInputContentEventHandler;
 
 public class TextTypeContent extends InstrinsicSizedInputTypeContent {
 
   public static final String PLACEHOLDER_CHARACTER = "a";
 
-  private static TextInputFocusEventHandler TEXT_INPUT_FOCUS_EVENT_HANDLER = new TextInputFocusEventHandler();
+  private static TextInputContentEventHandler TEXT_INPUT_FOCUS_EVENT_HANDLER = new TextInputContentEventHandler();
 
   private final TextController textController;
 
@@ -31,12 +31,12 @@ public class TextTypeContent extends InstrinsicSizedInputTypeContent {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T extends BoxContent> EventHandlerResponse withFocusEventHandler(
+  public <T extends BoxContent> EventHandlerResponse withContentEventHandler(
     ElementBox box,
-    FocusEventHandlerFunc<T> withHandlerFunc
+    ContentEventHandlerFunc<T> withHandlerFunc
   ) {
     return withHandlerFunc.apply(
-      (FocusEventHandler<T>) TEXT_INPUT_FOCUS_EVENT_HANDLER,
+      (ContentEventHandler<T>) TEXT_INPUT_FOCUS_EVENT_HANDLER,
       (T) this);
   }
   

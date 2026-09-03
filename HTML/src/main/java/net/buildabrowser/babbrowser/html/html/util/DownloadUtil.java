@@ -17,6 +17,7 @@ import net.buildabrowser.babbrowser.html.events.EventLoop;
 import net.buildabrowser.babbrowser.html.html.HTMLDocument;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
+import net.buildabrowser.babbrowser.html.ua.DownloadManager;
 
 public final class DownloadUtil {
   
@@ -50,6 +51,11 @@ public final class DownloadUtil {
       request.appendURL(URI.create(urlString_));
       request.setClient(client);
       // TODO: Set other flags
+
+      DownloadManager downloadManager =
+        nodeNavigable.uaNavigableOptions().uiFeatures().downloadManager();
+      if (!downloadManager.allowDownload(request)) return;
+
       FetchParameters fetchParameters = new FetchParameters();
       fetchParameters.request = request;
       // NOSPEC: The synchronous flag seems to have been removed, use processResponse instead
@@ -68,10 +74,16 @@ public final class DownloadUtil {
     Element initiator // NOSPEC: Accept initiator as param
   ) {
     // TODO: WebDriver BiDi stuff
+    DownloadManager downloadManager =
+      nodeNavigable.uaNavigableOptions().uiFeatures().downloadManager();
+    // NOSPEC: Check if download allowed
+    if (!downloadManager.allowDownload(response)) {
+      // TODO: Abort the response
+      return;
+    }
     String suggestedFilename = getSuggestedFileName(
       response, initiator);
-    nodeNavigable.uaNavigableOptions().uiFeatures().downloadManager()
-      .startDownload(response, suggestedFilename);
+    downloadManager.startDownload(response, suggestedFilename);
   }
 
   private static String getSuggestedFileName(

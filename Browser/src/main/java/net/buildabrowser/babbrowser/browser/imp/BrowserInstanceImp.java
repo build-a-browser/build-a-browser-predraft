@@ -12,10 +12,12 @@ import net.buildabrowser.babbrowser.browser.uistate.WindowSet;
 import net.buildabrowser.babbrowser.cookies.CookieStore;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchConfig;
+import net.buildabrowser.babbrowser.fetch.FetchPolicy;
 import net.buildabrowser.babbrowser.html.ua.UAUIFeatures;
 import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
 import net.buildabrowser.babbrowser.painter.core.ComponentPainter;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
+import net.buildabrowser.babbrowser.renderer.api.VirtualKeyboard;
 import net.buildabrowser.babbrowser.renderer.clipboard.ClipboardProvider;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 
@@ -39,7 +41,7 @@ public class BrowserInstanceImp implements BrowserInstance {
     ExecutorService httpExecutorService = Executors.newWorkStealingPool(16);
     FetchBackend fetchBackend = new FetchBackendImp(registry, httpExecutorService);
     FetchConfig fetchConfig = new FetchConfig(
-      fetchBackend, _ -> true, cookieStore);
+      fetchBackend, new FetchPolicy() {}, cookieStore);
 
     UAUIFeatures uaUIFeatures = new UAUIFeaturesImp(windowSet);
     RenderingEngine renderingEngine = RenderingEngine.create(
@@ -49,6 +51,7 @@ public class BrowserInstanceImp implements BrowserInstance {
       loaderRegistry,
       ClassLoader.getSystemClassLoader()::getResourceAsStream,
       clipboardProvider,
+      new VirtualKeyboard() {},
       uaUIFeatures);
     this.renderingEngine = renderingEngine;
   }

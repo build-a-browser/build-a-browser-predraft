@@ -57,11 +57,11 @@ public class InputContent implements BoxContent {
   }
 
   @Override
-  public <T extends BoxContent> EventHandlerResponse withFocusEventHandler(
+  public <T extends BoxContent> EventHandlerResponse withContentEventHandler(
     ElementBox box,
-    FocusEventHandlerFunc<T> withHandlerFunc
+    ContentEventHandlerFunc<T> withHandlerFunc
   ) {
-    return innerContent(box).withFocusEventHandler(box, withHandlerFunc);
+    return innerContent(box).withContentEventHandler(box, withHandlerFunc);
   }
 
   @Override

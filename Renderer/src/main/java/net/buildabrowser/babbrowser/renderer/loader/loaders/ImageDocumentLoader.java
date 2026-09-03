@@ -36,7 +36,8 @@ public class ImageDocumentLoader implements DocumentLoader {
     formImageDocument(response, document);
 
     DocumentRenderer renderer = new HTMLGraphicalDocumentRendererImp(
-      document, navigationParams.navigable(), renderingEngine, slotFamilyFamily);
+      document, navigationParams.navigable(), renderingEngine,
+      renderingEngine.newFrameAPIs(), slotFamilyFamily);
     document.attachRenderer(renderer);
 
     return document;

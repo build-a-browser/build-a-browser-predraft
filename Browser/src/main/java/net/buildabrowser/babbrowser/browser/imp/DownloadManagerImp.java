@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
+import net.buildabrowser.babbrowser.fetch.FetchRequest;
 import net.buildabrowser.babbrowser.fetch.FetchResponse;
 import net.buildabrowser.babbrowser.html.ua.DownloadManager;
 import net.buildabrowser.babbrowser.stream.ReadableStreamDefaultReader;
@@ -21,6 +22,11 @@ import net.buildabrowser.babbrowser.stream.ReadableStreamDefaultReader;
 public class DownloadManagerImp implements DownloadManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DownloadManagerImp.class);
+
+  @Override
+  public boolean allowDownload(FetchRequest request) {
+    return true;
+  }
 
   @Override
   public void startDownload(FetchResponse response, String suggestedFilename) {

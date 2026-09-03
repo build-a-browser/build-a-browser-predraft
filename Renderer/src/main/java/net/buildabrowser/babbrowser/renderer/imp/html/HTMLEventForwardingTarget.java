@@ -81,7 +81,7 @@ public class HTMLEventForwardingTarget extends AbstractEventForwardingTarget {
     ) {
       RenderContext context = renderContexts.get(htmlElement);
       if (context.box() != null) {
-        response = context.box().content().withFocusEventHandler(
+        response = context.box().content().withContentEventHandler(
           context.box(),
           (feh, c) -> feh.handleKeyboardEvent(
             eventContext, context.box(), c, keyEvent));

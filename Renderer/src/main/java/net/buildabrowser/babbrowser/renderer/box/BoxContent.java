@@ -3,7 +3,7 @@ package net.buildabrowser.babbrowser.renderer.box;
 import net.buildabrowser.babbrowser.renderer.content.common.BorderUtil;
 import net.buildabrowser.babbrowser.renderer.content.common.PaddingUtil;
 import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
-import net.buildabrowser.babbrowser.renderer.event.FocusEventHandler;
+import net.buildabrowser.babbrowser.renderer.event.ContentEventHandler;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
 import net.buildabrowser.babbrowser.renderer.layout.LayoutConstraint;
 
@@ -32,9 +32,9 @@ public interface BoxContent {
 
   // TODO: The generic should be on BoxContent itself, but I don't
   // feel like adding generics everywhere right now
-  default <T extends BoxContent> EventHandlerResponse withFocusEventHandler(
+  default <T extends BoxContent> EventHandlerResponse withContentEventHandler(
     ElementBox box,
-    FocusEventHandlerFunc<T> withHandlerFunc
+    ContentEventHandlerFunc<T> withHandlerFunc
   ) {
     return EventHandlerResponse.UNHANDLED;
   }
@@ -47,9 +47,9 @@ public interface BoxContent {
     return false;
   }
 
-  interface FocusEventHandlerFunc<T extends BoxContent> {
+  interface ContentEventHandlerFunc<T extends BoxContent> {
     EventHandlerResponse apply(
-      FocusEventHandler<T> eventHandler, T content
+      ContentEventHandler<T> eventHandler, T content
     );
   }
 

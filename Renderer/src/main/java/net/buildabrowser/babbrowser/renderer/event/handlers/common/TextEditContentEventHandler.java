@@ -6,9 +6,9 @@ import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererKeyboardEvent;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererKeyboardEvent.KeyboardEventType;
 
-public final class TextEditFocusEventHandler {
+public final class TextEditContentEventHandler {
 
-  private TextEditFocusEventHandler() {}
+  private TextEditContentEventHandler() {}
   
   public static EventHandlerResponse handleKeyboardEvent(
     TextController controller,

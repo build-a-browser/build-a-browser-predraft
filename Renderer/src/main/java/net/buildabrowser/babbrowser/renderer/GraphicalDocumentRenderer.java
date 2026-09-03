@@ -4,6 +4,7 @@ import net.buildabrowser.babbrowser.debugger.core.DebugContext;
 import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
+import net.buildabrowser.babbrowser.renderer.api.FrameAPIs;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
 
 public interface GraphicalDocumentRenderer extends DocumentRenderer {
@@ -13,6 +14,8 @@ public interface GraphicalDocumentRenderer extends DocumentRenderer {
   void draw(PaintCanvas context);
 
   EventForwardingTarget eventForwardingTarget();
+
+  FrameAPIs frameAPIs();
 
   interface DebuggableDocumentRendererEventListener extends DocumentRendererEventListener {
 

@@ -8,6 +8,7 @@ import net.buildabrowser.babbrowser.cssbase.property.overflow.OverflowValue;
 import net.buildabrowser.babbrowser.renderer.box.BoxContent;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBoxDimensions;
+import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.fragment.FragmentFactory;
 import net.buildabrowser.babbrowser.renderer.fragment.LayoutFragment.Measurement;
 import net.buildabrowser.babbrowser.renderer.fragment.UnmanagedBoxFragment;
@@ -142,6 +143,15 @@ public class ScrollBoxContent implements BoxContent {
   public boolean isReplaced(ElementBox box) {
     ElementBox innerBox = (ElementBox) box.childBoxes().next();
     return innerBox.isReplaced();
+  }
+
+  @Override
+  public <T extends BoxContent> EventHandlerResponse withContentEventHandler(
+    ElementBox box,
+    ContentEventHandlerFunc<T> withHandlerFunc
+  ) {
+    ElementBox innerBox = (ElementBox) box.childBoxes().next();
+    return innerBox.content().withContentEventHandler(innerBox, withHandlerFunc);
   }
 
   private static LayoutConstraint subtractGutterWidth(LayoutConstraint origConstraint) {

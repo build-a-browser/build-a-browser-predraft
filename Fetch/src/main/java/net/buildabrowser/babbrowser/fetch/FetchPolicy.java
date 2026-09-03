@@ -2,6 +2,12 @@ package net.buildabrowser.babbrowser.fetch;
 
 public interface FetchPolicy {
   
-  boolean allowCookies(FetchRequest request);
+  default boolean allowCookies(FetchRequest request) {
+    return true;
+  }
+
+  default FetchResponse overrideResponse(FetchRequest request) {
+    return null;
+  }
 
 }

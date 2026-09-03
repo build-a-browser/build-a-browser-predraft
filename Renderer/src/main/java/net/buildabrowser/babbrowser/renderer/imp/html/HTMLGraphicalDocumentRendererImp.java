@@ -28,6 +28,8 @@ import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
+import net.buildabrowser.babbrowser.renderer.api.FrameAPIs;
+import net.buildabrowser.babbrowser.renderer.api.VirtualKeyboard;
 import net.buildabrowser.babbrowser.renderer.box.BoxGenerator;
 import net.buildabrowser.babbrowser.renderer.box.DocumentBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
@@ -64,6 +66,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
 
   private final HTMLDocument document;
   private final Navigable navigable;
+  private final FrameAPIs frameAPIs;
   private final Painter painter;
 
   private final BoxGenerator boxGenerator;
@@ -92,10 +95,12 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     HTMLDocument document,
     Navigable navigable,
     RenderingEngine renderingEngine,
+    FrameAPIs frameAPIs,
     SlotFamilyFamily slotFamilyFamily
   ) {
     this.document = document;
     this.navigable = navigable;
+    this.frameAPIs = frameAPIs;
     this.painter = renderingEngine.painter();
 
     EventContext eventContext = EventContext.create();
@@ -123,7 +128,7 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     innerChangeListener = new ElementDocumentChangeListener(
       fetchEngine, innerChangeListener);
     innerChangeListener = new HTMLEventDocumentChangeListener(
-      document, innerChangeListener);
+      document, innerChangeListener, renderContexts);
     // TODO: The debugger listener should ideally come last (so it can cancel events)
     // but ForkedDocumentChangeListener needs modified to allow passing through fragment events
     innerChangeListener = new HTMLFragmentNavigationDocumentChangeListener(
@@ -148,8 +153,9 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     this.fontCache = FontCache.create(painter.resourceLoader().fontLoader());
     this.objectLoader = new HTMLObjectLoader(imageCache, renderContexts);
 
+    VirtualKeyboard keyboard = frameAPIs.virtualKeyboard();
     document.focusManager().attachContext(
-      new HTMLFocusManagerContext(eventContext, renderContexts));
+      new HTMLFocusManagerContext(eventContext, keyboard, renderContexts));
   }
 
   @Override
@@ -272,6 +278,11 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
   @Override
   public void onDocumentInvalidated(short invalidationLevel) {
     this.invalidationLevel |= invalidationLevel;
+  }
+
+  @Override
+  public FrameAPIs frameAPIs() {
+    return this.frameAPIs;
   }
 
   private void recomputeBoxes() {
