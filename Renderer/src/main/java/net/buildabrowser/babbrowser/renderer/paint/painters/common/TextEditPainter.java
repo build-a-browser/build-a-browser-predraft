@@ -35,7 +35,7 @@ public final class TextEditPainter {
     Element element = box.element();
     FocusManager focusManager = ((HTMLDocument) element.nodeDocument()).focusManager();
     List<String> allLines = controller.displayLines();
-    String displayValue = controller.lineValue();
+    String displayValue = controller.displayLines().get(controller.cursorY());
     float posY = controller.isMultiLine() ?
        VERTICAL_PADDING_MULTILINE : (fragment.height(Measurement.CONTENT) - metrics.height()) / 2;
     int codepointPos = displayValue.offsetByCodePoints(0, controller.cursorX());

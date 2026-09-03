@@ -32,12 +32,7 @@ public class InputTextController extends AbstractTextController {
 
   @Override
   public String lineValue() {
-    if (isHidden) {
-      int valueLen = element.value().length();
-      return stringRepeat(PASSWORD_CHARACTER, valueLen);
-    } else {
-      return element.value();
-    }
+    return element.value();
   }
 
   @Override
@@ -54,7 +49,12 @@ public class InputTextController extends AbstractTextController {
 
   @Override
   public List<String> displayLines() {
-    return List.of(lineValue());
+    if (isHidden) {
+      int valueLen = element.value().length();
+      return List.of(stringRepeat(PASSWORD_CHARACTER, valueLen));
+    } else {
+      return List.of(element.value());
+    }
   }
 
   @Override

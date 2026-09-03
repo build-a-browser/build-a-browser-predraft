@@ -41,6 +41,11 @@ public class InMemoryCookieStore implements CookieStore {
         cookie, httpOnlyAllowed);
       if (adjustedCookie == null) return null;
 
+      if (
+        cookie.expiryTime() != null
+        && cookie.expiryTime().isBefore(ZonedDateTime.now())
+      ) return null;
+
       cookieMap
         .computeIfAbsent(cookie.host(), _1 -> new ArrayList<>())
         .add(adjustedCookie);
@@ -146,8 +151,18 @@ public class InMemoryCookieStore implements CookieStore {
         if (!oldCookie.name().equals(cookie.name())) continue;
         if (oldCookie.hostOnly() != cookie.hostOnly()) continue;
         if (!CookieUtil.pathEquals(oldCookie.path(), cookie.path())) continue;
-        boolean skipExisting = CookieUtil.skipExistingCookie(cookie, oldCookie, httpOnlyAllowed);
-        if (skipExisting) return null;
+
+        if (
+          !httpOnlyAllowed
+          && oldCookie.httpOnly()
+        ) return null;
+
+        boolean changed = CookieUtil.isCookieChanged(cookie, oldCookie, httpOnlyAllowed);
+        if (!changed) {
+          cookieIt.set(cookie);
+          return null;
+        }
+
         cookieIt.remove();
         return CookieBuilder.fromCookie(cookie)
           .setCreationTime(oldCookie.creationTime())

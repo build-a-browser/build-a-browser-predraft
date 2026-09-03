@@ -1,5 +1,7 @@
 package net.buildabrowser.babbrowser.cookies.util;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -121,8 +123,8 @@ public final class CookieParserUtil {
     deltaSeconds = Math.min(
       deltaSeconds,
       CookieLimits.COOKIE_AGE_LIMIT * DAY_AS_SECONDS);
-    ZonedDateTime expiryTime = deltaSeconds < 0 ?
-      ZonedDateTime.of(0, 0, 0, 0, 0, 0, 0, ZoneOffset.UTC) :
+    ZonedDateTime expiryTime = deltaSeconds <= 0 ?
+      ZonedDateTime.of(LocalDate.MIN, LocalTime.MIN, ZoneOffset.UTC) :
       ZonedDateTime.now().plusSeconds(deltaSeconds);
     cookie.setExpiryTime(expiryTime);
     cookie.setMaxAgeSeen(true);
@@ -141,20 +143,21 @@ public final class CookieParserUtil {
       if (hostInput.charAt(0) == '.') {
         hostInput = hostInput.substring(1);
         host = hostInput.toLowerCase(); // TODO: Parse host
+      } else {
+        host = hostInput.toLowerCase();
       }
     }
 
     cookie.setHost(host);
   }
 
-  private static void parseCookiePath(
-    CookieBuilder cookie, String attributeValue
-  ) {
-    if (
-      attributeValue.length() > 0
-      && attributeValue.charAt(0) == '/'
-    ) {
-      cookie.setPath(attributeValue.split("/"));
+  private static void parseCookiePath(CookieBuilder cookie, String attributeValue) {
+    if (attributeValue.length() > 0 && attributeValue.charAt(0) == '/') {
+      if (attributeValue.equals("/")) {
+        cookie.setPath(new String[] { "" });
+      } else {
+        cookie.setPath(attributeValue.split("/"));
+      }
       cookie.setHasPathAttribute(true);
     }
   }

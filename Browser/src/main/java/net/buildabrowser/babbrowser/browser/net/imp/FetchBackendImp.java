@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.browser.net.imp;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublisher;
@@ -88,16 +89,28 @@ public class FetchBackendImp implements FetchBackend {
     FetchRequest request,
     Consumer<Optional<ByteBuffer>> byteConsumer
   ) {
+    // TODO: Correct way to set origin
+    URI url = request.currentURL();
+    String origin = url.getScheme() + "://" + url.getHost();
+    if (!(
+      (url.getScheme().equals("https") && url.getPort() == 443)
+      || (url.getScheme().equals("http") && url.getPort() == 80)
+      || url.getPort() == -1
+    )) {
+      origin = origin + ":" + url.getPort();
+    }
+    
     BodyPublisher bodyPublisher = createBodyPublisher(request);
-    HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder(request.currentURL())
+    HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder(url)
       .method(request.method(), bodyPublisher)
       .setHeader("User-Agent", chooseUserAgent(request))
       .setHeader("Accept", "text/html, text/css, image/png, image/jpeg, */*")
       .setHeader("Accept-Encoding", String.join(", ", encodingRegistry.acceptedEncodings()))
       .setHeader("Sec-CH-UA", "\"BuildABrowser Test Program\";v=\"0\"")
+      .setHeader("Origin", origin)
       // HTTP 2 seems broken on http
       .version(
-        request.currentURL().getScheme().equals("https") ?
+        url.getScheme().equals("https") ?
           HttpClient.Version.HTTP_2 :
           HttpClient.Version.HTTP_1_1)
       .timeout(Duration.ofSeconds(5));
@@ -173,9 +186,9 @@ public class FetchBackendImp implements FetchBackend {
     }
 
     FetchBody body = (FetchBody) request.body();
-    
-    ReadableStreamDefaultReader reader = (ReadableStreamDefaultReader) body.stream().getReader(null);
-    return new StreamReaderBodyPublisher(reader);
+    ReadableStreamDefaultReader reader = (ReadableStreamDefaultReader)
+      body.stream().getReader(null);
+    return new StreamReaderBodyPublisher(body, reader);
   }
 
   private void finishRequest(FetchRequest request) {

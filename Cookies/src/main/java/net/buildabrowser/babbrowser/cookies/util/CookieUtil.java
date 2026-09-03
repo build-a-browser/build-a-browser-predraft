@@ -288,21 +288,20 @@ public final class CookieUtil {
       && !cookie.httpOnly();
   }
 
-  public static boolean skipExistingCookie(
+  public static boolean isCookieChanged(
     Cookie cookie,
     Cookie existingCookie,
     boolean httpOnlyAllowed
   ) {
     if (!httpOnlyAllowed && existingCookie.httpOnly()) return true;
     if (
-      cookie.secure() == existingCookie.secure()
+      cookie.value().equals(existingCookie.value())
+      && cookie.secure() == existingCookie.secure()
+      && cookie.httpOnly() == existingCookie.httpOnly()
       && cookie.sameSite() == existingCookie.sameSite()
       && Objects.equals(cookie.expiryTime(), existingCookie.expiryTime())
-      // NOSPEC: Compare cookie values
-      // See https://github.com/httpwg/http-extensions/issues/3501
-      && cookie.value().equals(existingCookie.value())
-    ) return true;
+    ) return false;
 
-    return false;
+    return true;
   }
 }

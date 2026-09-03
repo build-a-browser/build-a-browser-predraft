@@ -68,6 +68,10 @@ public class SQLiteCookieStore implements CookieStore {
         adjustedCookie, httpOnlyAllowed);
     }
 
+    if (
+      cookie.expiryTime().isBefore(ZonedDateTime.now())
+    ) return null;
+
     JDBCUtil.execute(jdbcURL, CookieQueries.CREATE_COOKIE_QUERY,
       cookie.name(),
       cookie.host(),
@@ -102,10 +106,24 @@ public class SQLiteCookieStore implements CookieStore {
 
     List<Cookie> temporaryCookies = inMemoryCookieStore.retrieveCookies(
       isSecure, host, path, httpOnlyAllowed, sameSite);
-
     ArrayList<Cookie> allCookies = new ArrayList<>(
       cookies.size() + temporaryCookies.size());
-    allCookies.addAll(cookies);
+    
+    // TODO: Batch these into one query
+    ZonedDateTime now = ZonedDateTime.now();
+    for (Cookie c : cookies) {
+      Cookie updated = CookieBuilder.fromCookie(c)
+        .setLastAccessTime(now)
+        .build();
+      String cookiePath = URLUtil2.serializePath(updated.path());
+      
+      JDBCUtil.execute(
+        jdbcURL, CookieQueries.UPDATE_COOKIE_LAST_ACCESS,
+        now, updated.name(), updated.host(), cookiePath, updated.hostOnly());
+      allCookies.add(updated);
+    }
+    
+
     allCookies.addAll(temporaryCookies);
     return List.copyOf(allCookies);
   }
@@ -143,7 +161,7 @@ public class SQLiteCookieStore implements CookieStore {
         CookieUtil.isDomainMatch(existingCookie.host(), host)
         || CookieUtil.isDomainMatch(host, existingCookie.host())
       )) continue;
-      if (!existingCookie.name().equals(name))
+      if (!existingCookie.name().equals(name)) continue;
       if (!existingCookie.secure()) continue;
       if (
         !CookieUtil.pathMatches(path, existingCookie.path())
@@ -169,13 +187,24 @@ public class SQLiteCookieStore implements CookieStore {
     }
 
     Cookie oldCookie = existingCookie.get();
-    boolean skipExisting = CookieUtil.skipExistingCookie(cookie, oldCookie, httpOnlyAllowed);
-    if (skipExisting) return null;
+    if (
+      !httpOnlyAllowed
+      && oldCookie.httpOnly()
+    ) return null;
 
-    JDBCUtil.execute(
-      jdbcURL, CookieQueries.REMOVE_DUPLICATE_COOKIE_QUERY,
-      cookie.name(), cookie.host(), cookiePath, cookie.hostOnly());
+    boolean changed = CookieUtil.isCookieChanged(cookie, oldCookie, httpOnlyAllowed);
+    if (changed) {
+      JDBCUtil.execute(
+        jdbcURL, CookieQueries.REMOVE_DUPLICATE_COOKIE_QUERY,
+        cookie.name(), cookie.host(), cookiePath, cookie.hostOnly());
+    } else {
+      JDBCUtil.execute(
+        jdbcURL, CookieQueries.UPDATE_COOKIE_LAST_ACCESS,
+        ZonedDateTime.now(),
+        oldCookie.name(), oldCookie.host(), cookiePath, oldCookie.hostOnly());
+    }
     
+    if (!changed) return null;
     return CookieBuilder.fromCookie(cookie)
       .setCreationTime(oldCookie.creationTime())
       .build();

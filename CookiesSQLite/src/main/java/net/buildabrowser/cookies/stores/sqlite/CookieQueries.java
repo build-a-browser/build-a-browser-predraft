@@ -26,6 +26,12 @@ public final class CookieQueries {
       PRIMARY KEY (name, host, host_only, path)
     );
     """;
+  
+  public static final String UPDATE_COOKIE_LAST_ACCESS = """
+    UPDATE cookies
+    SET last_access_time = ?
+    WHERE name = ? AND host = ? AND path = ? AND host_only = ?;
+  """;
 
   public static final String CREATE_COOKIE_QUERY
     = "INSERT INTO cookies VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
