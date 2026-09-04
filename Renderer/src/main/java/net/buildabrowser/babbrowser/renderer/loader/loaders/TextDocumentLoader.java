@@ -16,6 +16,7 @@ import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 import net.buildabrowser.babbrowser.renderer.imp.html.HTMLGraphicalDocumentRendererImp;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoader;
+import net.buildabrowser.babbrowser.renderer.uistate.Frame;
 import net.buildabrowser.babbrowser.stream.ReadableStreamDefaultReader;
 
 public class TextDocumentLoader implements DocumentLoader {
@@ -24,6 +25,7 @@ public class TextDocumentLoader implements DocumentLoader {
   public HTMLDocument load(
     UANavigableOptions uaNavigableOptions,
     RenderingEngine renderingEngine,
+    Frame frame,
     NavigationParams navigationParams,
     SlotFamilyFamily slotFamilyFamily
   ) {
@@ -39,8 +41,7 @@ public class TextDocumentLoader implements DocumentLoader {
 
     DocumentRenderer renderer = new HTMLGraphicalDocumentRendererImp(
       document, navigationParams.navigable(),
-      renderingEngine, renderingEngine.newFrameAPIs(),
-      slotFamilyFamily);
+      renderingEngine, frame, slotFamilyFamily);
     document.attachRenderer(renderer);
 
     return document;

@@ -1,9 +1,10 @@
-package net.buildabrowser.babbrowser.renderer.content.common;
+package net.buildabrowser.babbrowser.renderer.input.imp;
 
 import static net.buildabrowser.babbrowser.common.util.CompatUtil.mathClamp;
 
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.event.util.MouseEventUtil;
+import net.buildabrowser.babbrowser.renderer.input.TextController;
 
 public abstract class AbstractTextController implements TextController {
 

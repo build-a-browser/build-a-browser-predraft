@@ -2,6 +2,7 @@ package net.buildabrowser.babbrowser.renderer;
 
 import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.cssbase.cssom.StyleSheetList;
@@ -11,20 +12,29 @@ import net.buildabrowser.babbrowser.html.navigation.DocumentRenderer.DocumentRen
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.html.ua.UAUIFeatures;
 import net.buildabrowser.babbrowser.painter.core.Painter;
-import net.buildabrowser.babbrowser.renderer.api.FrameAPIs;
-import net.buildabrowser.babbrowser.renderer.api.VirtualKeyboard;
 import net.buildabrowser.babbrowser.renderer.clipboard.ClipboardProvider;
+import net.buildabrowser.babbrowser.renderer.content.input.VirtualKeyboard;
 import net.buildabrowser.babbrowser.renderer.imp.RenderingEngineImp;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 import net.buildabrowser.babbrowser.renderer.uistate.Frame;
+import net.buildabrowser.babbrowser.renderer.uistate.FrameAPIs;
 
 public interface RenderingEngine {
 
   Frame createFrame();
 
   NavigableRendererPair createNavigable(
+    Frame frame,
     DocumentRendererEventListener eventListener
   );
+
+  Painter painter();
+
+  ClipboardProvider<?> clipboardProvider();
+
+  FrameAPIs newFrameAPIs(Frame frame);
+
+  StyleSheetList uaStyleSheets();
 
   static RenderingEngine create(
     FetchConfig fetchConfig,
@@ -33,24 +43,16 @@ public interface RenderingEngine {
     DocumentLoaderRegistry documentLoaderRegistry,
     ResourceResolver resourceResolver,
     ClipboardProvider<?> clipboardProvider,
-    VirtualKeyboard virtualKeyboard,
+    Function<Frame, VirtualKeyboard> virtualKeyboardFactory,
     UAUIFeatures uaUIFeatures
   ) {
     return new RenderingEngineImp(
       FetchEngine.create(fetchConfig),
       threadGroupSupplier, painter,
       documentLoaderRegistry, resourceResolver,
-      clipboardProvider, virtualKeyboard,
+      clipboardProvider, virtualKeyboardFactory,
       uaUIFeatures);
   }
-
-  Painter painter();
-
-  ClipboardProvider<?> clipboardProvider();
-
-  FrameAPIs newFrameAPIs();
-
-  StyleSheetList uaStyleSheets();
 
   static record NavigableRendererPair(
     Navigable navigable,

@@ -28,12 +28,11 @@ import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.painter.core.ResourceLoader;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
-import net.buildabrowser.babbrowser.renderer.api.FrameAPIs;
-import net.buildabrowser.babbrowser.renderer.api.VirtualKeyboard;
 import net.buildabrowser.babbrowser.renderer.box.BoxGenerator;
 import net.buildabrowser.babbrowser.renderer.box.DocumentBox;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
 import net.buildabrowser.babbrowser.renderer.content.common.SizingUtil;
+import net.buildabrowser.babbrowser.renderer.content.input.VirtualKeyboard;
 import net.buildabrowser.babbrowser.renderer.context.RenderContext;
 import net.buildabrowser.babbrowser.renderer.context.ScriptingContext;
 import net.buildabrowser.babbrowser.renderer.context.SelectionContext;
@@ -56,6 +55,8 @@ import net.buildabrowser.babbrowser.renderer.layout.Viewport;
 import net.buildabrowser.babbrowser.renderer.logging.PerfLogging;
 import net.buildabrowser.babbrowser.renderer.style.StyleCache;
 import net.buildabrowser.babbrowser.renderer.style.StyleGenerator;
+import net.buildabrowser.babbrowser.renderer.uistate.Frame;
+import net.buildabrowser.babbrowser.renderer.uistate.FrameAPIs;
 
 public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRenderer, HTMLDocumentRenderer {
 
@@ -95,12 +96,12 @@ public class HTMLGraphicalDocumentRendererImp implements GraphicalDocumentRender
     HTMLDocument document,
     Navigable navigable,
     RenderingEngine renderingEngine,
-    FrameAPIs frameAPIs,
+    Frame frame,
     SlotFamilyFamily slotFamilyFamily
   ) {
     this.document = document;
     this.navigable = navigable;
-    this.frameAPIs = frameAPIs;
+    this.frameAPIs = frame.frameAPIs();
     this.painter = renderingEngine.painter();
 
     EventContext eventContext = EventContext.create();

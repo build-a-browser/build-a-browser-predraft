@@ -3,11 +3,11 @@ package net.buildabrowser.babbrowser.renderer.event.handlers.common;
 import java.util.List;
 
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
-import net.buildabrowser.babbrowser.renderer.content.common.TextController;
 import net.buildabrowser.babbrowser.renderer.event.EventHandlerResponse;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent;
 import net.buildabrowser.babbrowser.renderer.event.events.RendererMouseEvent.MouseEventType;
 import net.buildabrowser.babbrowser.renderer.event.util.MouseEventUtil;
+import net.buildabrowser.babbrowser.renderer.input.TextController;
 import net.buildabrowser.babbrowser.renderer.paint.painters.common.TextEditPainter;
 
 public final class TextEditEventHandler {

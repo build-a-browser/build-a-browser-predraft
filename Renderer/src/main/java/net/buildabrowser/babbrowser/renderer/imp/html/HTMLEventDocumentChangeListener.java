@@ -46,7 +46,7 @@ public class HTMLEventDocumentChangeListener extends AbstractDocumentChangeListe
     ) {
       ElementBox box = renderContext.box();
       allowDefault = !box.content().withContentEventHandler(
-        box, (eh, c) -> eh.handleElementEvent(htmlElement, event))
+        box, (eh, c) -> eh.handleElementEvent(box, c, htmlElement, event))
         .equals(EventHandlerResponse.HANDLED);
     }
 

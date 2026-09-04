@@ -6,8 +6,8 @@ import net.buildabrowser.babbrowser.dom.listener.DocumentChangeListener;
 import net.buildabrowser.babbrowser.html.navigation.Navigable;
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer;
-import net.buildabrowser.babbrowser.renderer.api.FrameAPIs;
 import net.buildabrowser.babbrowser.renderer.event.EventForwardingTarget;
+import net.buildabrowser.babbrowser.renderer.uistate.FrameAPIs;
 
 public class DelegatingGraphicalDocumentRenderer implements GraphicalDocumentRenderer {
 

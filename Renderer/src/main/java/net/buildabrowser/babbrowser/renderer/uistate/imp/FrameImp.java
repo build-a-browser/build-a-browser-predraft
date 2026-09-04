@@ -19,6 +19,7 @@ import net.buildabrowser.babbrowser.renderer.GraphicalDocumentRenderer.Debuggabl
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine.NavigableRendererPair;
 import net.buildabrowser.babbrowser.renderer.uistate.DebuggableFrame;
+import net.buildabrowser.babbrowser.renderer.uistate.FrameAPIs;
 import net.buildabrowser.babbrowser.renderer.uistate.event.BrowserEventDispatcher;
 import net.buildabrowser.babbrowser.renderer.uistate.event.FrameEventListener;
 
@@ -28,12 +29,15 @@ public class FrameImp implements DebuggableFrame {
 
   private final Navigable navigable;
   private final GraphicalDocumentRenderer renderer;
+  private final FrameAPIs frameAPIs;
 
-  private List<FrameDebugger> attachedDebuggers = new ArrayList<>(1);
-  private List<DocumentChangeListener> attachedChangeListeners = new ArrayList<>(1);
+  private final List<FrameDebugger> attachedDebuggers = new ArrayList<>(1);
+  private final List<DocumentChangeListener> attachedChangeListeners = new ArrayList<>(1);
 
   public FrameImp(RenderingEngine renderingEngine) {
+    this.frameAPIs = renderingEngine.newFrameAPIs(this);
     NavigableRendererPair navigableRendererPair = renderingEngine.createNavigable(
+      this,
       new DebuggableDocumentRendererEventListener() {
 
         @Override
@@ -77,6 +81,11 @@ public class FrameImp implements DebuggableFrame {
   @Override
   public Navigable navigable() {
     return this.navigable;
+  }
+
+  @Override 
+  public FrameAPIs frameAPIs() {
+    return this.frameAPIs;
   }
 
   @Override

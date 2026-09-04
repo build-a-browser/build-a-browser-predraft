@@ -12,7 +12,7 @@ import net.buildabrowser.babbrowser.html.html.HTMLFormElement;
 import net.buildabrowser.babbrowser.html.html.HTMLInputElement;
 import net.buildabrowser.babbrowser.html.navigation.UserNavigationInvolvement;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
-import net.buildabrowser.babbrowser.renderer.content.common.AbstractTextController;
+import net.buildabrowser.babbrowser.renderer.input.imp.AbstractTextController;
 import net.buildabrowser.babbrowser.renderer.paint.painters.common.TextEditPainter;
 
 public class InputTextController extends AbstractTextController {

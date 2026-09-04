@@ -17,8 +17,8 @@ import net.buildabrowser.babbrowser.html.ua.UAUIFeatures;
 import net.buildabrowser.babbrowser.network.encoding.ContentEncodingRegistry;
 import net.buildabrowser.babbrowser.painter.core.ComponentPainter;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
-import net.buildabrowser.babbrowser.renderer.api.VirtualKeyboard;
 import net.buildabrowser.babbrowser.renderer.clipboard.ClipboardProvider;
+import net.buildabrowser.babbrowser.renderer.content.input.VirtualKeyboard;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 
 public class BrowserInstanceImp implements BrowserInstance {
@@ -51,7 +51,7 @@ public class BrowserInstanceImp implements BrowserInstance {
       loaderRegistry,
       ClassLoader.getSystemClassLoader()::getResourceAsStream,
       clipboardProvider,
-      new VirtualKeyboard() {},
+      _1 -> new VirtualKeyboard() {},
       uaUIFeatures);
     this.renderingEngine = renderingEngine;
   }

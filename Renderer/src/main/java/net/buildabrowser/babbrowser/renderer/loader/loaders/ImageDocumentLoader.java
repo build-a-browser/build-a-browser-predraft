@@ -15,6 +15,7 @@ import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
 import net.buildabrowser.babbrowser.renderer.imp.html.HTMLGraphicalDocumentRendererImp;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoader;
+import net.buildabrowser.babbrowser.renderer.uistate.Frame;
 
 public class ImageDocumentLoader implements DocumentLoader {
 
@@ -22,6 +23,7 @@ public class ImageDocumentLoader implements DocumentLoader {
   public HTMLDocument load(
     UANavigableOptions uaNavigableOptions,
     RenderingEngine renderingEngine,
+    Frame frame,
     NavigationParams navigationParams,
     SlotFamilyFamily slotFamilyFamily
   ) {
@@ -36,8 +38,8 @@ public class ImageDocumentLoader implements DocumentLoader {
     formImageDocument(response, document);
 
     DocumentRenderer renderer = new HTMLGraphicalDocumentRendererImp(
-      document, navigationParams.navigable(), renderingEngine,
-      renderingEngine.newFrameAPIs(), slotFamilyFamily);
+      document, navigationParams.navigable(),
+      renderingEngine, frame, slotFamilyFamily);
     document.attachRenderer(renderer);
 
     return document;

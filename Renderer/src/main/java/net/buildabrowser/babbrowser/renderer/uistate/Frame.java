@@ -11,6 +11,8 @@ import net.buildabrowser.babbrowser.renderer.uistate.imp.FrameImp;
 
 public interface Frame {
 
+  FrameAPIs frameAPIs();
+
   GraphicalDocumentRenderer getRenderer();
 
   Navigable navigable();

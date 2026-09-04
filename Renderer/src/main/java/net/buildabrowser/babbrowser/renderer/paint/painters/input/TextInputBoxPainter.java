@@ -2,10 +2,10 @@ package net.buildabrowser.babbrowser.renderer.paint.painters.input;
 
 import net.buildabrowser.babbrowser.painter.core.PaintCanvas;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.TextController;
 import net.buildabrowser.babbrowser.renderer.content.input.InputContent;
 import net.buildabrowser.babbrowser.renderer.content.input.text.TextTypeContent;
 import net.buildabrowser.babbrowser.renderer.fragment.input.TextInputFragment;
+import net.buildabrowser.babbrowser.renderer.input.TextController;
 import net.buildabrowser.babbrowser.renderer.paint.BoxPainter;
 import net.buildabrowser.babbrowser.renderer.paint.VpIntersection;
 import net.buildabrowser.babbrowser.renderer.paint.painters.common.ElementBackgroundPainter;

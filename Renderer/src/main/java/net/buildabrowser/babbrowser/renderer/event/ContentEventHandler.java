@@ -18,7 +18,10 @@ public interface ContentEventHandler<T extends BoxContent> {
   }
 
   default EventHandlerResponse handleElementEvent(
-    Element target, Event event
+    ElementBox box,
+    T content,
+    Element target,
+    Event event
   ) {
     return EventHandlerResponse.UNHANDLED;
   }

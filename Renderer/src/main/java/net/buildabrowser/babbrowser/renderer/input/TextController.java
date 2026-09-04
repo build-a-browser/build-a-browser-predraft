@@ -1,10 +1,10 @@
-package net.buildabrowser.babbrowser.renderer.content.common;
+package net.buildabrowser.babbrowser.renderer.input;
 
 import java.util.List;
 
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 
-public interface TextController {
+public interface TextController extends WriteTextController {
 
   String value();
 
@@ -17,8 +17,6 @@ public interface TextController {
   boolean isLineContinuation(int lineNum);
 
   int cursorFlat();
-
-  void setCursorFlat(int cursorFlat);
 
   int cursorX();
 
@@ -36,19 +34,9 @@ public interface TextController {
 
   void setIsReplaceMode(boolean isReplaceMode);
 
-  void submit();
-
   void insertOrReplaceText(String text);
 
-  void insertText(String text);
-
-  void replaceText(String text);
-
   void backspace();
-
-  void moveCursorForward(int i);
-
-  void moveCursorDownward(int i);
 
   void moveHome();
 

@@ -8,9 +8,9 @@ import net.buildabrowser.babbrowser.cssbase.cssom.extra.InvalidationLevel;
 import net.buildabrowser.babbrowser.html.html.HTMLTextAreaElement;
 import net.buildabrowser.babbrowser.painter.core.FontMetrics;
 import net.buildabrowser.babbrowser.renderer.box.ElementBox;
-import net.buildabrowser.babbrowser.renderer.content.common.AbstractTextController;
 import net.buildabrowser.babbrowser.renderer.content.scroll.ScrollBox;
 import net.buildabrowser.babbrowser.renderer.fragment.scroll.ScrollBoxFragment;
+import net.buildabrowser.babbrowser.renderer.input.imp.AbstractTextController;
 import net.buildabrowser.babbrowser.renderer.paint.painters.common.TextEditPainter;
 
 public class TextAreaController extends AbstractTextController {

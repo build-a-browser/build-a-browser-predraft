@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.buildabrowser.babbrowser.common.datastruct.SlotFamilyFamily;
@@ -20,11 +21,11 @@ import net.buildabrowser.babbrowser.html.scripting.Window;
 import net.buildabrowser.babbrowser.html.ua.UAUIFeatures;
 import net.buildabrowser.babbrowser.painter.core.Painter;
 import net.buildabrowser.babbrowser.renderer.RenderingEngine;
-import net.buildabrowser.babbrowser.renderer.api.FrameAPIs;
-import net.buildabrowser.babbrowser.renderer.api.VirtualKeyboard;
 import net.buildabrowser.babbrowser.renderer.clipboard.ClipboardProvider;
+import net.buildabrowser.babbrowser.renderer.content.input.VirtualKeyboard;
 import net.buildabrowser.babbrowser.renderer.loader.DocumentLoaderRegistry;
 import net.buildabrowser.babbrowser.renderer.uistate.Frame;
+import net.buildabrowser.babbrowser.renderer.uistate.FrameAPIs;
 
 public class RenderingEngineImp implements RenderingEngine {
 
@@ -36,7 +37,7 @@ public class RenderingEngineImp implements RenderingEngine {
   private final DocumentLoaderRegistry documentLoaderRegistry;
   private final ResourceResolver resourceResolver;
   private final ClipboardProvider<?> clipboardProvider;
-  private final VirtualKeyboard virtualKeyboard;
+  private final Function<Frame, VirtualKeyboard> virtualKeyboardFactory;
   private final UAUIFeatures uaUIFeatures;
 
   public RenderingEngineImp(
@@ -46,7 +47,7 @@ public class RenderingEngineImp implements RenderingEngine {
     DocumentLoaderRegistry documentLoaderRegistry,
     ResourceResolver resourceResolver,
     ClipboardProvider<?> clipboardProvider,
-    VirtualKeyboard virtualKeyboard,
+    Function<Frame, VirtualKeyboard> virtualKeyboardFactory,
     UAUIFeatures uaUIFeatures
   ) {
     this.fetchEngine = fetchEngine;
@@ -55,7 +56,7 @@ public class RenderingEngineImp implements RenderingEngine {
     this.documentLoaderRegistry = documentLoaderRegistry;
     this.resourceResolver = resourceResolver;
     this.clipboardProvider = clipboardProvider;
-    this.virtualKeyboard = virtualKeyboard;
+    this.virtualKeyboardFactory = virtualKeyboardFactory;
     this.uaUIFeatures = uaUIFeatures;
     RenderingEngineInit.init(resourceResolver);
   }
@@ -67,12 +68,13 @@ public class RenderingEngineImp implements RenderingEngine {
 
   @Override
   public NavigableRendererPair createNavigable(
+    Frame frame,
     DocumentRendererEventListener eventListener
   ) {
     Navigable navigable = TraversableUtil.createNewTopLevelTraversable(
       new UANavigableOptionsImp(
         fetchEngine, threadGroupSupplier, documentLoaderRegistry,
-        this, eventListener, uaUIFeatures, slotFamilyFamily));
+        this, frame, eventListener, uaUIFeatures, slotFamilyFamily));
 
     // TODO: Where does this code actually go?
     Window window = navigable.activeDocument().browsingContext().activeWindow();
@@ -95,8 +97,9 @@ public class RenderingEngineImp implements RenderingEngine {
   }
 
   @Override
-  public FrameAPIs newFrameAPIs() {
-    return new FrameAPIs(virtualKeyboard);
+  public FrameAPIs newFrameAPIs(Frame frame) {
+    return new FrameAPIs(
+      virtualKeyboardFactory.apply(frame));
   }
 
   @Override
