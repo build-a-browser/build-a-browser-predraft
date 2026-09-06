@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
+import org.lwjgl.opengl.awt.GLData;
 
 import io.github.humbleui.skija.BackendRenderTarget;
 import io.github.humbleui.skija.Canvas;
@@ -30,9 +31,19 @@ public class SkijaGPUCanvas extends AWTGLCanvas {
   private Surface surface;
 
   public SkijaGPUCanvas(CanvasCallbacks callbacks) {
+    super(createGLData());
     this.callbacks = callbacks;
   }
 
+  private static GLData createGLData() {
+    GLData data = new GLData();
+    data.majorVersion = 3;
+    data.minorVersion = 3;
+    data.profile = GLData.Profile.CORE;
+    data.forwardCompatible = true;
+    return data;
+  }
+  
   @Override
   public void initGL() {
     GL.createCapabilities();

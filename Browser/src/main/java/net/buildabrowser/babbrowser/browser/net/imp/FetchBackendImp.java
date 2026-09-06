@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.buildabrowser.babbrowser.browser.net.imp.FetchHostPool.QueuedRequest;
+import net.buildabrowser.babbrowser.browser.util.OSUtil;
 import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.fetch.FetchBackend;
 import net.buildabrowser.babbrowser.fetch.FetchBody;
@@ -42,7 +43,7 @@ public class FetchBackendImp implements FetchBackend {
   // TODO: Need to determine 
   private static final int MAX_CONNECTIONS = 10;
   private static final String CHROME_UA_STRING
-    = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
+    = "Mozilla/5.0 ($OS) AppleWebKit/537.36 (KHTML, like Gecko)"
     + " Chrome/146.0.0.0 Safari/537.36";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FetchBackendImp.class);
@@ -211,17 +212,19 @@ public class FetchBackendImp implements FetchBackend {
     }
   }
 
-  // Unfortunately DDG captchas the user with the default UA (and captchas would require JS)
   private String chooseUserAgent(FetchRequest request) {
-    // TODO: Report correct OS
-    return switch (request.url().getHost()) {
+    String osName = OSUtil.getOSName();
+    String uaString = switch (request.url().getHost()) {
+      // Unfortunately DDG captchas the user with the default UA (and captchas would require JS)
       case "html.duckduckgo.com", "duckduckgo.com" -> CHROME_UA_STRING + " BABBrowser/0.1.0";
       // Unfortunately, HN just shows a page showing "sorry" half the time when using a proper UA string
       case "news.ycombinator.com" -> CHROME_UA_STRING;
-      case "whatismybrowser.com", "www.whatismybrowser.com" -> "BABBrowser/0.1.0 (X11; Linux x86_64)";
-      case "buildabrowser.net", "frogfind.de" -> "Mozilla/5.0 (X11; Linux x86_64) BABBrowser/0.1.0";
-      default -> "Mozilla/5.0 (X11; Linux x86_64) BABBrowser/0.1.0 Firefox/149.0 (Not actually Firefox)";
+      case "whatismybrowser.com", "www.whatismybrowser.com" -> "BABBrowser/0.1.0 ($OS)";
+      case "buildabrowser.net", "frogfind.de" -> "Mozilla/5.0 ($OS) BABBrowser/0.1.0";
+      default -> "Mozilla/5.0 ($OS) BABBrowser/0.1.0 Firefox/149.0 (Not actually Firefox)";
     };
+
+    return uaString.replace("$OS", osName);
   }
   
 }

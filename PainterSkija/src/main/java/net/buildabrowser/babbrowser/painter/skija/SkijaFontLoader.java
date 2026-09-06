@@ -14,6 +14,7 @@ import net.buildabrowser.babbrowser.painter.core.LoadedFont;
 
 public class SkijaFontLoader implements FontLoader {
 
+  private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().contains("win");
   private static final FontMgr manager = FontMgr.getDefault();
 
   @Override
@@ -40,8 +41,6 @@ public class SkijaFontLoader implements FontLoader {
 
   @Override
   public LoadedFont load(FontOptions options) {
-    // TODO: Respect the isGeneric flag. We need to distinguish between a generic monospace font, and a literal
-    // font named "monospace", per the spec, so figure out how to do so in Skija
     List<Font> fonts = new ArrayList<>(4);
     FontStyle style = new FontStyle(options.weight(), FontWidth.NORMAL, FontSlant.UPRIGHT);
     for (FontFamily family: options.families()) {
@@ -49,13 +48,27 @@ public class SkijaFontLoader implements FontLoader {
         throw new IllegalArgumentException("Attempt to pass non-skija font-family into Skija renderer!");
       }
 
-      Typeface typeface = manager.matchFamilyStyle(skijaFontFamily.name(), style);
+      String fontName = skijaFontFamily.isGeneric() ?
+        resolveGenericFamily(skijaFontFamily.name()) :
+        skijaFontFamily.name();
+      Typeface typeface = manager.matchFamilyStyle(fontName, style);
       if (typeface == null) continue;
       fonts.add(new Font(typeface, options.size()));
     }
 
     // TODO: Also include some default fallbacks, for other languages
     return new SkijaLoadedFont(fonts.toArray(Font[]::new), options);
+  }
+
+  private String resolveGenericFamily(String genericName) {
+    if (!IS_WINDOWS) return genericName;
+
+    return switch (genericName.toLowerCase()) {
+      case "sans-serif" -> "Segoe UI";
+      case "serif" -> "Times New Roman";
+      case "monospace" -> "Consolas";
+      default -> "Segoe UI";
+    };
   }
 
   private static record SkijaFontFamily(String name, boolean isGeneric) implements FontFamily {}

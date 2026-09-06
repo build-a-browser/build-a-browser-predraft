@@ -9,7 +9,8 @@ public class FileUtil {
   public static URI asDirectory(URI uri) {
       String path = uri.getPath();
       if (path.endsWith("/")) return uri;
-      return URI.create(path + "/");
+      if (path.startsWith("/")) path = path.substring(1);
+      return Paths.get(path + "/").toUri();
   }
   
   public static URI appConfigDirectory(String appName) {
